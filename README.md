@@ -1,8 +1,13 @@
 # TGE Geothermal Intelligence Platform
 
-Internal ThinkGeoEnergy platform workstream for structured geothermal market intelligence.
+Internal ThinkGeoEnergy platform workstream for the geothermal intelligence platform to be built.
 
-This repository contains the current Next.js + SQLite prototype for the TGE database platform. It should be treated as a working prototype and product specification: it captures useful data structures, workflows, UI ideas, and operational logic, but the strategic direction is to audit, stabilize, and rebuild/replatform the system where needed.
+This repository contains two related things:
+
+- the platform vision and development documentation for the geothermal intelligence platform ThinkGeoEnergy intends to build
+- the current Next.js + SQLite prototype, which is earlier work to audit and mine for useful domain logic, workflows, data structures, UI patterns, and operational lessons
+
+The current code is not the final architecture. It is a reference implementation and product-specification input for the next platform build.
 
 ## Purpose
 
@@ -15,9 +20,9 @@ The platform is intended to become ThinkGeoEnergy's structured geothermal intell
 - maps, dashboards, exports, and market views
 - future source indexing for articles, PDFs, reports, and AI-assisted workflows
 
-## Current Status
+## Current Prototype Status
 
-Current implemented baseline:
+Current implemented baseline in `web/`:
 
 - Next.js app using the App Router
 - SQLite local database access through `sqlite` / `sqlite3`
@@ -29,10 +34,10 @@ Current implemented baseline:
 - Excel export utilities
 - import and maintenance scripts for source data
 
-Strategic direction:
+Intended build direction:
 
-- audit current code and schema
-- keep useful domain logic and workflows
+- audit current code and schema as earlier work
+- keep useful domain logic, workflows, UI ideas, and validation rules
 - refactor or rebuild unstable implementation areas
 - define a stronger semantic model for geothermal capacity, lifecycle phases, roles, and relationships
 - migrate toward a stronger production database foundation, likely PostgreSQL
@@ -127,6 +132,7 @@ The app preview runs locally, but `npm run lint` currently fails on pre-existing
 
 Start here:
 
+- [docs/PLATFORM_VISION.md](docs/PLATFORM_VISION.md)
 - [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md)
 - [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md)
 - [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md)

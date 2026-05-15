@@ -1,10 +1,10 @@
 # Development Roadmap
 
-This roadmap reflects the current strategic direction: use the prototype as a specification source, audit it carefully, and rebuild or replatform where needed.
+This roadmap reflects the current strategic direction: build the platform described in the vision document, using the current prototype as earlier work to audit, learn from, and selectively reuse.
 
 ## Phase 1: Audit
 
-Goal: establish what exists, what is usable, and what should be replaced.
+Goal: establish what exists in the current prototype, what is usable for the future platform, and what should be replaced.
 
 Tasks:
 
@@ -12,12 +12,12 @@ Tasks:
 - inventory pages, API routes, components, scripts, and data flows
 - review authentication and role logic
 - review data model for projects, plants, companies, and relationships
-- identify code to keep, refactor, or rebuild
+- identify code, logic, workflows, and UI ideas to keep, refactor, rebuild, or discard
 - document lint, typing, security, and deployment risks
 
 Outputs:
 
-- keep / refactor / rebuild report
+- keep / refactor / rebuild / discard report
 - current schema inventory
 - risk register
 - prioritized stabilization backlog
@@ -81,12 +81,12 @@ Outputs:
 
 ## Phase 5: MVP Build
 
-Goal: build the stable internal MVP.
+Goal: build the stable internal MVP for the intended platform, not merely polish the existing prototype.
 
 Tasks:
 
 - implement clean database foundation
-- migrate selected prototype logic
+- migrate selected prototype logic and workflow patterns
 - build core UI for projects, plants, companies, and relationships
 - implement research workflow
 - implement dashboards and exports

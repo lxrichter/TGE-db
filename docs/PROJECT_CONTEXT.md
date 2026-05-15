@@ -4,19 +4,22 @@ Internal use only.
 
 ## Purpose
 
-ThinkGeoEnergy is developing the TGE database into a geothermal intelligence platform. The long-term platform should combine structured market data, source material, research workflow, human interpretation, and AI-assisted analysis.
+ThinkGeoEnergy is developing a geothermal intelligence platform. The vision document in this repository describes the platform to be built; the current codebase is earlier prototype work to learn from and selectively reuse.
+
+The long-term platform should combine structured market data, source material, research workflow, human interpretation, and AI-assisted analysis.
 
 The goal is to become a core geothermal sector intelligence infrastructure, not just a searchable table.
 
 ## Current Position
 
-The current platform exists and works as a prototype. It includes a useful data model, working internal workflows, and several application surfaces for projects, plants, companies, maps, markets, analysis, research operations, and administration.
+The current Next.js + SQLite application exists and works as a prototype. It includes a useful data model, working internal workflows, and several application surfaces for projects, plants, companies, maps, markets, analysis, research operations, and administration.
 
-The current implementation should be treated as:
+The current implementation should be treated as earlier work:
 
 - current implemented functionality
 - a prototype for workflow and product behavior
 - a specification source for the rebuild
+- a source of reusable domain logic and operational lessons
 
 It should not yet be treated as the final future-proof production platform.
 
@@ -25,7 +28,7 @@ It should not yet be treated as the final future-proof production platform.
 Confirmed direction:
 
 - rebuild or substantially replatform where needed
-- reuse domain logic, workflows, and lessons rather than blindly preserving current code
+- reuse domain logic, workflows, and lessons from the prototype rather than blindly preserving current code
 - move toward a stronger production database foundation, likely PostgreSQL
 - build the semantic layer early
 - prioritize projects, plants, and companies
