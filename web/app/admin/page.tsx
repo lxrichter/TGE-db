@@ -1,0 +1,414 @@
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+
+import ActionButton from "@/components/ui/ActionButton";
+import { authOptions } from "@/lib/auth/auth";
+import { canAccessAdmin, canManageUsers } from "@/lib/auth/roles";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+function SectionCard({
+  id,
+  title,
+  description,
+  children,
+}: {
+  id?: string;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="border border-gray-200 bg-white scroll-mt-24">
+      <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3 md:px-6 md:py-4">
+        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+        {description ? (
+          <p className="mt-1 text-sm text-gray-500">{description}</p>
+        ) : null}
+      </div>
+      <div className="px-5 py-5 md:px-6">{children}</div>
+    </section>
+  );
+}
+
+function TocLink({
+  href,
+  label,
+}: {
+  href: string;
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      className="rounded-sm border border-[#d9e6c3] bg-[#f3f8ea] px-4 py-2 text-sm font-semibold text-[#1f2937] transition hover:border-[#8dc63f] hover:bg-[#e9f3d8]"
+    >
+      {label}
+    </a>
+  );
+}
+
+function WorkflowBox({
+  step,
+  title,
+  text,
+}: {
+  step: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-4 border border-gray-200 bg-[#fafafa] px-4 py-4">
+      <div className="min-w-[28px] text-3xl font-bold leading-none text-[#8dc63f]">
+        {step}
+      </div>
+      <div>
+        <div className="text-sm font-bold text-[#1f2937]">{title}</div>
+        <div className="text-xs text-gray-500">{text}</div>
+      </div>
+    </div>
+  );
+}
+
+function RuleCard({
+  title,
+  subtitle,
+  examples,
+}: {
+  title: string;
+  subtitle: string;
+  examples: string;
+}) {
+  return (
+    <div className="border border-gray-200 bg-[#fafafa] p-4">
+      <div className="text-sm font-bold text-[#1f2937]">{title}</div>
+      <div className="mt-1 text-sm text-gray-600">{subtitle}</div>
+      <div className="mt-2 text-xs leading-5 text-gray-500">{examples}</div>
+    </div>
+  );
+}
+
+function FaqItem({
+  question,
+  children,
+  defaultOpen = false,
+}: {
+  question: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details
+      open={defaultOpen}
+      className="group border border-gray-200 bg-white open:bg-[#fcfcfc]"
+    >
+      <summary className="cursor-pointer list-none px-4 py-3 md:px-5 md:py-4">
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="flex items-center gap-2 text-[15px] font-bold text-[#1f2937]">
+            {question}
+            <span className="text-lg font-bold leading-none text-[#8dc63f] group-open:hidden">
+              +
+            </span>
+            <span className="hidden text-lg font-bold leading-none text-[#8dc63f] group-open:inline">
+              −
+            </span>
+          </h3>
+        </div>
+      </summary>
+      <div className="border-t border-gray-200 px-4 py-3 text-sm leading-7 text-gray-600 md:px-5 md:py-4">
+        {children}
+      </div>
+    </details>
+  );
+}
+
+export default async function AdminPage() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  const role = (session.user as { role?: string | null }).role;
+  const isUserManager = canManageUsers(role as any);
+
+  if (!canAccessAdmin(role as any)) {
+    redirect("/");
+  }
+
+  return (
+    <main className="space-y-8">
+      <section className="border border-gray-200 bg-white">
+        <div className="grid grid-cols-1 xl:grid-cols-[1.45fr_0.9fr]">
+          <div className="border-l-4 border-l-[#8dc63f] px-6 py-6 md:px-8 md:py-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              ADMIN
+            </p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] md:text-4xl xl:text-[42px]">
+              Platform Guide & Control Center
+            </h1>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
+              Internal guide for workflow, company categorization, company link roles,
+              ownership/operator logic, and relationship structure across the geothermal database.
+            </p>
+            <p className="mt-3 text-sm font-semibold text-[#8dc63f]">
+              Always structure data → never describe structure in text.
+            </p>
+          </div>
+
+          <div className="border-t border-gray-200 bg-[#fafafa] px-6 py-6 xl:border-l xl:border-t-0">
+            <div className="flex flex-wrap items-start justify-start gap-3 xl:justify-end">
+              {isUserManager ? (
+                <ActionButton href="/admin/users" variant="primary">
+                  Open User Management
+                </ActionButton>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-200 bg-white px-6 py-4 md:px-8">
+          <div className="flex flex-wrap gap-3">
+            <TocLink href="#workflow" label="Workflow" />
+            <TocLink href="#classification" label="Company Logic" />
+            <TocLink href="#linking" label="Linking Rules" />
+            <TocLink href="#company-link-roles" label="Company Link Roles" />
+            <TocLink href="#relationships" label="Relationships" />
+            <TocLink href="#faq" label="FAQ" />
+          </div>
+        </div>
+      </section>
+
+      <SectionCard
+        id="workflow"
+        title="Standard Workflow"
+        description="Recommended sequence for data entry and updates."
+      >
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <WorkflowBox
+            step="1"
+            title="Check existing"
+            text="Search first to avoid duplicates."
+          />
+          <WorkflowBox
+            step="2"
+            title="Create / edit"
+            text="Enter core structured data."
+          />
+          <WorkflowBox
+            step="3"
+            title="Link companies"
+            text="Assign structured asset roles."
+          />
+          <WorkflowBox
+            step="4"
+            title="Review logic"
+            text="Check ownership, operator, and relationship structure."
+          />
+          <WorkflowBox
+            step="5"
+            title="Validate"
+            text="Check naming, logic, and completeness."
+          />
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        id="classification"
+        title="Company Classification"
+        description="Keep company identity separate from project and plant participation."
+      >
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+          <RuleCard
+            title="Company Type"
+            subtitle="What the company is in general."
+            examples="Developer, EPC Contractor, Drilling Company, Utility / IPP, Investor"
+          />
+          <RuleCard
+            title="Asset Role"
+            subtitle="What the company does on a specific project or plant."
+            examples="Owner, Operator, Operator Power, Operator Steam, Developer, EPC"
+          />
+          <RuleCard
+            title="Secondary Types"
+            subtitle="Capabilities only, not asset-level participation."
+            examples="Engineering, Construction, Infrastructure finance, Reservoir engineering"
+          />
+        </div>
+
+        <div className="mt-3 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Never use company type to describe project or plant participation. Asset participation belongs in linked projects and linked plants.
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        id="linking"
+        title="Project & Plant Linking Rules"
+        description="Use structured linking after the project or plant record exists."
+      >
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-sm font-bold text-[#1f2937]">
+              Each linked company should include
+            </div>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
+              <li>Role (required)</li>
+              <li>Role detail (optional)</li>
+              <li>Ownership % only if there is an economic stake</li>
+              <li>Notes only for useful context</li>
+            </ul>
+          </div>
+
+          <div className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-sm font-bold text-[#1f2937]">Quick example</div>
+            <div className="mt-2 space-y-1 text-sm text-gray-600">
+              <div>Ormat → Owner</div>
+              <div>Ormat → Operator</div>
+              <div>Ormat → Developer</div>
+              <div>Ormat → Turbine Supplier</div>
+              <div>Ownership % → only where an economic stake is known</div>
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        id="company-link-roles"
+        title="Company Link Roles — How to Use Them"
+        description="Structured company links are now the source of truth for owner, operator, developer, and related asset-role analytics."
+      >
+        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+          <div className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-sm font-bold text-[#1f2937]">Core asset-control roles</div>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+              <li>Owner</li>
+              <li>Operator</li>
+              <li>Operator Power</li>
+              <li>Operator Steam</li>
+              <li>Developer</li>
+              <li>Resource Owner</li>
+            </ul>
+          </div>
+
+          <div className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-sm font-bold text-[#1f2937]">Financial / delivery / technical roles</div>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+              <li>Investor</li>
+              <li>EPC</li>
+              <li>Drilling</li>
+              <li>Turbine Supplier</li>
+              <li>Supplier</li>
+              <li>Consultant</li>
+              <li>O&amp;M Contractor</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-3">
+          <RuleCard
+            title="Operator"
+            subtitle="Use only for normal integrated operation."
+            examples="Use when one company operates the plant or project as a whole."
+          />
+          <RuleCard
+            title="Operator Power / Operator Steam"
+            subtitle="Use only where operation is split."
+            examples="Example: one entity runs the power plant, another controls the steamfield or resource operations."
+          />
+          <RuleCard
+            title="Ownership Share"
+            subtitle="Use mainly for Owner, and where relevant Investor."
+            examples="Leave blank for Operator, Operator Power, Operator Steam, EPC, drilling, supplier, consultant, and other service roles."
+          />
+        </div>
+
+        <div className="mt-4 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Do not add generic <strong>Operator</strong> if <strong>Operator Power</strong> and/or <strong>Operator Steam</strong> are already used for the same asset, unless there is a very specific reason.
+        </div>
+
+        <div className="mt-4 border border-gray-200 bg-[#fafafa] p-4">
+          <div className="text-sm font-bold text-[#1f2937]">Transition rule</div>
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            Legacy free-text fields such as Owner/Operator and Developer remain in the database for continuity,
+            but linked company roles should now be used as the analytical source of truth for future owner,
+            operator, and developer analysis.
+          </p>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        id="relationships"
+        title="Company Relationships"
+        description="Use only for company-to-company structure."
+      >
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-sm font-bold text-[#1f2937]">Use for</div>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+              <li>Parent / subsidiary</li>
+              <li>Ownership stakes</li>
+              <li>Holding structures</li>
+              <li>Group reporting structure</li>
+            </ul>
+          </div>
+
+          <div className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-sm font-bold text-[#1f2937]">Do NOT use for</div>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-red-600">
+              <li>Project roles</li>
+              <li>Plant participation</li>
+              <li>Owner / operator logic on a specific asset</li>
+            </ul>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
+        id="faq"
+        title="Quick FAQ"
+        description="Common questions for researchers and temporary data-entry support."
+      >
+        <div className="space-y-3">
+          <FaqItem question="When do I create a new company?" defaultOpen>
+            Always search first. Create a new company only if it does not already
+            exist under a different spelling, legal suffix, or subsidiary name.
+          </FaqItem>
+
+          <FaqItem question="When do I use ownership %?">
+            Use ownership % mainly when the company has a direct economic stake,
+            especially for Owner and sometimes Investor. Do not use it for most
+            technical or service roles.
+          </FaqItem>
+
+          <FaqItem question="What is the difference between company type and role?">
+            Company type describes what the company is in general. Role describes
+            what the company does on a specific project or plant.
+          </FaqItem>
+
+          <FaqItem question="When do I use Operator vs Operator Power / Operator Steam?">
+            Use Operator only for normal integrated operation. Use Operator Power
+            and Operator Steam only where the power plant and steamfield/resource
+            operations are split between entities.
+          </FaqItem>
+
+          <FaqItem question="Can one company have multiple roles on the same asset?">
+            Yes. Use one row per role. For example, a company can be Owner,
+            Operator, and Developer on the same plant or project.
+          </FaqItem>
+
+          <FaqItem question="Should I add companies before or after creating a project or plant?">
+            Create the project or plant first. Then use the edit page to add
+            structured linked companies and assign roles.
+          </FaqItem>
+
+          <FaqItem question="What if I do not know all information yet?">
+            Enter what is known, but structure it correctly. Missing data can be
+            added later. Partial but well-structured data is better than complete
+            free-text notes.
+          </FaqItem>
+        </div>
+      </SectionCard>
+    </main>
+  );
+}
