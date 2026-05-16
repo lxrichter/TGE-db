@@ -309,14 +309,339 @@ Audit:
 
 - when does the team need full revision history and rollback?
 
+## 2. Validation And Research Operations
+
+### Current Situation
+
+The platform already supports structured research workflows for projects,
+plants/facilities, companies, and linked source data.
+
+Records are often incomplete initially and improve iteratively over time through:
+
+- research
+- validation
+- editorial review
+- source checks
+- data cleanup
+
+The workflow must support imperfect but useful geothermal intelligence data.
+
+### Desired MVP Principle
+
+Validation should remain lightweight, operational, and research-friendly while
+ensuring export-ready data quality.
+
+Approval should not require every possible field to be complete.
+
+MVP rule:
+
+- all critical fields are required for approval
+- important fields may still be missing
+- warning flags are allowed
+- editors/admins may override approval with a reason or note
+
+This is necessary because geothermal intelligence data is often incomplete,
+evolving, or source-limited.
+
+### Minimum Usable Data
+
+#### Project
+
+Minimum required:
+
+- project name
+- country
+- lifecycle phase
+- geothermal use type: power, direct-use, hybrid, mineral extraction, or unknown
+- at least one source/evidence reference
+
+Strongly recommended:
+
+- developer/company link
+- capacity or potential capacity
+- region/province
+- notes
+
+#### Operating Asset / Plant / Facility
+
+Minimum required:
+
+- asset name
+- country
+- operating status
+- geothermal use type
+- at least one source/evidence reference
+
+Strongly recommended:
+
+- installed capacity
+- operator/company link
+- COD or operating year
+- coordinates
+
+#### Company
+
+Minimum required:
+
+- company name
+- primary category/type
+- at least one linked project, linked plant/facility, or source
+
+Strongly recommended:
+
+- country
+- website
+- company relationships/groups
+- secondary categories
+
+#### Source / Evidence Record
+
+Minimum required:
+
+- source title or URL
+- source type
+- date accessed or publication date
+- linked entity: project, operating asset, or company
+
+Strongly recommended:
+
+- source credibility note
+- extracted fields summary
+- uploader/researcher name
+
+### Missing Data Logic
+
+#### Critical Missing Data
+
+Critical issues should block approval unless an editor/admin override is entered.
+
+Critical issues:
+
+- missing name
+- missing country
+- missing lifecycle phase/status
+- missing use type
+- missing source/evidence
+- duplicate suspected
+- broken entity relationships
+
+#### Important Missing Data
+
+Important issues should create warning flags but should not necessarily block
+approval.
+
+Important issues:
+
+- missing capacity
+- missing company link
+- missing coordinates
+- missing owner/operator
+- missing COD/date
+- missing classification
+- stale/unreviewed record
+
+#### Nice-To-Have Missing Data
+
+Nice-to-have issues should support research completeness but should not block
+approval or export readiness unless a specific report requires them.
+
+Nice-to-have issues:
+
+- wells
+- turbine supplier
+- EPC
+- investment cost
+- PPA
+- flow rate
+- reservoir temperature
+
+### Review States
+
+Keep the current proposed review state model:
+
+```text
+draft
+validation
+approved
+export_ready
+needs_update
+archived
+```
+
+Definitions:
+
+- `draft`: initial research stage
+- `validation`: under review/checking
+- `approved`: internally validated
+- `export_ready`: approved and suitable for exports, reports, or subscriber use
+- `needs_update`: approved but requires re-review due to edits or stale data
+- `archived`: inactive, historical, or no longer maintained
+
+### Approval Logic
+
+Approval should support practical editorial judgment.
+
+Rules:
+
+- critical fields should be complete before approval
+- important missing fields should remain visible as warning flags
+- approval overrides should require a short reason/note
+- export-ready status should require stronger completeness than approved status
+
+Potential override examples:
+
+- source confirms existence but no capacity has been reported
+- project is real but coordinates are not publicly available
+- company role is known from text but formal source detail is incomplete
+
+### Research Ops Dashboard
+
+Highest-priority MVP queues:
+
+- needs approval
+- needs source
+- missing lifecycle phase
+- missing use type/category
+- missing company link
+- missing coordinates
+- missing capacity
+- needs update
+- suspected duplicates
+- recently edited
+- direct-use records needing classification
+
+Useful later:
+
+- assigned to me
+- created by researcher
+- missing technical data
+- missing ownership data
+- AI-generated summaries needing review
+
+Dashboard behavior:
+
+- show open queues first
+- support collaborative self-selection
+- avoid rigid assignment bottlenecks in MVP
+
+### Assignment Logic
+
+Desired MVP:
+
+- dashboard primarily shows open queues
+- researchers can work collaboratively and self-select tasks
+- assignment fields may exist but should not restrict access
+
+Recommended lightweight fields:
+
+```text
+assigned_to_user_id
+reviewed_by_user_id
+```
+
+### Research Activity Tracking
+
+Basic research activity should be tracked.
+
+Recommended MVP tracking:
+
+- records created
+- records edited
+- records submitted for validation
+- records approved
+- missing-data issues resolved
+- sources added
+
+Purpose:
+
+- accountability
+- workflow visibility
+- future analytics
+- contributor evaluation
+
+### Field-Level Validation
+
+MVP should include partial/lightweight field-level validation.
+
+Examples:
+
+- capacity exists but source is missing
+- coordinates are outside valid ranges
+- company is linked but role is missing
+- AI summary exists but has not been approved
+
+These should create warning flags rather than hard validation failures.
+
+Avoid a complex validation engine in MVP.
+
+### Approved Data Edits
+
+Recommended rule:
+
+Editing approved or export-ready data should automatically move the record to:
+
+```text
+needs_update
+```
+
+or:
+
+```text
+validation
+```
+
+until re-approved.
+
+The system should preserve:
+
+- previous approval metadata
+- edited_by
+- edited_at
+- short edit/change note
+
+### Later/Future
+
+Potential future validation functionality:
+
+- full audit trail
+- field-level approval
+- confidence scoring
+- automated stale-record detection
+- AI-assisted validation
+- duplicate detection
+- validation scoring
+- structured source confidence
+- reviewer comments/workflows
+
+### Open Questions
+
+Validation states:
+
+- should `export_ready` remain separate from `approved` long-term?
+
+Stale data:
+
+- should stale records automatically move into `needs_update` after a time
+  threshold?
+
+Sources:
+
+- should source confidence become a structured field later?
+
+AI:
+
+- should AI-generated field suggestions require explicit approval before export?
+
 ## Next Discovery Step
 
-Step 2 should define validation and research operations:
+Step 3 should define data entry forms and workflow:
 
-- required fields
-- missing-data flags
-- validation queues
-- assignment
-- review states
-- researcher/editor dashboards
-- export readiness rules
+- project form structure
+- operating asset/plant/facility form structure
+- company form structure
+- source/evidence capture
+- edit flow
+- submit-for-validation flow
+- approval screens
+- duplicate handling
+- mobile usability for data entry
