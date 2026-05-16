@@ -41,6 +41,7 @@ Intended build direction:
 - refactor or rebuild unstable implementation areas
 - define a stronger semantic model for geothermal capacity, lifecycle phases, roles, and relationships
 - migrate toward a stronger production database foundation, likely PostgreSQL
+- plan deployment around Railway as the intended hosting platform
 - add source registry and AI-assisted research support only after the core model and workflow are stable
 
 ## Repository Layout
@@ -136,6 +137,7 @@ Start here:
 - [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md)
 - [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md)
 - [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md)
+- [docs/DEPLOYMENT_BASELINE.md](docs/DEPLOYMENT_BASELINE.md)
 - [docs/DATA_AND_SECURITY.md](docs/DATA_AND_SECURITY.md)
 
 ## GitHub

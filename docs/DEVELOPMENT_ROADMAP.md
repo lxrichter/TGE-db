@@ -13,7 +13,7 @@ Tasks:
 - review authentication and role logic
 - review data model for projects, plants, companies, and relationships
 - identify code, logic, workflows, and UI ideas to keep, refactor, rebuild, or discard
-- document lint, typing, security, and deployment risks
+- document lint, typing, security, and deployment risks, including Railway readiness
 
 Outputs:
 
@@ -21,6 +21,7 @@ Outputs:
 - current schema inventory
 - risk register
 - prioritized stabilization backlog
+- Railway deployment readiness notes
 
 ## Phase 2: Semantic Model
 
@@ -91,13 +92,13 @@ Tasks:
 - implement research workflow
 - implement dashboards and exports
 - harden auth and role controls
-- establish deployment pipeline
+- establish Railway-based deployment pipeline
 
 Outputs:
 
 - internal MVP
 - migration scripts
-- production deployment notes
+- Railway production deployment notes
 - operator/admin guide
 
 ## Phase 6: Light AI Layer

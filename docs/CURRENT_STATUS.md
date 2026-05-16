@@ -75,7 +75,7 @@ Known current gaps and risks:
 - SQLite is acceptable for local prototype work but is not the likely final production database
 - current docs and comments should not be assumed to describe final architecture
 - no committed sanitized fixture database exists yet
-- deployment process needs hardening
+- deployment process needs hardening and should be evaluated against Railway requirements
 - subscriber access is not yet a completed product layer
 - AI layer is not yet a stable implemented platform feature
 

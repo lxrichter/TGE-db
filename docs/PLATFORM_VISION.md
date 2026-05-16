@@ -57,6 +57,7 @@ Confirmed direction:
 - rebuild or substantially replatform where needed
 - reuse logic and learning, not necessarily code
 - move toward a stronger database foundation, likely PostgreSQL
+- use Railway as the intended deployment platform for the next build baseline
 - prioritize projects, plants, and companies
 - build semantic clarity before adding complex AI features
 - use AI for internal efficiency first

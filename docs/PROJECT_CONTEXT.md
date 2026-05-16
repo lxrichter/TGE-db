@@ -30,6 +30,7 @@ Confirmed direction:
 - rebuild or substantially replatform where needed
 - reuse domain logic, workflows, and lessons from the prototype rather than blindly preserving current code
 - move toward a stronger production database foundation, likely PostgreSQL
+- use Railway as the intended hosting/deployment platform for the next build baseline
 - build the semantic layer early
 - prioritize projects, plants, and companies
 - keep AI as an assistant to research and quality control, not as the decision-maker
@@ -96,9 +97,9 @@ Current and expected tools:
 - Claude / Claude Code for coding and structured development work
 - ChatGPT for planning and strategy support
 - PostgreSQL as likely future production database target
-- Hetzner or another managed server environment for deployment
+- Railway as intended deployment and hosting platform
 
-Long-term deployment should not rely on FTP-style manual updates.
+Long-term deployment should not rely on FTP-style manual updates. Railway-related implementation details should be verified against current Railway documentation before production setup.
 
 ## One-Line Strategy
 
