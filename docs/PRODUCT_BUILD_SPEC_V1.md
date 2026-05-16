@@ -972,15 +972,484 @@ AI:
 
 - should AI-generated field suggestions be visually separated from verified data?
 
-## Next Discovery Step
+## 4. Design System, Search, Tables, Exports, Print Views, And Reporting
 
-Step 4 should define design system, search, exports, print views, and reporting:
+### Current Situation
 
-- design language and ThinkGeoEnergy brand alignment
-- mobile layout standards
-- table/list behavior
-- search and filters
-- charting and data overview needs
-- Excel exports
-- print views
-- avoiding duplicated page patterns
+The current platform already establishes a useful foundation:
+
+- dark ThinkGeoEnergy-style header/navigation
+- white content-focused data workspace
+- structured cards and panels
+- KPI strips
+- large searchable tables
+- map integration
+- project/plant/company detail pages
+- lightweight charts
+- mobile-capable layout
+
+There is also a newer mockup direction that should inform the future design
+iteration.
+
+The newer direction is stronger for:
+
+- refined spacing
+- stronger charting
+- better typography hierarchy
+- cleaner data presentation
+- modern SaaS/data-platform aesthetics
+- improved status bars and metadata display
+- professional market dashboard layouts
+- density management
+- responsive behavior
+
+Design iteration is expected to take time and should be treated as an ongoing
+product process.
+
+### Desired MVP Design Philosophy
+
+The preferred direction is a hybrid:
+
+- retain ThinkGeoEnergy identity
+- evolve toward a professional intelligence/data platform
+- prioritize readability and workflow efficiency over branding
+
+Overall target:
+
+```text
+70% clean modern data platform
+30% ThinkGeoEnergy branding identity
+```
+
+The platform should feel like:
+
+- an internal Bloomberg/Crunchbase/industry intelligence platform
+- a professional geothermal data and workflow system
+- a research and analytics workspace
+
+It should not feel like:
+
+- a media/news site
+- a public marketing site
+- a decorative dashboard
+- a landing page
+
+### Design Language
+
+Desired MVP:
+
+- clean
+- white/light workspace
+- professional intelligence platform
+- data-first
+- low visual noise
+- high readability
+- scalable
+- chart-friendly
+- desktop-first but responsive
+
+Branding:
+
+- keep ThinkGeoEnergy branding
+- keep TGE green as primary accent
+- maintain dark top navigation/header
+- use a simpler flatter UI beneath the header
+- avoid excessive green
+
+Color should be used intentionally for:
+
+- status
+- lifecycle phases
+- warnings
+- validation
+- chart series
+- map layers
+
+Typography:
+
+- modern sans-serif
+- high readability
+- strong hierarchy
+- slightly condensed dashboard feel is acceptable
+- tables should prioritize scanability
+
+Spacing:
+
+- generous spacing around cards/panels
+- tighter spacing inside tables
+- modular dashboard layouts
+
+Buttons:
+
+- simple
+- compact
+- functional
+- avoid oversized marketing-style buttons
+
+### Desktop And Mobile
+
+Desktop remains the primary environment for:
+
+- large data entry
+- bulk editing
+- analysis workflows
+- exports
+- administration
+- complex validation
+
+Mobile should work well for:
+
+- viewing records
+- searching
+- filtering
+- quick edits
+- review/approval actions
+- adding notes
+- adding sources
+- reviewing maps
+- viewing charts
+
+Mobile philosophy:
+
+```text
+field-capable research companion
+```
+
+not:
+
+```text
+full desktop replacement
+```
+
+Full desktop parity on mobile is not required initially.
+
+### Tables And Lists
+
+Tables are a core product surface and should feel enterprise-grade.
+
+Desired MVP table functionality:
+
+- sortable columns
+- multi-filter support
+- saved views
+- quick filters
+- pagination
+- adjustable density
+- column chooser
+- inline badges/statuses
+- missing-data indicators
+- review status indicators
+- quick actions
+- CSV export
+- bulk select/actions
+
+Later:
+
+- inline editing
+- pinned columns
+- AI suggestions
+- grouped rows
+- user-specific layouts
+
+Table design should be dense but readable.
+
+### Search
+
+Desired MVP global search should cover:
+
+- projects
+- plants/facilities
+- companies
+- countries
+- regions
+- technologies
+- company roles
+- IDs
+- lifecycle phases
+- review status
+- source URLs
+- internal notes
+
+Search should support:
+
+- fuzzy matching
+- quick keyboard access
+- global top-bar search
+- filtered contextual search inside modules
+
+Later/future:
+
+- semantic search
+- AI-assisted search
+- article archive integration
+- source-document search
+- natural language querying
+
+### Charts And Overviews
+
+Charts should become a defining strength of the platform.
+
+Highest-priority MVP overviews:
+
+1. capacity by country
+2. pipeline by lifecycle phase
+3. operating vs planned MW
+4. companies by role
+5. technology mix
+6. resource type distribution
+7. recent edits/activity
+8. approved vs pending records
+9. missing-data overview
+10. research workload/status
+
+Charts should support:
+
+- export
+- filtering
+- drilldown
+- future embedding into reports
+
+Open design implementation question:
+
+- choose a consistent internal visualization library early enough to avoid
+  fragmented chart behavior
+
+### Maps
+
+Maps are an integrated operational layer, not decoration.
+
+Initial MVP map layers:
+
+- operating plants
+- projects
+- grouped plant/project clusters
+- lifecycle phase coloring
+- technology coloring
+- country filtering
+
+Useful toggles:
+
+- approved only
+- hide drafts
+- projects vs plants
+- grouped vs individual
+- missing coordinates queue
+
+Current grouped map logic should remain foundational.
+
+Later/future:
+
+- direct-use layers
+- heat maps
+- transmission/pipeline overlays
+- drilling overlays
+- geothermal provinces/basins
+- AI-assisted geo clustering
+
+Open implementation question:
+
+- should maps and charts share synchronized filtering?
+
+### Excel And Data Exports
+
+Desired MVP exports:
+
+- projects export
+- plants/assets export
+- companies export
+- country export
+- market overview export
+- research ops export
+- missing data export
+- filtered custom export
+
+Export philosophy:
+
+- export exactly what is filtered/viewed
+- support operational research workflows
+- preserve IDs and structured relationships
+- centralize export logic to avoid duplicate implementations
+
+Later/future:
+
+- scheduled exports
+- API feeds
+- Power BI integration
+- client-ready export templates
+
+### Print Views / PDF-Like Views
+
+Desired MVP print views:
+
+- project profile
+- plant/facility profile
+- company profile
+- country overview
+- market overview
+- research validation report
+
+Print philosophy:
+
+- clean
+- professional
+- report-like
+- low UI noise
+- usable as meeting material
+
+Later/future:
+
+- client-branded exports
+- automated report generation
+- investment-style briefings
+- PDF report builder
+- automated consulting deliverables
+
+### Dashboards
+
+Core MVP dashboards:
+
+1. Research Ops dashboard
+2. Market overview dashboard
+3. Analysis dashboard
+4. Data quality dashboard
+5. User activity dashboard
+
+Research Ops should become the operational heart of the platform.
+
+Later/future:
+
+- company intelligence dashboard
+- direct-use dashboard
+- AI extraction dashboard
+- source ingestion dashboard
+- executive overview dashboard
+- customizable dashboards
+
+Open question:
+
+- should Research Ops become the default landing page for researchers?
+
+### Avoiding Duplicate Workflows
+
+The platform should evolve toward:
+
+```text
+one structured relational core
+many analytical views
+```
+
+not:
+
+```text
+many semi-duplicated modules
+```
+
+Current duplication risk areas:
+
+#### Plants vs Projects
+
+Most important duplication risk.
+
+Lifecycle logic must stay clear:
+
+- project = pipeline/development
+- plant/facility/asset = operating asset
+
+Promotion workflow should remain the bridge.
+
+#### Research Ops vs Normal Lists
+
+Risk:
+
+- same records visible in multiple operational contexts
+
+Solution:
+
+- Research Ops should be workflow-oriented and queue-oriented
+- normal lists should remain entity-oriented
+- Research Ops should not become another duplicate listing module
+
+#### Company Links In Multiple Places
+
+Risk:
+
+- legacy text fields vs structured relationships
+
+Solution:
+
+- structured relationship system becomes the single source of truth
+- legacy text fields are transitional only
+
+#### Export Duplication
+
+Risk:
+
+- different sections create inconsistent export logic
+
+Solution:
+
+- centralize export generation
+- export from filtered views using shared export configuration
+
+#### Markets vs Maps vs Analysis
+
+Recommended separation:
+
+- Maps = spatial layer
+- Markets = country/regional intelligence pages
+- Analysis = cross-database analytics
+
+#### Legacy Text Fields vs Structured Fields
+
+Legacy text fields are a transitional necessity, but they become a long-term risk
+if not phased out.
+
+### Later/Future
+
+Potential future design/reporting functionality:
+
+- semantic layer
+- unified analytics engine
+- AI-assisted workflows
+- embedded reporting
+- chart builder
+- customizable dashboards
+- advanced permissions
+- PostgreSQL analytics optimization
+- report-generation pipelines
+- external client portals
+
+### Open Questions
+
+Charts:
+
+- should charts use a consistent internal visualization library from the
+  beginning?
+
+Filtering:
+
+- should maps and charts share synchronized filtering?
+
+Dashboards:
+
+- should dashboards become user-customizable later?
+
+Print/PDF:
+
+- should print/PDF layouts eventually support automated consulting deliverables?
+
+Research Ops:
+
+- should Research Ops become the default landing page for researchers?
+
+## Next Implementation Step
+
+The product discovery baseline now supports implementation of the first serious
+PostgreSQL-backed operational module:
+
+```text
+Research Ops / Data Quality dashboard
+```
+
+This should start with read-only queues using the PostgreSQL staging schema and
+safe seed data, then evolve into validation actions and assignment workflows.
