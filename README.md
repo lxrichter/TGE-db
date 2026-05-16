@@ -144,6 +144,14 @@ Start here:
 - [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md)
 - [docs/DEPLOYMENT_BASELINE.md](docs/DEPLOYMENT_BASELINE.md)
 - [docs/DATA_AND_SECURITY.md](docs/DATA_AND_SECURITY.md)
+- [docs/schema/README.md](docs/schema/README.md)
+
+PostgreSQL schema baseline:
+
+- [database/postgres/schema_v1.sql](database/postgres/schema_v1.sql)
+- [docs/schema/POSTGRES_SCHEMA_V1.md](docs/schema/POSTGRES_SCHEMA_V1.md)
+- [docs/schema/SQLITE_TO_POSTGRES_MAPPING.md](docs/schema/SQLITE_TO_POSTGRES_MAPPING.md)
+- [docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md](docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md)
 
 ## GitHub
 
