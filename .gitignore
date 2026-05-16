@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+__pycache__/
+*.py[cod]
 
 # Next.js build output
 .next/
@@ -23,6 +25,12 @@ source-data/
 *.xlsx
 *.xls
 *.csv
+migration/live_exports/
+migration/profile_reports/
+migration/staging/
+migration/*.dump
+migration/*.backup
+migration/*.sql.gz
 
 # Logs
 *.log

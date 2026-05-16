@@ -60,6 +60,21 @@ For each current table, record:
 
 This should produce a data-quality report before import scripts are written.
 
+Current local/reference profiler:
+
+```bash
+python3 scripts/migration/profile_sqlite_db.py
+```
+
+The script writes aggregate reports to:
+
+```text
+migration/profile_reports/
+```
+
+These reports are ignored by Git. Use them for internal review, not as committed
+source material.
+
 ### Phase 3: Create Staging Tables
 
 In PostgreSQL, import current live tables first into staging tables, for example:
@@ -245,17 +260,22 @@ Required before migration:
 
 ## Recommended Next Development Step
 
-Create migration mapping documentation:
+The first migration mapping documentation now exists:
 
 ```text
 docs/schema/SQLITE_TO_POSTGRES_MAPPING.md
 ```
 
-Then create scripts for:
+Next create scripts for:
 
 ```text
-scripts/migration/profile_current_db.*
 scripts/migration/import_to_staging.*
 scripts/migration/transform_to_postgres.*
 scripts/migration/validate_migration.*
+```
+
+The current profiling script is:
+
+```text
+scripts/migration/profile_sqlite_db.py
 ```

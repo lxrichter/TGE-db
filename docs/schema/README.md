@@ -14,6 +14,12 @@ Implementation SQL:
 database/postgres/schema_v1.sql
 ```
 
+Current migration helper:
+
+```text
+scripts/migration/profile_sqlite_db.py
+```
+
 Important principle:
 
 The current live SQL database remains the source system until go-live. The local SQLite file in this workspace is useful for analysis, but the final migration must be based on a fresh export from the live server.
