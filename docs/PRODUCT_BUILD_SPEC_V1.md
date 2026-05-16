@@ -632,16 +632,355 @@ AI:
 
 - should AI-generated field suggestions require explicit approval before export?
 
+## 3. Data Entry Forms And Workflow
+
+### Current Situation
+
+The current platform already uses structured forms for projects,
+plants/facilities, and companies.
+
+The existing approach is grouped-section based and aligned with the TGE database
+structure.
+
+Data entry is research-oriented and iterative rather than fully transactional.
+
+### Desired MVP Principle
+
+Forms should remain:
+
+- structured
+- fast
+- easy to scan
+- easy to edit
+- scalable for future fields
+- consistent across entities
+
+Avoid:
+
+- one massive long scrolling form
+- overly rigid multi-step wizards
+- duplicated page setups for similar entity workflows
+
+Recommended MVP pattern:
+
+- quick-create modal for minimum usable data
+- full edit page for detailed structured entry
+- tabs/sections inside full edit pages
+- shared form logic between projects and operating assets wherever possible
+
+### Project Entry Form
+
+Project forms should support development pipeline records, including planned,
+exploration, feasibility, construction, and other non-operating records.
+
+Recommended sections:
+
+#### 1. Basic Identity
+
+- project name
+- other names
+- project group
+- internal ID
+
+#### 2. Location
+
+- country
+- region
+- province/state
+- county/city
+- coordinates
+
+#### 3. Lifecycle / Status
+
+- lifecycle phase
+- project status
+- development timeline
+- COD/planned COD
+
+#### 4. Use Type And Classification
+
+- power/direct-use/hybrid
+- direct-use categories
+- resource type
+- technology tags
+
+#### 5. Capacity / Output
+
+- potential capacity
+- planned capacity
+- MWe
+- MWth
+- annual output
+- cooling capacity/output where applicable
+
+#### 6. Companies / Roles
+
+- developer
+- operator
+- owner
+- linked companies and roles
+
+#### 7. Technical Fields
+
+- resource temperature
+- wellfield data
+- plant technology
+- drilling status
+- infrastructure details
+
+#### 8. Sources / Evidence
+
+- source URLs
+- source documents
+- evidence notes
+- extraction references
+
+#### 9. Internal Notes
+
+- research notes
+- assumptions
+- missing-data comments
+- AI/internal notes
+
+#### 10. Validation / Review
+
+- workflow state
+- assigned researcher
+- reviewed by
+- approval metadata
+
+### Operating Asset / Plant / Facility Entry Form
+
+Operating asset forms should be mostly aligned with project forms, but adapted
+for operational assets.
+
+Key differences:
+
+- operational capacity instead of planned capacity
+- operational metrics/output
+- actual COD
+- operational companies/operators
+- facility/plant terminology
+- operating status
+- expansion logic
+
+Projects and operating assets should share as much schema and form logic as
+possible.
+
+The UI label should adapt by use type:
+
+- power: plant
+- direct-use: facility
+- hybrid: plant/facility/complex
+
+### Company Entry Form
+
+Recommended sections:
+
+#### 1. Basic Identity
+
+- company name
+- aliases
+- website
+- description
+
+#### 2. Company Type / Category
+
+- primary category
+- secondary categories
+
+#### 3. Headquarters / Location
+
+- country
+- city
+- office locations if relevant
+
+#### 4. Geothermal Focus
+
+- technologies
+- market focus
+- regions active in
+
+#### 5. Linked Projects / Assets
+
+- linked projects
+- linked plants/facilities
+- company roles
+
+#### 6. Company Relationships / Group Structure
+
+- parent company
+- subsidiaries
+- JV/consortium links
+
+#### 7. Sources / Evidence
+
+- website
+- reports
+- references
+- source notes
+
+#### 8. Internal Notes
+
+- research notes
+- ownership uncertainty
+- strategic observations
+
+#### 9. Validation / Review
+
+- workflow state
+- reviewed by
+- metadata
+
+### Data Entry UI Structure
+
+Desired MVP:
+
+- tabs/sections for full editing
+- quick-create plus later full edit
+- compact controls for common fields
+- clear warnings for missing critical/important data
+
+Quick-create should capture minimum usable data only.
+
+Full edit pages should support detailed structured entry without forcing a rigid
+wizard flow.
+
+### Draft Handling
+
+Researchers must be able to save incomplete records as drafts.
+
+This is critical because geothermal data is often incomplete and iterative.
+
+Drafts should:
+
+- be visible internally
+- be excluded from formal exports by default
+- be available in research queues
+- support later submission to validation
+
+### Duplicate Detection
+
+The system should immediately check for likely duplicates during creation.
+
+Signals:
+
+- similar names
+- same country
+- same coordinates
+- same website
+- same source URL
+
+Duplicate detection should create warnings, not hard blocks.
+
+Researchers/editors should be able to continue with a reason when a warning is
+not a true duplicate.
+
+### Sources / Evidence Requirements
+
+Sources should be strongly encouraged during creation.
+
+Sources should not be strictly required until validation/approval.
+
+Reason:
+
+Researchers often begin records before full sourcing is complete.
+
+Approval/export readiness should require source/evidence checks according to the
+validation rules in Section 2.
+
+### Company Relationship Workflow
+
+Use both:
+
+- inline relationship editing inside project/asset forms
+- separate relationship management interface
+
+Inline editing is faster for operational research workflows.
+
+A separate relationship manager is important for complex company structures,
+groups, joint ventures, subsidiaries, and future graph-style views.
+
+### Edit Workflow
+
+Typical MVP workflow:
+
+1. researcher creates or edits draft
+2. researcher saves draft
+3. researcher submits for validation
+4. editor reviews
+5. editor approves or returns to `needs_update`/`validation`
+
+Edits to approved/export-ready records should automatically move records back
+into:
+
+```text
+validation
+```
+
+or:
+
+```text
+needs_update
+```
+
+until re-approved.
+
+### Mobile Use Cases
+
+Mobile should support:
+
+- quick review
+- field lookup
+- small corrections
+- adding notes
+- adding source links
+- approval/review actions
+
+Full large-scale data entry is primarily desktop-focused.
+
+### Later/Future
+
+Potential future form/workflow functionality:
+
+- AI-assisted field suggestions
+- auto-fill from source extraction
+- advanced duplicate detection
+- field-level validation
+- relationship graph editor
+- drag/drop evidence management
+- inline map editing
+- dynamic form layouts by use type
+- bulk-edit workflows
+- structured source extraction pipeline
+
+### Open Questions
+
+Direct-use:
+
+- should direct-use forms dynamically adapt by category?
+
+Project-to-asset lifecycle:
+
+- should project promotion to operating asset happen through a guided workflow?
+
+Duplicates:
+
+- should duplicate confidence scoring be added later?
+
+AI:
+
+- should AI-generated field suggestions be visually separated from verified data?
+
 ## Next Discovery Step
 
-Step 3 should define data entry forms and workflow:
+Step 4 should define design system, search, exports, print views, and reporting:
 
-- project form structure
-- operating asset/plant/facility form structure
-- company form structure
-- source/evidence capture
-- edit flow
-- submit-for-validation flow
-- approval screens
-- duplicate handling
-- mobile usability for data entry
+- design language and ThinkGeoEnergy brand alignment
+- mobile layout standards
+- table/list behavior
+- search and filters
+- charting and data overview needs
+- Excel exports
+- print views
+- avoiding duplicated page patterns
