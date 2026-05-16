@@ -48,6 +48,7 @@ Outputs:
 Current reference:
 
 - `docs/SEMANTIC_MODEL_V1.md`
+- `docs/PRODUCT_BUILD_SPEC_V1.md`
 
 ## Phase 3: Research Workflow
 
