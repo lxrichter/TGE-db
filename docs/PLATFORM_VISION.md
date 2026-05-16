@@ -14,8 +14,9 @@ The platform should become geothermal sector intelligence infrastructure: a conn
 
 The target platform should connect:
 
-- geothermal projects
-- operating plants
+- geothermal power projects
+- geothermal power plants
+- geothermal direct-use projects and operating facilities
 - companies and company groups
 - asset roles and relationships
 - lifecycle history
@@ -59,6 +60,7 @@ Confirmed direction:
 - move toward a stronger database foundation, likely PostgreSQL
 - use Railway as the intended deployment platform for the next build baseline
 - prioritize projects, plants, and companies
+- include direct-use geothermal in the semantic model from the start, not as a later bolt-on
 - build semantic clarity before adding complex AI features
 - use AI for internal efficiency first
 - treat future AI product features as secondary but important

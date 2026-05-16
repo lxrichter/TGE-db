@@ -30,6 +30,8 @@ Goal: define meaning before rebuilding surfaces.
 Tasks:
 
 - define installed capacity, running capacity, pipeline capacity, and potential capacity rules
+- define power vs direct-use vs hybrid geothermal asset classification
+- define direct-use categories and thermal output units
 - define project lifecycle phases and promotion logic
 - define company role taxonomy across projects and plants
 - define owner, operator, developer, supplier, investor, EPC, and parent-company logic

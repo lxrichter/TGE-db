@@ -8,7 +8,7 @@ Purpose: define the first serious internal platform target, based on the platfor
 
 Build a stable internal geothermal intelligence database platform for ThinkGeoEnergy staff to enter, verify, manage, analyze, and export structured data about geothermal projects, plants, companies, and their relationships.
 
-The MVP should be Railway-ready and designed for PostgreSQL, but it does not need to include the full subscriber product, AI layer, or article/PDF source registry on day one.
+The MVP should be Railway-ready and designed for PostgreSQL. The semantic model should support both geothermal power and direct-use geothermal from the start, even if the first operational dataset remains power-heavy. The MVP does not need to include the full subscriber product, AI layer, or article/PDF source registry on day one.
 
 ## Primary Users
 
@@ -26,6 +26,8 @@ MVP entities:
 
 - projects
 - plants
+- geothermal use classifications
+- direct-use categories
 - companies
 - company-project links
 - company-plant links
@@ -51,6 +53,7 @@ In scope:
 - user roles and permissions
 - project list/detail/create/edit
 - plant list/detail/create/edit
+- power vs direct-use classification
 - company list/detail/create/edit
 - relationship/link management
 - project-to-plant lifecycle/promotion logic
@@ -95,6 +98,7 @@ Projects:
 
 - project name
 - country
+- geothermal use type: power, direct use, or hybrid
 - phase
 - capacity field relevant to phase
 - research status
@@ -103,6 +107,7 @@ Plants:
 
 - plant name
 - country
+- geothermal use type: power, direct use, or hybrid
 - installed capacity MW
 - operating/running capacity MW if available
 - plant phase/status
@@ -197,6 +202,9 @@ Resolve before schema implementation:
 - exact plant status list
 - exact company role taxonomy
 - whether project and plant share one parent `asset` model or remain separate entities
+- how power and direct-use assets are classified in the shared project/plant model
+- exact direct-use category list for MVP
+- direct-use capacity/output units, such as MWth and GWhth
 - whether verification state is entity-level only or field-level later
 - whether source/evidence notes are enough for MVP or a minimal source table is needed immediately
 - whether Railway-hosted PostgreSQL is sufficient or an external managed PostgreSQL provider is preferred
@@ -205,4 +213,4 @@ Resolve before schema implementation:
 
 Create `docs/SEMANTIC_MODEL_V1.md`.
 
-That document should define the terms, phases, capacities, company roles, and lifecycle rules that the PostgreSQL schema and UI will enforce.
+That document should define the terms, phases, capacities, company roles, direct-use categories, and lifecycle rules that the PostgreSQL schema and UI will enforce.
