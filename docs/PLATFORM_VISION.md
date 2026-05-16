@@ -17,6 +17,7 @@ The target platform should connect:
 - geothermal power projects
 - geothermal power plants
 - geothermal direct-use projects and operating facilities
+- geothermal mineral extraction projects, particularly lithium and other geothermal brine opportunities
 - companies and company groups
 - asset roles and relationships
 - lifecycle history
@@ -61,6 +62,7 @@ Confirmed direction:
 - use Railway as the intended deployment platform for the next build baseline
 - prioritize projects, plants, and companies
 - include direct-use geothermal in the semantic model from the start, not as a later bolt-on
+- include mineral extraction as a supported geothermal use type where relevant
 - build semantic clarity before adding complex AI features
 - use AI for internal efficiency first
 - treat future AI product features as secondary but important

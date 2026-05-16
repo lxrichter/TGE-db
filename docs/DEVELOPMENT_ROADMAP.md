@@ -45,6 +45,10 @@ Outputs:
 - company role model
 - validation rule inventory
 
+Current reference:
+
+- `docs/SEMANTIC_MODEL_V1.md`
+
 ## Phase 3: Research Workflow
 
 Goal: make the editorial workflow reliable and auditable.

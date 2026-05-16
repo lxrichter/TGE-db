@@ -14,6 +14,7 @@ The future database and website should support a broader geothermal market-intel
 - geothermal power plants
 - geothermal direct-use projects
 - geothermal direct-use operating facilities/plants
+- geothermal mineral extraction projects where connected to geothermal resources or geothermal brines
 - companies active across power and direct-use geothermal markets
 
 ## Direct-Use Categories To Define
@@ -68,11 +69,11 @@ Direct-use assets differ from power assets in:
 
 The future data model should avoid forcing direct-use projects into power-only fields.
 
-## Immediate Work Required
+## Semantic Model Reference
 
-Before implementing the future schema, create `docs/SEMANTIC_MODEL_V1.md` with direct-use included.
+Before implementing the future schema, use `docs/SEMANTIC_MODEL_V1.md` as the current reference for direct-use inclusion.
 
-That document should answer:
+That document should answer and remain aligned with:
 
 - what is a direct-use project?
 - what is a direct-use plant/facility?

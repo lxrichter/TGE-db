@@ -13,7 +13,7 @@ The current code is not the final architecture. It is a reference implementation
 
 The platform is intended to become ThinkGeoEnergy's structured geothermal intelligence infrastructure, combining:
 
-- geothermal power projects, power plants, direct-use projects/facilities, and companies
+- geothermal power projects, power plants, direct-use projects/facilities, mineral extraction projects, and companies
 - lifecycle tracking from project development to operating plants
 - company relationships and asset roles
 - editorial research workflows, validation, and approvals
@@ -140,6 +140,7 @@ Start here:
 - [docs/MVP_SCOPE_V1.md](docs/MVP_SCOPE_V1.md)
 - [docs/DIRECT_USE_SCOPE_NOTE.md](docs/DIRECT_USE_SCOPE_NOTE.md)
 - [docs/SEMANTIC_MODEL_WORKSHEET.md](docs/SEMANTIC_MODEL_WORKSHEET.md)
+- [docs/SEMANTIC_MODEL_V1.md](docs/SEMANTIC_MODEL_V1.md)
 - [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md)
 - [docs/DEPLOYMENT_BASELINE.md](docs/DEPLOYMENT_BASELINE.md)
 - [docs/DATA_AND_SECURITY.md](docs/DATA_AND_SECURITY.md)

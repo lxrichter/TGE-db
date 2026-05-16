@@ -8,7 +8,7 @@ Purpose: define the first serious internal platform target, based on the platfor
 
 Build a stable internal geothermal intelligence database platform for ThinkGeoEnergy staff to enter, verify, manage, analyze, and export structured data about geothermal projects, plants, companies, and their relationships.
 
-The MVP should be Railway-ready and designed for PostgreSQL. The semantic model should support both geothermal power and direct-use geothermal from the start, even if the first operational dataset remains power-heavy. The MVP does not need to include the full subscriber product, AI layer, or article/PDF source registry on day one.
+The MVP should be Railway-ready and designed for PostgreSQL. The semantic model should support geothermal power, direct-use geothermal, hybrid assets, and mineral extraction use cases from the start, even if the first operational dataset remains power-heavy. The MVP does not need to include the full subscriber product, AI layer, or article/PDF source registry on day one.
 
 ## Primary Users
 
@@ -54,6 +54,7 @@ In scope:
 - project list/detail/create/edit
 - plant list/detail/create/edit
 - power vs direct-use classification
+- mineral extraction classification
 - company list/detail/create/edit
 - relationship/link management
 - project-to-plant lifecycle/promotion logic
@@ -209,8 +210,8 @@ Resolve before schema implementation:
 - whether source/evidence notes are enough for MVP or a minimal source table is needed immediately
 - whether Railway-hosted PostgreSQL is sufficient or an external managed PostgreSQL provider is preferred
 
-## Next Deliverable
+## Current Semantic Reference
 
-Create `docs/SEMANTIC_MODEL_V1.md`.
+Use `docs/SEMANTIC_MODEL_V1.md` as the current semantic reference.
 
-That document should define the terms, phases, capacities, company roles, direct-use categories, and lifecycle rules that the PostgreSQL schema and UI will enforce.
+That document defines the terms, phases, capacities, company roles, direct-use categories, and lifecycle rules that the PostgreSQL schema and UI should enforce.
