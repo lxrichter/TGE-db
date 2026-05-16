@@ -152,6 +152,7 @@ PostgreSQL schema baseline:
 - [docs/schema/POSTGRES_SCHEMA_V1.md](docs/schema/POSTGRES_SCHEMA_V1.md)
 - [docs/schema/SQLITE_TO_POSTGRES_MAPPING.md](docs/schema/SQLITE_TO_POSTGRES_MAPPING.md)
 - [docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md](docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md)
+- [docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md](docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md)
 - [scripts/migration/README.md](scripts/migration/README.md)
 
 ## GitHub

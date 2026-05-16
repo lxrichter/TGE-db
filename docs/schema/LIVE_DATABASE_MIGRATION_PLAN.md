@@ -43,6 +43,12 @@ Files to collect:
 - user/role export, if safe and needed
 - any uploaded/import source files used by the current system
 
+For the current Hetzner SQLite source, use:
+
+```text
+docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md
+```
+
 ### Phase 2: Profile Current Data
 
 For each current table, record:
