@@ -8,6 +8,12 @@ Current baseline:
 postgres/schema_v1.sql
 ```
 
+Safe staging seed:
+
+```text
+postgres/seed_staging.sql
+```
+
 This PostgreSQL schema is based on:
 
 - `docs/SEMANTIC_MODEL_V1.md`

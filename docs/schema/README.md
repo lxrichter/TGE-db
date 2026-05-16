@@ -26,6 +26,12 @@ Live SQLite export guide:
 docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md
 ```
 
+PostgreSQL staging workflow:
+
+```text
+docs/schema/POSTGRES_STAGING_WORKFLOW.md
+```
+
 Important principle:
 
 The current live SQL database remains the source system until go-live. The local SQLite file in this workspace is useful for analysis, but the final migration must be based on a fresh export from the live server.
