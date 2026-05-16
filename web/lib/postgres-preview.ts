@@ -79,6 +79,7 @@ export type PostgresResearchOpsQueueItem = {
   lifecycle_phase_code: string | null;
   review_status_code: string | null;
   issue_label: string;
+  last_updated_by_name: string | null;
   updated_at: string;
 };
 
@@ -100,6 +101,7 @@ export type PostgresResearchOpsRecentEdit = {
   primary_use_type_code: string | null;
   lifecycle_phase_code: string | null;
   review_status_code: string | null;
+  last_updated_by_name: string | null;
   updated_at: string;
 };
 
@@ -840,6 +842,7 @@ function toResearchOpsQueueItem(row: QueueItemRow): PostgresResearchOpsQueueItem
     lifecycle_phase_code: row.lifecycle_phase_code,
     review_status_code: row.review_status_code,
     issue_label: row.issue_label,
+    last_updated_by_name: row.last_updated_by_name,
     updated_at: normalizeTimestamp(row.updated_at),
   };
 }
@@ -854,6 +857,7 @@ function toRecentEdit(row: RecentEditRow): PostgresResearchOpsRecentEdit {
     primary_use_type_code: row.primary_use_type_code,
     lifecycle_phase_code: row.lifecycle_phase_code,
     review_status_code: row.review_status_code,
+    last_updated_by_name: row.last_updated_by_name,
     updated_at: normalizeTimestamp(row.updated_at),
   };
 }
@@ -866,6 +870,27 @@ async function loadResearchOpsQueue(
     `
     WITH queue AS (
       ${definition.sql}
+    ),
+    hydrated AS (
+      SELECT
+        queue.*,
+        updater.name AS last_updated_by_name
+      FROM queue
+      LEFT JOIN projects p_user
+        ON queue.entity_type = 'project'
+        AND queue.entity_id::uuid = p_user.project_id
+      LEFT JOIN operating_assets a_user
+        ON queue.entity_type = 'operating_asset'
+        AND queue.entity_id::uuid = a_user.operating_asset_id
+      LEFT JOIN companies c_user
+        ON queue.entity_type = 'company'
+        AND queue.entity_id::uuid = c_user.company_id
+      LEFT JOIN app_users updater
+        ON updater.user_id = COALESCE(
+          p_user.last_updated_by_user_id,
+          a_user.last_updated_by_user_id,
+          c_user.last_updated_by_user_id
+        )
     )
     SELECT
       queue_key,
@@ -878,9 +903,10 @@ async function loadResearchOpsQueue(
       lifecycle_phase_code,
       review_status_code,
       issue_label,
+      last_updated_by_name,
       updated_at,
       (COUNT(*) OVER())::int AS total_count
-    FROM queue
+    FROM hydrated
     ORDER BY updated_at DESC NULLS LAST, name ASC
     LIMIT $1
     `,
@@ -903,15 +929,16 @@ export async function listPostgresResearchOpsRecentEdits(
   const result = await queryPostgres<RecentEditRow>(
     `
     SELECT
-      entity_type,
-      entity_id,
-      legacy_id,
-      name,
-      country,
-      primary_use_type_code,
-      lifecycle_phase_code,
-      review_status_code,
-      updated_at
+      records.entity_type,
+      records.entity_id,
+      records.legacy_id,
+      records.name,
+      records.country,
+      records.primary_use_type_code,
+      records.lifecycle_phase_code,
+      records.review_status_code,
+      updater.name AS last_updated_by_name,
+      records.updated_at
     FROM (
       SELECT
         'project'::text AS entity_type,
@@ -922,6 +949,7 @@ export async function listPostgresResearchOpsRecentEdits(
         p.primary_use_type_code,
         p.lifecycle_phase_code,
         p.review_status_code,
+        p.last_updated_by_user_id,
         p.updated_at
       FROM projects p
 
@@ -936,6 +964,7 @@ export async function listPostgresResearchOpsRecentEdits(
         a.primary_use_type_code,
         a.lifecycle_phase_code,
         a.review_status_code,
+        a.last_updated_by_user_id,
         a.updated_at
       FROM operating_assets a
 
@@ -950,10 +979,13 @@ export async function listPostgresResearchOpsRecentEdits(
         c.company_type_primary_code AS primary_use_type_code,
         NULL::text AS lifecycle_phase_code,
         c.review_status_code,
+        c.last_updated_by_user_id,
         c.updated_at
       FROM companies c
     ) records
-    ORDER BY updated_at DESC NULLS LAST, name ASC
+    LEFT JOIN app_users updater
+      ON updater.user_id = records.last_updated_by_user_id
+    ORDER BY records.updated_at DESC NULLS LAST, records.name ASC
     LIMIT $1
     `,
     [limit]
@@ -963,7 +995,7 @@ export async function listPostgresResearchOpsRecentEdits(
 }
 
 export async function getPostgresResearchOpsDashboard(
-  itemLimit = 8
+  itemLimit = 50
 ): Promise<PostgresResearchOpsDashboard> {
   const [queues, recentEdits] = await Promise.all([
     Promise.all(
@@ -971,7 +1003,7 @@ export async function getPostgresResearchOpsDashboard(
         loadResearchOpsQueue(definition, itemLimit)
       )
     ),
-    listPostgresResearchOpsRecentEdits(12),
+    listPostgresResearchOpsRecentEdits(20),
   ]);
 
   return {

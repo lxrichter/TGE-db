@@ -105,6 +105,17 @@ the product build spec:
 - suspected duplicate candidates
 - recently edited records
 
+Current controls:
+
+- search across queue rows
+- filter by issue type
+- filter by severity
+- filter by record type
+- filter by country
+- click queue chips to focus one issue class
+- inspect a selected row in a lightweight detail panel
+- show updated-by metadata when PostgreSQL user records are available
+
 Supporting API endpoint:
 
 ```text

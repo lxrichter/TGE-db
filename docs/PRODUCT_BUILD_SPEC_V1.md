@@ -1453,3 +1453,26 @@ Research Ops / Data Quality dashboard
 
 This should start with read-only queues using the PostgreSQL staging schema and
 safe seed data, then evolve into validation actions and assignment workflows.
+
+### Immediate Research Ops Interaction Requirements
+
+The Research Ops dashboard should quickly evolve from a static issue overview
+into an operational work surface.
+
+Current/near-term requirements:
+
+- search across record name, issue label, country, use type, lifecycle/status,
+  review status, and researcher/editor metadata
+- filter by issue type, severity, entity type, and country
+- make issue queues clickable so researchers can move between backlog slices
+- expose updated-by / edited-by metadata when user/audit data is available
+- provide a row-level inspection panel before full PostgreSQL detail pages exist
+
+Proposed future improvements:
+
+- click through to PostgreSQL-backed record detail/edit pages
+- filter by assigned researcher, reviewer, date range, and source status
+- save personal/team queue views
+- bulk select records for assignment, validation, or export review
+- connect workflow buttons to submit-for-validation, approve, needs-update, and
+  return-to-research actions
