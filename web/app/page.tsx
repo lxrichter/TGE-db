@@ -174,6 +174,9 @@ export default async function HomePage() {
               <ActionButton href="/research-ops" variant="primary">
                 Open Research Ops
               </ActionButton>
+              <ActionButton href="/postgres-preview" variant="secondary">
+                Open PostgreSQL Preview
+              </ActionButton>
             </div>
           </div>
         </div>

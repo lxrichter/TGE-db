@@ -52,6 +52,33 @@ Expected result:
 - public table count is shown
 - selected reference-table counts are shown
 
+## Read-Only Preview
+
+The first PostgreSQL-backed app surface is:
+
+```text
+/postgres-preview
+```
+
+It shows:
+
+- projects
+- operating assets
+- companies
+- core relationship counts
+
+The page uses Railway/PostgreSQL data and remains behind the existing app login
+middleware. It is intentionally read-only.
+
+Supporting API endpoints:
+
+```text
+/api/postgres-preview/summary
+/api/postgres-preview/projects
+/api/postgres-preview/operating-assets
+/api/postgres-preview/companies
+```
+
 ## Safe Staging Seed
 
 Seed non-confidential sample data:
