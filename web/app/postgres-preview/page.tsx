@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   getPostgresPreviewSummary,
   listPostgresPreviewCompanies,
@@ -315,14 +316,24 @@ export default async function PostgresPreviewPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             PostgreSQL Staging
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
-            Future Platform Preview
-          </h1>
-          <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-            Read-only view of the new Railway PostgreSQL schema using safe
-            staging records. The live Hetzner SQLite database is not imported
-            here yet.
-          </p>
+          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+                Future Platform Preview
+              </h1>
+              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+                Read-only view of the new Railway PostgreSQL schema using safe
+                staging records. The live Hetzner SQLite database is not imported
+                here yet.
+              </p>
+            </div>
+            <Link
+              className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href="/postgres-preview/research-ops"
+            >
+              Open Research Ops
+            </Link>
+          </div>
         </div>
       </section>
 

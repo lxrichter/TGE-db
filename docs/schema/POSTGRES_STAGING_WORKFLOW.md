@@ -28,6 +28,8 @@ DATABASE_SSL=require
 When running local utility scripts through the Railway CLI, the scripts prefer
 `DATABASE_PUBLIC_URL` because `DATABASE_URL` often points to Railway private
 networking (`postgres.railway.internal`), which does not resolve from a Mac.
+The app connector also uses `DATABASE_PUBLIC_URL` first when it is present, so
+local Railway previews can connect from macOS.
 
 Prefer:
 
@@ -78,6 +80,39 @@ Supporting API endpoints:
 /api/postgres-preview/operating-assets
 /api/postgres-preview/companies
 ```
+
+## Research Ops Preview
+
+The first PostgreSQL-backed operational surface is:
+
+```text
+/postgres-preview/research-ops
+```
+
+It is read-only and focuses on the validation and research queues defined in
+the product build spec:
+
+- needs source
+- missing country
+- missing lifecycle/status
+- missing geothermal use type
+- missing company link
+- missing coordinates
+- missing capacity/output
+- needs approval
+- needs update
+- direct-use records needing classification
+- suspected duplicate candidates
+- recently edited records
+
+Supporting API endpoint:
+
+```text
+/api/postgres-preview/research-ops
+```
+
+This preview validates the future PostgreSQL workflow model without importing
+or changing the current live Hetzner SQLite database.
 
 ## Safe Staging Seed
 

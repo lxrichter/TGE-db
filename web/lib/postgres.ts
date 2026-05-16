@@ -5,10 +5,10 @@ declare global {
 }
 
 function getDatabaseUrl() {
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
 
   if (!databaseUrl || databaseUrl.trim() === "") {
-    throw new Error("DATABASE_URL is not configured.");
+    throw new Error("DATABASE_PUBLIC_URL or DATABASE_URL is not configured.");
   }
 
   return databaseUrl;
