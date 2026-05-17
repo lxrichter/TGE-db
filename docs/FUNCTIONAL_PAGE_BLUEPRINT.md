@@ -2995,14 +2995,413 @@ Use:
 The long-term direction should resemble a geothermal-focused intelligence/BI
 platform rather than static dashboards only.
 
+## Dashboard Functional Blueprint
+
+### Main Purpose
+
+Dashboard should become:
+
+- the intelligence home screen
+- the executive geothermal overview layer
+- the first-entry experience after login for relevant roles
+- the primary demo/client presentation surface
+- the market intelligence identity of the platform
+
+Dashboard should communicate within seconds:
+
+```text
+clear, actionable, structured geothermal market intelligence
+```
+
+It should:
+
+- cut through the noise of geothermal
+- provide immediate situational awareness
+- feel modern, intelligent, alive, and data-rich
+- remain clean, readable, and mobile-capable
+
+Design direction:
+
+- closer to Rystad Energy, Wood Mackenzie, modern consulting intelligence
+  portals, and market-monitoring platforms
+- less like Bloomberg Terminal, flat enterprise admin software, or overly
+  bureaucratic workflow systems
+
+Desired visual identity:
+
+- clean
+- modern
+- chart-driven
+- intelligence-oriented
+- readable
+- minimal but information-rich
+- ThinkGeoEnergy branded without copying the public website directly
+
+Table/list pages should remain relatively simple and data-centric. Dashboard is
+where richer visual intelligence and charting can live.
+
+### Current Implemented Functionality
+
+The current platform has a prototype dashboard/home surface and supporting
+analytics, maps, and activity pages.
+
+Current limitations:
+
+- Dashboard is not yet the premium market-intelligence entry experience
+- role-aware widgets are not yet fully defined
+- charting and map snapshots need refinement
+- latest TGE news/intelligence integration needs to become more structured
+- the visual identity needs a deliberate design pass
+
+### Primary Functions
+
+Dashboard should primarily support:
+
+- geothermal market intelligence overview
+- global market monitoring
+- high-level KPI visibility
+- recent activity overview
+- intelligence summaries
+- research/validation health summary
+- quick navigation into deeper modules
+- client/demo presentation layer
+- future executive/subscriber intelligence portal
+
+Dashboard should answer:
+
+- What is happening globally in geothermal?
+- Where is development activity strongest?
+- What changed recently?
+- Which markets are most active?
+- Which technologies are growing?
+- What needs attention operationally?
+- What does the current geothermal landscape look like?
+
+Dashboard should combine:
+
+- market intelligence
+- analytics summaries
+- live activity
+- operational awareness
+- latest news/intelligence
+
+### Users And Role-Aware Modules
+
+Dashboard should support:
+
+- researchers
+- editors
+- admins
+- executives
+- consulting users
+- future subscribers/clients
+
+Approach:
+
+```text
+shared intelligence dashboard core
++ role-aware widgets/modules
+```
+
+Researchers:
+
+- Research Ops summary
+- missing-data alerts
+- validation queue summary
+
+Editors/admins:
+
+- workflow health
+- approval metrics
+- recent changes
+- source coverage
+
+Executives/clients:
+
+- market KPIs
+- charts
+- intelligence highlights
+- market movements
+- country/company insights
+
+Future:
+
+- client/subscriber-facing dashboard variants
+
+### MVP KPI Cards
+
+Global KPI cards:
+
+- operating plants/facilities count
+- operating installed MWe
+- running/operating MWe
+- pipeline MW
+- direct-use MWth
+- direct-use project count
+- countries covered
+- companies tracked
+- records added recently
+- records updated recently
+- projects under construction
+- drilling-active projects
+- projects needing review
+- approved/export-ready percentage
+
+Activity KPI cards:
+
+- new projects this month
+- projects advanced in lifecycle
+- new operating plants
+- retired/decommissioned assets
+- recently updated markets
+
+Research/data quality KPI cards:
+
+- missing coordinates
+- missing sources
+- validation queue size
+- stale records
+- duplicate warnings
+
+KPI cards should:
+
+- support trend indicators
+- support lightweight sparkline charts
+- support click-through filtering
+
+### MVP Dashboard Sections
+
+Global Market Snapshot:
+
+- global operating MW
+- global pipeline MW
+- direct-use overview
+- geothermal market momentum
+
+Pipeline Overview:
+
+- lifecycle distribution
+- pipeline by phase
+- active construction/drilling
+
+Top Markets:
+
+- top countries by operating MW
+- top countries by pipeline MW
+- fastest-growing markets
+- drilling-active markets
+
+Technology Overview:
+
+- technology mix
+- binary vs flash
+- resource type distribution
+- direct-use category distribution
+
+Company Intelligence:
+
+- most active developers/operators
+- recently active companies
+- company movement/activity
+
+Market Activity Feed:
+
+- recent edits
+- project status changes
+- new plants/projects
+- latest market developments
+
+News & Intelligence:
+
+- latest ThinkGeoEnergy articles
+- linked market activity
+- recent country developments
+- latest funding/project announcements
+
+Map Snapshot:
+
+- compact global geothermal map
+- clickable/expandable
+- filtered quick-view
+
+Research/Data Health:
+
+- validation summary
+- missing-data summary
+- source coverage indicators
+
+Charts should:
+
+- remain readable and clean
+- support drilldowns
+- support click-through navigation
+- support filtered states
+
+Avoid dashboard clutter and chart overload. The dashboard should feel curated
+and intentional.
+
+### Difference From Research Ops And Analysis
+
+Dashboard:
+
+- high-level intelligence overview
+- curated market summary
+- live geothermal overview
+- executive intelligence layer
+- strategic navigation surface
+
+Research Ops:
+
+- operational workflow environment
+- validation queues
+- missing-data management
+- researcher/editor workflow
+
+Analysis:
+
+- deep analytics workspace
+- benchmarking
+- chart exploration
+- multidimensional filtering
+- geothermal BI layer
+
+Simple distinction:
+
+```text
+Dashboard = overview and intelligence front page
+Research Ops = operational workflow
+Analysis = deep analytical engine
+```
+
+### Role-Specific Behavior
+
+Dashboard should use:
+
+```text
+shared intelligence dashboard core
++ role-aware modules/widgets
+```
+
+Core shared elements:
+
+- global KPIs
+- market charts
+- map snapshot
+- latest activity
+- market intelligence
+
+Role-aware additions:
+
+- researchers: assigned tasks, validation queues, missing-data alerts
+- editors/admins: approvals, review activity, validation metrics, operational
+  health
+- clients/subscribers later: approved intelligence only, market summaries,
+  premium analytics, curated dashboards
+
+### Mobile Strategy
+
+Mobile priority:
+
+- quick search
+- table access
+- project/plant/company overview access
+- data entry/editing
+- map access
+- top KPIs
+- lightweight charts
+- research/admin alerts
+
+Dashboard mobile view should:
+
+- remain highly readable
+- prioritize essential KPIs
+- collapse heavy charting appropriately
+- support quick navigation
+
+Complex analytical exploration belongs more to desktop/tablet.
+
+### MVP vs Future Summary
+
+MVP:
+
+- clean intelligence-focused dashboard
+- global KPI cards
+- lightweight trend indicators
+- lifecycle overview
+- top countries overview
+- activity feed
+- latest TGE news integration
+- compact map snapshot
+- validation/data-health summary
+- role-aware widgets
+- click-through navigation
+- drilldown support
+- mobile-capable layout
+
+Dashboard should already:
+
+- look professional
+- feel alive
+- support demos/sales
+- communicate intelligence value quickly
+
+Future:
+
+- configurable dashboards
+- drag/drop widgets
+- saved layouts
+- executive dashboard mode
+- presentation mode
+- client/subscriber dashboards
+- AI-generated intelligence summaries
+- AI briefing cards
+- predictive market alerts
+- semantic dashboard search
+- alert subscriptions
+- personalized dashboard feeds
+- embedded BI widgets
+- advanced trend forecasting
+
+### Strategic Principle
+
+Dashboard should:
+
+- feel premium but clean
+- emphasize intelligence over admin workflows
+- support both operational awareness and market understanding
+- visually communicate the depth of the geothermal intelligence platform
+
+The platform should avoid:
+
+- overwhelming chart clutter
+- enterprise admin ugliness
+- flat/static dashboards
+- duplicated analytics
+
+The visual direction should balance:
+
+- simplicity
+- readability
+- strong charting
+- consulting-grade intelligence presentation
+- mobile usability
+- data density without chaos
+
+Long-term goal:
+
+- geothermal intelligence command center
+- main presentation layer
+- strongest wow-factor page
+- entry point for future AI-driven intelligence experiences
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Dashboard
+Admin / Access / Controlled Vocabularies
 ```
 
-Reason: Dashboard should define the executive/high-level landing experience and
-its relationship to Research Ops, Countries / Markets, Analysis, and role-based
-defaults.
+Reason: Admin defines users, roles, permissions, controlled vocabularies,
+reference data, and governance rules that keep the platform coherent as the
+database scales.
