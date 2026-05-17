@@ -500,13 +500,321 @@ Future:
 - AI validation suggestions
 - automated task assignment
 
+## Sources / Documents Functional Blueprint
+
+### Current Implemented Functionality
+
+The current platform has source/evidence concepts in the PostgreSQL schema and
+some existing source/news-related prototype behavior, but Sources / Documents is
+not yet a full operational module.
+
+Current limitations:
+
+- source records are not yet a complete user-facing workspace
+- document upload/parsing is not yet implemented as a stable workflow
+- TGE article linkage is not yet automated from WordPress/RSS/API metadata
+- source validation does not yet drive all Research Ops queues
+- field-level evidence and structured claims are not yet implemented
+
+### Main Purpose
+
+Sources / Documents should become the evidence backbone of the platform.
+
+It supports:
+
+- validation
+- Research Ops
+- record approval
+- future AI extraction
+- semantic search
+- related news
+- reporting
+- client/subscriber confidence
+
+### MVP Source Types
+
+MVP source types:
+
+- tge_article
+- external_news_article
+- company_website
+- company_report
+- government_document
+- regulator_filing
+- press_release
+- pdf_report
+- academic_paper
+- conference_paper_or_presentation
+- dataset
+- internal_note
+- stakeholder_confirmation
+- client_confidential_source
+- other
+
+ThinkGeoEnergy articles should be a formal source type in MVP.
+
+The platform should prepare for automated linkage to the TGE WordPress/news
+archive through RSS, API, tags, metadata, and article body text where possible.
+
+TGE articles should appear as related news on:
+
+- project detail pages
+- plant/facility detail pages
+- company detail pages
+- country/market pages
+- source/document detail pages
+
+### Source Link Targets
+
+Sources can link to:
+
+- projects
+- plants/facilities
+- companies
+- countries/markets
+- direct-use categories
+- company-project relationships
+- company-plant/facility relationships
+- company-company relationships
+- lifecycle/phase changes
+- capacity/output values
+- ownership/operator claims
+- technology/resource claims
+
+MVP linking logic:
+
+- start with record-level source links
+- architecturally prepare for field-level evidence later
+
+Examples:
+
+- Source A supports project capacity
+- Source B supports owner/operator
+- Source C supports COD
+- Source D supports project status
+
+### Minimum Source Fields
+
+MVP required fields:
+
+- source title
+- source type
+- URL or reference
+- publication date, if known
+- accessed date
+- linked entity/entities
+- visibility/confidentiality level
+- credibility/status label
+- source notes
+- added by
+- added date
+
+Recommended optional fields:
+
+- author/organization
+- document/report name
+- extracted summary
+- relevant quote or data point
+- linked field/claim
+- language
+- country/market relevance
+- source file attachment
+- duplicate source flag
+
+### Visibility And Confidentiality
+
+MVP visibility/confidentiality tags:
+
+- public
+- internal_only
+- client_confidential
+- not_for_publication
+- stakeholder_confirmation
+- ai_generated_needs_review
+
+Internal notes, direct confirmations, emails, calls, conference discussions, and
+stakeholder comments can count as evidence, but they must be clearly separated
+from public sources.
+
+Use source types such as:
+
+- internal_note
+- stakeholder_confirmation
+- client_confidential_source
+
+Confidential information must not be mixed into public source fields. It should
+be visibly flagged and restricted from external/export-ready outputs unless
+explicitly approved.
+
+### Source Reusability
+
+A single source must be reusable across multiple records.
+
+Example: one government report or country dataset may support:
+
+- several projects
+- several plants/facilities
+- a country market page
+- capacity statistics
+- company roles
+
+### Credibility / Status Labels
+
+MVP labels:
+
+- credible
+- needs_review
+- weak
+- outdated
+- rejected
+
+Later:
+
+- numeric confidence score
+- field-level confidence
+- source hierarchy weighting
+- automated stale-source detection
+
+### Uploaded PDFs / Documents
+
+MVP:
+
+- URL/source records are core
+- basic file attachment/upload can be included if easy, especially because many
+  geothermal sources are PDF reports
+
+Later/future:
+
+- full document library
+- PDF parsing
+- OCR where needed
+- AI extraction
+- semantic search
+- entity recognition
+- evidence/claim extraction
+
+### Source Validation
+
+Researchers can:
+
+- add sources
+- link sources to records
+- add notes
+- mark source as needs_review
+
+Editors can:
+
+- mark source as credible
+- mark source as weak
+- mark source as outdated
+- reject source
+- approve source for export/report use
+
+Admins can:
+
+- manage source types
+- manage visibility/confidentiality levels
+- override validation status
+- delete/archive sources if needed
+
+Source validation should feed into Research Ops queues:
+
+- records missing source
+- weak source
+- outdated source
+- source needs review
+- source linked but not approved
+- confidential source attached
+- source duplicate suspected
+
+### Related News
+
+TGE articles should be linked automatically or semi-automatically where possible.
+
+Related news should appear on:
+
+- project detail pages
+- plant/facility detail pages
+- company detail pages
+- country/market pages
+- source/document pages
+
+Potential matching logic:
+
+- project/plant/company name
+- aliases
+- country
+- tags
+- categories
+- WordPress metadata
+- article body text
+- manual confirmation
+
+### AI Readiness
+
+MVP should structure sources so AI can later perform:
+
+- extraction
+- summarization
+- semantic search
+- entity matching
+- field suggestion
+- duplicate source detection
+- confidence scoring
+- conflicting claim detection
+- related news matching
+- source quality review
+- automated research briefs
+
+### Future Source / Claim Model
+
+Eventually, sources should support structured claims.
+
+Examples:
+
+- Source X says Project Y has 35 MW planned capacity
+- Source Y says Company Z is operator
+- Source Z says COD is 2027
+
+This is not required for MVP, but the architecture should not block it.
+
+### MVP vs Future Summary
+
+MVP:
+
+- source records
+- source types
+- visibility/confidentiality tags
+- record-level source linking
+- reusable sources
+- TGE articles as source type
+- related news linkage foundation
+- basic credibility/status labels
+- Research Ops source queues
+- basic attachments if feasible
+
+Future:
+
+- field-level evidence
+- structured claims
+- uploaded document library
+- AI extraction
+- semantic source search
+- WordPress/RSS/API integration
+- automatic related news matching
+- source confidence scoring
+- duplicate source detection
+- conflicting source detection
+- automated briefing/report support
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Sources / Documents
+Projects
 ```
 
-Reason: source/evidence structure is foundational for validation, Research Ops,
-AI readiness, reports, and future semantic search.
+Reason: project records are the core pipeline entity and need to carry
+lifecycle/status, sources, company links, direct-use classification readiness,
+validation state, exports, map behavior, and future project-to-asset promotion.
