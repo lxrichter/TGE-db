@@ -2629,14 +2629,380 @@ Future:
 - report-quality map generator
 - AI spatial intelligence
 
+## Analysis Functional Blueprint
+
+### Main Purpose
+
+Analysis should become the structured cross-database intelligence and analytics
+layer of the platform.
+
+It should support:
+
+- internal research
+- consulting
+- executive market intelligence
+- future subscriber intelligence products
+- future AI-generated analysis
+
+Analysis is not primarily a workflow/validation environment. It is the:
+
+- geothermal BI layer
+- analytics workspace
+- benchmarking engine
+- strategic intelligence layer
+
+The platform should evolve toward:
+
+- one structured relational intelligence core
+- multiple analytical views and dashboards
+
+### Current Implemented Functionality
+
+The current platform already includes prototype analysis pages and lightweight
+charts.
+
+Current limitations:
+
+- analytical calculations need to be centralized and reused
+- filtering behavior is not yet consistent across charts, tables, maps, and
+  exports
+- direct-use, hybrid, and mineral analytics need to be expanded
+- drilldown behavior needs to mature into chart -> table -> record workflows
+- validation-aware analytics need clearer approved/default vs internal toggle
+  logic
+
+### Primary Uses
+
+Primary purposes:
+
+- market intelligence
+- cross-country benchmarking
+- company benchmarking
+- technology analysis
+- lifecycle/pipeline analysis
+- operating capacity analysis
+- direct-use analysis
+- historical trend analysis
+- consulting/research support
+- chart and export generation
+
+Analysis should answer questions such as:
+
+- Which countries have the largest geothermal pipeline?
+- Which developers/operators are most active?
+- Which turbine technologies dominate specific markets?
+- How is direct-use growing by category?
+- Which regions are most active in drilling?
+- Which countries show strongest development momentum?
+- How has installed geothermal capacity evolved historically?
+
+Analysis should support both:
+
+- executive-level dashboards
+- drilldown intelligence workflows
+
+### MVP Dashboards / Charts
+
+Global & Market:
+
+- installed operating capacity by country
+- pipeline MW by country
+- geothermal growth over time
+- operating vs pipeline comparison
+- project lifecycle breakdown
+- projects by phase
+
+Technology:
+
+- plant technology mix
+- turbine technology distribution
+- binary vs flash analysis
+- resource type distribution
+
+Direct-use:
+
+- direct-use by category
+- district heating/cooling analysis
+- direct-use capacity by country
+- hybrid/mineral activity
+
+Companies:
+
+- company role analysis
+- top developers/operators
+- company activity by country
+- ownership/operator MW analysis
+
+Project/Development:
+
+- drilling activity overview
+- projects by lifecycle
+- project status trends
+- project timeline/COD trends
+
+Research/Data Coverage:
+
+- approved vs draft records
+- source coverage metrics
+- validation coverage
+- missing-data overview, high-level only
+
+Historical/time-series:
+
+- installed capacity growth
+- COD trends
+- project development timelines
+- market evolution
+
+MVP should support basic historical/time-series analytics where data exists.
+
+### Global / Shared Filters
+
+Geography:
+
+- country
+- region
+- continent
+
+Entity:
+
+- project
+- plant/facility
+- company
+
+Use type:
+
+- power
+- direct-use
+- hybrid
+- mineral/lithium
+
+Lifecycle/status:
+
+- lifecycle phase
+- operating status
+
+Technology:
+
+- plant technology
+- turbine technology
+- resource type
+
+Company:
+
+- owner
+- operator
+- developer
+- supplier
+- investor
+
+Time:
+
+- COD year
+- development year
+- activity period
+
+Validation:
+
+- approved/export-ready only
+- include draft/internal toggle for authorized users
+
+Research:
+
+- source coverage
+- validation status
+
+Analysis filters should work consistently across:
+
+- charts
+- tables
+- maps
+- exports
+
+### Difference From Countries / Markets
+
+Countries / Markets:
+
+- market-centric
+- editorial + analytical hybrid
+- country/regional intelligence pages
+- policy/regulatory commentary
+- market narrative
+- market summaries
+- consulting/report-style views
+
+Analysis:
+
+- cross-database analytical workspace
+- comparative intelligence
+- benchmarking
+- chart-driven analytics
+- multidimensional filtering
+- structured BI layer
+
+Simple distinction:
+
+```text
+Countries / Markets = geothermal market pages
+Analysis = geothermal analytics engine
+```
+
+### Difference From Research Ops
+
+Research Ops:
+
+- operational workflow layer
+- validation queues
+- missing-data management
+- source management
+- duplicate handling
+- researcher/editor workflow
+- approval workflows
+
+Analysis:
+
+- analytical intelligence layer
+- charts/dashboards
+- benchmarking
+- historical trends
+- market insights
+- strategic analysis
+
+Research Ops focuses on improving data.
+
+Analysis focuses on interpreting data.
+
+### Tables / Drilldowns
+
+MVP drilldown behavior:
+
+```text
+Chart -> filtered table -> record detail
+```
+
+This is critical.
+
+MVP tables:
+
+- projects table
+- plants/facilities table
+- company table
+- direct-use table
+- hybrid/mineral table
+- lifecycle table
+- technology table
+- operator/owner table
+
+Drilldowns should support:
+
+- clicking a country
+- clicking a company
+- clicking a technology type
+- clicking a lifecycle phase
+- clicking a chart segment
+
+Result:
+
+- filtered table
+- filtered map
+- related records
+- export-ready dataset
+
+### Exports / Print Views
+
+MVP exports:
+
+- filtered analytical export
+- chart data export
+- country benchmarking export
+- company benchmarking export
+- lifecycle export
+- technology export
+- direct-use export
+- hybrid/mineral export
+- validation-aware export
+
+MVP print/PDF-like outputs:
+
+- market overview dashboard
+- country comparison sheets
+- technology comparison sheets
+- company benchmarking sheets
+- pipeline overview
+- direct-use overview
+- consulting-style summary pages
+
+Filtered analytical states should be exportable and reusable.
+
+### MVP vs Future Summary
+
+MVP:
+
+- predefined dashboards
+- chart-driven analytics
+- shared/global filters
+- drilldowns
+- benchmarking
+- historical charts where data exists
+- exportable charts/tables
+- direct-use/hybrid/mineral visibility
+- validation-aware analytics
+- approved/export-ready default with internal toggle
+
+Research/data-quality metrics in Analysis should remain lightweight and
+high-level only. Operational data quality belongs primarily in Research Ops.
+
+Future:
+
+- user-configurable dashboards
+- saved analytical views
+- reusable filter presets
+- embedded BI capabilities
+- API-connected analytics
+- Power BI-style exploration
+- AI-generated analytical commentary
+- forecasting
+- trend detection
+- geothermal market scoring
+- investment attractiveness scoring
+- predictive analytics
+- semantic/AI analytical search
+- subscriber-facing analytical products
+
+### Strategic Principle
+
+Analysis should become:
+
+- the geothermal intelligence engine
+- the consulting analytics backbone
+- the foundation for future AI-generated insights
+- the basis for benchmarking and market positioning
+
+The system should avoid:
+
+- fragmented analysis pages
+- duplicated calculations
+- inconsistent filters
+
+Use:
+
+- centralized analytical logic
+- reusable filters
+- reusable chart components
+- validation-aware calculations
+- drilldown workflows
+
+The long-term direction should resemble a geothermal-focused intelligence/BI
+platform rather than static dashboards only.
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Analysis
+Dashboard
 ```
 
-Reason: Analysis turns the relational core into cross-database analytics,
-charts, comparison views, direct-use breakdowns, company role analytics,
-data-quality analytics, and future BI-style intelligence surfaces.
+Reason: Dashboard should define the executive/high-level landing experience and
+its relationship to Research Ops, Countries / Markets, Analysis, and role-based
+defaults.
