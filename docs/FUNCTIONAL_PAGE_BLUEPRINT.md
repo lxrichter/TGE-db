@@ -2069,14 +2069,409 @@ Future:
 - automated portfolio analysis
 - external/subscriber-ready company profiles
 
+## Countries / Markets Functional Blueprint
+
+### Main Concept
+
+Countries / Markets should become one of the highest-value intelligence layers
+of the platform.
+
+The country/market layer should combine:
+
+- database-derived analytics
+- editorial market intelligence
+- validation-aware structured data
+- future AI-generated market briefing capability
+
+The approach should be a strong hybrid:
+
+- structured data and analytics first
+- editorial intelligence layered on top
+
+This aligns with ThinkGeoEnergy’s role as:
+
+- geothermal intelligence provider
+- editorial/media platform
+- consulting/research organization
+
+### Current Implemented Functionality
+
+The current platform already has prototype Markets/Countries pages and
+database-derived analysis surfaces.
+
+Current limitations:
+
+- country market pages are not yet the full intelligence layer described here
+- editorial market notes need to be cleanly separated from structured analytics
+- approved/export-ready market totals need clearer handling
+- internal draft-aware totals need explicit toggles and labels
+- regional pages need a shared aggregation logic
+- market-report/export workflows are not yet complete
+
+### Primary Functions
+
+Country pages should primarily:
+
+- provide structured geothermal market overview
+- aggregate projects, plants/facilities, companies, and market activity
+- support market intelligence and consulting
+- support export/report generation
+- support future AI market briefings
+- act as a market dashboard for a country or region
+
+Country pages should summarize:
+
+- operating market status
+- pipeline/development status
+- direct-use activity
+- company activity
+- technology/resource mix
+- drilling/construction activity
+- editorial commentary and market intelligence notes
+
+Country pages must support slight editorial override capability where official
+market numbers differ from strictly database-derived totals.
+
+Examples of official/editorial reporting conventions:
+
+- official government reporting
+- IGA/TGE reporting convention
+- editorially adjusted market interpretation
+
+This matters for:
+
+- annual global/top 10 reports
+- market comparison
+- strategic consulting outputs
+
+### Header And Summary Cards
+
+Country header should show:
+
+- country name
+- region
+- World Bank region
+- geothermal market status tag
+- map/location visual
+- latest market update
+- validation/export-ready status
+
+MVP market status tags:
+
+- emerging market
+- active development market
+- mature market
+- policy-driven growth market
+- drilling-active market
+- stalled market
+- direct-use dominant market
+- hybrid market
+- unknown
+
+MVP summary cards:
+
+- installed operating capacity MWe
+- running/operating capacity MWe
+- direct-use thermal capacity MWth
+- annual heat supply GWhth where available
+- project pipeline MW
+- number of operating plants/facilities
+- number of active projects
+- number of companies active
+- direct-use project count
+- hybrid/mineral project count
+- drilling activity count if available
+- latest market activity date
+- source coverage/validation indicators
+
+Summary cards should distinguish:
+
+- approved/export-ready data
+- internal draft-aware data where permitted
+
+### Sections / Tabs
+
+MVP sections/tabs:
+
+#### Overview
+
+- editorial market summary
+- headline market metrics
+- key market status
+- recent developments
+
+#### Projects
+
+- project table
+- pipeline MW
+- lifecycle breakdown
+- project map integration
+
+#### Plants / Facilities
+
+- operating asset table
+- operating capacity
+- direct-use facilities
+- retired/decommissioned assets if enabled
+
+#### Companies
+
+- active companies
+- owners/operators
+- developers
+- suppliers
+- investors
+- ecosystem participants
+
+#### Market Analysis
+
+- charts
+- lifecycle analysis
+- technology mix
+- direct-use breakdown
+- company role analysis
+
+#### Map
+
+- projects
+- plants/facilities
+- direct-use facilities
+- hybrid/mineral assets
+- clustering/filtering
+
+#### Policy & Market Notes
+
+- regulatory overview
+- permitting notes
+- geothermal strategy
+- funding/tenders
+- major policy developments
+- market barriers/opportunities
+
+#### Sources & Related News
+
+- related TGE articles
+- key reports/documents
+- source/evidence overview
+- latest market updates
+
+#### Internal Notes
+
+Restricted section for:
+
+- internal market assessment
+- research gaps
+- validation concerns
+- client-sensitive notes
+- editorial notes
+
+#### Validation & Metadata
+
+- source coverage
+- approval/export readiness
+- missing-data issues
+- last reviewed date
+- last updated by
+
+### Editorial / Market Intelligence Notes
+
+MVP editorial/market intelligence notes:
+
+- market overview
+- market maturity assessment
+- development momentum
+- regulatory environment
+- drilling activity commentary
+- financing environment
+- utility/public sector involvement
+- direct-use market status
+- major projects
+- major stakeholders
+- bottlenecks/challenges
+- investment outlook
+- market opportunities
+
+Internal-only notes:
+
+- strategic observations
+- data concerns
+- validation uncertainty
+- stakeholder commentary
+- client-sensitive intelligence
+
+Editorial notes and structured analytics must remain clearly separated.
+
+### MVP Charts, Tables, And Maps
+
+MVP charts:
+
+- installed capacity by year
+- operating vs pipeline capacity
+- pipeline by lifecycle phase
+- direct-use by category
+- technology mix
+- company role distribution
+- projects by status
+- operating assets by technology
+- drilling activity summary if available
+
+MVP tables:
+
+- projects table
+- plants/facilities table
+- companies table
+- direct-use assets table
+- source/news table
+
+MVP maps:
+
+- operating plants/facilities
+- projects
+- direct-use facilities
+- hybrid/mineral assets
+- clustering/grouping
+- approved-only toggle
+- internal draft toggle for editors/admins
+
+Charts should be:
+
+- database-derived by default
+- able to support editorial notes/callouts
+- expandable later
+
+### Draft vs Approved / Export-Ready Data
+
+Default public/export-ready view:
+
+- approved/export-ready records only
+
+Internal/editor/admin toggle:
+
+- include draft/internal records
+- include validation-warning records
+- include unapproved/internal notes
+
+Country-level totals and charts should clearly distinguish:
+
+- approved market numbers
+- internal draft-aware numbers
+
+Research/admin users should be able to:
+
+- compare approved vs internal totals
+- identify missing-data impact
+- see validation coverage
+
+### Exports / Print Views
+
+MVP exports:
+
+- country market export
+- project export by country
+- plant/facility export by country
+- company activity export by country
+- direct-use export
+- lifecycle/pipeline export
+- validation/missing-data export
+- source export
+
+MVP print/PDF-like views:
+
+- country market profile
+- country pipeline summary
+- country operating asset profile
+- company activity summary
+- market intelligence briefing
+- validation/research sheet
+
+Future:
+
+- investor-style market report
+- automated country report generation
+- AI-generated market briefings
+- consulting-ready export packages
+- subscriber-ready market intelligence PDFs
+
+### Regional Pages
+
+Regional pages should exist in MVP.
+
+MVP regional pages:
+
+- derived from country aggregation logic
+- use the same metrics and charts where possible
+- allow regional project/asset/company/source tables
+- support regional market notes where available
+
+Future:
+
+- dedicated editorial/regional intelligence pages
+- cross-country benchmarking
+- regional consulting outputs
+
+### MVP vs Future Summary
+
+MVP:
+
+- hybrid analytics + editorial structure
+- country and regional market pages
+- approved/export-ready market metrics
+- internal/draft-aware toggle
+- operating + pipeline summaries
+- direct-use/mineral visibility
+- company ecosystem visibility
+- charts/tables/maps
+- editorial market notes
+- policy/regulatory notes
+- related TGE news integration
+- exports and print profiles
+
+Future:
+
+- AI-generated country briefings
+- semantic market intelligence search
+- market maturity scoring
+- investment attractiveness scoring
+- automated trend detection
+- geothermal market forecasting
+- policy monitoring
+- tender/funding tracking
+- drilling activity intelligence
+- cross-country benchmarking
+- consulting/report generation automation
+- subscriber-facing intelligence products
+
+### Strategic Principle
+
+Country/Market pages should become:
+
+- one of the core consulting outputs
+- one of the core report-generation layers
+- one of the strongest AI briefing foundations
+- one of the strongest subscriber intelligence products
+
+The market layer should unify:
+
+- projects
+- plants/facilities
+- companies
+- sources
+- editorial intelligence
+- validation logic
+- analytics
+- maps
+- future AI capabilities
+
+into a single geothermal market intelligence view.
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Countries / Markets
+Map
 ```
 
-Reason: country and market pages turn the relational database into intelligence
-views by combining project/asset/company/source data with market context,
-editorial notes, maps, charts, exports, and future client-ready profiles.
+Reason: the map is the spatial intelligence layer connecting projects,
+plants/facilities, direct-use assets, countries/markets, filters, clustering,
+validation status, and future overlays.
