@@ -1476,3 +1476,9 @@ Proposed future improvements:
 - bulk select records for assignment, validation, or export review
 - connect workflow buttons to submit-for-validation, approve, needs-update, and
   return-to-research actions
+
+The detailed page-by-page functional contract is maintained in:
+
+```text
+docs/FUNCTIONAL_PAGE_BLUEPRINT.md
+```
