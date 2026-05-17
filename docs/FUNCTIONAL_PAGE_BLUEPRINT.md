@@ -807,14 +807,433 @@ Future:
 - conflicting source detection
 - automated briefing/report support
 
+## Projects Functional Blueprint
+
+### Main Purpose
+
+Projects are the core pipeline entity. They represent geothermal developments
+that are not yet operating, including:
+
+- early prospects
+- exploration areas
+- field development projects
+- expansions
+- refurbishments
+- hybrid developments
+- projects under construction
+
+Projects connect to:
+
+- sources/evidence
+- companies/roles
+- lifecycle phases
+- maps
+- country/market pages
+- Research Ops
+- validation workflow
+- exports
+- promotion into Plants / Facilities
+
+### Current Implemented Functionality
+
+The current platform already has project list/detail/edit workflows in the
+SQLite prototype and project records in the PostgreSQL schema baseline.
+
+Current limitations:
+
+- PostgreSQL project detail/edit pages are not yet fully implemented
+- promotion to the future operating asset model needs to be hardened
+- project source/evidence handling is not yet the full Sources / Documents model
+- direct-use and hybrid project forms need adaptive sections
+- field-level evidence and capacity claim history are not implemented yet
+
+### Minimum Required Fields
+
+MVP minimum required fields for creating a project:
+
+- project name
+- country
+- lifecycle phase/status
+- geothermal use type: power, direct-use, hybrid, unknown
+- source/evidence note or source placeholder
+- created_by / created_at
+
+Strongly recommended at creation:
+
+- project group / field group
+- region
+- location description
+- linked company, if known
+- capacity or potential capacity, if known
+- notes
+
+A project should be allowed to exist without capacity, especially for:
+
+- Prospect / TBD
+- Exploration
+
+Early projects often only have potential capacity ranges, not planned installed
+capacity.
+
+### Lifecycle / Status Values
+
+Use the existing TGE lifecycle structure.
+
+MVP project phases:
+
+- Prospect / TBD
+- Exploration
+- Pre-Feasibility
+- Feasibility
+- Construction
+- Cancelled
+
+Operating is not a project phase for active project tables. Once commissioned,
+the asset is promoted/copied into Plants / Facilities and the original project
+remains historically linked but should not be counted in active project pipeline
+totals.
+
+Cancelled projects should remain visible and searchable because geothermal
+history, failed projects, and discontinued developments are important for market
+intelligence.
+
+Additional statuses should be metadata/tags/notes in MVP rather than core
+lifecycle phases:
+
+- permitting
+- financing
+- stalled
+- on hold
+- delayed
+- repowering
+- refurbishment
+- expansion
+
+### Capacity Logic
+
+MVP capacity fields should distinguish:
+
+- potential_capacity_min_mw
+- potential_capacity_max_mw
+- planned_installed_capacity_mw
+
+Current logic:
+
+- for Prospect / TBD and early Exploration, use potential capacity min/max where
+  available
+- keep planned installed capacity empty if there is no concrete project capacity
+  yet
+- once a project moves into more concrete development, planned installed
+  capacity should be added
+- planned installed capacity is used for project pipeline MW summary charts by
+  lifecycle phase
+- when promoted to Plant / Facility, planned installed capacity can become
+  installed capacity or feed into the operating asset record
+
+Later:
+
+- announced capacity
+- estimated capacity
+- approved capacity
+- capacity confidence
+- capacity source/claim history
+
+### Form Structure By Use Type
+
+Use one shared core project form with adaptive sections by use type.
+
+Shared core sections:
+
+- identity/naming
+- location
+- lifecycle/status
+- use type/classification
+- capacity/output
+- companies/roles
+- sources/evidence
+- internal notes
+- validation/review
+
+Power-specific fields:
+
+- planned installed capacity MWe
+- resource type
+- plant technology
+- turbine technology
+- grid/PPA notes
+- planned COD
+- wellfield data
+
+Direct-use-specific fields:
+
+- thermal capacity MWth
+- annual heat supply GWhth
+- annual cooling supply GWhc, if relevant
+- direct-use category
+- district heating/cooling flag
+- heat pump assisted flag
+- offtaker/end-use sector
+- facility/network type
+
+Hybrid-specific fields:
+
+- allow both power and direct-use fields
+- support multiple use-type tags
+- show in both power and direct-use views
+- later allow linked sub-assets
+
+Hybrid projects should be represented as one hybrid project entity first,
+visible across relevant views/tables. Later, linked sub-assets may be added if
+the system needs more detail.
+
+### Project Company Roles
+
+MVP project company roles:
+
+- developer
+- owner
+- operator
+- investor
+- financier
+- resource_owner
+- concession_holder
+- utility_offtaker
+- heat_offtaker
+- industrial_host
+- drilling_contractor
+- epc_contractor
+- engineering_consultant
+- technology_supplier
+- equipment_supplier
+- municipality
+- government_public_agency
+- research_institution
+- other
+
+Direct-use-specific roles:
+
+- district_heating_operator
+- district_cooling_operator
+- greenhouse_operator
+- building_owner
+- heat_pump_supplier
+- cooling_offtaker
+
+MVP should track current relationships.
+
+Later:
+
+- historical company relationships
+- ownership changes
+- role timelines
+
+### Approval / Export Readiness
+
+Critical approval/export fields:
+
+- project name
+- country
+- lifecycle phase/status
+- use type
+- at least one source/evidence record
+- validation status
+- duplicate check completed
+
+Important but not always mandatory:
+
+- planned installed capacity or potential capacity
+- project group / field group
+- linked company
+- coordinates
+- region
+- location description
+- source confidence
+- notes explaining missing data
+
+Approval rule:
+
+- all critical fields should be present
+- important fields may be missing if flagged clearly and editor override/reason
+  is recorded
+
+Export-ready rule:
+
+- credible source exists
+- no unresolved critical missing-data issues
+- no unresolved duplicate warning
+- approved validation status
+
+### Promotion Into Plants / Facilities
+
+Projects must have a promotion workflow into Plants / Facilities.
+
+Promotion behavior:
+
+- non-destructive
+- project is copied/promoted into a new Plant / Facility record
+- original project remains historically linked
+- promoted project should no longer count toward active project pipeline MW totals
+- promoted project should not appear in the default active project table unless
+  filtered/searched
+- promoted project remains searchable and visible on historical/detail pages
+- new Plant / Facility record receives operating asset fields
+
+Promotion should preserve:
+
+- original project ID
+- new plant/facility ID
+- promotion date
+- promoted_by
+- source/evidence
+- linked companies
+- capacity history
+- notes
+- project group / field group
+- relationship to originating project
+
+The platform must also support expansions, retirements, refurbishments, and
+unit-level changes.
+
+MVP:
+
+- allow project records for expansions/additions
+- link expansion project to existing plant/field/project group
+- promote expansion into a new plant/facility/unit record when commissioned
+
+Future:
+
+- explicit unit-level operating asset model
+- capacity addition/retirement events
+- refurbishment/repowering events
+- historical operating capacity timeline by plant group/geothermal field
+- clear tracking of units taken offline, retired, replaced, or added
+- ability to understand historical field-level installed/running capacity over
+  time
+
+### Project Detail Page
+
+MVP project detail page should become one of the main intelligence views for
+each project.
+
+Header/profile section:
+
+- project name
+- project ID
+- country/region
+- location
+- lifecycle phase
+- use type
+- validation/review status
+- key tags
+- quick actions
+
+Key metrics:
+
+- potential min/max MW
+- planned installed capacity MW
+- thermal capacity MWth if direct-use
+- planned COD if known
+- linked companies
+- source count
+- missing-data flags
+
+Sections/tabs:
+
+- overview
+- location
+- lifecycle/timeline
+- capacity/output
+- resource/technology
+- direct-use classification, if relevant
+- wellfield data, if relevant
+- companies/roles
+- sources/evidence
+- related TGE news
+- activity/research notes
+- validation/review
+- linked plants/facilities if promoted
+- related projects/expansions in same project group/field group
+
+The project detail page should include:
+
+- related TGE news/articles
+- related external sources
+- linked companies
+- development timeline/activity feed
+- missing data warnings
+- source/evidence panel
+- map/location preview
+- promotion status
+
+### Project Exports / Print Views
+
+MVP exports:
+
+- all projects export
+- filtered projects export
+- active pipeline export
+- missing data project export
+- validation queue export
+- country project export
+- company-linked project export
+- direct-use project export
+- hybrid project export
+
+MVP print/PDF-like views:
+
+- project profile
+- project validation sheet
+- project source/evidence sheet
+- country project list
+- company project portfolio
+- project pipeline summary
+
+Later:
+
+- investor-style project brief
+- project history/timeline export
+- source confidence report
+- field/group-level project portfolio
+- automated project profile PDF
+- AI-generated project summary
+
+### MVP vs Future Summary
+
+MVP:
+
+- shared project structure
+- core lifecycle phases
+- potential min/max and planned capacity distinction
+- adaptive fields by use type
+- company relationship links
+- source/evidence links
+- Research Ops validation flags
+- project detail page
+- basic promotion into Plants / Facilities
+- support expansion projects linked to existing groups/assets
+- exports and print profiles
+
+Future:
+
+- field-level evidence
+- unit-level asset model
+- capacity addition/retirement/refurbishment events
+- historical capacity timeline
+- polygons/concession areas
+- historical company relationships
+- AI project summaries
+- automated related news/entity matching
+- advanced project-to-asset/sub-asset relationships
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Projects
+Plants / Facilities
 ```
 
-Reason: project records are the core pipeline entity and need to carry
-lifecycle/status, sources, company links, direct-use classification readiness,
-validation state, exports, map behavior, and future project-to-asset promotion.
+Reason: operating assets need to handle power plants, direct-use facilities,
+hybrid complexes, expansions, units, retirements, running capacity, output
+metrics, source validation, maps, country/market views, and promotion from
+projects.
