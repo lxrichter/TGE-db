@@ -2464,14 +2464,179 @@ The market layer should unify:
 
 into a single geothermal market intelligence view.
 
+## Map Functional Blueprint
+
+### Main Purpose
+
+The map should be both:
+
+1. a navigation/search tool
+2. a spatial market intelligence tool
+
+MVP should prioritize:
+
+- finding projects/plants/facilities geographically
+- filtering by country, region, lifecycle, use type, technology, resource type,
+  turbine type, company, and status
+- supporting screenshots/exports of filtered map states for presentations and
+  reports
+
+### Current Implemented Functionality
+
+The current platform already has a prototype map view and grouped map logic.
+
+Current limitations:
+
+- the map is not yet fully aligned with the future PostgreSQL operating asset
+  model
+- direct-use, hybrid, and mineral/lithium layers need to be formalized
+- map exports/print states are not yet mature
+- marker click-through should eventually connect to PostgreSQL-backed record
+  detail pages
+- missing-coordinate workflow needs tight integration with Research Ops
+
+### MVP Layers
+
+MVP layers:
+
+- power plants
+- power projects
+- direct-use facilities
+- direct-use projects
+- hybrid assets/projects
+- mineral/lithium-related assets/projects
+- grouped/clustered markers
+- individual markers at local zoom levels
+
+Default behavior:
+
+- clustered/grouped markers by default for usability and performance
+- individual records visible when zoomed in or when the user switches to
+  record-level view
+
+### Filters / Toggles
+
+MVP filters/toggles:
+
+- country
+- region
+- use type: power, direct-use, hybrid, mineral
+- project vs plant/facility
+- lifecycle phase
+- operating status
+- technology type
+- resource type
+- turbine/plant technology
+- company/operator/developer
+- approved/export-ready only
+- internal draft toggle for researchers/editors/admins
+- missing coordinates queue link
+
+### Visual Distinction
+
+MVP visual logic:
+
+- color should indicate lifecycle/status where possible
+- icon/shape may indicate asset type if design allows
+- avoid visual overload
+- filters should do most of the analytical work
+
+### Missing Coordinates
+
+Records with missing coordinates should not appear as fake or country-centroid
+markers on the main map.
+
+MVP behavior:
+
+- only show records with usable coordinates
+- records missing coordinates appear in Research Ops / missing coordinates queue
+- no fake country-centroid markers in the main map
+
+Future:
+
+- optional approximate-location mode may be considered, clearly labelled as
+  approximate
+
+### Marker Click Behavior
+
+MVP marker click should open a minimalist popup showing:
+
+- project/plant/facility name
+- country
+- lifecycle phase or operating status
+- installed/planned capacity
+- use type
+- link to full record page
+
+Future:
+
+- side intelligence panel
+- inline quick actions
+- source/validation preview
+
+### Country / Market Integration
+
+Country/market pages should embed filtered maps for that country/region.
+
+Embedded maps should inherit relevant context:
+
+- country/region filter
+- approved/export-ready default view
+- internal draft toggle for permitted users
+- relevant project/asset/direct-use/hybrid layers
+
+### Exports / Print
+
+MVP should support:
+
+- screenshots / printable filtered map states
+- export current filtered map view
+- map image for reports/presentations where feasible
+- filtered record export from map view
+
+Future:
+
+- presentation-quality map exports
+- consulting/report map templates
+- map layers for concessions/polygons
+- transmission/pipeline/geology overlays
+- heatmaps
+- spatial clustering analytics
+- AI-generated map summaries
+
+### MVP vs Future Summary
+
+MVP:
+
+- map as navigation + intelligence view
+- clustered default map
+- individual markers at local zoom
+- separate toggles/layers for power, direct-use, hybrid, mineral
+- strong filters
+- approved/default view + internal draft toggle
+- only coordinate-confirmed records shown
+- minimalist marker popup + full-page link
+- screenshots/filtered views for reporting
+
+Future:
+
+- side panel
+- polygons/concession areas
+- geological/resource overlays
+- transmission/district heating network overlays
+- heatmaps
+- advanced spatial analytics
+- report-quality map generator
+- AI spatial intelligence
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Map
+Analysis
 ```
 
-Reason: the map is the spatial intelligence layer connecting projects,
-plants/facilities, direct-use assets, countries/markets, filters, clustering,
-validation status, and future overlays.
+Reason: Analysis turns the relational core into cross-database analytics,
+charts, comparison views, direct-use breakdowns, company role analytics,
+data-quality analytics, and future BI-style intelligence surfaces.
