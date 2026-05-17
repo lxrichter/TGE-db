@@ -1225,15 +1225,326 @@ Future:
 - automated related news/entity matching
 - advanced project-to-asset/sub-asset relationships
 
-## Next Functional Blueprint Step
+## Plants / Facilities Functional Blueprint
 
-Next recommended page blueprint:
+### Main Concept
+
+Backend concept:
+
+```text
+operating_asset
+```
+
+UI label:
 
 ```text
 Plants / Facilities
 ```
 
-Reason: operating assets need to handle power plants, direct-use facilities,
-hybrid complexes, expansions, units, retirements, running capacity, output
-metrics, source validation, maps, country/market views, and promotion from
-projects.
+A Plant / Facility is a commissioned or operating geothermal asset, including:
+
+- geothermal power plant
+- specific operating unit
+- direct-use facility
+- district heating system
+- district cooling system
+- industrial heat facility
+- hybrid power/heat/mineral complex
+- retired/decommissioned unit or facility, if historically relevant
+
+### Current Implemented Functionality
+
+The current platform already has plant list/detail/edit workflows in the SQLite
+prototype and operating asset records in the PostgreSQL schema baseline.
+
+Current limitations:
+
+- PostgreSQL-backed Plant / Facility detail/edit pages are not yet fully
+  implemented
+- direct-use facility handling needs to be expanded beyond the historic power
+  plant focus
+- unit-level modeling is not yet explicit
+- capacity events, refurbishments, retirements, and repowering are not yet fully
+  structured
+- active operating capacity calculations need clear rules for retired/offline
+  records
+
+### Minimum Required Fields
+
+MVP minimum required fields:
+
+- asset name
+- country
+- operating status
+- use type: power, direct-use, hybrid, mineral, unknown
+- installed capacity or capacity unknown flag
+- current/running capacity or operating capacity where known
+- source/evidence placeholder
+- created_by / created_at
+
+Strongly recommended:
+
+- plant/facility group
+- field group
+- region
+- coordinates
+- COD/commissioning year
+- operator/owner link
+- technology
+- resource type
+- notes
+
+Source rule:
+
+- source is not mandatory for draft creation
+- source is required for approval/export-ready status
+
+### Operating Status Values
+
+MVP operating status values:
+
+- Operating
+- Partially operating
+- Temporarily offline
+- Retired / Decommissioned
+- Under refurbishment
+- Unknown
+
+Later:
+
+- repowered
+- mothballed
+- seasonal operation
+- test operation
+- standby
+- under expansion
+
+### Form Structure By Use Type
+
+Use the same operating asset entity with adaptive sections by use type.
+
+Power fields:
+
+- installed_capacity_mwe
+- running_capacity_mwe
+- gross/net capacity, if available
+- plant technology: flash, binary, dry steam, combined cycle, hybrid
+- turbine supplier
+- number of units
+- COD
+- generation GWh, if available
+
+Direct-use fields:
+
+- thermal_capacity_mwth
+- annual_heat_supply_gwhth
+- annual_cooling_supply_gwhc
+- direct-use category
+- district heating/cooling flag
+- heat pump assisted flag
+- end-use/offtaker
+- facility/network type
+
+Hybrid/mineral fields:
+
+- allow multiple use types on one asset
+- one asset may appear in power, direct-use, and mineral table views
+- power, heat, cooling, and mineral values should remain separately trackable
+- future linked sub-assets may be added if needed
+
+### Capacity Representation
+
+MVP capacity fields:
+
+- installed_capacity_mwe
+- running_capacity_mwe
+- thermal_capacity_mwth
+- annual_heat_supply_gwhth
+- annual_cooling_supply_gwhc
+- capacity_status / confidence note
+- capacity_notes
+
+Default operating capacity calculations should use current/running capacity
+where available.
+
+Retired/decommissioned capacity should remain visible and searchable, but should
+be excluded from default active operating capacity totals.
+
+Future capacity fields:
+
+- retired_capacity_mwe
+- retired_capacity_mwth
+- gross_capacity_mwe
+- net_capacity_mwe
+- capacity_event_type
+- capacity_event_date
+- capacity_change_mw
+- capacity_event_source
+- historical capacity timeline
+
+### Expansions, Units, Retirements, Refurbishments, Repowering
+
+MVP:
+
+- one row per meaningful operating asset/unit where analytically relevant
+- use plant_group / field_group to connect related units/assets
+- create separate records where units have distinct COD, capacity, technology,
+  supplier, status, or ownership/operator relevance
+- use notes/timeline for capacity changes, retirement, refurbishment, or
+  repowering if not yet structurally modeled
+- retired/offline units remain visible/searchable but excluded from default
+  operating totals
+
+Some plants have multiple units with different turbine suppliers and
+technologies, such as Ormat vs Fuji or binary vs flash. MVP must support
+separate unit records when this matters analytically.
+
+Future:
+
+- explicit unit model
+- capacity event model
+- refurbishment/repowering event model
+- retirement/offline event model
+- historical operating capacity timeline by plant group/geothermal field
+- clearer view of additions, retirements, replacements, and refurbishments over
+  time
+
+### Plant / Facility Company Roles
+
+MVP company roles for Plants / Facilities:
+
+- owner
+- operator
+- developer
+- investor
+- financier
+- resource_owner
+- plant_operator
+- district_heating_operator
+- district_cooling_operator
+- industrial_host
+- heat_offtaker
+- cooling_offtaker
+- utility_offtaker
+- turbine_supplier
+- technology_supplier
+- equipment_supplier
+- epc_contractor
+- drilling_contractor
+- engineering_consultant
+- o_and_m_contractor
+- municipality
+- government_public_agency
+- research_institution
+- other
+
+### Plant / Facility Detail Page
+
+MVP Plant / Facility detail page should show:
+
+Header/profile:
+
+- asset name
+- asset ID
+- country/region/location
+- coordinates
+- operating status
+- use type
+- validation status
+- quick actions
+
+Key metrics:
+
+- installed capacity
+- running/current capacity
+- thermal/cooling capacity, if relevant
+- COD
+- technology
+- resource type
+- operator/owner
+- source count
+- missing-data flags
+
+Sections/tabs:
+
+- overview
+- location/map
+- capacity & operating status
+- capacity history / events
+- units
+- resource & technology
+- wellfield data
+- direct-use classification, if relevant
+- companies/roles
+- sources/evidence
+- related TGE news
+- activity/research notes
+- validation/review
+- linked originating project
+- related units/assets in same plant_group / field_group
+
+MVP should include a simple capacity history/timeline section using notes/events.
+Future should make capacity events fully structured.
+
+### Exports / Print Views
+
+MVP exports:
+
+- all plants/facilities export
+- filtered export
+- power plants export
+- direct-use facilities export
+- hybrid/mineral assets export
+- country operating assets export
+- company-linked assets export
+- missing data export
+- validation queue export
+- retired/decommissioned assets export
+
+MVP print/PDF-like views:
+
+- plant/facility profile
+- unit profile
+- plant group / field group profile
+- company asset portfolio
+- country operating asset list
+- validation/source sheet
+- capacity history sheet
+
+### MVP vs Future Summary
+
+MVP:
+
+- shared operating asset entity
+- UI label Plants / Facilities
+- adaptive fields by use type
+- installed + running/current capacity
+- separate unit records where analytically important
+- plant_group / field_group linkage
+- retired/offline records visible but filtered out from active totals
+- basic capacity history/timeline notes
+- company links
+- source links
+- exports and print profiles
+
+Future:
+
+- explicit unit model
+- capacity event model
+- retirement/refurbishment/repowering events
+- historical field-level capacity timelines
+- advanced asset hierarchy
+- field/group-level analytics
+- AI-assisted operating history summaries
+
+## Next Functional Blueprint Step
+
+Next recommended page blueprint:
+
+```text
+Companies
+```
+
+Reason: company records are the relationship layer connecting projects, plants,
+facilities, ownership, operation, suppliers, offtakers, investors, public
+agencies, and future market intelligence.
