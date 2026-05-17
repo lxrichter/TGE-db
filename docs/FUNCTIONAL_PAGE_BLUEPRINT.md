@@ -1537,14 +1537,546 @@ Future:
 - field/group-level analytics
 - AI-assisted operating history summaries
 
+## Companies Functional Blueprint
+
+### Main Concept
+
+The company model should distinguish between:
+
+1. Company Group
+
+   Analytical umbrella/group structure.
+
+2. Company
+
+   Actual legal entity, subsidiary, SPV, operator, supplier, investor,
+   institution, or other market actor.
+
+3. Relationship Role
+
+   The role a company plays in a specific project, plant/facility, market, or
+   relationship.
+
+Company type/category and company relationship role must remain separate.
+
+Example:
+
+- primary company type: Utility / IPP
+- secondary categories: Operator, Owner
+- relationship role on Project X: Developer
+- relationship role on Plant Y: Operator
+
+This separation is critical for:
+
+- ownership analysis
+- operator analysis
+- market share analysis
+- avoiding duplicated logic
+- future AI/semantic graph relationships
+
+### Current Implemented Functionality
+
+The current platform already has company list/detail/edit workflows in the
+SQLite prototype and company/relationship tables in the PostgreSQL schema
+baseline.
+
+Current limitations:
+
+- company group logic needs to become more explicit
+- company type/category and relationship role must be kept cleanly separated
+- historical ownership and role timelines are not yet implemented
+- company intelligence summaries need to be calculated from structured links
+- duplicate company detection needs to be expanded
+
+### Company Categories
+
+MVP should support:
+
+- one primary company category
+- multiple secondary company categories
+- controlled vocabularies only
+- no uncontrolled tagging
+
+Primary company categories (`company_type_primary`):
+
+- Resource owner
+- Portfolio developer
+- Technology developer
+- Hybrid developer + technology
+- Utility / IPP
+- OEM / supplier
+- Service provider
+- Drilling company
+- EPC contractor
+- Investment firm
+- Energy major
+- Public / development institution
+- Association / industry body
+- Advocacy / non-profit
+
+Primary category should represent the company’s dominant strategic identity in
+the geothermal sector.
+
+Secondary company categories (`company_type_secondary`):
+
+Development / ownership:
+
+- Developer
+- Operator
+- Owner
+- Investor
+- Licensor
+
+Financial/investment:
+
+- Private equity
+- Venture capital
+- Infrastructure investor
+- Development finance institution
+- Commercial bank
+- Institutional investor
+- Family office
+- Mezzanine finance
+- Export credit agency
+
+Exploration / subsurface:
+
+- Geology services
+- Geophysics services
+- Geochemistry services
+- Seismic services
+- Reservoir engineering
+- Exploration services
+
+Drilling & wells:
+
+- Drilling contractor
+- Drilling engineering
+- Drilling services
+- Well services
+- Cementing services
+- Casing supplier
+- Well testing
+
+Engineering & construction:
+
+- Engineering consultant
+- Project management
+- Construction contractor
+- O&M services
+
+Equipment & technology:
+
+- Turbine supplier
+- Binary technology
+- Steam technology
+- Control systems
+- Electrical systems
+- Surface equipment
+- Valves and piping
+- Cooling systems
+
+Software & digital:
+
+- Software provider
+- Data services
+- Reservoir modelling software
+
+Consulting & advisory:
+
+- Business consulting
+- Market intelligence
+- Strategy consulting
+- Transaction advisory
+- Legal services
+- Regulatory advisory
+- Project structuring
+
+Communications & media:
+
+- Communications
+- Public relations
+- Marketing
+- Branding
+- Media services
+- Content creation
+
+Industry & policy:
+
+- Industry association
+- Policy advocacy
+- Market development
+- Industry promotion
+- Stakeholder engagement
+- Lobbying
+- Government relations
+
+Secondary categories should support:
+
+- filtering
+- analytics
+- company intelligence
+- future AI classification
+- market ecosystem mapping
+
+### Minimum Required Fields
+
+MVP minimum required fields:
+
+- company name
+- primary company category
+- created_by / created_at
+
+Strongly recommended:
+
+- HQ country
+- website
+- company group if known
+- source/evidence placeholder
+- status: active, inactive, acquired, unknown
+- notes
+
+Optional but useful:
+
+- short name
+- legal name
+- ownership type
+- listed status
+- ticker
+- exchange
+- geothermal focus
+- technology focus
+- regions active
+- operating markets
+
+### Company Relationships
+
+MVP company relationships:
+
+- parent company
+- subsidiary
+- affiliate
+- joint venture
+- consortium
+- owner/shareholder
+- acquired by
+- merged with
+- partner
+- SPV / project company
+
+Support `ownership_share_percent` from MVP because ownership analysis is already
+being implemented and is strategically important.
+
+MVP relationship fields:
+
+- relationship type
+- related company
+- ownership_share_percent, optional
+- current/effective flag
+- source/evidence
+- notes
+
+MVP should focus on current relationships.
+
+Future:
+
+- historical ownership timelines
+- relationship start/end dates
+- transaction history
+- ultimate parent calculations
+- ownership confidence scoring
+- consolidation logic
+
+### Company Roles Across Projects And Assets
+
+Company roles must be structured relationship records, not text fields.
+
+Role vocabulary:
+
+Ownership & Leadership:
+
+- Owner
+- Operator
+- Developer
+- Co-Developer
+- Resource Owner
+
+Finance & Commercial:
+
+- Project Sponsor
+- Equity Investor
+- Debt Provider
+- Project Finance Lender
+- Grant Provider
+- Offtaker
+- Financial Advisor
+
+Drilling & Wells:
+
+- Drilling Contractor
+- Drilling Engineering
+- Well Services
+- Cementing Services
+- Well Testing
+- Casing Supplier
+
+EPC & Construction:
+
+- EPC Contractor
+- Construction Contractor
+- Balance of Plant Contractor
+
+Engineering & Consulting:
+
+- Engineering Consultant
+- Owner's Engineer
+- Technical Advisor
+- Environmental Consultant
+- Regulatory Advisor
+- Project Management
+
+Equipment & Technology:
+
+- Turbine Supplier
+- Binary Technology Provider
+- Steam Technology Provider
+- Control Systems Supplier
+- Electrical Systems Supplier
+- Surface Equipment Supplier
+- Valves & Piping Supplier
+- Cooling System Supplier
+- Software Provider
+- Data Services Provider
+- Reservoir Modelling Provider
+- Technology Licensor
+
+Operations & Maintenance:
+
+- O&M Contractor
+- Asset Manager
+
+Policy / Ecosystem / Other:
+
+- Industry Association
+- Advocacy Organization
+- Government Agency
+- Research Organization
+- Other
+
+Role metadata should support:
+
+- role_group
+- priority_class
+- role_score
+- ownership_share_percent where relevant
+- source/evidence
+- notes
+
+Display logic:
+
+Company profiles should show:
+
+- linked projects by role
+- linked plants/facilities by role
+- countries active
+- MW linked as owner/operator/developer where possible
+- role counts
+- source/evidence for major relationships
+
+A company may have different roles on different records.
+
+### Company Market / Activity Summaries
+
+Company profiles should include calculated intelligence summaries.
+
+MVP summaries:
+
+- linked projects
+- linked plants/facilities
+- countries active
+- regions active
+- operating MW linked
+- pipeline MW linked
+- roles held
+- technology exposure
+- direct-use/mineral involvement
+- source count
+- latest activity
+- validation status
+- related TGE news
+
+Calculated summaries should be clearly separated from:
+
+- manually written notes
+- editorial descriptions
+- internal intelligence notes
+
+Internal company intelligence notes should remain internal-only.
+
+### Company Detail Page
+
+MVP company detail page should include:
+
+Header/profile:
+
+- company name
+- company ID
+- primary category
+- secondary categories
+- HQ country/location
+- website
+- status
+- validation status
+- quick actions
+
+Key summary cards:
+
+- linked projects
+- linked plants/facilities
+- countries active
+- linked MW
+- operating MW
+- pipeline MW
+- source count
+- missing-data flags
+
+Core sections/tabs:
+
+- company overview
+- categories & geothermal focus
+- linked projects
+- linked plants/facilities
+- roles & capabilities
+- company relationships/group structure
+- ownership/shareholdings
+- countries/markets active
+- sources/evidence
+- related TGE news
+- internal notes
+- validation/review
+- activity/history
+
+Relationship section should show:
+
+- parent company
+- subsidiaries
+- affiliates
+- JV/consortium relationships
+- ownership/share percentages
+- source/evidence
+- notes
+
+Internal-only sections:
+
+- strategic observations
+- ownership uncertainty
+- source uncertainty
+- confidential notes
+- client-related notes
+- research comments
+
+These must remain separated from exportable/public profile information.
+
+### Exports / Print Views
+
+MVP exports:
+
+- all companies export
+- filtered companies export
+- company roles export
+- company-project relationship export
+- company-plant/facility relationship export
+- ownership/shareholding export
+- company group export
+- company missing-data export
+- validation queue export
+- country/company activity export
+
+MVP print/PDF-like views:
+
+- company profile
+- company project portfolio
+- company plant/facility portfolio
+- company relationship/ownership sheet
+- company country activity sheet
+- validation/source sheet
+
+Later:
+
+- investor-style company briefing
+- market positioning report
+- ownership structure report
+- company activity timeline
+- AI-generated company summary
+- competitive landscape report
+
+### Design / Data Integrity Principles
+
+Avoid:
+
+- duplicated company records
+- duplicated role logic
+- text-based ownership logic
+- uncontrolled tags/categories
+
+Use:
+
+- one company record per legal entity
+- one company group layer
+- controlled category vocabularies
+- structured relationship records
+- structured role tables
+- reusable source/evidence linkage
+
+This becomes foundational for:
+
+- ownership analysis
+- operator analysis
+- market ecosystem mapping
+- company intelligence
+- AI semantic relationships
+- future investor/subscriber products
+
+### MVP vs Future Summary
+
+MVP:
+
+- company records
+- company groups
+- controlled primary/secondary categories
+- current company relationships
+- structured company roles
+- ownership_share_percent support
+- linked projects/plants/facilities
+- source/evidence linkage
+- related TGE news
+- calculated activity summaries
+- exports and print profiles
+- internal notes separated from public/exportable data
+
+Future:
+
+- historical ownership timelines
+- relationship timelines
+- acquisition history
+- market share analytics
+- advanced ownership consolidation
+- company intelligence scoring
+- semantic company graph
+- duplicate company detection
+- investor/company intelligence layer
+- AI-assisted company summaries
+- automated portfolio analysis
+- external/subscriber-ready company profiles
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Companies
+Countries / Markets
 ```
 
-Reason: company records are the relationship layer connecting projects, plants,
-facilities, ownership, operation, suppliers, offtakers, investors, public
-agencies, and future market intelligence.
+Reason: country and market pages turn the relational database into intelligence
+views by combining project/asset/company/source data with market context,
+editorial notes, maps, charts, exports, and future client-ready profiles.
