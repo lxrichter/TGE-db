@@ -3394,14 +3394,418 @@ Long-term goal:
 - strongest wow-factor page
 - entry point for future AI-driven intelligence experiences
 
+## Admin / Access / Controlled Vocabularies Functional Blueprint
+
+### Main Purpose
+
+Admin should become the governance, taxonomy, permissions, validation, and
+operational control layer of the platform.
+
+It should:
+
+- maintain consistency across the intelligence system
+- manage permissions and access
+- control structured vocabularies and classifications
+- manage validation/export rules
+- support auditability and governance
+- prepare the platform for future AI, subscriber, and API products
+
+Admin should not feel like a separate ugly CMS backend.
+
+It should:
+
+- use the same clean intelligence-platform design language
+- remain integrated into the overall platform experience
+- focus on operational governance rather than technical complexity
+
+### Current Implemented Functionality
+
+The current platform includes early admin/user-management functionality and
+role-based access checks in the SQLite prototype.
+
+Current limitations:
+
+- controlled vocabulary management is not yet a complete admin workflow
+- approval/export rules are not yet configurable through Admin
+- field visibility rules need to be formalized
+- audit history is basic and not field-level
+- AI, subscriber, and API governance are future concerns
+
+### MVP Admin Responsibilities
+
+Users & Access:
+
+- user accounts
+- role assignment
+- permissions
+- activity visibility
+
+Validation & Governance:
+
+- approval/export rules
+- validation logic
+- review workflows
+- export-ready logic
+
+Controlled vocabularies:
+
+- lifecycle phases
+- operating statuses
+- project/use types
+- direct-use categories
+- technology categories
+- resource types
+- company types
+- company secondary categories
+- company roles
+- regions
+- countries
+- market status tags
+- validation/research statuses
+
+Operational settings:
+
+- dashboard configuration later
+- export permissions
+- visibility rules
+- internal vs exportable fields
+- AI permissions later
+
+Audit & Activity:
+
+- record activity
+- user activity
+- approval activity
+- validation history
+- exports
+- change tracking
+
+### Roles And Permissions
+
+MVP roles:
+
+- researcher
+- editor
+- senior editor
+- admin
+
+Future roles:
+
+- executive/internal viewer
+- client/subscriber
+- API user
+- AI service account
+
+Permissions should control:
+
+- view access
+- create access
+- edit access
+- approval rights
+- export rights
+- Admin access
+- AI access later
+- internal-note visibility
+- confidential-data visibility
+- vocabulary management
+- validation override rights
+
+Permissions should be:
+
+- modular
+- expandable
+- validation-aware
+
+### Controlled Vocabularies
+
+MVP controlled vocabularies:
+
+Project/Asset:
+
+- lifecycle phases
+- operating statuses
+- use types
+- direct-use categories
+- hybrid/mineral categories
+- resource types
+- technology categories
+- turbine technologies
+
+Company:
+
+- primary company types
+- secondary company categories
+- company roles
+- ownership types
+- organization types
+
+Geography:
+
+- countries
+- regions
+- World Bank regions
+
+Research/Validation:
+
+- review statuses
+- validation statuses
+- source credibility/confidence
+- research statuses
+- market status tags
+
+Future:
+
+- aliases/synonyms
+- deprecated terms
+- merged vocabularies
+- multilingual support
+- semantic mapping
+
+Controlled vocabularies are strategically critical to prevent taxonomy drift.
+
+### Approval / Export Rules
+
+Admin should manage:
+
+- approval requirements
+- export readiness rules
+- validation thresholds
+- mandatory field requirements
+- source requirements
+- visibility rules
+- AI approval rules later
+
+Examples of records that cannot be approved/exported:
+
+- no source
+- missing country
+- missing lifecycle phase
+- missing use type
+- missing operating status
+- missing company link
+- missing coordinates where required
+
+Editors may override certain warnings with notes/reasons.
+
+Admins retain highest override authority.
+
+Validation logic should remain configurable and not fully hardcoded.
+
+### Audit / Activity
+
+MVP audit/activity:
+
+- who created records
+- who edited records
+- who approved records
+- last edited date
+- approval date
+- export actions
+- recent activity feed
+- record change notes
+
+Researcher activity visibility:
+
+- records created
+- records edited
+- records validated
+- missing-data issues resolved
+- sources added
+- approvals completed
+
+Operational visibility is important for:
+
+- quality control
+- research evaluation
+- workflow management
+- identifying strong researchers/editors
+
+Avoid an overly aggressive employee-surveillance feeling.
+
+Focus on:
+
+- operational quality
+- contribution visibility
+- workflow efficiency
+
+Future:
+
+- field-level history
+- rollback/versioning
+- approval history timeline
+- export history
+- AI-generated changes
+- detailed audit logs
+
+### Admin vs Editor Responsibilities
+
+Editors:
+
+- review/edit records
+- approve records
+- manage validation queues
+- add provisional vocabulary entries
+- manage operational workflows
+- export standard datasets
+
+Admins:
+
+- manage users/permissions
+- manage controlled vocabularies
+- publish/approve vocabulary changes
+- manage export rules
+- manage visibility rules
+- manage validation requirements
+- manage AI permissions
+- manage system-wide governance
+- manage confidential/internal field visibility
+- manage future subscriber/API access
+
+Editors should be operational managers.
+
+Admins should manage governance/system rules.
+
+### Controlled Vocabulary Governance
+
+Recommended approach:
+
+- editors may suggest/add provisional terms
+- admins approve/publish official terms
+
+This prevents:
+
+- uncontrolled taxonomy growth
+- inconsistent naming
+- duplicate classifications
+- long-term semantic problems
+
+Future support:
+
+- aliases
+- synonyms
+- deprecated terms
+- merged categories
+- semantic mappings
+
+### Internal vs Exportable Visibility
+
+Admin should control:
+
+- internal-only fields
+- exportable/public fields
+- subscriber-visible fields later
+- confidential fields
+- AI-visible fields later
+
+Examples of internal-only fields:
+
+- confidential notes
+- validation concerns
+- editorial commentary
+- internal strategy notes
+- researcher notes
+
+Examples of exportable fields:
+
+- approved structured data
+- approved market summaries
+- validated charts/tables
+
+This separation is strategically critical.
+
+### AI Governance Readiness
+
+Future Admin responsibilities should include:
+
+- AI permissions
+- AI visibility scope
+- AI-generated content approval
+- AI extraction approval
+- AI confidence thresholds
+- AI audit visibility
+- AI export permissions
+
+AI outputs should:
+
+- remain validation-aware
+- support human approval workflows
+- never bypass governance rules
+
+### Environment / Governance Future Direction
+
+Future architecture should support:
+
+- staging vs production workflows
+- approval gates
+- export approval gates
+- subscriber-safe datasets
+- API-safe datasets
+- AI-safe datasets
+- semantic governance layers
+
+This is not MVP, but the architecture should anticipate it.
+
+### MVP vs Future Summary
+
+MVP:
+
+- user/role management
+- permissions
+- controlled vocabularies
+- approval/export rules
+- validation logic
+- operational activity visibility
+- audit basics
+- internal/exportable field separation
+- editor/admin workflow separation
+- provisional vocabulary approval workflow
+
+Future:
+
+- field-level versioning
+- rollback/history
+- staging/production environments
+- advanced governance workflows
+- semantic taxonomy management
+- AI governance
+- subscriber/API permissions
+- advanced export governance
+- automated validation logic
+- semantic relationship governance
+- multilingual taxonomy support
+
+### Strategic Principle
+
+Admin is not merely settings.
+
+Admin is:
+
+- the governance backbone
+- taxonomy control layer
+- validation authority
+- semantic consistency engine
+- future AI governance foundation
+
+Strong governance is essential for:
+
+- clean analytics
+- reliable exports
+- AI readiness
+- subscriber products
+- consulting outputs
+- long-term database quality
+
+Without controlled governance, the intelligence platform will eventually become
+inconsistent and unreliable.
+
 ## Next Functional Blueprint Step
 
 Next recommended page blueprint:
 
 ```text
-Admin / Access / Controlled Vocabularies
+Global Search / Command Palette / AI Readiness
 ```
 
-Reason: Admin defines users, roles, permissions, controlled vocabularies,
-reference data, and governance rules that keep the platform coherent as the
-database scales.
+Reason: global search and command workflows connect all functional areas, and
+they should be designed now so future semantic search and AI prompting can build
+on the same structured intelligence model.
