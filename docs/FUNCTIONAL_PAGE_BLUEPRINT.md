@@ -3798,14 +3798,378 @@ Strong governance is essential for:
 Without controlled governance, the intelligence platform will eventually become
 inconsistent and unreliable.
 
-## Next Functional Blueprint Step
+## Global Search / Command Palette / AI Readiness Functional Blueprint
 
-Next recommended page blueprint:
+### Main Concept
+
+The platform should evolve toward a:
 
 ```text
-Global Search / Command Palette / AI Readiness
+Geothermal Intelligence Operating System
 ```
 
-Reason: global search and command workflows connect all functional areas, and
-they should be designed now so future semantic search and AI prompting can build
-on the same structured intelligence model.
+and not merely a database.
+
+Global search, command workflows, and AI readiness are foundational to this
+direction.
+
+The long-term goal is:
+
+- structured intelligence retrieval
+- semantic search
+- natural-language querying
+- AI-assisted workflows
+- geothermal-specific knowledge navigation
+
+MVP should remain:
+
+- fast
+- clean
+- highly usable
+- intelligent-feeling
+- mobile-capable
+
+without overengineering early enterprise complexity.
+
+### MVP Search Coverage
+
+Structured records:
+
+- projects
+- plants/facilities
+- companies
+- countries/markets
+
+Sources:
+
+- source records
+- TGE articles/news
+- URLs/source titles
+
+Metadata:
+
+- lifecycle/status
+- technologies
+- resource types
+- company roles
+- regions/countries
+- direct-use categories
+
+Internal:
+
+- internal notes where permissions allow
+- validation/research metadata where permitted
+
+Future:
+
+- uploaded documents
+- PDFs
+- semantic document retrieval
+- extracted source intelligence
+- AI summaries
+- relationship graphs
+
+### Keyword, Fuzzy Search, And Aliases
+
+MVP should support:
+
+- fast keyword search
+- lightweight fuzzy matching
+- alias handling
+- typo tolerance
+
+This is very important for geothermal naming consistency.
+
+Examples:
+
+- Türkiye / Turkey
+- Hellisheidi / Hellisheiði
+- Olkaria I / Olkaria 1
+- alternate/local spellings
+
+MVP should feel:
+
+- fast
+- forgiving
+- intelligent
+
+without requiring full semantic AI search initially.
+
+### Command Palette
+
+MVP should include a lightweight command palette / global quick action system.
+
+Inspired by:
+
+- Linear
+- Notion
+- modern SaaS tools
+
+Example commands:
+
+- Add Project
+- Add Plant
+- Add Company
+- Open Research Ops
+- Open Kenya Market
+- Open Indonesia Projects
+- Find binary plants
+- Open latest edits
+- Export current view
+
+Purpose:
+
+- speed up workflows
+- improve navigation
+- reduce UI friction
+- support power users
+- create a modern intelligence-platform feel
+
+Future:
+
+- AI-assisted command execution
+- natural-language commands
+- semantic navigation
+
+### Search Filters
+
+MVP filters:
+
+Entity type:
+
+- projects
+- plants/facilities
+- companies
+- countries/markets
+- sources/articles
+
+Geography:
+
+- country
+- region
+
+Status:
+
+- lifecycle phase
+- operating status
+- validation/review status
+
+Use type:
+
+- power
+- direct-use
+- hybrid
+- mineral/lithium
+
+Technology:
+
+- resource type
+- plant technology
+- turbine technology
+
+Company:
+
+- operator
+- owner
+- developer
+- supplier
+
+Research:
+
+- approved/export-ready
+- internal/draft
+- missing-data flags
+
+Time:
+
+- recently updated
+- recently created
+- COD/development year
+
+Search filters should remain lightweight and fast in MVP.
+
+### Search Result Grouping
+
+Search results should primarily group by entity type.
+
+Example grouping:
+
+- Projects
+- Plants/Facilities
+- Companies
+- Countries/Markets
+- Sources/Articles
+
+Within groups, results should consider:
+
+- relevance
+- recency
+- approval/export status
+- activity indicators
+
+Search results should clearly show:
+
+- entity type
+- lifecycle/status
+- country
+- use type
+- validation state where relevant
+
+Grouping by entity type is very important for clarity.
+
+### Internal vs Subscriber-Visible Search
+
+Internal search:
+
+- all structured data
+- draft/internal records
+- validation metadata
+- internal notes
+- workflow metadata
+- confidential intelligence
+- AI/internal summaries later
+
+Subscriber/client future search:
+
+- approved/export-ready records only
+- approved market summaries
+- subscriber-safe analytics
+- approved AI summaries
+- export-safe sources
+
+Search permissions must remain:
+
+- role-aware
+- validation-aware
+- export-aware
+
+### Future AI / Prompt Features
+
+Future natural-language querying:
+
+- Show geothermal projects in Kenya missing coordinates.
+- Compare binary technology activity in Türkiye and Indonesia.
+- Which projects lack credible sources?
+
+Future AI-assisted research:
+
+- duplicate detection
+- source extraction
+- entity matching
+- metadata suggestions
+- missing-data suggestions
+
+Future AI summaries:
+
+- project summaries
+- market briefings
+- company activity summaries
+- technology summaries
+
+Future semantic search:
+
+- search concepts, not only keywords
+- geothermal relationship discovery
+- contextual retrieval
+
+Future AI operational assistance:
+
+- suggest records ready for approval
+- identify weak validation coverage
+- identify stale records
+- identify conflicting sources
+
+Future AI analytical capabilities:
+
+- trend detection
+- market intelligence summaries
+- investment activity detection
+- country comparison summaries
+
+AI should be embedded across workflows, not only implemented as a standalone
+chatbot.
+
+### MVP vs Future Summary
+
+MVP:
+
+- fast global search
+- lightweight fuzzy search
+- aliases/typo tolerance
+- entity-grouped results
+- role-aware visibility
+- command palette
+- quick navigation/actions
+- structured filtering
+- article/source search
+- validation-aware search visibility
+
+MVP architecture should prepare for:
+
+- semantic search
+- AI retrieval
+- structured intelligence querying
+
+Future:
+
+- semantic search
+- vector/embedding search
+- AI copilots
+- natural-language database querying
+- AI-assisted workflows
+- AI-generated summaries
+- semantic relationship discovery
+- document/PDF semantic retrieval
+- geothermal knowledge graph
+- AI-assisted validation
+- conversational intelligence interface
+- subscriber AI products
+- AI-generated consulting outputs
+
+### Strategic Principle
+
+Search should become:
+
+- the operating layer of the intelligence system
+- the primary navigation mechanism
+- the future semantic intelligence interface
+
+The long-term direction is not:
+
+```text
+database lookup
+```
+
+The long-term direction is:
+
+```text
+geothermal intelligence retrieval and reasoning
+```
+
+The platform should evolve toward:
+
+- structured geothermal intelligence
+- semantic retrieval
+- AI-assisted research
+- geothermal-specific knowledge workflows
+
+while maintaining:
+
+- speed
+- simplicity
+- readability
+- operational usability
+- mobile capability
+- strong governance and validation awareness
+
+## Next Functional Blueprint Step
+
+The main functional page/module blueprint is now complete enough to move into:
+
+```text
+Design And Implementation Sequencing
+```
+
+Reason: the next decision layer is no longer "what pages exist"; it is how to
+prioritize implementation and how each functional page should be reviewed for
+layout, design system, workflow ergonomics, and data dependencies.
