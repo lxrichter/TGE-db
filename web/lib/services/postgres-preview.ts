@@ -464,6 +464,23 @@ export type PostgresReviewStatusUpdateResult = {
   updated_at: string;
 };
 
+export type PostgresPromotedOperatingAsset = {
+  operating_asset_id: string;
+  legacy_plant_id: string | null;
+  asset_name: string;
+  country: string | null;
+  review_status_code: string;
+  link_type: string;
+  created_at: string;
+};
+
+export type PostgresProjectPromotionResult = {
+  operatingAsset: PostgresPreviewOperatingAssetDetail;
+  created: boolean;
+  copiedSourceLinks: number;
+  copiedCompanyLinks: number;
+};
+
 type QueueDefinition = {
   key: ResearchOpsQueueKey;
   title: string;
@@ -486,6 +503,13 @@ type ReviewStatusUpdateRow = Omit<
   "updated_at"
 > & {
   updated_at: string | Date;
+};
+
+type PromotedOperatingAssetRow = Omit<
+  PostgresPromotedOperatingAsset,
+  "created_at"
+> & {
+  created_at: string | Date;
 };
 
 type PostgresEntitySourceLinkRow = Omit<
@@ -2227,6 +2251,301 @@ export async function deletePostgresCompanyRelationship(
   });
 
   return result.count > 0;
+}
+
+function buildPromotionNotes({
+  projectId,
+  projectName,
+  existingNotes,
+  promotionNote,
+}: {
+  projectId: string;
+  projectName: string;
+  existingNotes?: string | null;
+  promotionNote?: string | null;
+}) {
+  const generatedNote = `Promoted from PostgreSQL staging project ${projectName} (${projectId}).`;
+  return [existingNotes, generatedNote, cleanOptionalText(promotionNote)]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export async function listPostgresPromotedOperatingAssets(
+  projectId: string
+): Promise<PostgresPromotedOperatingAsset[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    PromotedOperatingAssetRow[]
+  >(
+    `
+    SELECT
+      a.operating_asset_id::text,
+      a.legacy_plant_id,
+      a.asset_name,
+      a.country,
+      a.review_status_code,
+      poal.link_type,
+      poal.created_at
+    FROM project_operating_asset_links poal
+    INNER JOIN operating_assets a
+      ON a.operating_asset_id = poal.operating_asset_id
+    WHERE poal.project_id = $1::uuid
+    ORDER BY poal.created_at DESC, a.asset_name ASC
+    `,
+    projectId
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    created_at: normalizeTimestamp(row.created_at),
+  }));
+}
+
+export async function promotePostgresProjectToOperatingAsset({
+  projectId,
+  actorUserId,
+  promotionNote,
+}: {
+  projectId: string;
+  actorUserId?: string | null;
+  promotionNote?: string | null;
+}): Promise<PostgresProjectPromotionResult | null> {
+  const prisma = getPrismaClient();
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
+
+  const result = await prisma.$transaction(async (tx) => {
+    const existingAsset = await tx.operating_assets.findFirst({
+      select: { operating_asset_id: true },
+      where: { promoted_from_project_id: projectId },
+      orderBy: { promoted_at: "desc" },
+    });
+
+    if (existingAsset) {
+      return {
+        operatingAssetId: existingAsset.operating_asset_id,
+        created: false,
+        copiedSourceLinks: 0,
+        copiedCompanyLinks: 0,
+      };
+    }
+
+    const project = await tx.projects.findUnique({
+      where: { project_id: projectId },
+    });
+
+    if (!project) {
+      return null;
+    }
+
+    const asset = await tx.operating_assets.create({
+      data: {
+        asset_name: project.project_name,
+        asset_name_short: project.project_name_short,
+        asset_name_clean:
+          project.project_name_clean || normalizeEntityNameClean(project.project_name),
+        project_group: project.project_group,
+        other_name: project.other_name,
+        primary_use_type_code: project.primary_use_type_code,
+        lifecycle_phase_code: "operating",
+        location_text: project.location_text,
+        country: project.country,
+        region: project.region,
+        wb_region: project.wb_region,
+        latitude: project.latitude,
+        longitude: project.longitude,
+        field_name: project.field_name,
+        resource_type: project.resource_type,
+        resource_temp_c: project.resource_temp_c,
+        potential_min_mwe: project.potential_min_mwe,
+        potential_max_mwe: project.potential_max_mwe,
+        electric_capacity_mwe: project.electric_capacity_mwe,
+        electric_capacity_running_mwe: project.electric_capacity_running_mwe,
+        thermal_capacity_mwth: project.thermal_capacity_mwth,
+        installed_heat_pump_capacity_mwth:
+          project.installed_heat_pump_capacity_mwth,
+        geothermal_resource_capacity_mwth:
+          project.geothermal_resource_capacity_mwth,
+        annual_power_generation_gwhe: project.annual_power_generation_gwhe,
+        annual_heat_supply_gwhth: project.annual_heat_supply_gwhth,
+        annual_cooling_supply_gwhc: project.annual_cooling_supply_gwhc,
+        capacity_estimate_status_code: project.capacity_estimate_status_code,
+        output_estimate_status_code: project.output_estimate_status_code,
+        start_dev_year: project.start_dev_year,
+        cod_year: project.target_cod_year,
+        cod_month: project.target_cod_month,
+        cod_raw: project.cod_raw,
+        wells_total: project.wells_total,
+        wells_prod_active: project.wells_prod_active,
+        wells_reinj_active: project.wells_reinj_active,
+        wells_inactive_standby: project.wells_inactive_standby,
+        wells_other_exploration: project.wells_other_exploration,
+        well_depth_prod_m: project.well_depth_prod_m,
+        temp_prod_well_c: project.temp_prod_well_c,
+        flow_rate_ls: project.flow_rate_ls,
+        plant_technology: project.plant_technology,
+        turbine_supplier: project.turbine_supplier,
+        epc_suppliers: project.epc_suppliers,
+        ppa_usd_kwh: project.ppa_usd_kwh,
+        total_investment_cost: project.total_investment_cost,
+        promoted_from_project_id: project.project_id,
+        promoted_at: new Date(),
+        website_information: project.website_information,
+        source_evidence_note: project.source_evidence_note,
+        notes: buildPromotionNotes({
+          projectId: project.project_id,
+          projectName: project.project_name,
+          existingNotes: project.notes,
+          promotionNote,
+        }),
+        internal_comments: project.internal_comments,
+        review_status_code: "validation",
+        research_status: "promoted_from_project",
+      },
+      select: { operating_asset_id: true },
+    });
+
+    await tx.$executeRawUnsafe(
+      `
+      INSERT INTO project_operating_asset_links (
+        project_id,
+        operating_asset_id,
+        link_type,
+        notes
+      )
+      VALUES ($1::uuid, $2::uuid, 'promotion', $3)
+      ON CONFLICT (project_id, operating_asset_id, link_type)
+      DO UPDATE SET notes = EXCLUDED.notes
+      `,
+      project.project_id,
+      asset.operating_asset_id,
+      cleanOptionalText(promotionNote)
+    );
+
+    const copiedSourceLinks = await tx.$executeRawUnsafe(
+      `
+      INSERT INTO entity_sources (
+        source_id,
+        operating_asset_id,
+        evidence_type,
+        evidence_note,
+        confidence_status_code,
+        linked_field,
+        claim_text,
+        extracted_value,
+        is_primary_evidence
+      )
+      SELECT
+        es.source_id,
+        $2::uuid,
+        es.evidence_type,
+        es.evidence_note,
+        es.confidence_status_code,
+        es.linked_field,
+        es.claim_text,
+        es.extracted_value,
+        es.is_primary_evidence
+      FROM entity_sources es
+      WHERE es.project_id = $1::uuid
+        AND NOT EXISTS (
+          SELECT 1
+          FROM entity_sources existing
+          WHERE existing.source_id = es.source_id
+            AND existing.operating_asset_id = $2::uuid
+        )
+      `,
+      project.project_id,
+      asset.operating_asset_id
+    );
+
+    const copiedCompanyLinks = await tx.$executeRawUnsafe(
+      `
+      INSERT INTO company_operating_asset_links (
+        company_id,
+        operating_asset_id,
+        role_code,
+        role_detail,
+        ownership_share,
+        is_primary,
+        notes
+      )
+      SELECT
+        cpl.company_id,
+        $2::uuid,
+        cpl.role_code,
+        cpl.role_detail,
+        cpl.ownership_share,
+        cpl.is_primary,
+        cpl.notes
+      FROM company_project_links cpl
+      WHERE cpl.project_id = $1::uuid
+      ON CONFLICT (company_id, operating_asset_id, role_code)
+      DO UPDATE SET
+        role_detail = EXCLUDED.role_detail,
+        ownership_share = EXCLUDED.ownership_share,
+        is_primary = EXCLUDED.is_primary,
+        notes = EXCLUDED.notes,
+        updated_at = now()
+      `,
+      project.project_id,
+      asset.operating_asset_id
+    );
+
+    await tx.$executeRawUnsafe(
+      `
+      WITH actor AS (
+        SELECT user_id
+        FROM app_users
+        WHERE user_id = $3::uuid
+        LIMIT 1
+      )
+      INSERT INTO audit_events (
+        entity_type,
+        entity_id,
+        event_type,
+        actor_user_id,
+        event_note,
+        changed_fields
+      )
+      VALUES (
+        'project',
+        $1::uuid,
+        'project_promoted_to_operating_asset',
+        (SELECT user_id FROM actor),
+        $4,
+        jsonb_build_object('operating_asset_id', $2::text)
+      )
+      `,
+      project.project_id,
+      asset.operating_asset_id,
+      normalizedActorUserId,
+      cleanOptionalText(promotionNote)
+    );
+
+    return {
+      operatingAssetId: asset.operating_asset_id,
+      created: true,
+      copiedSourceLinks,
+      copiedCompanyLinks,
+    };
+  });
+
+  if (!result) {
+    return null;
+  }
+
+  const operatingAsset = await getPostgresPreviewOperatingAssetById(
+    result.operatingAssetId
+  );
+
+  if (!operatingAsset) {
+    throw new Error("Promoted operating asset could not be reloaded.");
+  }
+
+  return {
+    operatingAsset,
+    created: result.created,
+    copiedSourceLinks: result.copiedSourceLinks,
+    copiedCompanyLinks: result.copiedCompanyLinks,
+  };
 }
 
 export async function createPostgresPreviewProject(

@@ -179,6 +179,9 @@ Current PostgreSQL staging implementation:
 - PostgreSQL staging detail pages include add/remove managers for
   company-project roles, company-plant/facility roles, and company-company
   relationships
+- PostgreSQL project detail pages include project-to-plant/facility promotion
+  scaffolding that creates a linked staging operating asset and copies available
+  source and company-role links
 - `/postgres-preview/research-ops` includes staging quick actions for changing
   project, plant/facility, company, and source review/status states
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence

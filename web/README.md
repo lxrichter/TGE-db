@@ -180,6 +180,7 @@ Current PostgreSQL-backed route foundations:
 /api/postgres-preview/summary
 /api/postgres-preview/projects
 /api/postgres-preview/projects/[id]
+/api/postgres-preview/projects/[id]/promote
 /api/postgres-preview/operating-assets
 /api/postgres-preview/operating-assets/[id]
 /api/postgres-preview/companies
@@ -219,9 +220,12 @@ guidance while still allowing incomplete draft saves. It also includes staging
 add/remove managers for company-project roles,
 company-plant/facility roles, and company-company relationships. PostgreSQL
 Research Ops also supports selected-row review/status quick actions for
-projects, plants/facilities, companies, and sources. Project promotion, bulk
-edits, assignment workflows, relationship history/timelines, and production
-exports remain separate next-step workflows.
+projects, plants/facilities, companies, and sources. Project detail pages also
+include a staging-only promotion panel that creates a linked operating asset
+draft, copies existing source/evidence links, and copies current company-role
+links where available. Promotion hardening, bulk edits, assignment workflows,
+relationship history/timelines, and production exports remain separate
+next-step workflows.
 
 ## Known Issues
 

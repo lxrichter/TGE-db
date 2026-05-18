@@ -167,6 +167,7 @@ GET /api/postgres-preview/projects
 POST /api/postgres-preview/projects
 GET /api/postgres-preview/projects/[id]
 PATCH /api/postgres-preview/projects/[id]
+POST /api/postgres-preview/projects/[id]/promote
 GET /api/postgres-preview/operating-assets
 POST /api/postgres-preview/operating-assets
 GET /api/postgres-preview/operating-assets/[id]
@@ -184,12 +185,18 @@ DELETE /api/postgres-preview/company-relationships/[id]
 PATCH /api/postgres-preview/research-ops/status
 ```
 
+The current PostgreSQL project promotion scaffold can create a linked
+operating-asset draft from a project, preserve the original project, add a
+project/asset promotion link, and copy existing source/evidence and
+company-role links where available.
+
 The next recommended implementation slice is:
 
 1. add Research Ops assignment, note, duplicate flag, and lightweight bulk actions
 2. persist field-level missing-data flags once the Research Ops task model is
    defined
-3. add project-to-operating-asset promotion scaffolding on PostgreSQL
+3. harden project-to-operating-asset promotion with readiness checks, review
+   transition rules, and unit/expansion behavior
 4. keep permission checks explicit as PostgreSQL write routes expand
 
 The live Hetzner SQLite database remains untouched until the PostgreSQL

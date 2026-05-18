@@ -27,6 +27,11 @@ Current implemented foundation:
 - live PostgreSQL staging form-readiness panels for core missing-data guidance
 - PostgreSQL staging relationship managers for company-project role links,
   company-plant/facility role links, and company-company relationships
+- PostgreSQL project-to-operating-asset promotion scaffold:
+  - project detail page promotion panel
+  - editor/admin promotion API route
+  - non-destructive project-to-asset link
+  - copied source/evidence links and company-role links where available
 - PostgreSQL Sources / Documents MVP foundation:
   - source visibility and credibility/status reference tables
   - expanded source metadata and evidence-link fields
@@ -147,7 +152,8 @@ Immediate next actions:
 2. keep tightening permissions around PostgreSQL write-enabled routes
 3. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
-4. add project-to-operating-asset promotion scaffolding on PostgreSQL
+4. harden the promotion scaffold with operating-asset readiness checks,
+   review-state transition rules, and unit/expansion handling
 
 Do before:
 
@@ -269,7 +275,7 @@ Key work:
 - source links
 - validation state
 - missing-data flags
-- project-to-asset promotion workflow
+- project-to-asset promotion workflow: first staging scaffold implemented
 - project exports and print/profile views
 
 ### 4B: Plants / Facilities

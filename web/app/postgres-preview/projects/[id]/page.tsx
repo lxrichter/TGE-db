@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
-import { canReview } from "@/lib/auth/roles";
+import { canPromoteProject, canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -14,11 +14,13 @@ import {
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { ProjectCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
+import PostgresProjectPromotionPanel from "@/components/postgres-preview/PostgresProjectPromotionPanel";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
+  listPostgresPromotedOperatingAssets,
   listPostgresProjectCompanyLinks,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
@@ -134,12 +136,14 @@ export default async function PostgresProjectDetailPage({
     companyLinks,
     relationshipReferenceData,
     entityReferenceData,
+    promotedAssets,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
     listPostgresProjectCompanyLinks(id),
     getPostgresCompanyRelationshipReferenceData(),
     getPostgresEntityFormReferenceData(),
+    listPostgresPromotedOperatingAssets(id),
     getServerSession(authOptions),
   ]);
 
@@ -267,6 +271,14 @@ export default async function PostgresProjectDetailPage({
         links={companyLinks}
         projectId={project.project_id}
         referenceData={relationshipReferenceData}
+      />
+
+      <PostgresProjectPromotionPanel
+        canPromote={canPromoteProject(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        projectId={project.project_id}
+        promotedAssets={promotedAssets}
       />
 
       <ExportReadinessPanel
