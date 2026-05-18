@@ -231,6 +231,8 @@ Current implemented foundation:
   actions; confirmation is the reviewed step that creates evidence links
 - PostgreSQL Research Ops article match review panel with candidate counts and
   quick links into `/sources/matches`
+- PostgreSQL entity detail pages now show confirmed `tge_article` evidence
+  links in a dedicated Related TGE News / Evidence section
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms

@@ -59,10 +59,14 @@ export type PostgresEntitySourceLink = {
   entity_source_id: string;
   source_id: string;
   source_title: string | null;
+  source_url: string | null;
   source_reference: string | null;
+  source_type_code: string;
   source_type_label: string | null;
+  source_published_date: string | null;
   visibility_code: string;
   credibility_status_code: string;
+  evidence_type: string | null;
   linked_field: string | null;
   claim_text: string | null;
   extracted_value: string | null;
@@ -599,8 +603,9 @@ type ResearchOpsIssueRow = Omit<
 
 type PostgresEntitySourceLinkRow = Omit<
   PostgresEntitySourceLink,
-  "created_at" | "updated_at"
+  "created_at" | "updated_at" | "source_published_date"
 > & {
+  source_published_date: string | Date | null;
   created_at: string | Date;
   updated_at: string | Date;
 };
@@ -3036,6 +3041,9 @@ function toEntitySourceLink(
 ): PostgresEntitySourceLink {
   return {
     ...row,
+    source_published_date: row.source_published_date
+      ? normalizeTimestamp(row.source_published_date).slice(0, 10)
+      : null,
     created_at: normalizeTimestamp(row.created_at),
     updated_at: normalizeTimestamp(row.updated_at),
   };
@@ -3060,10 +3068,14 @@ export async function listPostgresEntitySourceLinks(
       es.entity_source_id::text,
       es.source_id::text,
       s.title AS source_title,
+      s.url AS source_url,
       s.source_reference,
+      s.source_type_code,
       st.label AS source_type_label,
+      s.published_date AS source_published_date,
       s.visibility_code,
       s.credibility_status_code,
+      es.evidence_type,
       es.linked_field,
       es.claim_text,
       es.extracted_value,

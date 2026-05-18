@@ -8,6 +8,7 @@ import {
   DetailShell,
   ExportReadinessPanel,
   NotFoundNotice,
+  RelatedTgeNewsPanel,
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
@@ -262,6 +263,12 @@ export default async function PostgresOperatingAssetDetailPage({
         entityId={asset.operating_asset_id}
         entityType="operating_asset"
         reviewStatuses={entityReferenceData.reviewStatuses}
+      />
+
+      <RelatedTgeNewsPanel
+        entityType="operating_asset"
+        entityId={asset.operating_asset_id}
+        sources={asset.sources}
       />
 
       <DetailSection title="Source Evidence">

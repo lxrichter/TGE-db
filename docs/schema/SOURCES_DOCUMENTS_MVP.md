@@ -205,6 +205,10 @@ PostgreSQL Research Ops also shows article match candidate counts and quick
 links into `/sources/matches`, while keeping the full confirmation workflow in
 Sources / Documents.
 
+Confirmed `tge_article` evidence links now appear on PostgreSQL project,
+plant/facility, and company detail pages in a dedicated Related TGE News /
+Evidence section. The underlying relationship remains `entity_sources`.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:

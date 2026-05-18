@@ -8,6 +8,7 @@ import {
   DetailShell,
   ExportReadinessPanel,
   NotFoundNotice,
+  RelatedTgeNewsPanel,
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
@@ -251,6 +252,12 @@ export default async function PostgresCompanyDetailPage({
         projectLinks={projectLinks}
         referenceData={relationshipReferenceData}
         relationships={relationships}
+      />
+
+      <RelatedTgeNewsPanel
+        entityType="company"
+        entityId={company.company_id}
+        sources={company.sources}
       />
 
       <DetailSection title="Source Evidence">
