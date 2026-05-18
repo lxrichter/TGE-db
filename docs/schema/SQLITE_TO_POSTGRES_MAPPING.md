@@ -1,10 +1,36 @@
 # Current SQL To PostgreSQL Mapping
 
-Date: 2026-05-16
+Date: 2026-05-18
 
 Purpose: provide the first mapping from the current live SQL/SQLite-style schema into the new PostgreSQL schema.
 
 This document is based on the local reference database and must be checked against a fresh export of the live server database before implementation.
+
+## Current Mapping Status
+
+This is still a planning mapping, not a final import specification.
+
+Before migration scripts are written, run the live SQLite inspector against a
+fresh Hetzner backup:
+
+```bash
+cd web
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db" --profile-values
+```
+
+Then update this document with:
+
+- tables present in live but not local/reference
+- columns present in live but not mapped here
+- columns mapped here but missing from live
+- row counts by core table
+- unmapped lifecycle/status/company role values
+- source/evidence fields that must be preserved
+- fields that should move into internal notes, metadata JSON, or future
+  structured tables
+
+The live SQLite file itself should remain local/private and should not be
+committed or uploaded.
 
 ## Table Mapping
 

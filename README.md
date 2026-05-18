@@ -160,6 +160,7 @@ PostgreSQL schema baseline:
 - [docs/schema/SQLITE_TO_POSTGRES_MAPPING.md](docs/schema/SQLITE_TO_POSTGRES_MAPPING.md)
 - [docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md](docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md)
 - [docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md](docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md)
+- [docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md](docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md)
 - [docs/schema/POSTGRES_STAGING_WORKFLOW.md](docs/schema/POSTGRES_STAGING_WORKFLOW.md)
 - [scripts/migration/README.md](scripts/migration/README.md)
 
@@ -198,6 +199,18 @@ Current PostgreSQL staging implementation:
 These PostgreSQL routes are current implementation work in progress. They do
 not yet replace the SQLite prototype, and the live Hetzner SQLite database has
 not been imported.
+
+Live SQLite migration preparation is now handled through a local, read-only
+inspection script:
+
+```bash
+cd web
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db" --profile-values
+```
+
+The live database backup and generated inspection outputs remain ignored local
+working files. The command produces schema, row counts, indexes, foreign keys,
+and aggregate completeness metrics only; it does not export raw record samples.
 
 ## GitHub
 

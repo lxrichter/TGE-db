@@ -28,6 +28,7 @@ npm run prisma:migrate:status
 npm run prisma:pull
 npm run prisma:migrate:deploy
 npm run postgres:smoke
+npm run sqlite:inspect
 ```
 
 ## Local Setup
@@ -112,6 +113,26 @@ railway run --service Postgres -- npm run prisma:migrate:status
 ```
 
 Local SQLite files and backups are intentionally ignored. The repository does not include a production or working data dump.
+
+## Live SQLite Inspection
+
+The live Hetzner SQLite database should not be imported or uploaded directly.
+For migration preparation, first create a local backup copy under the ignored
+`migration/live_exports/` folder, then inspect it read-only:
+
+```bash
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db"
+```
+
+For safe aggregate completeness metrics:
+
+```bash
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db" --profile-values
+```
+
+The output is written to ignored `../source-data/live-sqlite-inspection/`
+files. The inspector writes schema, counts, indexes, foreign keys, and optional
+null/distinct/length metrics only; it does not write raw row samples.
 
 ## Authentication And Roles
 

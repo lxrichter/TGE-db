@@ -60,6 +60,10 @@ Current implemented foundation:
     evidence-link review metadata
   - source-aware export-readiness preview panels on PostgreSQL entity detail
     pages
+- live SQLite migration inspection workflow:
+  - read-only `npm run sqlite:inspect` command for copied Hetzner SQLite backups
+  - ignored local schema/count/profile outputs under `source-data/`
+  - no raw row samples exported by the inspector
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -127,6 +131,9 @@ Completed / current outputs:
 Remaining actions:
 
 - keep decisions updated as design reviews refine page behavior
+- run the live SQLite inspection workflow when a fresh Hetzner backup is
+  available, then update the SQLite-to-PostgreSQL mapping from the actual live
+  schema before migration scripts are written
 - avoid adding major functionality until the next technical slice is agreed
 
 ## Phase 1: PostgreSQL Application Foundation
@@ -233,6 +240,9 @@ Current implemented foundation:
   quick links into `/sources/matches`
 - PostgreSQL entity detail pages now show confirmed `tge_article` evidence
   links in a dedicated Related TGE News / Evidence section
+- local-only live SQLite inspection command and workflow for copied Hetzner
+  backups, producing ignored schema/count/profile outputs without raw row
+  samples
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms

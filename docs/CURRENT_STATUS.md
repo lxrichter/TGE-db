@@ -82,6 +82,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   links into the Sources review workflow
 - PostgreSQL project, plant/facility, and company detail pages now surface
   confirmed `tge_article` evidence links as Related TGE News / Evidence
+- local-only live SQLite migration inspection command `npm run sqlite:inspect`
+  can profile a copied Hetzner SQLite backup read-only into ignored
+  `source-data/` outputs without exporting raw row samples
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

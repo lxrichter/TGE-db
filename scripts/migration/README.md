@@ -5,25 +5,31 @@ from the current SQL/SQLite-style system into the PostgreSQL/Railway platform.
 
 ## Current Tooling
 
-Profile the local SQLite reference database:
+The current recommended inspection tool lives in the web app scripts so it can
+run through the normal `npm` workflow:
 
 ```bash
-python3 scripts/migration/profile_sqlite_db.py
+cd web
+npm run sqlite:inspect -- --db "../shared/data/tge.db" --profile-values
 ```
 
-The default input is:
+For a copied live export:
+
+```bash
+cd web
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db" --profile-values
+```
+
+The output is an ignored local folder:
 
 ```text
-shared/data/tge.db
+source-data/live-sqlite-inspection/
 ```
 
-The default output is an ignored local report folder:
+The inspector opens SQLite read-only and writes schema/count/profile files
+without raw row samples.
 
-```text
-migration/profile_reports/
-```
-
-Print the report to the terminal instead:
+The older Python profiler remains available as a reference helper:
 
 ```bash
 python3 scripts/migration/profile_sqlite_db.py --stdout

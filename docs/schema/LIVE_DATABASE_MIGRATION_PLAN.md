@@ -1,6 +1,6 @@
 # Live Database Migration Plan
 
-Date: 2026-05-16
+Date: 2026-05-18
 
 Purpose: define how the current live SQL database should be imported into the future PostgreSQL schema without losing data or breaking traceability.
 
@@ -20,6 +20,31 @@ Therefore:
 - use the live server database export for final migration testing
 - use local SQLite only for schema analysis and prototype audit
 - preserve all live IDs in `legacy_*` columns during import
+- do not upload the live SQLite file into Codex, ChatGPT, GitHub, Railway, or
+  any public/shared environment
+
+## Current Migration Readiness Status
+
+Current implemented preparation:
+
+- PostgreSQL/Railway schema foundation exists through Prisma migrations.
+- The live database has not been imported.
+- The markdown/article source workflow is separate from the live SQLite import.
+- A safe local SQLite inspection command now exists:
+
+```bash
+cd web
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db"
+```
+
+Optional aggregate completeness metrics:
+
+```bash
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db" --profile-values
+```
+
+The inspection output goes to ignored local `source-data/` files and should be
+used to update the mapping before any import scripts are written.
 
 ## Migration Phases
 
@@ -47,6 +72,7 @@ For the current Hetzner SQLite source, use:
 
 ```text
 docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md
+docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md
 ```
 
 ### Phase 2: Profile Current Data
@@ -69,17 +95,19 @@ This should produce a data-quality report before import scripts are written.
 Current local/reference profiler:
 
 ```bash
-python3 scripts/migration/profile_sqlite_db.py
+npm run sqlite:inspect -- --db "../shared/data/tge.db" --profile-values
 ```
 
-The script writes aggregate reports to:
+The current Node inspector writes metadata-only files to:
 
 ```text
-migration/profile_reports/
+source-data/live-sqlite-inspection/
 ```
 
-These reports are ignored by Git. Use them for internal review, not as committed
-source material.
+These files are ignored by Git. Use them for internal review, not as committed
+source material. The older Python profiler remains in `scripts/migration/` as a
+reference helper, but the Node inspector is the current recommended workflow
+because it fits the app's `npm` script pattern.
 
 ### Phase 3: Create Staging Tables
 
@@ -259,6 +287,7 @@ Required before migration:
 - live database export
 - schema diff between local/reference and live database
 - data-quality report
+- updated SQLite-to-PostgreSQL mapping from the live inspection output
 - staging import script
 - transformation script
 - validation script
@@ -266,13 +295,17 @@ Required before migration:
 
 ## Recommended Next Development Step
 
-The first migration mapping documentation now exists:
+The immediate next migration preparation step is to inspect a fresh copy of the
+live Hetzner SQLite database locally, then update:
 
 ```text
 docs/schema/SQLITE_TO_POSTGRES_MAPPING.md
 ```
 
-Next create scripts for:
+Do not create final import scripts until the live inspection confirms the exact
+tables, columns, row counts, relationship shape, and unmapped vocabulary values.
+
+After that, create scripts for:
 
 ```text
 scripts/migration/import_to_staging.*
@@ -280,8 +313,8 @@ scripts/migration/transform_to_postgres.*
 scripts/migration/validate_migration.*
 ```
 
-The current profiling script is:
+Current recommended inspection command:
 
 ```text
-scripts/migration/profile_sqlite_db.py
+web/scripts/live-sqlite-inspect.mjs
 ```

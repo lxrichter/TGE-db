@@ -1,6 +1,6 @@
 # Live SQLite Export Guide
 
-Date: 2026-05-16
+Date: 2026-05-18
 
 Purpose: safely copy the current live SQLite database from the Hetzner server for
 migration profiling and import testing.
@@ -72,18 +72,27 @@ Check the copied database:
 sqlite3 migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db "PRAGMA integrity_check;"
 ```
 
-Run the migration profiler:
+Run the safe Node inspection from the app folder:
 
 ```bash
-python3 scripts/migration/profile_sqlite_db.py \
-  --db migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db
+cd web
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db"
 ```
 
-The profile report is written to:
+For aggregate completeness metrics, add `--profile-values`:
+
+```bash
+npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YYYYMMDD_HHMMSS.db" --profile-values
+```
+
+The inspection files are written to:
 
 ```text
-migration/profile_reports/
+source-data/live-sqlite-inspection/
 ```
+
+The inspector opens the database read-only and does not write raw row samples,
+source text, notes, user details, or article body text.
 
 ## After Profiling
 
@@ -100,3 +109,9 @@ Key checks:
 - invalid coordinates or negative capacity values
 
 Only after this comparison should import and transformation scripts be written.
+
+For the full local workflow, see:
+
+```text
+docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md
+```
