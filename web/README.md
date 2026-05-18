@@ -96,8 +96,11 @@ PostgreSQL/Prisma baseline:
 web/prisma/schema.prisma
 web/prisma.config.ts
 web/prisma/migrations/20260518000000_baseline/migration.sql
+web/prisma/migrations/20260518000100_align_user_roles/migration.sql
+web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql
 web/lib/db/prisma.ts
 web/lib/services/postgres-preview.ts
+web/lib/services/sources.ts
 ```
 
 Railway PostgreSQL commands should be run without copying credentials locally:
@@ -154,6 +157,26 @@ API routes live under:
 ```text
 web/app/api/
 ```
+
+Current PostgreSQL-backed route foundations:
+
+```text
+/postgres-preview
+/postgres-preview/research-ops
+/api/postgres-preview/summary
+/api/postgres-preview/projects
+/api/postgres-preview/operating-assets
+/api/postgres-preview/companies
+/api/postgres-preview/research-ops
+/api/postgres/sources
+/api/postgres/sources/[id]
+/api/postgres/sources/reference-data
+```
+
+The PostgreSQL Sources / Documents foundation currently provides source
+reference data, source list/detail reads, and Research Ops source queues. The
+full Sources / Documents UI and write workflows are proposed next steps, not
+completed production functionality.
 
 ## Known Issues
 

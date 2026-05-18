@@ -21,6 +21,11 @@ Current implemented foundation:
 - safe PostgreSQL staging seed
 - PostgreSQL preview page
 - read-only PostgreSQL Research Ops preview
+- PostgreSQL Sources / Documents MVP foundation:
+  - source visibility and credibility/status reference tables
+  - expanded source metadata and evidence-link fields
+  - source list/detail/reference-data service and API route foundation
+  - source validation queues added to PostgreSQL Research Ops preview
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -92,7 +97,7 @@ Remaining actions:
 
 ## Phase 1: PostgreSQL Application Foundation
 
-Status: started.
+Status: in progress.
 
 Purpose: turn PostgreSQL from a staging preview into the real application data
 foundation.
@@ -120,12 +125,15 @@ Deliverables:
 - stable database access layer: shared Prisma client helper started
 - Railway environment notes
 - auth/role model alignment notes: `docs/ROLE_MODEL.md`
+- Sources / Documents MVP migration applied to Railway PostgreSQL staging
+- PostgreSQL source service and read endpoints started
+- source status connected into the read-only Research Ops preview queues
 
 Immediate next actions:
 
-1. define the next Prisma migration for Sources / Documents MVP additions
-2. create the Sources / Documents service module and route foundation
-3. connect source status into Research Ops queues
+1. build the basic Sources / Documents UI surface on top of the new endpoints
+2. add source create/edit and source-link actions
+3. connect "add source" actions from Research Ops and entity detail pages
 4. keep tightening permissions when write-enabled PostgreSQL routes are added
 
 Do before:
@@ -136,17 +144,27 @@ Do before:
 
 ## Phase 2: Sources / Evidence And Validation Core
 
+Status: started.
+
 Purpose: build the evidence and validation backbone before expanding workflows.
+
+Current implemented foundation:
+
+- Prisma migration `20260518000200_sources_documents_mvp`
+- source visibility/confidentiality levels
+- source credibility/status labels
+- richer source metadata fields
+- reusable evidence-link metadata on `entity_sources`
+- source list/detail/reference-data service and API endpoints
+- Research Ops source queues for review and weak/outdated sources
 
 Key work:
 
-- implement Sources / Documents MVP data model in PostgreSQL
-- support source types, including `tge_article`
-- support source visibility/confidentiality tags
-- support source credibility/status labels
-- support reusable source links to projects, plants/facilities, companies, and
-  countries/markets
 - build source list/detail/create/edit surfaces
+- support reusable source links in the UI for projects, plants/facilities, and
+  companies
+- prepare country/market source links when country/market pages move to
+  PostgreSQL
 - connect source status into validation and Research Ops queues
 - define approval/export-ready validation checks in code
 
@@ -480,27 +498,21 @@ Reason:
 Recommended next concrete step:
 
 ```text
-Start Phase 1: PostgreSQL Application Foundation
+Continue Phase 2: Sources / Documents working surface
 ```
 
-First decision:
+Next implementation slice:
 
 ```text
-Choose migration/data-access tool: Prisma vs Drizzle
+Build the first UI around the PostgreSQL source service.
 ```
 
-Recommended default:
+Recommended task order:
 
-```text
-Prisma for schema/migrations and typed app data access,
-unless repository constraints or performance requirements point to Drizzle.
-```
-
-After the tool decision:
-
-1. convert `database/postgres/schema_v1.sql` into managed migrations
-2. add typed data access for sources, projects, assets, companies, and Research
-   Ops queries
-3. keep SQLite prototype routes available until PostgreSQL replacements are
+1. add a top-level Sources / Documents page
+2. add source list filtering by source type, visibility, and credibility/status
+3. add source detail view with linked project/asset/company records
+4. add source create/edit form and source-link actions
+5. keep SQLite prototype routes available until PostgreSQL replacements are
    ready
-4. avoid live data import until the PostgreSQL workflows are stable
+6. avoid live data import until the PostgreSQL workflows are stable

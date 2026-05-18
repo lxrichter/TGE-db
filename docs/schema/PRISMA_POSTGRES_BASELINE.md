@@ -15,8 +15,11 @@ Current implemented pieces:
 - `web/prisma/schema.prisma`
 - `web/prisma.config.ts`
 - `web/prisma/migrations/20260518000000_baseline/migration.sql`
+- `web/prisma/migrations/20260518000100_align_user_roles/migration.sql`
+- `web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql`
 - `web/lib/db/prisma.ts`
 - `web/lib/services/postgres-preview.ts`
+- `web/lib/services/sources.ts`
 - Prisma package scripts in `web/package.json`
 - generated Prisma client ignored at `web/prisma/generated/`
 
@@ -132,16 +135,33 @@ Current application use:
 - `web/lib/db/prisma.ts` provides the shared lazy Prisma client.
 - `web/lib/services/postgres-preview.ts` owns the PostgreSQL preview and
   Research Ops preview data access.
+- `web/lib/services/sources.ts` owns the PostgreSQL source list/detail and
+  source reference-data access layer.
 - `web/lib/postgres-preview.ts` remains as a compatibility re-export for the
   current page and API imports.
 - `web/prisma/migrations/20260518000100_align_user_roles/migration.sql`
   aligns PostgreSQL `app_users.role_code` to the canonical MVP role model.
+- `web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql`
+  adds the first Sources / Documents MVP extension:
+  - source visibility/confidentiality reference data
+  - source credibility/status reference data
+  - expanded source metadata fields
+  - evidence-link metadata for future field-level claims
+  - source validation queues in Research Ops
+
+Current PostgreSQL source API foundation:
+
+```text
+GET /api/postgres/sources
+GET /api/postgres/sources/[id]
+GET /api/postgres/sources/reference-data
+```
 
 The next recommended implementation slice is:
 
-1. define the next Prisma migration for Sources / Documents MVP additions
-2. implement Sources / Documents MVP tables and screens
-3. connect source validation into Research Ops queues
+1. build the Sources / Documents list and detail UI
+2. add source create/edit and source-link actions
+3. wire source actions into Research Ops and core entity detail pages
 4. keep permission checks explicit as PostgreSQL write routes are added
 
 The live Hetzner SQLite database remains untouched until the PostgreSQL

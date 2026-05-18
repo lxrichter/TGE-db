@@ -26,6 +26,17 @@ web/prisma/migrations/20260518000000_baseline/migration.sql
 The current Railway staging database already contained the baseline schema, so
 the migration has been marked as applied rather than re-run.
 
+Additional applied PostgreSQL migrations:
+
+```text
+web/prisma/migrations/20260518000100_align_user_roles/migration.sql
+web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql
+```
+
+The Sources / Documents MVP migration adds source visibility, source
+credibility/status governance, richer source metadata, evidence-link metadata,
+and source validation queues for the PostgreSQL Research Ops preview.
+
 ## Environment
 
 The app expects:
@@ -70,6 +81,8 @@ Expected result:
 - PostgreSQL connection succeeds
 - database and user are printed
 - public table count is shown
+- current Railway staging public table count is 29 after the Sources /
+  Documents MVP migration
 - selected reference-table counts are shown
 
 ## Read-Only Preview
@@ -111,6 +124,8 @@ It is read-only and focuses on the validation and research queues defined in
 the product build spec:
 
 - needs source
+- source needs review
+- weak / outdated source
 - missing country
 - missing lifecycle/status
 - missing geothermal use type
@@ -142,6 +157,27 @@ Supporting API endpoint:
 
 This preview validates the future PostgreSQL workflow model without importing
 or changing the current live Hetzner SQLite database.
+
+## Sources / Documents Foundation
+
+The first PostgreSQL source/evidence service foundation is available through:
+
+```text
+/api/postgres/sources
+/api/postgres/sources/[id]
+/api/postgres/sources/reference-data
+```
+
+Current implemented behavior:
+
+- read source records from Railway PostgreSQL
+- filter source records by search, source type, visibility, and credibility
+- expose source type, visibility, and credibility/status reference data
+- expose linked project, operating asset, and company evidence records
+- feed source review queues into Research Ops
+
+This is not yet the full Sources / Documents UI. It is the service/API
+foundation for the next implementation slice.
 
 ## Safe Staging Seed
 

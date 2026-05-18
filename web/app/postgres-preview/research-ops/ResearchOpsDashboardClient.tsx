@@ -42,7 +42,11 @@ function formatEntityType(value: EntityType) {
     return "Project";
   }
 
-  return "Company";
+  if (value === "company") {
+    return "Company";
+  }
+
+  return "Source";
 }
 
 function severityClasses(severity: ResearchOpsQueueSeverity) {
@@ -529,6 +533,7 @@ export function ResearchOpsDashboardClient({
               <option value="project">Projects</option>
               <option value="operating_asset">Assets</option>
               <option value="company">Companies</option>
+              <option value="source">Sources</option>
             </FilterSelect>
             <FilterSelect
               label="Country"

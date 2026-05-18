@@ -59,6 +59,8 @@ export type ResearchOpsQueueSeverity = "critical" | "important" | "workflow";
 
 export type ResearchOpsQueueKey =
   | "needs_source"
+  | "source_needs_review"
+  | "weak_or_outdated_source"
   | "missing_country"
   | "missing_lifecycle"
   | "missing_use_type"
@@ -72,7 +74,7 @@ export type ResearchOpsQueueKey =
 
 export type PostgresResearchOpsQueueItem = {
   queue_key: ResearchOpsQueueKey;
-  entity_type: "project" | "operating_asset" | "company";
+  entity_type: "project" | "operating_asset" | "company" | "source";
   entity_id: string;
   legacy_id: string | null;
   name: string;
@@ -95,7 +97,7 @@ export type PostgresResearchOpsQueue = {
 };
 
 export type PostgresResearchOpsRecentEdit = {
-  entity_type: "project" | "operating_asset" | "company";
+  entity_type: "project" | "operating_asset" | "company" | "source";
   entity_id: string;
   legacy_id: string | null;
   name: string;
@@ -197,6 +199,54 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
       WHERE NOT EXISTS (
         SELECT 1 FROM entity_sources es WHERE es.company_id = c.company_id
       )
+    `,
+  },
+  {
+    key: "source_needs_review",
+    title: "Source Needs Review",
+    severity: "workflow",
+    description: "Source records added to the evidence backbone but not yet validated.",
+    sql: `
+      SELECT
+        'source_needs_review'::text AS queue_key,
+        'source'::text AS entity_type,
+        s.source_id::text AS entity_id,
+        s.source_reference AS legacy_id,
+        COALESCE(NULLIF(s.title, ''), NULLIF(s.url, ''), s.source_id::text) AS name,
+        s.country,
+        s.source_type_code AS primary_use_type_code,
+        NULL::text AS lifecycle_phase_code,
+        s.credibility_status_code AS review_status_code,
+        'Source credibility status is needs_review'::text AS issue_label,
+        s.updated_at
+      FROM sources s
+      WHERE s.credibility_status_code = 'needs_review'
+    `,
+  },
+  {
+    key: "weak_or_outdated_source",
+    title: "Weak / Outdated Source",
+    severity: "important",
+    description: "Source records marked weak, outdated, rejected, or duplicate-suspected.",
+    sql: `
+      SELECT
+        'weak_or_outdated_source'::text AS queue_key,
+        'source'::text AS entity_type,
+        s.source_id::text AS entity_id,
+        s.source_reference AS legacy_id,
+        COALESCE(NULLIF(s.title, ''), NULLIF(s.url, ''), s.source_id::text) AS name,
+        s.country,
+        s.source_type_code AS primary_use_type_code,
+        NULL::text AS lifecycle_phase_code,
+        s.credibility_status_code AS review_status_code,
+        CASE
+          WHEN s.duplicate_source_flag THEN 'Source duplicate flag is set'
+          ELSE 'Source credibility status is ' || s.credibility_status_code
+        END::text AS issue_label,
+        s.updated_at
+      FROM sources s
+      WHERE s.credibility_status_code IN ('weak', 'outdated', 'rejected')
+        OR s.duplicate_source_flag = TRUE
     `,
   },
   {
@@ -905,11 +955,16 @@ async function loadResearchOpsQueue(
       LEFT JOIN companies c_user
         ON queue.entity_type = 'company'
         AND queue.entity_id::uuid = c_user.company_id
+      LEFT JOIN sources s_user
+        ON queue.entity_type = 'source'
+        AND queue.entity_id::uuid = s_user.source_id
       LEFT JOIN app_users updater
         ON updater.user_id = COALESCE(
           p_user.last_updated_by_user_id,
           a_user.last_updated_by_user_id,
-          c_user.last_updated_by_user_id
+          c_user.last_updated_by_user_id,
+          s_user.reviewed_by_user_id,
+          s_user.added_by_user_id
         )
     )
     SELECT
@@ -1002,6 +1057,21 @@ export async function listPostgresResearchOpsRecentEdits(
         c.last_updated_by_user_id,
         c.updated_at
       FROM companies c
+
+      UNION ALL
+
+      SELECT
+        'source'::text AS entity_type,
+        s.source_id::text AS entity_id,
+        s.source_reference AS legacy_id,
+        COALESCE(NULLIF(s.title, ''), NULLIF(s.url, ''), s.source_id::text) AS name,
+        s.country,
+        s.source_type_code AS primary_use_type_code,
+        NULL::text AS lifecycle_phase_code,
+        s.credibility_status_code AS review_status_code,
+        COALESCE(s.reviewed_by_user_id, s.added_by_user_id) AS last_updated_by_user_id,
+        s.updated_at
+      FROM sources s
     ) records
     LEFT JOIN app_users updater
       ON updater.user_id = records.last_updated_by_user_id
