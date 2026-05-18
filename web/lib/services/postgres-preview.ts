@@ -55,6 +55,98 @@ export type PostgresPreviewCompany = {
   research_status: string | null;
 };
 
+export type PostgresEntitySourceLink = {
+  entity_source_id: string;
+  source_id: string;
+  source_title: string | null;
+  source_reference: string | null;
+  source_type_label: string | null;
+  visibility_code: string;
+  credibility_status_code: string;
+  linked_field: string | null;
+  claim_text: string | null;
+  extracted_value: string | null;
+  confidence_status_code: string;
+  is_primary_evidence: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PostgresPreviewProjectDetail = PostgresPreviewProject & {
+  project_group: string | null;
+  location_text: string | null;
+  wb_region: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  resource_type: string | null;
+  resource_temp_c: number | null;
+  potential_min_mwe: number | null;
+  potential_max_mwe: number | null;
+  annual_power_generation_gwhe: number | null;
+  annual_cooling_supply_gwhc: number | null;
+  capacity_estimate_status_code: string;
+  output_estimate_status_code: string;
+  start_dev_year: number | null;
+  target_cod_year: number | null;
+  target_cod_month: number | null;
+  cod_raw: string | null;
+  plant_technology: string | null;
+  turbine_supplier: string | null;
+  notes: string | null;
+  source_count: number;
+  created_at: string;
+  updated_at: string;
+  sources: PostgresEntitySourceLink[];
+};
+
+export type PostgresPreviewOperatingAssetDetail = PostgresPreviewOperatingAsset & {
+  project_group: string | null;
+  location_text: string | null;
+  wb_region: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  resource_type: string | null;
+  resource_temp_c: number | null;
+  potential_min_mwe: number | null;
+  potential_max_mwe: number | null;
+  annual_cooling_supply_gwhc: number | null;
+  capacity_estimate_status_code: string;
+  output_estimate_status_code: string;
+  start_dev_year: number | null;
+  cod_year: number | null;
+  cod_month: number | null;
+  cod_raw: string | null;
+  number_of_units: string | null;
+  plant_technology: string | null;
+  turbine_supplier: string | null;
+  promoted_from_project_id: string | null;
+  notes: string | null;
+  source_count: number;
+  created_at: string;
+  updated_at: string;
+  sources: PostgresEntitySourceLink[];
+};
+
+export type PostgresPreviewCompanyDetail = PostgresPreviewCompany & {
+  company_name_short: string | null;
+  company_legal_name: string | null;
+  website_url: string | null;
+  linkedin_url: string | null;
+  ownership_type: string | null;
+  company_status: string | null;
+  headquarters_city: string | null;
+  region: string | null;
+  wb_region: string | null;
+  technology_focus: string | null;
+  service_scope_summary: string | null;
+  operating_markets_summary: string | null;
+  notes: string | null;
+  source_count: number;
+  created_at: string;
+  updated_at: string;
+  sources: PostgresEntitySourceLink[];
+};
+
 export type ResearchOpsQueueSeverity = "critical" | "important" | "workflow";
 
 export type ResearchOpsQueueKey =
@@ -135,6 +227,84 @@ type QueueItemRow = Omit<PostgresResearchOpsQueueItem, "updated_at"> & {
 };
 
 type RecentEditRow = Omit<PostgresResearchOpsRecentEdit, "updated_at"> & {
+  updated_at: string | Date;
+};
+
+type PostgresEntitySourceLinkRow = Omit<
+  PostgresEntitySourceLink,
+  "created_at" | "updated_at"
+> & {
+  created_at: string | Date;
+  updated_at: string | Date;
+};
+
+type ProjectDetailRow = Omit<
+  PostgresPreviewProjectDetail,
+  | "electric_capacity_mwe"
+  | "thermal_capacity_mwth"
+  | "annual_heat_supply_gwhth"
+  | "latitude"
+  | "longitude"
+  | "resource_temp_c"
+  | "potential_min_mwe"
+  | "potential_max_mwe"
+  | "annual_power_generation_gwhe"
+  | "annual_cooling_supply_gwhc"
+  | "created_at"
+  | "updated_at"
+  | "sources"
+> & {
+  electric_capacity_mwe: NullableNumeric;
+  thermal_capacity_mwth: NullableNumeric;
+  annual_heat_supply_gwhth: NullableNumeric;
+  latitude: NullableNumeric;
+  longitude: NullableNumeric;
+  resource_temp_c: NullableNumeric;
+  potential_min_mwe: NullableNumeric;
+  potential_max_mwe: NullableNumeric;
+  annual_power_generation_gwhe: NullableNumeric;
+  annual_cooling_supply_gwhc: NullableNumeric;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
+
+type OperatingAssetDetailRow = Omit<
+  PostgresPreviewOperatingAssetDetail,
+  | "electric_capacity_mwe"
+  | "electric_capacity_running_mwe"
+  | "thermal_capacity_mwth"
+  | "annual_power_generation_gwhe"
+  | "annual_heat_supply_gwhth"
+  | "latitude"
+  | "longitude"
+  | "resource_temp_c"
+  | "potential_min_mwe"
+  | "potential_max_mwe"
+  | "annual_cooling_supply_gwhc"
+  | "created_at"
+  | "updated_at"
+  | "sources"
+> & {
+  electric_capacity_mwe: NullableNumeric;
+  electric_capacity_running_mwe: NullableNumeric;
+  thermal_capacity_mwth: NullableNumeric;
+  annual_power_generation_gwhe: NullableNumeric;
+  annual_heat_supply_gwhth: NullableNumeric;
+  latitude: NullableNumeric;
+  longitude: NullableNumeric;
+  resource_temp_c: NullableNumeric;
+  potential_min_mwe: NullableNumeric;
+  potential_max_mwe: NullableNumeric;
+  annual_cooling_supply_gwhc: NullableNumeric;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
+
+type CompanyDetailRow = Omit<
+  PostgresPreviewCompanyDetail,
+  "created_at" | "updated_at" | "sources"
+> & {
+  created_at: string | Date;
   updated_at: string | Date;
 };
 
@@ -929,6 +1099,286 @@ function toRecentEdit(row: RecentEditRow): PostgresResearchOpsRecentEdit {
     review_status_code: row.review_status_code,
     last_updated_by_name: row.last_updated_by_name,
     updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+function toEntitySourceLink(
+  row: PostgresEntitySourceLinkRow
+): PostgresEntitySourceLink {
+  return {
+    ...row,
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+export async function listPostgresEntitySourceLinks(
+  entityType: "project" | "operating_asset" | "company",
+  entityId: string
+): Promise<PostgresEntitySourceLink[]> {
+  const whereColumn =
+    entityType === "project"
+      ? "es.project_id"
+      : entityType === "operating_asset"
+        ? "es.operating_asset_id"
+        : "es.company_id";
+
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    PostgresEntitySourceLinkRow[]
+  >(
+    `
+    SELECT
+      es.entity_source_id::text,
+      es.source_id::text,
+      s.title AS source_title,
+      s.source_reference,
+      st.label AS source_type_label,
+      s.visibility_code,
+      s.credibility_status_code,
+      es.linked_field,
+      es.claim_text,
+      es.extracted_value,
+      es.confidence_status_code,
+      es.is_primary_evidence,
+      es.created_at,
+      es.updated_at
+    FROM entity_sources es
+    INNER JOIN sources s
+      ON s.source_id = es.source_id
+    LEFT JOIN ref_source_types st
+      ON st.code = s.source_type_code
+    WHERE ${whereColumn} = $1::uuid
+    ORDER BY
+      es.is_primary_evidence DESC,
+      s.credibility_status_code ASC,
+      es.updated_at DESC
+    `,
+    entityId
+  );
+
+  return rows.map(toEntitySourceLink);
+}
+
+export async function getPostgresPreviewProjectById(
+  projectId: string
+): Promise<PostgresPreviewProjectDetail | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<ProjectDetailRow[]>(
+    `
+    SELECT
+      p.project_id::text,
+      p.legacy_project_id,
+      p.project_name,
+      p.project_group,
+      p.primary_use_type_code,
+      p.lifecycle_phase_code,
+      p.location_text,
+      p.country,
+      p.region,
+      p.wb_region,
+      p.latitude,
+      p.longitude,
+      p.resource_type,
+      p.resource_temp_c,
+      p.potential_min_mwe,
+      p.potential_max_mwe,
+      p.electric_capacity_mwe,
+      p.thermal_capacity_mwth,
+      p.annual_power_generation_gwhe,
+      p.annual_heat_supply_gwhth,
+      p.annual_cooling_supply_gwhc,
+      p.capacity_estimate_status_code,
+      p.output_estimate_status_code,
+      p.start_dev_year,
+      p.target_cod_year,
+      p.target_cod_month,
+      p.cod_raw,
+      p.plant_technology,
+      p.turbine_supplier,
+      p.review_status_code,
+      p.research_status,
+      p.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM entity_sources es
+        WHERE es.project_id = p.project_id
+      ) AS source_count,
+      p.created_at,
+      p.updated_at
+    FROM projects p
+    WHERE p.project_id = $1::uuid
+    LIMIT 1
+    `,
+    projectId
+  );
+
+  const row = rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  const sources = await listPostgresEntitySourceLinks("project", projectId);
+
+  return {
+    ...row,
+    latitude: toNullableNumber(row.latitude),
+    longitude: toNullableNumber(row.longitude),
+    resource_temp_c: toNullableNumber(row.resource_temp_c),
+    potential_min_mwe: toNullableNumber(row.potential_min_mwe),
+    potential_max_mwe: toNullableNumber(row.potential_max_mwe),
+    electric_capacity_mwe: toNullableNumber(row.electric_capacity_mwe),
+    thermal_capacity_mwth: toNullableNumber(row.thermal_capacity_mwth),
+    annual_power_generation_gwhe: toNullableNumber(row.annual_power_generation_gwhe),
+    annual_heat_supply_gwhth: toNullableNumber(row.annual_heat_supply_gwhth),
+    annual_cooling_supply_gwhc: toNullableNumber(row.annual_cooling_supply_gwhc),
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+    sources,
+  };
+}
+
+export async function getPostgresPreviewOperatingAssetById(
+  operatingAssetId: string
+): Promise<PostgresPreviewOperatingAssetDetail | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<OperatingAssetDetailRow[]>(
+    `
+    SELECT
+      a.operating_asset_id::text,
+      a.legacy_plant_id,
+      a.asset_name,
+      a.project_group,
+      a.primary_use_type_code,
+      a.lifecycle_phase_code,
+      a.location_text,
+      a.country,
+      a.region,
+      a.wb_region,
+      a.latitude,
+      a.longitude,
+      a.resource_type,
+      a.resource_temp_c,
+      a.potential_min_mwe,
+      a.potential_max_mwe,
+      a.electric_capacity_mwe,
+      a.electric_capacity_running_mwe,
+      a.thermal_capacity_mwth,
+      a.annual_power_generation_gwhe,
+      a.annual_heat_supply_gwhth,
+      a.annual_cooling_supply_gwhc,
+      a.capacity_estimate_status_code,
+      a.output_estimate_status_code,
+      a.start_dev_year,
+      a.cod_year,
+      a.cod_month,
+      a.cod_raw,
+      a.number_of_units,
+      a.plant_technology,
+      a.turbine_supplier,
+      a.promoted_from_project_id::text,
+      a.review_status_code,
+      a.research_status,
+      a.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM entity_sources es
+        WHERE es.operating_asset_id = a.operating_asset_id
+      ) AS source_count,
+      a.created_at,
+      a.updated_at
+    FROM operating_assets a
+    WHERE a.operating_asset_id = $1::uuid
+    LIMIT 1
+    `,
+    operatingAssetId
+  );
+
+  const row = rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  const sources = await listPostgresEntitySourceLinks(
+    "operating_asset",
+    operatingAssetId
+  );
+
+  return {
+    ...row,
+    latitude: toNullableNumber(row.latitude),
+    longitude: toNullableNumber(row.longitude),
+    resource_temp_c: toNullableNumber(row.resource_temp_c),
+    potential_min_mwe: toNullableNumber(row.potential_min_mwe),
+    potential_max_mwe: toNullableNumber(row.potential_max_mwe),
+    electric_capacity_mwe: toNullableNumber(row.electric_capacity_mwe),
+    electric_capacity_running_mwe: toNullableNumber(
+      row.electric_capacity_running_mwe
+    ),
+    thermal_capacity_mwth: toNullableNumber(row.thermal_capacity_mwth),
+    annual_power_generation_gwhe: toNullableNumber(row.annual_power_generation_gwhe),
+    annual_heat_supply_gwhth: toNullableNumber(row.annual_heat_supply_gwhth),
+    annual_cooling_supply_gwhc: toNullableNumber(row.annual_cooling_supply_gwhc),
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+    sources,
+  };
+}
+
+export async function getPostgresPreviewCompanyById(
+  companyId: string
+): Promise<PostgresPreviewCompanyDetail | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyDetailRow[]>(
+    `
+    SELECT
+      c.company_id::text,
+      c.legacy_company_id,
+      c.company_name,
+      c.company_name_short,
+      c.company_legal_name,
+      c.website_url,
+      c.linkedin_url,
+      c.entity_type_code,
+      c.company_type_primary_code,
+      c.ownership_type,
+      c.company_status,
+      c.headquarters_city,
+      c.headquarters_country,
+      c.region,
+      c.wb_region,
+      c.geothermal_focus,
+      c.technology_focus,
+      c.service_scope_summary,
+      c.operating_markets_summary,
+      c.review_status_code,
+      c.research_status,
+      c.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM entity_sources es
+        WHERE es.company_id = c.company_id
+      ) AS source_count,
+      c.created_at,
+      c.updated_at
+    FROM companies c
+    WHERE c.company_id = $1::uuid
+    LIMIT 1
+    `,
+    companyId
+  );
+
+  const row = rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  const sources = await listPostgresEntitySourceLinks("company", companyId);
+
+  return {
+    ...row,
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+    sources,
   };
 }
 

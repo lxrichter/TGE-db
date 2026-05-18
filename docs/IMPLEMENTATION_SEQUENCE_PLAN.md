@@ -21,11 +21,13 @@ Current implemented foundation:
 - safe PostgreSQL staging seed
 - PostgreSQL preview page
 - read-only PostgreSQL Research Ops preview
+- read-only PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL Sources / Documents MVP foundation:
   - source visibility and credibility/status reference tables
   - expanded source metadata and evidence-link fields
   - source list/detail/reference-data service and API route foundation
   - source validation queues added to PostgreSQL Research Ops preview
+  - source/evidence panels on PostgreSQL entity preview pages
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -131,10 +133,11 @@ Deliverables:
 
 Immediate next actions:
 
-1. build the basic Sources / Documents UI surface on top of the new endpoints
-2. add source create/edit and source-link actions
-3. connect "add source" actions from Research Ops and entity detail pages
-4. keep tightening permissions when write-enabled PostgreSQL routes are added
+1. add editor source-validation actions
+2. add source-aware export-readiness checks
+3. keep tightening permissions when write-enabled PostgreSQL routes are added
+4. decide when PostgreSQL entity edit pages should replace or sit beside the
+   current SQLite prototype edit flows
 
 Do before:
 
@@ -165,11 +168,11 @@ Current implemented foundation:
 - Research Ops "Needs Source" rows can open a prelinked add-source flow
 - safe non-confidential staging source seed with sample evidence links
 - Research Ops source queues for review and weak/outdated sources
+- read-only PostgreSQL project, plant/facility, and company detail pages show
+  source/evidence panels and add-source actions
 
 Key work:
 
-- add source panels/actions to future PostgreSQL project, plant/facility, and
-  company detail pages
 - prepare country/market source links when country/market pages move to
   PostgreSQL
 - connect source status into validation and Research Ops queues
@@ -516,10 +519,10 @@ Bring source evidence directly into the next PostgreSQL entity workflows.
 
 Recommended task order:
 
-1. add source panels to PostgreSQL project, plant/facility, and company detail pages
-2. add editor source-validation actions: mark credible, weak, outdated, rejected
-3. add export-readiness checks that require credible source coverage
-4. add PostgreSQL detail pages for projects/assets/companies or migrate existing detail pages carefully
-5. keep SQLite prototype routes available until PostgreSQL replacements are
+1. add editor source-validation actions: mark credible, weak, outdated, rejected
+2. add export-readiness checks that require credible source coverage
+3. add PostgreSQL edit-page scaffolds for projects/assets/companies or migrate
+   existing detail/edit pages carefully
+4. keep SQLite prototype routes available until PostgreSQL replacements are
    ready
-6. avoid live data import until the PostgreSQL workflows are stable
+5. avoid live data import until the PostgreSQL workflows are stable

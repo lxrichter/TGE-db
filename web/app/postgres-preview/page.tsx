@@ -141,9 +141,12 @@ function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
             {projects.map((project) => (
               <tr key={project.project_id} className="align-top">
                 <td className="px-5 py-4">
-                  <div className="font-semibold text-[#1f2937]">
+                  <Link
+                    href={`/postgres-preview/projects/${project.project_id}`}
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  >
                     {project.project_name}
-                  </div>
+                  </Link>
                   <div className="mt-1 text-xs text-gray-500">
                     {project.legacy_project_id || "new-postgres-record"}
                   </div>
@@ -203,9 +206,12 @@ function OperatingAssetsTable({
             {operatingAssets.map((asset) => (
               <tr key={asset.operating_asset_id} className="align-top">
                 <td className="px-5 py-4">
-                  <div className="font-semibold text-[#1f2937]">
+                  <Link
+                    href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  >
                     {asset.asset_name}
-                  </div>
+                  </Link>
                   <div className="mt-1 text-xs text-gray-500">
                     {asset.legacy_plant_id || "new-postgres-record"}
                   </div>
@@ -259,9 +265,12 @@ function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) 
             {companies.map((company) => (
               <tr key={company.company_id} className="align-top">
                 <td className="px-5 py-4">
-                  <div className="font-semibold text-[#1f2937]">
+                  <Link
+                    href={`/postgres-preview/companies/${company.company_id}`}
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  >
                     {company.company_name}
-                  </div>
+                  </Link>
                   <div className="mt-1 text-xs text-gray-500">
                     {company.legacy_company_id || "new-postgres-record"}
                   </div>

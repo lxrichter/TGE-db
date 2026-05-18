@@ -91,6 +91,9 @@ The first PostgreSQL-backed app surface is:
 
 ```text
 /postgres-preview
+/postgres-preview/projects/[id]
+/postgres-preview/operating-assets/[id]
+/postgres-preview/companies/[id]
 ```
 
 It shows:
@@ -99,6 +102,8 @@ It shows:
 - operating assets
 - companies
 - core relationship counts
+- read-only project, plant/facility, and company detail previews
+- source/evidence panels and add-source actions on entity preview pages
 
 The page uses Railway/PostgreSQL data and remains behind the existing app login
 middleware. It is intentionally read-only.
@@ -181,6 +186,8 @@ Current implemented behavior:
 - create and edit source records
 - add and remove record-level evidence links
 - start a prelinked add-source flow from Research Ops records missing sources
+- start a prelinked add-source flow from PostgreSQL project, plant/facility,
+  and company preview pages
 - read source records from Railway PostgreSQL
 - filter source records by search, source type, visibility, and credibility
 - expose source type, visibility, and credibility/status reference data
@@ -188,8 +195,8 @@ Current implemented behavior:
 - feed source review queues into Research Ops
 
 This is not yet the full Sources / Documents workflow. File upload, TGE article
-sync, source panels on PostgreSQL entity detail pages, and dedicated editor
-validation actions are still future implementation slices.
+sync, country/market evidence panels, and dedicated editor validation actions
+are still future implementation slices.
 
 ## Safe Staging Seed
 

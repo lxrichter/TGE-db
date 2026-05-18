@@ -71,6 +71,18 @@ function recordHref(record: ResearchOpsRecord) {
     return `/sources/${record.entity_id}`;
   }
 
+  if (record.entity_type === "project") {
+    return `/postgres-preview/projects/${record.entity_id}`;
+  }
+
+  if (record.entity_type === "operating_asset") {
+    return `/postgres-preview/operating-assets/${record.entity_id}`;
+  }
+
+  if (record.entity_type === "company") {
+    return `/postgres-preview/companies/${record.entity_id}`;
+  }
+
   return null;
 }
 
@@ -283,19 +295,19 @@ function EntityTable({
                   {formatDate(item.updated_at)}
                 </td>
                 <td className="px-5 py-4">
-                  {href ? (
-                    <Link
-                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                      href={href}
-                    >
-                      Open
-                    </Link>
-                  ) : sourceHref ? (
+                  {sourceHref ? (
                     <Link
                       className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                       href={sourceHref}
                     >
                       Add Source
+                    </Link>
+                  ) : href ? (
+                    <Link
+                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      href={href}
+                    >
+                      Open
                     </Link>
                   ) : (
                     <button
@@ -405,7 +417,7 @@ function SelectedRecordPanel({
             className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
             href={href}
           >
-            Open Source
+            Open Record
           </Link>
         ) : null}
         {sourceHref ? (
