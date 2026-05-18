@@ -104,7 +104,8 @@ Key work:
 - connect core app data access to PostgreSQL behind stable query/service modules:
   started with PostgreSQL preview and Research Ops preview services
 - decide staging vs production Railway environment pattern
-- align app roles with the MVP role model:
+- align app roles with the MVP role model: done for current auth/admin and
+  PostgreSQL `app_users.role_code`
   - researcher
   - editor
   - senior editor
@@ -118,14 +119,14 @@ Deliverables:
 - first managed migration generated from current PostgreSQL schema
 - stable database access layer: shared Prisma client helper started
 - Railway environment notes
-- auth/role model alignment notes
+- auth/role model alignment notes: `docs/ROLE_MODEL.md`
 
 Immediate next actions:
 
-1. align role labels and permissions with researcher/editor/senior editor/admin
-2. define the next Prisma migration for Sources / Documents MVP additions
-3. create the Sources / Documents service module and route foundation
-4. connect source status into Research Ops queues
+1. define the next Prisma migration for Sources / Documents MVP additions
+2. create the Sources / Documents service module and route foundation
+3. connect source status into Research Ops queues
+4. keep tightening permissions when write-enabled PostgreSQL routes are added
 
 Do before:
 

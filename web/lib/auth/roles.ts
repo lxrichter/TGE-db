@@ -1,123 +1,173 @@
-export type UserRole =
-  | "viewer"
+export type CanonicalUserRole =
+  | "researcher"
   | "editor"
-  | "editor_export" // Editor+
-  | "administrator";
+  | "senior_editor"
+  | "admin";
 
-/**
- * -----------------------------
- * BASIC CAPABILITIES (EXISTING)
- * -----------------------------
- */
+export type LegacyUserRole =
+  | "viewer"
+  | "analyst"
+  | "reviewer"
+  | "editor_export"
+  | "administrator"
+  | "editor_plus"
+  | "editor+";
 
-export function canEdit(role?: UserRole | null) {
+export type UserRole = CanonicalUserRole | LegacyUserRole;
+
+export type RoleOption = {
+  value: CanonicalUserRole;
+  label: string;
+  description: string;
+};
+
+export const ROLE_OPTIONS: RoleOption[] = [
+  {
+    value: "researcher",
+    label: "Researcher",
+    description:
+      "View internal records, create drafts, edit non-approved records, and submit records for validation.",
+  },
+  {
+    value: "editor",
+    label: "Editor",
+    description:
+      "Create and edit records, approve records, manage validation work, and run standard exports.",
+  },
+  {
+    value: "senior_editor",
+    label: "Senior Editor",
+    description:
+      "Senior editorial/review role with approval, export, and elevated workflow permissions.",
+  },
+  {
+    value: "admin",
+    label: "Admin",
+    description:
+      "Full internal access including user management, governance, and system settings.",
+  },
+];
+
+export function normalizeUserRole(
+  role?: UserRole | string | null
+): CanonicalUserRole | null {
+  switch (role) {
+    case "researcher":
+    case "viewer":
+    case "analyst":
+      return "researcher";
+    case "editor":
+      return "editor";
+    case "senior_editor":
+    case "reviewer":
+    case "editor_export":
+    case "editor_plus":
+    case "editor+":
+      return "senior_editor";
+    case "admin":
+    case "administrator":
+      return "admin";
+    default:
+      return null;
+  }
+}
+
+export function isUserRole(role: string): role is UserRole {
+  return normalizeUserRole(role) !== null;
+}
+
+export function isCanonicalUserRole(role: string): role is CanonicalUserRole {
   return (
+    role === "researcher" ||
     role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
+    role === "senior_editor" ||
+    role === "admin"
   );
+}
+
+export function getRoleLabel(role?: UserRole | string | null) {
+  const normalized = normalizeUserRole(role);
+  return (
+    ROLE_OPTIONS.find((option) => option.value === normalized)?.label ||
+    "Unknown"
+  );
+}
+
+export function canViewInternalRecords(role?: UserRole | string | null) {
+  return normalizeUserRole(role) !== null;
+}
+
+export function canCreateDraft(role?: UserRole | string | null) {
+  return normalizeUserRole(role) !== null;
+}
+
+export function canEdit(role?: UserRole | string | null) {
+  return normalizeUserRole(role) !== null;
 }
 
 export function canExport(role?: UserRole | string | null) {
+  const normalized = normalizeUserRole(role);
   return (
-    role === "editor_export" ||
-    role === "administrator" ||
-    role === "admin" ||
-    role === "editor_plus" ||
-    role === "editor+"
+    normalized === "editor" ||
+    normalized === "senior_editor" ||
+    normalized === "admin"
   );
 }
 
-export function canPrint(role?: UserRole | null) {
-  return role === "editor_export" || role === "administrator";
+export function canPrint(role?: UserRole | string | null) {
+  return canExport(role);
 }
 
-export function canPromoteProject(role?: UserRole | null) {
+export function canPromoteProject(role?: UserRole | string | null) {
+  const normalized = normalizeUserRole(role);
   return (
-    role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
+    normalized === "editor" ||
+    normalized === "senior_editor" ||
+    normalized === "admin"
   );
 }
 
-/**
- * Access to the general /admin page:
- * Editor, Editor+, Administrator
- */
-export function canAccessAdmin(role?: UserRole | null) {
+export function canAccessAdmin(role?: UserRole | string | null) {
+  const normalized = normalizeUserRole(role);
   return (
-    role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
+    normalized === "editor" ||
+    normalized === "senior_editor" ||
+    normalized === "admin"
   );
 }
 
-/**
- * Access to /admin/users:
- * Administrator only
- */
-export function canManageUsers(role?: UserRole | null) {
-  return role === "administrator";
+export function canManageUsers(role?: UserRole | string | null) {
+  return normalizeUserRole(role) === "admin";
 }
 
-export function canImport(role?: UserRole | null) {
-  return role === "administrator";
+export function canImport(role?: UserRole | string | null) {
+  return normalizeUserRole(role) === "admin";
 }
 
-/**
- * -----------------------------
- * NEW: REVIEW & APPROVAL CAPABILITIES
- * -----------------------------
- */
-
-/**
- * Can access QA / review features
- */
-export function canReview(role?: UserRole | null) {
-  return role === "editor_export" || role === "administrator";
+export function canReview(role?: UserRole | string | null) {
+  const normalized = normalizeUserRole(role);
+  return (
+    normalized === "editor" ||
+    normalized === "senior_editor" ||
+    normalized === "admin"
+  );
 }
 
-/**
- * Can approve records (general capability)
- */
-export function canApprove(role?: UserRole | null) {
-  return role === "editor_export" || role === "administrator";
+export function canApprove(role?: UserRole | string | null) {
+  return canReview(role);
 }
 
-/**
- * -----------------------------
- * NEW: WORKFLOW LOGIC
- * -----------------------------
- */
-
-/**
- * Should a change trigger "pending_review"?
- *
- * Rule:
- * - Editor → YES
- * - Editor+ → NO
- * - Admin → NO
- */
-export function shouldSetPendingReview(role?: UserRole | null) {
-  return role === "editor";
+export function shouldSetPendingReview(role?: UserRole | string | null) {
+  return normalizeUserRole(role) === "researcher";
 }
 
-/**
- * Can this user approve THIS record?
- *
- * Rules:
- * - No self-approval
- * - Editor+ can approve Editor work
- * - Editor+ cannot approve Editor+ work
- * - Admin can approve anything (except self)
- */
 export function canApproveRecord(params: {
-  role?: UserRole | null;
+  role?: UserRole | string | null;
   currentUserId: string;
   createdByUserId?: string | null;
   lastUpdatedByUserId?: string | null;
-  createdByRole?: UserRole | null;
-  lastUpdatedByRole?: UserRole | null;
+  createdByRole?: UserRole | string | null;
+  lastUpdatedByRole?: UserRole | string | null;
 }) {
   const {
     role,
@@ -128,9 +178,12 @@ export function canApproveRecord(params: {
     lastUpdatedByRole,
   } = params;
 
-  if (!canApprove(role)) return false;
+  const normalizedRole = normalizeUserRole(role);
 
-  // ❌ No self-approval
+  if (!canApprove(normalizedRole)) {
+    return false;
+  }
+
   if (
     currentUserId === createdByUserId ||
     currentUserId === lastUpdatedByUserId
@@ -138,20 +191,19 @@ export function canApproveRecord(params: {
     return false;
   }
 
-  // ✅ Admin can approve anything (except self)
-  if (role === "administrator") return true;
+  if (normalizedRole === "admin") {
+    return true;
+  }
 
-  // ✅ Editor+ logic
-  if (role === "editor_export") {
-    // Only allow approving Editor work
-    if (
-      createdByRole === "editor" ||
-      lastUpdatedByRole === "editor"
-    ) {
-      return true;
-    }
+  const createdRole = normalizeUserRole(createdByRole);
+  const updatedRole = normalizeUserRole(lastUpdatedByRole);
 
-    return false;
+  if (normalizedRole === "senior_editor") {
+    return createdRole !== "senior_editor" && updatedRole !== "senior_editor";
+  }
+
+  if (normalizedRole === "editor") {
+    return createdRole === "researcher" || updatedRole === "researcher";
   }
 
   return false;

@@ -131,9 +131,9 @@ export default async function AdminPage() {
   }
 
   const role = (session.user as { role?: string | null }).role;
-  const isUserManager = canManageUsers(role as any);
+  const isUserManager = canManageUsers(role);
 
-  if (!canAccessAdmin(role as any)) {
+  if (!canAccessAdmin(role)) {
     redirect("/");
   }
 

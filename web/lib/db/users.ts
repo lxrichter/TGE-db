@@ -1,7 +1,11 @@
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { getDb } from "@/lib/db";
-import type { UserRole } from "@/lib/auth/roles";
+import {
+  normalizeUserRole,
+  type CanonicalUserRole,
+  type UserRole,
+} from "@/lib/auth/roles";
 
 export type DbUser = {
   user_id: string;
@@ -17,7 +21,7 @@ export type SafeUser = {
   user_id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: CanonicalUserRole;
   is_active: number;
   created_at: string;
 };
@@ -30,15 +34,19 @@ export async function getUserSummary() {
     `SELECT COUNT(*) as count FROM users WHERE is_active = 1`
   );
   const admins = await db.get(
-    `SELECT COUNT(*) as count FROM users WHERE role = 'administrator' AND is_active = 1`
+    `SELECT COUNT(*) as count
+     FROM users
+     WHERE role IN ('admin', 'administrator') AND is_active = 1`
   );
   const editors = await db.get(
     `SELECT COUNT(*) as count
      FROM users
-     WHERE role IN ('editor', 'editor_export') AND is_active = 1`
+     WHERE role IN ('editor', 'senior_editor', 'reviewer', 'editor_export', 'editor_plus', 'editor+') AND is_active = 1`
   );
-  const viewers = await db.get(
-    `SELECT COUNT(*) as count FROM users WHERE role = 'viewer' AND is_active = 1`
+  const researchers = await db.get(
+    `SELECT COUNT(*) as count
+     FROM users
+     WHERE role IN ('researcher', 'viewer', 'analyst') AND is_active = 1`
   );
 
   return {
@@ -46,14 +54,14 @@ export async function getUserSummary() {
     active: active?.count || 0,
     admins: admins?.count || 0,
     editors: editors?.count || 0,
-    viewers: viewers?.count || 0,
+    researchers: researchers?.count || 0,
   };
 }
 
 export async function listUsers(): Promise<SafeUser[]> {
   const db = await getDb();
 
-  const users = await db.all<SafeUser[]>(
+  const users = await db.all<DbUser[]>(
     `
     SELECT user_id, name, email, role, is_active, created_at
     FROM users
@@ -61,7 +69,10 @@ export async function listUsers(): Promise<SafeUser[]> {
     `
   );
 
-  return users;
+  return users.map((user) => ({
+    ...user,
+    role: normalizeUserRole(user.role) ?? "researcher",
+  }));
 }
 
 export async function getUserByEmail(
@@ -116,6 +127,11 @@ export async function createUser(input: {
 
   const userId = randomUUID();
   const passwordHash = await bcrypt.hash(input.password, 10);
+  const role = normalizeUserRole(input.role);
+
+  if (!role) {
+    throw new Error("Invalid user role.");
+  }
 
   await db.run(
     `
@@ -133,7 +149,7 @@ export async function createUser(input: {
     input.name.trim(),
     input.email.trim().toLowerCase(),
     passwordHash,
-    input.role
+    role
   );
 
   const created = await db.get<SafeUser>(
@@ -149,7 +165,10 @@ export async function createUser(input: {
     throw new Error("User was created but could not be reloaded.");
   }
 
-  return created;
+  return {
+    ...created,
+    role: normalizeUserRole(created.role) ?? "researcher",
+  };
 }
 
 export async function updateUserRole(
@@ -157,6 +176,11 @@ export async function updateUserRole(
   role: UserRole
 ): Promise<void> {
   const db = await getDb();
+  const normalizedRole = normalizeUserRole(role);
+
+  if (!normalizedRole) {
+    throw new Error("Invalid user role.");
+  }
 
   await db.run(
     `
@@ -164,7 +188,7 @@ export async function updateUserRole(
     SET role = ?
     WHERE user_id = ?
     `,
-    role,
+    normalizedRole,
     userId
   );
 }
@@ -178,9 +202,14 @@ export async function updateUserDetails(input: {
   const db = await getDb();
 
   const cleanName = input.name.trim();
+  const role = normalizeUserRole(input.role);
 
   if (!cleanName) {
     throw new Error("Name cannot be empty.");
+  }
+
+  if (!role) {
+    throw new Error("Invalid user role.");
   }
 
   if (input.password && input.password.trim().length > 0) {
@@ -193,7 +222,7 @@ export async function updateUserDetails(input: {
       WHERE user_id = ?
       `,
       cleanName,
-      input.role,
+      role,
       passwordHash,
       input.userId
     );
@@ -205,7 +234,7 @@ export async function updateUserDetails(input: {
       WHERE user_id = ?
       `,
       cleanName,
-      input.role,
+      role,
       input.userId
     );
   }

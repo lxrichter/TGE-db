@@ -2,12 +2,27 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getDb } from "@/lib/db";
+import { normalizeUserRole, type UserRole } from "@/lib/auth/roles";
 
 function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
-function isActiveUser(value: any) {
+type AuthDbUser = {
+  user_id: string;
+  name: string;
+  email: string;
+  password_hash: string | null;
+  role: UserRole | string | null;
+  is_active: boolean | number | string;
+};
+
+type SessionUserWithRole = {
+  id?: string;
+  role?: UserRole | string | null;
+};
+
+function isActiveUser(value: boolean | number | string) {
   return value === 1 || value === true || value === "1";
 }
 
@@ -35,7 +50,7 @@ export const authOptions: NextAuthOptions = {
 
         const db = await getDb();
 
-        const user = await db.get(
+        const user = await db.get<AuthDbUser>(
           `
           SELECT user_id, name, email, password_hash, role, is_active
           FROM users
@@ -53,6 +68,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const role = normalizeUserRole(user.role);
+
+        if (!role) {
+          return null;
+        }
+
         if (!user.password_hash || typeof user.password_hash !== "string") {
           return null;
         }
@@ -67,7 +88,7 @@ export const authOptions: NextAuthOptions = {
           id: String(user.user_id),
           name: user.name,
           email: user.email,
-          role: user.role,
+          role,
         };
       },
     }),
@@ -75,15 +96,18 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = (user as any).id;
-        token.role = (user as any).role;
+        const roleUser = user as SessionUserWithRole;
+        token.id = roleUser.id;
+        token.role = normalizeUserRole(roleUser.role);
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).role = token.role;
+        const roleUser = session.user as SessionUserWithRole;
+        roleUser.id = typeof token.id === "string" ? token.id : undefined;
+        roleUser.role =
+          typeof token.role === "string" ? normalizeUserRole(token.role) : null;
       }
       return session;
     },

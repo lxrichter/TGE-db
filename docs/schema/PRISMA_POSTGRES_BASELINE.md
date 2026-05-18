@@ -134,13 +134,15 @@ Current application use:
   Research Ops preview data access.
 - `web/lib/postgres-preview.ts` remains as a compatibility re-export for the
   current page and API imports.
+- `web/prisma/migrations/20260518000100_align_user_roles/migration.sql`
+  aligns PostgreSQL `app_users.role_code` to the canonical MVP role model.
 
 The next recommended implementation slice is:
 
-1. align role labels and permissions with researcher/editor/senior editor/admin
-2. define the next Prisma migration for Sources / Documents MVP additions
-3. implement Sources / Documents MVP tables and screens
-4. connect source validation into Research Ops queues
+1. define the next Prisma migration for Sources / Documents MVP additions
+2. implement Sources / Documents MVP tables and screens
+3. connect source validation into Research Ops queues
+4. keep permission checks explicit as PostgreSQL write routes are added
 
 The live Hetzner SQLite database remains untouched until the PostgreSQL
 workflows and import scripts are ready.

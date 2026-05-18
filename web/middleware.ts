@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import {
+  canAccessAdmin,
+  canEdit,
+  canManageUsers,
+  canPromoteProject,
+} from "@/lib/auth/roles";
 
 function isPublicPath(pathname: string) {
   return (
@@ -10,34 +16,6 @@ function isPublicPath(pathname: string) {
     pathname === "/robots.txt" ||
     pathname === "/sitemap.xml" ||
     /\.[^/]+$/.test(pathname)
-  );
-}
-
-function canAccessAdmin(role?: string | null) {
-  return (
-    role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
-  );
-}
-
-function canManageUsers(role?: string | null) {
-  return role === "administrator";
-}
-
-function canEdit(role?: string | null) {
-  return (
-    role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
-  );
-}
-
-function canPromote(role?: string | null) {
-  return (
-    role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
   );
 }
 
@@ -110,7 +88,7 @@ export async function middleware(req: NextRequest) {
     (pathname.startsWith("/projects/") || pathname.startsWith("/plants/"));
 
   if (isPromoteRoute) {
-    if (!canPromote(role)) {
+    if (!canPromoteProject(role)) {
       if (isApiRoute) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }

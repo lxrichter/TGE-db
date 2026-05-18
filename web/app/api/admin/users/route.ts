@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth/auth";
-import { canManageUsers, type UserRole } from "@/lib/auth/roles";
+import {
+  canManageUsers,
+  isUserRole,
+  normalizeUserRole,
+} from "@/lib/auth/roles";
 import {
   createUser,
   deactivateUser,
@@ -11,15 +15,6 @@ import {
   updateUserDetails,
   updateUserRole,
 } from "@/lib/db/users";
-
-function isValidRole(role: string): role is UserRole {
-  return (
-    role === "viewer" ||
-    role === "editor" ||
-    role === "editor_export" ||
-    role === "administrator"
-  );
-}
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -30,7 +25,7 @@ export async function GET() {
 
   const role = (session.user as { role?: string | null }).role;
 
-  if (!canManageUsers(role as UserRole)) {
+  if (!canManageUsers(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -47,7 +42,7 @@ export async function POST(req: NextRequest) {
 
   const role = (session.user as { role?: string | null }).role;
 
-  if (!canManageUsers(role as UserRole)) {
+  if (!canManageUsers(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -61,16 +56,22 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (!isValidRole(newRole)) {
+  if (typeof newRole !== "string" || !isUserRole(newRole)) {
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
 
   try {
+    const role = normalizeUserRole(newRole);
+
+    if (!role) {
+      return NextResponse.json({ error: "Invalid role." }, { status: 400 });
+    }
+
     const user = await createUser({
       name,
       email,
       password,
-      role: newRole,
+      role,
     });
 
     return NextResponse.json({ user });
@@ -91,7 +92,7 @@ export async function PATCH(req: NextRequest) {
 
   const role = (session.user as { role?: string | null }).role;
 
-  if (!canManageUsers(role as UserRole)) {
+  if (!canManageUsers(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -113,15 +114,21 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    if (!isValidRole(nextRole)) {
+    if (typeof nextRole !== "string" || !isUserRole(nextRole)) {
       return NextResponse.json({ error: "Invalid role." }, { status: 400 });
     }
 
     try {
+      const role = normalizeUserRole(nextRole);
+
+      if (!role) {
+        return NextResponse.json({ error: "Invalid role." }, { status: 400 });
+      }
+
       await updateUserDetails({
         userId,
         name,
-        role: nextRole,
+        role,
         password,
       });
 
@@ -141,11 +148,17 @@ export async function PATCH(req: NextRequest) {
     );
   }
 
-  if (!isValidRole(nextRole)) {
+  if (typeof nextRole !== "string" || !isUserRole(nextRole)) {
     return NextResponse.json({ error: "Invalid role." }, { status: 400 });
   }
 
-  await updateUserRole(userId, nextRole);
+  const roleToStore = normalizeUserRole(nextRole);
+
+  if (!roleToStore) {
+    return NextResponse.json({ error: "Invalid role." }, { status: 400 });
+  }
+
+  await updateUserRole(userId, roleToStore);
 
   return NextResponse.json({ success: true });
 }
@@ -160,7 +173,7 @@ export async function DELETE(req: NextRequest) {
   const role = (session.user as { role?: string | null }).role;
   const sessionEmail = session.user.email;
 
-  if (!canManageUsers(role as UserRole)) {
+  if (!canManageUsers(role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

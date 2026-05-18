@@ -125,6 +125,17 @@ web/app/admin/users/page.tsx
 
 Access is role-aware. The app supports internal editorial/admin workflows; subscriber access is a future platform layer, not a completed production feature in this snapshot.
 
+Canonical MVP user roles are:
+
+```text
+researcher
+editor
+senior_editor
+admin
+```
+
+Legacy prototype roles are accepted and normalized in `web/lib/auth/roles.ts`.
+
 ## Main Route Areas
 
 ```text

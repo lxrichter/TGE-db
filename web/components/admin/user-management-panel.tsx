@@ -2,14 +2,16 @@
 
 import { useState, useTransition } from "react";
 import ActionButton from "@/components/ui/ActionButton";
-
-type UserRole = "viewer" | "editor" | "editor_export" | "administrator";
+import {
+  ROLE_OPTIONS,
+  type CanonicalUserRole,
+} from "@/lib/auth/roles";
 
 type SafeUser = {
   user_id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: CanonicalUserRole;
   is_active: number;
   created_at: string;
 };
@@ -48,7 +50,7 @@ export default function UserManagementPanel({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>("viewer");
+  const [role, setRole] = useState<CanonicalUserRole>("researcher");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -56,7 +58,7 @@ export default function UserManagementPanel({
 
   const [editingUser, setEditingUser] = useState<SafeUser | null>(null);
   const [editName, setEditName] = useState("");
-  const [editRole, setEditRole] = useState<UserRole>("viewer");
+  const [editRole, setEditRole] = useState<CanonicalUserRole>("researcher");
   const [editPassword, setEditPassword] = useState("");
 
   async function refreshUsers() {
@@ -97,13 +99,13 @@ export default function UserManagementPanel({
       setName("");
       setEmail("");
       setPassword("");
-      setRole("viewer");
+      setRole("researcher");
       setSuccess("User created successfully.");
       await refreshUsers();
     });
   }
 
-  async function handleRoleChange(userId: string, nextRole: UserRole) {
+  async function handleRoleChange(userId: string, nextRole: CanonicalUserRole) {
     setError("");
     setSuccess("");
 
@@ -143,7 +145,7 @@ export default function UserManagementPanel({
   function closeEditModal() {
     setEditingUser(null);
     setEditName("");
-    setEditRole("viewer");
+    setEditRole("researcher");
     setEditPassword("");
   }
 
@@ -282,15 +284,16 @@ export default function UserManagementPanel({
                           onChange={(e) =>
                             handleRoleChange(
                               user.user_id,
-                              e.target.value as UserRole
+                              e.target.value as CanonicalUserRole
                             )
                           }
                           className="min-w-[140px] border border-gray-300 bg-white px-3 py-2 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
                         >
-                          <option value="viewer">Viewer</option>
-                          <option value="editor">Editor</option>
-                          <option value="editor_export">Editor+</option>
-                          <option value="administrator">Administrator</option>
+                          {ROLE_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
                         </select>
                       </td>
 
@@ -413,13 +416,16 @@ export default function UserManagementPanel({
                 </label>
                 <select
                   value={role}
-                  onChange={(e) => setRole(e.target.value as UserRole)}
+                  onChange={(e) =>
+                    setRole(e.target.value as CanonicalUserRole)
+                  }
                   className="w-full border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
                 >
-                  <option value="viewer">Viewer</option>
-                  <option value="editor">Editor</option>
-                  <option value="editor_export">Editor+</option>
-                  <option value="administrator">Administrator</option>
+                  {ROLE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -452,32 +458,22 @@ export default function UserManagementPanel({
                 Role Reference
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                Current role logic used across the platform.
+                MVP role logic used across the platform.
               </p>
             </div>
 
             <div className="space-y-2 px-5 py-4 text-sm leading-6 text-gray-600">
-              <div className="border-b border-gray-200 pb-2">
-                <span className="font-semibold text-[#1f2937]">Viewer:</span>{" "}
-                Read-only access to records, maps, and analysis pages.
-              </div>
-
-              <div className="border-b border-gray-200 pb-2">
-                <span className="font-semibold text-[#1f2937]">Editor:</span>{" "}
-                Can create and edit records and maintain relationships.
-              </div>
-
-              <div className="border-b border-gray-200 pb-2">
-                <span className="font-semibold text-[#1f2937]">Editor+:</span>{" "}
-                Same as Editor, with future export permissions.
-              </div>
-
-              <div>
-                <span className="font-semibold text-[#1f2937]">
-                  Administrator:
-                </span>{" "}
-                Full access, including user and admin control.
-              </div>
+              {ROLE_OPTIONS.map((option, index) => (
+                <div
+                  key={option.value}
+                  className={index < ROLE_OPTIONS.length - 1 ? "border-b border-gray-200 pb-2" : ""}
+                >
+                  <span className="font-semibold text-[#1f2937]">
+                    {option.label}:
+                  </span>{" "}
+                  {option.description}
+                </div>
+              ))}
             </div>
           </section>
         </section>
@@ -525,13 +521,16 @@ export default function UserManagementPanel({
                 </label>
                 <select
                   value={editRole}
-                  onChange={(e) => setEditRole(e.target.value as UserRole)}
+                  onChange={(e) =>
+                    setEditRole(e.target.value as CanonicalUserRole)
+                  }
                   className="w-full border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
                 >
-                  <option value="viewer">Viewer</option>
-                  <option value="editor">Editor</option>
-                  <option value="editor_export">Editor+</option>
-                  <option value="administrator">Administrator</option>
+                  {ROLE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 

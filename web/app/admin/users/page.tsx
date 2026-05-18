@@ -20,7 +20,7 @@ export default async function AdminUsersPage() {
 
   const role = (session.user as { role?: string | null }).role;
 
-  if (!canManageUsers(role as any)) {
+  if (!canManageUsers(role)) {
     redirect("/");
   }
 
@@ -50,7 +50,7 @@ export default async function AdminUsersPage() {
               </h1>
               <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
                 Manage internal platform access, review current users, and
-                assign Viewer, Editor, Editor+, and Administrator roles.
+                assign Researcher, Editor, Senior Editor, and Admin roles.
               </p>
             </div>
 
