@@ -184,7 +184,8 @@ Current PostgreSQL staging implementation:
   source and company-role links
 - `/postgres-preview/research-ops` includes staging quick actions for changing
   project, plant/facility, company, and source review/status states, plus
-  filtered CSV export and lightweight bulk status changes
+  filtered CSV export, lightweight bulk status changes, and persistent
+  human-created research issues/tasks
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence
   workflow foundation
 

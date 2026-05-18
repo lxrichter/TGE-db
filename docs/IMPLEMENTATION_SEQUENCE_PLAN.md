@@ -23,6 +23,11 @@ Current implemented foundation:
 - PostgreSQL Research Ops preview with selected-record review/status quick actions
 - PostgreSQL Research Ops filtered CSV export, row selection, and lightweight
   bulk review/status changes
+- PostgreSQL Research Ops persistent issue/task model:
+  - issue type and issue status reference tables
+  - linked project, plant/facility, company, or source record
+  - assignment, notes, linked field, duplicate-candidate fields, and event log
+  - create/resolve/dismiss UI from Research Ops
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
@@ -149,8 +154,8 @@ Deliverables:
 
 Immediate next actions:
 
-1. decide and add the persistent Research Ops task/issue model for assignment,
-   operational notes, and manual duplicate flags
+1. expand the persistent Research Ops task/issue model into richer assignment
+   workflows, manual duplicate review, and field-level issue persistence
 2. keep tightening permissions around PostgreSQL write-enabled routes
 3. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
@@ -250,10 +255,12 @@ Key work:
 Deliverables:
 
 - operational Research Ops dashboard
-- assignment and review state; review/status changes have a first staging
-  implementation, while assignment requires a persistent task/issue model
+- assignment and review state; review/status changes and persistent issues have
+  first staging implementations, while richer assignment workflow still needs
+  refinement
 - source and missing-data queues
-- duplicate warnings
+- duplicate warnings; persistent issue types now include manual duplicate flags,
+  but duplicate review/merge workflow still needs design
 - filtered Research Ops CSV exports
 
 Do before:

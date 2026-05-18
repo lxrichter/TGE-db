@@ -10,6 +10,8 @@ import PostgresReviewStatusActions, {
 } from "@/components/postgres-preview/PostgresReviewStatusActions";
 import {
   type PostgresResearchOpsDashboard,
+  type PostgresResearchOpsIssue,
+  type PostgresResearchOpsIssueReferenceData,
   type PostgresResearchOpsQueue,
   type PostgresResearchOpsQueueItem,
   type PostgresResearchOpsRecentEdit,
@@ -156,6 +158,15 @@ function recordHref(record: ResearchOpsRecord) {
   }
 
   return null;
+}
+
+function issueHref(issue: PostgresResearchOpsIssue) {
+  const record = {
+    entity_type: issue.entity_type,
+    entity_id: issue.entity_id,
+  } as ResearchOpsRecord;
+
+  return recordHref(record);
 }
 
 function addSourceHref(record: ResearchOpsRecord) {
@@ -684,6 +695,197 @@ function BulkActionsPanel({
   );
 }
 
+function defaultIssueTitle(record: ResearchOpsRecord) {
+  if ("issue_label" in record && record.issue_label) {
+    return record.issue_label;
+  }
+
+  return `Research follow-up for ${record.name}`;
+}
+
+function CreateIssuePanel({
+  record,
+  issueReferenceData,
+}: {
+  record: ResearchOpsRecord;
+  issueReferenceData: PostgresResearchOpsIssueReferenceData;
+}) {
+  const router = useRouter();
+  const issueTypes = useMemo(
+    () =>
+      issueReferenceData.issueTypes
+        .filter((issueType) => issueType.is_active !== false)
+        .slice()
+        .sort((a, b) => {
+          const aOrder = a.sort_order ?? 0;
+          const bOrder = b.sort_order ?? 0;
+
+          if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+          }
+
+          return a.label.localeCompare(b.label);
+        }),
+    [issueReferenceData.issueTypes]
+  );
+  const [issueTypeCode, setIssueTypeCode] = useState(issueTypes[0]?.code || "");
+  const [title, setTitle] = useState(defaultIssueTitle(record));
+  const [description, setDescription] = useState("");
+  const [linkedField, setLinkedField] = useState("");
+  const [assignToSelf, setAssignToSelf] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    setTitle(defaultIssueTitle(record));
+    setDescription("");
+    setLinkedField("");
+    setError("");
+    setMessage("");
+  }, [record]);
+
+  useEffect(() => {
+    if (!issueTypes.some((issueType) => issueType.code === issueTypeCode)) {
+      setIssueTypeCode(issueTypes[0]?.code || "");
+    }
+  }, [issueTypeCode, issueTypes]);
+
+  async function createIssue() {
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/postgres-preview/research-ops/issues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_type: record.entity_type,
+          entity_id: record.entity_id,
+          issue_type_code: issueTypeCode,
+          title,
+          description,
+          linked_field: linkedField,
+          assign_to_self: assignToSelf,
+        }),
+      });
+      const json = await readJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to create research issue.");
+      }
+
+      setMessage("Research issue created.");
+      setDescription("");
+      setLinkedField("");
+      router.refresh();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to create research issue."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (issueTypes.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-[#1f2937]">
+          Create Persistent Issue
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          Store an operational issue, assignment, or duplicate/research follow-up
+          against this record. Generated queues remain separate from these
+          human-created issues.
+        </p>
+      </div>
+      <div className="space-y-4 px-5 py-5">
+        {error ? (
+          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        ) : null}
+        {message ? (
+          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            {message}
+          </div>
+        ) : null}
+
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <FilterSelect
+            label="Issue Type"
+            value={issueTypeCode}
+            onChange={setIssueTypeCode}
+          >
+            {issueTypes.map((issueType) => (
+              <option key={issueType.code} value={issueType.code}>
+                {issueType.label}
+              </option>
+            ))}
+          </FilterSelect>
+
+          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Title
+            <input
+              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </label>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Linked Field
+            <input
+              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              placeholder="Optional, e.g. capacity, source, coordinates"
+              value={linkedField}
+              onChange={(event) => setLinkedField(event.target.value)}
+            />
+          </label>
+
+          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Note
+            <input
+              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              placeholder="Optional operational context"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+            />
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="inline-flex h-9 items-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700">
+            <input
+              checked={assignToSelf}
+              className="h-4 w-4 accent-[#8dc63f]"
+              type="checkbox"
+              onChange={(event) => setAssignToSelf(event.target.checked)}
+            />
+            Assign to me
+          </label>
+          <button
+            className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={saving || !issueTypeCode || !title.trim()}
+            type="button"
+            onClick={createIssue}
+          >
+            {saving ? "Creating..." : "Create Issue"}
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function SelectedRecordPanel({
   record,
   onClear,
@@ -691,6 +893,7 @@ function SelectedRecordPanel({
   reviewStatuses,
   sourceStatuses,
   canReviewStatus,
+  issueReferenceData,
 }: {
   record: ResearchOpsRecord | null;
   onClear: () => void;
@@ -698,6 +901,7 @@ function SelectedRecordPanel({
   reviewStatuses: PostgresStatusOption[];
   sourceStatuses: PostgresStatusOption[];
   canReviewStatus: boolean;
+  issueReferenceData: PostgresResearchOpsIssueReferenceData;
 }) {
   if (!record) {
     return null;
@@ -772,7 +976,221 @@ function SelectedRecordPanel({
         canReviewStatus={canReviewStatus}
         onStatusChanged={onStatusChanged}
       />
+
+      <CreateIssuePanel
+        record={record}
+        issueReferenceData={issueReferenceData}
+      />
     </div>
+  );
+}
+
+function PersistentIssues({
+  issues,
+  issueStatuses,
+}: {
+  issues: PostgresResearchOpsIssue[];
+  issueStatuses: PostgresResearchOpsIssueReferenceData["issueStatuses"];
+}) {
+  const router = useRouter();
+  const [hiddenIssueIds, setHiddenIssueIds] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [savingIssueId, setSavingIssueId] = useState<string | null>(null);
+  const [eventNote, setEventNote] = useState("");
+  const [error, setError] = useState("");
+  const visibleIssues = issues.filter(
+    (issue) => !hiddenIssueIds.has(issue.research_ops_issue_id)
+  );
+  const statusOptions = issueStatuses.filter(
+    (status) => status.is_active !== false
+  );
+
+  async function setIssueStatus(
+    issue: PostgresResearchOpsIssue,
+    issueStatusCode: string
+  ) {
+    setSavingIssueId(issue.research_ops_issue_id);
+    setError("");
+
+    try {
+      const res = await fetch(
+        `/api/postgres-preview/research-ops/issues/${issue.research_ops_issue_id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            issue_status_code: issueStatusCode,
+            event_note: eventNote,
+          }),
+        }
+      );
+      const json = await readJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to update research issue.");
+      }
+
+      const nextStatus = statusOptions.find(
+        (status) => status.code === issueStatusCode
+      );
+
+      if (nextStatus && !nextStatus.is_open) {
+        setHiddenIssueIds((current) => {
+          const next = new Set(current);
+          next.add(issue.research_ops_issue_id);
+          return next;
+        });
+      }
+
+      setEventNote("");
+      router.refresh();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to update research issue."
+      );
+    } finally {
+      setSavingIssueId(null);
+    }
+  }
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Persistent Research Issues
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Human-created issues and follow-ups with status, assignment, linked
+            field, and audit event support.
+          </p>
+        </div>
+        <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+          {formatCount(visibleIssues.length)} open
+        </span>
+      </div>
+
+      <div className="space-y-4 px-5 py-5">
+        {error ? (
+          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        ) : null}
+
+        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Resolution / Status Note
+          <input
+            className="mt-1 h-10 w-full border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+            placeholder="Optional note applied when changing an issue status"
+            value={eventNote}
+            onChange={(event) => setEventNote(event.target.value)}
+          />
+        </label>
+
+        {visibleIssues.length === 0 ? (
+          <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
+            No persistent research issues are currently open.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-[1180px] table-fixed text-left text-sm">
+              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+                <tr>
+                  <th className="w-[13%] px-4 py-3 font-semibold">Issue</th>
+                  <th className="w-[25%] px-4 py-3 font-semibold">Record</th>
+                  <th className="w-[11%] px-4 py-3 font-semibold">Severity</th>
+                  <th className="w-[11%] px-4 py-3 font-semibold">Status</th>
+                  <th className="w-[13%] px-4 py-3 font-semibold">Assigned</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Updated</th>
+                  <th className="w-[17%] px-4 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {visibleIssues.map((issue) => {
+                  const href = issueHref(issue);
+                  const saving = savingIssueId === issue.research_ops_issue_id;
+
+                  return (
+                    <tr key={issue.research_ops_issue_id} className="align-top">
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-[#1f2937]">
+                          {issue.issue_type_label}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {issue.linked_field || "record-level"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-[#1f2937]">
+                          {issue.title}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-600">
+                          {issue.name}
+                        </div>
+                        {issue.description ? (
+                          <div className="mt-2 text-xs leading-5 text-gray-500">
+                            {issue.description}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3">
+                        <SeverityBadge severity={issue.severity} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <StatusBadge value={issue.issue_status_label} />
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {issue.assigned_to_name || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {formatDate(issue.updated_at)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-2">
+                          {href ? (
+                            <Link
+                              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                              href={href}
+                            >
+                              Open
+                            </Link>
+                          ) : null}
+                          <button
+                            className="h-8 border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:opacity-60"
+                            disabled={saving || issue.issue_status_code === "in_progress"}
+                            type="button"
+                            onClick={() => setIssueStatus(issue, "in_progress")}
+                          >
+                            {saving ? "Saving..." : "In Progress"}
+                          </button>
+                          <button
+                            className="h-8 border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:opacity-60"
+                            disabled={saving}
+                            type="button"
+                            onClick={() => setIssueStatus(issue, "resolved")}
+                          >
+                            Resolve
+                          </button>
+                          <button
+                            className="h-8 border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
+                            disabled={saving}
+                            type="button"
+                            onClick={() => setIssueStatus(issue, "dismissed")}
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -817,11 +1235,13 @@ export function ResearchOpsDashboardClient({
   reviewStatuses,
   sourceStatuses,
   canReviewStatus,
+  issueReferenceData,
 }: {
   dashboard: PostgresResearchOpsDashboard;
   reviewStatuses: PostgresStatusOption[];
   sourceStatuses: PostgresStatusOption[];
   canReviewStatus: boolean;
+  issueReferenceData: PostgresResearchOpsIssueReferenceData;
 }) {
   const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
@@ -1038,11 +1458,11 @@ export function ResearchOpsDashboardClient({
 
   return (
     <>
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <StatTile
           label="Open Issues"
           value={dashboard.totals.openIssues}
-          note="All queue matches"
+          note="Generated + persistent"
         />
         <StatTile
           label="Critical"
@@ -1063,6 +1483,11 @@ export function ResearchOpsDashboardClient({
           label="Filtered Rows"
           value={filteredIssueRows}
           note="Visible issue rows"
+        />
+        <StatTile
+          label="Persistent"
+          value={dashboard.totals.persistentIssues}
+          note="Human-created tasks"
         />
       </section>
 
@@ -1205,8 +1630,14 @@ export function ResearchOpsDashboardClient({
         reviewStatuses={reviewStatuses}
         sourceStatuses={sourceStatuses}
         canReviewStatus={canReviewStatus}
+        issueReferenceData={issueReferenceData}
         onClear={() => setSelectedRecord(null)}
         onStatusChanged={handleStatusChanged}
+      />
+
+      <PersistentIssues
+        issues={dashboard.persistentIssues}
+        issueStatuses={issueReferenceData.issueStatuses}
       />
 
       <BulkActionsPanel

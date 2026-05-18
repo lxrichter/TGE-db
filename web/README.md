@@ -98,6 +98,7 @@ web/prisma.config.ts
 web/prisma/migrations/20260518000000_baseline/migration.sql
 web/prisma/migrations/20260518000100_align_user_roles/migration.sql
 web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql
+web/prisma/migrations/20260518000300_research_ops_issues/migration.sql
 web/lib/db/prisma.ts
 web/lib/services/postgres-preview.ts
 web/lib/services/sources.ts
@@ -192,6 +193,8 @@ Current PostgreSQL-backed route foundations:
 /api/postgres-preview/company-relationships
 /api/postgres-preview/company-relationships/[id]
 /api/postgres-preview/research-ops
+/api/postgres-preview/research-ops/issues
+/api/postgres-preview/research-ops/issues/[id]
 /api/postgres-preview/research-ops/status
 /api/postgres/sources
 /api/postgres/sources/[id]
@@ -221,12 +224,13 @@ add/remove managers for company-project roles,
 company-plant/facility roles, and company-company relationships. PostgreSQL
 Research Ops also supports selected-row review/status quick actions for
 projects, plants/facilities, companies, and sources, plus row selection,
-filtered CSV export, and lightweight bulk status changes. Project detail pages
-also include a staging-only promotion panel that creates a linked operating
-asset draft, copies existing source/evidence links, and copies current
-company-role links where available. Promotion hardening, assignment workflows,
-persistent task/issue tracking, relationship history/timelines, and production
-exports remain separate next-step workflows.
+filtered CSV export, lightweight bulk status changes, and persistent
+human-created research issues/tasks with issue status history. Project detail
+pages also include a staging-only promotion panel that creates a linked
+operating asset draft, copies existing source/evidence links, and copies current
+company-role links where available. Promotion hardening, richer assignment
+workflows, field-level issue automation, relationship history/timelines, and
+production exports remain separate next-step workflows.
 
 ## Known Issues
 

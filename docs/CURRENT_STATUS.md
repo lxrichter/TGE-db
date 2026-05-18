@@ -43,6 +43,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL Research Ops preview queues with staging quick actions for
   review/status changes, filtered CSV export, row selection, and lightweight
   bulk status changes
+- PostgreSQL Research Ops persistent issue/task foundation with issue types,
+  issue statuses, assignment fields, linked entities, operational notes, and
+  issue event history
 - PostgreSQL Sources / Documents list/detail/create/edit workflow foundation
 - source/evidence linking between source records and projects, operating
   assets, or companies
@@ -103,9 +106,10 @@ Known current gaps and risks:
 - extensive `any` usage needs cleanup
 - schema needs formal audit and migration plan
 - SQLite is acceptable for local prototype work but is not the likely final production database
-- PostgreSQL staging entity forms are scaffolds; promotion workflows have a
-  first staging implementation, while assignment, persistent task/issue
-  tracking, and production exports are still next-step work
+- PostgreSQL staging entity forms are scaffolds; promotion workflows and
+  persistent Research Ops issues have first staging implementations, while
+  richer assignment workflows, field-level issue automation, and production
+  exports are still next-step work
 - current docs and comments should not be assumed to describe final architecture
 - no committed sanitized fixture database exists yet
 - deployment process needs hardening and should be evaluated against Railway requirements

@@ -31,6 +31,12 @@ model app_users {
   projects_projects_last_updated_by_user_idToapp_users                 projects[]         @relation("projects_last_updated_by_user_idToapp_users")
   sources_sources_added_by_user_idToapp_users                          sources[]          @relation("sources_added_by_user_idToapp_users")
   sources_sources_reviewed_by_user_idToapp_users                       sources[]          @relation("sources_reviewed_by_user_idToapp_users")
+  research_ops_issue_events_research_ops_issue_events_actor_user_idToapp_users                research_ops_issue_events[] @relation("research_ops_issue_events_actor_user_idToapp_users")
+  research_ops_issue_events_research_ops_issue_events_next_assigned_to_user_idToapp_users     research_ops_issue_events[] @relation("research_ops_issue_events_next_assigned_to_user_idToapp_users")
+  research_ops_issue_events_research_ops_issue_events_previous_assigned_to_user_idToapp_users research_ops_issue_events[] @relation("research_ops_issue_events_previous_assigned_to_user_idToapp_users")
+  research_ops_issues_research_ops_issues_assigned_to_user_idToapp_users                      research_ops_issues[]       @relation("research_ops_issues_assigned_to_user_idToapp_users")
+  research_ops_issues_research_ops_issues_created_by_user_idToapp_users                       research_ops_issues[]       @relation("research_ops_issues_created_by_user_idToapp_users")
+  research_ops_issues_research_ops_issues_resolved_by_user_idToapp_users                      research_ops_issues[]       @relation("research_ops_issues_resolved_by_user_idToapp_users")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -91,6 +97,75 @@ model audit_events {
   @@index([actor_user_id], map: "idx_audit_events_actor")
   @@index([created_at], map: "idx_audit_events_created_at")
   @@index([entity_type, entity_id], map: "idx_audit_events_entity")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model research_ops_issues {
+  research_ops_issue_id                                                         String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  issue_type_code                                                               String
+  issue_status_code                                                             String                      @default("open")
+  severity                                                                      String                      @default("important")
+  entity_type                                                                   String
+  project_id                                                                    String?                     @db.Uuid
+  operating_asset_id                                                            String?                     @db.Uuid
+  company_id                                                                    String?                     @db.Uuid
+  source_id                                                                     String?                     @db.Uuid
+  linked_field                                                                  String?
+  title                                                                         String
+  description                                                                   String?
+  assigned_to_user_id                                                           String?                     @db.Uuid
+  created_by_user_id                                                            String?                     @db.Uuid
+  resolved_by_user_id                                                           String?                     @db.Uuid
+  duplicate_candidate_entity_type                                               String?
+  duplicate_candidate_entity_id                                                 String?                     @db.Uuid
+  resolution_note                                                               String?
+  created_at                                                                    DateTime                    @default(now()) @db.Timestamptz(6)
+  updated_at                                                                    DateTime                    @default(now()) @db.Timestamptz(6)
+  resolved_at                                                                   DateTime?                   @db.Timestamptz(6)
+  research_ops_issue_events                                                     research_ops_issue_events[]
+  companies                                                                     companies?                  @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  operating_assets                                                              operating_assets?           @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
+  projects                                                                      projects?                   @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+  sources                                                                       sources?                    @relation(fields: [source_id], references: [source_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_research_issue_statuses                                                   ref_research_issue_statuses @relation(fields: [issue_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_research_issue_types                                                      ref_research_issue_types    @relation(fields: [issue_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  app_users_research_ops_issues_assigned_to_user_idToapp_users                  app_users?                  @relation("research_ops_issues_assigned_to_user_idToapp_users", fields: [assigned_to_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  app_users_research_ops_issues_created_by_user_idToapp_users                   app_users?                  @relation("research_ops_issues_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  app_users_research_ops_issues_resolved_by_user_idToapp_users                  app_users?                  @relation("research_ops_issues_resolved_by_user_idToapp_users", fields: [resolved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([assigned_to_user_id], map: "idx_research_ops_issues_assigned")
+  @@index([operating_asset_id], map: "idx_research_ops_issues_asset")
+  @@index([company_id], map: "idx_research_ops_issues_company")
+  @@index([entity_type], map: "idx_research_ops_issues_entity")
+  @@index([project_id], map: "idx_research_ops_issues_project")
+  @@index([severity], map: "idx_research_ops_issues_severity")
+  @@index([source_id], map: "idx_research_ops_issues_source")
+  @@index([issue_status_code], map: "idx_research_ops_issues_status")
+  @@index([issue_type_code], map: "idx_research_ops_issues_type")
+  @@index([updated_at], map: "idx_research_ops_issues_updated")
+}
+
+model research_ops_issue_events {
+  research_ops_issue_event_id                                                                  String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  research_ops_issue_id                                                                        String                        @db.Uuid
+  event_type                                                                                   String
+  actor_user_id                                                                                String?                       @db.Uuid
+  previous_status_code                                                                         String?
+  next_status_code                                                                             String?
+  previous_assigned_to_user_id                                                                 String?                       @db.Uuid
+  next_assigned_to_user_id                                                                     String?                       @db.Uuid
+  event_note                                                                                   String?
+  changed_fields                                                                               Json?
+  created_at                                                                                   DateTime                      @default(now()) @db.Timestamptz(6)
+  research_ops_issues                                                                          research_ops_issues           @relation(fields: [research_ops_issue_id], references: [research_ops_issue_id], onDelete: Cascade, onUpdate: NoAction)
+  app_users_research_ops_issue_events_actor_user_idToapp_users                                  app_users?                    @relation("research_ops_issue_events_actor_user_idToapp_users", fields: [actor_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  app_users_research_ops_issue_events_next_assigned_to_user_idToapp_users                       app_users?                    @relation("research_ops_issue_events_next_assigned_to_user_idToapp_users", fields: [next_assigned_to_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  app_users_research_ops_issue_events_previous_assigned_to_user_idToapp_users                   app_users?                    @relation("research_ops_issue_events_previous_assigned_to_user_idToapp_users", fields: [previous_assigned_to_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_research_issue_statuses_research_ops_issue_events_next_status_codeToref_research_issue_statuses     ref_research_issue_statuses? @relation("research_ops_issue_events_next_status_codeToref_research_issue_statuses", fields: [next_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_research_issue_statuses_research_ops_issue_events_previous_status_codeToref_research_issue_statuses ref_research_issue_statuses? @relation("research_ops_issue_events_previous_status_codeToref_research_issue_statuses", fields: [previous_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([actor_user_id], map: "idx_research_ops_issue_events_actor")
+  @@index([research_ops_issue_id], map: "idx_research_ops_issue_events_issue")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -157,6 +232,7 @@ model companies {
   company_role_profiles                                                  company_role_profiles[]
   company_secondary_types                                                company_secondary_types[]
   entity_sources                                                         entity_sources[]
+  research_ops_issues                                                    research_ops_issues[]
 
   @@index([company_name_clean], map: "idx_companies_clean")
   @@index([headquarters_country], map: "idx_companies_country")
@@ -374,6 +450,7 @@ model operating_assets {
   projects                                                                                    projects?                       @relation(fields: [promoted_from_project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
   ref_review_statuses                                                                         ref_review_statuses             @relation(fields: [review_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   project_operating_asset_links                                                               project_operating_asset_links[]
+  research_ops_issues                                                                         research_ops_issues[]
 
   @@index([asset_name_clean], map: "idx_operating_assets_clean")
   @@index([country], map: "idx_operating_assets_country")
@@ -468,6 +545,7 @@ model projects {
   entity_sources                                                                      entity_sources[]
   operating_assets                                                                    operating_assets[]
   project_operating_asset_links                                                       project_operating_asset_links[]
+  research_ops_issues                                                                 research_ops_issues[]
   app_users_projects_approved_by_user_idToapp_users                                   app_users?                      @relation("projects_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   ref_estimate_statuses_projects_capacity_estimate_status_codeToref_estimate_statuses ref_estimate_statuses           @relation("projects_capacity_estimate_status_codeToref_estimate_statuses", fields: [capacity_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   app_users_projects_created_by_user_idToapp_users                                    app_users?                      @relation("projects_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
@@ -580,6 +658,28 @@ model ref_review_statuses {
   projects                                                                   projects[]
 }
 
+model ref_research_issue_statuses {
+  code                                                                                                      String                      @id
+  label                                                                                                     String
+  description                                                                                               String?
+  is_open                                                                                                   Boolean                     @default(true)
+  sort_order                                                                                                Int                         @default(0)
+  is_active                                                                                                 Boolean                     @default(true)
+  research_ops_issues                                                                                       research_ops_issues[]
+  research_ops_issue_events_research_ops_issue_events_next_status_codeToref_research_issue_statuses         research_ops_issue_events[] @relation("research_ops_issue_events_next_status_codeToref_research_issue_statuses")
+  research_ops_issue_events_research_ops_issue_events_previous_status_codeToref_research_issue_statuses     research_ops_issue_events[] @relation("research_ops_issue_events_previous_status_codeToref_research_issue_statuses")
+}
+
+model ref_research_issue_types {
+  code                String                @id
+  label               String
+  severity            String                @default("important")
+  description         String?
+  sort_order          Int                   @default(0)
+  is_active           Boolean               @default(true)
+  research_ops_issues research_ops_issues[]
+}
+
 model ref_source_types {
   code       String    @id
   label      String
@@ -622,6 +722,7 @@ model sources {
   reviewed_at                                      DateTime?                    @db.Timestamptz(6)
   updated_at                                       DateTime                     @default(now()) @db.Timestamptz(6)
   entity_sources                                   entity_sources[]
+  research_ops_issues                              research_ops_issues[]
   app_users_sources_added_by_user_idToapp_users    app_users?                   @relation("sources_added_by_user_idToapp_users", fields: [added_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   ref_source_statuses                              ref_source_statuses          @relation(fields: [credibility_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   app_users_sources_reviewed_by_user_idToapp_users app_users?                   @relation("sources_reviewed_by_user_idToapp_users", fields: [reviewed_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)

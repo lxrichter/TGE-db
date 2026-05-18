@@ -441,9 +441,76 @@ export type PostgresResearchOpsDashboard = {
     criticalIssues: number;
     importantIssues: number;
     workflowIssues: number;
+    persistentIssues: number;
   };
   queues: PostgresResearchOpsQueue[];
+  persistentIssues: PostgresResearchOpsIssue[];
   recentEdits: PostgresResearchOpsRecentEdit[];
+};
+
+export type PostgresResearchOpsIssueType = PostgresReferenceOption & {
+  severity: ResearchOpsQueueSeverity;
+  description: string | null;
+};
+
+export type PostgresResearchOpsIssueStatus = PostgresReferenceOption & {
+  description: string | null;
+  is_open: boolean;
+};
+
+export type PostgresResearchOpsIssueReferenceData = {
+  issueTypes: PostgresResearchOpsIssueType[];
+  issueStatuses: PostgresResearchOpsIssueStatus[];
+};
+
+export type PostgresResearchOpsIssueEntityType =
+  | "project"
+  | "operating_asset"
+  | "company"
+  | "source";
+
+export type PostgresResearchOpsIssue = {
+  research_ops_issue_id: string;
+  issue_type_code: string;
+  issue_type_label: string;
+  issue_status_code: string;
+  issue_status_label: string;
+  severity: ResearchOpsQueueSeverity;
+  entity_type: PostgresResearchOpsIssueEntityType;
+  entity_id: string;
+  legacy_id: string | null;
+  name: string;
+  country: string | null;
+  linked_field: string | null;
+  title: string;
+  description: string | null;
+  assigned_to_user_id: string | null;
+  assigned_to_name: string | null;
+  created_by_name: string | null;
+  resolved_by_name: string | null;
+  resolution_note: string | null;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+};
+
+export type PostgresResearchOpsIssueMutationInput = {
+  entityType: PostgresResearchOpsIssueEntityType;
+  entityId: string;
+  issueTypeCode: string;
+  title: string;
+  description?: string | null;
+  linkedField?: string | null;
+  assignToUserId?: string | null;
+  actorUserId?: string | null;
+};
+
+export type PostgresResearchOpsIssueStatusUpdateInput = {
+  issueId: string;
+  issueStatusCode: string;
+  actorUserId?: string | null;
+  eventNote?: string | null;
+  assignToUserId?: string | null;
 };
 
 export type PostgresReviewEntityType = "project" | "operating_asset" | "company";
@@ -510,6 +577,15 @@ type PromotedOperatingAssetRow = Omit<
   "created_at"
 > & {
   created_at: string | Date;
+};
+
+type ResearchOpsIssueRow = Omit<
+  PostgresResearchOpsIssue,
+  "created_at" | "updated_at" | "resolved_at"
+> & {
+  created_at: string | Date;
+  updated_at: string | Date;
+  resolved_at: string | Date | null;
 };
 
 type PostgresEntitySourceLinkRow = Omit<
@@ -2919,6 +2995,33 @@ function toRecentEdit(row: RecentEditRow): PostgresResearchOpsRecentEdit {
   };
 }
 
+function toResearchOpsIssue(row: ResearchOpsIssueRow): PostgresResearchOpsIssue {
+  return {
+    ...row,
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+    resolved_at: row.resolved_at ? normalizeTimestamp(row.resolved_at) : null,
+  };
+}
+
+function entityColumnForResearchIssue(
+  entityType: PostgresResearchOpsIssueEntityType
+) {
+  if (entityType === "project") {
+    return "project_id";
+  }
+
+  if (entityType === "operating_asset") {
+    return "operating_asset_id";
+  }
+
+  if (entityType === "company") {
+    return "company_id";
+  }
+
+  return "source_id";
+}
+
 function toEntitySourceLink(
   row: PostgresEntitySourceLinkRow
 ): PostgresEntitySourceLink {
@@ -3351,33 +3454,437 @@ export async function listPostgresResearchOpsRecentEdits(
   return rows.map(toRecentEdit);
 }
 
+export async function getPostgresResearchOpsIssueReferenceData(): Promise<PostgresResearchOpsIssueReferenceData> {
+  const [issueTypes, issueStatuses] = await Promise.all([
+    getPrismaClient().$queryRawUnsafe<PostgresResearchOpsIssueType[]>(
+      `
+      SELECT
+        code,
+        label,
+        severity,
+        description,
+        sort_order,
+        is_active
+      FROM ref_research_issue_types
+      ORDER BY sort_order ASC, label ASC
+      `
+    ),
+    getPrismaClient().$queryRawUnsafe<PostgresResearchOpsIssueStatus[]>(
+      `
+      SELECT
+        code,
+        label,
+        description,
+        is_open,
+        sort_order,
+        is_active
+      FROM ref_research_issue_statuses
+      ORDER BY sort_order ASC, label ASC
+      `
+    ),
+  ]);
+
+  return { issueTypes, issueStatuses };
+}
+
+export async function listPostgresResearchOpsIssues(
+  limit = 50,
+  openOnly = true
+): Promise<PostgresResearchOpsIssue[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<ResearchOpsIssueRow[]>(
+    `
+    SELECT
+      i.research_ops_issue_id::text,
+      i.issue_type_code,
+      it.label AS issue_type_label,
+      i.issue_status_code,
+      ist.label AS issue_status_label,
+      i.severity,
+      i.entity_type,
+      COALESCE(
+        i.project_id,
+        i.operating_asset_id,
+        i.company_id,
+        i.source_id
+      )::text AS entity_id,
+      COALESCE(
+        p.legacy_project_id,
+        a.legacy_plant_id,
+        c.legacy_company_id,
+        s.source_reference
+      ) AS legacy_id,
+      COALESCE(
+        p.project_name,
+        a.asset_name,
+        c.company_name,
+        NULLIF(s.title, ''),
+        NULLIF(s.url, ''),
+        s.source_id::text
+      ) AS name,
+      COALESCE(
+        p.country,
+        a.country,
+        c.headquarters_country,
+        s.country
+      ) AS country,
+      i.linked_field,
+      i.title,
+      i.description,
+      i.assigned_to_user_id::text,
+      assignee.name AS assigned_to_name,
+      creator.name AS created_by_name,
+      resolver.name AS resolved_by_name,
+      i.resolution_note,
+      i.created_at,
+      i.updated_at,
+      i.resolved_at
+    FROM research_ops_issues i
+    INNER JOIN ref_research_issue_types it
+      ON it.code = i.issue_type_code
+    INNER JOIN ref_research_issue_statuses ist
+      ON ist.code = i.issue_status_code
+    LEFT JOIN projects p
+      ON p.project_id = i.project_id
+    LEFT JOIN operating_assets a
+      ON a.operating_asset_id = i.operating_asset_id
+    LEFT JOIN companies c
+      ON c.company_id = i.company_id
+    LEFT JOIN sources s
+      ON s.source_id = i.source_id
+    LEFT JOIN app_users assignee
+      ON assignee.user_id = i.assigned_to_user_id
+    LEFT JOIN app_users creator
+      ON creator.user_id = i.created_by_user_id
+    LEFT JOIN app_users resolver
+      ON resolver.user_id = i.resolved_by_user_id
+    WHERE ($2::boolean = FALSE OR ist.is_open = TRUE)
+    ORDER BY i.updated_at DESC, i.created_at DESC
+    LIMIT $1
+    `,
+    limit,
+    openOnly
+  );
+
+  return rows.map(toResearchOpsIssue);
+}
+
+async function researchIssueEntityExists(
+  entityType: PostgresResearchOpsIssueEntityType,
+  entityId: string
+) {
+  const table =
+    entityType === "project"
+      ? "projects"
+      : entityType === "operating_asset"
+        ? "operating_assets"
+        : entityType === "company"
+          ? "companies"
+          : "sources";
+  const column =
+    entityType === "project"
+      ? "project_id"
+      : entityType === "operating_asset"
+        ? "operating_asset_id"
+        : entityType === "company"
+          ? "company_id"
+          : "source_id";
+
+  const rows = await getPrismaClient().$queryRawUnsafe<Array<{ exists: boolean }>>(
+    `SELECT EXISTS (SELECT 1 FROM ${table} WHERE ${column} = $1::uuid)`,
+    entityId
+  );
+
+  return Boolean(rows[0]?.exists);
+}
+
+export async function createPostgresResearchOpsIssue(
+  input: PostgresResearchOpsIssueMutationInput
+): Promise<PostgresResearchOpsIssue | null> {
+  if (!isUuid(input.entityId)) {
+    return null;
+  }
+
+  const entityExists = await researchIssueEntityExists(
+    input.entityType,
+    input.entityId
+  );
+
+  if (!entityExists) {
+    return null;
+  }
+
+  const prisma = getPrismaClient();
+  const entityColumn = entityColumnForResearchIssue(input.entityType);
+  const normalizedActorUserId = isUuid(input.actorUserId)
+    ? input.actorUserId
+    : null;
+  const normalizedAssignToUserId = isUuid(input.assignToUserId)
+    ? input.assignToUserId
+    : null;
+
+  const createdRows = await prisma.$queryRawUnsafe<
+    Array<{ research_ops_issue_id: string }>
+  >(
+    `
+    WITH issue_type AS (
+      SELECT code, severity
+      FROM ref_research_issue_types
+      WHERE code = $1
+        AND is_active = TRUE
+      LIMIT 1
+    ),
+    actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $7::uuid
+      LIMIT 1
+    ),
+    assignee AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $8::uuid
+      LIMIT 1
+    )
+    INSERT INTO research_ops_issues (
+      issue_type_code,
+      severity,
+      entity_type,
+      ${entityColumn},
+      linked_field,
+      title,
+      description,
+      created_by_user_id,
+      assigned_to_user_id
+    )
+    SELECT
+      issue_type.code,
+      issue_type.severity,
+      $2,
+      $3::uuid,
+      $4,
+      $5,
+      $6,
+      (SELECT user_id FROM actor),
+      (SELECT user_id FROM assignee)
+    FROM issue_type
+    RETURNING research_ops_issue_id::text
+    `,
+    input.issueTypeCode,
+    input.entityType,
+    input.entityId,
+    cleanOptionalText(input.linkedField),
+    input.title,
+    cleanOptionalText(input.description),
+    normalizedActorUserId,
+    normalizedAssignToUserId
+  );
+
+  const issueId = createdRows[0]?.research_ops_issue_id;
+
+  if (!issueId) {
+    return null;
+  }
+
+  await prisma.$executeRawUnsafe(
+    `
+    WITH actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $2::uuid
+      LIMIT 1
+    ),
+    assignee AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    )
+    INSERT INTO research_ops_issue_events (
+      research_ops_issue_id,
+      event_type,
+      actor_user_id,
+      next_status_code,
+      next_assigned_to_user_id,
+      event_note,
+      changed_fields
+    )
+    VALUES (
+      $1::uuid,
+      'issue_created',
+      (SELECT user_id FROM actor),
+      'open',
+      (SELECT user_id FROM assignee),
+      $4,
+      jsonb_build_object('issue_type_code', $5::text, 'entity_type', $6::text)
+    )
+    `,
+    issueId,
+    normalizedActorUserId,
+    normalizedAssignToUserId,
+    cleanOptionalText(input.description),
+    input.issueTypeCode,
+    input.entityType
+  );
+
+  const issues = await listPostgresResearchOpsIssues(100, false);
+  return issues.find((issue) => issue.research_ops_issue_id === issueId) ?? null;
+}
+
+export async function updatePostgresResearchOpsIssueStatus(
+  input: PostgresResearchOpsIssueStatusUpdateInput
+): Promise<PostgresResearchOpsIssue | null> {
+  if (!isUuid(input.issueId)) {
+    return null;
+  }
+
+  const prisma = getPrismaClient();
+  const normalizedActorUserId = isUuid(input.actorUserId)
+    ? input.actorUserId
+    : null;
+  const existingRows = await prisma.$queryRawUnsafe<
+    Array<{ issue_status_code: string; assigned_to_user_id: string | null }>
+  >(
+    `
+    SELECT issue_status_code, assigned_to_user_id::text
+    FROM research_ops_issues
+    WHERE research_ops_issue_id = $1::uuid
+    LIMIT 1
+    `,
+    input.issueId
+  );
+  const existing = existingRows[0];
+
+  if (!existing) {
+    return null;
+  }
+
+  const updatedRows = await prisma.$queryRawUnsafe<
+    Array<{
+      research_ops_issue_id: string;
+      issue_status_code: string;
+      resolved_at: string | Date | null;
+    }>
+  >(
+    `
+    WITH next_status AS (
+      SELECT code, is_open
+      FROM ref_research_issue_statuses
+      WHERE code = $2
+        AND is_active = TRUE
+      LIMIT 1
+    ),
+    actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    )
+    UPDATE research_ops_issues i
+    SET
+      issue_status_code = next_status.code,
+      updated_at = now(),
+      resolved_at = CASE WHEN next_status.is_open THEN NULL ELSE now() END,
+      resolved_by_user_id = CASE
+        WHEN next_status.is_open THEN NULL
+        ELSE (SELECT user_id FROM actor)
+      END,
+      resolution_note = CASE WHEN next_status.is_open THEN NULL ELSE $4::text END
+    FROM next_status
+    WHERE i.research_ops_issue_id = $1::uuid
+    RETURNING
+      i.research_ops_issue_id::text,
+      i.issue_status_code,
+      i.resolved_at
+    `,
+    input.issueId,
+    input.issueStatusCode,
+    normalizedActorUserId,
+    cleanOptionalText(input.eventNote)
+  );
+
+  if (!updatedRows[0]) {
+    return null;
+  }
+
+  await prisma.$executeRawUnsafe(
+    `
+    WITH actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    )
+    INSERT INTO research_ops_issue_events (
+      research_ops_issue_id,
+      event_type,
+      actor_user_id,
+      previous_status_code,
+      next_status_code,
+      previous_assigned_to_user_id,
+      next_assigned_to_user_id,
+      event_note,
+      changed_fields
+    )
+    VALUES (
+      $1::uuid,
+      'issue_status_changed',
+      (SELECT user_id FROM actor),
+      $2,
+      $4,
+      $5::uuid,
+      $5::uuid,
+      $6,
+      jsonb_build_object('issue_status_code', $4::text)
+    )
+    `,
+    input.issueId,
+    existing.issue_status_code,
+    normalizedActorUserId,
+    input.issueStatusCode,
+    existing.assigned_to_user_id,
+    cleanOptionalText(input.eventNote)
+  );
+
+  const issues = await listPostgresResearchOpsIssues(100, false);
+  return (
+    issues.find((issue) => issue.research_ops_issue_id === input.issueId) ?? null
+  );
+}
+
 export async function getPostgresResearchOpsDashboard(
   itemLimit = 50
 ): Promise<PostgresResearchOpsDashboard> {
-  const [queues, recentEdits] = await Promise.all([
+  const [queues, persistentIssues, recentEdits] = await Promise.all([
     Promise.all(
       researchOpsQueueDefinitions.map((definition) =>
         loadResearchOpsQueue(definition, itemLimit)
       )
     ),
+    listPostgresResearchOpsIssues(50),
     listPostgresResearchOpsRecentEdits(20),
   ]);
+  const generatedIssueCount = queues.reduce((sum, queue) => sum + queue.count, 0);
 
   return {
     generatedAt: new Date().toISOString(),
     totals: {
-      openIssues: queues.reduce((sum, queue) => sum + queue.count, 0),
+      openIssues: generatedIssueCount + persistentIssues.length,
       criticalIssues: queues
         .filter((queue) => queue.severity === "critical")
-        .reduce((sum, queue) => sum + queue.count, 0),
+        .reduce((sum, queue) => sum + queue.count, 0) +
+        persistentIssues.filter((issue) => issue.severity === "critical").length,
       importantIssues: queues
         .filter((queue) => queue.severity === "important")
-        .reduce((sum, queue) => sum + queue.count, 0),
+        .reduce((sum, queue) => sum + queue.count, 0) +
+        persistentIssues.filter((issue) => issue.severity === "important").length,
       workflowIssues: queues
         .filter((queue) => queue.severity === "workflow")
-        .reduce((sum, queue) => sum + queue.count, 0),
+        .reduce((sum, queue) => sum + queue.count, 0) +
+        persistentIssues.filter((issue) => issue.severity === "workflow").length,
+      persistentIssues: persistentIssues.length,
     },
     queues,
+    persistentIssues,
     recentEdits,
   };
 }

@@ -17,6 +17,7 @@ Current implemented pieces:
 - `web/prisma/migrations/20260518000000_baseline/migration.sql`
 - `web/prisma/migrations/20260518000100_align_user_roles/migration.sql`
 - `web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql`
+- `web/prisma/migrations/20260518000300_research_ops_issues/migration.sql`
 - `web/lib/db/prisma.ts`
 - `web/lib/services/postgres-preview.ts`
 - `web/lib/services/sources.ts`
@@ -151,6 +152,12 @@ Current application use:
   - expanded source metadata fields
   - evidence-link metadata for future field-level claims
   - source validation queues in Research Ops
+- `web/prisma/migrations/20260518000300_research_ops_issues/migration.sql`
+  adds the first persistent Research Ops task/issue foundation:
+  - research issue type and status reference tables
+  - linked project, operating asset, company, or source issue records
+  - assignment, notes, linked field, duplicate-candidate fields
+  - issue event history for auditability
 
 Current PostgreSQL source API foundation:
 
@@ -183,6 +190,8 @@ DELETE /api/postgres-preview/company-operating-asset-links/[id]
 POST /api/postgres-preview/company-relationships
 DELETE /api/postgres-preview/company-relationships/[id]
 PATCH /api/postgres-preview/research-ops/status
+POST /api/postgres-preview/research-ops/issues
+PATCH /api/postgres-preview/research-ops/issues/[id]
 ```
 
 The current PostgreSQL project promotion scaffold can create a linked
@@ -193,15 +202,15 @@ company-role links where available.
 The current PostgreSQL Research Ops page also supports selected-row status
 changes, lightweight bulk review/status changes, and filtered CSV exports using
 the existing `PATCH /api/postgres-preview/research-ops/status` route. Persistent
-assignment, task notes, and manual duplicate flags are not yet modeled in the
-database.
+human-created research issues/tasks are now modeled and can be created,
+resolved, or dismissed from the Research Ops page.
 
 The next recommended implementation slice is:
 
-1. define and add the persistent Research Ops task/issue model for assignment,
-   operational notes, manual duplicate flags, and field-level issue persistence
-2. persist field-level missing-data flags once that Research Ops task model is
-   defined
+1. expand persistent Research Ops issues into richer assignment workflow,
+   manual duplicate review, and field-level issue persistence
+2. persist generated missing-data flags into issue records where operationally
+   useful
 3. harden project-to-operating-asset promotion with readiness checks, review
    transition rules, and unit/expansion behavior
 4. keep permission checks explicit as PostgreSQL write routes expand

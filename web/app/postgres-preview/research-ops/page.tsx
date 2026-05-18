@@ -4,8 +4,10 @@ import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
 import {
   getPostgresEntityFormReferenceData,
+  getPostgresResearchOpsIssueReferenceData,
   getPostgresResearchOpsDashboard,
   type PostgresResearchOpsDashboard,
+  type PostgresResearchOpsIssueReferenceData,
 } from "@/lib/postgres-preview";
 import { getSourceReferenceData } from "@/lib/services/sources";
 import { ResearchOpsDashboardClient } from "./ResearchOpsDashboardClient";
@@ -29,6 +31,7 @@ type ResearchOpsData =
         is_active: boolean;
       }>;
       canReviewStatus: boolean;
+      issueReferenceData: PostgresResearchOpsIssueReferenceData;
     }
   | {
       ok: false;
@@ -37,11 +40,17 @@ type ResearchOpsData =
 
 async function getResearchOpsData(): Promise<ResearchOpsData> {
   try {
-    const [dashboard, entityReferenceData, sourceReferenceData] =
+    const [
+      dashboard,
+      entityReferenceData,
+      sourceReferenceData,
+      issueReferenceData,
+    ] =
       await Promise.all([
         getPostgresResearchOpsDashboard(100),
         getPostgresEntityFormReferenceData(),
         getSourceReferenceData(),
+        getPostgresResearchOpsIssueReferenceData(),
       ]);
     const session = await getServerSession(authOptions);
     const role = (session?.user as { role?: string | null } | undefined)?.role;
@@ -52,6 +61,7 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
       reviewStatuses: entityReferenceData.reviewStatuses,
       sourceStatuses: sourceReferenceData.credibilityStatuses,
       canReviewStatus: canReview(role),
+      issueReferenceData,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -114,6 +124,7 @@ export default async function PostgresResearchOpsPage() {
           reviewStatuses={data.reviewStatuses}
           sourceStatuses={data.sourceStatuses}
           canReviewStatus={data.canReviewStatus}
+          issueReferenceData={data.issueReferenceData}
         />
       )}
     </main>
