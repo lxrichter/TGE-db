@@ -33,6 +33,11 @@ Current implemented preparation:
 - A live SQLite backup was inspected locally on 2026-05-18 and summarized in
   `docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md`.
 - A safe local SQLite inspection command now exists:
+- Dry-run migration scripts now exist for raw staging import, transform, and
+  validation. See `docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md`.
+- First dry-run migration into Railway PostgreSQL staging completed with
+  validation status `pass`. See
+  `docs/schema/LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md`.
 
 ```bash
 cd web
@@ -292,9 +297,10 @@ Required before migration:
 - data-quality report: first audit summary completed
 - updated SQLite-to-PostgreSQL mapping from the live inspection output:
   started with 2026-05-18 audit findings
-- staging import script
-- transformation script
-- validation script
+- staging import script: first dry-run version added
+- transformation script: first rollback-safe dry-run version added
+- validation script: first validation report version added
+- first Railway staging dry-run result: completed and passed validation
 - rollback plan
 
 ## Recommended Next Development Step

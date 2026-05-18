@@ -11,6 +11,8 @@ Start here:
 5. `SOURCES_DOCUMENTS_MVP.md`
 6. `LIVE_SQLITE_INSPECTION_WORKFLOW.md`
 7. `LIVE_SQLITE_AUDIT_2026-05-18.md`
+8. `LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md`
+9. `LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md`
 
 Implementation SQL:
 
@@ -30,6 +32,8 @@ Live SQLite export guide:
 docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md
 docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md
 docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md
+docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md
+docs/schema/LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md
 ```
 
 Current recommended live SQLite inspection command:
@@ -55,6 +59,7 @@ Current PostgreSQL/Prisma migration foundation:
 web/prisma/migrations/20260518000000_baseline/migration.sql
 web/prisma/migrations/20260518000100_align_user_roles/migration.sql
 web/prisma/migrations/20260518000200_sources_documents_mvp/migration.sql
+web/prisma/migrations/20260518000600_live_sqlite_migration_staging/migration.sql
 ```
 
 Important principle:

@@ -88,6 +88,11 @@ foundation. Current implemented PostgreSQL staging areas include:
 - first live SQLite migration audit pass completed against a copied Hetzner
   backup, with aggregate findings documented in
   `docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md`
+- dry-run live SQLite migration tooling has been added for raw PostgreSQL
+  staging import, transaction-rollback transform tests, and validation reports
+- first live SQLite dry-run migration into Railway PostgreSQL staging completed
+  and validated successfully; result documented in
+  `docs/schema/LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md`
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

@@ -66,6 +66,10 @@ Current implemented foundation:
   - no raw row samples exported by the inspector
 - first live SQLite migration audit pass completed from the 2026-05-18 Hetzner
   backup; schema matches local/reference and migration risks are documented
+- dry-run migration tooling added for raw staging import, rollback-safe
+  transform tests, committed staging transforms, and validation reporting
+- first live SQLite dry-run migration into Railway PostgreSQL staging completed
+  with validation status `pass`
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -133,8 +137,9 @@ Completed / current outputs:
 Remaining actions:
 
 - keep decisions updated as design reviews refine page behavior
-- use the 2026-05-18 live SQLite audit to write dry-run staging import,
-  transform, and validation scripts
+- review migrated Railway PostgreSQL staging data in `/postgres-preview`, then
+  prioritize migration warning cleanup and decide when PostgreSQL pages should
+  replace the SQLite prototype routes
 - avoid adding major functionality until the next technical slice is agreed
 
 ## Phase 1: PostgreSQL Application Foundation

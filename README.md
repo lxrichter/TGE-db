@@ -162,6 +162,8 @@ PostgreSQL schema baseline:
 - [docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md](docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md)
 - [docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md](docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md)
 - [docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md](docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md)
+- [docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md](docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md)
+- [docs/schema/LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md](docs/schema/LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md)
 - [docs/schema/POSTGRES_STAGING_WORKFLOW.md](docs/schema/POSTGRES_STAGING_WORKFLOW.md)
 - [scripts/migration/README.md](scripts/migration/README.md)
 
@@ -212,6 +214,17 @@ npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YY
 The live database backup and generated inspection outputs remain ignored local
 working files. The command produces schema, row counts, indexes, foreign keys,
 and aggregate completeness metrics only; it does not export raw record samples.
+
+Dry-run migration tooling for the copied live SQLite backup now runs through:
+
+```bash
+cd web
+npm run live-sqlite:stage
+npm run live-sqlite:transform
+npm run live-sqlite:validate
+```
+
+See [docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md](docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md).
 
 ## GitHub
 

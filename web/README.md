@@ -29,6 +29,9 @@ npm run prisma:pull
 npm run prisma:migrate:deploy
 npm run postgres:smoke
 npm run sqlite:inspect
+npm run live-sqlite:stage
+npm run live-sqlite:transform
+npm run live-sqlite:validate
 ```
 
 ## Local Setup
@@ -133,6 +136,19 @@ npm run sqlite:inspect -- --db "../migration/live_exports/YYYY-MM-DD/tge_live_YY
 The output is written to ignored `../source-data/live-sqlite-inspection/`
 files. The inspector writes schema, counts, indexes, foreign keys, and optional
 null/distinct/length metrics only; it does not write raw row samples.
+
+The first dry-run migration workflow uses:
+
+```bash
+npm run live-sqlite:stage
+npm run live-sqlite:transform
+npm run live-sqlite:validate
+```
+
+`live-sqlite:stage` imports copied SQLite rows into PostgreSQL staging tables
+only when `--execute` is provided. `live-sqlite:transform` rolls back by default
+and only commits normalized rows with `--execute`. See
+`../docs/schema/LIVE_SQLITE_DRY_RUN_MIGRATION_WORKFLOW.md`.
 
 ## Authentication And Roles
 
