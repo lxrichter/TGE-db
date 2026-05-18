@@ -180,6 +180,8 @@ Current PostgreSQL staging implementation:
   company-project roles, company-plant/facility roles, and company-company
   relationships, plus linked Research Ops issue panels that can create,
   progress, resolve, or dismiss human-created issues
+- PostgreSQL staging project, plant/facility, and company detail pages can link
+  existing source/evidence records directly from the record page
 - PostgreSQL project detail pages include project-to-plant/facility promotion
   scaffolding that creates a linked staging operating asset and copies available
   source and company-role links

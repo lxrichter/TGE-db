@@ -212,9 +212,11 @@ includes editor source-credibility actions on source profiles, selected-row
 source credibility actions inside PostgreSQL Research Ops, and preview-only
 export-readiness panels on PostgreSQL entity detail pages. Source create,
 source review, and evidence-link review actions now stamp mapped PostgreSQL
-`app_users` metadata. File uploads, TGE article sync, country/market evidence
-panels, and enforced export-readiness rules are proposed next steps, not
-completed production functionality.
+`app_users` metadata. PostgreSQL project, plant/facility, and company detail
+pages can also link existing sources directly with evidence metadata. File
+uploads, TGE article sync, country/market evidence panels, and enforced
+export-readiness rules are proposed next steps, not completed production
+functionality.
 
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.

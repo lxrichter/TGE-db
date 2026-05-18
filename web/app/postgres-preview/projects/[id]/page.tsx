@@ -8,7 +8,6 @@ import {
   DetailShell,
   ExportReadinessPanel,
   NotFoundNotice,
-  SourceEvidenceTable,
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
@@ -16,6 +15,7 @@ import { ProjectCompanyLinksPanel } from "@/components/postgres-preview/Postgres
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import PostgresProjectPromotionPanel from "@/components/postgres-preview/PostgresProjectPromotionPanel";
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
+import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import {
   getPostgresCompanyRelationshipReferenceData,
@@ -26,6 +26,7 @@ import {
   listPostgresProjectCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
 } from "@/lib/postgres-preview";
+import { getSourceFormReferenceData, listSources } from "@/lib/services/sources";
 import { formatCount, formatMw } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -142,6 +143,8 @@ export default async function PostgresProjectDetailPage({
     promotedAssets,
     researchIssues,
     issueReferenceData,
+    sourceOptions,
+    sourceReferenceData,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
@@ -151,6 +154,8 @@ export default async function PostgresProjectDetailPage({
     listPostgresPromotedOperatingAssets(id),
     listPostgresResearchOpsIssuesForEntity("project", id),
     getPostgresResearchOpsIssueReferenceData(),
+    listSources({ limit: 250 }),
+    getSourceFormReferenceData(),
     getServerSession(authOptions),
   ]);
 
@@ -267,10 +272,15 @@ export default async function PostgresProjectDetailPage({
       />
 
       <DetailSection title="Source Evidence">
-        <SourceEvidenceTable
-          sources={project.sources}
+        <PostgresSourceEvidencePanel
+          canManageSources={canEdit(
+            (session?.user as { role?: string | null } | undefined)?.role
+          )}
+          confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="project"
           entityId={project.project_id}
+          sourceOptions={sourceOptions}
+          sources={project.sources}
         />
       </DetailSection>
 

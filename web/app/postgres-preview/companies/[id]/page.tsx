@@ -8,13 +8,13 @@ import {
   DetailShell,
   ExportReadinessPanel,
   NotFoundNotice,
-  SourceEvidenceTable,
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { CompanyRelationshipPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
+import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
@@ -26,6 +26,7 @@ import {
   listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewCompanyDetail,
 } from "@/lib/postgres-preview";
+import { getSourceFormReferenceData, listSources } from "@/lib/services/sources";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -111,6 +112,8 @@ export default async function PostgresCompanyDetailPage({
     entityReferenceData,
     researchIssues,
     issueReferenceData,
+    sourceOptions,
+    sourceReferenceData,
     session,
   ] = await Promise.all([
     getPostgresPreviewCompanyById(id),
@@ -121,6 +124,8 @@ export default async function PostgresCompanyDetailPage({
     getPostgresEntityFormReferenceData(),
     listPostgresResearchOpsIssuesForEntity("company", id),
     getPostgresResearchOpsIssueReferenceData(),
+    listSources({ limit: 250 }),
+    getSourceFormReferenceData(),
     getServerSession(authOptions),
   ]);
 
@@ -249,10 +254,15 @@ export default async function PostgresCompanyDetailPage({
       />
 
       <DetailSection title="Source Evidence">
-        <SourceEvidenceTable
-          sources={company.sources}
+        <PostgresSourceEvidencePanel
+          canManageSources={canEdit(
+            (session?.user as { role?: string | null } | undefined)?.role
+          )}
+          confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="company"
           entityId={company.company_id}
+          sourceOptions={sourceOptions}
+          sources={company.sources}
         />
       </DetailSection>
 

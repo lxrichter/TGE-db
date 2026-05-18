@@ -8,13 +8,13 @@ import {
   DetailShell,
   ExportReadinessPanel,
   NotFoundNotice,
-  SourceEvidenceTable,
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { OperatingAssetCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
+import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
@@ -24,6 +24,7 @@ import {
   listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewOperatingAssetDetail,
 } from "@/lib/postgres-preview";
+import { getSourceFormReferenceData, listSources } from "@/lib/services/sources";
 import { formatCount, formatMw } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -141,6 +142,8 @@ export default async function PostgresOperatingAssetDetailPage({
     entityReferenceData,
     researchIssues,
     issueReferenceData,
+    sourceOptions,
+    sourceReferenceData,
     session,
   ] =
     await Promise.all([
@@ -150,6 +153,8 @@ export default async function PostgresOperatingAssetDetailPage({
       getPostgresEntityFormReferenceData(),
       listPostgresResearchOpsIssuesForEntity("operating_asset", id),
       getPostgresResearchOpsIssueReferenceData(),
+      listSources({ limit: 250 }),
+      getSourceFormReferenceData(),
       getServerSession(authOptions),
     ]);
 
@@ -260,10 +265,15 @@ export default async function PostgresOperatingAssetDetailPage({
       />
 
       <DetailSection title="Source Evidence">
-        <SourceEvidenceTable
-          sources={asset.sources}
+        <PostgresSourceEvidencePanel
+          canManageSources={canEdit(
+            (session?.user as { role?: string | null } | undefined)?.role
+          )}
+          confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="operating_asset"
           entityId={asset.operating_asset_id}
+          sourceOptions={sourceOptions}
+          sources={asset.sources}
         />
       </DetailSection>
 

@@ -172,6 +172,10 @@ Source create/update/status and source-link create actions now resolve the
 logged-in internal user into PostgreSQL `app_users` before writing source
 review metadata.
 
+PostgreSQL project, plant/facility, and company detail pages now use a
+client-side source evidence panel that can link an existing source directly to
+the current record with evidence confidence and claim metadata.
+
 Current PostgreSQL entity staging API foundation:
 
 ```text
