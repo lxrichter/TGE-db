@@ -28,6 +28,7 @@ Current implemented foundation:
   - source list/detail/reference-data service and API route foundation
   - source validation queues added to PostgreSQL Research Ops preview
   - source/evidence panels on PostgreSQL entity preview pages
+  - editor source credibility actions on source profiles
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -133,10 +134,9 @@ Deliverables:
 
 Immediate next actions:
 
-1. add editor source-validation actions
-2. add source-aware export-readiness checks
-3. keep tightening permissions when write-enabled PostgreSQL routes are added
-4. decide when PostgreSQL entity edit pages should replace or sit beside the
+1. add source-aware export-readiness checks
+2. keep tightening permissions when write-enabled PostgreSQL routes are added
+3. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
 
 Do before:
@@ -170,6 +170,8 @@ Current implemented foundation:
 - Research Ops source queues for review and weak/outdated sources
 - read-only PostgreSQL project, plant/facility, and company detail pages show
   source/evidence panels and add-source actions
+- editor source-validation actions for credible, weak, outdated, rejected, and
+  needs-review states
 
 Key work:
 
@@ -519,10 +521,9 @@ Bring source evidence directly into the next PostgreSQL entity workflows.
 
 Recommended task order:
 
-1. add editor source-validation actions: mark credible, weak, outdated, rejected
-2. add export-readiness checks that require credible source coverage
-3. add PostgreSQL edit-page scaffolds for projects/assets/companies or migrate
+1. add export-readiness checks that require credible source coverage
+2. add PostgreSQL edit-page scaffolds for projects/assets/companies or migrate
    existing detail/edit pages carefully
-4. keep SQLite prototype routes available until PostgreSQL replacements are
+3. keep SQLite prototype routes available until PostgreSQL replacements are
    ready
-5. avoid live data import until the PostgreSQL workflows are stable
+4. avoid live data import until the PostgreSQL workflows are stable

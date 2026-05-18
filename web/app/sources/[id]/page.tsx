@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { getSourceById, type SourceDetail, type SourceLink } from "@/lib/services/sources";
+import { getServerSession } from "next-auth";
+import SourceStatusActions from "@/components/sources/SourceStatusActions";
+import { authOptions } from "@/lib/auth/auth";
+import { canReview, type UserRole } from "@/lib/auth/roles";
+import {
+  getSourceById,
+  type SourceDetail,
+  type SourceLink,
+} from "@/lib/services/sources";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -250,6 +258,11 @@ export default async function SourceDetailPage({
   const source = data.source;
   const sourceTitle =
     source.title || source.url || source.source_reference || "Untitled source";
+  const session = await getServerSession(authOptions);
+  const sessionUser = session?.user as
+    | { role?: UserRole | string | null }
+    | undefined;
+  const canReviewSource = canReview(sessionUser?.role);
 
   return (
     <main className="space-y-8">
@@ -280,7 +293,10 @@ export default async function SourceDetailPage({
                 tone={visibilityTone(source.visibility_code)}
               />
               <Badge
-                label={source.credibility_status_label || source.credibility_status_code}
+                label={
+                  source.credibility_status_label ||
+                  source.credibility_status_code
+                }
                 tone={statusTone(source.credibility_status_code)}
               />
               <Link
@@ -373,6 +389,13 @@ export default async function SourceDetailPage({
       <Section title="Linked Evidence">
         <LinkedEntityTable links={source.links} />
       </Section>
+
+      {canReviewSource ? (
+        <SourceStatusActions
+          sourceId={source.source_id}
+          currentStatus={source.credibility_status_code}
+        />
+      ) : null}
 
       <Section title="Review Metadata">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">

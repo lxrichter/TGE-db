@@ -165,6 +165,14 @@ type DeletedSourceLinkRow = {
   source_id: string;
 };
 
+function isUuid(value: string | null | undefined) {
+  return Boolean(
+    value?.match(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    )
+  );
+}
+
 function normalizeTimestamp(value: string | Date | null) {
   if (!value) {
     return null;
@@ -566,6 +574,51 @@ export async function updateSource(
     cleanOptionalText(input.relevant_excerpt),
     cleanOptionalText(input.attachment_url),
     Boolean(input.duplicate_source_flag)
+  );
+
+  if (!rows[0]) {
+    return null;
+  }
+
+  return getSourceById(rows[0].source_id);
+}
+
+export async function updateSourceCredibilityStatus({
+  sourceId,
+  credibilityStatusCode,
+  reviewedByUserId,
+}: {
+  sourceId: string;
+  credibilityStatusCode: string;
+  reviewedByUserId?: string | null;
+}): Promise<SourceDetail | null> {
+  const normalizedReviewerId = isUuid(reviewedByUserId)
+    ? reviewedByUserId
+    : null;
+  const rows = await getPrismaClient().$queryRawUnsafe<SourceIdRow[]>(
+    `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    )
+    UPDATE sources
+    SET
+      credibility_status_code = $2,
+      reviewed_at = CASE WHEN $2 != 'needs_review' THEN now() ELSE NULL END,
+      reviewed_by_user_id = CASE
+        WHEN $2 != 'needs_review'
+          THEN COALESCE((SELECT user_id FROM reviewer), reviewed_by_user_id)
+        ELSE NULL
+      END,
+      updated_at = now()
+    WHERE source_id = $1::uuid
+    RETURNING source_id::text
+    `,
+    sourceId,
+    credibilityStatusCode,
+    normalizedReviewerId
   );
 
   if (!rows[0]) {
