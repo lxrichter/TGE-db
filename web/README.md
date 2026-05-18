@@ -10,6 +10,8 @@ Next.js application for the current TGE geothermal intelligence platform prototy
 - Tailwind CSS 4
 - NextAuth 4 credentials provider
 - SQLite through `sqlite` and `sqlite3`
+- PostgreSQL staging through Railway
+- Prisma 7 for PostgreSQL schema/migration baseline
 - Leaflet / React Leaflet for map views
 - `xlsx` for spreadsheet export workflows
 
@@ -20,6 +22,12 @@ npm run dev     # Start local development server
 npm run build   # Build production bundle
 npm run start   # Start production server after build
 npm run lint    # Run ESLint
+npm run prisma:validate
+npm run prisma:generate
+npm run prisma:migrate:status
+npm run prisma:pull
+npm run prisma:migrate:deploy
+npm run postgres:smoke
 ```
 
 ## Local Setup
@@ -46,6 +54,9 @@ Example:
 
 ```text
 DB_PATH=../shared/data/tge.db
+DATABASE_URL=postgresql://postgres:password@host:5432/railway
+DATABASE_PUBLIC_URL=postgresql://postgres:password@host:5432/railway
+DATABASE_SSL=require
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=replace-with-a-local-development-secret
 ```
@@ -54,6 +65,7 @@ Notes:
 
 - `DB_PATH` can be absolute or relative to the `web/` working directory.
 - The default local path points to `../shared/data/tge.db`.
+- `DATABASE_PUBLIC_URL` is preferred for local Railway/PostgreSQL commands when present.
 - `.env.local` is ignored by Git and must not be committed.
 - Use a real random `NEXTAUTH_SECRET` for any non-local environment.
 
@@ -76,6 +88,21 @@ Reference schema snapshot:
 
 ```text
 web/data/schema.sql
+```
+
+PostgreSQL/Prisma baseline:
+
+```text
+web/prisma/schema.prisma
+web/prisma.config.ts
+web/prisma/migrations/20260518000000_baseline/migration.sql
+```
+
+Railway PostgreSQL commands should be run without copying credentials locally:
+
+```bash
+railway run --service Postgres -- npm run postgres:smoke
+railway run --service Postgres -- npm run prisma:migrate:status
 ```
 
 Local SQLite files and backups are intentionally ignored. The repository does not include a production or working data dump.

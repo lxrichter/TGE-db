@@ -16,6 +16,8 @@ Current implemented foundation:
   markets, auth, and exports
 - Railway PostgreSQL staging database
 - PostgreSQL schema baseline
+- Prisma migration/application data-access foundation
+- Prisma baseline migration recorded against Railway PostgreSQL staging
 - safe PostgreSQL staging seed
 - PostgreSQL preview page
 - read-only PostgreSQL Research Ops preview
@@ -90,13 +92,15 @@ Remaining actions:
 
 ## Phase 1: PostgreSQL Application Foundation
 
+Status: started.
+
 Purpose: turn PostgreSQL from a staging preview into the real application data
 foundation.
 
 Key work:
 
-- choose and configure migration layer, likely Prisma or Drizzle
-- formalize PostgreSQL migrations instead of standalone SQL only
+- choose and configure migration layer: Prisma selected
+- formalize PostgreSQL migrations instead of standalone SQL only: baseline done
 - connect core app data access to PostgreSQL behind stable query/service modules
 - decide staging vs production Railway environment pattern
 - align app roles with the MVP role model:
@@ -109,11 +113,18 @@ Key work:
 
 Deliverables:
 
-- migration tooling selected
+- migration tooling selected: Prisma
 - first managed migration generated from current PostgreSQL schema
 - stable database access layer
 - Railway environment notes
 - auth/role model alignment notes
+
+Immediate next actions:
+
+1. create a shared Prisma client helper
+2. move existing PostgreSQL preview queries behind service modules
+3. align role labels and permissions with researcher/editor/senior editor/admin
+4. define the next Prisma migration for Sources / Documents MVP additions
 
 Do before:
 

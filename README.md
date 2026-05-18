@@ -40,8 +40,9 @@ Intended build direction:
 - keep useful domain logic, workflows, UI ideas, and validation rules
 - refactor or rebuild unstable implementation areas
 - define a stronger semantic model for geothermal capacity, lifecycle phases, roles, and relationships
-- migrate toward a stronger production database foundation, likely PostgreSQL
+- migrate toward a stronger production database foundation on PostgreSQL
 - plan deployment around Railway as the intended hosting platform
+- use Prisma as the PostgreSQL migration and application data-access foundation
 - add source registry and AI-assisted research support only after the core model and workflow are stable
 
 ## Repository Layout
@@ -63,6 +64,7 @@ web/app/                   # Routes, pages, and API endpoints
 web/components/            # Reusable UI and workflow components
 web/lib/                   # Database, auth, validation, export, options
 web/data/schema.sql        # Legacy/reference SQLite schema snapshot
+web/prisma/                # Prisma PostgreSQL schema and migrations
 web/.env.example           # Local environment example
 ```
 
@@ -151,6 +153,7 @@ PostgreSQL schema baseline:
 
 - [database/postgres/schema_v1.sql](database/postgres/schema_v1.sql)
 - [docs/schema/POSTGRES_SCHEMA_V1.md](docs/schema/POSTGRES_SCHEMA_V1.md)
+- [docs/schema/PRISMA_POSTGRES_BASELINE.md](docs/schema/PRISMA_POSTGRES_BASELINE.md)
 - [docs/schema/SQLITE_TO_POSTGRES_MAPPING.md](docs/schema/SQLITE_TO_POSTGRES_MAPPING.md)
 - [docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md](docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md)
 - [docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md](docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md)

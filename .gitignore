@@ -7,6 +7,7 @@ __pycache__/
 .next/
 out/
 build/
+web/prisma/generated/
 
 # Runtime and local environment
 .env

@@ -16,6 +16,16 @@ For now, Railway PostgreSQL is used as a clean staging foundation:
 - develop PostgreSQL-backed screens and API routes
 - test future migration scripts without touching live data
 
+Prisma is now the managed migration and application data-access foundation for
+PostgreSQL. The first baseline migration is tracked at:
+
+```text
+web/prisma/migrations/20260518000000_baseline/migration.sql
+```
+
+The current Railway staging database already contained the baseline schema, so
+the migration has been marked as applied rather than re-run.
+
 ## Environment
 
 The app expects:
@@ -38,6 +48,14 @@ railway run --service Postgres -- npm --prefix web run postgres:smoke
 ```
 
 This avoids copying database credentials into the terminal history.
+
+Prisma commands can also be run through Railway from the `web` directory:
+
+```bash
+railway run --service Postgres -- npm run prisma:migrate:status
+railway run --service Postgres -- npm run prisma:pull
+railway run --service Postgres -- npm run prisma:migrate:deploy
+```
 
 ## Smoke Test
 
@@ -149,3 +167,7 @@ still uses SQLite for most runtime workflows.
 
 Do not import the Hetzner live SQLite database until the PostgreSQL-backed app
 workflow and migration scripts are ready.
+
+Do not use `prisma migrate dev` against the shared Railway staging database.
+Use explicit migration files plus `prisma migrate deploy` for shared
+environments.

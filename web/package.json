@@ -8,9 +8,15 @@
     "start": "next start",
     "lint": "eslint",
     "postgres:smoke": "node scripts/postgres-smoke-test.mjs",
-    "postgres:seed:staging": "node scripts/seed-postgres-staging.mjs"
+    "postgres:seed:staging": "node scripts/seed-postgres-staging.mjs",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "prisma:migrate:status": "prisma migrate status --schema prisma/schema.prisma",
+    "prisma:pull": "prisma db pull --schema prisma/schema.prisma",
+    "prisma:validate": "prisma validate --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
     "cheerio": "^1.2.0",
     "leaflet": "^1.9.4",
@@ -31,8 +37,10 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

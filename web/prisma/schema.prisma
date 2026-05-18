@@ -1,0 +1,599 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model app_users {
+  user_id                                                              String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_user_id                                                       String?            @unique
+  name                                                                 String
+  email                                                                String             @unique @db.Citext
+  password_hash                                                        String?
+  role_code                                                            String
+  is_active                                                            Boolean            @default(true)
+  created_at                                                           DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at                                                           DateTime           @default(now()) @db.Timestamptz(6)
+  audit_events                                                         audit_events[]
+  companies_companies_approved_by_user_idToapp_users                   companies[]        @relation("companies_approved_by_user_idToapp_users")
+  companies_companies_created_by_user_idToapp_users                    companies[]        @relation("companies_created_by_user_idToapp_users")
+  companies_companies_last_updated_by_user_idToapp_users               companies[]        @relation("companies_last_updated_by_user_idToapp_users")
+  operating_assets_operating_assets_approved_by_user_idToapp_users     operating_assets[] @relation("operating_assets_approved_by_user_idToapp_users")
+  operating_assets_operating_assets_created_by_user_idToapp_users      operating_assets[] @relation("operating_assets_created_by_user_idToapp_users")
+  operating_assets_operating_assets_last_updated_by_user_idToapp_users operating_assets[] @relation("operating_assets_last_updated_by_user_idToapp_users")
+  projects_projects_approved_by_user_idToapp_users                     projects[]         @relation("projects_approved_by_user_idToapp_users")
+  projects_projects_created_by_user_idToapp_users                      projects[]         @relation("projects_created_by_user_idToapp_users")
+  projects_projects_last_updated_by_user_idToapp_users                 projects[]         @relation("projects_last_updated_by_user_idToapp_users")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model asset_technology_tags {
+  asset_technology_tag_id String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id              String?             @db.Uuid
+  operating_asset_id      String?             @db.Uuid
+  technology_tag_code     String
+  notes                   String?
+  created_at              DateTime            @default(now()) @db.Timestamptz(6)
+  operating_assets        operating_assets?   @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
+  projects                projects?           @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_technology_tags     ref_technology_tags @relation(fields: [technology_tag_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([operating_asset_id], map: "idx_asset_technology_tags_asset")
+  @@index([technology_tag_code], map: "idx_asset_technology_tags_code")
+  @@index([project_id], map: "idx_asset_technology_tags_project")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model asset_use_components {
+  asset_use_component_id    String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id                String?                    @db.Uuid
+  operating_asset_id        String?                    @db.Uuid
+  use_type_code             String
+  direct_use_category_code  String?
+  mineral_type              String?
+  is_primary                Boolean                    @default(false)
+  notes                     String?
+  created_at                DateTime                   @default(now()) @db.Timestamptz(6)
+  ref_direct_use_categories ref_direct_use_categories? @relation(fields: [direct_use_category_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  operating_assets          operating_assets?          @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
+  projects                  projects?                  @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_geothermal_use_types  ref_geothermal_use_types   @relation(fields: [use_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([operating_asset_id], map: "idx_asset_use_components_asset")
+  @@index([direct_use_category_code], map: "idx_asset_use_components_direct_use")
+  @@index([project_id], map: "idx_asset_use_components_project")
+  @@index([use_type_code], map: "idx_asset_use_components_use_type")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model audit_events {
+  audit_event_id                                                                    String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entity_type                                                                       String
+  entity_id                                                                         String               @db.Uuid
+  event_type                                                                        String
+  previous_review_status_code                                                       String?
+  next_review_status_code                                                           String?
+  actor_user_id                                                                     String?              @db.Uuid
+  event_note                                                                        String?
+  changed_fields                                                                    Json?
+  created_at                                                                        DateTime             @default(now()) @db.Timestamptz(6)
+  app_users                                                                         app_users?           @relation(fields: [actor_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_review_statuses_audit_events_next_review_status_codeToref_review_statuses     ref_review_statuses? @relation("audit_events_next_review_status_codeToref_review_statuses", fields: [next_review_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_review_statuses_audit_events_previous_review_status_codeToref_review_statuses ref_review_statuses? @relation("audit_events_previous_review_status_codeToref_review_statuses", fields: [previous_review_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([actor_user_id], map: "idx_audit_events_actor")
+  @@index([created_at], map: "idx_audit_events_created_at")
+  @@index([entity_type, entity_id], map: "idx_audit_events_entity")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model companies {
+  company_id                                                             String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_company_id                                                      String?                         @unique
+  company_name                                                           String
+  company_name_short                                                     String?
+  company_legal_name                                                     String?
+  company_name_clean                                                     String?
+  website_url                                                            String?
+  linkedin_url                                                           String?
+  entity_type_code                                                       String?
+  company_type_primary_code                                              String?
+  ownership_type                                                         String?
+  company_status                                                         String?
+  is_active_company                                                      Boolean                         @default(true)
+  is_spv                                                                 Boolean                         @default(false)
+  is_group_parent                                                        Boolean                         @default(false)
+  is_operating_entity                                                    Boolean                         @default(false)
+  parent_company_id                                                      String?                         @db.Uuid
+  ultimate_parent_company_id                                             String?                         @db.Uuid
+  company_group_name                                                     String?
+  group_inclusion_type                                                   String?
+  group_reporting_weight                                                 Decimal                         @default(1.0) @db.Decimal(5, 4)
+  consolidation_method                                                   String?
+  headquarters_city                                                      String?
+  headquarters_country                                                   String?
+  region                                                                 String?
+  wb_region                                                              String?
+  geothermal_focus                                                       String?
+  technology_focus                                                       String?
+  service_scope_summary                                                  String?
+  operating_markets_summary                                              String?
+  source_evidence_note                                                   String?
+  notes                                                                  String?
+  information                                                            String?
+  internal_comments                                                      String?
+  review_status_code                                                     String                          @default("draft")
+  research_status                                                        String?
+  created_by_user_id                                                     String?                         @db.Uuid
+  last_updated_by_user_id                                                String?                         @db.Uuid
+  approved_by_user_id                                                    String?                         @db.Uuid
+  approved_at                                                            DateTime?                       @db.Timestamptz(6)
+  export_ready_at                                                        DateTime?                       @db.Timestamptz(6)
+  legacy_created_at                                                      String?
+  legacy_updated_at                                                      String?
+  created_at                                                             DateTime                        @default(now()) @db.Timestamptz(6)
+  updated_at                                                             DateTime                        @default(now()) @db.Timestamptz(6)
+  app_users_companies_approved_by_user_idToapp_users                     app_users?                      @relation("companies_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_company_primary_types                                              ref_company_primary_types?      @relation(fields: [company_type_primary_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  app_users_companies_created_by_user_idToapp_users                      app_users?                      @relation("companies_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_company_entity_types                                               ref_company_entity_types?       @relation(fields: [entity_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  app_users_companies_last_updated_by_user_idToapp_users                 app_users?                      @relation("companies_last_updated_by_user_idToapp_users", fields: [last_updated_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  companies_companies_parent_company_idTocompanies                       companies?                      @relation("companies_parent_company_idTocompanies", fields: [parent_company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
+  other_companies_companies_parent_company_idTocompanies                 companies[]                     @relation("companies_parent_company_idTocompanies")
+  ref_review_statuses                                                    ref_review_statuses             @relation(fields: [review_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  companies_companies_ultimate_parent_company_idTocompanies              companies?                      @relation("companies_ultimate_parent_company_idTocompanies", fields: [ultimate_parent_company_id], references: [company_id], onDelete: NoAction, onUpdate: NoAction)
+  other_companies_companies_ultimate_parent_company_idTocompanies        companies[]                     @relation("companies_ultimate_parent_company_idTocompanies")
+  company_operating_asset_links                                          company_operating_asset_links[]
+  company_project_links                                                  company_project_links[]
+  company_relationships_company_relationships_company_id_fromTocompanies company_relationships[]         @relation("company_relationships_company_id_fromTocompanies")
+  company_relationships_company_relationships_company_id_toTocompanies   company_relationships[]         @relation("company_relationships_company_id_toTocompanies")
+  company_role_profiles                                                  company_role_profiles[]
+  company_secondary_types                                                company_secondary_types[]
+  entity_sources                                                         entity_sources[]
+
+  @@index([company_name_clean], map: "idx_companies_clean")
+  @@index([headquarters_country], map: "idx_companies_country")
+  @@index([legacy_company_id], map: "idx_companies_legacy")
+  @@index([company_name], map: "idx_companies_name")
+  @@index([parent_company_id], map: "idx_companies_parent")
+  @@index([company_type_primary_code], map: "idx_companies_primary_type")
+  @@index([review_status_code], map: "idx_companies_review_status")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model company_operating_asset_links {
+  company_operating_asset_link_id String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_company_plant_link_id    String?           @unique
+  company_id                      String            @db.Uuid
+  operating_asset_id              String            @db.Uuid
+  role_code                       String
+  role_detail                     String?
+  ownership_share                 Decimal?          @db.Decimal(7, 4)
+  is_primary                      Boolean           @default(false)
+  notes                           String?
+  created_at                      DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at                      DateTime          @default(now()) @db.Timestamptz(6)
+  companies                       companies         @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  operating_assets                operating_assets  @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_company_roles               ref_company_roles @relation(fields: [role_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([company_id, operating_asset_id, role_code])
+  @@index([operating_asset_id], map: "idx_company_asset_links_asset")
+  @@index([company_id], map: "idx_company_asset_links_company")
+  @@index([role_code], map: "idx_company_asset_links_role")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model company_project_links {
+  company_project_link_id        String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_company_project_link_id String?           @unique
+  company_id                     String            @db.Uuid
+  project_id                     String            @db.Uuid
+  role_code                      String
+  role_detail                    String?
+  ownership_share                Decimal?          @db.Decimal(7, 4)
+  is_primary                     Boolean           @default(false)
+  notes                          String?
+  created_at                     DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at                     DateTime          @default(now()) @db.Timestamptz(6)
+  companies                      companies         @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  projects                       projects          @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_company_roles              ref_company_roles @relation(fields: [role_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([company_id, project_id, role_code])
+  @@index([company_id], map: "idx_company_project_links_company")
+  @@index([project_id], map: "idx_company_project_links_project")
+  @@index([role_code], map: "idx_company_project_links_role")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model company_relationships {
+  company_relationship_id                                    String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_company_relationship_id                             String?                        @unique
+  company_id_from                                            String                         @db.Uuid
+  company_id_to                                              String                         @db.Uuid
+  relationship_type_code                                     String
+  ownership_percentage                                       Decimal?                       @db.Decimal(7, 4)
+  is_current                                                 Boolean                        @default(true)
+  notes                                                      String?
+  created_at                                                 DateTime                       @default(now()) @db.Timestamptz(6)
+  updated_at                                                 DateTime                       @default(now()) @db.Timestamptz(6)
+  companies_company_relationships_company_id_fromTocompanies companies                      @relation("company_relationships_company_id_fromTocompanies", fields: [company_id_from], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  companies_company_relationships_company_id_toTocompanies   companies                      @relation("company_relationships_company_id_toTocompanies", fields: [company_id_to], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_company_relationship_types                             ref_company_relationship_types @relation(fields: [relationship_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([company_id_from], map: "idx_company_relationships_from")
+  @@index([company_id_to], map: "idx_company_relationships_to")
+  @@index([relationship_type_code], map: "idx_company_relationships_type")
+}
+
+model company_role_profiles {
+  company_role_profile_id String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_company_role_id  String?           @unique
+  company_id              String            @db.Uuid
+  role_code               String
+  role_subtype            String?
+  role_scope              String?
+  role_status             String?
+  notes                   String?
+  created_at              DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at              DateTime          @default(now()) @db.Timestamptz(6)
+  companies               companies         @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_company_roles       ref_company_roles @relation(fields: [role_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model company_secondary_types {
+  company_secondary_type_id String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id                String                    @db.Uuid
+  company_type_code         String
+  created_at                DateTime                  @default(now()) @db.Timestamptz(6)
+  companies                 companies                 @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_company_primary_types ref_company_primary_types @relation(fields: [company_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([company_id, company_type_code])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model entity_sources {
+  entity_source_id       String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source_id              String                @db.Uuid
+  project_id             String?               @db.Uuid
+  operating_asset_id     String?               @db.Uuid
+  company_id             String?               @db.Uuid
+  evidence_type          String?
+  evidence_note          String?
+  confidence_status_code String                @default("unknown")
+  created_at             DateTime              @default(now()) @db.Timestamptz(6)
+  companies              companies?            @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_estimate_statuses  ref_estimate_statuses @relation(fields: [confidence_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  operating_assets       operating_assets?     @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
+  projects               projects?             @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+  sources                sources               @relation(fields: [source_id], references: [source_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([operating_asset_id], map: "idx_entity_sources_asset")
+  @@index([company_id], map: "idx_entity_sources_company")
+  @@index([project_id], map: "idx_entity_sources_project")
+  @@index([source_id], map: "idx_entity_sources_source")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model operating_assets {
+  operating_asset_id                                                                          String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_plant_id                                                                             String?                         @unique
+  asset_name                                                                                  String
+  asset_name_short                                                                            String?
+  asset_name_clean                                                                            String?
+  project_group                                                                               String?
+  other_name                                                                                  String?
+  primary_use_type_code                                                                       String                          @default("unknown")
+  lifecycle_phase_code                                                                        String                          @default("operating")
+  location_text                                                                               String?
+  country                                                                                     String?
+  region                                                                                      String?
+  wb_region                                                                                   String?
+  latitude                                                                                    Decimal?                        @db.Decimal(9, 6)
+  longitude                                                                                   Decimal?                        @db.Decimal(9, 6)
+  field_name                                                                                  String?
+  resource_type                                                                               String?
+  resource_temp_c                                                                             Decimal?                        @db.Decimal(8, 2)
+  potential_min_mwe                                                                           Decimal?                        @db.Decimal(12, 3)
+  potential_max_mwe                                                                           Decimal?                        @db.Decimal(12, 3)
+  electric_capacity_mwe                                                                       Decimal?                        @db.Decimal(12, 3)
+  electric_capacity_running_mwe                                                               Decimal?                        @db.Decimal(12, 3)
+  thermal_capacity_mwth                                                                       Decimal?                        @db.Decimal(12, 3)
+  installed_heat_pump_capacity_mwth                                                           Decimal?                        @db.Decimal(12, 3)
+  geothermal_resource_capacity_mwth                                                           Decimal?                        @db.Decimal(12, 3)
+  annual_power_generation_gwhe                                                                Decimal?                        @db.Decimal(14, 3)
+  annual_heat_supply_gwhth                                                                    Decimal?                        @db.Decimal(14, 3)
+  annual_cooling_supply_gwhc                                                                  Decimal?                        @db.Decimal(14, 3)
+  capacity_estimate_status_code                                                               String                          @default("unknown")
+  output_estimate_status_code                                                                 String                          @default("unknown")
+  start_dev_year                                                                              Int?
+  cod_year                                                                                    Int?
+  cod_month                                                                                   Int?
+  cod_raw                                                                                     String?
+  wells_total                                                                                 Decimal?                        @db.Decimal(10, 2)
+  wells_prod_active                                                                           Decimal?                        @db.Decimal(10, 2)
+  wells_reinj_active                                                                          Decimal?                        @db.Decimal(10, 2)
+  wells_inactive_standby                                                                      Decimal?                        @db.Decimal(10, 2)
+  wells_other_exploration                                                                     Decimal?                        @db.Decimal(10, 2)
+  well_depth_prod_m                                                                           Decimal?                        @db.Decimal(12, 2)
+  temp_prod_well_c                                                                            Decimal?                        @db.Decimal(8, 2)
+  flow_rate_ls                                                                                Decimal?                        @db.Decimal(12, 3)
+  number_of_units                                                                             String?
+  plant_technology                                                                            String?
+  turbine_supplier                                                                            String?
+  epc_suppliers                                                                               String?
+  ppa_usd_kwh                                                                                 Decimal?                        @db.Decimal(12, 6)
+  total_investment_cost                                                                       String?
+  promoted_from_project_id                                                                    String?                         @db.Uuid
+  promoted_at                                                                                 DateTime?                       @db.Timestamptz(6)
+  website_information                                                                         String?
+  source_evidence_note                                                                        String?
+  notes                                                                                       String?
+  internal_comments                                                                           String?
+  review_status_code                                                                          String                          @default("draft")
+  research_status                                                                             String?
+  created_by_user_id                                                                          String?                         @db.Uuid
+  last_updated_by_user_id                                                                     String?                         @db.Uuid
+  approved_by_user_id                                                                         String?                         @db.Uuid
+  approved_at                                                                                 DateTime?                       @db.Timestamptz(6)
+  export_ready_at                                                                             DateTime?                       @db.Timestamptz(6)
+  legacy_created_at                                                                           String?
+  legacy_updated_at                                                                           String?
+  created_at                                                                                  DateTime                        @default(now()) @db.Timestamptz(6)
+  updated_at                                                                                  DateTime                        @default(now()) @db.Timestamptz(6)
+  asset_technology_tags                                                                       asset_technology_tags[]
+  asset_use_components                                                                        asset_use_components[]
+  company_operating_asset_links                                                               company_operating_asset_links[]
+  entity_sources                                                                              entity_sources[]
+  app_users_operating_assets_approved_by_user_idToapp_users                                   app_users?                      @relation("operating_assets_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_estimate_statuses_operating_assets_capacity_estimate_status_codeToref_estimate_statuses ref_estimate_statuses           @relation("operating_assets_capacity_estimate_status_codeToref_estimate_statuses", fields: [capacity_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  app_users_operating_assets_created_by_user_idToapp_users                                    app_users?                      @relation("operating_assets_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  app_users_operating_assets_last_updated_by_user_idToapp_users                               app_users?                      @relation("operating_assets_last_updated_by_user_idToapp_users", fields: [last_updated_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_lifecycle_phases                                                                        ref_lifecycle_phases            @relation(fields: [lifecycle_phase_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_estimate_statuses_operating_assets_output_estimate_status_codeToref_estimate_statuses   ref_estimate_statuses           @relation("operating_assets_output_estimate_status_codeToref_estimate_statuses", fields: [output_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_geothermal_use_types                                                                    ref_geothermal_use_types        @relation(fields: [primary_use_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  projects                                                                                    projects?                       @relation(fields: [promoted_from_project_id], references: [project_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_review_statuses                                                                         ref_review_statuses             @relation(fields: [review_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  project_operating_asset_links                                                               project_operating_asset_links[]
+
+  @@index([asset_name_clean], map: "idx_operating_assets_clean")
+  @@index([country], map: "idx_operating_assets_country")
+  @@index([legacy_plant_id], map: "idx_operating_assets_legacy")
+  @@index([asset_name], map: "idx_operating_assets_name")
+  @@index([lifecycle_phase_code], map: "idx_operating_assets_phase")
+  @@index([region], map: "idx_operating_assets_region")
+  @@index([review_status_code], map: "idx_operating_assets_review_status")
+  @@index([primary_use_type_code], map: "idx_operating_assets_use_type")
+}
+
+model project_operating_asset_links {
+  project_operating_asset_link_id String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id                      String           @db.Uuid
+  operating_asset_id              String           @db.Uuid
+  link_type                       String           @default("promotion")
+  notes                           String?
+  created_at                      DateTime         @default(now()) @db.Timestamptz(6)
+  operating_assets                operating_assets @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
+  projects                        projects         @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([project_id, operating_asset_id, link_type])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model projects {
+  project_id                                                                          String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  legacy_project_id                                                                   String?                         @unique
+  project_name                                                                        String
+  project_name_short                                                                  String?
+  project_name_clean                                                                  String?
+  project_group                                                                       String?
+  other_name                                                                          String?
+  primary_use_type_code                                                               String                          @default("unknown")
+  lifecycle_phase_code                                                                String                          @default("prospect_tbd")
+  location_text                                                                       String?
+  country                                                                             String?
+  region                                                                              String?
+  wb_region                                                                           String?
+  latitude                                                                            Decimal?                        @db.Decimal(9, 6)
+  longitude                                                                           Decimal?                        @db.Decimal(9, 6)
+  field_name                                                                          String?
+  resource_type                                                                       String?
+  resource_temp_c                                                                     Decimal?                        @db.Decimal(8, 2)
+  potential_min_mwe                                                                   Decimal?                        @db.Decimal(12, 3)
+  potential_max_mwe                                                                   Decimal?                        @db.Decimal(12, 3)
+  electric_capacity_mwe                                                               Decimal?                        @db.Decimal(12, 3)
+  electric_capacity_running_mwe                                                       Decimal?                        @db.Decimal(12, 3)
+  thermal_capacity_mwth                                                               Decimal?                        @db.Decimal(12, 3)
+  installed_heat_pump_capacity_mwth                                                   Decimal?                        @db.Decimal(12, 3)
+  geothermal_resource_capacity_mwth                                                   Decimal?                        @db.Decimal(12, 3)
+  annual_power_generation_gwhe                                                        Decimal?                        @db.Decimal(14, 3)
+  annual_heat_supply_gwhth                                                            Decimal?                        @db.Decimal(14, 3)
+  annual_cooling_supply_gwhc                                                          Decimal?                        @db.Decimal(14, 3)
+  capacity_estimate_status_code                                                       String                          @default("unknown")
+  output_estimate_status_code                                                         String                          @default("unknown")
+  start_dev_year                                                                      Int?
+  target_cod_year                                                                     Int?
+  target_cod_month                                                                    Int?
+  cod_raw                                                                             String?
+  wells_total                                                                         Decimal?                        @db.Decimal(10, 2)
+  wells_prod_active                                                                   Decimal?                        @db.Decimal(10, 2)
+  wells_reinj_active                                                                  Decimal?                        @db.Decimal(10, 2)
+  wells_inactive_standby                                                              Decimal?                        @db.Decimal(10, 2)
+  wells_other_exploration                                                             Decimal?                        @db.Decimal(10, 2)
+  well_depth_prod_m                                                                   Decimal?                        @db.Decimal(12, 2)
+  temp_prod_well_c                                                                    Decimal?                        @db.Decimal(8, 2)
+  flow_rate_ls                                                                        Decimal?                        @db.Decimal(12, 3)
+  plant_technology                                                                    String?
+  turbine_supplier                                                                    String?
+  epc_suppliers                                                                       String?
+  ppa_usd_kwh                                                                         Decimal?                        @db.Decimal(12, 6)
+  total_investment_cost                                                               String?
+  website_information                                                                 String?
+  source_evidence_note                                                                String?
+  notes                                                                               String?
+  internal_comments                                                                   String?
+  review_status_code                                                                  String                          @default("draft")
+  research_status                                                                     String?
+  created_by_user_id                                                                  String?                         @db.Uuid
+  last_updated_by_user_id                                                             String?                         @db.Uuid
+  approved_by_user_id                                                                 String?                         @db.Uuid
+  approved_at                                                                         DateTime?                       @db.Timestamptz(6)
+  export_ready_at                                                                     DateTime?                       @db.Timestamptz(6)
+  legacy_created_at                                                                   String?
+  legacy_updated_at                                                                   String?
+  created_at                                                                          DateTime                        @default(now()) @db.Timestamptz(6)
+  updated_at                                                                          DateTime                        @default(now()) @db.Timestamptz(6)
+  asset_technology_tags                                                               asset_technology_tags[]
+  asset_use_components                                                                asset_use_components[]
+  company_project_links                                                               company_project_links[]
+  entity_sources                                                                      entity_sources[]
+  operating_assets                                                                    operating_assets[]
+  project_operating_asset_links                                                       project_operating_asset_links[]
+  app_users_projects_approved_by_user_idToapp_users                                   app_users?                      @relation("projects_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_estimate_statuses_projects_capacity_estimate_status_codeToref_estimate_statuses ref_estimate_statuses           @relation("projects_capacity_estimate_status_codeToref_estimate_statuses", fields: [capacity_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  app_users_projects_created_by_user_idToapp_users                                    app_users?                      @relation("projects_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  app_users_projects_last_updated_by_user_idToapp_users                               app_users?                      @relation("projects_last_updated_by_user_idToapp_users", fields: [last_updated_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  ref_lifecycle_phases                                                                ref_lifecycle_phases            @relation(fields: [lifecycle_phase_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_estimate_statuses_projects_output_estimate_status_codeToref_estimate_statuses   ref_estimate_statuses           @relation("projects_output_estimate_status_codeToref_estimate_statuses", fields: [output_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_geothermal_use_types                                                            ref_geothermal_use_types        @relation(fields: [primary_use_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  ref_review_statuses                                                                 ref_review_statuses             @relation(fields: [review_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([project_name_clean], map: "idx_projects_clean")
+  @@index([country], map: "idx_projects_country")
+  @@index([legacy_project_id], map: "idx_projects_legacy")
+  @@index([project_name], map: "idx_projects_name")
+  @@index([lifecycle_phase_code], map: "idx_projects_phase")
+  @@index([region], map: "idx_projects_region")
+  @@index([review_status_code], map: "idx_projects_review_status")
+  @@index([primary_use_type_code], map: "idx_projects_use_type")
+}
+
+model ref_company_entity_types {
+  code       String      @id
+  label      String
+  sort_order Int         @default(0)
+  is_active  Boolean     @default(true)
+  companies  companies[]
+}
+
+model ref_company_primary_types {
+  code                    String                    @id
+  label                   String
+  sort_order              Int                       @default(0)
+  is_active               Boolean                   @default(true)
+  companies               companies[]
+  company_secondary_types company_secondary_types[]
+}
+
+model ref_company_relationship_types {
+  code                  String                  @id
+  label                 String
+  sort_order            Int                     @default(0)
+  is_active             Boolean                 @default(true)
+  company_relationships company_relationships[]
+}
+
+model ref_company_roles {
+  code                          String                          @id
+  label                         String
+  role_group                    String                          @default("general")
+  description                   String?
+  sort_order                    Int                             @default(0)
+  is_active                     Boolean                         @default(true)
+  company_operating_asset_links company_operating_asset_links[]
+  company_project_links         company_project_links[]
+  company_role_profiles         company_role_profiles[]
+}
+
+model ref_direct_use_categories {
+  code                 String                 @id
+  label                String
+  description          String?
+  mvp_scope            Boolean                @default(true)
+  sort_order           Int                    @default(0)
+  is_active            Boolean                @default(true)
+  asset_use_components asset_use_components[]
+}
+
+model ref_estimate_statuses {
+  code                                                                                   String             @id
+  label                                                                                  String
+  sort_order                                                                             Int                @default(0)
+  is_active                                                                              Boolean            @default(true)
+  entity_sources                                                                         entity_sources[]
+  operating_assets_operating_assets_capacity_estimate_status_codeToref_estimate_statuses operating_assets[] @relation("operating_assets_capacity_estimate_status_codeToref_estimate_statuses")
+  operating_assets_operating_assets_output_estimate_status_codeToref_estimate_statuses   operating_assets[] @relation("operating_assets_output_estimate_status_codeToref_estimate_statuses")
+  projects_projects_capacity_estimate_status_codeToref_estimate_statuses                 projects[]         @relation("projects_capacity_estimate_status_codeToref_estimate_statuses")
+  projects_projects_output_estimate_status_codeToref_estimate_statuses                   projects[]         @relation("projects_output_estimate_status_codeToref_estimate_statuses")
+}
+
+model ref_geothermal_use_types {
+  code                 String                 @id
+  label                String
+  description          String?
+  sort_order           Int                    @default(0)
+  is_active            Boolean                @default(true)
+  asset_use_components asset_use_components[]
+  operating_assets     operating_assets[]
+  projects             projects[]
+}
+
+model ref_lifecycle_phases {
+  code             String             @id
+  label            String
+  sort_order       Int                @default(0)
+  is_operating     Boolean            @default(false)
+  is_active        Boolean            @default(true)
+  operating_assets operating_assets[]
+  projects         projects[]
+}
+
+model ref_review_statuses {
+  code                                                                       String             @id
+  label                                                                      String
+  sort_order                                                                 Int                @default(0)
+  is_terminal                                                                Boolean            @default(false)
+  is_active                                                                  Boolean            @default(true)
+  audit_events_audit_events_next_review_status_codeToref_review_statuses     audit_events[]     @relation("audit_events_next_review_status_codeToref_review_statuses")
+  audit_events_audit_events_previous_review_status_codeToref_review_statuses audit_events[]     @relation("audit_events_previous_review_status_codeToref_review_statuses")
+  companies                                                                  companies[]
+  operating_assets                                                           operating_assets[]
+  projects                                                                   projects[]
+}
+
+model ref_source_types {
+  code       String    @id
+  label      String
+  sort_order Int       @default(0)
+  is_active  Boolean   @default(true)
+  sources    sources[]
+}
+
+model ref_technology_tags {
+  code                  String                  @id
+  label                 String
+  description           String?
+  sort_order            Int                     @default(0)
+  is_active             Boolean                 @default(true)
+  asset_technology_tags asset_technology_tags[]
+}
+
+model sources {
+  source_id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source_type_code String           @default("web")
+  title            String?
+  url              String?
+  publisher        String?
+  published_date   DateTime?        @db.Date
+  accessed_at      DateTime?        @db.Timestamptz(6)
+  notes            String?
+  created_at       DateTime         @default(now()) @db.Timestamptz(6)
+  entity_sources   entity_sources[]
+  ref_source_types ref_source_types @relation(fields: [source_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
