@@ -2,11 +2,16 @@ import {
   DetailFieldGrid,
   DetailSection,
   DetailShell,
+  ExportReadinessPanel,
   NotFoundNotice,
   SourceEvidenceTable,
   StatusBadge,
+  type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
-import { getPostgresPreviewOperatingAssetById } from "@/lib/postgres-preview";
+import {
+  getPostgresPreviewOperatingAssetById,
+  type PostgresPreviewOperatingAssetDetail,
+} from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +26,94 @@ function dateOnly(value: string | null) {
   }
 
   return new Date(value).toISOString().slice(0, 10);
+}
+
+function hasAssetCapacity(asset: PostgresPreviewOperatingAssetDetail) {
+  return Boolean(
+    asset.electric_capacity_mwe ||
+      asset.electric_capacity_running_mwe ||
+      asset.thermal_capacity_mwth ||
+      asset.potential_min_mwe ||
+      asset.potential_max_mwe ||
+      asset.annual_power_generation_gwhe ||
+      asset.annual_heat_supply_gwhth ||
+      asset.annual_cooling_supply_gwhc
+  );
+}
+
+function getAssetReadinessIssues(
+  asset: PostgresPreviewOperatingAssetDetail
+): ExportReadinessIssue[] {
+  const issues: ExportReadinessIssue[] = [];
+  const credibleSourceCount = asset.sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const approvedStatuses = new Set(["approved", "export_ready"]);
+
+  if (!approvedStatuses.has(asset.review_status_code)) {
+    issues.push({
+      severity: "blocker",
+      label: "Review status not approved",
+      detail:
+        "Exports should use approved or export-ready plant/facility records.",
+    });
+  }
+
+  if (asset.sources.length === 0) {
+    issues.push({
+      severity: "blocker",
+      label: "Missing source evidence",
+      detail: "At least one linked source/evidence record is required.",
+    });
+  } else if (credibleSourceCount === 0) {
+    issues.push({
+      severity: "blocker",
+      label: "No credible source",
+      detail: "At least one linked source should be marked credible.",
+    });
+  }
+
+  if (!asset.country) {
+    issues.push({
+      severity: "blocker",
+      label: "Missing country",
+      detail: "Country is a critical asset field for exports and analytics.",
+    });
+  }
+
+  if (!asset.lifecycle_phase_code || asset.lifecycle_phase_code === "unknown") {
+    issues.push({
+      severity: "blocker",
+      label: "Missing operating status",
+      detail: "Operating status is required before export-ready use.",
+    });
+  }
+
+  if (!asset.primary_use_type_code || asset.primary_use_type_code === "unknown") {
+    issues.push({
+      severity: "blocker",
+      label: "Missing use type",
+      detail: "Power/direct-use/hybrid classification is required.",
+    });
+  }
+
+  if (!hasAssetCapacity(asset)) {
+    issues.push({
+      severity: "warning",
+      label: "Missing capacity/output",
+      detail: "Capacity can be overridden by editors, but should be flagged.",
+    });
+  }
+
+  if (asset.latitude === null || asset.longitude === null) {
+    issues.push({
+      severity: "warning",
+      label: "Missing coordinates",
+      detail: "This asset cannot appear on coordinate-confirmed map layers.",
+    });
+  }
+
+  return issues;
 }
 
 export default async function PostgresOperatingAssetDetailPage({
@@ -128,6 +221,16 @@ export default async function PostgresOperatingAssetDetailPage({
           entityId={asset.operating_asset_id}
         />
       </DetailSection>
+
+      <ExportReadinessPanel
+        issues={getAssetReadinessIssues(asset)}
+        sourceCount={asset.sources.length}
+        credibleSourceCount={
+          asset.sources.filter(
+            (source) => source.credibility_status_code === "credible"
+          ).length
+        }
+      />
 
       <DetailSection title="Notes">
         <p className="text-sm leading-7 text-gray-700">

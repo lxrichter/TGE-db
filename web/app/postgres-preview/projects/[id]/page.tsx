@@ -2,10 +2,13 @@ import {
   DetailFieldGrid,
   DetailSection,
   DetailShell,
+  ExportReadinessPanel,
   NotFoundNotice,
   SourceEvidenceTable,
   StatusBadge,
+  type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
+import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import { getPostgresPreviewProjectById } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
 
@@ -21,6 +24,92 @@ function dateOnly(value: string | null) {
   }
 
   return new Date(value).toISOString().slice(0, 10);
+}
+
+function hasProjectCapacity(project: PostgresPreviewProjectDetail) {
+  return Boolean(
+    project.electric_capacity_mwe ||
+      project.thermal_capacity_mwth ||
+      project.potential_min_mwe ||
+      project.potential_max_mwe ||
+      project.annual_power_generation_gwhe ||
+      project.annual_heat_supply_gwhth ||
+      project.annual_cooling_supply_gwhc
+  );
+}
+
+function getProjectReadinessIssues(
+  project: PostgresPreviewProjectDetail
+): ExportReadinessIssue[] {
+  const issues: ExportReadinessIssue[] = [];
+  const credibleSourceCount = project.sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const approvedStatuses = new Set(["approved", "export_ready"]);
+
+  if (!approvedStatuses.has(project.review_status_code)) {
+    issues.push({
+      severity: "blocker",
+      label: "Review status not approved",
+      detail: "Exports should use approved or export-ready project records.",
+    });
+  }
+
+  if (project.sources.length === 0) {
+    issues.push({
+      severity: "blocker",
+      label: "Missing source evidence",
+      detail: "At least one linked source/evidence record is required.",
+    });
+  } else if (credibleSourceCount === 0) {
+    issues.push({
+      severity: "blocker",
+      label: "No credible source",
+      detail: "At least one linked source should be marked credible.",
+    });
+  }
+
+  if (!project.country) {
+    issues.push({
+      severity: "blocker",
+      label: "Missing country",
+      detail: "Country is a critical project field for exports and analytics.",
+    });
+  }
+
+  if (!project.lifecycle_phase_code || project.lifecycle_phase_code === "unknown") {
+    issues.push({
+      severity: "blocker",
+      label: "Missing lifecycle phase",
+      detail: "Lifecycle phase is required before export-ready use.",
+    });
+  }
+
+  if (!project.primary_use_type_code || project.primary_use_type_code === "unknown") {
+    issues.push({
+      severity: "blocker",
+      label: "Missing use type",
+      detail: "Power/direct-use/hybrid classification is required.",
+    });
+  }
+
+  if (!hasProjectCapacity(project)) {
+    issues.push({
+      severity: "warning",
+      label: "Missing capacity/output",
+      detail: "Capacity can be overridden by editors, but should be flagged.",
+    });
+  }
+
+  if (project.latitude === null || project.longitude === null) {
+    issues.push({
+      severity: "warning",
+      label: "Missing coordinates",
+      detail: "This project cannot appear on coordinate-confirmed map layers.",
+    });
+  }
+
+  return issues;
 }
 
 export default async function PostgresProjectDetailPage({
@@ -134,6 +223,16 @@ export default async function PostgresProjectDetailPage({
           entityId={project.project_id}
         />
       </DetailSection>
+
+      <ExportReadinessPanel
+        issues={getProjectReadinessIssues(project)}
+        sourceCount={project.sources.length}
+        credibleSourceCount={
+          project.sources.filter(
+            (source) => source.credibility_status_code === "credible"
+          ).length
+        }
+      />
 
       <DetailSection title="Notes">
         <p className="text-sm leading-7 text-gray-700">

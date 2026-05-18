@@ -3,11 +3,16 @@ import {
   DetailFieldGrid,
   DetailSection,
   DetailShell,
+  ExportReadinessPanel,
   NotFoundNotice,
   SourceEvidenceTable,
   StatusBadge,
+  type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
-import { getPostgresPreviewCompanyById } from "@/lib/postgres-preview";
+import {
+  getPostgresPreviewCompanyById,
+  type PostgresPreviewCompanyDetail,
+} from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +23,64 @@ function dateOnly(value: string | null) {
   }
 
   return new Date(value).toISOString().slice(0, 10);
+}
+
+function getCompanyReadinessIssues(
+  company: PostgresPreviewCompanyDetail
+): ExportReadinessIssue[] {
+  const issues: ExportReadinessIssue[] = [];
+  const credibleSourceCount = company.sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const approvedStatuses = new Set(["approved", "export_ready"]);
+
+  if (!approvedStatuses.has(company.review_status_code)) {
+    issues.push({
+      severity: "blocker",
+      label: "Review status not approved",
+      detail: "Exports should use approved or export-ready company records.",
+    });
+  }
+
+  if (company.sources.length === 0) {
+    issues.push({
+      severity: "blocker",
+      label: "Missing source evidence",
+      detail: "At least one linked source/evidence record is required.",
+    });
+  } else if (credibleSourceCount === 0) {
+    issues.push({
+      severity: "blocker",
+      label: "No credible source",
+      detail: "At least one linked source should be marked credible.",
+    });
+  }
+
+  if (!company.company_type_primary_code) {
+    issues.push({
+      severity: "blocker",
+      label: "Missing primary company type",
+      detail: "Company category is required for export-ready filtering.",
+    });
+  }
+
+  if (!company.headquarters_country) {
+    issues.push({
+      severity: "warning",
+      label: "Missing headquarters country",
+      detail: "HQ country is strongly recommended for company intelligence.",
+    });
+  }
+
+  if (!company.website_url) {
+    issues.push({
+      severity: "warning",
+      label: "Missing website",
+      detail: "A website or equivalent source reference improves confidence.",
+    });
+  }
+
+  return issues;
 }
 
 export default async function PostgresCompanyDetailPage({
@@ -135,6 +198,16 @@ export default async function PostgresCompanyDetailPage({
           entityId={company.company_id}
         />
       </DetailSection>
+
+      <ExportReadinessPanel
+        issues={getCompanyReadinessIssues(company)}
+        sourceCount={company.sources.length}
+        credibleSourceCount={
+          company.sources.filter(
+            (source) => source.credibility_status_code === "credible"
+          ).length
+        }
+      />
 
       <DetailSection title="Notes">
         <p className="text-sm leading-7 text-gray-700">

@@ -29,6 +29,8 @@ Current implemented foundation:
   - source validation queues added to PostgreSQL Research Ops preview
   - source/evidence panels on PostgreSQL entity preview pages
   - editor source credibility actions on source profiles
+  - source-aware export-readiness preview panels on PostgreSQL entity detail
+    pages
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -134,10 +136,11 @@ Deliverables:
 
 Immediate next actions:
 
-1. add source-aware export-readiness checks
-2. keep tightening permissions when write-enabled PostgreSQL routes are added
-3. decide when PostgreSQL entity edit pages should replace or sit beside the
+1. keep tightening permissions when write-enabled PostgreSQL routes are added
+2. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
+3. decide the first production PostgreSQL write workflow for projects,
+   plants/facilities, and companies
 
 Do before:
 
@@ -172,13 +175,15 @@ Current implemented foundation:
   source/evidence panels and add-source actions
 - editor source-validation actions for credible, weak, outdated, rejected, and
   needs-review states
+- preview-only export-readiness checks requiring credible source coverage
 
 Key work:
 
 - prepare country/market source links when country/market pages move to
   PostgreSQL
 - connect source status into validation and Research Ops queues
-- define approval/export-ready validation checks in code
+- turn preview-only readiness checks into enforced export rules when
+  PostgreSQL exports are implemented
 
 Deliverables:
 
@@ -521,9 +526,8 @@ Bring source evidence directly into the next PostgreSQL entity workflows.
 
 Recommended task order:
 
-1. add export-readiness checks that require credible source coverage
-2. add PostgreSQL edit-page scaffolds for projects/assets/companies or migrate
+1. add PostgreSQL edit-page scaffolds for projects/assets/companies or migrate
    existing detail/edit pages carefully
-3. keep SQLite prototype routes available until PostgreSQL replacements are
+2. keep SQLite prototype routes available until PostgreSQL replacements are
    ready
-4. avoid live data import until the PostgreSQL workflows are stable
+3. avoid live data import until the PostgreSQL workflows are stable

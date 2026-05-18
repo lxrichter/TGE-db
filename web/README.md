@@ -188,9 +188,10 @@ The PostgreSQL Sources / Documents foundation currently provides source
 reference data, source list/detail reads, source list/profile/create/edit pages,
 source-link add/remove actions, Research Ops source queues, and source/evidence
 panels on PostgreSQL project, plant/facility, and company preview pages. It also
-includes editor source-credibility actions on source profiles. File uploads, TGE
-article sync, country/market evidence panels, and export-readiness enforcement
-are proposed next steps, not completed production functionality.
+includes editor source-credibility actions on source profiles and preview-only
+export-readiness panels on PostgreSQL entity detail pages. File uploads, TGE
+article sync, country/market evidence panels, and enforced export-readiness
+rules are proposed next steps, not completed production functionality.
 
 ## Known Issues
 

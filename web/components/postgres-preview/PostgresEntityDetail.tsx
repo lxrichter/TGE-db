@@ -14,6 +14,12 @@ export type DetailStat = {
   note: string;
 };
 
+export type ExportReadinessIssue = {
+  severity: "blocker" | "warning";
+  label: string;
+  detail: string;
+};
+
 function EmptyValue() {
   return <span className="text-gray-400">-</span>;
 }
@@ -82,6 +88,71 @@ export function DetailSection({
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       </div>
       <div className="px-5 py-5">{children}</div>
+    </section>
+  );
+}
+
+function issueTone(severity: ExportReadinessIssue["severity"]) {
+  if (severity === "blocker") {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+
+  return "border-amber-200 bg-amber-50 text-amber-800";
+}
+
+export function ExportReadinessPanel({
+  issues,
+  sourceCount,
+  credibleSourceCount,
+}: {
+  issues: ExportReadinessIssue[];
+  sourceCount: number;
+  credibleSourceCount: number;
+}) {
+  const blockers = issues.filter((issue) => issue.severity === "blocker");
+  const warnings = issues.filter((issue) => issue.severity === "warning");
+  const ready = blockers.length === 0;
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">Export Readiness</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Preview-only readiness check for PostgreSQL staging records. This
+            does not yet enforce production exports.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={ready ? "ready" : "not_ready"} />
+          <StatusBadge value={`${credibleSourceCount}/${sourceCount} credible sources`} />
+        </div>
+      </div>
+      <div className="space-y-4 px-5 py-5">
+        {ready && warnings.length === 0 ? (
+          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            No export-readiness blockers or warnings detected for this staging
+            record.
+          </div>
+        ) : null}
+
+        {issues.length > 0 ? (
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {issues.map((issue) => (
+              <div
+                key={`${issue.severity}-${issue.label}`}
+                className={`border px-4 py-3 ${issueTone(issue.severity)}`}
+              >
+                <div className="text-xs font-semibold uppercase tracking-wide">
+                  {issue.severity}
+                </div>
+                <div className="mt-1 text-sm font-bold">{issue.label}</div>
+                <div className="mt-1 text-xs leading-5">{issue.detail}</div>
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

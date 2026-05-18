@@ -104,6 +104,7 @@ It shows:
 - core relationship counts
 - read-only project, plant/facility, and company detail previews
 - source/evidence panels and add-source actions on entity preview pages
+- preview-only export-readiness checks that require credible source coverage
 
 The page uses Railway/PostgreSQL data and remains behind the existing app login
 middleware. It is intentionally read-only.
@@ -198,8 +199,8 @@ Current implemented behavior:
 - feed source review queues into Research Ops
 
 This is not yet the full Sources / Documents workflow. File upload, TGE article
-sync, country/market evidence panels, and source-aware export-readiness checks
-are still future implementation slices.
+sync, country/market evidence panels, and enforced PostgreSQL export-readiness
+rules are still future implementation slices.
 
 ## Safe Staging Seed
 
