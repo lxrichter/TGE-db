@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
-import { canPromoteProject, canReview } from "@/lib/auth/roles";
+import { canEdit, canPromoteProject, canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -21,6 +21,7 @@ import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
+  getPostgresResearchOpsIssueReferenceData,
   listPostgresPromotedOperatingAssets,
   listPostgresProjectCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
@@ -140,6 +141,7 @@ export default async function PostgresProjectDetailPage({
     entityReferenceData,
     promotedAssets,
     researchIssues,
+    issueReferenceData,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
@@ -148,6 +150,7 @@ export default async function PostgresProjectDetailPage({
     getPostgresEntityFormReferenceData(),
     listPostgresPromotedOperatingAssets(id),
     listPostgresResearchOpsIssuesForEntity("project", id),
+    getPostgresResearchOpsIssueReferenceData(),
     getServerSession(authOptions),
   ]);
 
@@ -285,7 +288,15 @@ export default async function PostgresProjectDetailPage({
         promotedAssets={promotedAssets}
       />
 
-      <PostgresResearchIssuesPanel issues={researchIssues} />
+      <PostgresResearchIssuesPanel
+        canManageIssues={canEdit(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        entityId={project.project_id}
+        entityType="project"
+        issueReferenceData={issueReferenceData}
+        issues={researchIssues}
+      />
 
       <ExportReadinessPanel
         issues={getProjectReadinessIssues(project)}

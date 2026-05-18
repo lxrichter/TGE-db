@@ -178,7 +178,8 @@ Current PostgreSQL staging implementation:
   important, and separate-workflow data gaps
 - PostgreSQL staging detail pages include add/remove managers for
   company-project roles, company-plant/facility roles, and company-company
-  relationships, plus linked Research Ops issue panels
+  relationships, plus linked Research Ops issue panels that can create,
+  progress, resolve, or dismiss human-created issues
 - PostgreSQL project detail pages include project-to-plant/facility promotion
   scaffolding that creates a linked staging operating asset and copies available
   source and company-role links
@@ -186,6 +187,8 @@ Current PostgreSQL staging implementation:
   project, plant/facility, company, and source review/status states, plus
   filtered CSV export, lightweight bulk status changes, and persistent
   human-created research issues/tasks
+- generated Research Ops queues remain live/calculated for now; only deliberate
+  human-created issues are persisted until the workflow is stable
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence
   workflow foundation
 

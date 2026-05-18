@@ -229,10 +229,13 @@ human-created research issues/tasks with issue status history. Project detail
 pages also include a staging-only promotion panel that creates a linked
 operating asset draft, copies existing source/evidence links, and copies current
 company-role links where available. PostgreSQL project, plant/facility, and
-company detail pages show linked open persistent Research Ops issues. Promotion
-hardening, richer assignment workflows, field-level issue automation,
-relationship history/timelines, and production exports remain separate
-next-step workflows.
+company detail pages show linked open persistent Research Ops issues and allow
+editors/admins to create, progress, resolve, or dismiss human-created issues
+from the record page. Generated Research Ops queues remain live/calculated for
+now; only deliberate human-created issues are persisted until the workflow is
+stable. Promotion hardening, richer assignment workflows, field-level issue
+automation, relationship history/timelines, and production exports remain
+separate next-step workflows.
 
 ## Known Issues
 

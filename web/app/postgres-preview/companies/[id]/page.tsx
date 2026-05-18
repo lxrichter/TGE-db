@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
-import { canReview } from "@/lib/auth/roles";
+import { canEdit, canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -19,6 +19,7 @@ import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewCompanyById,
+  getPostgresResearchOpsIssueReferenceData,
   listPostgresCompanyOperatingAssetLinks,
   listPostgresCompanyProjectLinks,
   listPostgresCompanyRelationships,
@@ -109,6 +110,7 @@ export default async function PostgresCompanyDetailPage({
     relationshipReferenceData,
     entityReferenceData,
     researchIssues,
+    issueReferenceData,
     session,
   ] = await Promise.all([
     getPostgresPreviewCompanyById(id),
@@ -118,6 +120,7 @@ export default async function PostgresCompanyDetailPage({
     getPostgresCompanyRelationshipReferenceData(),
     getPostgresEntityFormReferenceData(),
     listPostgresResearchOpsIssuesForEntity("company", id),
+    getPostgresResearchOpsIssueReferenceData(),
     getServerSession(authOptions),
   ]);
 
@@ -253,7 +256,15 @@ export default async function PostgresCompanyDetailPage({
         />
       </DetailSection>
 
-      <PostgresResearchIssuesPanel issues={researchIssues} />
+      <PostgresResearchIssuesPanel
+        canManageIssues={canEdit(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        entityId={company.company_id}
+        entityType="company"
+        issueReferenceData={issueReferenceData}
+        issues={researchIssues}
+      />
 
       <ExportReadinessPanel
         issues={getCompanyReadinessIssues(company)}

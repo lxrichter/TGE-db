@@ -38,7 +38,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - staging add/remove relationship managers for company-project roles,
   company-plant/facility roles, and company-company relationships
 - staging project, plant/facility, and company detail pages show linked open
-  persistent Research Ops issues
+  persistent Research Ops issues and allow editors/admins to create, progress,
+  resolve, or dismiss human-created issues from the record page
 - staging project-to-operating-asset promotion scaffolding from PostgreSQL
   project detail pages, including non-destructive links plus copied source and
   company-role relationships where available
@@ -48,6 +49,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL Research Ops persistent issue/task foundation with issue types,
   issue statuses, assignment fields, linked entities, operational notes, and
   issue event history
+- generated Research Ops queues remain live/calculated; only human-created
+  issues/tasks are currently persisted
 - PostgreSQL Sources / Documents list/detail/create/edit workflow foundation
 - source/evidence linking between source records and projects, operating
   assets, or companies
@@ -110,8 +113,8 @@ Known current gaps and risks:
 - SQLite is acceptable for local prototype work but is not the likely final production database
 - PostgreSQL staging entity forms are scaffolds; promotion workflows and
   persistent Research Ops issues have first staging implementations, while
-  richer assignment workflows, field-level issue automation, and production
-  exports are still next-step work
+  richer assignment workflows, field-level issue automation, generated-queue
+  persistence decisions, and production exports are still next-step work
 - current docs and comments should not be assumed to describe final architecture
 - no committed sanitized fixture database exists yet
 - deployment process needs hardening and should be evaluated against Railway requirements

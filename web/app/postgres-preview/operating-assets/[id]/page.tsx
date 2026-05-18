@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
-import { canReview } from "@/lib/auth/roles";
+import { canEdit, canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -19,6 +19,7 @@ import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewOperatingAssetById,
+  getPostgresResearchOpsIssueReferenceData,
   listPostgresOperatingAssetCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewOperatingAssetDetail,
@@ -139,6 +140,7 @@ export default async function PostgresOperatingAssetDetailPage({
     relationshipReferenceData,
     entityReferenceData,
     researchIssues,
+    issueReferenceData,
     session,
   ] =
     await Promise.all([
@@ -147,6 +149,7 @@ export default async function PostgresOperatingAssetDetailPage({
       getPostgresCompanyRelationshipReferenceData(),
       getPostgresEntityFormReferenceData(),
       listPostgresResearchOpsIssuesForEntity("operating_asset", id),
+      getPostgresResearchOpsIssueReferenceData(),
       getServerSession(authOptions),
     ]);
 
@@ -270,7 +273,15 @@ export default async function PostgresOperatingAssetDetailPage({
         referenceData={relationshipReferenceData}
       />
 
-      <PostgresResearchIssuesPanel issues={researchIssues} />
+      <PostgresResearchIssuesPanel
+        canManageIssues={canEdit(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        entityId={asset.operating_asset_id}
+        entityType="operating_asset"
+        issueReferenceData={issueReferenceData}
+        issues={researchIssues}
+      />
 
       <ExportReadinessPanel
         issues={getAssetReadinessIssues(asset)}

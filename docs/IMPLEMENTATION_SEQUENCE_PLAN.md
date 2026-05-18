@@ -29,7 +29,10 @@ Current implemented foundation:
   - assignment, notes, linked field, duplicate-candidate fields, and event log
   - create/resolve/dismiss UI from Research Ops
   - linked issue panels on PostgreSQL project, plant/facility, and company
-    detail pages
+    detail pages that can create, progress, resolve, and dismiss human-created
+    issues
+  - generated queues remain live/calculated for now; only deliberate
+    human-created issues are persisted until the workflow feels right
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
@@ -157,7 +160,7 @@ Deliverables:
 Immediate next actions:
 
 1. expand the persistent Research Ops task/issue model into richer assignment
-   workflows, manual duplicate review, and field-level issue persistence
+   workflows, manual duplicate review, and field-level human issue persistence
 2. keep tightening permissions around PostgreSQL write-enabled routes
 3. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
@@ -253,6 +256,8 @@ Key work:
   - mark export ready: implemented for individual selected records
 - add lightweight bulk actions and filtered exports: first staging version
   implemented for status updates and CSV issue export
+- keep generated missing-data/source queues live and calculated for now; persist
+  only human-created operational issues until the workflow is proven
 
 Deliverables:
 
@@ -559,13 +564,15 @@ Reason:
 Recommended next concrete step:
 
 ```text
-Continue Phase 2: Source validation and entity integration
+Continue Phase 3: refine human-created Research Ops issue workflow just enough
+to support daily operations, then return to Source validation/entity integration.
 ```
 
 Next implementation slice:
 
 ```text
-Bring source evidence directly into the next PostgreSQL entity workflows.
+Add lightweight assignment/reassignment and "assigned to me" handling for
+persistent human-created issues, while keeping generated queues calculated.
 ```
 
 Recommended task order:

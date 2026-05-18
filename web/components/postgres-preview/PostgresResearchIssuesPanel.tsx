@@ -1,5 +1,13 @@
+"use client";
+
 import Link from "next/link";
-import type { PostgresResearchOpsIssue } from "@/lib/postgres-preview";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import type {
+  PostgresResearchOpsIssue,
+  PostgresResearchOpsIssueEntityType,
+  PostgresResearchOpsIssueReferenceData,
+} from "@/lib/postgres-preview";
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -22,11 +30,139 @@ function severityClass(severity: string) {
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
 
+async function readJson(res: Response) {
+  try {
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function PostgresResearchIssuesPanel({
   issues,
+  entityType,
+  entityId,
+  issueReferenceData,
+  canManageIssues,
 }: {
   issues: PostgresResearchOpsIssue[];
+  entityType: PostgresResearchOpsIssueEntityType;
+  entityId: string;
+  issueReferenceData: PostgresResearchOpsIssueReferenceData;
+  canManageIssues: boolean;
 }) {
+  const router = useRouter();
+  const issueTypes = useMemo(
+    () =>
+      issueReferenceData.issueTypes
+        .filter((issueType) => issueType.is_active !== false)
+        .slice()
+        .sort((a, b) => {
+          const aOrder = a.sort_order ?? 0;
+          const bOrder = b.sort_order ?? 0;
+
+          if (aOrder !== bOrder) {
+            return aOrder - bOrder;
+          }
+
+          return a.label.localeCompare(b.label);
+        }),
+    [issueReferenceData.issueTypes]
+  );
+  const [showCreate, setShowCreate] = useState(false);
+  const [issueTypeCode, setIssueTypeCode] = useState(issueTypes[0]?.code || "");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [linkedField, setLinkedField] = useState("");
+  const [assignToSelf, setAssignToSelf] = useState(true);
+  const [statusNote, setStatusNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [savingIssueId, setSavingIssueId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!issueTypes.some((issueType) => issueType.code === issueTypeCode)) {
+      setIssueTypeCode(issueTypes[0]?.code || "");
+    }
+  }, [issueTypeCode, issueTypes]);
+
+  async function createIssue() {
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/postgres-preview/research-ops/issues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_type: entityType,
+          entity_id: entityId,
+          issue_type_code: issueTypeCode,
+          title,
+          description,
+          linked_field: linkedField,
+          assign_to_self: assignToSelf,
+        }),
+      });
+      const json = await readJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to create research issue.");
+      }
+
+      setMessage("Research issue created.");
+      setTitle("");
+      setDescription("");
+      setLinkedField("");
+      setShowCreate(false);
+      router.refresh();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to create research issue."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function setIssueStatus(issueId: string, issueStatusCode: string) {
+    setSavingIssueId(issueId);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch(
+        `/api/postgres-preview/research-ops/issues/${issueId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            issue_status_code: issueStatusCode,
+            event_note: statusNote,
+          }),
+        }
+      );
+      const json = await readJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to update research issue.");
+      }
+
+      setMessage(`Issue marked ${issueStatusCode}.`);
+      setStatusNote("");
+      router.refresh();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to update research issue."
+      );
+    } finally {
+      setSavingIssueId(null);
+    }
+  }
+
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
@@ -39,71 +175,230 @@ export default function PostgresResearchIssuesPanel({
             record. Generated missing-data queues remain visible in Research Ops.
           </p>
         </div>
-        <Link
-          className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-          href="/postgres-preview/research-ops"
-        >
-          Open Research Ops
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {canManageIssues ? (
+            <button
+              className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+              type="button"
+              onClick={() => setShowCreate((current) => !current)}
+            >
+              {showCreate ? "Close" : "Add Issue"}
+            </button>
+          ) : null}
+          <Link
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            href="/postgres-preview/research-ops"
+          >
+            Open Research Ops
+          </Link>
+        </div>
       </div>
 
-      <div className="px-5 py-5">
+      <div className="space-y-5 px-5 py-5">
+        {error ? (
+          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        ) : null}
+        {message ? (
+          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            {message}
+          </div>
+        ) : null}
+
+        {showCreate && canManageIssues ? (
+          <div className="space-y-4 border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Issue Type
+                <select
+                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  value={issueTypeCode}
+                  onChange={(event) => setIssueTypeCode(event.target.value)}
+                >
+                  {issueTypes.map((issueType) => (
+                    <option key={issueType.code} value={issueType.code}>
+                      {issueType.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Title
+                <input
+                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  placeholder="Short operational issue title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Linked Field
+                <input
+                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  placeholder="Optional, e.g. source, capacity, coordinates"
+                  value={linkedField}
+                  onChange={(event) => setLinkedField(event.target.value)}
+                />
+              </label>
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Note
+                <input
+                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  placeholder="Optional research context"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="inline-flex h-9 items-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700">
+                <input
+                  checked={assignToSelf}
+                  className="h-4 w-4 accent-[#8dc63f]"
+                  type="checkbox"
+                  onChange={(event) => setAssignToSelf(event.target.checked)}
+                />
+                Assign to me
+              </label>
+              <button
+                className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={saving || !issueTypeCode || !title.trim()}
+                type="button"
+                onClick={createIssue}
+              >
+                {saving ? "Creating..." : "Create Issue"}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {canManageIssues && issues.length > 0 ? (
+          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Resolution / Status Note
+            <input
+              className="mt-1 h-10 w-full border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              placeholder="Optional note used when resolving or dismissing an issue"
+              value={statusNote}
+              onChange={(event) => setStatusNote(event.target.value)}
+            />
+          </label>
+        ) : null}
+
         {issues.length === 0 ? (
           <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
             No open persistent research issues are linked to this record.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full table-fixed text-left text-sm">
+            <table className="min-w-[980px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
-                  <th className="w-[18%] px-4 py-3 font-semibold">Type</th>
-                  <th className="w-[36%] px-4 py-3 font-semibold">Issue</th>
-                  <th className="w-[14%] px-4 py-3 font-semibold">Severity</th>
-                  <th className="w-[14%] px-4 py-3 font-semibold">Assigned</th>
-                  <th className="w-[12%] px-4 py-3 font-semibold">Updated</th>
-                  <th className="w-[10%] px-4 py-3 font-semibold">Status</th>
+                  <th className="w-[17%] px-4 py-3 font-semibold">Type</th>
+                  <th className="w-[32%] px-4 py-3 font-semibold">Issue</th>
+                  <th className="w-[13%] px-4 py-3 font-semibold">Severity</th>
+                  <th className="w-[12%] px-4 py-3 font-semibold">Assigned</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Updated</th>
+                  <th className="w-[16%] px-4 py-3 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {issues.map((issue) => (
-                  <tr key={issue.research_ops_issue_id} className="align-top">
-                    <td className="px-4 py-3 text-gray-700">
-                      {issue.issue_type_label}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="font-semibold text-[#1f2937]">
-                        {issue.title}
-                      </div>
-                      {issue.description ? (
-                        <div className="mt-1 text-xs leading-5 text-gray-500">
-                          {issue.description}
+                {issues.map((issue) => {
+                  const savingThis = savingIssueId === issue.research_ops_issue_id;
+
+                  return (
+                    <tr key={issue.research_ops_issue_id} className="align-top">
+                      <td className="px-4 py-3 text-gray-700">
+                        {issue.issue_type_label}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-[#1f2937]">
+                          {issue.title}
                         </div>
-                      ) : null}
-                      <div className="mt-1 text-xs text-gray-500">
-                        {issue.linked_field || "record-level"}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex h-7 items-center border px-2 text-xs font-semibold capitalize ${severityClass(
-                          issue.severity
-                        )}`}
-                      >
-                        {issue.severity}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {issue.assigned_to_name || "-"}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {formatDate(issue.updated_at)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {issue.issue_status_label}
-                    </td>
-                  </tr>
-                ))}
+                        {issue.description ? (
+                          <div className="mt-1 text-xs leading-5 text-gray-500">
+                            {issue.description}
+                          </div>
+                        ) : null}
+                        <div className="mt-1 text-xs text-gray-500">
+                          {issue.linked_field || "record-level"} |{" "}
+                          {issue.issue_status_label}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex h-7 items-center border px-2 text-xs font-semibold capitalize ${severityClass(
+                            issue.severity
+                          )}`}
+                        >
+                          {issue.severity}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {issue.assigned_to_name || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {formatDate(issue.updated_at)}
+                      </td>
+                      <td className="px-4 py-3">
+                        {canManageIssues ? (
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              className="h-8 border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              disabled={
+                                savingThis ||
+                                issue.issue_status_code === "in_progress"
+                              }
+                              type="button"
+                              onClick={() =>
+                                setIssueStatus(
+                                  issue.research_ops_issue_id,
+                                  "in_progress"
+                                )
+                              }
+                            >
+                              {savingThis ? "Saving..." : "Start"}
+                            </button>
+                            <button
+                              className="h-8 border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                              disabled={savingThis}
+                              type="button"
+                              onClick={() =>
+                                setIssueStatus(
+                                  issue.research_ops_issue_id,
+                                  "resolved"
+                                )
+                              }
+                            >
+                              Resolve
+                            </button>
+                            <button
+                              className="h-8 border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              disabled={savingThis}
+                              type="button"
+                              onClick={() =>
+                                setIssueStatus(
+                                  issue.research_ops_issue_id,
+                                  "dismissed"
+                                )
+                              }
+                            >
+                              Dismiss
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-500">
+                            Open in Research Ops
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
