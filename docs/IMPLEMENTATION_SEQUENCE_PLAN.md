@@ -24,6 +24,8 @@ Current implemented foundation:
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
+- PostgreSQL staging relationship managers for company-project role links,
+  company-plant/facility role links, and company-company relationships
 - PostgreSQL Sources / Documents MVP foundation:
   - source visibility and credibility/status reference tables
   - expanded source metadata and evidence-link fields
@@ -254,7 +256,7 @@ Key work:
   `/postgres-preview`
 - adaptive forms for power/direct-use/hybrid
 - potential min/max vs planned capacity handling
-- company role links
+- company role links: staging add/remove manager started
 - source links
 - validation state
 - missing-data flags
@@ -288,8 +290,9 @@ Key work:
   `/postgres-preview`
 - company groups
 - controlled primary/secondary categories
-- structured company relationships
-- structured company roles across projects/assets
+- structured company relationships: staging add/remove manager started
+- structured company roles across projects/assets: staging add/remove manager
+  started
 - ownership share support
 - calculated activity summaries
 - internal/exportable note separation

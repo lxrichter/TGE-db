@@ -174,6 +174,9 @@ Current PostgreSQL staging implementation:
 - `/postgres-preview/companies/new` and
   `/postgres-preview/companies/[id]/edit` provide staging-only company
   create/edit scaffolds
+- PostgreSQL staging detail pages include add/remove managers for
+  company-project roles, company-plant/facility roles, and company-company
+  relationships
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence
   workflow foundation
 

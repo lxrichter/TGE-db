@@ -9,8 +9,13 @@ import {
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
+import { ProjectCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
-import { getPostgresPreviewProjectById } from "@/lib/postgres-preview";
+import {
+  getPostgresCompanyRelationshipReferenceData,
+  getPostgresPreviewProjectById,
+  listPostgresProjectCompanyLinks,
+} from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -119,7 +124,11 @@ export default async function PostgresProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const project = await getPostgresPreviewProjectById(id);
+  const [project, companyLinks, relationshipReferenceData] = await Promise.all([
+    getPostgresPreviewProjectById(id),
+    listPostgresProjectCompanyLinks(id),
+    getPostgresCompanyRelationshipReferenceData(),
+  ]);
 
   if (!project) {
     return <NotFoundNotice label="Project" backHref="/postgres-preview" />;
@@ -230,6 +239,12 @@ export default async function PostgresProjectDetailPage({
           entityId={project.project_id}
         />
       </DetailSection>
+
+      <ProjectCompanyLinksPanel
+        links={companyLinks}
+        projectId={project.project_id}
+        referenceData={relationshipReferenceData}
+      />
 
       <ExportReadinessPanel
         issues={getProjectReadinessIssues(project)}

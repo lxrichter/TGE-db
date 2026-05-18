@@ -33,6 +33,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   and companies
 - staging-only create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
+- staging add/remove relationship managers for company-project roles,
+  company-plant/facility roles, and company-company relationships
 - PostgreSQL Research Ops preview queues
 - PostgreSQL Sources / Documents list/detail/create/edit workflow foundation
 - source/evidence linking between source records and projects, operating

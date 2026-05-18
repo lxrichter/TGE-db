@@ -9,8 +9,11 @@ import {
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
+import { OperatingAssetCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import {
+  getPostgresCompanyRelationshipReferenceData,
   getPostgresPreviewOperatingAssetById,
+  listPostgresOperatingAssetCompanyLinks,
   type PostgresPreviewOperatingAssetDetail,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
@@ -123,7 +126,11 @@ export default async function PostgresOperatingAssetDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const asset = await getPostgresPreviewOperatingAssetById(id);
+  const [asset, companyLinks, relationshipReferenceData] = await Promise.all([
+    getPostgresPreviewOperatingAssetById(id),
+    listPostgresOperatingAssetCompanyLinks(id),
+    getPostgresCompanyRelationshipReferenceData(),
+  ]);
 
   if (!asset) {
     return <NotFoundNotice label="Operating asset" backHref="/postgres-preview" />;
@@ -228,6 +235,12 @@ export default async function PostgresOperatingAssetDetailPage({
           entityId={asset.operating_asset_id}
         />
       </DetailSection>
+
+      <OperatingAssetCompanyLinksPanel
+        links={companyLinks}
+        operatingAssetId={asset.operating_asset_id}
+        referenceData={relationshipReferenceData}
+      />
 
       <ExportReadinessPanel
         issues={getAssetReadinessIssues(asset)}

@@ -9,8 +9,13 @@ import {
   StatusBadge,
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
+import { CompanyRelationshipPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import {
+  getPostgresCompanyRelationshipReferenceData,
   getPostgresPreviewCompanyById,
+  listPostgresCompanyOperatingAssetLinks,
+  listPostgresCompanyProjectLinks,
+  listPostgresCompanyRelationships,
   type PostgresPreviewCompanyDetail,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
@@ -89,7 +94,19 @@ export default async function PostgresCompanyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const company = await getPostgresPreviewCompanyById(id);
+  const [
+    company,
+    projectLinks,
+    operatingAssetLinks,
+    relationships,
+    relationshipReferenceData,
+  ] = await Promise.all([
+    getPostgresPreviewCompanyById(id),
+    listPostgresCompanyProjectLinks(id),
+    listPostgresCompanyOperatingAssetLinks(id),
+    listPostgresCompanyRelationships(id),
+    getPostgresCompanyRelationshipReferenceData(),
+  ]);
 
   if (!company) {
     return <NotFoundNotice label="Company" backHref="/postgres-preview" />;
@@ -196,6 +213,14 @@ export default async function PostgresCompanyDetailPage({
           ]}
         />
       </DetailSection>
+
+      <CompanyRelationshipPanel
+        companyId={company.company_id}
+        operatingAssetLinks={operatingAssetLinks}
+        projectLinks={projectLinks}
+        referenceData={relationshipReferenceData}
+        relationships={relationships}
+      />
 
       <DetailSection title="Source Evidence">
         <SourceEvidenceTable

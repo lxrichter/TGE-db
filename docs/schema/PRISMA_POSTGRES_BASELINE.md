@@ -175,14 +175,19 @@ GET /api/postgres-preview/companies
 POST /api/postgres-preview/companies
 GET /api/postgres-preview/companies/[id]
 PATCH /api/postgres-preview/companies/[id]
+POST /api/postgres-preview/company-project-links
+DELETE /api/postgres-preview/company-project-links/[id]
+POST /api/postgres-preview/company-operating-asset-links
+DELETE /api/postgres-preview/company-operating-asset-links/[id]
+POST /api/postgres-preview/company-relationships
+DELETE /api/postgres-preview/company-relationships/[id]
 ```
 
 The next recommended implementation slice is:
 
-1. connect company-role and relationship workflows to the PostgreSQL staging
-   entity pages
-2. add Research Ops quick actions for validation status changes
-3. add field-level missing-data flags around the staging forms
+1. add Research Ops quick actions for validation status changes
+2. add field-level missing-data flags around the staging forms
+3. add project-to-operating-asset promotion scaffolding on PostgreSQL
 4. keep permission checks explicit as PostgreSQL write routes expand
 
 The live Hetzner SQLite database remains untouched until the PostgreSQL

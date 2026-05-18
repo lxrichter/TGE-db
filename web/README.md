@@ -184,6 +184,12 @@ Current PostgreSQL-backed route foundations:
 /api/postgres-preview/operating-assets/[id]
 /api/postgres-preview/companies
 /api/postgres-preview/companies/[id]
+/api/postgres-preview/company-project-links
+/api/postgres-preview/company-project-links/[id]
+/api/postgres-preview/company-operating-asset-links
+/api/postgres-preview/company-operating-asset-links/[id]
+/api/postgres-preview/company-relationships
+/api/postgres-preview/company-relationships/[id]
 /api/postgres-preview/research-ops
 /api/postgres/sources
 /api/postgres/sources/[id]
@@ -206,8 +212,10 @@ The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the
 current SQLite prototype routes under `/projects`, `/plants`, and `/companies`.
-Source/evidence links, company-role relationships, project promotion, bulk
-edits, and production exports remain separate next-step workflows.
+It also includes staging add/remove managers for company-project roles,
+company-plant/facility roles, and company-company relationships. Project
+promotion, bulk edits, relationship history/timelines, and production exports
+remain separate next-step workflows.
 
 ## Known Issues
 

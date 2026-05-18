@@ -262,6 +262,124 @@ export type PostgresCompanyMutationInput = {
   notes?: string | null;
 };
 
+export type PostgresCompanyOption = {
+  company_id: string;
+  company_name: string;
+  legacy_company_id: string | null;
+  headquarters_country: string | null;
+};
+
+export type PostgresProjectOption = {
+  project_id: string;
+  project_name: string;
+  legacy_project_id: string | null;
+  country: string | null;
+};
+
+export type PostgresOperatingAssetOption = {
+  operating_asset_id: string;
+  asset_name: string;
+  legacy_plant_id: string | null;
+  country: string | null;
+};
+
+export type PostgresCompanyRelationshipReferenceData = {
+  companyRoles: Array<
+    PostgresReferenceOption & {
+      role_group: string;
+      description: string | null;
+    }
+  >;
+  relationshipTypes: PostgresReferenceOption[];
+  companies: PostgresCompanyOption[];
+  projects: PostgresProjectOption[];
+  operatingAssets: PostgresOperatingAssetOption[];
+};
+
+export type PostgresCompanyProjectLink = {
+  company_project_link_id: string;
+  company_id: string;
+  company_name: string;
+  legacy_company_id: string | null;
+  project_id: string;
+  project_name: string;
+  legacy_project_id: string | null;
+  country: string | null;
+  role_code: string;
+  role_label: string | null;
+  role_group: string | null;
+  role_detail: string | null;
+  ownership_share: number | null;
+  is_primary: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PostgresCompanyOperatingAssetLink = {
+  company_operating_asset_link_id: string;
+  company_id: string;
+  company_name: string;
+  legacy_company_id: string | null;
+  operating_asset_id: string;
+  asset_name: string;
+  legacy_plant_id: string | null;
+  country: string | null;
+  role_code: string;
+  role_label: string | null;
+  role_group: string | null;
+  role_detail: string | null;
+  ownership_share: number | null;
+  is_primary: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PostgresCompanyRelationship = {
+  company_relationship_id: string;
+  company_id_from: string;
+  company_name_from: string;
+  company_id_to: string;
+  company_name_to: string;
+  relationship_type_code: string;
+  relationship_type_label: string | null;
+  ownership_percentage: number | null;
+  is_current: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PostgresCompanyProjectLinkMutationInput = {
+  company_id: string;
+  project_id: string;
+  role_code: string;
+  role_detail?: string | null;
+  ownership_share?: number | null;
+  is_primary?: boolean;
+  notes?: string | null;
+};
+
+export type PostgresCompanyOperatingAssetLinkMutationInput = {
+  company_id: string;
+  operating_asset_id: string;
+  role_code: string;
+  role_detail?: string | null;
+  ownership_share?: number | null;
+  is_primary?: boolean;
+  notes?: string | null;
+};
+
+export type PostgresCompanyRelationshipMutationInput = {
+  company_id_from: string;
+  company_id_to: string;
+  relationship_type_code: string;
+  ownership_percentage?: number | null;
+  is_current?: boolean;
+  notes?: string | null;
+};
+
 export type ResearchOpsQueueSeverity = "critical" | "important" | "workflow";
 
 export type ResearchOpsQueueKey =
@@ -421,6 +539,45 @@ type CompanyDetailRow = Omit<
 > & {
   created_at: string | Date;
   updated_at: string | Date;
+};
+
+type CompanyProjectLinkRow = Omit<
+  PostgresCompanyProjectLink,
+  "ownership_share" | "created_at" | "updated_at"
+> & {
+  ownership_share: NullableNumeric;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
+
+type CompanyOperatingAssetLinkRow = Omit<
+  PostgresCompanyOperatingAssetLink,
+  "ownership_share" | "created_at" | "updated_at"
+> & {
+  ownership_share: NullableNumeric;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
+
+type CompanyRelationshipRow = Omit<
+  PostgresCompanyRelationship,
+  "ownership_percentage" | "created_at" | "updated_at"
+> & {
+  ownership_percentage: NullableNumeric;
+  created_at: string | Date;
+  updated_at: string | Date;
+};
+
+type CompanyProjectLinkIdRow = {
+  company_project_link_id: string;
+};
+
+type CompanyOperatingAssetLinkIdRow = {
+  company_operating_asset_link_id: string;
+};
+
+type CompanyRelationshipIdRow = {
+  company_relationship_id: string;
 };
 
 const researchOpsQueueDefinitions: QueueDefinition[] = [
@@ -1291,6 +1448,616 @@ export async function getPostgresEntityFormReferenceData(): Promise<PostgresEnti
     companyEntityTypes,
     companyPrimaryTypes,
   };
+}
+
+export async function getPostgresCompanyRelationshipReferenceData(
+  limit = 500
+): Promise<PostgresCompanyRelationshipReferenceData> {
+  const prisma = getPrismaClient();
+  const [
+    companyRoles,
+    relationshipTypes,
+    companies,
+    projects,
+    operatingAssets,
+  ] = await Promise.all([
+    prisma.ref_company_roles.findMany({
+      select: {
+        code: true,
+        label: true,
+        role_group: true,
+        description: true,
+        sort_order: true,
+        is_active: true,
+      },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.ref_company_relationship_types.findMany({
+      select: { code: true, label: true, sort_order: true, is_active: true },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.companies.findMany({
+      select: {
+        company_id: true,
+        company_name: true,
+        legacy_company_id: true,
+        headquarters_country: true,
+      },
+      orderBy: [{ company_name: "asc" }],
+      take: limit,
+    }),
+    prisma.projects.findMany({
+      select: {
+        project_id: true,
+        project_name: true,
+        legacy_project_id: true,
+        country: true,
+      },
+      orderBy: [{ project_name: "asc" }],
+      take: limit,
+    }),
+    prisma.operating_assets.findMany({
+      select: {
+        operating_asset_id: true,
+        asset_name: true,
+        legacy_plant_id: true,
+        country: true,
+      },
+      orderBy: [{ asset_name: "asc" }],
+      take: limit,
+    }),
+  ]);
+
+  return {
+    companyRoles,
+    relationshipTypes,
+    companies,
+    projects,
+    operatingAssets,
+  };
+}
+
+function toCompanyProjectLink(
+  row: CompanyProjectLinkRow
+): PostgresCompanyProjectLink {
+  return {
+    ...row,
+    ownership_share: toNullableNumber(row.ownership_share),
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+function toCompanyOperatingAssetLink(
+  row: CompanyOperatingAssetLinkRow
+): PostgresCompanyOperatingAssetLink {
+  return {
+    ...row,
+    ownership_share: toNullableNumber(row.ownership_share),
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+function toCompanyRelationship(
+  row: CompanyRelationshipRow
+): PostgresCompanyRelationship {
+  return {
+    ...row,
+    ownership_percentage: toNullableNumber(row.ownership_percentage),
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+async function getPostgresCompanyProjectLinkById(
+  companyProjectLinkId: string
+): Promise<PostgresCompanyProjectLink | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyProjectLinkRow[]>(
+    `
+    SELECT
+      cpl.company_project_link_id::text,
+      cpl.company_id::text,
+      c.company_name,
+      c.legacy_company_id,
+      cpl.project_id::text,
+      p.project_name,
+      p.legacy_project_id,
+      p.country,
+      cpl.role_code,
+      role.label AS role_label,
+      role.role_group,
+      cpl.role_detail,
+      cpl.ownership_share,
+      cpl.is_primary,
+      cpl.notes,
+      cpl.created_at,
+      cpl.updated_at
+    FROM company_project_links cpl
+    INNER JOIN companies c
+      ON c.company_id = cpl.company_id
+    INNER JOIN projects p
+      ON p.project_id = cpl.project_id
+    LEFT JOIN ref_company_roles role
+      ON role.code = cpl.role_code
+    WHERE cpl.company_project_link_id = $1::uuid
+    LIMIT 1
+    `,
+    companyProjectLinkId
+  );
+
+  return rows[0] ? toCompanyProjectLink(rows[0]) : null;
+}
+
+async function getPostgresCompanyOperatingAssetLinkById(
+  companyOperatingAssetLinkId: string
+): Promise<PostgresCompanyOperatingAssetLink | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    CompanyOperatingAssetLinkRow[]
+  >(
+    `
+    SELECT
+      coal.company_operating_asset_link_id::text,
+      coal.company_id::text,
+      c.company_name,
+      c.legacy_company_id,
+      coal.operating_asset_id::text,
+      a.asset_name,
+      a.legacy_plant_id,
+      a.country,
+      coal.role_code,
+      role.label AS role_label,
+      role.role_group,
+      coal.role_detail,
+      coal.ownership_share,
+      coal.is_primary,
+      coal.notes,
+      coal.created_at,
+      coal.updated_at
+    FROM company_operating_asset_links coal
+    INNER JOIN companies c
+      ON c.company_id = coal.company_id
+    INNER JOIN operating_assets a
+      ON a.operating_asset_id = coal.operating_asset_id
+    LEFT JOIN ref_company_roles role
+      ON role.code = coal.role_code
+    WHERE coal.company_operating_asset_link_id = $1::uuid
+    LIMIT 1
+    `,
+    companyOperatingAssetLinkId
+  );
+
+  return rows[0] ? toCompanyOperatingAssetLink(rows[0]) : null;
+}
+
+async function getPostgresCompanyRelationshipById(
+  companyRelationshipId: string
+): Promise<PostgresCompanyRelationship | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyRelationshipRow[]>(
+    `
+    SELECT
+      cr.company_relationship_id::text,
+      cr.company_id_from::text,
+      cfrom.company_name AS company_name_from,
+      cr.company_id_to::text,
+      cto.company_name AS company_name_to,
+      cr.relationship_type_code,
+      rt.label AS relationship_type_label,
+      cr.ownership_percentage,
+      cr.is_current,
+      cr.notes,
+      cr.created_at,
+      cr.updated_at
+    FROM company_relationships cr
+    INNER JOIN companies cfrom
+      ON cfrom.company_id = cr.company_id_from
+    INNER JOIN companies cto
+      ON cto.company_id = cr.company_id_to
+    LEFT JOIN ref_company_relationship_types rt
+      ON rt.code = cr.relationship_type_code
+    WHERE cr.company_relationship_id = $1::uuid
+    LIMIT 1
+    `,
+    companyRelationshipId
+  );
+
+  return rows[0] ? toCompanyRelationship(rows[0]) : null;
+}
+
+export async function listPostgresProjectCompanyLinks(
+  projectId: string
+): Promise<PostgresCompanyProjectLink[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyProjectLinkRow[]>(
+    `
+    SELECT
+      cpl.company_project_link_id::text,
+      cpl.company_id::text,
+      c.company_name,
+      c.legacy_company_id,
+      cpl.project_id::text,
+      p.project_name,
+      p.legacy_project_id,
+      p.country,
+      cpl.role_code,
+      role.label AS role_label,
+      role.role_group,
+      cpl.role_detail,
+      cpl.ownership_share,
+      cpl.is_primary,
+      cpl.notes,
+      cpl.created_at,
+      cpl.updated_at
+    FROM company_project_links cpl
+    INNER JOIN companies c
+      ON c.company_id = cpl.company_id
+    INNER JOIN projects p
+      ON p.project_id = cpl.project_id
+    LEFT JOIN ref_company_roles role
+      ON role.code = cpl.role_code
+    WHERE cpl.project_id = $1::uuid
+    ORDER BY cpl.is_primary DESC, role.sort_order ASC NULLS LAST, c.company_name ASC
+    `,
+    projectId
+  );
+
+  return rows.map(toCompanyProjectLink);
+}
+
+export async function listPostgresCompanyProjectLinks(
+  companyId: string
+): Promise<PostgresCompanyProjectLink[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyProjectLinkRow[]>(
+    `
+    SELECT
+      cpl.company_project_link_id::text,
+      cpl.company_id::text,
+      c.company_name,
+      c.legacy_company_id,
+      cpl.project_id::text,
+      p.project_name,
+      p.legacy_project_id,
+      p.country,
+      cpl.role_code,
+      role.label AS role_label,
+      role.role_group,
+      cpl.role_detail,
+      cpl.ownership_share,
+      cpl.is_primary,
+      cpl.notes,
+      cpl.created_at,
+      cpl.updated_at
+    FROM company_project_links cpl
+    INNER JOIN companies c
+      ON c.company_id = cpl.company_id
+    INNER JOIN projects p
+      ON p.project_id = cpl.project_id
+    LEFT JOIN ref_company_roles role
+      ON role.code = cpl.role_code
+    WHERE cpl.company_id = $1::uuid
+    ORDER BY cpl.is_primary DESC, p.project_name ASC, role.sort_order ASC NULLS LAST
+    `,
+    companyId
+  );
+
+  return rows.map(toCompanyProjectLink);
+}
+
+export async function listPostgresOperatingAssetCompanyLinks(
+  operatingAssetId: string
+): Promise<PostgresCompanyOperatingAssetLink[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    CompanyOperatingAssetLinkRow[]
+  >(
+    `
+    SELECT
+      coal.company_operating_asset_link_id::text,
+      coal.company_id::text,
+      c.company_name,
+      c.legacy_company_id,
+      coal.operating_asset_id::text,
+      a.asset_name,
+      a.legacy_plant_id,
+      a.country,
+      coal.role_code,
+      role.label AS role_label,
+      role.role_group,
+      coal.role_detail,
+      coal.ownership_share,
+      coal.is_primary,
+      coal.notes,
+      coal.created_at,
+      coal.updated_at
+    FROM company_operating_asset_links coal
+    INNER JOIN companies c
+      ON c.company_id = coal.company_id
+    INNER JOIN operating_assets a
+      ON a.operating_asset_id = coal.operating_asset_id
+    LEFT JOIN ref_company_roles role
+      ON role.code = coal.role_code
+    WHERE coal.operating_asset_id = $1::uuid
+    ORDER BY coal.is_primary DESC, role.sort_order ASC NULLS LAST, c.company_name ASC
+    `,
+    operatingAssetId
+  );
+
+  return rows.map(toCompanyOperatingAssetLink);
+}
+
+export async function listPostgresCompanyOperatingAssetLinks(
+  companyId: string
+): Promise<PostgresCompanyOperatingAssetLink[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    CompanyOperatingAssetLinkRow[]
+  >(
+    `
+    SELECT
+      coal.company_operating_asset_link_id::text,
+      coal.company_id::text,
+      c.company_name,
+      c.legacy_company_id,
+      coal.operating_asset_id::text,
+      a.asset_name,
+      a.legacy_plant_id,
+      a.country,
+      coal.role_code,
+      role.label AS role_label,
+      role.role_group,
+      coal.role_detail,
+      coal.ownership_share,
+      coal.is_primary,
+      coal.notes,
+      coal.created_at,
+      coal.updated_at
+    FROM company_operating_asset_links coal
+    INNER JOIN companies c
+      ON c.company_id = coal.company_id
+    INNER JOIN operating_assets a
+      ON a.operating_asset_id = coal.operating_asset_id
+    LEFT JOIN ref_company_roles role
+      ON role.code = coal.role_code
+    WHERE coal.company_id = $1::uuid
+    ORDER BY coal.is_primary DESC, a.asset_name ASC, role.sort_order ASC NULLS LAST
+    `,
+    companyId
+  );
+
+  return rows.map(toCompanyOperatingAssetLink);
+}
+
+export async function listPostgresCompanyRelationships(
+  companyId: string
+): Promise<PostgresCompanyRelationship[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyRelationshipRow[]>(
+    `
+    SELECT
+      cr.company_relationship_id::text,
+      cr.company_id_from::text,
+      cfrom.company_name AS company_name_from,
+      cr.company_id_to::text,
+      cto.company_name AS company_name_to,
+      cr.relationship_type_code,
+      rt.label AS relationship_type_label,
+      cr.ownership_percentage,
+      cr.is_current,
+      cr.notes,
+      cr.created_at,
+      cr.updated_at
+    FROM company_relationships cr
+    INNER JOIN companies cfrom
+      ON cfrom.company_id = cr.company_id_from
+    INNER JOIN companies cto
+      ON cto.company_id = cr.company_id_to
+    LEFT JOIN ref_company_relationship_types rt
+      ON rt.code = cr.relationship_type_code
+    WHERE cr.company_id_from = $1::uuid
+       OR cr.company_id_to = $1::uuid
+    ORDER BY cr.is_current DESC, cr.updated_at DESC, cfrom.company_name ASC
+    `,
+    companyId
+  );
+
+  return rows.map(toCompanyRelationship);
+}
+
+export async function createPostgresCompanyProjectLink(
+  input: PostgresCompanyProjectLinkMutationInput
+): Promise<PostgresCompanyProjectLink> {
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyProjectLinkIdRow[]>(
+    `
+    INSERT INTO company_project_links (
+      company_id,
+      project_id,
+      role_code,
+      role_detail,
+      ownership_share,
+      is_primary,
+      notes
+    )
+    VALUES ($1::uuid, $2::uuid, $3, $4, $5::numeric, $6, $7)
+    ON CONFLICT (company_id, project_id, role_code)
+    DO UPDATE SET
+      role_detail = EXCLUDED.role_detail,
+      ownership_share = EXCLUDED.ownership_share,
+      is_primary = EXCLUDED.is_primary,
+      notes = EXCLUDED.notes,
+      updated_at = now()
+    RETURNING company_project_link_id::text
+    `,
+    input.company_id,
+    input.project_id,
+    input.role_code,
+    cleanOptionalText(input.role_detail),
+    input.ownership_share ?? null,
+    Boolean(input.is_primary),
+    cleanOptionalText(input.notes)
+  );
+
+  const link = await getPostgresCompanyProjectLinkById(
+    rows[0].company_project_link_id
+  );
+
+  if (!link) {
+    throw new Error("Created company-project link could not be reloaded.");
+  }
+
+  return link;
+}
+
+export async function createPostgresCompanyOperatingAssetLink(
+  input: PostgresCompanyOperatingAssetLinkMutationInput
+): Promise<PostgresCompanyOperatingAssetLink> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    CompanyOperatingAssetLinkIdRow[]
+  >(
+    `
+    INSERT INTO company_operating_asset_links (
+      company_id,
+      operating_asset_id,
+      role_code,
+      role_detail,
+      ownership_share,
+      is_primary,
+      notes
+    )
+    VALUES ($1::uuid, $2::uuid, $3, $4, $5::numeric, $6, $7)
+    ON CONFLICT (company_id, operating_asset_id, role_code)
+    DO UPDATE SET
+      role_detail = EXCLUDED.role_detail,
+      ownership_share = EXCLUDED.ownership_share,
+      is_primary = EXCLUDED.is_primary,
+      notes = EXCLUDED.notes,
+      updated_at = now()
+    RETURNING company_operating_asset_link_id::text
+    `,
+    input.company_id,
+    input.operating_asset_id,
+    input.role_code,
+    cleanOptionalText(input.role_detail),
+    input.ownership_share ?? null,
+    Boolean(input.is_primary),
+    cleanOptionalText(input.notes)
+  );
+
+  const link = await getPostgresCompanyOperatingAssetLinkById(
+    rows[0].company_operating_asset_link_id
+  );
+
+  if (!link) {
+    throw new Error("Created company-asset link could not be reloaded.");
+  }
+
+  return link;
+}
+
+export async function createPostgresCompanyRelationship(
+  input: PostgresCompanyRelationshipMutationInput
+): Promise<PostgresCompanyRelationship> {
+  const existingRows = await getPrismaClient().$queryRawUnsafe<
+    CompanyRelationshipIdRow[]
+  >(
+    `
+    SELECT company_relationship_id::text
+    FROM company_relationships
+    WHERE company_id_from = $1::uuid
+      AND company_id_to = $2::uuid
+      AND relationship_type_code = $3
+    LIMIT 1
+    `,
+    input.company_id_from,
+    input.company_id_to,
+    input.relationship_type_code
+  );
+
+  if (existingRows[0]) {
+    await getPrismaClient().$queryRawUnsafe(
+      `
+      UPDATE company_relationships
+      SET
+        ownership_percentage = $2::numeric,
+        is_current = $3,
+        notes = $4,
+        updated_at = now()
+      WHERE company_relationship_id = $1::uuid
+      `,
+      existingRows[0].company_relationship_id,
+      input.ownership_percentage ?? null,
+      input.is_current ?? true,
+      cleanOptionalText(input.notes)
+    );
+
+    const relationship = await getPostgresCompanyRelationshipById(
+      existingRows[0].company_relationship_id
+    );
+
+    if (!relationship) {
+      throw new Error("Updated company relationship could not be reloaded.");
+    }
+
+    return relationship;
+  }
+
+  const rows = await getPrismaClient().$queryRawUnsafe<CompanyRelationshipIdRow[]>(
+    `
+    INSERT INTO company_relationships (
+      company_id_from,
+      company_id_to,
+      relationship_type_code,
+      ownership_percentage,
+      is_current,
+      notes
+    )
+    VALUES ($1::uuid, $2::uuid, $3, $4::numeric, $5, $6)
+    RETURNING company_relationship_id::text
+    `,
+    input.company_id_from,
+    input.company_id_to,
+    input.relationship_type_code,
+    input.ownership_percentage ?? null,
+    input.is_current ?? true,
+    cleanOptionalText(input.notes)
+  );
+
+  const relationship = await getPostgresCompanyRelationshipById(
+    rows[0].company_relationship_id
+  );
+
+  if (!relationship) {
+    throw new Error("Created company relationship could not be reloaded.");
+  }
+
+  return relationship;
+}
+
+export async function deletePostgresCompanyProjectLink(
+  companyProjectLinkId: string
+) {
+  const result = await getPrismaClient().company_project_links.deleteMany({
+    where: { company_project_link_id: companyProjectLinkId },
+  });
+
+  return result.count > 0;
+}
+
+export async function deletePostgresCompanyOperatingAssetLink(
+  companyOperatingAssetLinkId: string
+) {
+  const result = await getPrismaClient().company_operating_asset_links.deleteMany({
+    where: { company_operating_asset_link_id: companyOperatingAssetLinkId },
+  });
+
+  return result.count > 0;
+}
+
+export async function deletePostgresCompanyRelationship(
+  companyRelationshipId: string
+) {
+  const result = await getPrismaClient().company_relationships.deleteMany({
+    where: { company_relationship_id: companyRelationshipId },
+  });
+
+  return result.count > 0;
 }
 
 export async function createPostgresPreviewProject(
