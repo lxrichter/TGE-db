@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth";
+import { canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -10,8 +13,10 @@ import {
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { OperatingAssetCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
+import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import {
   getPostgresCompanyRelationshipReferenceData,
+  getPostgresEntityFormReferenceData,
   getPostgresPreviewOperatingAssetById,
   listPostgresOperatingAssetCompanyLinks,
   type PostgresPreviewOperatingAssetDetail,
@@ -126,11 +131,20 @@ export default async function PostgresOperatingAssetDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [asset, companyLinks, relationshipReferenceData] = await Promise.all([
-    getPostgresPreviewOperatingAssetById(id),
-    listPostgresOperatingAssetCompanyLinks(id),
-    getPostgresCompanyRelationshipReferenceData(),
-  ]);
+  const [
+    asset,
+    companyLinks,
+    relationshipReferenceData,
+    entityReferenceData,
+    session,
+  ] =
+    await Promise.all([
+      getPostgresPreviewOperatingAssetById(id),
+      listPostgresOperatingAssetCompanyLinks(id),
+      getPostgresCompanyRelationshipReferenceData(),
+      getPostgresEntityFormReferenceData(),
+      getServerSession(authOptions),
+    ]);
 
   if (!asset) {
     return <NotFoundNotice label="Operating asset" backHref="/postgres-preview" />;
@@ -227,6 +241,16 @@ export default async function PostgresOperatingAssetDetailPage({
           ]}
         />
       </DetailSection>
+
+      <PostgresReviewStatusActions
+        canReviewStatus={canReview(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        currentStatus={asset.review_status_code}
+        entityId={asset.operating_asset_id}
+        entityType="operating_asset"
+        reviewStatuses={entityReferenceData.reviewStatuses}
+      />
 
       <DetailSection title="Source Evidence">
         <SourceEvidenceTable

@@ -181,11 +181,12 @@ POST /api/postgres-preview/company-operating-asset-links
 DELETE /api/postgres-preview/company-operating-asset-links/[id]
 POST /api/postgres-preview/company-relationships
 DELETE /api/postgres-preview/company-relationships/[id]
+PATCH /api/postgres-preview/research-ops/status
 ```
 
 The next recommended implementation slice is:
 
-1. add Research Ops quick actions for validation status changes
+1. add Research Ops assignment, note, duplicate flag, and lightweight bulk actions
 2. add field-level missing-data flags around the staging forms
 3. add project-to-operating-asset promotion scaffolding on PostgreSQL
 4. keep permission checks explicit as PostgreSQL write routes expand

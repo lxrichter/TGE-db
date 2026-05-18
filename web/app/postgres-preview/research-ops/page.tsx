@@ -1,8 +1,13 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth";
+import { canReview } from "@/lib/auth/roles";
 import {
+  getPostgresEntityFormReferenceData,
   getPostgresResearchOpsDashboard,
   type PostgresResearchOpsDashboard,
 } from "@/lib/postgres-preview";
+import { getSourceReferenceData } from "@/lib/services/sources";
 import { ResearchOpsDashboardClient } from "./ResearchOpsDashboardClient";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +16,19 @@ type ResearchOpsData =
   | {
       ok: true;
       dashboard: PostgresResearchOpsDashboard;
+      reviewStatuses: Array<{
+        code: string;
+        label: string;
+        sort_order: number;
+        is_active: boolean;
+      }>;
+      sourceStatuses: Array<{
+        code: string;
+        label: string;
+        sort_order: number;
+        is_active: boolean;
+      }>;
+      canReviewStatus: boolean;
     }
   | {
       ok: false;
@@ -19,8 +37,22 @@ type ResearchOpsData =
 
 async function getResearchOpsData(): Promise<ResearchOpsData> {
   try {
-    const dashboard = await getPostgresResearchOpsDashboard(100);
-    return { ok: true, dashboard };
+    const [dashboard, entityReferenceData, sourceReferenceData] =
+      await Promise.all([
+        getPostgresResearchOpsDashboard(100),
+        getPostgresEntityFormReferenceData(),
+        getSourceReferenceData(),
+      ]);
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as { role?: string | null } | undefined)?.role;
+
+    return {
+      ok: true,
+      dashboard,
+      reviewStatuses: entityReferenceData.reviewStatuses,
+      sourceStatuses: sourceReferenceData.credibilityStatuses,
+      canReviewStatus: canReview(role),
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -60,8 +92,8 @@ export default async function PostgresResearchOpsPage() {
                 Research Ops Preview
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Read-only operational queues for validation, missing data,
-                direct-use classification, duplicate checks, and editor review.
+                Operational queues for validation, missing data, direct-use
+                classification, duplicate checks, and quick review-status changes.
               </p>
             </div>
             <Link
@@ -77,7 +109,12 @@ export default async function PostgresResearchOpsPage() {
       {!data.ok ? (
         <SetupNotice error={data.error} />
       ) : (
-        <ResearchOpsDashboardClient dashboard={data.dashboard} />
+        <ResearchOpsDashboardClient
+          dashboard={data.dashboard}
+          reviewStatuses={data.reviewStatuses}
+          sourceStatuses={data.sourceStatuses}
+          canReviewStatus={data.canReviewStatus}
+        />
       )}
     </main>
   );

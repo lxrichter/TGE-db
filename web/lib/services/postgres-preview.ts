@@ -446,6 +446,24 @@ export type PostgresResearchOpsDashboard = {
   recentEdits: PostgresResearchOpsRecentEdit[];
 };
 
+export type PostgresReviewEntityType = "project" | "operating_asset" | "company";
+
+export type PostgresReviewStatusUpdateInput = {
+  entityType: PostgresReviewEntityType;
+  entityId: string;
+  reviewStatusCode: string;
+  actorUserId?: string | null;
+  eventNote?: string | null;
+};
+
+export type PostgresReviewStatusUpdateResult = {
+  entity_type: PostgresReviewEntityType;
+  entity_id: string;
+  previous_review_status_code: string;
+  next_review_status_code: string;
+  updated_at: string;
+};
+
 type QueueDefinition = {
   key: ResearchOpsQueueKey;
   title: string;
@@ -460,6 +478,13 @@ type QueueItemRow = Omit<PostgresResearchOpsQueueItem, "updated_at"> & {
 };
 
 type RecentEditRow = Omit<PostgresResearchOpsRecentEdit, "updated_at"> & {
+  updated_at: string | Date;
+};
+
+type ReviewStatusUpdateRow = Omit<
+  PostgresReviewStatusUpdateResult,
+  "updated_at"
+> & {
   updated_at: string | Date;
 };
 
@@ -1339,6 +1364,15 @@ function cleanOptionalText(value: string | null | undefined) {
   return trimmed || null;
 }
 
+function isUuid(value: string | null | undefined) {
+  return Boolean(
+    value &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        value
+      )
+  );
+}
+
 function normalizeEntityNameClean(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
@@ -1384,6 +1418,141 @@ function deriveUpdatedReviewStatus(current: string, requested: string) {
   }
 
   return requested;
+}
+
+function getReviewEntityConfig(entityType: PostgresReviewEntityType) {
+  if (entityType === "project") {
+    return {
+      tableName: "projects",
+      idColumn: "project_id",
+      entityType: "project" as const,
+    };
+  }
+
+  if (entityType === "operating_asset") {
+    return {
+      tableName: "operating_assets",
+      idColumn: "operating_asset_id",
+      entityType: "operating_asset" as const,
+    };
+  }
+
+  return {
+    tableName: "companies",
+    idColumn: "company_id",
+    entityType: "company" as const,
+  };
+}
+
+export async function updatePostgresReviewStatus(
+  input: PostgresReviewStatusUpdateInput
+): Promise<PostgresReviewStatusUpdateResult | null> {
+  const config = getReviewEntityConfig(input.entityType);
+  const normalizedActorUserId = isUuid(input.actorUserId)
+    ? input.actorUserId
+    : null;
+  const eventNote = cleanOptionalText(input.eventNote);
+
+  const rows = await getPrismaClient().$queryRawUnsafe<ReviewStatusUpdateRow[]>(
+    `
+    WITH current_record AS (
+      SELECT ${config.idColumn}, review_status_code
+      FROM ${config.tableName}
+      WHERE ${config.idColumn} = $1::uuid
+      LIMIT 1
+    ),
+    actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    ),
+    updated_record AS (
+      UPDATE ${config.tableName} target
+      SET
+        review_status_code = $2,
+        last_updated_by_user_id = COALESCE(
+          (SELECT user_id FROM actor),
+          target.last_updated_by_user_id
+        ),
+        approved_by_user_id = CASE
+          WHEN $2 IN ('approved', 'export_ready')
+            THEN COALESCE(
+              (SELECT user_id FROM actor),
+              target.approved_by_user_id
+            )
+          ELSE target.approved_by_user_id
+        END,
+        approved_at = CASE
+          WHEN $2 IN ('approved', 'export_ready')
+            THEN COALESCE(target.approved_at, now())
+          ELSE target.approved_at
+        END,
+        export_ready_at = CASE
+          WHEN $2 = 'export_ready'
+            THEN COALESCE(target.export_ready_at, now())
+          ELSE target.export_ready_at
+        END,
+        updated_at = now()
+      FROM current_record
+      WHERE target.${config.idColumn} = current_record.${config.idColumn}
+      RETURNING
+        target.${config.idColumn}::text AS entity_id,
+        current_record.review_status_code AS previous_review_status_code,
+        target.review_status_code AS next_review_status_code,
+        target.updated_at
+    ),
+    audit AS (
+      INSERT INTO audit_events (
+        entity_type,
+        entity_id,
+        event_type,
+        previous_review_status_code,
+        next_review_status_code,
+        actor_user_id,
+        event_note,
+        changed_fields
+      )
+      SELECT
+        $4,
+        entity_id::uuid,
+        'review_status_change',
+        previous_review_status_code,
+        next_review_status_code,
+        (SELECT user_id FROM actor),
+        $5,
+        jsonb_build_object(
+          'review_status_code',
+          jsonb_build_array(previous_review_status_code, next_review_status_code)
+        )
+      FROM updated_record
+      WHERE previous_review_status_code IS DISTINCT FROM next_review_status_code
+      RETURNING audit_event_id
+    )
+    SELECT
+      $4::text AS entity_type,
+      entity_id,
+      previous_review_status_code,
+      next_review_status_code,
+      updated_at
+    FROM updated_record
+    `,
+    input.entityId,
+    input.reviewStatusCode,
+    normalizedActorUserId,
+    config.entityType,
+    eventNote
+  );
+
+  if (!rows[0]) {
+    return null;
+  }
+
+  return {
+    ...rows[0],
+    entity_type: config.entityType,
+    updated_at: normalizeTimestamp(rows[0].updated_at),
+  };
 }
 
 export async function getPostgresEntityFormReferenceData(): Promise<PostgresEntityFormReferenceData> {

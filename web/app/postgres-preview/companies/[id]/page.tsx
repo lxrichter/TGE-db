@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth";
+import { canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -10,8 +13,10 @@ import {
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { CompanyRelationshipPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
+import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import {
   getPostgresCompanyRelationshipReferenceData,
+  getPostgresEntityFormReferenceData,
   getPostgresPreviewCompanyById,
   listPostgresCompanyOperatingAssetLinks,
   listPostgresCompanyProjectLinks,
@@ -100,12 +105,16 @@ export default async function PostgresCompanyDetailPage({
     operatingAssetLinks,
     relationships,
     relationshipReferenceData,
+    entityReferenceData,
+    session,
   ] = await Promise.all([
     getPostgresPreviewCompanyById(id),
     listPostgresCompanyProjectLinks(id),
     listPostgresCompanyOperatingAssetLinks(id),
     listPostgresCompanyRelationships(id),
     getPostgresCompanyRelationshipReferenceData(),
+    getPostgresEntityFormReferenceData(),
+    getServerSession(authOptions),
   ]);
 
   if (!company) {
@@ -213,6 +222,16 @@ export default async function PostgresCompanyDetailPage({
           ]}
         />
       </DetailSection>
+
+      <PostgresReviewStatusActions
+        canReviewStatus={canReview(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        currentStatus={company.review_status_code}
+        entityId={company.company_id}
+        entityType="company"
+        reviewStatuses={entityReferenceData.reviewStatuses}
+      />
 
       <CompanyRelationshipPanel
         companyId={company.company_id}

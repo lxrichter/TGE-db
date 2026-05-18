@@ -20,7 +20,7 @@ Current implemented foundation:
 - Prisma baseline migration recorded against Railway PostgreSQL staging
 - safe PostgreSQL staging seed
 - PostgreSQL preview page
-- read-only PostgreSQL Research Ops preview
+- PostgreSQL Research Ops preview with selected-record review/status quick actions
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
@@ -31,6 +31,7 @@ Current implemented foundation:
   - expanded source metadata and evidence-link fields
   - source list/detail/reference-data service and API route foundation
   - source validation queues added to PostgreSQL Research Ops preview
+  - source credibility quick actions available from Research Ops selected rows
   - source/evidence panels on PostgreSQL entity preview pages
   - editor source credibility actions on source profiles
   - source-aware export-readiness preview panels on PostgreSQL entity detail
@@ -136,21 +137,22 @@ Deliverables:
 - auth/role model alignment notes: `docs/ROLE_MODEL.md`
 - Sources / Documents MVP migration applied to Railway PostgreSQL staging
 - PostgreSQL source service and read endpoints started
-- source status connected into the read-only Research Ops preview queues
+- source status connected into Research Ops preview queues and quick actions
 
 Immediate next actions:
 
-1. keep tightening permissions around PostgreSQL write-enabled routes
-2. decide when PostgreSQL entity edit pages should replace or sit beside the
+1. add assignment, notes, duplicate flag, and bulk actions around PostgreSQL
+   Research Ops
+2. keep tightening permissions around PostgreSQL write-enabled routes
+3. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
-3. add structured relationship/source workflow actions around the new staging
-   entity forms
+4. add project-to-operating-asset promotion scaffolding on PostgreSQL
 
 Do before:
 
 - production PostgreSQL entity editing outside `/postgres-preview`
 - live SQLite migration/import
-- write-enabled Research Ops actions
+- bulk Research Ops actions and production exports
 
 ## Phase 2: Sources / Evidence And Validation Core
 
@@ -179,6 +181,8 @@ Current implemented foundation:
   source/evidence panels and add-source actions
 - editor source-validation actions for credible, weak, outdated, rejected, and
   needs-review states
+- Research Ops selected rows can change source credibility status without
+  opening the full source record
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms
@@ -187,7 +191,6 @@ Key work:
 
 - prepare country/market source links when country/market pages move to
   PostgreSQL
-- connect source status into validation and Research Ops queues
 - turn preview-only readiness checks into enforced export rules when
   PostgreSQL exports are implemented
 
@@ -217,16 +220,17 @@ Key work:
   lifecycle, severity, source status, and date edited
 - add row click-through to full record detail pages
 - add quick actions:
+  - change review/status state: implemented for individual selected records
   - assign to self
   - add source
   - add note
   - mark ready for validation
   - flag duplicate
 - add editor/admin actions:
-  - approve
-  - return to validation
-  - mark needs update
-  - mark export ready
+  - approve: implemented for individual selected records
+  - return to validation: implemented for individual selected records
+  - mark needs update: implemented for individual selected records
+  - mark export ready: implemented for individual selected records
 - add lightweight bulk actions and filtered exports
 
 Deliverables:

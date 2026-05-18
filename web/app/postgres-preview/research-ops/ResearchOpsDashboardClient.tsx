@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { formatCount } from "@/lib/format";
+import PostgresReviewStatusActions, {
+  type PostgresStatusOption,
+} from "@/components/postgres-preview/PostgresReviewStatusActions";
 import {
   type PostgresResearchOpsDashboard,
   type PostgresResearchOpsQueue,
@@ -249,7 +252,7 @@ function EntityTable({
             <th className="w-[11%] px-5 py-3 font-semibold">Review</th>
             <th className="w-[12%] px-5 py-3 font-semibold">Updated By</th>
             <th className="w-[10%] px-5 py-3 font-semibold">Updated</th>
-            <th className="w-[8%] px-5 py-3 font-semibold">Open</th>
+            <th className="w-[12%] px-5 py-3 font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -295,29 +298,30 @@ function EntityTable({
                   {formatDate(item.updated_at)}
                 </td>
                 <td className="px-5 py-4">
-                  {sourceHref ? (
-                    <Link
-                      className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                      href={sourceHref}
-                    >
-                      Add Source
-                    </Link>
-                  ) : href ? (
-                    <Link
-                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                      href={href}
-                    >
-                      Open
-                    </Link>
-                  ) : (
+                  <div className="flex flex-wrap gap-2">
                     <button
-                      className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                       type="button"
                       onClick={() => onSelect(item)}
                     >
-                      View
+                      Review
                     </button>
-                  )}
+                    {sourceHref ? (
+                      <Link
+                        className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                        href={sourceHref}
+                      >
+                        Add Source
+                      </Link>
+                    ) : href ? (
+                      <Link
+                        className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                        href={href}
+                      >
+                        Open
+                      </Link>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             );
@@ -370,9 +374,17 @@ function QueueCard({
 function SelectedRecordPanel({
   record,
   onClear,
+  onStatusChanged,
+  reviewStatuses,
+  sourceStatuses,
+  canReviewStatus,
 }: {
   record: ResearchOpsRecord | null;
   onClear: () => void;
+  onStatusChanged: (statusCode: string) => void;
+  reviewStatuses: PostgresStatusOption[];
+  sourceStatuses: PostgresStatusOption[];
+  canReviewStatus: boolean;
 }) {
   if (!record) {
     return null;
@@ -382,54 +394,72 @@ function SelectedRecordPanel({
   const sourceHref = addSourceHref(record);
 
   return (
-    <section className="border border-[#8dc63f] bg-[#f8fbf4] px-5 py-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
-            Selected Record
-          </div>
-          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{record.name}</h2>
-          <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-gray-600">
-            <span>{formatEntityType(record.entity_type)}</span>
-            <span>{record.country || "No country"}</span>
-            <span>{record.primary_use_type_code || "No type"}</span>
-            <span>{record.review_status_code || "No review status"}</span>
-            <span>Updated by {record.last_updated_by_name || "-"}</span>
-          </div>
-          {"issue_label" in record ? (
-            <p className="mt-3 text-sm leading-6 text-gray-700">
-              {record.issue_label}
+    <div className="space-y-4">
+      <section className="border border-[#8dc63f] bg-[#f8fbf4] px-5 py-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+              Selected Record
+            </div>
+            <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+              {record.name}
+            </h2>
+            <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-gray-600">
+              <span>{formatEntityType(record.entity_type)}</span>
+              <span>{record.country || "No country"}</span>
+              <span>{record.primary_use_type_code || "No type"}</span>
+              <span>{record.review_status_code || "No review status"}</span>
+              <span>Updated by {record.last_updated_by_name || "-"}</span>
+            </div>
+            {"issue_label" in record ? (
+              <p className="mt-3 text-sm leading-6 text-gray-700">
+                {record.issue_label}
+              </p>
+            ) : null}
+            <p className="mt-2 break-all text-xs text-gray-500">
+              {record.entity_id}
             </p>
-          ) : null}
-          <p className="mt-2 break-all text-xs text-gray-500">
-            {record.entity_id}
-          </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              type="button"
+              onClick={onClear}
+            >
+              Clear
+            </button>
+            {href ? (
+              <Link
+                className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={href}
+              >
+                Open Record
+              </Link>
+            ) : null}
+            {sourceHref ? (
+              <Link
+                className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={sourceHref}
+              >
+                Add Source
+              </Link>
+            ) : null}
+          </div>
         </div>
-        <button
-          className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-          type="button"
-          onClick={onClear}
-        >
-          Clear
-        </button>
-        {href ? (
-          <Link
-            className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-            href={href}
-          >
-            Open Record
-          </Link>
-        ) : null}
-        {sourceHref ? (
-          <Link
-            className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-            href={sourceHref}
-          >
-            Add Source
-          </Link>
-        ) : null}
-      </div>
-    </section>
+      </section>
+
+      <PostgresReviewStatusActions
+        currentStatus={record.review_status_code}
+        description="Move the selected staging record through the MVP review workflow directly from the Research Ops queue."
+        entityId={record.entity_id}
+        entityType={record.entity_type}
+        reviewStatuses={reviewStatuses}
+        sourceStatuses={sourceStatuses}
+        title="Quick Review Actions"
+        canReviewStatus={canReviewStatus}
+        onStatusChanged={onStatusChanged}
+      />
+    </div>
   );
 }
 
@@ -458,8 +488,14 @@ function RecentEdits({
 
 export function ResearchOpsDashboardClient({
   dashboard,
+  reviewStatuses,
+  sourceStatuses,
+  canReviewStatus,
 }: {
   dashboard: PostgresResearchOpsDashboard;
+  reviewStatuses: PostgresStatusOption[];
+  sourceStatuses: PostgresStatusOption[];
+  canReviewStatus: boolean;
 }) {
   const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
@@ -533,6 +569,18 @@ export function ResearchOpsDashboardClient({
     setCountryFilter("all");
     setSearch("");
     setShowEmptyQueues(false);
+  }
+
+  function handleStatusChanged(statusCode: string) {
+    setSelectedRecord((current) =>
+      current
+        ? {
+            ...current,
+            review_status_code: statusCode,
+            updated_at: new Date().toISOString(),
+          }
+        : current
+    );
   }
 
   return (
@@ -677,14 +725,19 @@ export function ResearchOpsDashboardClient({
 
       <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
         <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
-        this is a staging preview only. It does not alter records, does not import
-        the live Hetzner SQLite database, and does not replace the existing SQLite
-        app workflows yet. Generated {formatDate(dashboard.generatedAt)}.
+        PostgreSQL staging queues now support quick review-status changes for
+        projects, plants/facilities, companies, and source credibility records.
+        This still does not import the live Hetzner SQLite database or replace
+        the existing SQLite app workflows. Generated {formatDate(dashboard.generatedAt)}.
       </section>
 
       <SelectedRecordPanel
         record={selectedRecord}
+        reviewStatuses={reviewStatuses}
+        sourceStatuses={sourceStatuses}
+        canReviewStatus={canReviewStatus}
         onClear={() => setSelectedRecord(null)}
+        onStatusChanged={handleStatusChanged}
       />
 
       <div className="space-y-5">

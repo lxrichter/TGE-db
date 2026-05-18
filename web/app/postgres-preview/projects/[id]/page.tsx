@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth";
+import { canReview } from "@/lib/auth/roles";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -10,9 +13,11 @@ import {
   type ExportReadinessIssue,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { ProjectCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
+import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import {
   getPostgresCompanyRelationshipReferenceData,
+  getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
   listPostgresProjectCompanyLinks,
 } from "@/lib/postgres-preview";
@@ -124,10 +129,18 @@ export default async function PostgresProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [project, companyLinks, relationshipReferenceData] = await Promise.all([
+  const [
+    project,
+    companyLinks,
+    relationshipReferenceData,
+    entityReferenceData,
+    session,
+  ] = await Promise.all([
     getPostgresPreviewProjectById(id),
     listPostgresProjectCompanyLinks(id),
     getPostgresCompanyRelationshipReferenceData(),
+    getPostgresEntityFormReferenceData(),
+    getServerSession(authOptions),
   ]);
 
   if (!project) {
@@ -231,6 +244,16 @@ export default async function PostgresProjectDetailPage({
           ]}
         />
       </DetailSection>
+
+      <PostgresReviewStatusActions
+        canReviewStatus={canReview(
+          (session?.user as { role?: string | null } | undefined)?.role
+        )}
+        currentStatus={project.review_status_code}
+        entityId={project.project_id}
+        entityType="project"
+        reviewStatuses={entityReferenceData.reviewStatuses}
+      />
 
       <DetailSection title="Source Evidence">
         <SourceEvidenceTable

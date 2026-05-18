@@ -191,6 +191,7 @@ Current PostgreSQL-backed route foundations:
 /api/postgres-preview/company-relationships
 /api/postgres-preview/company-relationships/[id]
 /api/postgres-preview/research-ops
+/api/postgres-preview/research-ops/status
 /api/postgres/sources
 /api/postgres/sources/[id]
 /api/postgres/sources/[id]/status
@@ -203,7 +204,8 @@ The PostgreSQL Sources / Documents foundation currently provides source
 reference data, source list/detail reads, source list/profile/create/edit pages,
 source-link add/remove actions, Research Ops source queues, and source/evidence
 panels on PostgreSQL project, plant/facility, and company preview pages. It also
-includes editor source-credibility actions on source profiles and preview-only
+includes editor source-credibility actions on source profiles, selected-row
+source credibility actions inside PostgreSQL Research Ops, and preview-only
 export-readiness panels on PostgreSQL entity detail pages. File uploads, TGE
 article sync, country/market evidence panels, and enforced export-readiness
 rules are proposed next steps, not completed production functionality.
@@ -213,9 +215,11 @@ for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the
 current SQLite prototype routes under `/projects`, `/plants`, and `/companies`.
 It also includes staging add/remove managers for company-project roles,
-company-plant/facility roles, and company-company relationships. Project
-promotion, bulk edits, relationship history/timelines, and production exports
-remain separate next-step workflows.
+company-plant/facility roles, and company-company relationships. PostgreSQL
+Research Ops also supports selected-row review/status quick actions for
+projects, plants/facilities, companies, and sources. Project promotion, bulk
+edits, assignment workflows, relationship history/timelines, and production
+exports remain separate next-step workflows.
 
 ## Known Issues
 

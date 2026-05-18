@@ -35,7 +35,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   companies under `/postgres-preview`
 - staging add/remove relationship managers for company-project roles,
   company-plant/facility roles, and company-company relationships
-- PostgreSQL Research Ops preview queues
+- PostgreSQL Research Ops preview queues with staging quick actions for
+  review/status changes
 - PostgreSQL Sources / Documents list/detail/create/edit workflow foundation
 - source/evidence linking between source records and projects, operating
   assets, or companies
@@ -96,9 +97,9 @@ Known current gaps and risks:
 - extensive `any` usage needs cleanup
 - schema needs formal audit and migration plan
 - SQLite is acceptable for local prototype work but is not the likely final production database
-- PostgreSQL staging entity forms are scaffolds; company-role management,
-  promotion workflows, Research Ops write actions, and production exports are
-  still next-step work
+- PostgreSQL staging entity forms are scaffolds; promotion workflows,
+  assignment/bulk Research Ops actions, and production exports are still
+  next-step work
 - current docs and comments should not be assumed to describe final architecture
 - no committed sanitized fixture database exists yet
 - deployment process needs hardening and should be evaluated against Railway requirements
