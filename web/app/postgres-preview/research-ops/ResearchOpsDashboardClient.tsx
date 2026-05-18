@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { formatCount } from "@/lib/format";
 import PostgresReviewStatusActions, {
@@ -22,6 +23,43 @@ type ResearchOpsRecord = PostgresResearchOpsQueueItem | PostgresResearchOpsRecen
 type QueueFilter = "all" | ResearchOpsQueueKey;
 type SeverityFilter = "all" | ResearchOpsQueueSeverity;
 type EntityFilter = "all" | EntityType;
+type BulkTarget = "records" | "sources";
+
+const editorOnlyReviewStatuses = new Set(["approved", "export_ready", "archived"]);
+const editorOnlySourceStatuses = new Set(["credible", "weak", "outdated", "rejected"]);
+
+function csvCell(value: unknown) {
+  const text = value == null ? "" : String(value);
+
+  if (/[",\n\r]/.test(text)) {
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  return text;
+}
+
+function downloadCsv(filename: string, rows: unknown[][]) {
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function readJson(res: Response) {
+  try {
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  } catch {
+    return null;
+  }
+}
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -67,6 +105,37 @@ function severityClasses(severity: ResearchOpsQueueSeverity) {
 
 function recordKey(record: ResearchOpsRecord) {
   return `${record.entity_type}-${record.entity_id}`;
+}
+
+function statusOptionsForTarget({
+  target,
+  reviewStatuses,
+  sourceStatuses,
+  canReviewStatus,
+}: {
+  target: BulkTarget;
+  reviewStatuses: PostgresStatusOption[];
+  sourceStatuses: PostgresStatusOption[];
+  canReviewStatus: boolean;
+}) {
+  const options = target === "sources" ? sourceStatuses : reviewStatuses;
+  const editorOnlyStatuses =
+    target === "sources" ? editorOnlySourceStatuses : editorOnlyReviewStatuses;
+
+  return options
+    .filter((option) => option.is_active !== false)
+    .filter((option) => canReviewStatus || !editorOnlyStatuses.has(option.code))
+    .slice()
+    .sort((a, b) => {
+      const aOrder = a.sort_order ?? 0;
+      const bOrder = b.sort_order ?? 0;
+
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      return a.label.localeCompare(b.label);
+    });
 }
 
 function recordHref(record: ResearchOpsRecord) {
@@ -229,23 +298,40 @@ function EmptyQueue() {
 function EntityTable({
   items,
   selectedKey,
+  selectedBulkKeys,
+  onToggleBulk,
+  onToggleVisible,
   onSelect,
 }: {
   items: ResearchOpsRecord[];
   selectedKey: string | null;
+  selectedBulkKeys: Set<string>;
+  onToggleBulk: (record: ResearchOpsRecord, checked: boolean) => void;
+  onToggleVisible: (records: ResearchOpsRecord[], checked: boolean) => void;
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
   if (items.length === 0) {
     return <EmptyQueue />;
   }
 
+  const allSelected = items.every((item) => selectedBulkKeys.has(recordKey(item)));
+
   return (
     <div className="overflow-x-auto border-t border-gray-100">
-      <table className="min-w-[1180px] table-fixed text-left text-sm">
+      <table className="min-w-[1260px] table-fixed text-left text-sm">
         <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
           <tr>
-            <th className="w-[10%] px-5 py-3 font-semibold">Type</th>
-            <th className="w-[25%] px-5 py-3 font-semibold">Record</th>
+            <th className="w-[4%] px-5 py-3 font-semibold">
+              <input
+                aria-label="Select visible records"
+                checked={allSelected}
+                className="h-4 w-4 accent-[#8dc63f]"
+                type="checkbox"
+                onChange={(event) => onToggleVisible(items, event.target.checked)}
+              />
+            </th>
+            <th className="w-[9%] px-5 py-3 font-semibold">Type</th>
+            <th className="w-[24%] px-5 py-3 font-semibold">Record</th>
             <th className="w-[12%] px-5 py-3 font-semibold">Country</th>
             <th className="w-[12%] px-5 py-3 font-semibold">Use / Type</th>
             <th className="w-[12%] px-5 py-3 font-semibold">Status</th>
@@ -267,6 +353,15 @@ function EntityTable({
                 key={key}
                 className={selected ? "align-top bg-[#f3f8ec]" : "align-top"}
               >
+                <td className="px-5 py-4">
+                  <input
+                    aria-label={`Select ${item.name}`}
+                    checked={selectedBulkKeys.has(key)}
+                    className="h-4 w-4 accent-[#8dc63f]"
+                    type="checkbox"
+                    onChange={(event) => onToggleBulk(item, event.target.checked)}
+                  />
+                </td>
                 <td className="px-5 py-4 text-gray-700">
                   {formatEntityType(item.entity_type)}
                 </td>
@@ -335,10 +430,16 @@ function EntityTable({
 function QueueCard({
   queue,
   selectedKey,
+  selectedBulkKeys,
+  onToggleBulk,
+  onToggleVisible,
   onSelect,
 }: {
   queue: PostgresResearchOpsQueue;
   selectedKey: string | null;
+  selectedBulkKeys: Set<string>;
+  onToggleBulk: (record: ResearchOpsRecord, checked: boolean) => void;
+  onToggleVisible: (records: ResearchOpsRecord[], checked: boolean) => void;
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
   return (
@@ -365,8 +466,220 @@ function QueueCard({
       <EntityTable
         items={queue.items}
         onSelect={onSelect}
+        onToggleBulk={onToggleBulk}
+        onToggleVisible={onToggleVisible}
+        selectedBulkKeys={selectedBulkKeys}
         selectedKey={selectedKey}
       />
+    </section>
+  );
+}
+
+function BulkActionsPanel({
+  selectedRecords,
+  reviewStatuses,
+  sourceStatuses,
+  canReviewStatus,
+  onClearSelection,
+  onRecordsChanged,
+}: {
+  selectedRecords: ResearchOpsRecord[];
+  reviewStatuses: PostgresStatusOption[];
+  sourceStatuses: PostgresStatusOption[];
+  canReviewStatus: boolean;
+  onClearSelection: () => void;
+  onRecordsChanged: (recordKeys: string[], statusCode: string) => void;
+}) {
+  const router = useRouter();
+  const [bulkTarget, setBulkTarget] = useState<BulkTarget>("records");
+  const [statusCode, setStatusCode] = useState("");
+  const [eventNote, setEventNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+
+  const hasSources = selectedRecords.some((record) => record.entity_type === "source");
+  const hasRecords = selectedRecords.some((record) => record.entity_type !== "source");
+  const activeTarget =
+    bulkTarget === "sources" && hasSources ? "sources" : "records";
+  const targetRecords = selectedRecords.filter((record) =>
+    activeTarget === "sources"
+      ? record.entity_type === "source"
+      : record.entity_type !== "source"
+  );
+  const statusOptions = useMemo(
+    () =>
+      statusOptionsForTarget({
+        target: activeTarget,
+        reviewStatuses,
+        sourceStatuses,
+        canReviewStatus,
+      }),
+    [activeTarget, canReviewStatus, reviewStatuses, sourceStatuses]
+  );
+
+  useEffect(() => {
+    if (!hasRecords && hasSources) {
+      setBulkTarget("sources");
+    } else if (hasRecords && !hasSources) {
+      setBulkTarget("records");
+    }
+  }, [hasRecords, hasSources]);
+
+  useEffect(() => {
+    if (!statusOptions.some((option) => option.code === statusCode)) {
+      setStatusCode(statusOptions[0]?.code || "");
+    }
+  }, [statusCode, statusOptions]);
+
+  async function applyBulkStatus() {
+    if (!statusCode || targetRecords.length === 0) {
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    const updatedKeys: string[] = [];
+    const failures: string[] = [];
+
+    for (const record of targetRecords) {
+      try {
+        const res = await fetch("/api/postgres-preview/research-ops/status", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entity_type: record.entity_type,
+            entity_id: record.entity_id,
+            status_code: statusCode,
+            event_note: eventNote,
+          }),
+        });
+        const json = await readJson(res);
+
+        if (!res.ok || !json?.success) {
+          throw new Error(json?.error || "Failed to update status.");
+        }
+
+        updatedKeys.push(recordKey(record));
+      } catch (error) {
+        failures.push(
+          `${record.name}: ${
+            error instanceof Error ? error.message : "Failed to update status."
+          }`
+        );
+      }
+    }
+
+    if (updatedKeys.length > 0) {
+      onRecordsChanged(updatedKeys, statusCode);
+      setEventNote("");
+      setMessage(
+        `Updated ${formatCount(updatedKeys.length)} ${
+          activeTarget === "sources" ? "source" : "record"
+        }${updatedKeys.length === 1 ? "" : "s"} to ${statusCode}.`
+      );
+      router.refresh();
+    }
+
+    if (failures.length > 0) {
+      setError(failures.slice(0, 3).join(" "));
+    }
+
+    setSaving(false);
+  }
+
+  if (selectedRecords.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Bulk Review Actions
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Apply a workflow status to selected PostgreSQL staging rows. Sources
+            use source credibility states; projects, plants/facilities, and
+            companies use review states.
+          </p>
+        </div>
+        <button
+          className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          type="button"
+          onClick={onClearSelection}
+        >
+          Clear Selection
+        </button>
+      </div>
+
+      <div className="space-y-4 px-5 py-5">
+        {error ? (
+          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        ) : null}
+        {message ? (
+          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            {message}
+          </div>
+        ) : null}
+
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[220px_220px_minmax(0,1fr)]">
+          <FilterSelect
+            label="Apply To"
+            value={activeTarget}
+            onChange={(value) => setBulkTarget(value as BulkTarget)}
+          >
+            <option disabled={!hasRecords} value="records">
+              Records ({formatCount(selectedRecords.filter((r) => r.entity_type !== "source").length)})
+            </option>
+            <option disabled={!hasSources} value="sources">
+              Sources ({formatCount(selectedRecords.filter((r) => r.entity_type === "source").length)})
+            </option>
+          </FilterSelect>
+
+          <FilterSelect label="New Status" value={statusCode} onChange={setStatusCode}>
+            {statusOptions.map((option) => (
+              <option key={option.code} value={option.code}>
+                {option.label || option.code}
+              </option>
+            ))}
+          </FilterSelect>
+
+          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Change Note
+            <input
+              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              placeholder="Optional reason applied to each selected row"
+              value={eventNote}
+              onChange={(event) => setEventNote(event.target.value)}
+            />
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={saving || !statusCode || targetRecords.length === 0}
+            type="button"
+            onClick={applyBulkStatus}
+          >
+            {saving
+              ? "Applying..."
+              : `Apply To ${formatCount(targetRecords.length)} ${
+                  activeTarget === "sources" ? "Source" : "Record"
+                }${targetRecords.length === 1 ? "" : "s"}`}
+          </button>
+          <div className="text-sm text-gray-600">
+            {formatCount(selectedRecords.length)} unique row
+            {selectedRecords.length === 1 ? "" : "s"} selected.
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -466,10 +779,16 @@ function SelectedRecordPanel({
 function RecentEdits({
   items,
   selectedKey,
+  selectedBulkKeys,
+  onToggleBulk,
+  onToggleVisible,
   onSelect,
 }: {
   items: PostgresResearchOpsRecentEdit[];
   selectedKey: string | null;
+  selectedBulkKeys: Set<string>;
+  onToggleBulk: (record: ResearchOpsRecord, checked: boolean) => void;
+  onToggleVisible: (records: ResearchOpsRecord[], checked: boolean) => void;
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
   return (
@@ -481,7 +800,14 @@ function RecentEdits({
           researcher/editor field when user metadata exists.
         </p>
       </div>
-      <EntityTable items={items} onSelect={onSelect} selectedKey={selectedKey} />
+      <EntityTable
+        items={items}
+        onSelect={onSelect}
+        onToggleBulk={onToggleBulk}
+        onToggleVisible={onToggleVisible}
+        selectedBulkKeys={selectedBulkKeys}
+        selectedKey={selectedKey}
+      />
     </section>
   );
 }
@@ -505,6 +831,9 @@ export function ResearchOpsDashboardClient({
   const [showEmptyQueues, setShowEmptyQueues] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ResearchOpsRecord | null>(
     null
+  );
+  const [selectedBulkKeys, setSelectedBulkKeys] = useState<Set<string>>(
+    () => new Set()
   );
 
   const normalizedSearch = search.trim().toLowerCase();
@@ -562,6 +891,34 @@ export function ResearchOpsDashboardClient({
     0
   );
 
+  const filteredRecords = useMemo(() => {
+    const records = new Map<string, ResearchOpsRecord>();
+
+    filteredQueues.forEach((queue) => {
+      queue.items.forEach((item) => records.set(recordKey(item), item));
+    });
+    filteredRecentEdits.forEach((item) => records.set(recordKey(item), item));
+
+    return Array.from(records.values());
+  }, [filteredQueues, filteredRecentEdits]);
+
+  const allRecordLookup = useMemo(() => {
+    const records = new Map<string, ResearchOpsRecord>();
+
+    dashboard.queues.forEach((queue) => {
+      queue.items.forEach((item) => records.set(recordKey(item), item));
+    });
+    dashboard.recentEdits.forEach((item) => records.set(recordKey(item), item));
+
+    return records;
+  }, [dashboard.queues, dashboard.recentEdits]);
+
+  const selectedBulkRecords = useMemo(() => {
+    return Array.from(selectedBulkKeys)
+      .map((key) => allRecordLookup.get(key))
+      .filter((record): record is ResearchOpsRecord => Boolean(record));
+  }, [allRecordLookup, selectedBulkKeys]);
+
   function clearFilters() {
     setQueueFilter("all");
     setSeverityFilter("all");
@@ -571,9 +928,105 @@ export function ResearchOpsDashboardClient({
     setShowEmptyQueues(false);
   }
 
+  function toggleBulkRecord(record: ResearchOpsRecord, checked: boolean) {
+    setSelectedBulkKeys((current) => {
+      const next = new Set(current);
+      const key = recordKey(record);
+
+      if (checked) {
+        next.add(key);
+      } else {
+        next.delete(key);
+      }
+
+      return next;
+    });
+  }
+
+  function toggleBulkRecords(records: ResearchOpsRecord[], checked: boolean) {
+    setSelectedBulkKeys((current) => {
+      const next = new Set(current);
+
+      records.forEach((record) => {
+        const key = recordKey(record);
+
+        if (checked) {
+          next.add(key);
+        } else {
+          next.delete(key);
+        }
+      });
+
+      return next;
+    });
+  }
+
+  function selectFilteredRecords() {
+    toggleBulkRecords(filteredRecords, true);
+  }
+
+  function exportFilteredIssues() {
+    const rows: unknown[][] = [
+      [
+        "queue",
+        "severity",
+        "entity_type",
+        "entity_id",
+        "legacy_id",
+        "name",
+        "country",
+        "use_type",
+        "status",
+        "review_status",
+        "issue_label",
+        "last_updated_by",
+        "updated_at",
+      ],
+    ];
+
+    filteredQueues.forEach((queue) => {
+      queue.items.forEach((item) => {
+        rows.push([
+          queue.title,
+          queue.severity,
+          item.entity_type,
+          item.entity_id,
+          item.legacy_id,
+          item.name,
+          item.country,
+          item.primary_use_type_code,
+          item.lifecycle_phase_code,
+          item.review_status_code,
+          item.issue_label,
+          item.last_updated_by_name,
+          item.updated_at,
+        ]);
+      });
+    });
+
+    downloadCsv(
+      `tge-postgres-research-ops-${new Date().toISOString().slice(0, 10)}.csv`,
+      rows
+    );
+  }
+
   function handleStatusChanged(statusCode: string) {
     setSelectedRecord((current) =>
       current
+        ? {
+            ...current,
+            review_status_code: statusCode,
+            updated_at: new Date().toISOString(),
+          }
+        : current
+    );
+  }
+
+  function handleBulkStatusChanged(recordKeys: string[], statusCode: string) {
+    const changedKeys = new Set(recordKeys);
+
+    setSelectedRecord((current) =>
+      current && changedKeys.has(recordKey(current))
         ? {
             ...current,
             review_status_code: statusCode,
@@ -718,6 +1171,22 @@ export function ResearchOpsDashboardClient({
               >
                 Clear Filters
               </button>
+              <button
+                className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                disabled={filteredRecords.length === 0}
+                type="button"
+                onClick={selectFilteredRecords}
+              >
+                Select Filtered
+              </button>
+              <button
+                className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={filteredIssueRows === 0}
+                type="button"
+                onClick={exportFilteredIssues}
+              >
+                Export Filtered CSV
+              </button>
             </div>
           </div>
         </div>
@@ -740,12 +1209,24 @@ export function ResearchOpsDashboardClient({
         onStatusChanged={handleStatusChanged}
       />
 
+      <BulkActionsPanel
+        canReviewStatus={canReviewStatus}
+        reviewStatuses={reviewStatuses}
+        selectedRecords={selectedBulkRecords}
+        sourceStatuses={sourceStatuses}
+        onClearSelection={() => setSelectedBulkKeys(new Set())}
+        onRecordsChanged={handleBulkStatusChanged}
+      />
+
       <div className="space-y-5">
         {filteredQueues.map((queue) => (
           <QueueCard
             key={queue.key}
             queue={queue}
             onSelect={setSelectedRecord}
+            onToggleBulk={toggleBulkRecord}
+            onToggleVisible={toggleBulkRecords}
+            selectedBulkKeys={selectedBulkKeys}
             selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
           />
         ))}
@@ -754,6 +1235,9 @@ export function ResearchOpsDashboardClient({
       <RecentEdits
         items={filteredRecentEdits}
         onSelect={setSelectedRecord}
+        onToggleBulk={toggleBulkRecord}
+        onToggleVisible={toggleBulkRecords}
+        selectedBulkKeys={selectedBulkKeys}
         selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
       />
     </>

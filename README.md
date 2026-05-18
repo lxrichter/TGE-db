@@ -183,7 +183,8 @@ Current PostgreSQL staging implementation:
   scaffolding that creates a linked staging operating asset and copies available
   source and company-role links
 - `/postgres-preview/research-ops` includes staging quick actions for changing
-  project, plant/facility, company, and source review/status states
+  project, plant/facility, company, and source review/status states, plus
+  filtered CSV export and lightweight bulk status changes
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence
   workflow foundation
 

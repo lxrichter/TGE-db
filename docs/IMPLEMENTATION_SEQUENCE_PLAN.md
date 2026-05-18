@@ -21,6 +21,8 @@ Current implemented foundation:
 - safe PostgreSQL staging seed
 - PostgreSQL preview page
 - PostgreSQL Research Ops preview with selected-record review/status quick actions
+- PostgreSQL Research Ops filtered CSV export, row selection, and lightweight
+  bulk review/status changes
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
@@ -147,8 +149,8 @@ Deliverables:
 
 Immediate next actions:
 
-1. add assignment, notes, duplicate flag, and bulk actions around PostgreSQL
-   Research Ops
+1. decide and add the persistent Research Ops task/issue model for assignment,
+   operational notes, and manual duplicate flags
 2. keep tightening permissions around PostgreSQL write-enabled routes
 3. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
@@ -242,15 +244,17 @@ Key work:
   - return to validation: implemented for individual selected records
   - mark needs update: implemented for individual selected records
   - mark export ready: implemented for individual selected records
-- add lightweight bulk actions and filtered exports
+- add lightweight bulk actions and filtered exports: first staging version
+  implemented for status updates and CSV issue export
 
 Deliverables:
 
 - operational Research Ops dashboard
-- assignment and review state
+- assignment and review state; review/status changes have a first staging
+  implementation, while assignment requires a persistent task/issue model
 - source and missing-data queues
 - duplicate warnings
-- filtered Research Ops exports
+- filtered Research Ops CSV exports
 
 Do before:
 

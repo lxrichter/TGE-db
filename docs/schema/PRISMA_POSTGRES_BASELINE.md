@@ -190,10 +190,17 @@ operating-asset draft from a project, preserve the original project, add a
 project/asset promotion link, and copy existing source/evidence and
 company-role links where available.
 
+The current PostgreSQL Research Ops page also supports selected-row status
+changes, lightweight bulk review/status changes, and filtered CSV exports using
+the existing `PATCH /api/postgres-preview/research-ops/status` route. Persistent
+assignment, task notes, and manual duplicate flags are not yet modeled in the
+database.
+
 The next recommended implementation slice is:
 
-1. add Research Ops assignment, note, duplicate flag, and lightweight bulk actions
-2. persist field-level missing-data flags once the Research Ops task model is
+1. define and add the persistent Research Ops task/issue model for assignment,
+   operational notes, manual duplicate flags, and field-level issue persistence
+2. persist field-level missing-data flags once that Research Ops task model is
    defined
 3. harden project-to-operating-asset promotion with readiness checks, review
    transition rules, and unit/expansion behavior
