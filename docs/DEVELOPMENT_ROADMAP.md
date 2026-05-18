@@ -91,6 +91,10 @@ Outputs:
 
 Goal: build the stable internal MVP for the intended platform, not merely polish the existing prototype.
 
+Current implementation sequencing reference:
+
+- `docs/IMPLEMENTATION_SEQUENCE_PLAN.md`
+
 Tasks:
 
 - implement clean database foundation
