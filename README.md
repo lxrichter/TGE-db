@@ -161,6 +161,7 @@ PostgreSQL schema baseline:
 - [docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md](docs/schema/LIVE_DATABASE_MIGRATION_PLAN.md)
 - [docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md](docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md)
 - [docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md](docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md)
+- [docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md](docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md)
 - [docs/schema/POSTGRES_STAGING_WORKFLOW.md](docs/schema/POSTGRES_STAGING_WORKFLOW.md)
 - [scripts/migration/README.md](scripts/migration/README.md)
 

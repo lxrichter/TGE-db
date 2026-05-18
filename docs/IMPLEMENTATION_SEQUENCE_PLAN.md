@@ -64,6 +64,8 @@ Current implemented foundation:
   - read-only `npm run sqlite:inspect` command for copied Hetzner SQLite backups
   - ignored local schema/count/profile outputs under `source-data/`
   - no raw row samples exported by the inspector
+- first live SQLite migration audit pass completed from the 2026-05-18 Hetzner
+  backup; schema matches local/reference and migration risks are documented
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -131,9 +133,8 @@ Completed / current outputs:
 Remaining actions:
 
 - keep decisions updated as design reviews refine page behavior
-- run the live SQLite inspection workflow when a fresh Hetzner backup is
-  available, then update the SQLite-to-PostgreSQL mapping from the actual live
-  schema before migration scripts are written
+- use the 2026-05-18 live SQLite audit to write dry-run staging import,
+  transform, and validation scripts
 - avoid adding major functionality until the next technical slice is agreed
 
 ## Phase 1: PostgreSQL Application Foundation

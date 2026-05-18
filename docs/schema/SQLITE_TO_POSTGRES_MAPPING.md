@@ -32,6 +32,49 @@ Then update this document with:
 The live SQLite file itself should remain local/private and should not be
 committed or uploaded.
 
+## Live Audit Baseline: 2026-05-18
+
+A live Hetzner SQLite backup was inspected locally on 2026-05-18. The audit is
+documented in:
+
+```text
+docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md
+```
+
+The live schema matches the local/reference SQLite schema exactly for tables,
+columns, indexes, and declared foreign keys. The current difference is data
+volume, not schema shape.
+
+Live table counts:
+
+| Table | Rows |
+| --- | ---: |
+| `projects` | 1,503 |
+| `plants` | 710 |
+| `companies` | 99 |
+| `company_plant_links` | 118 |
+| `company_project_links` | 29 |
+| `company_relationships` | 26 |
+| `company_roles` | 62 |
+| `users` | 8 |
+
+Migration-relevant live findings:
+
+- SQLite integrity check passes.
+- Core project/plant/company link tables have no orphan relationships.
+- SQLite reports 168 aggregate foreign-key check issues, all on `companies`:
+  stale `companies_new` foreign-key declarations and company-type values not in
+  the SQLite reference table.
+- One `company_plant_links` row has a blank legacy link ID.
+- Three plant rows have negative capacity values that cannot be loaded into
+  PostgreSQL non-negative capacity fields without correction.
+- 470 plant rows have blank legacy `project_phase`; import should treat this as
+  a status-quality issue rather than a blocker.
+- 755 projects and 46 plants are missing both coordinates.
+
+The first PostgreSQL migration implementation should use raw staging tables
+before transforming into final PostgreSQL tables.
+
 ## Table Mapping
 
 | Current table | New PostgreSQL table | Notes |
@@ -200,16 +243,81 @@ Initial mapping:
 
 | Current value | New code |
 | --- | --- |
+| `Prospect` | `prospect_tbd` |
+| `TBD` | `prospect_tbd` |
 | `Prospect / TBD` | `prospect_tbd` |
 | `Exploration` | `exploration` |
 | `Pre-Feasibility` | `pre_feasibility` |
 | `Feasibility` | `feasibility` |
 | `Construction` | `construction` |
+| `construction` | `construction` |
 | `Operational` | `operating` |
 | `Operating` | `operating` |
 | `Cancelled` | `cancelled` |
+| `cancelled` | `cancelled` |
 
 Do not silently map unknown values. Report them.
+
+Live-audit handling:
+
+- blank project phase values should import as `prospect_tbd` and create a
+  migration warning / Research Ops issue
+- `projects.project_phase = Operational` should be imported but flagged for
+  review because active operating assets should normally live in
+  `operating_assets`
+- blank `plants.project_phase` values should import as `operating` in the
+  current PostgreSQL schema and create a missing-status issue
+- `plants.project_phase` values such as `Exploration`, `Prospect / TBD`,
+  `Construction`, `Not Operating`, and misspelled `Decomissioned` need review
+  because the current PostgreSQL asset schema still uses lifecycle phase rather
+  than a separate operating-status vocabulary
+
+## Live Company Type Normalization
+
+Current live company type labels should map to PostgreSQL reference codes:
+
+| Current value | PostgreSQL code |
+| --- | --- |
+| `Developer` | `developer` |
+| `Portfolio developer` | `developer` |
+| `Investment firm` | `investment_finance` |
+| `Investment / finance` | `investment_finance` |
+| `Utility / IPP` | `utility_ipp` |
+| `Service provider` | `service_provider` |
+| `OEM / supplier` | `oem_equipment_supplier` |
+| `EPC contractor` | `epc_contractor` |
+| `Technology developer` | `technology_provider` |
+| `Technology provider` | `technology_provider` |
+| `Resource owner` | `resource_owner` |
+| `Turbine supplier` | `turbine_supplier` |
+| `Advocacy / non-profit` | `advocacy_non_profit` |
+| `Energy major` | `energy_major` |
+
+Note: the current PostgreSQL reference codes are slightly less refined than the
+latest product blueprint. Import should use the current PostgreSQL codes first;
+future taxonomy refinement can be handled through a controlled reference-data
+migration.
+
+## Live Company Role Normalization
+
+| Current role value | PostgreSQL role code | Notes |
+| --- | --- | --- |
+| `Owner` | `owner` | direct |
+| `Operator` | `operator` | direct |
+| `Developer` | `developer` | direct |
+| `Investor` | `investor` | direct |
+| `EPC`, `EPC contractor` | `epc_contractor` | normalize label |
+| `Drilling`, `Drilling contractor` | `drilling_contractor` | normalize label |
+| `Turbine Supplier`, `Turbine supplier` | `technology_supplier` | preserve turbine detail |
+| `Technology supplier` | `technology_supplier` | direct |
+| `Engineering consultant` | `engineering_consultant` | direct |
+| `Service provider` | `other` | preserve original role detail |
+| `OEM` | `equipment_supplier` | preserve original role detail |
+| `Resource partner` | `resource_owner` | flag for review |
+| `Operator Steam` | `operator` | preserve `Steam` in role detail |
+| `Operator Power` | `operator` | preserve `Power` in role detail |
+| `Owner/ Operator` | `operator` | flag for possible split into owner and operator |
+| `Other` | `other` | direct |
 
 ## Migration Risks
 

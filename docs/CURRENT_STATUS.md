@@ -85,6 +85,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
+- first live SQLite migration audit pass completed against a copied Hetzner
+  backup, with aggregate findings documented in
+  `docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md`
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

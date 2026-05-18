@@ -10,6 +10,7 @@ Start here:
 4. `PRISMA_POSTGRES_BASELINE.md`
 5. `SOURCES_DOCUMENTS_MVP.md`
 6. `LIVE_SQLITE_INSPECTION_WORKFLOW.md`
+7. `LIVE_SQLITE_AUDIT_2026-05-18.md`
 
 Implementation SQL:
 
@@ -28,6 +29,7 @@ Live SQLite export guide:
 ```text
 docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md
 docs/schema/LIVE_SQLITE_INSPECTION_WORKFLOW.md
+docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md
 ```
 
 Current recommended live SQLite inspection command:

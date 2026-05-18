@@ -30,6 +30,8 @@ Current implemented preparation:
 - PostgreSQL/Railway schema foundation exists through Prisma migrations.
 - The live database has not been imported.
 - The markdown/article source workflow is separate from the live SQLite import.
+- A live SQLite backup was inspected locally on 2026-05-18 and summarized in
+  `docs/schema/LIVE_SQLITE_AUDIT_2026-05-18.md`.
 - A safe local SQLite inspection command now exists:
 
 ```bash
@@ -284,10 +286,12 @@ when classification needs review.
 
 Required before migration:
 
-- live database export
-- schema diff between local/reference and live database
-- data-quality report
-- updated SQLite-to-PostgreSQL mapping from the live inspection output
+- live database export: first audit copy completed 2026-05-18
+- schema diff between local/reference and live database: completed for first
+  audit copy; no schema differences found
+- data-quality report: first audit summary completed
+- updated SQLite-to-PostgreSQL mapping from the live inspection output:
+  started with 2026-05-18 audit findings
 - staging import script
 - transformation script
 - validation script
