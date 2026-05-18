@@ -331,9 +331,9 @@ export default async function PostgresPreviewPage() {
                 Future Platform Preview
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Staging view of the new Railway PostgreSQL schema using safe
-                preview records. The live Hetzner SQLite database is not
-                imported here yet.
+                Staging view of the new Railway PostgreSQL schema using the
+                transformed Hetzner SQLite backup plus PostgreSQL-native preview
+                records.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -342,6 +342,24 @@ export default async function PostgresPreviewPage() {
                 href="/postgres-preview/research-ops"
               >
                 Open Research Ops
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/postgres-preview/projects"
+              >
+                All Projects
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/postgres-preview/operating-assets"
+              >
+                All Plants / Facilities
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/postgres-preview/companies"
+              >
+                All Companies
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
