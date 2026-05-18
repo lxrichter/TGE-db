@@ -49,6 +49,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL Research Ops persistent issue/task foundation with issue types,
   issue statuses, assignment fields, linked entities, operational notes, and
   issue event history
+- PostgreSQL Research Ops assignment now maps the logged-in internal user to
+  `app_users`, supports "assigned to me" filtering, and provides assignment
+  dropdowns for persistent human-created issues
 - generated Research Ops queues remain live/calculated; only human-created
   issues/tasks are currently persisted
 - PostgreSQL Sources / Documents list/detail/create/edit workflow foundation

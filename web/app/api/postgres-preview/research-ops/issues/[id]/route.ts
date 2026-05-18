@@ -19,6 +19,10 @@ function cleanOptionalString(value: unknown) {
   return cleanString(value) || null;
 }
 
+function cleanBoolean(value: unknown) {
+  return value === true || value === "true";
+}
+
 export async function PATCH(
   req: Request,
   context: { params: Promise<{ id: string }> }
@@ -51,6 +55,13 @@ export async function PATCH(
 
     const { id } = await context.params;
     const issueStatusCode = cleanString(payload.issue_status_code);
+    const assignToUserId = cleanBoolean(payload.assign_to_self)
+      ? user.id
+      : cleanOptionalString(payload.assign_to_user_id);
+    const clearAssignment =
+      "assign_to_user_id" in payload &&
+      !cleanBoolean(payload.assign_to_self) &&
+      !assignToUserId;
 
     if (!issueStatusCode) {
       return NextResponse.json(
@@ -64,6 +75,8 @@ export async function PATCH(
       issueStatusCode,
       actorUserId: user.id,
       eventNote: cleanOptionalString(payload.event_note),
+      assignToUserId,
+      clearAssignment,
     });
 
     if (!issue) {

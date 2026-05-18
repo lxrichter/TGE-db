@@ -233,7 +233,9 @@ company detail pages show linked open persistent Research Ops issues and allow
 editors/admins to create, progress, resolve, or dismiss human-created issues
 from the record page. Generated Research Ops queues remain live/calculated for
 now; only deliberate human-created issues are persisted until the workflow is
-stable. Promotion hardening, richer assignment workflows, field-level issue
+stable. Persistent issues now map the logged-in internal user to PostgreSQL
+`app_users`, support assignment dropdowns, and include "assigned to me"
+filtering. Promotion hardening, manual duplicate review, field-level issue
 automation, relationship history/timelines, and production exports remain
 separate next-step workflows.
 

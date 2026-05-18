@@ -26,6 +26,7 @@ type QueueFilter = "all" | ResearchOpsQueueKey;
 type SeverityFilter = "all" | ResearchOpsQueueSeverity;
 type EntityFilter = "all" | EntityType;
 type BulkTarget = "records" | "sources";
+type AssignmentFilter = "all" | "mine" | "unassigned";
 
 const editorOnlyReviewStatuses = new Set(["approved", "export_ready", "archived"]);
 const editorOnlySourceStatuses = new Set(["credible", "weak", "outdated", "rejected"]);
@@ -987,10 +988,12 @@ function SelectedRecordPanel({
 
 function PersistentIssues({
   issues,
-  issueStatuses,
+  issueReferenceData,
+  currentUser,
 }: {
   issues: PostgresResearchOpsIssue[];
-  issueStatuses: PostgresResearchOpsIssueReferenceData["issueStatuses"];
+  issueReferenceData: PostgresResearchOpsIssueReferenceData;
+  currentUser: { id: string; name: string | null } | null;
 }) {
   const router = useRouter();
   const [hiddenIssueIds, setHiddenIssueIds] = useState<Set<string>>(
@@ -998,17 +1001,35 @@ function PersistentIssues({
   );
   const [savingIssueId, setSavingIssueId] = useState<string | null>(null);
   const [eventNote, setEventNote] = useState("");
+  const [assignmentFilter, setAssignmentFilter] =
+    useState<AssignmentFilter>("all");
   const [error, setError] = useState("");
-  const visibleIssues = issues.filter(
-    (issue) => !hiddenIssueIds.has(issue.research_ops_issue_id)
-  );
-  const statusOptions = issueStatuses.filter(
+  const assignableUsers = issueReferenceData.assignableUsers
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const visibleIssues = issues
+    .filter((issue) => !hiddenIssueIds.has(issue.research_ops_issue_id))
+    .filter((issue) => {
+      if (assignmentFilter === "mine") {
+        return Boolean(
+          currentUser && issue.assigned_to_user_id === currentUser.id
+        );
+      }
+
+      if (assignmentFilter === "unassigned") {
+        return !issue.assigned_to_user_id;
+      }
+
+      return true;
+    });
+  const statusOptions = issueReferenceData.issueStatuses.filter(
     (status) => status.is_active !== false
   );
 
   async function setIssueStatus(
     issue: PostgresResearchOpsIssue,
-    issueStatusCode: string
+    issueStatusCode: string,
+    options: { assignToSelf?: boolean; assignToUserId?: string } = {}
   ) {
     setSavingIssueId(issue.research_ops_issue_id);
     setError("");
@@ -1022,6 +1043,10 @@ function PersistentIssues({
           body: JSON.stringify({
             issue_status_code: issueStatusCode,
             event_note: eventNote,
+            ...(options.assignToSelf ? { assign_to_self: true } : {}),
+            ...(options.assignToUserId !== undefined
+              ? { assign_to_user_id: options.assignToUserId }
+              : {}),
           }),
         }
       );
@@ -1052,6 +1077,13 @@ function PersistentIssues({
     } finally {
       setSavingIssueId(null);
     }
+  }
+
+  async function assignIssue(
+    issue: PostgresResearchOpsIssue,
+    assignToUserId: string
+  ) {
+    await setIssueStatus(issue, issue.issue_status_code, { assignToUserId });
   }
 
   return (
@@ -1087,6 +1119,25 @@ function PersistentIssues({
             onChange={(event) => setEventNote(event.target.value)}
           />
         </label>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <FilterSelect
+            label="Assignment"
+            value={assignmentFilter}
+            onChange={(value) => setAssignmentFilter(value as AssignmentFilter)}
+          >
+            <option value="all">All Open Issues</option>
+            <option value="mine" disabled={!currentUser}>
+              Assigned To Me
+            </option>
+            <option value="unassigned">Unassigned</option>
+          </FilterSelect>
+          {currentUser ? (
+            <span className="text-xs font-medium text-gray-500">
+              Current PostgreSQL user: {currentUser.name || "Current user"}
+            </span>
+          ) : null}
+        </div>
 
         {visibleIssues.length === 0 ? (
           <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
@@ -1141,7 +1192,21 @@ function PersistentIssues({
                         <StatusBadge value={issue.issue_status_label} />
                       </td>
                       <td className="px-4 py-3 text-gray-700">
-                        {issue.assigned_to_name || "-"}
+                        <select
+                          className="h-8 w-full min-w-0 border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#8dc63f] disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={saving}
+                          value={issue.assigned_to_user_id || ""}
+                          onChange={(event) =>
+                            assignIssue(issue, event.target.value)
+                          }
+                        >
+                          <option value="">Unassigned</option>
+                          {assignableUsers.map((user) => (
+                            <option key={user.user_id} value={user.user_id}>
+                              {user.name}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         {formatDate(issue.updated_at)}
@@ -1160,7 +1225,11 @@ function PersistentIssues({
                             className="h-8 border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:opacity-60"
                             disabled={saving || issue.issue_status_code === "in_progress"}
                             type="button"
-                            onClick={() => setIssueStatus(issue, "in_progress")}
+                            onClick={() =>
+                              setIssueStatus(issue, "in_progress", {
+                                assignToSelf: true,
+                              })
+                            }
                           >
                             {saving ? "Saving..." : "In Progress"}
                           </button>
@@ -1235,12 +1304,14 @@ export function ResearchOpsDashboardClient({
   reviewStatuses,
   sourceStatuses,
   canReviewStatus,
+  currentUser,
   issueReferenceData,
 }: {
   dashboard: PostgresResearchOpsDashboard;
   reviewStatuses: PostgresStatusOption[];
   sourceStatuses: PostgresStatusOption[];
   canReviewStatus: boolean;
+  currentUser: { id: string; name: string | null } | null;
   issueReferenceData: PostgresResearchOpsIssueReferenceData;
 }) {
   const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
@@ -1637,7 +1708,8 @@ export function ResearchOpsDashboardClient({
 
       <PersistentIssues
         issues={dashboard.persistentIssues}
-        issueStatuses={issueReferenceData.issueStatuses}
+        currentUser={currentUser}
+        issueReferenceData={issueReferenceData}
       />
 
       <BulkActionsPanel

@@ -186,7 +186,7 @@ Current PostgreSQL staging implementation:
 - `/postgres-preview/research-ops` includes staging quick actions for changing
   project, plant/facility, company, and source review/status states, plus
   filtered CSV export, lightweight bulk status changes, and persistent
-  human-created research issues/tasks
+  human-created research issues/tasks with PostgreSQL user assignment controls
 - generated Research Ops queues remain live/calculated for now; only deliberate
   human-created issues are persisted until the workflow is stable
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence

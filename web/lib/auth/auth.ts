@@ -19,6 +19,8 @@ type AuthDbUser = {
 
 type SessionUserWithRole = {
   id?: string;
+  email?: string | null;
+  name?: string | null;
   role?: UserRole | string | null;
 };
 
@@ -106,6 +108,10 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         const roleUser = session.user as SessionUserWithRole;
         roleUser.id = typeof token.id === "string" ? token.id : undefined;
+        roleUser.email =
+          typeof token.email === "string" ? token.email : session.user.email;
+        roleUser.name =
+          typeof token.name === "string" ? token.name : session.user.name;
         roleUser.role =
           typeof token.role === "string" ? normalizeUserRole(token.role) : null;
       }

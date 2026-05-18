@@ -9,6 +9,7 @@ import {
   type PostgresResearchOpsDashboard,
   type PostgresResearchOpsIssueReferenceData,
 } from "@/lib/postgres-preview";
+import { getCurrentPostgresPreviewUser } from "@/lib/postgres-preview/entity-api";
 import { getSourceReferenceData } from "@/lib/services/sources";
 import { ResearchOpsDashboardClient } from "./ResearchOpsDashboardClient";
 
@@ -31,6 +32,10 @@ type ResearchOpsData =
         is_active: boolean;
       }>;
       canReviewStatus: boolean;
+      currentUser: {
+        id: string;
+        name: string | null;
+      } | null;
       issueReferenceData: PostgresResearchOpsIssueReferenceData;
     }
   | {
@@ -52,7 +57,10 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
         getSourceReferenceData(),
         getPostgresResearchOpsIssueReferenceData(),
       ]);
-    const session = await getServerSession(authOptions);
+    const [session, currentUser] = await Promise.all([
+      getServerSession(authOptions),
+      getCurrentPostgresPreviewUser(),
+    ]);
     const role = (session?.user as { role?: string | null } | undefined)?.role;
 
     return {
@@ -61,6 +69,9 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
       reviewStatuses: entityReferenceData.reviewStatuses,
       sourceStatuses: sourceReferenceData.credibilityStatuses,
       canReviewStatus: canReview(role),
+      currentUser: currentUser
+        ? { id: currentUser.id, name: currentUser.name }
+        : null,
       issueReferenceData,
     };
   } catch (error) {
@@ -124,6 +135,7 @@ export default async function PostgresResearchOpsPage() {
           reviewStatuses={data.reviewStatuses}
           sourceStatuses={data.sourceStatuses}
           canReviewStatus={data.canReviewStatus}
+          currentUser={data.currentUser}
           issueReferenceData={data.issueReferenceData}
         />
       )}

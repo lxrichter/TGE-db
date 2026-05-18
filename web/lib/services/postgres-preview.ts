@@ -458,9 +458,17 @@ export type PostgresResearchOpsIssueStatus = PostgresReferenceOption & {
   is_open: boolean;
 };
 
+export type PostgresAssignableUser = {
+  user_id: string;
+  name: string;
+  email: string;
+  role_code: string;
+};
+
 export type PostgresResearchOpsIssueReferenceData = {
   issueTypes: PostgresResearchOpsIssueType[];
   issueStatuses: PostgresResearchOpsIssueStatus[];
+  assignableUsers: PostgresAssignableUser[];
 };
 
 export type PostgresResearchOpsIssueEntityType =
@@ -511,6 +519,7 @@ export type PostgresResearchOpsIssueStatusUpdateInput = {
   actorUserId?: string | null;
   eventNote?: string | null;
   assignToUserId?: string | null;
+  clearAssignment?: boolean;
 };
 
 export type PostgresReviewEntityType = "project" | "operating_asset" | "company";
@@ -3455,7 +3464,7 @@ export async function listPostgresResearchOpsRecentEdits(
 }
 
 export async function getPostgresResearchOpsIssueReferenceData(): Promise<PostgresResearchOpsIssueReferenceData> {
-  const [issueTypes, issueStatuses] = await Promise.all([
+  const [issueTypes, issueStatuses, assignableUsers] = await Promise.all([
     getPrismaClient().$queryRawUnsafe<PostgresResearchOpsIssueType[]>(
       `
       SELECT
@@ -3482,9 +3491,21 @@ export async function getPostgresResearchOpsIssueReferenceData(): Promise<Postgr
       ORDER BY sort_order ASC, label ASC
       `
     ),
+    getPrismaClient().$queryRawUnsafe<PostgresAssignableUser[]>(
+      `
+      SELECT
+        user_id::text,
+        name,
+        email::text,
+        role_code
+      FROM app_users
+      WHERE is_active = TRUE
+      ORDER BY name ASC, email ASC
+      `
+    ),
   ]);
 
-  return { issueTypes, issueStatuses };
+  return { issueTypes, issueStatuses, assignableUsers };
 }
 
 export async function listPostgresResearchOpsIssues(
@@ -3827,6 +3848,11 @@ export async function updatePostgresResearchOpsIssueStatus(
   const normalizedActorUserId = isUuid(input.actorUserId)
     ? input.actorUserId
     : null;
+  const normalizedAssignToUserId = isUuid(input.assignToUserId)
+    ? input.assignToUserId
+    : null;
+  const shouldAssignUser = Boolean(normalizedAssignToUserId);
+  const shouldClearAssignment = Boolean(input.clearAssignment);
   const existingRows = await prisma.$queryRawUnsafe<
     Array<{ issue_status_code: string; assigned_to_user_id: string | null }>
   >(
@@ -3864,10 +3890,21 @@ export async function updatePostgresResearchOpsIssueStatus(
       FROM app_users
       WHERE user_id = $3::uuid
       LIMIT 1
+    ),
+    assignee AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $7::uuid
+      LIMIT 1
     )
     UPDATE research_ops_issues i
     SET
       issue_status_code = next_status.code,
+      assigned_to_user_id = CASE
+        WHEN $5::boolean THEN (SELECT user_id FROM assignee)
+        WHEN $6::boolean THEN NULL
+        ELSE i.assigned_to_user_id
+      END,
       updated_at = now(),
       resolved_at = CASE WHEN next_status.is_open THEN NULL ELSE now() END,
       resolved_by_user_id = CASE
@@ -3885,12 +3922,25 @@ export async function updatePostgresResearchOpsIssueStatus(
     input.issueId,
     input.issueStatusCode,
     normalizedActorUserId,
-    cleanOptionalText(input.eventNote)
+    cleanOptionalText(input.eventNote),
+    shouldAssignUser,
+    shouldClearAssignment,
+    normalizedAssignToUserId
   );
 
   if (!updatedRows[0]) {
     return null;
   }
+
+  const assignmentChanged =
+    shouldClearAssignment ||
+    (shouldAssignUser && existing.assigned_to_user_id !== normalizedAssignToUserId);
+  const statusChanged = existing.issue_status_code !== input.issueStatusCode;
+  const nextAssignedToUserId = shouldClearAssignment
+    ? null
+    : shouldAssignUser
+      ? normalizedAssignToUserId
+      : existing.assigned_to_user_id;
 
   await prisma.$executeRawUnsafe(
     `
@@ -3913,14 +3963,17 @@ export async function updatePostgresResearchOpsIssueStatus(
     )
     VALUES (
       $1::uuid,
-      'issue_status_changed',
+      $7,
       (SELECT user_id FROM actor),
       $2,
       $4,
       $5::uuid,
-      $5::uuid,
+      $8::uuid,
       $6,
-      jsonb_build_object('issue_status_code', $4::text)
+      jsonb_build_object(
+        'issue_status_code', $4::text,
+        'assigned_to_user_id', $8::text
+      )
     )
     `,
     input.issueId,
@@ -3928,7 +3981,13 @@ export async function updatePostgresResearchOpsIssueStatus(
     normalizedActorUserId,
     input.issueStatusCode,
     existing.assigned_to_user_id,
-    cleanOptionalText(input.eventNote)
+    cleanOptionalText(input.eventNote),
+    statusChanged
+      ? "issue_status_changed"
+      : assignmentChanged
+        ? "issue_assignment_changed"
+        : "issue_touched",
+    nextAssignedToUserId
   );
 
   const issues = await listPostgresResearchOpsIssues(100, false);

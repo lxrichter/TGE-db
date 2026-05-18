@@ -206,12 +206,14 @@ human-created research issues/tasks are now modeled and can be created,
 resolved, or dismissed from the Research Ops page and from PostgreSQL project,
 plant/facility, and company detail pages. Generated Research Ops queues remain
 live/calculated for now; only deliberate human-created issues are persisted
-until the workflow feels stable.
+until the workflow feels stable. The current assignment slice maps logged-in
+internal users to PostgreSQL `app_users`, supports assignment dropdowns, and
+adds "assigned to me" filtering for persistent issues.
 
 The next recommended implementation slice is:
 
-1. expand persistent Research Ops issues into richer assignment workflow,
-   manual duplicate review, and field-level human issue persistence
+1. expand persistent Research Ops issues into manual duplicate review and
+   field-level human issue persistence
 2. revisit generated missing-data flag persistence only after the live queue
    workflow has proven useful operationally
 3. harden project-to-operating-asset promotion with readiness checks, review

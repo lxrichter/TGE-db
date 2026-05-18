@@ -70,6 +70,13 @@ export default function PostgresResearchIssuesPanel({
         }),
     [issueReferenceData.issueTypes]
   );
+  const assignableUsers = useMemo(
+    () =>
+      issueReferenceData.assignableUsers
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [issueReferenceData.assignableUsers]
+  );
   const [showCreate, setShowCreate] = useState(false);
   const [issueTypeCode, setIssueTypeCode] = useState(issueTypes[0]?.code || "");
   const [title, setTitle] = useState("");
@@ -128,7 +135,17 @@ export default function PostgresResearchIssuesPanel({
     }
   }
 
-  async function setIssueStatus(issueId: string, issueStatusCode: string) {
+  async function patchIssue({
+    issueId,
+    issueStatusCode,
+    assignToSelf,
+    assignToUserId,
+  }: {
+    issueId: string;
+    issueStatusCode: string;
+    assignToSelf?: boolean;
+    assignToUserId?: string;
+  }) {
     setSavingIssueId(issueId);
     setError("");
     setMessage("");
@@ -142,6 +159,10 @@ export default function PostgresResearchIssuesPanel({
           body: JSON.stringify({
             issue_status_code: issueStatusCode,
             event_note: statusNote,
+            ...(assignToSelf ? { assign_to_self: true } : {}),
+            ...(assignToUserId !== undefined
+              ? { assign_to_user_id: assignToUserId }
+              : {}),
           }),
         }
       );
@@ -161,6 +182,25 @@ export default function PostgresResearchIssuesPanel({
     } finally {
       setSavingIssueId(null);
     }
+  }
+
+  async function setIssueStatus(
+    issueId: string,
+    issueStatusCode: string,
+    assignToSelf = false
+  ) {
+    await patchIssue({ issueId, issueStatusCode, assignToSelf });
+  }
+
+  async function assignIssue(
+    issue: PostgresResearchOpsIssue,
+    assignToUserId: string
+  ) {
+    await patchIssue({
+      issueId: issue.research_ops_issue_id,
+      issueStatusCode: issue.issue_status_code,
+      assignToUserId,
+    });
   }
 
   return (
@@ -339,7 +379,25 @@ export default function PostgresResearchIssuesPanel({
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-700">
-                        {issue.assigned_to_name || "-"}
+                        {canManageIssues ? (
+                          <select
+                            className="h-8 w-full min-w-0 border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#8dc63f] disabled:cursor-not-allowed disabled:opacity-60"
+                            disabled={savingThis}
+                            value={issue.assigned_to_user_id || ""}
+                            onChange={(event) =>
+                              assignIssue(issue, event.target.value)
+                            }
+                          >
+                            <option value="">Unassigned</option>
+                            {assignableUsers.map((user) => (
+                              <option key={user.user_id} value={user.user_id}>
+                                {user.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          issue.assigned_to_name || "-"
+                        )}
                       </td>
                       <td className="px-4 py-3 text-gray-700">
                         {formatDate(issue.updated_at)}
@@ -357,7 +415,8 @@ export default function PostgresResearchIssuesPanel({
                               onClick={() =>
                                 setIssueStatus(
                                   issue.research_ops_issue_id,
-                                  "in_progress"
+                                  "in_progress",
+                                  true
                                 )
                               }
                             >

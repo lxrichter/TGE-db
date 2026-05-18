@@ -1,16 +1,19 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
+import { getPrismaClient } from "@/lib/db/prisma";
 import {
   getPostgresEntityFormReferenceData,
   type PostgresCompanyMutationInput,
   type PostgresOperatingAssetMutationInput,
   type PostgresProjectMutationInput,
 } from "@/lib/postgres-preview";
-import type { UserRole } from "@/lib/auth/roles";
+import { normalizeUserRole, type UserRole } from "@/lib/auth/roles";
 
 export type PostgresPreviewSessionUser = {
   id: string;
   role: UserRole;
+  name: string | null;
+  email: string | null;
 };
 
 export type ParsedProjectInput =
@@ -43,17 +46,142 @@ export type ParsedCompanyInput =
       error: string;
     };
 
+function isUuid(value: string | null | undefined) {
+  return Boolean(
+    value &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i.test(
+        value
+      )
+  );
+}
+
+function normalizeEmail(value: string | null | undefined) {
+  const trimmed = value?.trim().toLowerCase();
+  return trimmed || null;
+}
+
+function normalizeName(value: string | null | undefined, email: string | null) {
+  const trimmed = value?.trim();
+  return trimmed || email || "PostgreSQL Preview User";
+}
+
+async function resolvePostgresAppUserId({
+  legacyUserId,
+  email,
+  name,
+  role,
+}: {
+  legacyUserId: string;
+  email: string | null;
+  name: string | null;
+  role: UserRole;
+}) {
+  const prisma = getPrismaClient();
+  const uuidUserId = isUuid(legacyUserId) ? legacyUserId : null;
+  const existingRows = await prisma.$queryRawUnsafe<Array<{ user_id: string }>>(
+    `
+    SELECT user_id::text
+    FROM app_users
+    WHERE ($1::uuid IS NOT NULL AND user_id = $1::uuid)
+      OR ($2::text IS NOT NULL AND legacy_user_id = $2::text)
+      OR ($3::text IS NOT NULL AND lower(email::text) = lower($3::text))
+    ORDER BY
+      CASE
+        WHEN $1::uuid IS NOT NULL AND user_id = $1::uuid THEN 1
+        WHEN $2::text IS NOT NULL AND legacy_user_id = $2::text THEN 2
+        ELSE 3
+      END
+    LIMIT 1
+    `,
+    uuidUserId,
+    legacyUserId || null,
+    email
+  );
+  const existingUserId = existingRows[0]?.user_id;
+
+  if (existingUserId) {
+    await prisma.$executeRawUnsafe(
+      `
+      UPDATE app_users
+      SET
+        legacy_user_id = COALESCE(legacy_user_id, $2::text),
+        role_code = $3,
+        is_active = TRUE,
+        updated_at = now()
+      WHERE user_id = $1::uuid
+      `,
+      existingUserId,
+      legacyUserId || null,
+      role
+    );
+
+    return existingUserId;
+  }
+
+  if (!email) {
+    return null;
+  }
+
+  const insertedRows = await prisma.$queryRawUnsafe<Array<{ user_id: string }>>(
+    `
+    INSERT INTO app_users (
+      legacy_user_id,
+      name,
+      email,
+      role_code,
+      is_active
+    )
+    VALUES ($1, $2, $3, $4, TRUE)
+    ON CONFLICT (email) DO UPDATE
+    SET
+      legacy_user_id = COALESCE(app_users.legacy_user_id, EXCLUDED.legacy_user_id),
+      role_code = EXCLUDED.role_code,
+      is_active = TRUE,
+      updated_at = now()
+    RETURNING user_id::text
+    `,
+    legacyUserId || null,
+    normalizeName(name, email),
+    email,
+    role
+  );
+
+  return insertedRows[0]?.user_id ?? null;
+}
+
 export async function getCurrentPostgresPreviewUser(): Promise<PostgresPreviewSessionUser | null> {
   const session = await getServerSession(authOptions);
-  const user = session?.user as Partial<PostgresPreviewSessionUser> | undefined;
+  const user =
+    session?.user as
+      | (Partial<PostgresPreviewSessionUser> & {
+          name?: string | null;
+          email?: string | null;
+        })
+      | undefined;
+  const role = normalizeUserRole(user?.role);
 
-  if (!user?.id || !user?.role) {
+  if (!user?.id || !role) {
+    return null;
+  }
+
+  const email = normalizeEmail(user.email);
+  const name = normalizeName(user.name, email);
+  const postgresUserId = await resolvePostgresAppUserId({
+    legacyUserId: user.id,
+    email,
+    name,
+    role,
+  });
+
+  if (!postgresUserId) {
     return null;
   }
 
   return {
-    id: user.id,
-    role: user.role,
+    id: postgresUserId,
+    role,
+    name,
+    email,
   };
 }
 
