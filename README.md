@@ -174,6 +174,8 @@ Current PostgreSQL staging implementation:
 - `/postgres-preview/companies/new` and
   `/postgres-preview/companies/[id]/edit` provide staging-only company
   create/edit scaffolds
+- PostgreSQL staging forms include live form-readiness panels for critical,
+  important, and separate-workflow data gaps
 - PostgreSQL staging detail pages include add/remove managers for
   company-project roles, company-plant/facility roles, and company-company
   relationships

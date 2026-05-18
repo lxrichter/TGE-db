@@ -33,6 +33,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   and companies
 - staging-only create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
+- live form-readiness panels for PostgreSQL staging project, plant/facility,
+  and company forms
 - staging add/remove relationship managers for company-project roles,
   company-plant/facility roles, and company-company relationships
 - PostgreSQL Research Ops preview queues with staging quick actions for

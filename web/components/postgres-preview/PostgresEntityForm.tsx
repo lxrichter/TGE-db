@@ -12,6 +12,11 @@ import type {
 
 type EntityFormMode = "create" | "edit";
 type EntityFormValues = Record<string, string>;
+type FormReadinessIssue = {
+  severity: "critical" | "important" | "workflow";
+  label: string;
+  detail: string;
+};
 
 function toInputValue(value: string | number | null | undefined) {
   if (value === null || value === undefined) {
@@ -164,6 +169,313 @@ function FormNotice({
       ) : null}
     </>
   );
+}
+
+function hasValue(form: EntityFormValues, name: string) {
+  return Boolean((form[name] || "").trim());
+}
+
+function isUnknownCode(form: EntityFormValues, name: string) {
+  const value = (form[name] || "").trim();
+  return !value || value === "unknown";
+}
+
+function hasAnyValue(form: EntityFormValues, names: string[]) {
+  return names.some((name) => hasValue(form, name));
+}
+
+function issueTone(severity: FormReadinessIssue["severity"]) {
+  if (severity === "critical") {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+
+  if (severity === "important") {
+    return "border-amber-200 bg-amber-50 text-amber-800";
+  }
+
+  return "border-blue-200 bg-blue-50 text-blue-800";
+}
+
+function FormReadinessPanel({
+  issues,
+  entityLabel,
+}: {
+  issues: FormReadinessIssue[];
+  entityLabel: string;
+}) {
+  const criticalCount = issues.filter(
+    (issue) => issue.severity === "critical"
+  ).length;
+  const importantCount = issues.filter(
+    (issue) => issue.severity === "important"
+  ).length;
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">Form Readiness</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Live guidance for this staging {entityLabel}. Drafts can still be
+            saved while critical and important gaps remain.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            {criticalCount} critical
+          </span>
+          <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            {importantCount} important
+          </span>
+        </div>
+      </div>
+      <div className="space-y-4 px-5 py-5">
+        {issues.length === 0 ? (
+          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            No form-level gaps detected. Source/evidence and company-role links
+            are still checked in their separate workflows.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {issues.map((issue) => (
+              <div
+                key={`${issue.severity}-${issue.label}`}
+                className={`border px-4 py-3 ${issueTone(issue.severity)}`}
+              >
+                <div className="text-xs font-semibold uppercase tracking-wide">
+                  {issue.severity}
+                </div>
+                <div className="mt-1 text-sm font-bold">{issue.label}</div>
+                <div className="mt-1 text-xs leading-5">{issue.detail}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
+  const issues: FormReadinessIssue[] = [];
+
+  if (!hasValue(form, "project_name")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing project name",
+      detail: "A project needs a stable name before it can be reviewed.",
+    });
+  }
+
+  if (!hasValue(form, "country")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing country",
+      detail: "Country is required for market pages, maps, charts, and exports.",
+    });
+  }
+
+  if (isUnknownCode(form, "primary_use_type_code")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing use type",
+      detail: "Power, direct-use, hybrid, or mineral classification is required.",
+    });
+  }
+
+  if (
+    isUnknownCode(form, "lifecycle_phase_code") ||
+    form.lifecycle_phase_code === "prospect_tbd"
+  ) {
+    issues.push({
+      severity: "critical",
+      label: "Lifecycle needs classification",
+      detail: "Prospect / TBD can be saved, but should stay visible as a review gap.",
+    });
+  }
+
+  if (
+    !hasAnyValue(form, [
+      "potential_min_mwe",
+      "potential_max_mwe",
+      "electric_capacity_mwe",
+      "thermal_capacity_mwth",
+      "annual_power_generation_gwhe",
+      "annual_heat_supply_gwhth",
+      "annual_cooling_supply_gwhc",
+    ])
+  ) {
+    issues.push({
+      severity: "important",
+      label: "Missing capacity or output",
+      detail: "Add MWe, MWth, GWh, or a potential range when credible data exists.",
+    });
+  }
+
+  if (!hasValue(form, "latitude") || !hasValue(form, "longitude")) {
+    issues.push({
+      severity: "important",
+      label: "Missing coordinates",
+      detail: "Coordinate-confirmed map layers only show records with latitude and longitude.",
+    });
+  }
+
+  issues.push({
+    severity: "workflow",
+    label: "Source evidence handled separately",
+    detail: "Add source/evidence links after saving the staging record.",
+  });
+
+  issues.push({
+    severity: "workflow",
+    label: "Company roles handled separately",
+    detail: "Developer, owner, operator, and supplier links are managed on the detail page.",
+  });
+
+  return issues;
+}
+
+function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
+  const issues: FormReadinessIssue[] = [];
+
+  if (!hasValue(form, "asset_name")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing plant / facility name",
+      detail: "An operating asset needs a stable name before review.",
+    });
+  }
+
+  if (!hasValue(form, "country")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing country",
+      detail: "Country is required for operating totals, maps, and exports.",
+    });
+  }
+
+  if (isUnknownCode(form, "primary_use_type_code")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing use type",
+      detail: "Power, direct-use, hybrid, or mineral classification is required.",
+    });
+  }
+
+  if (isUnknownCode(form, "lifecycle_phase_code")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing operating status",
+      detail: "Operating, retired, offline, or refurbishment status is required.",
+    });
+  }
+
+  if (
+    !hasAnyValue(form, [
+      "electric_capacity_mwe",
+      "electric_capacity_running_mwe",
+      "thermal_capacity_mwth",
+      "potential_min_mwe",
+      "potential_max_mwe",
+      "annual_power_generation_gwhe",
+      "annual_heat_supply_gwhth",
+      "annual_cooling_supply_gwhc",
+    ])
+  ) {
+    issues.push({
+      severity: "important",
+      label: "Missing capacity or output",
+      detail: "Add installed/running MWe, MWth, annual output, or a capacity note.",
+    });
+  }
+
+  if (!hasValue(form, "latitude") || !hasValue(form, "longitude")) {
+    issues.push({
+      severity: "important",
+      label: "Missing coordinates",
+      detail: "Coordinate-confirmed map layers only show records with latitude and longitude.",
+    });
+  }
+
+  if (!hasValue(form, "cod_year") && !hasValue(form, "cod_raw")) {
+    issues.push({
+      severity: "important",
+      label: "Missing COD / commissioning date",
+      detail: "Add a structured COD year or raw commissioning note when known.",
+    });
+  }
+
+  issues.push({
+    severity: "workflow",
+    label: "Source evidence handled separately",
+    detail: "Add source/evidence links after saving the staging record.",
+  });
+
+  issues.push({
+    severity: "workflow",
+    label: "Company roles handled separately",
+    detail: "Owner, operator, supplier, and contractor links are managed on the detail page.",
+  });
+
+  return issues;
+}
+
+function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
+  const issues: FormReadinessIssue[] = [];
+
+  if (!hasValue(form, "company_name")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing company name",
+      detail: "A company needs a stable name before it can be reviewed.",
+    });
+  }
+
+  if (isUnknownCode(form, "company_type_primary_code")) {
+    issues.push({
+      severity: "critical",
+      label: "Missing primary company type",
+      detail: "Primary category is required for company intelligence and filtering.",
+    });
+  }
+
+  if (isUnknownCode(form, "entity_type_code")) {
+    issues.push({
+      severity: "important",
+      label: "Missing entity type",
+      detail: "Legal entity, group, institution, or other entity type improves governance.",
+    });
+  }
+
+  if (!hasValue(form, "headquarters_country")) {
+    issues.push({
+      severity: "important",
+      label: "Missing headquarters country",
+      detail: "HQ country helps company portfolio and market activity analysis.",
+    });
+  }
+
+  if (!hasValue(form, "website_url")) {
+    issues.push({
+      severity: "important",
+      label: "Missing website",
+      detail: "A company website or equivalent source improves validation confidence.",
+    });
+  }
+
+  issues.push({
+    severity: "workflow",
+    label: "Source evidence handled separately",
+    detail: "Add source/evidence links after saving the staging company record.",
+  });
+
+  issues.push({
+    severity: "workflow",
+    label: "Project and asset roles handled separately",
+    detail: "Company portfolios and ownership links are managed on the detail page.",
+  });
+
+  return issues;
 }
 
 function FormActions({
@@ -369,6 +681,11 @@ export function PostgresProjectForm({
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <FormNotice error={error} message={message} />
+
+      <FormReadinessPanel
+        entityLabel="project"
+        issues={getProjectReadinessIssues(form)}
+      />
 
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -605,6 +922,11 @@ export function PostgresOperatingAssetForm({
     <form className="space-y-6" onSubmit={handleSubmit}>
       <FormNotice error={error} message={message} />
 
+      <FormReadinessPanel
+        entityLabel="plant / facility"
+        issues={getAssetReadinessIssues(form)}
+      />
+
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field label="Plant / Facility Name">
@@ -840,6 +1162,11 @@ export function PostgresCompanyForm({
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <FormNotice error={error} message={message} />
+
+      <FormReadinessPanel
+        entityLabel="company"
+        issues={getCompanyReadinessIssues(form)}
+      />
 
       <Section title="Identity And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

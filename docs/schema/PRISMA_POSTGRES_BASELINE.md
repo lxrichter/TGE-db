@@ -187,7 +187,8 @@ PATCH /api/postgres-preview/research-ops/status
 The next recommended implementation slice is:
 
 1. add Research Ops assignment, note, duplicate flag, and lightweight bulk actions
-2. add field-level missing-data flags around the staging forms
+2. persist field-level missing-data flags once the Research Ops task model is
+   defined
 3. add project-to-operating-asset promotion scaffolding on PostgreSQL
 4. keep permission checks explicit as PostgreSQL write routes expand
 

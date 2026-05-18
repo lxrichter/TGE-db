@@ -24,6 +24,7 @@ Current implemented foundation:
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`
+- live PostgreSQL staging form-readiness panels for core missing-data guidance
 - PostgreSQL staging relationship managers for company-project role links,
   company-plant/facility role links, and company-company relationships
 - PostgreSQL Sources / Documents MVP foundation:
@@ -186,11 +187,15 @@ Current implemented foundation:
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms
+- PostgreSQL staging create/edit forms show live readiness guidance for critical
+  and important missing fields
 
 Key work:
 
 - prepare country/market source links when country/market pages move to
   PostgreSQL
+- expand form-readiness hints into persisted field-level issue tracking when
+  the Research Ops task model is defined
 - turn preview-only readiness checks into enforced export rules when
   PostgreSQL exports are implemented
 

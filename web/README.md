@@ -214,7 +214,9 @@ The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the
 current SQLite prototype routes under `/projects`, `/plants`, and `/companies`.
-It also includes staging add/remove managers for company-project roles,
+The forms include live readiness panels for critical and important missing-data
+guidance while still allowing incomplete draft saves. It also includes staging
+add/remove managers for company-project roles,
 company-plant/facility roles, and company-company relationships. PostgreSQL
 Research Ops also supports selected-row review/status quick actions for
 projects, plants/facilities, companies, and sources. Project promotion, bulk
