@@ -78,6 +78,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   explicit matcher write path; no real `entity_sources` links are auto-created
 - `/sources/matches` now provides the first filtered review surface for article
   match candidates; confirmation creates or reuses reviewed evidence links
+- PostgreSQL Research Ops now shows article match candidate counts and quick
+  links into the Sources review workflow
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

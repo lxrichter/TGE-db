@@ -10,7 +10,11 @@ import {
   type PostgresResearchOpsIssueReferenceData,
 } from "@/lib/postgres-preview";
 import { getCurrentPostgresPreviewUser } from "@/lib/postgres-preview/entity-api";
-import { getSourceReferenceData } from "@/lib/services/sources";
+import {
+  getSourceMatchCandidateSummary,
+  getSourceReferenceData,
+  type SourceMatchCandidateSummary,
+} from "@/lib/services/sources";
 import { ResearchOpsDashboardClient } from "./ResearchOpsDashboardClient";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +41,7 @@ type ResearchOpsData =
         name: string | null;
       } | null;
       issueReferenceData: PostgresResearchOpsIssueReferenceData;
+      sourceMatchSummary: SourceMatchCandidateSummary;
     }
   | {
       ok: false;
@@ -50,12 +55,14 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
       entityReferenceData,
       sourceReferenceData,
       issueReferenceData,
+      sourceMatchSummary,
     ] =
       await Promise.all([
         getPostgresResearchOpsDashboard(100),
         getPostgresEntityFormReferenceData(),
         getSourceReferenceData(),
         getPostgresResearchOpsIssueReferenceData(),
+        getSourceMatchCandidateSummary(),
       ]);
     const [session, currentUser] = await Promise.all([
       getServerSession(authOptions),
@@ -73,6 +80,7 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
         ? { id: currentUser.id, name: currentUser.name }
         : null,
       issueReferenceData,
+      sourceMatchSummary,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -137,6 +145,7 @@ export default async function PostgresResearchOpsPage() {
           canReviewStatus={data.canReviewStatus}
           currentUser={data.currentUser}
           issueReferenceData={data.issueReferenceData}
+          sourceMatchSummary={data.sourceMatchSummary}
         />
       )}
     </main>

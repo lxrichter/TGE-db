@@ -201,6 +201,10 @@ It supports filtered review, selected-row confirmation, rejection, and returning
 candidates to `needs_review`. Confirmation is the reviewed action that creates
 or reuses the real `entity_sources` evidence link.
 
+PostgreSQL Research Ops also shows article match candidate counts and quick
+links into `/sources/matches`, while keeping the full confirmation workflow in
+Sources / Documents.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:

@@ -18,6 +18,7 @@ import {
   type ResearchOpsQueueKey,
   type ResearchOpsQueueSeverity,
 } from "@/lib/postgres-preview";
+import type { SourceMatchCandidateSummary } from "@/lib/services/sources";
 
 type EntityType = PostgresResearchOpsQueueItem["entity_type"];
 type ResearchOpsRecord = PostgresResearchOpsQueueItem | PostgresResearchOpsRecentEdit;
@@ -251,6 +252,100 @@ function StatTile({
       </div>
       <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
     </div>
+  );
+}
+
+function ArticleMatchReviewPanel({
+  summary,
+}: {
+  summary: SourceMatchCandidateSummary;
+}) {
+  const matchLinks = [
+    {
+      label: "All Candidates",
+      value: summary.total,
+      href: "/sources/matches",
+      note: "Full review table",
+    },
+    {
+      label: "High",
+      value: summary.highConfidence,
+      href: "/sources/matches?status=suggested_high_confidence",
+      note: "Best bulk-review set",
+    },
+    {
+      label: "Medium",
+      value: summary.mediumConfidence,
+      href: "/sources/matches?status=suggested_medium_confidence",
+      note: "Review before confirming",
+    },
+    {
+      label: "Low",
+      value: summary.lowConfidence,
+      href: "/sources/matches?status=suggested_low_confidence",
+      note: "Usually careful review",
+    },
+    {
+      label: "Confirmed",
+      value: summary.confirmed,
+      href: "/sources/matches?status=confirmed",
+      note: "Evidence links created",
+    },
+    {
+      label: "Rejected",
+      value: summary.rejected,
+      href: "/sources/matches?status=rejected",
+      note: "Dismissed matches",
+    },
+  ];
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Article Match Review
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Generated TGE article/entity matches remain candidates until reviewed.
+            This panel keeps the archive-linking workload visible in Research Ops
+            while the actual confirmation workflow stays in Sources.
+          </p>
+        </div>
+        <Link
+          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          href="/sources/matches"
+        >
+          Review Matches
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-6">
+        {matchLinks.map((item) => (
+          <Link
+            key={item.label}
+            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f] hover:bg-[#f3f8ec]"
+            href={item.href}
+          >
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {item.label}
+            </div>
+            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+              {formatCount(item.value)}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {item.note}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+        Open candidate workload: {formatCount(summary.open)}. Matching does not
+        create evidence links; confirmation in Sources creates or reuses
+        reviewed evidence links.
+      </div>
+    </section>
   );
 }
 
@@ -1306,6 +1401,7 @@ export function ResearchOpsDashboardClient({
   canReviewStatus,
   currentUser,
   issueReferenceData,
+  sourceMatchSummary,
 }: {
   dashboard: PostgresResearchOpsDashboard;
   reviewStatuses: PostgresStatusOption[];
@@ -1313,6 +1409,7 @@ export function ResearchOpsDashboardClient({
   canReviewStatus: boolean;
   currentUser: { id: string; name: string | null } | null;
   issueReferenceData: PostgresResearchOpsIssueReferenceData;
+  sourceMatchSummary: SourceMatchCandidateSummary;
 }) {
   const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
@@ -1561,6 +1658,8 @@ export function ResearchOpsDashboardClient({
           note="Human-created tasks"
         />
       </section>
+
+      <ArticleMatchReviewPanel summary={sourceMatchSummary} />
 
       <section className="border border-gray-200 bg-white px-5 py-5">
         <div className="flex flex-col gap-4">
