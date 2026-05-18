@@ -226,6 +226,17 @@ source record, and link it to the current project, plant/facility, or company.
 Imported TGE article sources default to public visibility and `needs_review`
 credibility so editors still control export readiness.
 
+Historical article archive preparation is local-only. Run the metadata preview
+against a local markdown archive with:
+
+```bash
+npm run tge-news:preview -- --root "/path/to/tge_news_md_canonical"
+```
+
+The preview writes metadata-only files to ignored `source-data/` output and does
+not write to PostgreSQL. See
+`docs/schema/TGE_NEWS_ARCHIVE_LOCAL_PREVIEW.md`.
+
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the

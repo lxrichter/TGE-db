@@ -66,6 +66,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company detail source panels now
   support searching/importing public ThinkGeoEnergy WordPress articles as
   `tge_article` sources and linking them to the current record
+- a local-only TGE markdown news archive preview script can parse historical
+  article metadata and candidate related-news links into ignored `source-data/`
+  outputs without writing to PostgreSQL
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

@@ -152,6 +152,16 @@ This is not yet full archive synchronization. Automated article/entity matching,
 WordPress category/tag mapping, country/market related-news panels, and semantic
 article search remain future slices.
 
+The local markdown archive preview workflow is documented in:
+
+```text
+docs/schema/TGE_NEWS_ARCHIVE_LOCAL_PREVIEW.md
+```
+
+That workflow parses the 17,000+ markdown article archive locally and writes
+metadata-only preview outputs to the ignored `source-data/` directory. It does
+not write to PostgreSQL and does not export article body text by default.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:

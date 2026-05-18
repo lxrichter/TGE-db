@@ -216,6 +216,9 @@ Current implemented foundation:
 - PostgreSQL entity detail pages can search the public ThinkGeoEnergy WordPress
   posts API, import or reuse a `tge_article` source, and link it to the current
   project, plant/facility, or company
+- local-only markdown news archive preview script for the 17,000+ historical
+  TGE article files; it writes metadata-only outputs to ignored `source-data/`
+  and does not upload files or write to PostgreSQL
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms
@@ -228,6 +231,8 @@ Key work:
   PostgreSQL
 - define semi-automatic TGE article/entity matching rules before attempting
   full archive synchronization
+- reconcile markdown-derived article references with WordPress post IDs before
+  production-scale article import
 - expand form-readiness hints into persisted field-level issue tracking when
   the Research Ops task model is defined
 - turn preview-only readiness checks into enforced export rules when
