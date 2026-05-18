@@ -165,3 +165,62 @@ Recommended matching tiers:
 
 Only high-confidence matches should eventually be auto-linked. Medium and low
 confidence matches should go to Research Ops / source validation for review.
+
+## Metadata Import To PostgreSQL Staging
+
+After the archive preview has produced `article_index_preview.ndjson`, article
+metadata can be imported into PostgreSQL staging as `tge_article` source
+records.
+
+Dry-run only:
+
+```bash
+npm run tge-news:import -- --limit 25
+```
+
+Apply migrations first:
+
+```bash
+railway run --service Postgres -- npm run prisma:migrate:deploy
+```
+
+Controlled full metadata import:
+
+```bash
+railway run --service Postgres -- npm run tge-news:import -- --execute
+```
+
+The import is metadata-only. It does not read or store full article body text.
+
+Metadata stored on `sources`:
+
+- `source_type_code = tge_article`
+- `source_reference = TGE-MD-{YYYY-MM-DD-slug}`
+- `title`
+- `url`
+- `published_date`
+- `source_slug`
+- `content_type_code`
+- `import_source_code = markdown_archive`
+- `site_code = thinkgeoenergy`
+- `archive_file_path`
+- `language_code`
+- `metadata_json` with categories, tags, inferred use type, link counts, source
+  link counts, and word count
+- `last_synced_at`
+
+Imported records default to:
+
+- `visibility_code = public`
+- `credibility_status_code = needs_review`
+- no entity links
+- no full article body text
+
+Importer behavior:
+
+- dry-run by default
+- requires `--execute` to write
+- upserts by `wordpress_post_id` when present, then `source_reference`, then URL
+- writes local ignored summary output to `source-data/tge-news-archive-import/`
+- does not auto-link articles to projects, plants/facilities, companies, or
+  countries

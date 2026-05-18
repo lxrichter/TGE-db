@@ -721,6 +721,14 @@ model sources {
   reviewed_by_user_id                              String?                      @db.Uuid
   reviewed_at                                      DateTime?                    @db.Timestamptz(6)
   updated_at                                       DateTime                     @default(now()) @db.Timestamptz(6)
+  wordpress_post_id                                BigInt?
+  source_slug                                      String?
+  content_type_code                                String                       @default("news_article")
+  import_source_code                               String?
+  site_code                                        String                       @default("thinkgeoenergy")
+  archive_file_path                                String?
+  metadata_json                                    Json                         @default("{}")
+  last_synced_at                                   DateTime?                    @db.Timestamptz(6)
   entity_sources                                   entity_sources[]
   research_ops_issues                              research_ops_issues[]
   app_users_sources_added_by_user_idToapp_users    app_users?                   @relation("sources_added_by_user_idToapp_users", fields: [added_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
@@ -732,10 +740,18 @@ model sources {
   @@index([country], map: "idx_sources_country")
   @@index([credibility_status_code], map: "idx_sources_credibility")
   @@index([published_date], map: "idx_sources_published_date")
+  @@index([archive_file_path], map: "idx_sources_archive_file_path")
+  @@index([content_type_code], map: "idx_sources_content_type")
+  @@index([import_source_code], map: "idx_sources_import_source")
+  @@index([metadata_json], map: "idx_sources_metadata_json", type: Gin)
+  @@index([site_code], map: "idx_sources_site_code")
+  @@index([source_reference], map: "idx_sources_source_reference")
+  @@index([source_slug], map: "idx_sources_source_slug")
   @@index([source_type_code], map: "idx_sources_type")
   @@index([updated_at], map: "idx_sources_updated_at")
   @@index([url], map: "idx_sources_url")
   @@index([visibility_code], map: "idx_sources_visibility")
+  @@index([wordpress_post_id], map: "idx_sources_wordpress_post_id")
 }
 
 model ref_source_statuses {

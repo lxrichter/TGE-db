@@ -72,6 +72,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - a local-only entity match preview can compare article metadata against local
   entity JSON or read-only PostgreSQL staging entity names to create candidate
   related-news review files
+- PostgreSQL source records now have a migration-ready TGE article metadata
+  extension and a dry-run-by-default metadata importer for the markdown archive
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

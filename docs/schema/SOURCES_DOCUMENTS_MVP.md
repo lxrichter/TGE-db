@@ -165,6 +165,22 @@ It also includes an entity-match preview command that can compare article
 metadata against a local entity JSON file or read-only PostgreSQL staging entity
 names, then write candidate related-news matches to ignored local output.
 
+The PostgreSQL article metadata extension is in:
+
+```text
+web/prisma/migrations/20260518000400_tge_article_metadata/migration.sql
+```
+
+The metadata-only importer is:
+
+```text
+web/scripts/tge-news-archive-import.mjs
+```
+
+It imports markdown archive metadata into `sources` as `tge_article` records
+only when run with `--execute`. It does not read or store full article body text
+and does not auto-link articles to entities.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:

@@ -205,6 +205,17 @@ archive synchronization, automated related-news matching, file upload,
 country/market evidence panels, and enforced PostgreSQL export-readiness rules
 are still future implementation slices.
 
+The historical markdown archive can also be imported into PostgreSQL staging as
+metadata-only `tge_article` source records after migrations are applied:
+
+```bash
+railway run --service Postgres -- npm run tge-news:import -- --execute
+```
+
+The importer is dry-run by default, stores no full article body text, and does
+not auto-link imported articles to projects, plants/facilities, companies, or
+countries.
+
 ## Safe Staging Seed
 
 Seed non-confidential sample data:

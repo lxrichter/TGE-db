@@ -10,6 +10,7 @@
     "postinstall": "prisma generate --schema prisma/schema.prisma",
     "postgres:smoke": "node scripts/postgres-smoke-test.mjs",
     "postgres:seed:staging": "node scripts/seed-postgres-staging.mjs",
+    "tge-news:import": "node scripts/tge-news-archive-import.mjs",
     "tge-news:match": "node scripts/tge-news-entity-match-preview.mjs",
     "tge-news:preview": "node scripts/tge-news-archive-preview.mjs",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",

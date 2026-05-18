@@ -250,6 +250,22 @@ or against Railway PostgreSQL staging in read-only mode:
 railway run --service Postgres -- npm run tge-news:match -- --from-postgres
 ```
 
+Metadata-only archive import is dry-run by default:
+
+```bash
+npm run tge-news:import -- --limit 25
+```
+
+After applying PostgreSQL migrations, staging import is:
+
+```bash
+railway run --service Postgres -- npm run tge-news:import -- --execute
+```
+
+The importer stores article metadata as `tge_article` source records. It does
+not read or store full article body text and does not auto-link articles to
+entities.
+
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the
