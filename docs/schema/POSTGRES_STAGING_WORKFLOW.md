@@ -228,8 +228,10 @@ Use:
 railway run --service Postgres -- npm run tge-news:match -- --from-postgres --write-candidates
 ```
 
-This does not create `entity_sources` links. Confirmed candidate rows can later
-be used by Research Ops / Sources review actions to create real evidence links.
+This does not create `entity_sources` links during matching. The review surface
+at `/sources/matches` lets editors/admins bulk confirm, reject, or return
+candidates to review. Confirming a candidate creates or reuses the reviewed
+`entity_sources` link.
 
 ## Safe Staging Seed
 

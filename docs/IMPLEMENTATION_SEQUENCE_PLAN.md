@@ -227,6 +227,8 @@ Current implemented foundation:
 - `source_entity_match_candidates` review table and explicit
   `--write-candidates` matcher path for article/entity match candidates without
   creating real source links
+- `/sources/matches` review table with filters and selected-row confirm/reject
+  actions; confirmation is the reviewed step that creates evidence links
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms

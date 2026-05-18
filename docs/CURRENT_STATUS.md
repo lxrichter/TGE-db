@@ -76,6 +76,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   extension and a dry-run-by-default metadata importer for the markdown archive
 - source/entity article matches now have a dedicated candidate-review table and
   explicit matcher write path; no real `entity_sources` links are auto-created
+- `/sources/matches` now provides the first filtered review surface for article
+  match candidates; confirmation creates or reuses reviewed evidence links
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

@@ -180,6 +180,16 @@ Confirmed and rejected rows are preserved on later matcher reruns. The matcher
 may refresh confidence, reason, and metadata, but it does not reset confirmed or
 rejected review decisions.
 
+The first in-app review surface is:
+
+```text
+/sources/matches
+```
+
+Use it to filter candidates, bulk confirm selected matches, reject weak matches,
+or move candidates back to `needs_review`. Confirmation creates or reuses the
+real `entity_sources` evidence link; matching itself does not.
+
 Recommended matching tiers:
 
 - High confidence: exact database entity alias in title plus matching country.

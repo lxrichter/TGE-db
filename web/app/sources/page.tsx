@@ -309,12 +309,20 @@ export default async function SourcesPage({
                 source management.
               </p>
             </div>
-            <Link
-              className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href="/sources/new"
-            >
-              Add Source
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/sources/matches"
+              >
+                Review Article Matches
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/sources/new"
+              >
+                Add Source
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -16,6 +16,13 @@ export type SourceListParams = {
   status?: string;
 };
 
+export type SourceMatchCandidateListParams = {
+  limit?: number;
+  search?: string;
+  status?: string;
+  entityType?: string;
+};
+
 export type SourceListItem = {
   source_id: string;
   source_type_code: string;
@@ -57,6 +64,60 @@ export type SourceLink = {
   is_primary_evidence: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type SourceMatchCandidateItem = {
+  match_candidate_id: string;
+  match_key: string;
+  source_id: string;
+  entity_type: string;
+  entity_id: string | null;
+  entity_key: string | null;
+  entity_label: string;
+  matched_alias: string | null;
+  confidence_score: number;
+  match_status_code: string;
+  match_status_label: string | null;
+  match_reason: string | null;
+  generated_by: string;
+  generated_at: string;
+  reviewed_by_user_id: string | null;
+  reviewed_by_name: string | null;
+  reviewed_at: string | null;
+  confirmed_entity_source_id: string | null;
+  created_at: string;
+  updated_at: string;
+  source_title: string | null;
+  source_url: string | null;
+  source_reference: string | null;
+  source_country: string | null;
+  source_published_date: string | null;
+  source_type_code: string;
+  source_type_label: string | null;
+  source_credibility_status_code: string;
+  source_credibility_status_label: string | null;
+};
+
+export type SourceMatchCandidateSummary = {
+  total: number;
+  open: number;
+  highConfidence: number;
+  mediumConfidence: number;
+  lowConfidence: number;
+  confirmed: number;
+  rejected: number;
+};
+
+export type SourceMatchCandidateStatusOption = SourceReferenceOption & {
+  is_open: boolean;
+};
+
+export type SourceMatchCandidateAction = "confirm" | "reject" | "needs_review";
+
+export type SourceMatchCandidateBulkResult = {
+  requested: number;
+  updated: number;
+  confirmedLinksCreatedOrReused: number;
 };
 
 export type SourceDetail = SourceListItem & {
@@ -152,6 +213,40 @@ type SourceLinkRow = Omit<SourceLink, "created_at" | "updated_at"> & {
   updated_at: string | Date;
 };
 
+type SourceMatchCandidateRow = Omit<
+  SourceMatchCandidateItem,
+  | "confidence_score"
+  | "generated_at"
+  | "reviewed_at"
+  | "created_at"
+  | "updated_at"
+  | "source_published_date"
+> & {
+  confidence_score: string | number;
+  generated_at: string | Date;
+  reviewed_at: string | Date | null;
+  created_at: string | Date;
+  updated_at: string | Date;
+  source_published_date: string | Date | null;
+};
+
+type SourceMatchCandidateSummaryRow = {
+  total: number | bigint;
+  open: number | bigint;
+  high_confidence: number | bigint;
+  medium_confidence: number | bigint;
+  low_confidence: number | bigint;
+  confirmed: number | bigint;
+  rejected: number | bigint;
+};
+
+type SourceMatchCandidateStatusRow = SourceMatchCandidateStatusOption;
+
+type SourceMatchCandidateUpdateRow = {
+  match_candidate_id: string;
+  confirmed_entity_source_id: string | null;
+};
+
 type SourceLinkTargetRow = SourceLinkTargetOption;
 
 type SourceIdRow = {
@@ -245,6 +340,26 @@ function toSourceLink(row: SourceLinkRow): SourceLink {
   };
 }
 
+function toSourceMatchCandidate(
+  row: SourceMatchCandidateRow
+): SourceMatchCandidateItem {
+  return {
+    ...row,
+    confidence_score: Number(row.confidence_score),
+    generated_at: normalizeRequiredTimestamp(row.generated_at),
+    reviewed_at: normalizeTimestamp(row.reviewed_at),
+    created_at: normalizeRequiredTimestamp(row.created_at),
+    updated_at: normalizeRequiredTimestamp(row.updated_at),
+    source_published_date: row.source_published_date
+      ? normalizeRequiredTimestamp(row.source_published_date).slice(0, 10)
+      : null,
+  };
+}
+
+function toNumber(value: number | bigint) {
+  return Number(value);
+}
+
 function buildSourceWhere(params: SourceListParams) {
   const clauses: string[] = [];
   const values: unknown[] = [];
@@ -276,6 +391,42 @@ function buildSourceWhere(params: SourceListParams) {
   if (params.status?.trim()) {
     values.push(params.status.trim());
     clauses.push(`s.credibility_status_code = $${values.length}`);
+  }
+
+  return {
+    whereSql: clauses.length ? `WHERE ${clauses.join(" AND ")}` : "",
+    values,
+  };
+}
+
+function buildSourceMatchCandidateWhere(
+  params: SourceMatchCandidateListParams
+) {
+  const clauses: string[] = [];
+  const values: unknown[] = [];
+
+  if (params.search?.trim()) {
+    values.push(`%${params.search.trim().toLowerCase()}%`);
+    clauses.push(`
+      LOWER(
+        COALESCE(s.title, '') || ' ' ||
+        COALESCE(s.url, '') || ' ' ||
+        COALESCE(s.source_reference, '') || ' ' ||
+        COALESCE(c.entity_label, '') || ' ' ||
+        COALESCE(c.matched_alias, '') || ' ' ||
+        COALESCE(c.match_reason, '')
+      ) LIKE $${values.length}
+    `);
+  }
+
+  if (params.status?.trim()) {
+    values.push(params.status.trim());
+    clauses.push(`c.match_status_code = $${values.length}`);
+  }
+
+  if (params.entityType?.trim()) {
+    values.push(params.entityType.trim());
+    clauses.push(`c.entity_type = $${values.length}`);
   }
 
   return {
@@ -344,6 +495,138 @@ export async function listSources(
   );
 
   return rows.map(toSourceListItem);
+}
+
+export async function listSourceMatchCandidates(
+  params: SourceMatchCandidateListParams = {}
+): Promise<SourceMatchCandidateItem[]> {
+  const limit = Math.min(Math.max(params.limit ?? 100, 1), 500);
+  const { whereSql, values } = buildSourceMatchCandidateWhere(params);
+  const limitPlaceholder = values.length + 1;
+
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    SourceMatchCandidateRow[]
+  >(
+    `
+    SELECT
+      c.match_candidate_id::text,
+      c.match_key,
+      c.source_id::text,
+      c.entity_type,
+      c.entity_id::text,
+      c.entity_key,
+      c.entity_label,
+      c.matched_alias,
+      c.confidence_score::float8 AS confidence_score,
+      c.match_status_code,
+      ms.label AS match_status_label,
+      c.match_reason,
+      c.generated_by,
+      c.generated_at,
+      c.reviewed_by_user_id::text,
+      reviewer.name AS reviewed_by_name,
+      c.reviewed_at,
+      c.confirmed_entity_source_id::text,
+      c.created_at,
+      c.updated_at,
+      s.title AS source_title,
+      s.url AS source_url,
+      s.source_reference,
+      s.country AS source_country,
+      s.published_date AS source_published_date,
+      s.source_type_code,
+      st.label AS source_type_label,
+      s.credibility_status_code AS source_credibility_status_code,
+      ss.label AS source_credibility_status_label
+    FROM source_entity_match_candidates c
+    INNER JOIN sources s
+      ON s.source_id = c.source_id
+    LEFT JOIN ref_source_match_statuses ms
+      ON ms.code = c.match_status_code
+    LEFT JOIN ref_source_types st
+      ON st.code = s.source_type_code
+    LEFT JOIN ref_source_statuses ss
+      ON ss.code = s.credibility_status_code
+    LEFT JOIN app_users reviewer
+      ON reviewer.user_id = c.reviewed_by_user_id
+    ${whereSql}
+    ORDER BY
+      CASE c.match_status_code
+        WHEN 'suggested_high_confidence' THEN 1
+        WHEN 'suggested_medium_confidence' THEN 2
+        WHEN 'suggested_low_confidence' THEN 3
+        WHEN 'needs_review' THEN 4
+        WHEN 'confirmed' THEN 8
+        WHEN 'rejected' THEN 9
+        ELSE 7
+      END,
+      c.confidence_score DESC,
+      c.generated_at DESC
+    LIMIT $${limitPlaceholder}
+    `,
+    ...values,
+    limit
+  );
+
+  return rows.map(toSourceMatchCandidate);
+}
+
+export async function getSourceMatchCandidateSummary(): Promise<SourceMatchCandidateSummary> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    SourceMatchCandidateSummaryRow[]
+  >(
+    `
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (
+        WHERE match_status_code NOT IN ('confirmed', 'rejected')
+      )::int AS open,
+      COUNT(*) FILTER (
+        WHERE match_status_code = 'suggested_high_confidence'
+      )::int AS high_confidence,
+      COUNT(*) FILTER (
+        WHERE match_status_code = 'suggested_medium_confidence'
+      )::int AS medium_confidence,
+      COUNT(*) FILTER (
+        WHERE match_status_code = 'suggested_low_confidence'
+      )::int AS low_confidence,
+      COUNT(*) FILTER (
+        WHERE match_status_code = 'confirmed'
+      )::int AS confirmed,
+      COUNT(*) FILTER (
+        WHERE match_status_code = 'rejected'
+      )::int AS rejected
+    FROM source_entity_match_candidates
+    `
+  );
+  const row = rows[0];
+
+  return {
+    total: toNumber(row?.total ?? 0),
+    open: toNumber(row?.open ?? 0),
+    highConfidence: toNumber(row?.high_confidence ?? 0),
+    mediumConfidence: toNumber(row?.medium_confidence ?? 0),
+    lowConfidence: toNumber(row?.low_confidence ?? 0),
+    confirmed: toNumber(row?.confirmed ?? 0),
+    rejected: toNumber(row?.rejected ?? 0),
+  };
+}
+
+export async function listSourceMatchStatusOptions(): Promise<
+  SourceMatchCandidateStatusOption[]
+> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    SourceMatchCandidateStatusRow[]
+  >(
+    `
+    SELECT code, label, description, is_open, sort_order, is_active
+    FROM ref_source_match_statuses
+    WHERE is_active = TRUE
+    ORDER BY sort_order ASC, label ASC
+    `
+  );
+
+  return rows;
 }
 
 export async function getSourceById(
@@ -423,6 +706,180 @@ export async function getSourceById(
     reviewed_at: normalizeTimestamp(row.reviewed_at),
     links,
   };
+}
+
+async function confirmSourceMatchCandidate(
+  candidateId: string,
+  actorUserId?: string | null
+): Promise<SourceMatchCandidateUpdateRow | null> {
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    SourceMatchCandidateUpdateRow[]
+  >(
+    `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $2::uuid
+      LIMIT 1
+    ),
+    candidate AS (
+      SELECT *
+      FROM source_entity_match_candidates
+      WHERE match_candidate_id = $1::uuid
+        AND entity_type IN ('project', 'operating_asset', 'company')
+        AND entity_id IS NOT NULL
+      FOR UPDATE
+    ),
+    existing AS (
+      SELECT es.entity_source_id
+      FROM entity_sources es
+      INNER JOIN candidate c
+        ON c.source_id = es.source_id
+      WHERE
+        (c.entity_type = 'project' AND es.project_id = c.entity_id)
+        OR (c.entity_type = 'operating_asset' AND es.operating_asset_id = c.entity_id)
+        OR (c.entity_type = 'company' AND es.company_id = c.entity_id)
+      LIMIT 1
+    ),
+    inserted AS (
+      INSERT INTO entity_sources (
+        source_id,
+        project_id,
+        operating_asset_id,
+        company_id,
+        evidence_type,
+        evidence_note,
+        confidence_status_code,
+        reviewed_by_user_id,
+        reviewed_at
+      )
+      SELECT
+        c.source_id,
+        CASE WHEN c.entity_type = 'project' THEN c.entity_id ELSE NULL END,
+        CASE WHEN c.entity_type = 'operating_asset' THEN c.entity_id ELSE NULL END,
+        CASE WHEN c.entity_type = 'company' THEN c.entity_id ELSE NULL END,
+        'tge_article_match',
+        CONCAT(
+          'Confirmed automated article match',
+          CASE
+            WHEN c.match_reason IS NULL OR c.match_reason = '' THEN ''
+            ELSE CONCAT(': ', c.match_reason)
+          END
+        ),
+        'reported',
+        (SELECT user_id FROM reviewer),
+        now()
+      FROM candidate c
+      WHERE NOT EXISTS (SELECT 1 FROM existing)
+      RETURNING entity_source_id
+    ),
+    chosen AS (
+      SELECT entity_source_id FROM inserted
+      UNION ALL
+      SELECT entity_source_id FROM existing
+      LIMIT 1
+    )
+    UPDATE source_entity_match_candidates c
+    SET
+      match_status_code = 'confirmed',
+      reviewed_by_user_id = COALESCE((SELECT user_id FROM reviewer), c.reviewed_by_user_id),
+      reviewed_at = now(),
+      confirmed_entity_source_id = (SELECT entity_source_id FROM chosen),
+      updated_at = now()
+    WHERE c.match_candidate_id = $1::uuid
+      AND EXISTS (SELECT 1 FROM candidate)
+    RETURNING
+      c.match_candidate_id::text,
+      c.confirmed_entity_source_id::text
+    `,
+    candidateId,
+    normalizedActorUserId
+  );
+
+  return rows[0] ?? null;
+}
+
+async function setSourceMatchCandidateStatus(
+  candidateId: string,
+  statusCode: "rejected" | "needs_review",
+  actorUserId?: string | null
+): Promise<SourceMatchCandidateUpdateRow | null> {
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    SourceMatchCandidateUpdateRow[]
+  >(
+    `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    )
+    UPDATE source_entity_match_candidates c
+    SET
+      match_status_code = $2,
+      reviewed_by_user_id = CASE
+        WHEN $2 = 'rejected'
+          THEN COALESCE((SELECT user_id FROM reviewer), c.reviewed_by_user_id)
+        ELSE NULL
+      END,
+      reviewed_at = CASE WHEN $2 = 'rejected' THEN now() ELSE NULL END,
+      confirmed_entity_source_id = CASE
+        WHEN $2 = 'rejected' THEN NULL
+        ELSE c.confirmed_entity_source_id
+      END,
+      updated_at = now()
+    WHERE c.match_candidate_id = $1::uuid
+      AND c.match_status_code != 'confirmed'
+    RETURNING
+      c.match_candidate_id::text,
+      c.confirmed_entity_source_id::text
+    `,
+    candidateId,
+    statusCode,
+    normalizedActorUserId
+  );
+
+  return rows[0] ?? null;
+}
+
+export async function updateSourceMatchCandidates({
+  candidateIds,
+  action,
+  actorUserId,
+}: {
+  candidateIds: string[];
+  action: SourceMatchCandidateAction;
+  actorUserId?: string | null;
+}): Promise<SourceMatchCandidateBulkResult> {
+  const validCandidateIds = [...new Set(candidateIds.filter(isUuid))];
+  const result: SourceMatchCandidateBulkResult = {
+    requested: validCandidateIds.length,
+    updated: 0,
+    confirmedLinksCreatedOrReused: 0,
+  };
+
+  for (const candidateId of validCandidateIds) {
+    const row =
+      action === "confirm"
+        ? await confirmSourceMatchCandidate(candidateId, actorUserId)
+        : await setSourceMatchCandidateStatus(
+            candidateId,
+            action === "reject" ? "rejected" : "needs_review",
+            actorUserId
+          );
+
+    if (row) {
+      result.updated += 1;
+
+      if (row.confirmed_entity_source_id) {
+        result.confirmedLinksCreatedOrReused += 1;
+      }
+    }
+  }
+
+  return result;
 }
 
 export async function listSourceLinks(sourceId: string): Promise<SourceLink[]> {

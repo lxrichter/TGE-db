@@ -257,6 +257,15 @@ without creating real evidence links:
 railway run --service Postgres -- npm run tge-news:match -- --from-postgres --write-candidates
 ```
 
+Review candidates in the app at:
+
+```text
+/sources/matches
+```
+
+The matcher never creates `entity_sources` links directly. Confirming selected
+candidates in the review UI creates or reuses the reviewed evidence links.
+
 Metadata-only archive import is dry-run by default:
 
 ```bash

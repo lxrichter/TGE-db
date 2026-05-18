@@ -191,6 +191,16 @@ The matcher only writes to `source_entity_match_candidates` when run with
 `--write-candidates`. It does not create real `entity_sources` links. Confirmed
 and rejected candidate decisions are preserved on later matcher reruns.
 
+The first review UI is:
+
+```text
+/sources/matches
+```
+
+It supports filtered review, selected-row confirmation, rejection, and returning
+candidates to `needs_review`. Confirmation is the reviewed action that creates
+or reuses the real `entity_sources` evidence link.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:
