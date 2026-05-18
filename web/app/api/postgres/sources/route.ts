@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const source = await createSource(parsed.input);
+    const source = await createSource(parsed.input, user.id);
     return NextResponse.json({ success: true, source }, { status: 201 });
   } catch (error) {
     console.error("PostgreSQL source create error:", error);

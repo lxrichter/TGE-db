@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/auth";
+import { getCurrentPostgresPreviewUser } from "@/lib/postgres-preview/entity-api";
 import {
   getSourceFormReferenceData,
   getSourceReferenceData,
@@ -34,17 +33,8 @@ export type ParsedSourceLinkInput =
     };
 
 export async function getCurrentSourceUser(): Promise<SourceSessionUser | null> {
-  const session = await getServerSession(authOptions);
-  const user = session?.user as Partial<SourceSessionUser> | undefined;
-
-  if (!user?.id || !user?.role) {
-    return null;
-  }
-
-  return {
-    id: user.id,
-    role: user.role,
-  };
+  const user = await getCurrentPostgresPreviewUser();
+  return user ? { id: user.id, role: user.role } : null;
 }
 
 function asRecord(body: unknown): Record<string, unknown> | null {

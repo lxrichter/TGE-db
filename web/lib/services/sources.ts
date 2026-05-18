@@ -123,6 +123,7 @@ export type SourceLinkMutationInput = {
   claim_text?: string | null;
   extracted_value?: string | null;
   is_primary_evidence?: boolean;
+  reviewedByUserId?: string | null;
 };
 
 type SourceListRow = Omit<
@@ -465,10 +466,18 @@ export async function listSourceLinks(sourceId: string): Promise<SourceLink[]> {
 }
 
 export async function createSource(
-  input: SourceMutationInput
+  input: SourceMutationInput,
+  actorUserId?: string | null
 ): Promise<SourceDetail> {
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
   const rows = await getPrismaClient().$queryRawUnsafe<SourceIdRow[]>(
     `
+    WITH actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $18::uuid
+      LIMIT 1
+    )
     INSERT INTO sources (
       source_type_code,
       title,
@@ -487,6 +496,8 @@ export async function createSource(
       relevant_excerpt,
       attachment_url,
       duplicate_source_flag,
+      added_by_user_id,
+      reviewed_by_user_id,
       reviewed_at
     )
     VALUES (
@@ -494,6 +505,8 @@ export async function createSource(
       $7, $8, $9, $10, $11::date,
       $12::timestamptz, $13, $14, $15, $16,
       $17,
+      (SELECT user_id FROM actor),
+      CASE WHEN $10 != 'needs_review' THEN (SELECT user_id FROM actor) ELSE NULL END,
       CASE WHEN $10 != 'needs_review' THEN now() ELSE NULL END
     )
     RETURNING source_id::text
@@ -514,7 +527,8 @@ export async function createSource(
     cleanOptionalText(input.extracted_summary),
     cleanOptionalText(input.relevant_excerpt),
     cleanOptionalText(input.attachment_url),
-    Boolean(input.duplicate_source_flag)
+    Boolean(input.duplicate_source_flag),
+    normalizedActorUserId
   );
 
   const source = await getSourceById(rows[0].source_id);
@@ -528,10 +542,18 @@ export async function createSource(
 
 export async function updateSource(
   sourceId: string,
-  input: SourceMutationInput
+  input: SourceMutationInput,
+  actorUserId?: string | null
 ): Promise<SourceDetail | null> {
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
   const rows = await getPrismaClient().$queryRawUnsafe<SourceIdRow[]>(
     `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $19::uuid
+      LIMIT 1
+    )
     UPDATE sources
     SET
       source_type_code = $2,
@@ -552,6 +574,11 @@ export async function updateSource(
       attachment_url = $17,
       duplicate_source_flag = $18,
       reviewed_at = CASE WHEN $11 != 'needs_review' THEN now() ELSE NULL END,
+      reviewed_by_user_id = CASE
+        WHEN $11 != 'needs_review'
+          THEN COALESCE((SELECT user_id FROM reviewer), reviewed_by_user_id)
+        ELSE NULL
+      END,
       updated_at = now()
     WHERE source_id = $1::uuid
     RETURNING source_id::text
@@ -573,7 +600,8 @@ export async function updateSource(
     cleanOptionalText(input.extracted_summary),
     cleanOptionalText(input.relevant_excerpt),
     cleanOptionalText(input.attachment_url),
-    Boolean(input.duplicate_source_flag)
+    Boolean(input.duplicate_source_flag),
+    normalizedActorUserId
   );
 
   if (!rows[0]) {
@@ -691,6 +719,9 @@ export async function getSourceFormReferenceData(): Promise<SourceFormReferenceD
 export async function createSourceLink(
   input: SourceLinkMutationInput
 ): Promise<SourceLink | null> {
+  const normalizedReviewerId = isUuid(input.reviewedByUserId)
+    ? input.reviewedByUserId
+    : null;
   const targetColumn =
     input.entity_type === "project"
       ? "project_id"
@@ -706,6 +737,12 @@ export async function createSourceLink(
 
   const rows = await getPrismaClient().$queryRawUnsafe<SourceLinkIdRow[]>(
     `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $10::uuid
+      LIMIT 1
+    )
     INSERT INTO entity_sources (
       source_id,
       ${targetColumn},
@@ -715,7 +752,9 @@ export async function createSourceLink(
       linked_field,
       claim_text,
       extracted_value,
-      is_primary_evidence
+      is_primary_evidence,
+      reviewed_by_user_id,
+      reviewed_at
     )
     VALUES (
       $1::uuid,
@@ -726,7 +765,9 @@ export async function createSourceLink(
       $6,
       $7,
       $8,
-      $9
+      $9,
+      CASE WHEN $5 != 'unknown' THEN (SELECT user_id FROM reviewer) ELSE NULL END,
+      CASE WHEN $5 != 'unknown' THEN now() ELSE NULL END
     )
     RETURNING entity_source_id::text
     `,
@@ -738,7 +779,8 @@ export async function createSourceLink(
     cleanOptionalText(input.linked_field),
     cleanOptionalText(input.claim_text),
     cleanOptionalText(input.extracted_value),
-    Boolean(input.is_primary_evidence)
+    Boolean(input.is_primary_evidence),
+    normalizedReviewerId
   );
 
   const links = await listSourceLinks(input.source_id);

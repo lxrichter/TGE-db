@@ -140,7 +140,8 @@ Current application use:
 - `web/lib/postgres-preview/entity-api.ts` parses and validates PostgreSQL
   staging entity write payloads against controlled reference tables.
 - `web/lib/services/sources.ts` owns the PostgreSQL source list/detail and
-  source reference-data access layer.
+  source reference-data access layer, including user-stamped source and
+  evidence-link review metadata.
 - `web/lib/postgres-preview.ts` remains as a compatibility re-export for the
   current page and API imports.
 - `web/prisma/migrations/20260518000100_align_user_roles/migration.sql`
@@ -166,6 +167,10 @@ GET /api/postgres/sources
 GET /api/postgres/sources/[id]
 GET /api/postgres/sources/reference-data
 ```
+
+Source create/update/status and source-link create actions now resolve the
+logged-in internal user into PostgreSQL `app_users` before writing source
+review metadata.
 
 Current PostgreSQL entity staging API foundation:
 

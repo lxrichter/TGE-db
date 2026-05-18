@@ -65,7 +65,7 @@ export async function PATCH(
       );
     }
 
-    const source = await updateSource(id, parsed.input);
+    const source = await updateSource(id, parsed.input, user.id);
 
     if (!source) {
       return NextResponse.json(

@@ -190,7 +190,8 @@ Current PostgreSQL staging implementation:
 - generated Research Ops queues remain live/calculated for now; only deliberate
   human-created issues are persisted until the workflow is stable
 - `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence
-  workflow foundation
+  workflow foundation, including PostgreSQL user stamping for source creation,
+  source review, and evidence-link review metadata
 
 These PostgreSQL routes are current implementation work in progress. They do
 not yet replace the SQLite prototype, and the live Hetzner SQLite database has

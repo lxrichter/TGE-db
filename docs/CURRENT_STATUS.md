@@ -58,6 +58,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - source/evidence linking between source records and projects, operating
   assets, or companies
 - editor source credibility actions
+- PostgreSQL source workflows now stamp mapped `app_users` metadata for source
+  creation, source review, and evidence-link review actions
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

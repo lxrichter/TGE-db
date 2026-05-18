@@ -54,6 +54,8 @@ Current implemented foundation:
   - source credibility quick actions available from Research Ops selected rows
   - source/evidence panels on PostgreSQL entity preview pages
   - editor source credibility actions on source profiles
+  - PostgreSQL user stamping for source creation, source review, and
+    evidence-link review metadata
   - source-aware export-readiness preview panels on PostgreSQL entity detail
     pages
 - functional page/module blueprint covering:
@@ -204,6 +206,8 @@ Current implemented foundation:
   needs-review states
 - Research Ops selected rows can change source credibility status without
   opening the full source record
+- source create/update/status routes now map the logged-in internal user to
+  PostgreSQL `app_users` for added/reviewed metadata
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms

@@ -33,7 +33,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const link = await createSourceLink(parsed.input);
+    const link = await createSourceLink({
+      ...parsed.input,
+      reviewedByUserId: user.id,
+    });
     return NextResponse.json({ success: true, link }, { status: 201 });
   } catch (error) {
     console.error("PostgreSQL source link create error:", error);
