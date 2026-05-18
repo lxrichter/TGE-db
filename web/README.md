@@ -250,6 +250,13 @@ or against Railway PostgreSQL staging in read-only mode:
 railway run --service Postgres -- npm run tge-news:match -- --from-postgres
 ```
 
+After the match-candidate migration is applied, persist review candidates
+without creating real evidence links:
+
+```bash
+railway run --service Postgres -- npm run tge-news:match -- --from-postgres --write-candidates
+```
+
 Metadata-only archive import is dry-run by default:
 
 ```bash

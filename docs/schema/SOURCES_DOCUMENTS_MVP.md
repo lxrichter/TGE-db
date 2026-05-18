@@ -181,6 +181,16 @@ It imports markdown archive metadata into `sources` as `tge_article` records
 only when run with `--execute`. It does not read or store full article body text
 and does not auto-link articles to entities.
 
+Article/entity matches are stored in the review table added by:
+
+```text
+web/prisma/migrations/20260518000500_source_entity_match_candidates/migration.sql
+```
+
+The matcher only writes to `source_entity_match_candidates` when run with
+`--write-candidates`. It does not create real `entity_sources` links. Confirmed
+and rejected candidate decisions are preserved on later matcher reruns.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:

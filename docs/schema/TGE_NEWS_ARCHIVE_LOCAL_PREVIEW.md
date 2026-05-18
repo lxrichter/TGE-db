@@ -119,6 +119,12 @@ Against Railway PostgreSQL staging, read-only:
 railway run --service Postgres -- npm run tge-news:match -- --from-postgres
 ```
 
+After the match-candidate migration is applied, persist review candidates:
+
+```bash
+railway run --service Postgres -- npm run tge-news:match -- --from-postgres --write-candidates
+```
+
 The matcher reads:
 
 - `source-data/tge-news-archive-preview/article_index_preview.ndjson`
@@ -135,9 +141,9 @@ Generated files:
 - `entity_match_summary.json`
 - `entity_match_candidates.csv`
 
-The PostgreSQL mode only reads entity names and metadata. It does not write to
-PostgreSQL and does not send article metadata to the database. Matching happens
-locally.
+By default, PostgreSQL mode only reads entity names and metadata. It writes
+candidate review rows only when `--write-candidates` is explicitly provided.
+It never creates real `entity_sources` links.
 
 The local entity JSON format may be either an array or an object with an
 `entities` array:
@@ -154,6 +160,25 @@ The local entity JSON format may be either an array or an object with an
   }
 ]
 ```
+
+Persisted candidate rows are stored in:
+
+```text
+source_entity_match_candidates
+```
+
+Candidate status values:
+
+- `suggested_high_confidence`
+- `suggested_medium_confidence`
+- `suggested_low_confidence`
+- `needs_review`
+- `confirmed`
+- `rejected`
+
+Confirmed and rejected rows are preserved on later matcher reruns. The matcher
+may refresh confidence, reason, and metadata, but it does not reset confirmed or
+rejected review decisions.
 
 Recommended matching tiers:
 

@@ -688,6 +688,15 @@ model ref_source_types {
   sources    sources[]
 }
 
+model ref_source_match_statuses {
+  code        String  @id
+  label       String
+  description String?
+  is_open     Boolean @default(true)
+  sort_order  Int     @default(0)
+  is_active   Boolean @default(true)
+}
+
 model ref_technology_tags {
   code                  String                  @id
   label                 String
@@ -752,6 +761,36 @@ model sources {
   @@index([url], map: "idx_sources_url")
   @@index([visibility_code], map: "idx_sources_visibility")
   @@index([wordpress_post_id], map: "idx_sources_wordpress_post_id")
+}
+
+model source_entity_match_candidates {
+  match_candidate_id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  match_key                 String    @unique
+  source_id                 String    @db.Uuid
+  entity_type               String
+  entity_id                 String?   @db.Uuid
+  entity_key                String?
+  entity_label              String
+  matched_alias             String?
+  confidence_score          Decimal   @db.Decimal(6, 5)
+  match_status_code         String    @default("needs_review")
+  match_reason              String?
+  match_metadata            Json      @default("{}")
+  generated_by              String    @default("tge_news_matcher")
+  generated_at              DateTime  @default(now()) @db.Timestamptz(6)
+  reviewed_by_user_id       String?   @db.Uuid
+  reviewed_at               DateTime? @db.Timestamptz(6)
+  confirmed_entity_source_id String?  @db.Uuid
+  created_at                DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([confidence_score(sort: Desc)], map: "idx_source_match_candidates_confidence")
+  @@index([entity_type, entity_id], map: "idx_source_match_candidates_entity")
+  @@index([entity_type, entity_key], map: "idx_source_match_candidates_key")
+  @@index([generated_at(sort: Desc)], map: "idx_source_match_candidates_generated_at")
+  @@index([match_metadata], map: "idx_source_match_candidates_metadata", type: Gin)
+  @@index([source_id], map: "idx_source_match_candidates_source")
+  @@index([match_status_code], map: "idx_source_match_candidates_status")
 }
 
 model ref_source_statuses {

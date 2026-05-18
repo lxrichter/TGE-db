@@ -74,9 +74,12 @@ function parseArgs(argv) {
     entitiesJson: process.env.TGE_NEWS_ENTITIES_JSON || "",
     out: process.env.TGE_NEWS_MATCH_OUT || DEFAULT_OUT_DIR,
     fromPostgres: false,
-    threshold: 0.72,
-    limit: 2000,
+    writeCandidates: false,
+    threshold: 0.55,
+    limit: 5000,
     articleLimit: 0,
+    candidateBatchSize: 1000,
+    generatedBy: "tge_news_matcher",
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -94,14 +97,22 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg === "--from-postgres") {
       args.fromPostgres = true;
+    } else if (arg === "--write-candidates") {
+      args.writeCandidates = true;
     } else if (arg === "--threshold" && next) {
-      args.threshold = Math.min(Math.max(Number(next) || 0.72, 0), 1);
+      args.threshold = Math.min(Math.max(Number(next) || 0.55, 0), 1);
       index += 1;
     } else if (arg === "--limit" && next) {
       args.limit = Math.max(Number(next) || 0, 0);
       index += 1;
     } else if (arg === "--article-limit" && next) {
       args.articleLimit = Math.max(Number(next) || 0, 0);
+      index += 1;
+    } else if (arg === "--candidate-batch-size" && next) {
+      args.candidateBatchSize = Math.min(Math.max(Number(next) || 1000, 1), 5000);
+      index += 1;
+    } else if (arg === "--generated-by" && next) {
+      args.generatedBy = next.trim() || "tge_news_matcher";
       index += 1;
     } else if (arg === "--help" || arg === "-h") {
       printHelp();
@@ -122,14 +133,18 @@ Options:
   --article-index <file>  Article metadata NDJSON from tge-news:preview.
   --entities-json <file>  Local entity JSON file for projects/assets/companies.
   --from-postgres         Read entity names from PostgreSQL using DATABASE_URL.
+  --write-candidates      Write candidates to source_entity_match_candidates. Requires --from-postgres.
   --out <dir>             Output directory. Defaults to ../source-data/tge-news-entity-match-preview.
-  --threshold <0-1>       Minimum confidence. Defaults to 0.72.
-  --limit <n>             Max candidate rows to write. Defaults to 2000.
+  --threshold <0-1>       Minimum confidence. Defaults to 0.55.
+  --limit <n>             Max candidate rows to write. Defaults to 5000. Use 0 for unlimited.
   --article-limit <n>     Process only first n article rows for quick tests.
+  --candidate-batch-size  PostgreSQL candidate write batch size. Defaults to 1000.
+  --generated-by <code>   Candidate generator label. Defaults to tge_news_matcher.
 
 Privacy:
   The script reads local article metadata only. It does not read article body
-  text, does not write to PostgreSQL, and writes local ignored preview outputs.
+  text, does not create entity_sources links, and writes local ignored preview
+  outputs. PostgreSQL candidate writes happen only with --write-candidates.
 `);
 }
 
@@ -291,16 +306,8 @@ async function loadEntitiesFromJson(filePath) {
   return rows.map(normalizeEntity).filter(Boolean);
 }
 
-async function loadEntitiesFromPostgres() {
-  const databaseUrl = getDatabaseUrl();
-  const pool = new Pool({
-    connectionString: databaseUrl,
-    max: 1,
-    ssl: getSslConfig(databaseUrl),
-  });
-
-  try {
-    const result = await pool.query(`
+async function loadEntitiesFromPostgres(pool) {
+  const result = await pool.query(`
       SELECT *
       FROM (
         SELECT
@@ -355,10 +362,7 @@ async function loadEntitiesFromPostgres() {
       ORDER BY entity_type, name
     `);
 
-    return result.rows.map(normalizeEntity).filter(Boolean);
-  } finally {
-    await pool.end();
-  }
+  return result.rows.map(normalizeEntity).filter(Boolean);
 }
 
 function countryTokens(country) {
@@ -423,6 +427,22 @@ function hasUseTypeSignal(article, entity) {
   }
 
   return article.inferred_use_type === entity.use_type;
+}
+
+function statusForConfidence(confidence) {
+  if (confidence >= 0.86) {
+    return "suggested_high_confidence";
+  }
+
+  if (confidence >= 0.72) {
+    return "suggested_medium_confidence";
+  }
+
+  if (confidence >= 0.55) {
+    return "suggested_low_confidence";
+  }
+
+  return "needs_review";
 }
 
 function scoreAlias(article, articleText, entity, alias) {
@@ -515,6 +535,7 @@ function matchArticlesToEntities({ articles, entities, threshold, limit }) {
       }
 
       seen.add(key);
+      const confidence = Number(best.confidence.toFixed(2));
       rows.push({
         source_reference: article.source_reference,
         article_title: article.title,
@@ -523,11 +544,13 @@ function matchArticlesToEntities({ articles, entities, threshold, limit }) {
         article_use_type: article.inferred_use_type,
         entity_type: entity.entity_type,
         entity_id: entity.entity_id,
+        entity_key: slugify(entity.name),
         entity_name: entity.name,
         entity_country: entity.country,
         entity_use_type: entity.use_type,
         matched_alias: best.alias,
-        confidence: Number(best.confidence.toFixed(2)),
+        confidence,
+        match_status_code: statusForConfidence(confidence),
         reason: best.reasons.join("; "),
       });
 
@@ -559,11 +582,13 @@ function toCsv(rows) {
     "article_use_type",
     "entity_type",
     "entity_id",
+    "entity_key",
     "entity_name",
     "entity_country",
     "entity_use_type",
     "matched_alias",
     "confidence",
+    "match_status_code",
     "reason",
   ];
   const lines = [columns.join(",")];
@@ -573,6 +598,184 @@ function toCsv(rows) {
   }
 
   return `${lines.join("\n")}\n`;
+}
+
+function makeMatchKey(row) {
+  return [
+    row.source_reference,
+    row.entity_type,
+    row.entity_id || row.entity_key || slugify(row.entity_name),
+  ].join(":");
+}
+
+async function loadSourceIdMap(pool, sourceReferences) {
+  const map = new Map();
+  const uniqueReferences = [...new Set(sourceReferences.filter(Boolean))];
+  const batchSize = 5000;
+
+  for (let index = 0; index < uniqueReferences.length; index += batchSize) {
+    const batch = uniqueReferences.slice(index, index + batchSize);
+    const result = await pool.query(
+      `
+      SELECT source_reference, source_id::text
+      FROM sources
+      WHERE source_reference = ANY($1::text[])
+      `,
+      [batch]
+    );
+
+    for (const row of result.rows) {
+      map.set(row.source_reference, row.source_id);
+    }
+  }
+
+  return map;
+}
+
+function buildCandidateMetadata(row) {
+  return {
+    article_title: row.article_title,
+    article_url: row.article_url,
+    article_date: row.article_date,
+    article_use_type: row.article_use_type,
+    entity_country: row.entity_country,
+    entity_use_type: row.entity_use_type,
+    matched_alias: row.matched_alias,
+    body_text_read: false,
+    creates_entity_source_link: false,
+  };
+}
+
+async function writeCandidateBatch(pool, rows, generatedBy) {
+  const payload = rows.map((row) => ({
+    match_key: row.match_key,
+    source_id: row.source_id,
+    entity_type: row.entity_type,
+    entity_id: row.entity_id,
+    entity_key: row.entity_key,
+    entity_label: row.entity_name,
+    matched_alias: row.matched_alias,
+    confidence_score: row.confidence,
+    match_status_code: row.match_status_code,
+    match_reason: row.reason,
+    match_metadata: buildCandidateMetadata(row),
+    generated_by: generatedBy,
+  }));
+  const result = await pool.query(
+    `
+    INSERT INTO source_entity_match_candidates (
+      match_key,
+      source_id,
+      entity_type,
+      entity_id,
+      entity_key,
+      entity_label,
+      matched_alias,
+      confidence_score,
+      match_status_code,
+      match_reason,
+      match_metadata,
+      generated_by
+    )
+    SELECT
+      data.match_key,
+      data.source_id,
+      data.entity_type,
+      data.entity_id,
+      data.entity_key,
+      data.entity_label,
+      data.matched_alias,
+      data.confidence_score,
+      data.match_status_code,
+      data.match_reason,
+      COALESCE(data.match_metadata, '{}'::jsonb),
+      data.generated_by
+    FROM jsonb_to_recordset($1::jsonb) AS data(
+      match_key text,
+      source_id uuid,
+      entity_type text,
+      entity_id uuid,
+      entity_key text,
+      entity_label text,
+      matched_alias text,
+      confidence_score numeric,
+      match_status_code text,
+      match_reason text,
+      match_metadata jsonb,
+      generated_by text
+    )
+    ON CONFLICT (match_key) DO UPDATE
+    SET
+      entity_label = EXCLUDED.entity_label,
+      entity_key = EXCLUDED.entity_key,
+      matched_alias = EXCLUDED.matched_alias,
+      confidence_score = EXCLUDED.confidence_score,
+      match_status_code = CASE
+        WHEN source_entity_match_candidates.match_status_code IN ('confirmed', 'rejected')
+          THEN source_entity_match_candidates.match_status_code
+        ELSE EXCLUDED.match_status_code
+      END,
+      match_reason = EXCLUDED.match_reason,
+      match_metadata = EXCLUDED.match_metadata,
+      generated_by = EXCLUDED.generated_by,
+      updated_at = now()
+    RETURNING (xmax = 0) AS inserted
+    `,
+    [JSON.stringify(payload)]
+  );
+
+  return result.rows.reduce(
+    (acc, row) => {
+      if (row.inserted) {
+        acc.inserted += 1;
+      } else {
+        acc.updated += 1;
+      }
+
+      return acc;
+    },
+    { inserted: 0, updated: 0 }
+  );
+}
+
+async function writeCandidatesToPostgres({ pool, candidates, batchSize, generatedBy }) {
+  const sourceMap = await loadSourceIdMap(
+    pool,
+    candidates.map((candidate) => candidate.source_reference)
+  );
+  const writableRows = [];
+  let skippedMissingSource = 0;
+
+  for (const candidate of candidates) {
+    const sourceId = sourceMap.get(candidate.source_reference);
+
+    if (!sourceId) {
+      skippedMissingSource += 1;
+      continue;
+    }
+
+    writableRows.push({
+      ...candidate,
+      source_id: sourceId,
+      match_key: makeMatchKey(candidate),
+    });
+  }
+
+  const stats = {
+    inserted: 0,
+    updated: 0,
+    skipped_missing_source: skippedMissingSource,
+    attempted: writableRows.length,
+  };
+
+  for (let index = 0; index < writableRows.length; index += batchSize) {
+    const batch = writableRows.slice(index, index + batchSize);
+    const batchStats = await writeCandidateBatch(pool, batch, generatedBy);
+    stats.inserted += batchStats.inserted;
+    stats.updated += batchStats.updated;
+  }
+
+  return stats;
 }
 
 function countBy(rows, key) {
@@ -599,12 +802,26 @@ async function main() {
     throw new Error("Use --entities-json or --from-postgres.");
   }
 
-  const [articles, entities] = await Promise.all([
-    loadArticles(args.articleIndex, args.articleLimit),
-    args.fromPostgres
-      ? loadEntitiesFromPostgres()
-      : loadEntitiesFromJson(args.entitiesJson),
-  ]);
+  if (args.writeCandidates && !args.fromPostgres) {
+    throw new Error("--write-candidates requires --from-postgres.");
+  }
+
+  let pool = null;
+  let entities;
+
+  if (args.fromPostgres) {
+    const databaseUrl = getDatabaseUrl();
+    pool = new Pool({
+      connectionString: databaseUrl,
+      max: 3,
+      ssl: getSslConfig(databaseUrl),
+    });
+    entities = await loadEntitiesFromPostgres(pool);
+  } else {
+    entities = await loadEntitiesFromJson(args.entitiesJson);
+  }
+
+  const articles = await loadArticles(args.articleIndex, args.articleLimit);
 
   const candidates = matchArticlesToEntities({
     articles,
@@ -612,6 +829,18 @@ async function main() {
     threshold: args.threshold,
     limit: args.limit,
   });
+  const candidateWriteStats = args.writeCandidates
+    ? await writeCandidatesToPostgres({
+        pool,
+        candidates,
+        batchSize: args.candidateBatchSize,
+        generatedBy: args.generatedBy,
+      })
+    : null;
+
+  if (pool) {
+    await pool.end();
+  }
 
   const summary = {
     generated_at: new Date().toISOString(),
@@ -621,13 +850,17 @@ async function main() {
     privacy: {
       local_article_metadata_only: true,
       article_body_text_read: false,
-      writes_to_postgres: false,
+      creates_entity_source_links: false,
+      writes_to_postgres: args.writeCandidates,
+      writes_match_candidates: args.writeCandidates,
       output_directory_is_gitignored: "source-data/ is ignored by repo .gitignore",
     },
     thresholds: {
       minimum_confidence: args.threshold,
       row_limit: args.limit,
       article_limit: args.articleLimit || null,
+      candidate_batch_size: args.candidateBatchSize,
+      generated_by: args.generatedBy,
     },
     counts: {
       articles_read: articles.length,
@@ -635,6 +868,8 @@ async function main() {
       candidate_matches: candidates.length,
       candidates_by_entity_type: countBy(candidates, "entity_type"),
       candidates_by_confidence: countBy(candidates, "confidence"),
+      candidates_by_status: countBy(candidates, "match_status_code"),
+      candidate_write_stats: candidateWriteStats,
     },
     sample_candidates: candidates.slice(0, 25),
   };
@@ -652,8 +887,17 @@ async function main() {
   console.log(`Articles read: ${articles.length}`);
   console.log(`Entities read: ${entities.length}`);
   console.log(`Candidate matches: ${candidates.length}`);
+  if (candidateWriteStats) {
+    console.log(`Candidate rows inserted: ${candidateWriteStats.inserted}`);
+    console.log(`Candidate rows updated: ${candidateWriteStats.updated}`);
+    console.log(
+      `Candidate rows skipped missing source: ${candidateWriteStats.skipped_missing_source}`
+    );
+  } else {
+    console.log("Candidate write skipped. Add --write-candidates to persist review rows.");
+  }
   console.log(`Output: ${args.out}`);
-  console.log("No article body text read. PostgreSQL mode is read-only.");
+  console.log("No article body text read. No entity_sources links created.");
 }
 
 main().catch((error) => {

@@ -216,6 +216,21 @@ The importer is dry-run by default, stores no full article body text, and does
 not auto-link imported articles to projects, plants/facilities, companies, or
 countries.
 
+Article/entity matching writes to a separate review table only:
+
+```text
+source_entity_match_candidates
+```
+
+Use:
+
+```bash
+railway run --service Postgres -- npm run tge-news:match -- --from-postgres --write-candidates
+```
+
+This does not create `entity_sources` links. Confirmed candidate rows can later
+be used by Research Ops / Sources review actions to create real evidence links.
+
 ## Safe Staging Seed
 
 Seed non-confidential sample data:
