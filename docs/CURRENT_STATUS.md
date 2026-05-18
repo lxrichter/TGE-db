@@ -37,6 +37,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   and company forms
 - staging add/remove relationship managers for company-project roles,
   company-plant/facility roles, and company-company relationships
+- staging project, plant/facility, and company detail pages show linked open
+  persistent Research Ops issues
 - staging project-to-operating-asset promotion scaffolding from PostgreSQL
   project detail pages, including non-destructive links plus copied source and
   company-role relationships where available

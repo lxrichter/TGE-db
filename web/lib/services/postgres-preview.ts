@@ -3568,6 +3568,92 @@ export async function listPostgresResearchOpsIssues(
   return rows.map(toResearchOpsIssue);
 }
 
+export async function listPostgresResearchOpsIssuesForEntity(
+  entityType: PostgresResearchOpsIssueEntityType,
+  entityId: string,
+  limit = 20
+): Promise<PostgresResearchOpsIssue[]> {
+  const entityColumn = entityColumnForResearchIssue(entityType);
+  const rows = await getPrismaClient().$queryRawUnsafe<ResearchOpsIssueRow[]>(
+    `
+    SELECT
+      i.research_ops_issue_id::text,
+      i.issue_type_code,
+      it.label AS issue_type_label,
+      i.issue_status_code,
+      ist.label AS issue_status_label,
+      i.severity,
+      i.entity_type,
+      COALESCE(
+        i.project_id,
+        i.operating_asset_id,
+        i.company_id,
+        i.source_id
+      )::text AS entity_id,
+      COALESCE(
+        p.legacy_project_id,
+        a.legacy_plant_id,
+        c.legacy_company_id,
+        s.source_reference
+      ) AS legacy_id,
+      COALESCE(
+        p.project_name,
+        a.asset_name,
+        c.company_name,
+        NULLIF(s.title, ''),
+        NULLIF(s.url, ''),
+        s.source_id::text
+      ) AS name,
+      COALESCE(
+        p.country,
+        a.country,
+        c.headquarters_country,
+        s.country
+      ) AS country,
+      i.linked_field,
+      i.title,
+      i.description,
+      i.assigned_to_user_id::text,
+      assignee.name AS assigned_to_name,
+      creator.name AS created_by_name,
+      resolver.name AS resolved_by_name,
+      i.resolution_note,
+      i.created_at,
+      i.updated_at,
+      i.resolved_at
+    FROM research_ops_issues i
+    INNER JOIN ref_research_issue_types it
+      ON it.code = i.issue_type_code
+    INNER JOIN ref_research_issue_statuses ist
+      ON ist.code = i.issue_status_code
+    LEFT JOIN projects p
+      ON p.project_id = i.project_id
+    LEFT JOIN operating_assets a
+      ON a.operating_asset_id = i.operating_asset_id
+    LEFT JOIN companies c
+      ON c.company_id = i.company_id
+    LEFT JOIN sources s
+      ON s.source_id = i.source_id
+    LEFT JOIN app_users assignee
+      ON assignee.user_id = i.assigned_to_user_id
+    LEFT JOIN app_users creator
+      ON creator.user_id = i.created_by_user_id
+    LEFT JOIN app_users resolver
+      ON resolver.user_id = i.resolved_by_user_id
+    WHERE ist.is_open = TRUE
+      AND i.entity_type = $1
+      AND i.${entityColumn} = $2::uuid
+    ORDER BY i.updated_at DESC, i.created_at DESC
+    LIMIT $3
+    `,
+    entityType,
+    entityId,
+    limit
+  );
+
+  return rows.map(toResearchOpsIssue);
+}
+
 async function researchIssueEntityExists(
   entityType: PostgresResearchOpsIssueEntityType,
   entityId: string

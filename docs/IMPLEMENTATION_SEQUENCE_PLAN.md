@@ -28,6 +28,8 @@ Current implemented foundation:
   - linked project, plant/facility, company, or source record
   - assignment, notes, linked field, duplicate-candidate fields, and event log
   - create/resolve/dismiss UI from Research Ops
+  - linked issue panels on PostgreSQL project, plant/facility, and company
+    detail pages
 - PostgreSQL project, plant/facility, and company detail previews
 - PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
   companies under `/postgres-preview`

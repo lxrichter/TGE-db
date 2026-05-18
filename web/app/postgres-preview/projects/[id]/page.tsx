@@ -15,6 +15,7 @@ import {
 import { ProjectCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import PostgresProjectPromotionPanel from "@/components/postgres-preview/PostgresProjectPromotionPanel";
+import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import {
   getPostgresCompanyRelationshipReferenceData,
@@ -22,6 +23,7 @@ import {
   getPostgresPreviewProjectById,
   listPostgresPromotedOperatingAssets,
   listPostgresProjectCompanyLinks,
+  listPostgresResearchOpsIssuesForEntity,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
 
@@ -137,6 +139,7 @@ export default async function PostgresProjectDetailPage({
     relationshipReferenceData,
     entityReferenceData,
     promotedAssets,
+    researchIssues,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
@@ -144,6 +147,7 @@ export default async function PostgresProjectDetailPage({
     getPostgresCompanyRelationshipReferenceData(),
     getPostgresEntityFormReferenceData(),
     listPostgresPromotedOperatingAssets(id),
+    listPostgresResearchOpsIssuesForEntity("project", id),
     getServerSession(authOptions),
   ]);
 
@@ -280,6 +284,8 @@ export default async function PostgresProjectDetailPage({
         projectId={project.project_id}
         promotedAssets={promotedAssets}
       />
+
+      <PostgresResearchIssuesPanel issues={researchIssues} />
 
       <ExportReadinessPanel
         issues={getProjectReadinessIssues(project)}

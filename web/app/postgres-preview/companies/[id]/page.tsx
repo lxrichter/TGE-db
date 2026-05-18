@@ -14,6 +14,7 @@ import {
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { CompanyRelationshipPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
+import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
@@ -21,6 +22,7 @@ import {
   listPostgresCompanyOperatingAssetLinks,
   listPostgresCompanyProjectLinks,
   listPostgresCompanyRelationships,
+  listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewCompanyDetail,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
@@ -106,6 +108,7 @@ export default async function PostgresCompanyDetailPage({
     relationships,
     relationshipReferenceData,
     entityReferenceData,
+    researchIssues,
     session,
   ] = await Promise.all([
     getPostgresPreviewCompanyById(id),
@@ -114,6 +117,7 @@ export default async function PostgresCompanyDetailPage({
     listPostgresCompanyRelationships(id),
     getPostgresCompanyRelationshipReferenceData(),
     getPostgresEntityFormReferenceData(),
+    listPostgresResearchOpsIssuesForEntity("company", id),
     getServerSession(authOptions),
   ]);
 
@@ -248,6 +252,8 @@ export default async function PostgresCompanyDetailPage({
           entityId={company.company_id}
         />
       </DetailSection>
+
+      <PostgresResearchIssuesPanel issues={researchIssues} />
 
       <ExportReadinessPanel
         issues={getCompanyReadinessIssues(company)}

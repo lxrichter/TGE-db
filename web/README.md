@@ -228,9 +228,11 @@ filtered CSV export, lightweight bulk status changes, and persistent
 human-created research issues/tasks with issue status history. Project detail
 pages also include a staging-only promotion panel that creates a linked
 operating asset draft, copies existing source/evidence links, and copies current
-company-role links where available. Promotion hardening, richer assignment
-workflows, field-level issue automation, relationship history/timelines, and
-production exports remain separate next-step workflows.
+company-role links where available. PostgreSQL project, plant/facility, and
+company detail pages show linked open persistent Research Ops issues. Promotion
+hardening, richer assignment workflows, field-level issue automation,
+relationship history/timelines, and production exports remain separate
+next-step workflows.
 
 ## Known Issues
 

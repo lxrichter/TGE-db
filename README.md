@@ -178,7 +178,7 @@ Current PostgreSQL staging implementation:
   important, and separate-workflow data gaps
 - PostgreSQL staging detail pages include add/remove managers for
   company-project roles, company-plant/facility roles, and company-company
-  relationships
+  relationships, plus linked Research Ops issue panels
 - PostgreSQL project detail pages include project-to-plant/facility promotion
   scaffolding that creates a linked staging operating asset and copies available
   source and company-role links

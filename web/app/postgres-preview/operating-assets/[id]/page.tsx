@@ -14,11 +14,13 @@ import {
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { OperatingAssetCompanyLinksPanel } from "@/components/postgres-preview/PostgresRelationshipManager";
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
+import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewOperatingAssetById,
   listPostgresOperatingAssetCompanyLinks,
+  listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewOperatingAssetDetail,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
@@ -136,6 +138,7 @@ export default async function PostgresOperatingAssetDetailPage({
     companyLinks,
     relationshipReferenceData,
     entityReferenceData,
+    researchIssues,
     session,
   ] =
     await Promise.all([
@@ -143,6 +146,7 @@ export default async function PostgresOperatingAssetDetailPage({
       listPostgresOperatingAssetCompanyLinks(id),
       getPostgresCompanyRelationshipReferenceData(),
       getPostgresEntityFormReferenceData(),
+      listPostgresResearchOpsIssuesForEntity("operating_asset", id),
       getServerSession(authOptions),
     ]);
 
@@ -265,6 +269,8 @@ export default async function PostgresOperatingAssetDetailPage({
         operatingAssetId={asset.operating_asset_id}
         referenceData={relationshipReferenceData}
       />
+
+      <PostgresResearchIssuesPanel issues={researchIssues} />
 
       <ExportReadinessPanel
         issues={getAssetReadinessIssues(asset)}

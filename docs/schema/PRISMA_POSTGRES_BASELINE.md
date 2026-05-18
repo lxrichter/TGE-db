@@ -203,7 +203,9 @@ The current PostgreSQL Research Ops page also supports selected-row status
 changes, lightweight bulk review/status changes, and filtered CSV exports using
 the existing `PATCH /api/postgres-preview/research-ops/status` route. Persistent
 human-created research issues/tasks are now modeled and can be created,
-resolved, or dismissed from the Research Ops page.
+resolved, or dismissed from the Research Ops page. PostgreSQL project,
+plant/facility, and company detail pages also show linked open persistent
+Research Ops issues.
 
 The next recommended implementation slice is:
 
