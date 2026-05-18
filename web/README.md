@@ -237,6 +237,19 @@ The preview writes metadata-only files to ignored `source-data/` output and does
 not write to PostgreSQL. See
 `docs/schema/TGE_NEWS_ARCHIVE_LOCAL_PREVIEW.md`.
 
+After running the archive preview, candidate related-news matches can be
+generated locally with:
+
+```bash
+npm run tge-news:match -- --entities-json "/path/to/entities.json"
+```
+
+or against Railway PostgreSQL staging in read-only mode:
+
+```bash
+railway run --service Postgres -- npm run tge-news:match -- --from-postgres
+```
+
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the

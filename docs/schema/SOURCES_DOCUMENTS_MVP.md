@@ -161,6 +161,9 @@ docs/schema/TGE_NEWS_ARCHIVE_LOCAL_PREVIEW.md
 That workflow parses the 17,000+ markdown article archive locally and writes
 metadata-only preview outputs to the ignored `source-data/` directory. It does
 not write to PostgreSQL and does not export article body text by default.
+It also includes an entity-match preview command that can compare article
+metadata against a local entity JSON file or read-only PostgreSQL staging entity
+names, then write candidate related-news matches to ignored local output.
 
 ## Research Ops Integration
 

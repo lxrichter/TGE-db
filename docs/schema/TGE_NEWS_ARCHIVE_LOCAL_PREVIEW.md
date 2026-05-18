@@ -102,6 +102,59 @@ Run the preview locally, inspect `summary.json` and
 `candidate_links_preview.csv`, then define which matching rules are acceptable
 for semi-automatic related-news links.
 
+## Entity Match Preview
+
+After running `tge-news:preview`, the next local-only step is to compare article
+metadata against known project, plant/facility, and company names.
+
+With a local entity JSON file:
+
+```bash
+npm run tge-news:match -- --entities-json "/path/to/entities.json"
+```
+
+Against Railway PostgreSQL staging, read-only:
+
+```bash
+railway run --service Postgres -- npm run tge-news:match -- --from-postgres
+```
+
+The matcher reads:
+
+- `source-data/tge-news-archive-preview/article_index_preview.ndjson`
+- entity names/aliases from either the local JSON file or PostgreSQL
+
+It writes:
+
+```text
+source-data/tge-news-entity-match-preview/
+```
+
+Generated files:
+
+- `entity_match_summary.json`
+- `entity_match_candidates.csv`
+
+The PostgreSQL mode only reads entity names and metadata. It does not write to
+PostgreSQL and does not send article metadata to the database. Matching happens
+locally.
+
+The local entity JSON format may be either an array or an object with an
+`entities` array:
+
+```json
+[
+  {
+    "entity_type": "project",
+    "entity_id": "stable-id-or-db-id",
+    "name": "Cape Station",
+    "country": "United States",
+    "use_type": "power",
+    "aliases": ["Cape Station Phase I", "Cape Station Phase II"]
+  }
+]
+```
+
 Recommended matching tiers:
 
 - High confidence: exact database entity alias in title plus matching country.

@@ -219,6 +219,9 @@ Current implemented foundation:
 - local-only markdown news archive preview script for the 17,000+ historical
   TGE article files; it writes metadata-only outputs to ignored `source-data/`
   and does not upload files or write to PostgreSQL
+- local-only entity match preview can compare article metadata against a local
+  entity JSON file or read-only PostgreSQL staging project/asset/company names
+  to generate candidate related-news links
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms

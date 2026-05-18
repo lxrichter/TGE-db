@@ -69,6 +69,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - a local-only TGE markdown news archive preview script can parse historical
   article metadata and candidate related-news links into ignored `source-data/`
   outputs without writing to PostgreSQL
+- a local-only entity match preview can compare article metadata against local
+  entity JSON or read-only PostgreSQL staging entity names to create candidate
+  related-news review files
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite
