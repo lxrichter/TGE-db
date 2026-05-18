@@ -43,6 +43,8 @@ Intended build direction:
 - migrate toward a stronger production database foundation on PostgreSQL
 - plan deployment around Railway as the intended hosting platform
 - use Prisma as the PostgreSQL migration and application data-access foundation
+- keep PostgreSQL staging workflows under `/postgres-preview` until they are
+  ready to replace the current SQLite prototype routes
 - add source registry and AI-assisted research support only after the core model and workflow are stable
 
 ## Repository Layout
@@ -160,6 +162,24 @@ PostgreSQL schema baseline:
 - [docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md](docs/schema/LIVE_SQLITE_EXPORT_GUIDE.md)
 - [docs/schema/POSTGRES_STAGING_WORKFLOW.md](docs/schema/POSTGRES_STAGING_WORKFLOW.md)
 - [scripts/migration/README.md](scripts/migration/README.md)
+
+Current PostgreSQL staging implementation:
+
+- `/postgres-preview` reads Railway PostgreSQL staging records
+- `/postgres-preview/projects/new` and `/postgres-preview/projects/[id]/edit`
+  provide staging-only project create/edit scaffolds
+- `/postgres-preview/operating-assets/new` and
+  `/postgres-preview/operating-assets/[id]/edit` provide staging-only
+  plant/facility create/edit scaffolds
+- `/postgres-preview/companies/new` and
+  `/postgres-preview/companies/[id]/edit` provide staging-only company
+  create/edit scaffolds
+- `/sources` and `/sources/[id]` provide the current PostgreSQL source/evidence
+  workflow foundation
+
+These PostgreSQL routes are current implementation work in progress. They do
+not yet replace the SQLite prototype, and the live Hetzner SQLite database has
+not been imported.
 
 ## GitHub
 

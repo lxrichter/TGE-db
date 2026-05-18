@@ -147,6 +147,121 @@ export type PostgresPreviewCompanyDetail = PostgresPreviewCompany & {
   sources: PostgresEntitySourceLink[];
 };
 
+export type PostgresReferenceOption = {
+  code: string;
+  label: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
+export type PostgresEntityFormReferenceData = {
+  useTypes: PostgresReferenceOption[];
+  lifecyclePhases: Array<
+    PostgresReferenceOption & {
+      is_operating: boolean;
+    }
+  >;
+  reviewStatuses: Array<
+    PostgresReferenceOption & {
+      is_terminal: boolean;
+    }
+  >;
+  estimateStatuses: PostgresReferenceOption[];
+  companyEntityTypes: PostgresReferenceOption[];
+  companyPrimaryTypes: PostgresReferenceOption[];
+};
+
+export type PostgresProjectMutationInput = {
+  project_name: string;
+  project_group?: string | null;
+  primary_use_type_code: string;
+  lifecycle_phase_code: string;
+  location_text?: string | null;
+  country?: string | null;
+  region?: string | null;
+  wb_region?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  resource_type?: string | null;
+  resource_temp_c?: number | null;
+  potential_min_mwe?: number | null;
+  potential_max_mwe?: number | null;
+  electric_capacity_mwe?: number | null;
+  thermal_capacity_mwth?: number | null;
+  annual_power_generation_gwhe?: number | null;
+  annual_heat_supply_gwhth?: number | null;
+  annual_cooling_supply_gwhc?: number | null;
+  capacity_estimate_status_code: string;
+  output_estimate_status_code: string;
+  start_dev_year?: number | null;
+  target_cod_year?: number | null;
+  target_cod_month?: number | null;
+  cod_raw?: string | null;
+  plant_technology?: string | null;
+  turbine_supplier?: string | null;
+  review_status_code: string;
+  research_status?: string | null;
+  notes?: string | null;
+};
+
+export type PostgresOperatingAssetMutationInput = {
+  asset_name: string;
+  project_group?: string | null;
+  primary_use_type_code: string;
+  lifecycle_phase_code: string;
+  location_text?: string | null;
+  country?: string | null;
+  region?: string | null;
+  wb_region?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  resource_type?: string | null;
+  resource_temp_c?: number | null;
+  potential_min_mwe?: number | null;
+  potential_max_mwe?: number | null;
+  electric_capacity_mwe?: number | null;
+  electric_capacity_running_mwe?: number | null;
+  thermal_capacity_mwth?: number | null;
+  annual_power_generation_gwhe?: number | null;
+  annual_heat_supply_gwhth?: number | null;
+  annual_cooling_supply_gwhc?: number | null;
+  capacity_estimate_status_code: string;
+  output_estimate_status_code: string;
+  start_dev_year?: number | null;
+  cod_year?: number | null;
+  cod_month?: number | null;
+  cod_raw?: string | null;
+  number_of_units?: string | null;
+  plant_technology?: string | null;
+  turbine_supplier?: string | null;
+  review_status_code: string;
+  research_status?: string | null;
+  notes?: string | null;
+};
+
+export type PostgresCompanyMutationInput = {
+  company_name: string;
+  company_name_short?: string | null;
+  company_legal_name?: string | null;
+  website_url?: string | null;
+  linkedin_url?: string | null;
+  entity_type_code?: string | null;
+  company_type_primary_code?: string | null;
+  ownership_type?: string | null;
+  company_status?: string | null;
+  headquarters_city?: string | null;
+  headquarters_country?: string | null;
+  region?: string | null;
+  wb_region?: string | null;
+  geothermal_focus?: string | null;
+  technology_focus?: string | null;
+  service_scope_summary?: string | null;
+  operating_markets_summary?: string | null;
+  review_status_code: string;
+  research_status?: string | null;
+  notes?: string | null;
+};
+
 export type ResearchOpsQueueSeverity = "critical" | "important" | "workflow";
 
 export type ResearchOpsQueueKey =
@@ -1060,6 +1175,453 @@ export async function listPostgresPreviewCompanies(
     orderBy: [{ created_at: "desc" }, { company_name: "asc" }],
     take: limit,
   });
+}
+
+function cleanOptionalText(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed || null;
+}
+
+function normalizeEntityNameClean(value: string) {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function isApprovedStatus(status: string) {
+  return status === "approved" || status === "export_ready";
+}
+
+function getReviewTimestampFields(reviewStatusCode: string) {
+  if (!isApprovedStatus(reviewStatusCode)) {
+    return {};
+  }
+
+  return {
+    approved_at: new Date(),
+    export_ready_at: reviewStatusCode === "export_ready" ? new Date() : undefined,
+  };
+}
+
+function getPreservedReviewTimestampFields(
+  reviewStatusCode: string,
+  existing: { approved_at: Date | null; export_ready_at: Date | null }
+) {
+  if (!isApprovedStatus(reviewStatusCode)) {
+    return {};
+  }
+
+  return {
+    approved_at: existing.approved_at ?? new Date(),
+    export_ready_at:
+      reviewStatusCode === "export_ready"
+        ? existing.export_ready_at ?? new Date()
+        : existing.export_ready_at,
+  };
+}
+
+function deriveUpdatedReviewStatus(current: string, requested: string) {
+  if (
+    isApprovedStatus(current) &&
+    (requested === "draft" || requested === "validation")
+  ) {
+    return "needs_update";
+  }
+
+  return requested;
+}
+
+export async function getPostgresEntityFormReferenceData(): Promise<PostgresEntityFormReferenceData> {
+  const prisma = getPrismaClient();
+  const [
+    useTypes,
+    lifecyclePhases,
+    reviewStatuses,
+    estimateStatuses,
+    companyEntityTypes,
+    companyPrimaryTypes,
+  ] = await Promise.all([
+    prisma.ref_geothermal_use_types.findMany({
+      select: { code: true, label: true, sort_order: true, is_active: true },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.ref_lifecycle_phases.findMany({
+      select: {
+        code: true,
+        label: true,
+        sort_order: true,
+        is_active: true,
+        is_operating: true,
+      },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.ref_review_statuses.findMany({
+      select: {
+        code: true,
+        label: true,
+        sort_order: true,
+        is_active: true,
+        is_terminal: true,
+      },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.ref_estimate_statuses.findMany({
+      select: { code: true, label: true, sort_order: true, is_active: true },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.ref_company_entity_types.findMany({
+      select: { code: true, label: true, sort_order: true, is_active: true },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    prisma.ref_company_primary_types.findMany({
+      select: { code: true, label: true, sort_order: true, is_active: true },
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+  ]);
+
+  return {
+    useTypes,
+    lifecyclePhases,
+    reviewStatuses,
+    estimateStatuses,
+    companyEntityTypes,
+    companyPrimaryTypes,
+  };
+}
+
+export async function createPostgresPreviewProject(
+  input: PostgresProjectMutationInput
+): Promise<PostgresPreviewProjectDetail> {
+  const project = await getPrismaClient().projects.create({
+    data: {
+      project_name: input.project_name,
+      project_name_clean: normalizeEntityNameClean(input.project_name),
+      project_group: cleanOptionalText(input.project_group),
+      primary_use_type_code: input.primary_use_type_code,
+      lifecycle_phase_code: input.lifecycle_phase_code,
+      location_text: cleanOptionalText(input.location_text),
+      country: cleanOptionalText(input.country),
+      region: cleanOptionalText(input.region),
+      wb_region: cleanOptionalText(input.wb_region),
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+      resource_type: cleanOptionalText(input.resource_type),
+      resource_temp_c: input.resource_temp_c ?? null,
+      potential_min_mwe: input.potential_min_mwe ?? null,
+      potential_max_mwe: input.potential_max_mwe ?? null,
+      electric_capacity_mwe: input.electric_capacity_mwe ?? null,
+      thermal_capacity_mwth: input.thermal_capacity_mwth ?? null,
+      annual_power_generation_gwhe: input.annual_power_generation_gwhe ?? null,
+      annual_heat_supply_gwhth: input.annual_heat_supply_gwhth ?? null,
+      annual_cooling_supply_gwhc: input.annual_cooling_supply_gwhc ?? null,
+      capacity_estimate_status_code: input.capacity_estimate_status_code,
+      output_estimate_status_code: input.output_estimate_status_code,
+      start_dev_year: input.start_dev_year ?? null,
+      target_cod_year: input.target_cod_year ?? null,
+      target_cod_month: input.target_cod_month ?? null,
+      cod_raw: cleanOptionalText(input.cod_raw),
+      plant_technology: cleanOptionalText(input.plant_technology),
+      turbine_supplier: cleanOptionalText(input.turbine_supplier),
+      review_status_code: input.review_status_code,
+      research_status: cleanOptionalText(input.research_status),
+      notes: cleanOptionalText(input.notes),
+      ...getReviewTimestampFields(input.review_status_code),
+    },
+    select: { project_id: true },
+  });
+
+  const detail = await getPostgresPreviewProjectById(project.project_id);
+
+  if (!detail) {
+    throw new Error("Created project could not be reloaded.");
+  }
+
+  return detail;
+}
+
+export async function updatePostgresPreviewProject(
+  projectId: string,
+  input: PostgresProjectMutationInput
+): Promise<PostgresPreviewProjectDetail | null> {
+  const prisma = getPrismaClient();
+  const existing = await prisma.projects.findUnique({
+    select: {
+      review_status_code: true,
+      approved_at: true,
+      export_ready_at: true,
+    },
+    where: { project_id: projectId },
+  });
+
+  if (!existing) {
+    return null;
+  }
+
+  const reviewStatus = deriveUpdatedReviewStatus(
+    existing.review_status_code,
+    input.review_status_code
+  );
+
+  await prisma.projects.update({
+    where: { project_id: projectId },
+    data: {
+      project_name: input.project_name,
+      project_name_clean: normalizeEntityNameClean(input.project_name),
+      project_group: cleanOptionalText(input.project_group),
+      primary_use_type_code: input.primary_use_type_code,
+      lifecycle_phase_code: input.lifecycle_phase_code,
+      location_text: cleanOptionalText(input.location_text),
+      country: cleanOptionalText(input.country),
+      region: cleanOptionalText(input.region),
+      wb_region: cleanOptionalText(input.wb_region),
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+      resource_type: cleanOptionalText(input.resource_type),
+      resource_temp_c: input.resource_temp_c ?? null,
+      potential_min_mwe: input.potential_min_mwe ?? null,
+      potential_max_mwe: input.potential_max_mwe ?? null,
+      electric_capacity_mwe: input.electric_capacity_mwe ?? null,
+      thermal_capacity_mwth: input.thermal_capacity_mwth ?? null,
+      annual_power_generation_gwhe: input.annual_power_generation_gwhe ?? null,
+      annual_heat_supply_gwhth: input.annual_heat_supply_gwhth ?? null,
+      annual_cooling_supply_gwhc: input.annual_cooling_supply_gwhc ?? null,
+      capacity_estimate_status_code: input.capacity_estimate_status_code,
+      output_estimate_status_code: input.output_estimate_status_code,
+      start_dev_year: input.start_dev_year ?? null,
+      target_cod_year: input.target_cod_year ?? null,
+      target_cod_month: input.target_cod_month ?? null,
+      cod_raw: cleanOptionalText(input.cod_raw),
+      plant_technology: cleanOptionalText(input.plant_technology),
+      turbine_supplier: cleanOptionalText(input.turbine_supplier),
+      review_status_code: reviewStatus,
+      research_status: cleanOptionalText(input.research_status),
+      notes: cleanOptionalText(input.notes),
+      updated_at: new Date(),
+      ...getPreservedReviewTimestampFields(reviewStatus, existing),
+    },
+  });
+
+  return getPostgresPreviewProjectById(projectId);
+}
+
+export async function createPostgresPreviewOperatingAsset(
+  input: PostgresOperatingAssetMutationInput
+): Promise<PostgresPreviewOperatingAssetDetail> {
+  const asset = await getPrismaClient().operating_assets.create({
+    data: {
+      asset_name: input.asset_name,
+      asset_name_clean: normalizeEntityNameClean(input.asset_name),
+      project_group: cleanOptionalText(input.project_group),
+      primary_use_type_code: input.primary_use_type_code,
+      lifecycle_phase_code: input.lifecycle_phase_code,
+      location_text: cleanOptionalText(input.location_text),
+      country: cleanOptionalText(input.country),
+      region: cleanOptionalText(input.region),
+      wb_region: cleanOptionalText(input.wb_region),
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+      resource_type: cleanOptionalText(input.resource_type),
+      resource_temp_c: input.resource_temp_c ?? null,
+      potential_min_mwe: input.potential_min_mwe ?? null,
+      potential_max_mwe: input.potential_max_mwe ?? null,
+      electric_capacity_mwe: input.electric_capacity_mwe ?? null,
+      electric_capacity_running_mwe: input.electric_capacity_running_mwe ?? null,
+      thermal_capacity_mwth: input.thermal_capacity_mwth ?? null,
+      annual_power_generation_gwhe: input.annual_power_generation_gwhe ?? null,
+      annual_heat_supply_gwhth: input.annual_heat_supply_gwhth ?? null,
+      annual_cooling_supply_gwhc: input.annual_cooling_supply_gwhc ?? null,
+      capacity_estimate_status_code: input.capacity_estimate_status_code,
+      output_estimate_status_code: input.output_estimate_status_code,
+      start_dev_year: input.start_dev_year ?? null,
+      cod_year: input.cod_year ?? null,
+      cod_month: input.cod_month ?? null,
+      cod_raw: cleanOptionalText(input.cod_raw),
+      number_of_units: cleanOptionalText(input.number_of_units),
+      plant_technology: cleanOptionalText(input.plant_technology),
+      turbine_supplier: cleanOptionalText(input.turbine_supplier),
+      review_status_code: input.review_status_code,
+      research_status: cleanOptionalText(input.research_status),
+      notes: cleanOptionalText(input.notes),
+      ...getReviewTimestampFields(input.review_status_code),
+    },
+    select: { operating_asset_id: true },
+  });
+
+  const detail = await getPostgresPreviewOperatingAssetById(
+    asset.operating_asset_id
+  );
+
+  if (!detail) {
+    throw new Error("Created operating asset could not be reloaded.");
+  }
+
+  return detail;
+}
+
+export async function updatePostgresPreviewOperatingAsset(
+  operatingAssetId: string,
+  input: PostgresOperatingAssetMutationInput
+): Promise<PostgresPreviewOperatingAssetDetail | null> {
+  const prisma = getPrismaClient();
+  const existing = await prisma.operating_assets.findUnique({
+    select: {
+      review_status_code: true,
+      approved_at: true,
+      export_ready_at: true,
+    },
+    where: { operating_asset_id: operatingAssetId },
+  });
+
+  if (!existing) {
+    return null;
+  }
+
+  const reviewStatus = deriveUpdatedReviewStatus(
+    existing.review_status_code,
+    input.review_status_code
+  );
+
+  await prisma.operating_assets.update({
+    where: { operating_asset_id: operatingAssetId },
+    data: {
+      asset_name: input.asset_name,
+      asset_name_clean: normalizeEntityNameClean(input.asset_name),
+      project_group: cleanOptionalText(input.project_group),
+      primary_use_type_code: input.primary_use_type_code,
+      lifecycle_phase_code: input.lifecycle_phase_code,
+      location_text: cleanOptionalText(input.location_text),
+      country: cleanOptionalText(input.country),
+      region: cleanOptionalText(input.region),
+      wb_region: cleanOptionalText(input.wb_region),
+      latitude: input.latitude ?? null,
+      longitude: input.longitude ?? null,
+      resource_type: cleanOptionalText(input.resource_type),
+      resource_temp_c: input.resource_temp_c ?? null,
+      potential_min_mwe: input.potential_min_mwe ?? null,
+      potential_max_mwe: input.potential_max_mwe ?? null,
+      electric_capacity_mwe: input.electric_capacity_mwe ?? null,
+      electric_capacity_running_mwe: input.electric_capacity_running_mwe ?? null,
+      thermal_capacity_mwth: input.thermal_capacity_mwth ?? null,
+      annual_power_generation_gwhe: input.annual_power_generation_gwhe ?? null,
+      annual_heat_supply_gwhth: input.annual_heat_supply_gwhth ?? null,
+      annual_cooling_supply_gwhc: input.annual_cooling_supply_gwhc ?? null,
+      capacity_estimate_status_code: input.capacity_estimate_status_code,
+      output_estimate_status_code: input.output_estimate_status_code,
+      start_dev_year: input.start_dev_year ?? null,
+      cod_year: input.cod_year ?? null,
+      cod_month: input.cod_month ?? null,
+      cod_raw: cleanOptionalText(input.cod_raw),
+      number_of_units: cleanOptionalText(input.number_of_units),
+      plant_technology: cleanOptionalText(input.plant_technology),
+      turbine_supplier: cleanOptionalText(input.turbine_supplier),
+      review_status_code: reviewStatus,
+      research_status: cleanOptionalText(input.research_status),
+      notes: cleanOptionalText(input.notes),
+      updated_at: new Date(),
+      ...getPreservedReviewTimestampFields(reviewStatus, existing),
+    },
+  });
+
+  return getPostgresPreviewOperatingAssetById(operatingAssetId);
+}
+
+export async function createPostgresPreviewCompany(
+  input: PostgresCompanyMutationInput
+): Promise<PostgresPreviewCompanyDetail> {
+  const company = await getPrismaClient().companies.create({
+    data: {
+      company_name: input.company_name,
+      company_name_clean: normalizeEntityNameClean(input.company_name),
+      company_name_short: cleanOptionalText(input.company_name_short),
+      company_legal_name: cleanOptionalText(input.company_legal_name),
+      website_url: cleanOptionalText(input.website_url),
+      linkedin_url: cleanOptionalText(input.linkedin_url),
+      entity_type_code: cleanOptionalText(input.entity_type_code),
+      company_type_primary_code: cleanOptionalText(input.company_type_primary_code),
+      ownership_type: cleanOptionalText(input.ownership_type),
+      company_status: cleanOptionalText(input.company_status),
+      headquarters_city: cleanOptionalText(input.headquarters_city),
+      headquarters_country: cleanOptionalText(input.headquarters_country),
+      region: cleanOptionalText(input.region),
+      wb_region: cleanOptionalText(input.wb_region),
+      geothermal_focus: cleanOptionalText(input.geothermal_focus),
+      technology_focus: cleanOptionalText(input.technology_focus),
+      service_scope_summary: cleanOptionalText(input.service_scope_summary),
+      operating_markets_summary: cleanOptionalText(input.operating_markets_summary),
+      review_status_code: input.review_status_code,
+      research_status: cleanOptionalText(input.research_status),
+      notes: cleanOptionalText(input.notes),
+      ...getReviewTimestampFields(input.review_status_code),
+    },
+    select: { company_id: true },
+  });
+
+  const detail = await getPostgresPreviewCompanyById(company.company_id);
+
+  if (!detail) {
+    throw new Error("Created company could not be reloaded.");
+  }
+
+  return detail;
+}
+
+export async function updatePostgresPreviewCompany(
+  companyId: string,
+  input: PostgresCompanyMutationInput
+): Promise<PostgresPreviewCompanyDetail | null> {
+  const prisma = getPrismaClient();
+  const existing = await prisma.companies.findUnique({
+    select: {
+      review_status_code: true,
+      approved_at: true,
+      export_ready_at: true,
+    },
+    where: { company_id: companyId },
+  });
+
+  if (!existing) {
+    return null;
+  }
+
+  const reviewStatus = deriveUpdatedReviewStatus(
+    existing.review_status_code,
+    input.review_status_code
+  );
+
+  await prisma.companies.update({
+    where: { company_id: companyId },
+    data: {
+      company_name: input.company_name,
+      company_name_clean: normalizeEntityNameClean(input.company_name),
+      company_name_short: cleanOptionalText(input.company_name_short),
+      company_legal_name: cleanOptionalText(input.company_legal_name),
+      website_url: cleanOptionalText(input.website_url),
+      linkedin_url: cleanOptionalText(input.linkedin_url),
+      entity_type_code: cleanOptionalText(input.entity_type_code),
+      company_type_primary_code: cleanOptionalText(input.company_type_primary_code),
+      ownership_type: cleanOptionalText(input.ownership_type),
+      company_status: cleanOptionalText(input.company_status),
+      headquarters_city: cleanOptionalText(input.headquarters_city),
+      headquarters_country: cleanOptionalText(input.headquarters_country),
+      region: cleanOptionalText(input.region),
+      wb_region: cleanOptionalText(input.wb_region),
+      geothermal_focus: cleanOptionalText(input.geothermal_focus),
+      technology_focus: cleanOptionalText(input.technology_focus),
+      service_scope_summary: cleanOptionalText(input.service_scope_summary),
+      operating_markets_summary: cleanOptionalText(input.operating_markets_summary),
+      review_status_code: reviewStatus,
+      research_status: cleanOptionalText(input.research_status),
+      notes: cleanOptionalText(input.notes),
+      updated_at: new Date(),
+      ...getPreservedReviewTimestampFields(reviewStatus, existing),
+    },
+  });
+
+  return getPostgresPreviewCompanyById(companyId);
 }
 
 function normalizeTimestamp(value: string | Date) {

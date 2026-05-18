@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   DetailFieldGrid,
   DetailSection,
@@ -132,11 +133,17 @@ export default async function PostgresOperatingAssetDetailPage({
     <DetailShell
       eyebrow="PostgreSQL Plant / Facility"
       title={asset.asset_name}
-      subtitle="Read-only PostgreSQL staging operating asset profile with source/evidence coverage."
+      subtitle="PostgreSQL staging operating asset profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to PostgreSQL Preview"
       badges={
         <>
+          <Link
+            href={`/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`}
+            className="inline-flex min-h-[28px] items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          >
+            Edit
+          </Link>
           <StatusBadge value={asset.primary_use_type_code} />
           <StatusBadge value={asset.lifecycle_phase_code} />
           <StatusBadge value={asset.review_status_code} />

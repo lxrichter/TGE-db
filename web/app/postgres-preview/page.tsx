@@ -331,17 +331,37 @@ export default async function PostgresPreviewPage() {
                 Future Platform Preview
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Read-only view of the new Railway PostgreSQL schema using safe
-                staging records. The live Hetzner SQLite database is not imported
-                here yet.
+                Staging view of the new Railway PostgreSQL schema using safe
+                preview records. The live Hetzner SQLite database is not
+                imported here yet.
               </p>
             </div>
-            <Link
-              className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href="/postgres-preview/research-ops"
-            >
-              Open Research Ops
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/postgres-preview/research-ops"
+              >
+                Open Research Ops
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href="/postgres-preview/projects/new"
+              >
+                New Project
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href="/postgres-preview/operating-assets/new"
+              >
+                New Plant / Facility
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href="/postgres-preview/companies/new"
+              >
+                New Company
+              </Link>
+            </div>
           </div>
         </div>
       </section>

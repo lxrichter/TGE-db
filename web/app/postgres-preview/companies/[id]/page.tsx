@@ -99,11 +99,17 @@ export default async function PostgresCompanyDetailPage({
     <DetailShell
       eyebrow="PostgreSQL Company"
       title={company.company_name}
-      subtitle="Read-only PostgreSQL staging company profile with source/evidence coverage."
+      subtitle="PostgreSQL staging company profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to PostgreSQL Preview"
       badges={
         <>
+          <Link
+            href={`/postgres-preview/companies/${company.company_id}/edit`}
+            className="inline-flex min-h-[28px] items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          >
+            Edit
+          </Link>
           <StatusBadge value={company.entity_type_code} />
           <StatusBadge value={company.company_type_primary_code} />
           <StatusBadge value={company.review_status_code} />

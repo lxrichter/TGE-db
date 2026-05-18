@@ -21,7 +21,9 @@ Current implemented foundation:
 - safe PostgreSQL staging seed
 - PostgreSQL preview page
 - read-only PostgreSQL Research Ops preview
-- read-only PostgreSQL project, plant/facility, and company detail previews
+- PostgreSQL project, plant/facility, and company detail previews
+- PostgreSQL staging create/edit scaffolds for projects, plants/facilities, and
+  companies under `/postgres-preview`
 - PostgreSQL Sources / Documents MVP foundation:
   - source visibility and credibility/status reference tables
   - expanded source metadata and evidence-link fields
@@ -136,15 +138,15 @@ Deliverables:
 
 Immediate next actions:
 
-1. keep tightening permissions when write-enabled PostgreSQL routes are added
+1. keep tightening permissions around PostgreSQL write-enabled routes
 2. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
-3. decide the first production PostgreSQL write workflow for projects,
-   plants/facilities, and companies
+3. add structured relationship/source workflow actions around the new staging
+   entity forms
 
 Do before:
 
-- production PostgreSQL entity editing
+- production PostgreSQL entity editing outside `/postgres-preview`
 - live SQLite migration/import
 - write-enabled Research Ops actions
 
@@ -176,6 +178,8 @@ Current implemented foundation:
 - editor source-validation actions for credible, weak, outdated, rejected, and
   needs-review states
 - preview-only export-readiness checks requiring credible source coverage
+- PostgreSQL staging create/edit forms preserve source linking as a separate
+  evidence workflow rather than mixing it into core entity forms
 
 Key work:
 
@@ -242,9 +246,12 @@ Purpose: build stable detail/edit/list workflows for the core database.
 
 ### 4A: Projects
 
+Status: staging scaffold started.
+
 Key work:
 
-- project list/detail/create/edit on PostgreSQL
+- project list/detail/create/edit on PostgreSQL: staging preview started under
+  `/postgres-preview`
 - adaptive forms for power/direct-use/hybrid
 - potential min/max vs planned capacity handling
 - company role links
@@ -256,9 +263,12 @@ Key work:
 
 ### 4B: Plants / Facilities
 
+Status: staging scaffold started.
+
 Key work:
 
-- operating asset list/detail/create/edit on PostgreSQL
+- operating asset list/detail/create/edit on PostgreSQL: staging preview
+  started under `/postgres-preview`
 - adaptive fields for power/direct-use/hybrid/mineral
 - installed vs running/current capacity logic
 - operating status
@@ -270,9 +280,12 @@ Key work:
 
 ### 4C: Companies
 
+Status: staging scaffold started.
+
 Key work:
 
-- company list/detail/create/edit on PostgreSQL
+- company list/detail/create/edit on PostgreSQL: staging preview started under
+  `/postgres-preview`
 - company groups
 - controlled primary/secondary categories
 - structured company relationships

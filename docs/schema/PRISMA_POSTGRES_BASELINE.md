@@ -134,7 +134,10 @@ Current application use:
 
 - `web/lib/db/prisma.ts` provides the shared lazy Prisma client.
 - `web/lib/services/postgres-preview.ts` owns the PostgreSQL preview and
-  Research Ops preview data access.
+  Research Ops preview data access, plus staging entity create/update helpers
+  for projects, operating assets, and companies.
+- `web/lib/postgres-preview/entity-api.ts` parses and validates PostgreSQL
+  staging entity write payloads against controlled reference tables.
 - `web/lib/services/sources.ts` owns the PostgreSQL source list/detail and
   source reference-data access layer.
 - `web/lib/postgres-preview.ts` remains as a compatibility re-export for the
@@ -157,12 +160,30 @@ GET /api/postgres/sources/[id]
 GET /api/postgres/sources/reference-data
 ```
 
+Current PostgreSQL entity staging API foundation:
+
+```text
+GET /api/postgres-preview/projects
+POST /api/postgres-preview/projects
+GET /api/postgres-preview/projects/[id]
+PATCH /api/postgres-preview/projects/[id]
+GET /api/postgres-preview/operating-assets
+POST /api/postgres-preview/operating-assets
+GET /api/postgres-preview/operating-assets/[id]
+PATCH /api/postgres-preview/operating-assets/[id]
+GET /api/postgres-preview/companies
+POST /api/postgres-preview/companies
+GET /api/postgres-preview/companies/[id]
+PATCH /api/postgres-preview/companies/[id]
+```
+
 The next recommended implementation slice is:
 
-1. build the Sources / Documents list and detail UI
-2. add source create/edit and source-link actions
-3. wire source actions into Research Ops and core entity detail pages
-4. keep permission checks explicit as PostgreSQL write routes are added
+1. connect company-role and relationship workflows to the PostgreSQL staging
+   entity pages
+2. add Research Ops quick actions for validation status changes
+3. add field-level missing-data flags around the staging forms
+4. keep permission checks explicit as PostgreSQL write routes expand
 
 The live Hetzner SQLite database remains untouched until the PostgreSQL
 workflows and import scripts are ready.

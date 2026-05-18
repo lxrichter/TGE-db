@@ -25,6 +25,24 @@ Implemented areas include:
 - SQLite initialization logic
 - import and maintenance scripts
 
+The repository also contains an in-progress Railway PostgreSQL staging
+foundation. Current implemented PostgreSQL staging areas include:
+
+- Prisma schema and migration baseline
+- `/postgres-preview` staging list/detail pages for projects, operating assets,
+  and companies
+- staging-only create/edit scaffolds for projects, plants/facilities, and
+  companies under `/postgres-preview`
+- PostgreSQL Research Ops preview queues
+- PostgreSQL Sources / Documents list/detail/create/edit workflow foundation
+- source/evidence linking between source records and projects, operating
+  assets, or companies
+- editor source credibility actions
+- preview-only export-readiness panels on PostgreSQL entity detail pages
+
+These PostgreSQL routes are not yet the production replacement for the SQLite
+prototype.
+
 ## Current Data Model Areas
 
 Current application code references these main entity areas:
@@ -63,6 +81,9 @@ The app expects:
 - `NEXTAUTH_SECRET` configured
 - `DB_PATH` pointing at the database
 
+PostgreSQL staging routes additionally expect Railway/PostgreSQL connection
+variables through `DATABASE_PUBLIC_URL` or `DATABASE_URL`.
+
 No production data dump is included in Git.
 
 ## Known Gaps
@@ -73,6 +94,9 @@ Known current gaps and risks:
 - extensive `any` usage needs cleanup
 - schema needs formal audit and migration plan
 - SQLite is acceptable for local prototype work but is not the likely final production database
+- PostgreSQL staging entity forms are scaffolds; company-role management,
+  promotion workflows, Research Ops write actions, and production exports are
+  still next-step work
 - current docs and comments should not be assumed to describe final architecture
 - no committed sanitized fixture database exists yet
 - deployment process needs hardening and should be evaluated against Railway requirements

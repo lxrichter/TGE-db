@@ -165,16 +165,25 @@ Current PostgreSQL-backed route foundations:
 /postgres-preview
 /postgres-preview/research-ops
 /postgres-preview/projects/[id]
+/postgres-preview/projects/[id]/edit
+/postgres-preview/projects/new
 /postgres-preview/operating-assets/[id]
+/postgres-preview/operating-assets/[id]/edit
+/postgres-preview/operating-assets/new
 /postgres-preview/companies/[id]
+/postgres-preview/companies/[id]/edit
+/postgres-preview/companies/new
 /sources
 /sources/[id]
 /sources/new
 /sources/[id]/edit
 /api/postgres-preview/summary
 /api/postgres-preview/projects
+/api/postgres-preview/projects/[id]
 /api/postgres-preview/operating-assets
+/api/postgres-preview/operating-assets/[id]
 /api/postgres-preview/companies
+/api/postgres-preview/companies/[id]
 /api/postgres-preview/research-ops
 /api/postgres/sources
 /api/postgres/sources/[id]
@@ -192,6 +201,13 @@ includes editor source-credibility actions on source profiles and preview-only
 export-readiness panels on PostgreSQL entity detail pages. File uploads, TGE
 article sync, country/market evidence panels, and enforced export-readiness
 rules are proposed next steps, not completed production functionality.
+
+The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
+for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
+These routes write to Railway PostgreSQL and are intentionally separate from the
+current SQLite prototype routes under `/projects`, `/plants`, and `/companies`.
+Source/evidence links, company-role relationships, project promotion, bulk
+edits, and production exports remain separate next-step workflows.
 
 ## Known Issues
 
