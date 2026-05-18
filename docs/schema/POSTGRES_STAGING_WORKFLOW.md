@@ -165,24 +165,31 @@ The first PostgreSQL source/evidence service foundation is available through:
 ```text
 /sources
 /sources/[id]
+/sources/new
+/sources/[id]/edit
 /api/postgres/sources
 /api/postgres/sources/[id]
 /api/postgres/sources/reference-data
+/api/postgres/source-links
+/api/postgres/source-links/[id]
 ```
 
 Current implemented behavior:
 
 - browse source records in a read-only Sources / Documents page
 - inspect a source profile with linked evidence rows
+- create and edit source records
+- add and remove record-level evidence links
+- start a prelinked add-source flow from Research Ops records missing sources
 - read source records from Railway PostgreSQL
 - filter source records by search, source type, visibility, and credibility
 - expose source type, visibility, and credibility/status reference data
 - expose linked project, operating asset, and company evidence records
 - feed source review queues into Research Ops
 
-This is not yet the full Sources / Documents workflow. Source create/edit,
-file upload, source linking actions, and editor validation actions are still
-future implementation slices.
+This is not yet the full Sources / Documents workflow. File upload, TGE article
+sync, source panels on PostgreSQL entity detail pages, and dedicated editor
+validation actions are still future implementation slices.
 
 ## Safe Staging Seed
 

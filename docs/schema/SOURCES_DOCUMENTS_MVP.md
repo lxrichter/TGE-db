@@ -113,10 +113,12 @@ Current UI routes:
 ```text
 /sources
 /sources/[id]
+/sources/new
+/sources/[id]/edit
 ```
 
-The current UI is read-only. It supports source list filtering, source profile
-viewing, source metadata review, and linked evidence inspection.
+The current UI supports source list filtering, source profile viewing, source
+metadata review, source create/edit, and record-level evidence link management.
 
 The list endpoint currently supports:
 
@@ -143,8 +145,8 @@ workflows.
 
 Current implemented functionality is still foundation-level:
 
-- no create/edit source form yet
-- no source-linking action from project, plant/facility, or company pages yet
+- no source panels on PostgreSQL project, plant/facility, or company detail
+  pages yet
 - no file upload pipeline yet
 - no TGE WordPress/article integration yet
 - no AI extraction or semantic search yet
@@ -155,11 +157,12 @@ The live Hetzner SQLite database remains untouched.
 
 Build the basic Sources / Documents working surface:
 
-1. add a source create/edit form
-2. add an "add source" action from Research Ops queue rows
-3. add source-link actions to project, plant/facility, and company detail pages
-4. add source validation actions for editors
-5. prepare export-ready checks that require credible source coverage
+1. add source panels to PostgreSQL project, plant/facility, and company detail
+   pages
+2. add source validation actions for editors
+3. prepare export-ready checks that require credible source coverage
+4. add file upload/storage decisions before attaching real documents
+5. define how TGE WordPress article linkage should be synchronized
 
 This should happen before heavy approval/export automation, because source
 traceability is the backbone for validation, reporting, and later AI workflows.

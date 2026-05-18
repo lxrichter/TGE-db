@@ -79,6 +79,52 @@ export type SourceReferenceData = {
   >;
 };
 
+export type SourceLinkTargetOption = {
+  entity_type: SourceLink["entity_type"];
+  entity_id: string;
+  label: string;
+  legacy_id: string | null;
+  country: string | null;
+};
+
+export type SourceFormReferenceData = SourceReferenceData & {
+  confidenceStatuses: SourceReferenceOption[];
+  linkTargets: SourceLinkTargetOption[];
+};
+
+export type SourceMutationInput = {
+  source_type_code: string;
+  title?: string | null;
+  url?: string | null;
+  source_reference?: string | null;
+  publisher?: string | null;
+  author_organization?: string | null;
+  country?: string | null;
+  language_code?: string | null;
+  visibility_code: string;
+  credibility_status_code: string;
+  published_date?: string | null;
+  accessed_at?: string | null;
+  notes?: string | null;
+  extracted_summary?: string | null;
+  relevant_excerpt?: string | null;
+  attachment_url?: string | null;
+  duplicate_source_flag?: boolean;
+};
+
+export type SourceLinkMutationInput = {
+  source_id: string;
+  entity_type: SourceLink["entity_type"];
+  entity_id: string;
+  evidence_type?: string | null;
+  evidence_note?: string | null;
+  confidence_status_code: string;
+  linked_field?: string | null;
+  claim_text?: string | null;
+  extracted_value?: string | null;
+  is_primary_evidence?: boolean;
+};
+
 type SourceListRow = Omit<
   SourceListItem,
   "published_date" | "accessed_at" | "created_at" | "updated_at"
@@ -105,6 +151,20 @@ type SourceLinkRow = Omit<SourceLink, "created_at" | "updated_at"> & {
   updated_at: string | Date;
 };
 
+type SourceLinkTargetRow = SourceLinkTargetOption;
+
+type SourceIdRow = {
+  source_id: string;
+};
+
+type SourceLinkIdRow = {
+  entity_source_id: string;
+};
+
+type DeletedSourceLinkRow = {
+  source_id: string;
+};
+
 function normalizeTimestamp(value: string | Date | null) {
   if (!value) {
     return null;
@@ -119,6 +179,41 @@ function normalizeTimestamp(value: string | Date | null) {
 
 function normalizeRequiredTimestamp(value: string | Date) {
   return normalizeTimestamp(value) ?? new Date(0).toISOString();
+}
+
+function cleanOptionalText(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed || null;
+}
+
+function cleanRequiredText(value: string | null | undefined, fallback: string) {
+  return cleanOptionalText(value) || fallback;
+}
+
+function normalizeDateInput(value: string | null | undefined) {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  return trimmed.slice(0, 10);
+}
+
+function normalizeTimestampInput(value: string | null | undefined) {
+  const trimmed = value?.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toISOString();
 }
 
 function toSourceListItem(row: SourceListRow): SourceListItem {
@@ -359,6 +454,257 @@ export async function listSourceLinks(sourceId: string): Promise<SourceLink[]> {
   );
 
   return rows.map(toSourceLink);
+}
+
+export async function createSource(
+  input: SourceMutationInput
+): Promise<SourceDetail> {
+  const rows = await getPrismaClient().$queryRawUnsafe<SourceIdRow[]>(
+    `
+    INSERT INTO sources (
+      source_type_code,
+      title,
+      url,
+      source_reference,
+      publisher,
+      author_organization,
+      country,
+      language_code,
+      visibility_code,
+      credibility_status_code,
+      published_date,
+      accessed_at,
+      notes,
+      extracted_summary,
+      relevant_excerpt,
+      attachment_url,
+      duplicate_source_flag,
+      reviewed_at
+    )
+    VALUES (
+      $1, $2, $3, $4, $5, $6,
+      $7, $8, $9, $10, $11::date,
+      $12::timestamptz, $13, $14, $15, $16,
+      $17,
+      CASE WHEN $10 != 'needs_review' THEN now() ELSE NULL END
+    )
+    RETURNING source_id::text
+    `,
+    cleanRequiredText(input.source_type_code, "web"),
+    cleanOptionalText(input.title),
+    cleanOptionalText(input.url),
+    cleanOptionalText(input.source_reference),
+    cleanOptionalText(input.publisher),
+    cleanOptionalText(input.author_organization),
+    cleanOptionalText(input.country),
+    cleanOptionalText(input.language_code),
+    cleanRequiredText(input.visibility_code, "public"),
+    cleanRequiredText(input.credibility_status_code, "needs_review"),
+    normalizeDateInput(input.published_date),
+    normalizeTimestampInput(input.accessed_at),
+    cleanOptionalText(input.notes),
+    cleanOptionalText(input.extracted_summary),
+    cleanOptionalText(input.relevant_excerpt),
+    cleanOptionalText(input.attachment_url),
+    Boolean(input.duplicate_source_flag)
+  );
+
+  const source = await getSourceById(rows[0].source_id);
+
+  if (!source) {
+    throw new Error("Created source could not be reloaded.");
+  }
+
+  return source;
+}
+
+export async function updateSource(
+  sourceId: string,
+  input: SourceMutationInput
+): Promise<SourceDetail | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<SourceIdRow[]>(
+    `
+    UPDATE sources
+    SET
+      source_type_code = $2,
+      title = $3,
+      url = $4,
+      source_reference = $5,
+      publisher = $6,
+      author_organization = $7,
+      country = $8,
+      language_code = $9,
+      visibility_code = $10,
+      credibility_status_code = $11,
+      published_date = $12::date,
+      accessed_at = $13::timestamptz,
+      notes = $14,
+      extracted_summary = $15,
+      relevant_excerpt = $16,
+      attachment_url = $17,
+      duplicate_source_flag = $18,
+      reviewed_at = CASE WHEN $11 != 'needs_review' THEN now() ELSE NULL END,
+      updated_at = now()
+    WHERE source_id = $1::uuid
+    RETURNING source_id::text
+    `,
+    sourceId,
+    cleanRequiredText(input.source_type_code, "web"),
+    cleanOptionalText(input.title),
+    cleanOptionalText(input.url),
+    cleanOptionalText(input.source_reference),
+    cleanOptionalText(input.publisher),
+    cleanOptionalText(input.author_organization),
+    cleanOptionalText(input.country),
+    cleanOptionalText(input.language_code),
+    cleanRequiredText(input.visibility_code, "public"),
+    cleanRequiredText(input.credibility_status_code, "needs_review"),
+    normalizeDateInput(input.published_date),
+    normalizeTimestampInput(input.accessed_at),
+    cleanOptionalText(input.notes),
+    cleanOptionalText(input.extracted_summary),
+    cleanOptionalText(input.relevant_excerpt),
+    cleanOptionalText(input.attachment_url),
+    Boolean(input.duplicate_source_flag)
+  );
+
+  if (!rows[0]) {
+    return null;
+  }
+
+  return getSourceById(rows[0].source_id);
+}
+
+export async function listSourceLinkTargetOptions(): Promise<
+  SourceLinkTargetOption[]
+> {
+  const rows = await getPrismaClient().$queryRawUnsafe<SourceLinkTargetRow[]>(
+    `
+    SELECT *
+    FROM (
+      SELECT
+        'project'::text AS entity_type,
+        p.project_id::text AS entity_id,
+        p.project_name AS label,
+        p.legacy_project_id AS legacy_id,
+        p.country
+      FROM projects p
+
+      UNION ALL
+
+      SELECT
+        'operating_asset'::text AS entity_type,
+        a.operating_asset_id::text AS entity_id,
+        a.asset_name AS label,
+        a.legacy_plant_id AS legacy_id,
+        a.country
+      FROM operating_assets a
+
+      UNION ALL
+
+      SELECT
+        'company'::text AS entity_type,
+        c.company_id::text AS entity_id,
+        c.company_name AS label,
+        c.legacy_company_id AS legacy_id,
+        c.headquarters_country AS country
+      FROM companies c
+    ) targets
+    ORDER BY entity_type ASC, label ASC
+    `
+  );
+
+  return rows;
+}
+
+export async function getSourceFormReferenceData(): Promise<SourceFormReferenceData> {
+  const prisma = getPrismaClient();
+  const [referenceData, confidenceStatuses, linkTargets] = await Promise.all([
+    getSourceReferenceData(),
+    prisma.ref_estimate_statuses.findMany({
+      where: { is_active: true },
+      orderBy: [{ sort_order: "asc" }, { label: "asc" }],
+    }),
+    listSourceLinkTargetOptions(),
+  ]);
+
+  return {
+    ...referenceData,
+    confidenceStatuses,
+    linkTargets,
+  };
+}
+
+export async function createSourceLink(
+  input: SourceLinkMutationInput
+): Promise<SourceLink | null> {
+  const targetColumn =
+    input.entity_type === "project"
+      ? "project_id"
+      : input.entity_type === "operating_asset"
+        ? "operating_asset_id"
+        : input.entity_type === "company"
+          ? "company_id"
+          : null;
+
+  if (!targetColumn) {
+    throw new Error("Invalid source link entity type.");
+  }
+
+  const rows = await getPrismaClient().$queryRawUnsafe<SourceLinkIdRow[]>(
+    `
+    INSERT INTO entity_sources (
+      source_id,
+      ${targetColumn},
+      evidence_type,
+      evidence_note,
+      confidence_status_code,
+      linked_field,
+      claim_text,
+      extracted_value,
+      is_primary_evidence
+    )
+    VALUES (
+      $1::uuid,
+      $2::uuid,
+      $3,
+      $4,
+      $5,
+      $6,
+      $7,
+      $8,
+      $9
+    )
+    RETURNING entity_source_id::text
+    `,
+    input.source_id,
+    input.entity_id,
+    cleanOptionalText(input.evidence_type),
+    cleanOptionalText(input.evidence_note),
+    cleanRequiredText(input.confidence_status_code, "unknown"),
+    cleanOptionalText(input.linked_field),
+    cleanOptionalText(input.claim_text),
+    cleanOptionalText(input.extracted_value),
+    Boolean(input.is_primary_evidence)
+  );
+
+  const links = await listSourceLinks(input.source_id);
+  return links.find((link) => link.entity_source_id === rows[0].entity_source_id) ?? null;
+}
+
+export async function deleteSourceLink(
+  entitySourceId: string
+): Promise<string | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<DeletedSourceLinkRow[]>(
+    `
+    DELETE FROM entity_sources
+    WHERE entity_source_id = $1::uuid
+    RETURNING source_id::text
+    `,
+    entitySourceId
+  );
+
+  return rows[0]?.source_id ?? null;
 }
 
 export async function getSourceReferenceData(): Promise<SourceReferenceData> {

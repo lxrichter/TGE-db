@@ -158,14 +158,18 @@ Current implemented foundation:
 - source list/detail/reference-data service and API endpoints
 - read-only top-level `/sources` list and filter page
 - read-only `/sources/[id]` source profile page
+- `/sources/new` create page
+- `/sources/[id]/edit` edit page with evidence-link manager
+- source create/update API routes
+- source-link create/delete API routes
+- Research Ops "Needs Source" rows can open a prelinked add-source flow
 - safe non-confidential staging source seed with sample evidence links
 - Research Ops source queues for review and weak/outdated sources
 
 Key work:
 
-- add source create/edit surfaces
-- support reusable source links in the UI for projects, plants/facilities, and
-  companies
+- add source panels/actions to future PostgreSQL project, plant/facility, and
+  company detail pages
 - prepare country/market source links when country/market pages move to
   PostgreSQL
 - connect source status into validation and Research Ops queues
@@ -501,21 +505,21 @@ Reason:
 Recommended next concrete step:
 
 ```text
-Continue Phase 2: Sources / Documents write workflow
+Continue Phase 2: Source validation and entity integration
 ```
 
 Next implementation slice:
 
 ```text
-Add create/edit and source-link actions around the PostgreSQL source service.
+Bring source evidence directly into the next PostgreSQL entity workflows.
 ```
 
 Recommended task order:
 
-1. add source create/edit form
-2. add source-link actions from Research Ops rows
-3. add source-link panels/actions on project, plant/facility, and company detail pages
-4. add permission checks for source creation, review, and export eligibility
+1. add source panels to PostgreSQL project, plant/facility, and company detail pages
+2. add editor source-validation actions: mark credible, weak, outdated, rejected
+3. add export-readiness checks that require credible source coverage
+4. add PostgreSQL detail pages for projects/assets/companies or migrate existing detail pages carefully
 5. keep SQLite prototype routes available until PostgreSQL replacements are
    ready
 6. avoid live data import until the PostgreSQL workflows are stable

@@ -166,6 +166,8 @@ Current PostgreSQL-backed route foundations:
 /postgres-preview/research-ops
 /sources
 /sources/[id]
+/sources/new
+/sources/[id]/edit
 /api/postgres-preview/summary
 /api/postgres-preview/projects
 /api/postgres-preview/operating-assets
@@ -174,13 +176,16 @@ Current PostgreSQL-backed route foundations:
 /api/postgres/sources
 /api/postgres/sources/[id]
 /api/postgres/sources/reference-data
+/api/postgres/source-links
+/api/postgres/source-links/[id]
 ```
 
 The PostgreSQL Sources / Documents foundation currently provides source
-reference data, source list/detail reads, read-only source list/profile pages,
-and Research Ops source queues. Source create/edit, source-linking actions, file
-uploads, and editor validation actions are proposed next steps, not completed
-production functionality.
+reference data, source list/detail reads, source list/profile/create/edit pages,
+source-link add/remove actions, and Research Ops source queues. File uploads,
+TGE article sync, source panels on PostgreSQL entity detail pages, and dedicated
+editor validation actions are proposed next steps, not completed production
+functionality.
 
 ## Known Issues
 

@@ -283,6 +283,12 @@ export default async function SourceDetailPage({
                 label={source.credibility_status_label || source.credibility_status_code}
                 tone={statusTone(source.credibility_status_code)}
               />
+              <Link
+                href={`/sources/${source.source_id}/edit`}
+                className="inline-flex min-h-[28px] items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              >
+                Edit Source
+              </Link>
             </div>
           </div>
         </div>

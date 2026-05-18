@@ -311,9 +311,9 @@ export default async function SourcesPage({
             </div>
             <Link
               className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href="/postgres-preview/research-ops"
+              href="/sources/new"
             >
-              Open Research Ops
+              Add Source
             </Link>
           </div>
         </div>

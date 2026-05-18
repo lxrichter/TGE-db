@@ -1,0 +1,100 @@
+import Link from "next/link";
+import SourceForm from "@/components/sources/SourceForm";
+import {
+  getSourceById,
+  getSourceFormReferenceData,
+} from "@/lib/services/sources";
+
+export const dynamic = "force-dynamic";
+
+type SourceEditData =
+  | {
+      ok: true;
+      source: Awaited<ReturnType<typeof getSourceById>>;
+      referenceData: Awaited<ReturnType<typeof getSourceFormReferenceData>>;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+async function getSourceEditData(id: string): Promise<SourceEditData> {
+  try {
+    const [source, referenceData] = await Promise.all([
+      getSourceById(id),
+      getSourceFormReferenceData(),
+    ]);
+    return { ok: true, source, referenceData };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { ok: false, error: message };
+  }
+}
+
+function SetupNotice({ error }: { error: string }) {
+  return (
+    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
+      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+        Source editing currently writes to Railway PostgreSQL. Run the app
+        through Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL`
+        locally.
+      </p>
+      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+    </section>
+  );
+}
+
+export default async function EditSourcePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const data = await getSourceEditData(id);
+
+  return (
+    <main className="space-y-8">
+      <section className="border border-gray-200 bg-white">
+        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+          <Link
+            href={`/sources/${id}`}
+            className="text-sm font-semibold text-[#4f7f1f] hover:underline"
+          >
+            Back to Source Profile
+          </Link>
+          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Sources / Documents
+          </p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
+            Edit Source
+          </h1>
+          <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+            Edit source metadata and manage record-level evidence links for the
+            PostgreSQL source backbone.
+          </p>
+        </div>
+      </section>
+
+      {!data.ok ? (
+        <SetupNotice error={data.error} />
+      ) : !data.source ? (
+        <section className="border border-gray-200 bg-white p-8">
+          <p className="text-base text-gray-700">Source not found.</p>
+          <Link
+            href="/sources"
+            className="mt-4 inline-block text-sm font-semibold text-[#4f7f1f]"
+          >
+            Back to Sources / Documents
+          </Link>
+        </section>
+      ) : (
+        <SourceForm
+          mode="edit"
+          source={data.source}
+          referenceData={data.referenceData}
+        />
+      )}
+    </main>
+  );
+}

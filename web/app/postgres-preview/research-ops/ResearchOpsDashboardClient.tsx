@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { formatCount } from "@/lib/format";
@@ -63,6 +64,31 @@ function severityClasses(severity: ResearchOpsQueueSeverity) {
 
 function recordKey(record: ResearchOpsRecord) {
   return `${record.entity_type}-${record.entity_id}`;
+}
+
+function recordHref(record: ResearchOpsRecord) {
+  if (record.entity_type === "source") {
+    return `/sources/${record.entity_id}`;
+  }
+
+  return null;
+}
+
+function addSourceHref(record: ResearchOpsRecord) {
+  if (!("queue_key" in record) || record.queue_key !== "needs_source") {
+    return null;
+  }
+
+  if (record.entity_type === "source") {
+    return null;
+  }
+
+  const params = new URLSearchParams({
+    entityType: record.entity_type,
+    entityId: record.entity_id,
+  });
+
+  return `/sources/new?${params.toString()}`;
 }
 
 function normalizeText(value: string | null | undefined) {
@@ -218,6 +244,8 @@ function EntityTable({
           {items.map((item) => {
             const key = recordKey(item);
             const selected = key === selectedKey;
+            const href = recordHref(item);
+            const sourceHref = addSourceHref(item);
 
             return (
               <tr
@@ -255,13 +283,29 @@ function EntityTable({
                   {formatDate(item.updated_at)}
                 </td>
                 <td className="px-5 py-4">
-                  <button
-                    className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                    type="button"
-                    onClick={() => onSelect(item)}
-                  >
-                    View
-                  </button>
+                  {href ? (
+                    <Link
+                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      href={href}
+                    >
+                      Open
+                    </Link>
+                  ) : sourceHref ? (
+                    <Link
+                      className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                      href={sourceHref}
+                    >
+                      Add Source
+                    </Link>
+                  ) : (
+                    <button
+                      className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      type="button"
+                      onClick={() => onSelect(item)}
+                    >
+                      View
+                    </button>
+                  )}
                 </td>
               </tr>
             );
@@ -322,6 +366,9 @@ function SelectedRecordPanel({
     return null;
   }
 
+  const href = recordHref(record);
+  const sourceHref = addSourceHref(record);
+
   return (
     <section className="border border-[#8dc63f] bg-[#f8fbf4] px-5 py-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -353,6 +400,22 @@ function SelectedRecordPanel({
         >
           Clear
         </button>
+        {href ? (
+          <Link
+            className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+            href={href}
+          >
+            Open Source
+          </Link>
+        ) : null}
+        {sourceHref ? (
+          <Link
+            className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+            href={sourceHref}
+          >
+            Add Source
+          </Link>
+        ) : null}
       </div>
     </section>
   );
