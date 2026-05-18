@@ -213,6 +213,9 @@ Current implemented foundation:
 - PostgreSQL entity detail pages can link existing sources directly with
   evidence metadata, reducing the need to leave the record page for basic
   source linkage
+- PostgreSQL entity detail pages can search the public ThinkGeoEnergy WordPress
+  posts API, import or reuse a `tge_article` source, and link it to the current
+  project, plant/facility, or company
 - preview-only export-readiness checks requiring credible source coverage
 - PostgreSQL staging create/edit forms preserve source linking as a separate
   evidence workflow rather than mixing it into core entity forms
@@ -223,6 +226,8 @@ Key work:
 
 - prepare country/market source links when country/market pages move to
   PostgreSQL
+- define semi-automatic TGE article/entity matching rules before attempting
+  full archive synchronization
 - expand form-readiness hints into persisted field-level issue tracking when
   the Research Ops task model is defined
 - turn preview-only readiness checks into enforced export rules when

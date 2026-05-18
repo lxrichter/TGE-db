@@ -202,6 +202,8 @@ Current PostgreSQL-backed route foundations:
 /api/postgres/sources/reference-data
 /api/postgres/source-links
 /api/postgres/source-links/[id]
+/api/postgres/tge-articles
+/api/postgres/tge-articles/import
 ```
 
 The PostgreSQL Sources / Documents foundation currently provides source
@@ -214,9 +216,15 @@ export-readiness panels on PostgreSQL entity detail pages. Source create,
 source review, and evidence-link review actions now stamp mapped PostgreSQL
 `app_users` metadata. PostgreSQL project, plant/facility, and company detail
 pages can also link existing sources directly with evidence metadata. File
-uploads, TGE article sync, country/market evidence panels, and enforced
-export-readiness rules are proposed next steps, not completed production
-functionality.
+uploads, country/market evidence panels, and enforced export-readiness rules
+are proposed next steps, not completed production functionality.
+
+TGE article/news integration is now implemented as a PostgreSQL staging
+foundation slice. Entity detail source panels can search the public
+ThinkGeoEnergy WordPress posts API, import or reuse a matching `tge_article`
+source record, and link it to the current project, plant/facility, or company.
+Imported TGE article sources default to public visibility and `needs_review`
+credibility so editors still control export readiness.
 
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.

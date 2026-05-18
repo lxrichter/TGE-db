@@ -10,6 +10,15 @@ import type {
   SourceLink,
 } from "@/lib/services/sources";
 
+type TgeArticleResult = {
+  wordpress_id: number;
+  source_reference: string;
+  title: string;
+  url: string;
+  published_at: string | null;
+  excerpt: string | null;
+};
+
 async function readJson(res: Response) {
   try {
     const text = await res.text();
@@ -65,6 +74,7 @@ export default function PostgresSourceEvidencePanel({
     [linkedSourceIds, sourceOptions]
   );
   const [showLinkForm, setShowLinkForm] = useState(false);
+  const [showTgeArticleSearch, setShowTgeArticleSearch] = useState(false);
   const [sourceId, setSourceId] = useState("");
   const [confidenceStatusCode, setConfidenceStatusCode] = useState("unknown");
   const [linkedField, setLinkedField] = useState("");
@@ -72,6 +82,12 @@ export default function PostgresSourceEvidencePanel({
   const [claimText, setClaimText] = useState("");
   const [evidenceNote, setEvidenceNote] = useState("");
   const [isPrimaryEvidence, setIsPrimaryEvidence] = useState(false);
+  const [articleSearch, setArticleSearch] = useState("");
+  const [articleResults, setArticleResults] = useState<TgeArticleResult[]>([]);
+  const [articleSearching, setArticleSearching] = useState(false);
+  const [articleImportingId, setArticleImportingId] = useState<number | null>(
+    null
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -120,6 +136,77 @@ export default function PostgresSourceEvidencePanel({
     }
   }
 
+  async function searchTgeArticles() {
+    setArticleSearching(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const params = new URLSearchParams({
+        limit: "8",
+      });
+
+      if (articleSearch.trim()) {
+        params.set("search", articleSearch.trim());
+      }
+
+      const res = await fetch(`/api/postgres/tge-articles?${params.toString()}`);
+      const json = await readJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to search TGE articles.");
+      }
+
+      setArticleResults(json.articles || []);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to search TGE articles."
+      );
+    } finally {
+      setArticleSearching(false);
+    }
+  }
+
+  async function importTgeArticle(article: TgeArticleResult) {
+    setArticleImportingId(article.wordpress_id);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/postgres/tge-articles/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          wordpress_id: article.wordpress_id,
+          entity_type: entityType,
+          entity_id: entityId,
+          evidence_type: "tge_article",
+          evidence_note: "Linked from ThinkGeoEnergy article search.",
+          confidence_status_code: "unknown",
+        }),
+      });
+      const json = await readJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to import TGE article.");
+      }
+
+      setMessage(
+        json.link_created
+          ? "TGE article imported and linked."
+          : "TGE article source already existed and is linked."
+      );
+      setShowTgeArticleSearch(false);
+      router.refresh();
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to import TGE article."
+      );
+    } finally {
+      setArticleImportingId(null);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -132,9 +219,24 @@ export default function PostgresSourceEvidencePanel({
               className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-60"
               disabled={availableSources.length === 0}
               type="button"
-              onClick={() => setShowLinkForm((current) => !current)}
+              onClick={() => {
+                setShowLinkForm((current) => !current);
+                setShowTgeArticleSearch(false);
+              }}
             >
               {showLinkForm ? "Close" : "Link Existing Source"}
+            </button>
+          ) : null}
+          {canManageSources ? (
+            <button
+              className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              type="button"
+              onClick={() => {
+                setShowTgeArticleSearch((current) => !current);
+                setShowLinkForm(false);
+              }}
+            >
+              {showTgeArticleSearch ? "Close" : "Find TGE Article"}
             </button>
           ) : null}
           <Link
@@ -250,6 +352,83 @@ export default function PostgresSourceEvidencePanel({
               />
             </label>
           </div>
+        </div>
+      ) : null}
+
+      {showTgeArticleSearch && canManageSources ? (
+        <div className="space-y-4 border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_160px]">
+            <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              TGE Article Search
+              <input
+                className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                placeholder="Project, company, country, article title..."
+                value={articleSearch}
+                onChange={(event) => setArticleSearch(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    void searchTgeArticles();
+                  }
+                }}
+              />
+            </label>
+            <button
+              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={articleSearching}
+              type="button"
+              onClick={searchTgeArticles}
+            >
+              {articleSearching ? "Searching..." : "Search"}
+            </button>
+          </div>
+
+          {articleResults.length > 0 ? (
+            <div className="divide-y divide-gray-100 border border-gray-200 bg-white">
+              {articleResults.map((article) => (
+                <div
+                  key={article.wordpress_id}
+                  className="grid grid-cols-1 gap-3 px-4 py-3 md:grid-cols-[minmax(0,1fr)_140px] md:items-start"
+                >
+                  <div className="min-w-0">
+                    <a
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      href={article.url}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      {article.title}
+                    </a>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {article.source_reference}
+                      {article.published_at
+                        ? ` - ${article.published_at.slice(0, 10)}`
+                        : ""}
+                    </div>
+                    {article.excerpt ? (
+                      <p className="mt-2 line-clamp-2 text-sm leading-5 text-gray-600">
+                        {article.excerpt}
+                      </p>
+                    ) : null}
+                  </div>
+                  <button
+                    className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={articleImportingId === article.wordpress_id}
+                    type="button"
+                    onClick={() => importTgeArticle(article)}
+                  >
+                    {articleImportingId === article.wordpress_id
+                      ? "Linking..."
+                      : "Import & Link"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-dashed border-gray-300 bg-white px-4 py-6 text-center text-sm text-gray-500">
+              Search by project, company, country, or article title.
+            </div>
+          )}
         </div>
       ) : null}
 

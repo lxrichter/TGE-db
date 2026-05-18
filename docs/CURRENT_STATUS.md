@@ -63,6 +63,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company detail pages now support
   direct linking of existing source/evidence records with confidence, linked
   field, extracted value, claim text, and evidence notes
+- PostgreSQL project, plant/facility, and company detail source panels now
+  support searching/importing public ThinkGeoEnergy WordPress articles as
+  `tge_article` sources and linking them to the current record
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

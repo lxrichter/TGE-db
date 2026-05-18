@@ -198,9 +198,12 @@ Current implemented behavior:
 - expose linked project, operating asset, and company evidence records
 - feed source review queues into Research Ops
 
-This is not yet the full Sources / Documents workflow. File upload, TGE article
-sync, country/market evidence panels, and enforced PostgreSQL export-readiness
-rules are still future implementation slices.
+This is not yet the full Sources / Documents workflow. The staging foundation
+now supports searching/importing public ThinkGeoEnergy WordPress articles as
+`tge_article` sources from PostgreSQL entity detail pages, but full article
+archive synchronization, automated related-news matching, file upload,
+country/market evidence panels, and enforced PostgreSQL export-readiness rules
+are still future implementation slices.
 
 ## Safe Staging Seed
 

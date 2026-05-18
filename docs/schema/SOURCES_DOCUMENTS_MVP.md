@@ -131,6 +131,27 @@ The list endpoint currently supports:
 These endpoints are PostgreSQL-backed and remain behind the existing app
 authentication middleware.
 
+## TGE Article / News Integration
+
+Implemented staging foundation:
+
+- `GET /api/postgres/tge-articles` searches the public ThinkGeoEnergy
+  WordPress posts API using the normal WordPress REST posts endpoint.
+- `POST /api/postgres/tge-articles/import` fetches the selected WordPress post
+  by ID, imports or reuses it as a `tge_article` source, and can link it to the
+  current PostgreSQL project, plant/facility, or company.
+- PostgreSQL entity detail source panels now include a `Find TGE Article`
+  workflow alongside `Link Existing Source` and `Add Source`.
+- Imported article sources use `source_reference = TGE-WP-{wordpress_id}`,
+  `publisher = ThinkGeoEnergy`, public visibility, and `needs_review`
+  credibility by default.
+- Duplicate imports are controlled by matching `source_reference` or URL before
+  creating a new source record.
+
+This is not yet full archive synchronization. Automated article/entity matching,
+WordPress category/tag mapping, country/market related-news panels, and semantic
+article search remain future slices.
+
 ## Research Ops Integration
 
 The PostgreSQL Research Ops preview now includes source queues:
@@ -145,24 +166,22 @@ workflows.
 
 Current implemented functionality is still foundation-level:
 
-- no source panels on PostgreSQL project, plant/facility, or company detail
-  pages yet
 - no file upload pipeline yet
-- no TGE WordPress/article integration yet
+- no full TGE WordPress archive synchronization yet
 - no AI extraction or semantic search yet
 
 The live Hetzner SQLite database remains untouched.
 
 ## Recommended Next Slice
 
-Build the basic Sources / Documents working surface:
+Continue the Sources / Documents working surface:
 
-1. add source panels to PostgreSQL project, plant/facility, and company detail
-   pages
-2. add source validation actions for editors
-3. prepare export-ready checks that require credible source coverage
-4. add file upload/storage decisions before attaching real documents
-5. define how TGE WordPress article linkage should be synchronized
+1. add country/market evidence and related-news panels when country/market pages
+   move to PostgreSQL
+2. add file upload/storage decisions before attaching real documents
+3. define article/entity matching rules for semi-automatic related-news links
+4. prepare export-ready checks that require credible source coverage
+5. keep AI extraction and semantic search future-ready but behind validation
 
 This should happen before heavy approval/export automation, because source
 traceability is the backbone for validation, reporting, and later AI workflows.
