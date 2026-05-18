@@ -15,6 +15,8 @@ Current implemented pieces:
 - `web/prisma/schema.prisma`
 - `web/prisma.config.ts`
 - `web/prisma/migrations/20260518000000_baseline/migration.sql`
+- `web/lib/db/prisma.ts`
+- `web/lib/services/postgres-preview.ts`
 - Prisma package scripts in `web/package.json`
 - generated Prisma client ignored at `web/prisma/generated/`
 
@@ -125,10 +127,18 @@ This is especially relevant for:
 Use the Prisma schema as the canonical TypeScript-facing model for new
 PostgreSQL-backed service modules.
 
+Current application use:
+
+- `web/lib/db/prisma.ts` provides the shared lazy Prisma client.
+- `web/lib/services/postgres-preview.ts` owns the PostgreSQL preview and
+  Research Ops preview data access.
+- `web/lib/postgres-preview.ts` remains as a compatibility re-export for the
+  current page and API imports.
+
 The next recommended implementation slice is:
 
-1. create a shared Prisma client helper
-2. move read-only PostgreSQL preview queries behind service modules
+1. align role labels and permissions with researcher/editor/senior editor/admin
+2. define the next Prisma migration for Sources / Documents MVP additions
 3. implement Sources / Documents MVP tables and screens
 4. connect source validation into Research Ops queues
 

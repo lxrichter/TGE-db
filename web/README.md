@@ -96,6 +96,8 @@ PostgreSQL/Prisma baseline:
 web/prisma/schema.prisma
 web/prisma.config.ts
 web/prisma/migrations/20260518000000_baseline/migration.sql
+web/lib/db/prisma.ts
+web/lib/services/postgres-preview.ts
 ```
 
 Railway PostgreSQL commands should be run without copying credentials locally:

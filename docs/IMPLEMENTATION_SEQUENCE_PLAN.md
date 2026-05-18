@@ -101,7 +101,8 @@ Key work:
 
 - choose and configure migration layer: Prisma selected
 - formalize PostgreSQL migrations instead of standalone SQL only: baseline done
-- connect core app data access to PostgreSQL behind stable query/service modules
+- connect core app data access to PostgreSQL behind stable query/service modules:
+  started with PostgreSQL preview and Research Ops preview services
 - decide staging vs production Railway environment pattern
 - align app roles with the MVP role model:
   - researcher
@@ -115,16 +116,16 @@ Deliverables:
 
 - migration tooling selected: Prisma
 - first managed migration generated from current PostgreSQL schema
-- stable database access layer
+- stable database access layer: shared Prisma client helper started
 - Railway environment notes
 - auth/role model alignment notes
 
 Immediate next actions:
 
-1. create a shared Prisma client helper
-2. move existing PostgreSQL preview queries behind service modules
-3. align role labels and permissions with researcher/editor/senior editor/admin
-4. define the next Prisma migration for Sources / Documents MVP additions
+1. align role labels and permissions with researcher/editor/senior editor/admin
+2. define the next Prisma migration for Sources / Documents MVP additions
+3. create the Sources / Documents service module and route foundation
+4. connect source status into Research Ops queues
 
 Do before:
 
