@@ -213,6 +213,22 @@ async function getIndexes(db, tableName) {
   return rows;
 }
 
+async function getForeignKeyCheckSummary(db) {
+  return all(
+    db,
+    `
+    SELECT
+      "table" AS table_name,
+      parent AS referenced_table,
+      fkid AS foreign_key_id,
+      COUNT(*) AS violation_count
+    FROM pragma_foreign_key_check
+    GROUP BY "table", parent, fkid
+    ORDER BY violation_count DESC, table_name ASC, referenced_table ASC, foreign_key_id ASC
+    `
+  );
+}
+
 async function getRowCount(db, tableName) {
   return Number(
     (await scalar(db, `SELECT COUNT(*) AS row_count FROM ${quoteIdentifier(tableName)}`)) ||
@@ -315,9 +331,14 @@ async function inspect(args) {
     const tableRows = [];
     const columnRows = [];
     const foreignKeyRows = [];
+    const foreignKeyCheckRows = await getForeignKeyCheckSummary(db);
     const indexRows = [];
     const valueProfileRows = [];
     const sensitiveColumnRows = [];
+    const foreignKeyViolationCount = foreignKeyCheckRows.reduce(
+      (sum, row) => sum + Number(row.violation_count || 0),
+      0
+    );
 
     for (const table of tables) {
       const columns = await getTableInfo(db, table.name);
@@ -399,6 +420,7 @@ async function inspect(args) {
       inspected_table_count: tables.length,
       view_count: views.length,
       object_count: objects.length,
+      foreign_key_violation_count: foreignKeyViolationCount,
       profile_values_enabled: args.profileValues,
       privacy_note:
         "No raw row values, row samples, source text, notes, user details, or article body text are written by this script.",
@@ -407,6 +429,7 @@ async function inspect(args) {
         "tables.csv",
         "columns.csv",
         "foreign_keys.csv",
+        "foreign_key_check.csv",
         "indexes.csv",
         "schema.sql",
         "sensitive_columns.csv",
@@ -441,6 +464,12 @@ async function inspect(args) {
       "on_delete",
       "match",
     ], foreignKeyRows);
+    await writeCsv(path.join(args.out, "foreign_key_check.csv"), [
+      "table_name",
+      "referenced_table",
+      "foreign_key_id",
+      "violation_count",
+    ], foreignKeyCheckRows);
     await writeCsv(path.join(args.out, "indexes.csv"), [
       "table_name",
       "index_name",
@@ -470,6 +499,10 @@ async function inspect(args) {
 
     console.log(`Inspected ${tables.length} table(s) from ${args.db}`);
     console.log(`Wrote safe SQLite inspection files to ${args.out}`);
+
+    if (foreignKeyViolationCount > 0) {
+      console.log(`Found ${foreignKeyViolationCount} aggregate foreign-key check issue(s).`);
+    }
 
     if (!args.profileValues) {
       console.log("Tip: add --profile-values for aggregate null/distinct/length metrics.");

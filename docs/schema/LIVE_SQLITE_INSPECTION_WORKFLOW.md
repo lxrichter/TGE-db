@@ -133,6 +133,7 @@ summary.json
 tables.csv
 columns.csv
 foreign_keys.csv
+foreign_key_check.csv
 indexes.csv
 schema.sql
 sensitive_columns.csv
@@ -150,6 +151,7 @@ For the next planning pass, the useful files are:
 - `tables.csv`
 - `columns.csv`
 - `foreign_keys.csv`
+- `foreign_key_check.csv`
 - `indexes.csv`
 - `value_profiles.csv`, if generated
 
