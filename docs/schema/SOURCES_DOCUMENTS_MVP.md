@@ -108,6 +108,16 @@ GET /api/postgres/sources/[id]
 GET /api/postgres/sources/reference-data
 ```
 
+Current UI routes:
+
+```text
+/sources
+/sources/[id]
+```
+
+The current UI is read-only. It supports source list filtering, source profile
+viewing, source metadata review, and linked evidence inspection.
+
 The list endpoint currently supports:
 
 - search
@@ -133,7 +143,6 @@ workflows.
 
 Current implemented functionality is still foundation-level:
 
-- no dedicated Sources / Documents UI page yet
 - no create/edit source form yet
 - no source-linking action from project, plant/facility, or company pages yet
 - no file upload pipeline yet
@@ -146,12 +155,11 @@ The live Hetzner SQLite database remains untouched.
 
 Build the basic Sources / Documents working surface:
 
-1. add a top-level Sources / Documents page
-2. add source list filters using the existing reference-data endpoint
-3. add source detail view with linked records
-4. add a source create/edit form
-5. add an "add source" action from Research Ops queue rows
-6. add source-link actions to project, plant/facility, and company detail pages
+1. add a source create/edit form
+2. add an "add source" action from Research Ops queue rows
+3. add source-link actions to project, plant/facility, and company detail pages
+4. add source validation actions for editors
+5. prepare export-ready checks that require credible source coverage
 
 This should happen before heavy approval/export automation, because source
 traceability is the backbone for validation, reporting, and later AI workflows.

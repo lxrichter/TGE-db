@@ -324,4 +324,101 @@ ON CONFLICT (legacy_company_plant_link_id) DO UPDATE SET
   notes = EXCLUDED.notes,
   updated_at = now();
 
+INSERT INTO sources (
+  source_type_code,
+  title,
+  source_reference,
+  publisher,
+  published_date,
+  accessed_at,
+  notes,
+  visibility_code,
+  credibility_status_code,
+  extracted_summary,
+  country
+)
+SELECT
+  'internal_note',
+  'Safe Staging Evidence Note',
+  'SAMPLE-SOURCE-STAGING-001',
+  'ThinkGeoEnergy staging seed',
+  DATE '2026-05-18',
+  now(),
+  'Safe non-confidential source record for PostgreSQL source workflow previews.',
+  'internal_only',
+  'credible',
+  'Sample evidence record used to verify source list, source detail, and linked evidence views.',
+  'Iceland'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM sources
+  WHERE source_reference = 'SAMPLE-SOURCE-STAGING-001'
+);
+
+INSERT INTO entity_sources (
+  source_id,
+  project_id,
+  evidence_type,
+  evidence_note,
+  confidence_status_code,
+  linked_field,
+  claim_text,
+  extracted_value,
+  is_primary_evidence
+)
+SELECT
+  source.source_id,
+  project.project_id,
+  'staging_evidence',
+  'Safe staging link between a source and a sample project.',
+  'estimated',
+  'electric_capacity_mwe',
+  'Sample source supports the sample project capacity used for preview workflows.',
+  '25 MWe',
+  TRUE
+FROM sources source
+CROSS JOIN projects project
+WHERE source.source_reference = 'SAMPLE-SOURCE-STAGING-001'
+  AND project.legacy_project_id = 'SAMPLE-PROJECT-POWER-001'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM entity_sources existing
+    WHERE existing.source_id = source.source_id
+      AND existing.project_id = project.project_id
+      AND existing.linked_field = 'electric_capacity_mwe'
+  );
+
+INSERT INTO entity_sources (
+  source_id,
+  operating_asset_id,
+  evidence_type,
+  evidence_note,
+  confidence_status_code,
+  linked_field,
+  claim_text,
+  extracted_value,
+  is_primary_evidence
+)
+SELECT
+  source.source_id,
+  asset.operating_asset_id,
+  'staging_evidence',
+  'Safe staging link between a source and a sample operating asset.',
+  'estimated',
+  'electric_capacity_mwe',
+  'Sample source supports the sample operating asset capacity used for preview workflows.',
+  '20 MWe',
+  FALSE
+FROM sources source
+CROSS JOIN operating_assets asset
+WHERE source.source_reference = 'SAMPLE-SOURCE-STAGING-001'
+  AND asset.legacy_plant_id = 'SAMPLE-ASSET-POWER-001'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM entity_sources existing
+    WHERE existing.source_id = source.source_id
+      AND existing.operating_asset_id = asset.operating_asset_id
+      AND existing.linked_field = 'electric_capacity_mwe'
+  );
+
 COMMIT;

@@ -156,11 +156,14 @@ Current implemented foundation:
 - richer source metadata fields
 - reusable evidence-link metadata on `entity_sources`
 - source list/detail/reference-data service and API endpoints
+- read-only top-level `/sources` list and filter page
+- read-only `/sources/[id]` source profile page
+- safe non-confidential staging source seed with sample evidence links
 - Research Ops source queues for review and weak/outdated sources
 
 Key work:
 
-- build source list/detail/create/edit surfaces
+- add source create/edit surfaces
 - support reusable source links in the UI for projects, plants/facilities, and
   companies
 - prepare country/market source links when country/market pages move to
@@ -498,21 +501,21 @@ Reason:
 Recommended next concrete step:
 
 ```text
-Continue Phase 2: Sources / Documents working surface
+Continue Phase 2: Sources / Documents write workflow
 ```
 
 Next implementation slice:
 
 ```text
-Build the first UI around the PostgreSQL source service.
+Add create/edit and source-link actions around the PostgreSQL source service.
 ```
 
 Recommended task order:
 
-1. add a top-level Sources / Documents page
-2. add source list filtering by source type, visibility, and credibility/status
-3. add source detail view with linked project/asset/company records
-4. add source create/edit form and source-link actions
+1. add source create/edit form
+2. add source-link actions from Research Ops rows
+3. add source-link panels/actions on project, plant/facility, and company detail pages
+4. add permission checks for source creation, review, and export eligibility
 5. keep SQLite prototype routes available until PostgreSQL replacements are
    ready
 6. avoid live data import until the PostgreSQL workflows are stable

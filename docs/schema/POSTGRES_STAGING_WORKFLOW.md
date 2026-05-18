@@ -163,6 +163,8 @@ or changing the current live Hetzner SQLite database.
 The first PostgreSQL source/evidence service foundation is available through:
 
 ```text
+/sources
+/sources/[id]
 /api/postgres/sources
 /api/postgres/sources/[id]
 /api/postgres/sources/reference-data
@@ -170,14 +172,17 @@ The first PostgreSQL source/evidence service foundation is available through:
 
 Current implemented behavior:
 
+- browse source records in a read-only Sources / Documents page
+- inspect a source profile with linked evidence rows
 - read source records from Railway PostgreSQL
 - filter source records by search, source type, visibility, and credibility
 - expose source type, visibility, and credibility/status reference data
 - expose linked project, operating asset, and company evidence records
 - feed source review queues into Research Ops
 
-This is not yet the full Sources / Documents UI. It is the service/API
-foundation for the next implementation slice.
+This is not yet the full Sources / Documents workflow. Source create/edit,
+file upload, source linking actions, and editor validation actions are still
+future implementation slices.
 
 ## Safe Staging Seed
 
@@ -195,6 +200,9 @@ database/postgres/seed_staging.sql
 
 The seed file is idempotent and contains no live project, plant, company, user,
 client, or confidential data.
+
+The seed includes one safe source/evidence sample so `/sources` and
+`/sources/[id]` can be verified without importing live data.
 
 ## What Not To Do Yet
 

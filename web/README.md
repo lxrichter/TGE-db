@@ -149,6 +149,7 @@ Legacy prototype roles are accepted and normalized in `web/lib/auth/roles.ts`.
 /markets
 /analysis
 /research-ops
+/sources
 /admin
 ```
 
@@ -163,6 +164,8 @@ Current PostgreSQL-backed route foundations:
 ```text
 /postgres-preview
 /postgres-preview/research-ops
+/sources
+/sources/[id]
 /api/postgres-preview/summary
 /api/postgres-preview/projects
 /api/postgres-preview/operating-assets
@@ -174,9 +177,10 @@ Current PostgreSQL-backed route foundations:
 ```
 
 The PostgreSQL Sources / Documents foundation currently provides source
-reference data, source list/detail reads, and Research Ops source queues. The
-full Sources / Documents UI and write workflows are proposed next steps, not
-completed production functionality.
+reference data, source list/detail reads, read-only source list/profile pages,
+and Research Ops source queues. Source create/edit, source-linking actions, file
+uploads, and editor validation actions are proposed next steps, not completed
+production functionality.
 
 ## Known Issues
 

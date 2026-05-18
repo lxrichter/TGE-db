@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { canAccessAdmin } from "@/lib/auth/roles";
+import { canAccessAdmin, type UserRole } from "@/lib/auth/roles";
 
 function NavDivider() {
   return <div className="h-5 w-px bg-white/20" />;
@@ -91,8 +91,9 @@ export default function AppHeaderShell({
 }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const role = (session?.user as { role?: string | null } | undefined)?.role;
-  const showAdmin = canAccessAdmin(role as any);
+  const role = (session?.user as { role?: UserRole | string | null } | undefined)
+    ?.role;
+  const showAdmin = canAccessAdmin(role);
 
   return (
     <>
@@ -124,6 +125,7 @@ export default function AppHeaderShell({
             <NavItem href="/plants" label="Plants" pathname={pathname} />
             <NavItem href="/projects" label="Projects" pathname={pathname} />
             <NavItem href="/companies" label="Companies" pathname={pathname} />
+            <NavItem href="/sources" label="Sources" pathname={pathname} />
 
             <NavDivider />
             <NavItem href="/map" label="Map" pathname={pathname} />

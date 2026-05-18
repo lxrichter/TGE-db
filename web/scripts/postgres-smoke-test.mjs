@@ -82,6 +82,12 @@ try {
     UNION ALL
     SELECT 'company_operating_asset_links', COUNT(*)::int
     FROM company_operating_asset_links
+    UNION ALL
+    SELECT 'sources', COUNT(*)::int
+    FROM sources
+    UNION ALL
+    SELECT 'entity_sources', COUNT(*)::int
+    FROM entity_sources
     ORDER BY table_name
   `);
 
