@@ -30,6 +30,7 @@ type SeverityFilter = "all" | ResearchOpsQueueSeverity;
 type EntityFilter = "all" | EntityType;
 type BulkTarget = "records" | "sources";
 type AssignmentFilter = "all" | "mine" | "unassigned";
+type FieldSuggestionReviewAction = "confirm" | "reject" | "needs_review";
 type QueueGroupKey =
   | "missing_data"
   | "sources_evidence"
@@ -811,10 +812,19 @@ function fieldSuggestionHref(candidate: PostgresFieldSuggestionCandidate) {
 function FieldSuggestionReviewPanel({
   summary,
   candidates,
+  canReviewStatus,
 }: {
   summary: PostgresFieldSuggestionSummary;
   candidates: PostgresFieldSuggestionCandidate[];
+  canReviewStatus: boolean;
 }) {
+  const router = useRouter();
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [busyAction, setBusyAction] =
+    useState<FieldSuggestionReviewAction | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
   const cards = [
     {
       label: "Open",
@@ -847,6 +857,108 @@ function FieldSuggestionReviewPanel({
       note: "Rejected or superseded",
     },
   ];
+  const selectableCandidateIds = useMemo(
+    () =>
+      candidates
+        .filter((candidate) => candidate.suggestion_status_code !== "superseded")
+        .map((candidate) => candidate.field_suggestion_candidate_id),
+    [candidates]
+  );
+  const allVisibleSelected =
+    selectableCandidateIds.length > 0 &&
+    selectableCandidateIds.every((id) => selectedCandidateIds.has(id));
+  const selectedCount = selectedCandidateIds.size;
+
+  useEffect(() => {
+    const visibleIds = new Set(
+      candidates.map((candidate) => candidate.field_suggestion_candidate_id)
+    );
+
+    setSelectedCandidateIds((current) => {
+      const next = new Set(
+        Array.from(current).filter((candidateId) => visibleIds.has(candidateId))
+      );
+
+      return next.size === current.size ? current : next;
+    });
+  }, [candidates]);
+
+  function toggleCandidate(candidateId: string, checked: boolean) {
+    setSelectedCandidateIds((current) => {
+      const next = new Set(current);
+
+      if (checked) {
+        next.add(candidateId);
+      } else {
+        next.delete(candidateId);
+      }
+
+      return next;
+    });
+  }
+
+  function toggleVisibleCandidates(checked: boolean) {
+    setSelectedCandidateIds((current) => {
+      const next = new Set(current);
+
+      selectableCandidateIds.forEach((candidateId) => {
+        if (checked) {
+          next.add(candidateId);
+        } else {
+          next.delete(candidateId);
+        }
+      });
+
+      return next;
+    });
+  }
+
+  async function submitFieldSuggestionAction(
+    action: FieldSuggestionReviewAction
+  ) {
+    if (!canReviewStatus || selectedCandidateIds.size === 0) {
+      return;
+    }
+
+    setBusyAction(action);
+    setActionMessage(null);
+
+    try {
+      const response = await fetch("/api/postgres/field-suggestion-candidates", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          candidateIds: Array.from(selectedCandidateIds),
+        }),
+      });
+      const payload = (await response.json()) as {
+        success?: boolean;
+        error?: string;
+        result?: { requested?: number; updated?: number };
+      };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || "Field suggestion update failed.");
+      }
+
+      setActionMessage(
+        `Updated ${formatCount(payload.result?.updated || 0)} of ${formatCount(
+          payload.result?.requested || selectedCandidateIds.size
+        )} selected suggestion(s).`
+      );
+      setSelectedCandidateIds(new Set());
+      router.refresh();
+    } catch (error) {
+      setActionMessage(
+        error instanceof Error
+          ? error.message
+          : "Field suggestion update failed."
+      );
+    } finally {
+      setBusyAction(null);
+    }
+  }
 
   return (
     <section
@@ -892,87 +1004,166 @@ function FieldSuggestionReviewPanel({
           extraction scripts begin writing review candidates.
         </div>
       ) : (
-        <div className="overflow-x-auto border-t border-gray-100">
-          <table className="min-w-[1180px] table-fixed text-left text-sm">
-            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
-              <tr>
-                <th className="w-[12%] px-4 py-3 font-semibold">Type</th>
-                <th className="w-[20%] px-4 py-3 font-semibold">Record</th>
-                <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
-                <th className="w-[15%] px-4 py-3 font-semibold">Current</th>
-                <th className="w-[15%] px-4 py-3 font-semibold">Suggested</th>
-                <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
-                <th className="w-[14%] px-4 py-3 font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {candidates.map((candidate) => (
-                <tr
-                  key={candidate.field_suggestion_candidate_id}
-                  className="align-top"
-                >
-                  <td className="px-4 py-3 text-gray-700">
-                    {formatEntityType(candidate.entity_type)}
-                    <div className="mt-1 text-xs text-gray-500">
-                      {candidate.suggestion_status_label ||
-                        candidate.suggestion_status_code}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={fieldSuggestionHref(candidate)}
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                    >
-                      {candidate.entity_name}
-                    </Link>
-                    <div className="mt-1 text-xs text-gray-500">
-                      {candidate.country || "No country"}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {candidate.field_name}
-                    {candidate.source_title || candidate.source_reference ? (
-                      <div className="mt-2 line-clamp-2 text-xs text-gray-500">
-                        {candidate.source_title || candidate.source_reference}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {candidate.current_value || "-"}
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-[#1f2937]">
-                    {candidate.suggested_value}
-                    {candidate.suggestion_reason ? (
-                      <div className="mt-2 line-clamp-2 text-xs font-normal text-gray-500">
-                        {candidate.suggestion_reason}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">
-                    {formatConfidence(candidate.confidence_score)}
-                    <div className="mt-1 text-xs text-gray-500">
-                      {formatDate(candidate.generated_at)}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={fieldSuggestionHref(candidate)}
-                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                    >
-                      Open Record
-                    </Link>
-                  </td>
+        <div className="border-t border-gray-100">
+          <div className="flex flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="text-xs leading-5 text-gray-500">
+              {formatCount(selectedCount)} selected. Confirming accepts a
+              suggestion for the reviewed apply queue; it does not write the
+              value into the project, plant/facility, or company record yet.
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
+                onClick={() => submitFieldSuggestionAction("confirm")}
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                {busyAction === "confirm" ? "Confirming..." : "Confirm selected"}
+              </button>
+              <button
+                type="button"
+                disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
+                onClick={() => submitFieldSuggestionAction("needs_review")}
+                className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                {busyAction === "needs_review" ? "Updating..." : "Needs review"}
+              </button>
+              <button
+                type="button"
+                disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
+                onClick={() => submitFieldSuggestionAction("reject")}
+                className="inline-flex h-8 items-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                {busyAction === "reject" ? "Rejecting..." : "Reject selected"}
+              </button>
+            </div>
+          </div>
+          {actionMessage ? (
+            <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-600">
+              {actionMessage}
+            </div>
+          ) : null}
+          {!canReviewStatus ? (
+            <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+              Review actions require editor/admin permissions.
+            </div>
+          ) : null}
+          <div className="overflow-x-auto">
+            <table className="min-w-[1240px] table-fixed text-left text-sm">
+              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+                <tr>
+                  <th className="w-[4%] px-4 py-3 font-semibold">
+                    <input
+                      type="checkbox"
+                      aria-label="Select visible field suggestions"
+                      checked={allVisibleSelected}
+                      disabled={
+                        !canReviewStatus || selectableCandidateIds.length === 0
+                      }
+                      onChange={(event) =>
+                        toggleVisibleCandidates(event.target.checked)
+                      }
+                      className="h-4 w-4 rounded-none border-gray-300 text-[#8dc63f] focus:ring-[#8dc63f]"
+                    />
+                  </th>
+                  <th className="w-[12%] px-4 py-3 font-semibold">Type</th>
+                  <th className="w-[19%] px-4 py-3 font-semibold">Record</th>
+                  <th className="w-[13%] px-4 py-3 font-semibold">Field</th>
+                  <th className="w-[14%] px-4 py-3 font-semibold">Current</th>
+                  <th className="w-[15%] px-4 py-3 font-semibold">Suggested</th>
+                  <th className="w-[9%] px-4 py-3 font-semibold">Confidence</th>
+                  <th className="w-[14%] px-4 py-3 font-semibold">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {candidates.map((candidate) => (
+                  <tr
+                    key={candidate.field_suggestion_candidate_id}
+                    className="align-top"
+                  >
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        aria-label={`Select suggestion for ${candidate.entity_name}`}
+                        checked={selectedCandidateIds.has(
+                          candidate.field_suggestion_candidate_id
+                        )}
+                        disabled={
+                          !canReviewStatus ||
+                          candidate.suggestion_status_code === "superseded"
+                        }
+                        onChange={(event) =>
+                          toggleCandidate(
+                            candidate.field_suggestion_candidate_id,
+                            event.target.checked
+                          )
+                        }
+                        className="h-4 w-4 rounded-none border-gray-300 text-[#8dc63f] focus:ring-[#8dc63f]"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {formatEntityType(candidate.entity_type)}
+                      <div className="mt-1 text-xs text-gray-500">
+                        {candidate.suggestion_status_label ||
+                          candidate.suggestion_status_code}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={fieldSuggestionHref(candidate)}
+                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      >
+                        {candidate.entity_name}
+                      </Link>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {candidate.country || "No country"}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {candidate.field_name}
+                      {candidate.source_title || candidate.source_reference ? (
+                        <div className="mt-2 line-clamp-2 text-xs text-gray-500">
+                          {candidate.source_title || candidate.source_reference}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {candidate.current_value || "-"}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-[#1f2937]">
+                      {candidate.suggested_value}
+                      {candidate.suggestion_reason ? (
+                        <div className="mt-2 line-clamp-2 text-xs font-normal text-gray-500">
+                          {candidate.suggestion_reason}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {formatConfidence(candidate.confidence_score)}
+                      <div className="mt-1 text-xs text-gray-500">
+                        {formatDate(candidate.generated_at)}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={fieldSuggestionHref(candidate)}
+                        className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      >
+                        Open Record
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
       <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
-        Total candidates: {formatCount(summary.total)}. Confirm/reject/apply
-        actions are intentionally deferred until the controlled apply workflow
-        is implemented.
+        Total candidates: {formatCount(summary.total)}. This review step only
+        updates suggestion status; applying accepted values to entity records
+        remains a later controlled workflow.
       </div>
     </section>
   );
@@ -2529,6 +2720,7 @@ export function ResearchOpsDashboardClient({
       <ArticleMatchReviewPanel summary={sourceMatchSummary} />
 
       <FieldSuggestionReviewPanel
+        canReviewStatus={canReviewStatus}
         candidates={fieldSuggestionCandidates}
         summary={fieldSuggestionSummary}
       />

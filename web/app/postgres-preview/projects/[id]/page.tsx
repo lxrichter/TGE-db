@@ -17,12 +17,14 @@ import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresR
 import PostgresProjectPromotionPanel from "@/components/postgres-preview/PostgresProjectPromotionPanel";
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
+import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
   getPostgresResearchOpsIssueReferenceData,
+  listPostgresFieldSuggestionCandidatesForEntity,
   listPostgresPromotedOperatingAssets,
   listPostgresProjectCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
@@ -146,6 +148,7 @@ export default async function PostgresProjectDetailPage({
     issueReferenceData,
     sourceOptions,
     sourceReferenceData,
+    fieldSuggestionCandidates,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
@@ -157,12 +160,14 @@ export default async function PostgresProjectDetailPage({
     getPostgresResearchOpsIssueReferenceData(),
     listSources({ limit: 250 }),
     getSourceFormReferenceData(),
+    listPostgresFieldSuggestionCandidatesForEntity("project", id),
     getServerSession(authOptions),
   ]);
 
   if (!project) {
     return <NotFoundNotice label="Project" backHref="/postgres-preview" />;
   }
+  const role = (session?.user as { role?: string | null } | undefined)?.role;
 
   return (
     <DetailShell
@@ -263,9 +268,7 @@ export default async function PostgresProjectDetailPage({
       </DetailSection>
 
       <PostgresReviewStatusActions
-        canReviewStatus={canReview(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canReviewStatus={canReview(role)}
         currentStatus={project.review_status_code}
         entityId={project.project_id}
         entityType="project"
@@ -278,11 +281,14 @@ export default async function PostgresProjectDetailPage({
         sources={project.sources}
       />
 
+      <PostgresFieldSuggestionsPanel
+        canReviewStatus={canReview(role)}
+        candidates={fieldSuggestionCandidates}
+      />
+
       <DetailSection title="Source Evidence">
         <PostgresSourceEvidencePanel
-          canManageSources={canEdit(
-            (session?.user as { role?: string | null } | undefined)?.role
-          )}
+          canManageSources={canEdit(role)}
           confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="project"
           entityId={project.project_id}
@@ -298,17 +304,13 @@ export default async function PostgresProjectDetailPage({
       />
 
       <PostgresProjectPromotionPanel
-        canPromote={canPromoteProject(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canPromote={canPromoteProject(role)}
         projectId={project.project_id}
         promotedAssets={promotedAssets}
       />
 
       <PostgresResearchIssuesPanel
-        canManageIssues={canEdit(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canManageIssues={canEdit(role)}
         entityId={project.project_id}
         entityType="project"
         issueReferenceData={issueReferenceData}

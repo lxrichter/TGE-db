@@ -484,6 +484,16 @@ export type PostgresFieldSuggestionCandidate = {
   updated_at: string;
 };
 
+export type PostgresFieldSuggestionAction =
+  | "confirm"
+  | "reject"
+  | "needs_review";
+
+export type PostgresFieldSuggestionBulkResult = {
+  requested: number;
+  updated: number;
+};
+
 export type PostgresResearchOpsIssueType = PostgresReferenceOption & {
   severity: ResearchOpsQueueSeverity;
   description: string | null;
@@ -628,6 +638,10 @@ type FieldSuggestionCandidateRow = Omit<
   confidence_score: number | string;
   generated_at: string | Date;
   updated_at: string | Date;
+};
+
+type FieldSuggestionCandidateUpdateRow = {
+  field_suggestion_candidate_id: string;
 };
 
 type ReviewStatusUpdateRow = Omit<
@@ -4223,6 +4237,196 @@ export async function listPostgresFieldSuggestionCandidates(
 
     throw error;
   }
+}
+
+function fieldSuggestionEntityColumn(entityType: PostgresReviewEntityType) {
+  if (entityType === "project") {
+    return "project_id";
+  }
+
+  if (entityType === "operating_asset") {
+    return "operating_asset_id";
+  }
+
+  return "company_id";
+}
+
+export async function listPostgresFieldSuggestionCandidatesForEntity(
+  entityType: PostgresReviewEntityType,
+  entityId: string,
+  limit = 25
+): Promise<PostgresFieldSuggestionCandidate[]> {
+  if (!isUuid(entityId)) {
+    return [];
+  }
+
+  const entityColumn = fieldSuggestionEntityColumn(entityType);
+
+  try {
+    const rows = await getPrismaClient().$queryRawUnsafe<
+      FieldSuggestionCandidateRow[]
+    >(
+      `
+      SELECT
+        f.field_suggestion_candidate_id::text,
+        f.entity_type,
+        COALESCE(
+          f.project_id,
+          f.operating_asset_id,
+          f.company_id
+        )::text AS entity_id,
+        COALESCE(
+          p.project_name,
+          a.asset_name,
+          c.company_name,
+          'Unknown record'
+        ) AS entity_name,
+        COALESCE(
+          p.country,
+          a.country,
+          c.headquarters_country
+        ) AS country,
+        f.field_name,
+        f.current_value,
+        f.suggested_value,
+        f.source_id::text,
+        s.title AS source_title,
+        s.source_reference,
+        f.confidence_score::float8 AS confidence_score,
+        f.suggestion_status_code,
+        status.label AS suggestion_status_label,
+        f.suggestion_reason,
+        f.generated_by,
+        f.generated_at,
+        f.updated_at
+      FROM field_suggestion_candidates f
+      LEFT JOIN projects p
+        ON p.project_id = f.project_id
+      LEFT JOIN operating_assets a
+        ON a.operating_asset_id = f.operating_asset_id
+      LEFT JOIN companies c
+        ON c.company_id = f.company_id
+      LEFT JOIN sources s
+        ON s.source_id = f.source_id
+      LEFT JOIN ref_field_suggestion_statuses status
+        ON status.code = f.suggestion_status_code
+      WHERE f.entity_type = $1
+        AND f.${entityColumn} = $2::uuid
+      ORDER BY
+        CASE f.suggestion_status_code
+          WHEN 'suggested_high_confidence' THEN 1
+          WHEN 'suggested_medium_confidence' THEN 2
+          WHEN 'suggested_low_confidence' THEN 3
+          WHEN 'needs_review' THEN 4
+          WHEN 'confirmed' THEN 8
+          WHEN 'rejected' THEN 9
+          WHEN 'superseded' THEN 10
+          ELSE 7
+        END,
+        f.confidence_score DESC,
+        f.generated_at DESC
+      LIMIT $3
+      `,
+      entityType,
+      entityId,
+      Math.min(Math.max(limit, 1), 100)
+    );
+
+    return rows.map(toFieldSuggestionCandidate);
+  } catch (error) {
+    if (isMissingRelationError(error, "field_suggestion_candidates")) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
+async function setPostgresFieldSuggestionCandidateStatus(
+  candidateId: string,
+  statusCode: "confirmed" | "rejected" | "needs_review",
+  actorUserId?: string | null
+): Promise<FieldSuggestionCandidateUpdateRow | null> {
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    FieldSuggestionCandidateUpdateRow[]
+  >(
+    `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $3::uuid
+      LIMIT 1
+    )
+    UPDATE field_suggestion_candidates f
+    SET
+      suggestion_status_code = $2,
+      reviewed_by_user_id = CASE
+        WHEN $2 IN ('confirmed', 'rejected')
+          THEN COALESCE((SELECT user_id FROM reviewer), f.reviewed_by_user_id)
+        ELSE NULL
+      END,
+      reviewed_at = CASE
+        WHEN $2 IN ('confirmed', 'rejected') THEN now()
+        ELSE NULL
+      END,
+      updated_at = now()
+    WHERE f.field_suggestion_candidate_id = $1::uuid
+      AND f.applied_at IS NULL
+      AND f.suggestion_status_code != 'superseded'
+      AND f.suggestion_status_code != $2
+    RETURNING f.field_suggestion_candidate_id::text
+    `,
+    candidateId,
+    statusCode,
+    normalizedActorUserId
+  );
+
+  return rows[0] ?? null;
+}
+
+export async function updatePostgresFieldSuggestionCandidates({
+  candidateIds,
+  action,
+  actorUserId,
+}: {
+  candidateIds: string[];
+  action: PostgresFieldSuggestionAction;
+  actorUserId?: string | null;
+}): Promise<PostgresFieldSuggestionBulkResult> {
+  const validCandidateIds = [...new Set(candidateIds.filter(isUuid))];
+  const statusCode =
+    action === "confirm"
+      ? "confirmed"
+      : action === "reject"
+        ? "rejected"
+        : "needs_review";
+  const result: PostgresFieldSuggestionBulkResult = {
+    requested: validCandidateIds.length,
+    updated: 0,
+  };
+
+  try {
+    for (const candidateId of validCandidateIds) {
+      const row = await setPostgresFieldSuggestionCandidateStatus(
+        candidateId,
+        statusCode,
+        actorUserId
+      );
+
+      if (row) {
+        result.updated += 1;
+      }
+    }
+  } catch (error) {
+    if (isMissingRelationError(error, "field_suggestion_candidates")) {
+      return result;
+    }
+
+    throw error;
+  }
+
+  return result;
 }
 
 export async function getPostgresResearchOpsDashboard(

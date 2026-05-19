@@ -16,11 +16,13 @@ import { OperatingAssetCompanyLinksPanel } from "@/components/postgres-preview/P
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
+import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewOperatingAssetById,
   getPostgresResearchOpsIssueReferenceData,
+  listPostgresFieldSuggestionCandidatesForEntity,
   listPostgresOperatingAssetCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewOperatingAssetDetail,
@@ -145,6 +147,7 @@ export default async function PostgresOperatingAssetDetailPage({
     issueReferenceData,
     sourceOptions,
     sourceReferenceData,
+    fieldSuggestionCandidates,
     session,
   ] =
     await Promise.all([
@@ -156,12 +159,14 @@ export default async function PostgresOperatingAssetDetailPage({
       getPostgresResearchOpsIssueReferenceData(),
       listSources({ limit: 250 }),
       getSourceFormReferenceData(),
+      listPostgresFieldSuggestionCandidatesForEntity("operating_asset", id),
       getServerSession(authOptions),
     ]);
 
   if (!asset) {
     return <NotFoundNotice label="Operating asset" backHref="/postgres-preview" />;
   }
+  const role = (session?.user as { role?: string | null } | undefined)?.role;
 
   return (
     <DetailShell
@@ -256,9 +261,7 @@ export default async function PostgresOperatingAssetDetailPage({
       </DetailSection>
 
       <PostgresReviewStatusActions
-        canReviewStatus={canReview(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canReviewStatus={canReview(role)}
         currentStatus={asset.review_status_code}
         entityId={asset.operating_asset_id}
         entityType="operating_asset"
@@ -271,11 +274,14 @@ export default async function PostgresOperatingAssetDetailPage({
         sources={asset.sources}
       />
 
+      <PostgresFieldSuggestionsPanel
+        canReviewStatus={canReview(role)}
+        candidates={fieldSuggestionCandidates}
+      />
+
       <DetailSection title="Source Evidence">
         <PostgresSourceEvidencePanel
-          canManageSources={canEdit(
-            (session?.user as { role?: string | null } | undefined)?.role
-          )}
+          canManageSources={canEdit(role)}
           confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="operating_asset"
           entityId={asset.operating_asset_id}
@@ -291,9 +297,7 @@ export default async function PostgresOperatingAssetDetailPage({
       />
 
       <PostgresResearchIssuesPanel
-        canManageIssues={canEdit(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canManageIssues={canEdit(role)}
         entityId={asset.operating_asset_id}
         entityType="operating_asset"
         issueReferenceData={issueReferenceData}

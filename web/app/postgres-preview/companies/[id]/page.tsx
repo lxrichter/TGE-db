@@ -16,11 +16,13 @@ import { CompanyRelationshipPanel } from "@/components/postgres-preview/Postgres
 import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresReviewStatusActions";
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
+import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
   getPostgresPreviewCompanyById,
   getPostgresResearchOpsIssueReferenceData,
+  listPostgresFieldSuggestionCandidatesForEntity,
   listPostgresCompanyOperatingAssetLinks,
   listPostgresCompanyProjectLinks,
   listPostgresCompanyRelationships,
@@ -115,6 +117,7 @@ export default async function PostgresCompanyDetailPage({
     issueReferenceData,
     sourceOptions,
     sourceReferenceData,
+    fieldSuggestionCandidates,
     session,
   ] = await Promise.all([
     getPostgresPreviewCompanyById(id),
@@ -127,12 +130,14 @@ export default async function PostgresCompanyDetailPage({
     getPostgresResearchOpsIssueReferenceData(),
     listSources({ limit: 250 }),
     getSourceFormReferenceData(),
+    listPostgresFieldSuggestionCandidatesForEntity("company", id),
     getServerSession(authOptions),
   ]);
 
   if (!company) {
     return <NotFoundNotice label="Company" backHref="/postgres-preview" />;
   }
+  const role = (session?.user as { role?: string | null } | undefined)?.role;
 
   return (
     <DetailShell
@@ -237,9 +242,7 @@ export default async function PostgresCompanyDetailPage({
       </DetailSection>
 
       <PostgresReviewStatusActions
-        canReviewStatus={canReview(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canReviewStatus={canReview(role)}
         currentStatus={company.review_status_code}
         entityId={company.company_id}
         entityType="company"
@@ -260,11 +263,14 @@ export default async function PostgresCompanyDetailPage({
         sources={company.sources}
       />
 
+      <PostgresFieldSuggestionsPanel
+        canReviewStatus={canReview(role)}
+        candidates={fieldSuggestionCandidates}
+      />
+
       <DetailSection title="Source Evidence">
         <PostgresSourceEvidencePanel
-          canManageSources={canEdit(
-            (session?.user as { role?: string | null } | undefined)?.role
-          )}
+          canManageSources={canEdit(role)}
           confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="company"
           entityId={company.company_id}
@@ -274,9 +280,7 @@ export default async function PostgresCompanyDetailPage({
       </DetailSection>
 
       <PostgresResearchIssuesPanel
-        canManageIssues={canEdit(
-          (session?.user as { role?: string | null } | undefined)?.role
-        )}
+        canManageIssues={canEdit(role)}
         entityId={company.company_id}
         entityType="company"
         issueReferenceData={issueReferenceData}
