@@ -78,6 +78,29 @@ function hasReviewFlags(candidate: SourceMatchCandidateItem) {
   return candidate.review_flags.length > 0;
 }
 
+function isClosedCandidate(candidate: SourceMatchCandidateItem) {
+  return (
+    candidate.match_status_code === "confirmed" ||
+    candidate.match_status_code === "rejected"
+  );
+}
+
+function hasSourceAmbiguity(candidate: SourceMatchCandidateItem) {
+  return candidate.source_open_candidate_count > 1;
+}
+
+function hasReviewCaution(candidate: SourceMatchCandidateItem) {
+  return hasReviewFlags(candidate) || hasSourceAmbiguity(candidate);
+}
+
+function isCleanHighConfidence(candidate: SourceMatchCandidateItem) {
+  return (
+    !isClosedCandidate(candidate) &&
+    candidate.match_status_code === "suggested_high_confidence" &&
+    !hasReviewCaution(candidate)
+  );
+}
+
 function entityHref(candidate: SourceMatchCandidateItem) {
   if (!candidate.entity_id) {
     return null;
@@ -130,7 +153,14 @@ export default function SourceMatchCandidatesClient({
   const candidateIds = useMemo(
     () =>
       candidates
-        .filter((candidate) => candidate.match_status_code !== "confirmed")
+        .filter((candidate) => !isClosedCandidate(candidate))
+        .map((candidate) => candidate.match_candidate_id),
+    [candidates]
+  );
+  const cleanHighConfidenceIds = useMemo(
+    () =>
+      candidates
+        .filter(isCleanHighConfidence)
         .map((candidate) => candidate.match_candidate_id),
     [candidates]
   );
@@ -143,9 +173,14 @@ export default function SourceMatchCandidatesClient({
     [candidates, selected]
   );
   const selectedFlaggedCount = selectedCandidates.filter(hasReviewFlags).length;
+  const selectedAmbiguousCount =
+    selectedCandidates.filter(hasSourceAmbiguity).length;
+  const selectedCautionCount =
+    selectedCandidates.filter(hasReviewCaution).length;
   const allSelected =
     candidateIds.length > 0 &&
     candidateIds.every((candidateId) => selected.has(candidateId));
+  const selectedCleanCount = selectedCandidates.filter(isCleanHighConfidence).length;
 
   function toggleCandidate(candidateId: string) {
     setSelected((current) => {
@@ -165,15 +200,30 @@ export default function SourceMatchCandidatesClient({
     setSelected(() => (allSelected ? new Set() : new Set(candidateIds)));
   }
 
+  function selectCleanVisible() {
+    if (cleanHighConfidenceIds.length === 0) {
+      setMessage("No clean high-confidence candidates are visible in this view.");
+      return;
+    }
+
+    setMessage(null);
+    setSelected(new Set(cleanHighConfidenceIds));
+  }
+
+  function clearSelection() {
+    setSelected(new Set());
+    setMessage(null);
+  }
+
   function runAction(action: SourceMatchCandidateAction) {
     if (selectedIds.length === 0) {
       setMessage("Select one or more match candidates first.");
       return;
     }
 
-    if (action === "confirm" && selectedFlaggedCount > 0) {
+    if (action === "confirm" && selectedIds.length > 1 && selectedCautionCount > 0) {
       setMessage(
-        "Flagged candidates cannot be bulk confirmed. Review them separately or reject/mark needs review."
+        "Bulk confirmation is limited to clean candidates. Review flagged or multi-candidate sources one at a time."
       );
       return;
     }
@@ -222,12 +272,29 @@ export default function SourceMatchCandidatesClient({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            {selected.size} selected
-          </span>
+          <div className="mr-1 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div>{selected.size} selected</div>
+            {selected.size > 0 ? (
+              <div className="mt-1 normal-case tracking-normal text-gray-400">
+                {selectedCleanCount} clean / {selectedCautionCount} needs care
+              </div>
+            ) : null}
+          </div>
           <button
             type="button"
-            disabled={isPending || selected.size === 0 || selectedFlaggedCount > 0}
+            disabled={isPending || cleanHighConfidenceIds.length === 0}
+            onClick={selectCleanVisible}
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+          >
+            Select Clean Visible
+          </button>
+          <button
+            type="button"
+            disabled={
+              isPending ||
+              selected.size === 0 ||
+              (selected.size > 1 && selectedCautionCount > 0)
+            }
             onClick={() => runAction("confirm")}
             className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
           >
@@ -249,6 +316,38 @@ export default function SourceMatchCandidatesClient({
           >
             Needs Review
           </button>
+          <button
+            type="button"
+            disabled={isPending || selected.size === 0}
+            onClick={clearSelection}
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-3 border-b border-gray-200 bg-[#fbfcfa] px-5 py-4 text-sm text-gray-600 lg:grid-cols-3">
+        <div>
+          <div className="font-semibold text-[#1f2937]">Confirm means evidence link</div>
+          <p className="mt-1 leading-5">
+            Confirmation links the TGE article to the record. It does not update
+            project, plant/facility, or company fields.
+          </p>
+        </div>
+        <div>
+          <div className="font-semibold text-[#1f2937]">Clean visible is safest</div>
+          <p className="mt-1 leading-5">
+            The clean selector only picks high-confidence rows without review
+            flags and without competing open candidates for the same source.
+          </p>
+        </div>
+        <div>
+          <div className="font-semibold text-[#1f2937]">Multiple candidates need care</div>
+          <p className="mt-1 leading-5">
+            Field/group articles can correctly link to several records, but they
+            should be confirmed deliberately rather than by broad bulk action.
+          </p>
         </div>
       </div>
 
@@ -258,10 +357,14 @@ export default function SourceMatchCandidatesClient({
         </div>
       ) : null}
 
-      {selectedFlaggedCount > 0 ? (
+      {selectedCautionCount > 0 ? (
         <div className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-900">
-          {selectedFlaggedCount} selected candidate(s) carry review flags.
-          Bulk confirmation is disabled for those rows.
+          {selectedCautionCount} selected candidate(s) need careful review
+          {selectedFlaggedCount > 0 ? `; ${selectedFlaggedCount} flagged` : ""}
+          {selectedAmbiguousCount > 0
+            ? `; ${selectedAmbiguousCount} from sources with multiple open candidates`
+            : ""}
+          . Bulk confirmation is limited to clean rows.
         </div>
       ) : null}
 
@@ -288,13 +391,14 @@ export default function SourceMatchCandidatesClient({
           <tbody className="divide-y divide-gray-100">
             {candidates.map((candidate) => {
               const href = entityHref(candidate);
-              const isConfirmed = candidate.match_status_code === "confirmed";
+              const isClosed = isClosedCandidate(candidate);
+              const isAmbiguous = hasSourceAmbiguity(candidate);
               return (
                 <tr key={candidate.match_candidate_id} className="align-top">
                   <td className="px-4 py-4">
                     <input
                       aria-label={`Select ${candidate.entity_label}`}
-                      disabled={isConfirmed}
+                      disabled={isClosed}
                       checked={selected.has(candidate.match_candidate_id)}
                       onChange={() => toggleCandidate(candidate.match_candidate_id)}
                       type="checkbox"
@@ -322,6 +426,30 @@ export default function SourceMatchCandidatesClient({
                         Source country: {candidate.source_country}
                       </div>
                     ) : null}
+                    <div className="mt-3 flex flex-wrap gap-1">
+                      <span
+                        className={`inline-flex border px-2 py-1 text-[11px] font-semibold ${
+                          isAmbiguous
+                            ? "border-amber-200 bg-amber-50 text-amber-800"
+                            : "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]"
+                        }`}
+                      >
+                        {candidate.source_open_candidate_count} open match
+                        {candidate.source_open_candidate_count === 1 ? "" : "es"}
+                      </span>
+                      {candidate.confirmed_article_fact_count > 0 ? (
+                        <span className="inline-flex border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[11px] font-semibold text-gray-700">
+                          {candidate.confirmed_article_fact_count} confirmed fact
+                          {candidate.confirmed_article_fact_count === 1 ? "" : "s"}
+                        </span>
+                      ) : null}
+                      {candidate.suggestion_relevant_fact_count > 0 ? (
+                        <span className="inline-flex border border-[#b9d98b] bg-white px-2 py-1 text-[11px] font-semibold text-[#3f6f19]">
+                          {candidate.suggestion_relevant_fact_count} field-suggestion fact
+                          {candidate.suggestion_relevant_fact_count === 1 ? "" : "s"}
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
                   <td className="px-4 py-4">
                     <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -385,6 +513,13 @@ export default function SourceMatchCandidatesClient({
                             {formatReviewFlag(flag)}
                           </span>
                         ))}
+                      </div>
+                    ) : null}
+                    {isAmbiguous ? (
+                      <div className="mt-2 border border-amber-200 bg-amber-50 px-2 py-2 text-[11px] font-medium leading-4 text-amber-900">
+                        This source has {candidate.source_open_candidate_count} open
+                        match candidates. Confirm only the record(s) this article
+                        actually supports.
                       </div>
                     ) : null}
                   </td>

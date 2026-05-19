@@ -104,6 +104,10 @@ export type SourceMatchCandidateItem = {
   entity_use_type: string | null;
   article_country_candidates: string[];
   review_flags: string[];
+  source_candidate_count: number;
+  source_open_candidate_count: number;
+  confirmed_article_fact_count: number;
+  suggestion_relevant_fact_count: number;
 };
 
 export type SourceMatchCandidateSummary = {
@@ -681,10 +685,40 @@ export async function listSourceMatchCandidates(
       c.match_metadata->>'entity_country' AS entity_country,
       c.match_metadata->>'entity_use_type' AS entity_use_type,
       COALESCE(c.match_metadata->'article_country_candidates', '[]'::jsonb) AS article_country_candidates,
-      COALESCE(c.match_metadata->'review_flags', '[]'::jsonb) AS review_flags
+      COALESCE(c.match_metadata->'review_flags', '[]'::jsonb) AS review_flags,
+      COALESCE(match_counts.source_candidate_count, 0)::int AS source_candidate_count,
+      COALESCE(match_counts.source_open_candidate_count, 0)::int AS source_open_candidate_count,
+      COALESCE(fact_counts.confirmed_article_fact_count, 0)::int AS confirmed_article_fact_count,
+      COALESCE(fact_counts.suggestion_relevant_fact_count, 0)::int AS suggestion_relevant_fact_count
     FROM source_entity_match_candidates c
     INNER JOIN sources s
       ON s.source_id = c.source_id
+    LEFT JOIN LATERAL (
+      SELECT
+        COUNT(*)::int AS source_candidate_count,
+        COUNT(*) FILTER (
+          WHERE source_entity_match_candidates.match_status_code NOT IN ('confirmed', 'rejected')
+        )::int AS source_open_candidate_count
+      FROM source_entity_match_candidates
+      WHERE source_entity_match_candidates.source_id = c.source_id
+    ) match_counts ON TRUE
+    LEFT JOIN LATERAL (
+      SELECT
+        COUNT(*) FILTER (
+          WHERE article_fact_candidates.fact_status_code = 'confirmed'
+        )::int AS confirmed_article_fact_count,
+        COUNT(*) FILTER (
+          WHERE article_fact_candidates.fact_status_code = 'confirmed'
+            AND article_fact_candidates.field_name IN (
+              'electric_capacity_mwe',
+              'thermal_capacity_mwth',
+              'capacity_mw_unspecified',
+              'target_cod_year'
+            )
+        )::int AS suggestion_relevant_fact_count
+      FROM article_fact_candidates
+      WHERE article_fact_candidates.source_id = c.source_id
+    ) fact_counts ON TRUE
     LEFT JOIN ref_source_match_statuses ms
       ON ms.code = c.match_status_code
     LEFT JOIN ref_source_types st
