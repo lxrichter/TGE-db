@@ -216,7 +216,7 @@ async function listFieldSuggestionCandidates(pool, args) {
         AND c.match_status_code = ANY($3::text[])
         AND c.confidence_score >= $1::numeric
     ),
-    use_type_matches AS (
+    normalized_matched_sources AS (
       SELECT
         *,
         CASE lower(inferred_use_type)
@@ -231,8 +231,46 @@ async function listFieldSuggestionCandidates(pool, args) {
           ELSE NULL
         END AS suggested_use_type_code
       FROM matched_sources
+    ),
+    use_type_matches AS (
+      SELECT *
+      FROM normalized_matched_sources
       WHERE inferred_use_type IS NOT NULL
         AND lower(inferred_use_type) <> 'unknown'
+    ),
+    capacity_matches AS (
+      SELECT
+        *,
+        regexp_match(
+          COALESCE(source_title, ''),
+          '([0-9]+(?:[\\.,][0-9]+)?)\\s*[- ]?\\s*(MWth|MWe|MW)\\b',
+          'i'
+        ) AS capacity_match
+      FROM normalized_matched_sources
+    ),
+    capacity_signals AS (
+      SELECT
+        *,
+        replace(capacity_match[1], ',', '.')::numeric AS suggested_capacity_value,
+        CASE
+          WHEN lower(capacity_match[2]) = 'mwth' THEN 'thermal_capacity_mwth'
+          WHEN lower(capacity_match[2]) = 'mwe' THEN 'electric_capacity_mwe'
+          WHEN suggested_use_type_code = 'direct_use' THEN 'thermal_capacity_mwth'
+          ELSE 'electric_capacity_mwe'
+        END AS suggested_capacity_field,
+        CASE
+          WHEN lower(capacity_match[2]) = 'mwth' THEN 'MWth'
+          WHEN lower(capacity_match[2]) = 'mwe' THEN 'MWe'
+          WHEN suggested_use_type_code = 'direct_use' THEN 'MWth'
+          ELSE 'MWe'
+        END AS suggested_capacity_unit,
+        CASE
+          WHEN lower(capacity_match[2]) IN ('mwth', 'mwe')
+            THEN least(0.84, match_confidence * 0.88)
+          ELSE least(0.78, match_confidence * 0.78)
+        END AS capacity_confidence
+      FROM capacity_matches
+      WHERE capacity_match IS NOT NULL
     ),
     project_country AS (
       SELECT
@@ -412,6 +450,115 @@ async function listFieldSuggestionCandidates(pool, args) {
       WHERE COALESCE(NULLIF(BTRIM(a.primary_use_type_code), ''), 'unknown') = 'unknown'
         AND m.suggested_use_type_code <> 'unknown'
     ),
+    project_title_capacity AS (
+      SELECT
+        concat('source-title-capacity:', m.source_id, ':project:', p.project_id, ':', m.suggested_capacity_field) AS suggestion_key,
+        'project' AS entity_type,
+        p.project_id::text,
+        NULL::text AS operating_asset_id,
+        NULL::text AS company_id,
+        p.project_name AS entity_label,
+        m.suggested_capacity_field AS field_name,
+        CASE
+          WHEN m.suggested_capacity_field = 'thermal_capacity_mwth'
+            THEN p.thermal_capacity_mwth::text
+          ELSE p.electric_capacity_mwe::text
+        END AS current_value,
+        m.suggested_capacity_value::text AS suggested_value,
+        jsonb_build_object(
+          'value', m.suggested_capacity_value,
+          'unit', m.suggested_capacity_unit,
+          'field', m.suggested_capacity_field,
+          'source_title_capacity_token', concat(m.capacity_match[1], ' ', m.capacity_match[2])
+        ) AS normalized_value,
+        m.suggested_capacity_unit AS unit_code,
+        m.source_id,
+        m.match_candidate_id AS source_entity_match_candidate_id,
+        m.confirmed_entity_source_id AS linked_entity_source_id,
+        NULL::text AS evidence_note,
+        m.capacity_confidence AS confidence_score,
+        'Matched source title contains a capacity signal; the project has no structured capacity values yet.' AS suggestion_reason,
+        jsonb_build_object(
+          'suggested_from', 'source_title_capacity_signal',
+          'source_reference', m.source_reference,
+          'source_title', m.source_title,
+          'source_url', m.source_url,
+          'source_type_code', m.source_type_code,
+          'content_type_code', m.content_type_code,
+          'capacity_token', concat(m.capacity_match[1], ' ', m.capacity_match[2]),
+          'source_match_status_code', m.match_status_code,
+          'source_match_confidence', m.match_confidence,
+          'source_match_reason', m.match_reason,
+          'body_text_read', false,
+          'entity_fields_updated', false,
+          'entity_source_link_created', false
+        ) AS suggestion_metadata,
+        m.source_reference,
+        m.source_title,
+        m.source_type_code,
+        m.match_status_code AS source_match_status_code
+      FROM capacity_signals m
+      JOIN projects p ON m.entity_type = 'project' AND p.project_id = m.entity_id::uuid
+      WHERE p.potential_min_mwe IS NULL
+        AND p.potential_max_mwe IS NULL
+        AND p.electric_capacity_mwe IS NULL
+        AND p.thermal_capacity_mwth IS NULL
+    ),
+    asset_title_capacity AS (
+      SELECT
+        concat('source-title-capacity:', m.source_id, ':operating_asset:', a.operating_asset_id, ':', m.suggested_capacity_field) AS suggestion_key,
+        'operating_asset' AS entity_type,
+        NULL::text AS project_id,
+        a.operating_asset_id::text,
+        NULL::text AS company_id,
+        a.asset_name AS entity_label,
+        m.suggested_capacity_field AS field_name,
+        CASE
+          WHEN m.suggested_capacity_field = 'thermal_capacity_mwth'
+            THEN a.thermal_capacity_mwth::text
+          ELSE a.electric_capacity_mwe::text
+        END AS current_value,
+        m.suggested_capacity_value::text AS suggested_value,
+        jsonb_build_object(
+          'value', m.suggested_capacity_value,
+          'unit', m.suggested_capacity_unit,
+          'field', m.suggested_capacity_field,
+          'source_title_capacity_token', concat(m.capacity_match[1], ' ', m.capacity_match[2])
+        ) AS normalized_value,
+        m.suggested_capacity_unit AS unit_code,
+        m.source_id,
+        m.match_candidate_id AS source_entity_match_candidate_id,
+        m.confirmed_entity_source_id AS linked_entity_source_id,
+        NULL::text AS evidence_note,
+        m.capacity_confidence AS confidence_score,
+        'Matched source title contains a capacity signal; the plant/facility has no structured capacity values yet.' AS suggestion_reason,
+        jsonb_build_object(
+          'suggested_from', 'source_title_capacity_signal',
+          'source_reference', m.source_reference,
+          'source_title', m.source_title,
+          'source_url', m.source_url,
+          'source_type_code', m.source_type_code,
+          'content_type_code', m.content_type_code,
+          'capacity_token', concat(m.capacity_match[1], ' ', m.capacity_match[2]),
+          'source_match_status_code', m.match_status_code,
+          'source_match_confidence', m.match_confidence,
+          'source_match_reason', m.match_reason,
+          'body_text_read', false,
+          'entity_fields_updated', false,
+          'entity_source_link_created', false
+        ) AS suggestion_metadata,
+        m.source_reference,
+        m.source_title,
+        m.source_type_code,
+        m.match_status_code AS source_match_status_code
+      FROM capacity_signals m
+      JOIN operating_assets a ON m.entity_type = 'operating_asset' AND a.operating_asset_id = m.entity_id::uuid
+      WHERE a.potential_min_mwe IS NULL
+        AND a.potential_max_mwe IS NULL
+        AND a.electric_capacity_mwe IS NULL
+        AND a.electric_capacity_running_mwe IS NULL
+        AND a.thermal_capacity_mwth IS NULL
+    ),
     company_website AS (
       SELECT
         concat('source-company-website:', m.source_id, ':company:', c.company_id) AS suggestion_key,
@@ -466,6 +613,10 @@ async function listFieldSuggestionCandidates(pool, args) {
       SELECT * FROM project_use_type
       UNION ALL
       SELECT * FROM asset_use_type
+      UNION ALL
+      SELECT * FROM project_title_capacity
+      UNION ALL
+      SELECT * FROM asset_title_capacity
       UNION ALL
       SELECT * FROM company_website
     ) suggestions
@@ -743,6 +894,7 @@ async function getDiagnostics(pool, args) {
             c.entity_id,
             c.confidence_score::float8 AS match_confidence,
             c.match_status_code,
+            s.title AS source_title,
             s.source_type_code,
             s.url AS source_url,
             s.country AS source_country,
@@ -767,7 +919,12 @@ async function getDiagnostics(pool, args) {
               WHEN 'mineral' THEN 'mineral_extraction'
               WHEN 'mineral_extraction' THEN 'mineral_extraction'
               ELSE NULL
-            END AS suggested_use_type_code
+            END AS suggested_use_type_code,
+            regexp_match(
+              COALESCE(source_title, ''),
+              '([0-9]+(?:[\\.,][0-9]+)?)\\s*[- ]?\\s*(MWth|MWe|MW)\\b',
+              'i'
+            ) AS capacity_match
           FROM matched_sources
         )
         SELECT
@@ -828,6 +985,52 @@ async function getDiagnostics(pool, args) {
               AND m.suggested_use_type_code IS NOT NULL
               AND COALESCE(NULLIF(BTRIM(a.primary_use_type_code), ''), 'unknown') <> 'unknown'
           )::int AS asset_use_type_already_filled,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND m.capacity_match IS NOT NULL
+          )::int AS project_matches_with_title_capacity_signal,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND m.capacity_match IS NOT NULL
+              AND p.potential_min_mwe IS NULL
+              AND p.potential_max_mwe IS NULL
+              AND p.electric_capacity_mwe IS NULL
+              AND p.thermal_capacity_mwth IS NULL
+          )::int AS project_capacity_empty_opportunities,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND m.capacity_match IS NOT NULL
+              AND (
+                p.potential_min_mwe IS NOT NULL
+                OR p.potential_max_mwe IS NOT NULL
+                OR p.electric_capacity_mwe IS NOT NULL
+                OR p.thermal_capacity_mwth IS NOT NULL
+              )
+          )::int AS project_capacity_already_filled,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND m.capacity_match IS NOT NULL
+          )::int AS asset_matches_with_title_capacity_signal,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND m.capacity_match IS NOT NULL
+              AND a.potential_min_mwe IS NULL
+              AND a.potential_max_mwe IS NULL
+              AND a.electric_capacity_mwe IS NULL
+              AND a.electric_capacity_running_mwe IS NULL
+              AND a.thermal_capacity_mwth IS NULL
+          )::int AS asset_capacity_empty_opportunities,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND m.capacity_match IS NOT NULL
+              AND (
+                a.potential_min_mwe IS NOT NULL
+                OR a.potential_max_mwe IS NOT NULL
+                OR a.electric_capacity_mwe IS NOT NULL
+                OR a.electric_capacity_running_mwe IS NOT NULL
+                OR a.thermal_capacity_mwth IS NOT NULL
+              )
+          )::int AS asset_capacity_already_filled,
           COUNT(*) FILTER (
             WHERE m.entity_type = 'company'
               AND m.source_type_code = 'company_website'
