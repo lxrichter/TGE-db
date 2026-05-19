@@ -88,6 +88,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - local-only article fact extraction now includes a balanced manual-review CSV
   sample, a local review-audit command, and review guidance for tuning rules
   before any PostgreSQL import
+- first local article fact review pass completed on a 2026 focused sample:
+  104 accepted, 29 rejected; the first rule-tuning pass removed 15 rejected
+  examples while preserving the accepted examples in the reviewed sample
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

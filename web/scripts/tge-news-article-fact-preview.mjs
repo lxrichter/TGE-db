@@ -474,8 +474,34 @@ function inferUseType(tags, title, bodyScan) {
   return "unknown";
 }
 
+function normalizeNumericText(value) {
+  const text = String(value || "").trim().replace(/\s/g, "");
+
+  if (!text) {
+    return Number.NaN;
+  }
+
+  if (text.includes(".") && text.includes(",")) {
+    return Number(text.replace(/,/g, ""));
+  }
+
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(text)) {
+    return Number(text.replace(/,/g, ""));
+  }
+
+  if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(text)) {
+    return Number(text.replace(/\./g, "").replace(",", "."));
+  }
+
+  if (text.includes(",")) {
+    return Number(text.replace(",", "."));
+  }
+
+  return Number(text);
+}
+
 function normalizeCapacity(value, unit) {
-  const raw = Number(String(value).replace(",", "."));
+  const raw = normalizeNumericText(value);
 
   if (!Number.isFinite(raw) || raw <= 0) {
     return null;
@@ -510,6 +536,53 @@ function normalizeCapacity(value, unit) {
     unit: "MW",
     field: "capacity_mw_unspecified",
   };
+}
+
+function getArticleYear(article) {
+  const match = String(article.published_date || article.relative_path || "").match(
+    /\b(20[0-4][0-9])\b/
+  );
+
+  return match ? Number(match[1]) : null;
+}
+
+function isEventArticle(article) {
+  const titleSlug = [article.title, article.slug].join(" ").toLowerCase();
+  const metadata = [...(article.tags || []), ...(article.categories || [])].map(
+    (item) => String(item).toLowerCase()
+  );
+
+  return /\b(conference|summit|webinar|save the date|call for abstracts|call for papers)\b/.test(
+    titleSlug
+  ) || metadata.some((item) =>
+    ["event", "events", "conference", "webinar", "job", "jobs"].includes(item)
+  );
+}
+
+function hasStrictCodContext(snippet) {
+  return /\b(expected|scheduled|planned|target|targeted|aims?|set|due|will|to)\b.{0,70}\b(COD|commercial operation|operations?|commissioning|commissioned|online|start(?:s|ed)? operation|begin(?:s)? operation)\b/i.test(
+    snippet
+  ) || /\b(COD|commercial operation(?:s)? date|commercial operations?|commissioning|commissioned|online|start(?:s|ed)? operation|begin(?:s)? operation)\b.{0,70}\b(expected|scheduled|planned|target|targeted|due|by|in)\b/i.test(
+    snippet
+  );
+}
+
+function hasHistoricalCodContext(snippet, year, article) {
+  const articleYear = getArticleYear(article);
+
+  if (articleYear && Number(year) < articleYear - 1) {
+    return true;
+  }
+
+  return /\b(back in|first four units|first plant|had already|expanded in|history|historical)\b/i.test(
+    snippet
+  );
+}
+
+function hasMacroCodContext(snippet) {
+  return /\b(per year|market target|national|country|worldwide|globally|strategy|policy|aim of commissioning|pace of implementation|support mechanism)\b/i.test(
+    snippet
+  );
 }
 
 function normalizeMoney(rawValue, scale) {
@@ -661,7 +734,7 @@ function extractCountryAndEntitySignals(article, tags, minConfidence, maxFactsPe
 function extractCapacitySignals(article, scanText, titleLength, minConfidence, maxFactsPerArticle) {
   const facts = [];
   const seenKeys = new Set();
-  const pattern = /\b(\d{1,4}(?:[\.,]\d{1,3})?)\s*(?:-| )?\s*(MWth|MWe|MW|kWth|kWe|kW)\b/gi;
+  const pattern = /\b(\d{1,3}(?:[,\s]\d{3})+(?:\.\d+)?|\d{1,5}(?:[\.,]\d+)?)\s*(?:-| )?\s*(MWth|MWe|MW|kWth|kWe|kW)\b/gi;
   let match;
 
   while ((match = pattern.exec(scanText)) !== null) {
@@ -672,6 +745,12 @@ function extractCapacitySignals(article, scanText, titleLength, minConfidence, m
     }
 
     const inTitle = match.index < titleLength;
+    const snippet = getSnippet(scanText, match.index, match[0].length);
+
+    if (!inTitle && isEventArticle(article)) {
+      continue;
+    }
+
     const field =
       capacity.field !== "capacity_mw_unspecified"
         ? capacity.field
@@ -704,7 +783,7 @@ function extractCapacitySignals(article, scanText, titleLength, minConfidence, m
           raw_value: match[1],
         },
         unitCode: unit,
-        snippet: getSnippet(scanText, match.index, match[0].length),
+        snippet,
         confidence: inTitle ? 0.82 : 0.66,
         reason: "Capacity-like value detected in article title/body scan.",
         metadata: {
@@ -741,6 +820,11 @@ function extractMoneySignals(article, scanText, titleLength, minConfidence, maxF
     }
 
     const inTitle = match.index < titleLength;
+
+    if (!inTitle && isEventArticle(article)) {
+      continue;
+    }
+
     pushUnique(
       facts,
       seenKeys,
@@ -791,6 +875,19 @@ function extractYearSignals(article, scanText, titleLength, minConfidence, maxFa
     while ((match = definition.pattern.exec(scanText)) !== null) {
       const year = definition.yearGroup ? match[definition.yearGroup] : match[2];
       const inTitle = match.index < titleLength;
+      const snippet = getSnippet(scanText, match.index, match[0].length);
+
+      if (!hasStrictCodContext(snippet)) {
+        continue;
+      }
+
+      if (
+        !inTitle &&
+        (hasHistoricalCodContext(snippet, year, article) ||
+          hasMacroCodContext(snippet))
+      ) {
+        continue;
+      }
 
       pushUnique(
         facts,
@@ -801,9 +898,9 @@ function extractYearSignals(article, scanText, titleLength, minConfidence, maxFa
           fieldName: definition.field,
           extractedValue: year,
           normalizedValue: { year: Number(year) },
-          snippet: getSnippet(scanText, match.index, match[0].length),
-          confidence: inTitle ? 0.74 : 0.58,
-          reason: "Year detected near commissioning/COD/operation language.",
+          snippet,
+          confidence: inTitle ? 0.78 : 0.62,
+          reason: "Forward-looking COD/operation year detected near strict operation timing language.",
           metadata: { signal_source: inTitle ? "title" : "body_scan" },
         }),
         maxFactsPerArticle,
@@ -827,6 +924,11 @@ function extractCategoryAndStatusSignals(article, scanText, titleLength, minConf
     }
 
     const inTitle = match.index < titleLength;
+
+    if (!inTitle && isEventArticle(article)) {
+      continue;
+    }
+
     pushUnique(
       facts,
       seenKeys,
@@ -854,6 +956,11 @@ function extractCategoryAndStatusSignals(article, scanText, titleLength, minConf
     }
 
     const inTitle = match.index < titleLength;
+
+    if (!inTitle && isEventArticle(article)) {
+      continue;
+    }
+
     pushUnique(
       facts,
       seenKeys,

@@ -168,6 +168,30 @@ Current deterministic extraction supports:
 These are intentionally broad article facts. They are not yet final structured
 database values.
 
+## First Review Tuning Pass
+
+The first manually reviewed 2026 focused sample produced:
+
+- 133 reviewed rows
+- 104 accepted rows
+- 29 rejected rows
+
+Rule changes from that review:
+
+- capacity parsing now handles thousands separators so values such as
+  `20,000 MW` are not misread as `20 MW`
+- COD/year extraction now requires stricter forward-looking operation timing
+  language
+- old historical operation years are filtered more aggressively
+- event/conference articles are filtered for body-only capacity, money,
+  direct-use, and status signals where they tend to create noise
+
+In a same-scope local comparison, the tuned rules removed 15 previously rejected
+rows from the reviewed sample while preserving all 104 accepted rows. The
+remaining false positives are mostly semantic/contextual cases that should be
+handled later through entity matching, article type classification, or human
+review rather than heavier regex filtering.
+
 ## Governance
 
 All extracted facts remain candidates until reviewed.
