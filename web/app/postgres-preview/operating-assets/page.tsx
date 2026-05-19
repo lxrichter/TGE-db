@@ -7,6 +7,7 @@ import {
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
   PostgresPreviewQuickViews,
+  previewQueryHref,
   previewFilterOptions,
   type PreviewFilterOption,
   type PreviewQuickView,
@@ -163,6 +164,7 @@ export default async function PostgresOperatingAssetsListPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const data = await getOperatingAssetsListData(resolvedSearchParams);
+  const exportFilters = getOperatingAssetFilters(resolvedSearchParams);
 
   return (
     <main className="space-y-8">
@@ -171,6 +173,20 @@ export default async function PostgresOperatingAssetsListPage({
           {
             href: "/postgres-preview",
             label: "Back to Preview",
+          },
+          {
+            href: previewQueryHref(
+              "/api/postgres-preview/operating-assets/export",
+              {
+                search: exportFilters.search,
+                country: exportFilters.country,
+                review: exportFilters.reviewStatus,
+                use: exportFilters.useType,
+                status: exportFilters.status,
+                missing: exportFilters.missing,
+              }
+            ),
+            label: "Export Filtered CSV",
           },
           {
             href: "/postgres-preview/operating-assets/new",

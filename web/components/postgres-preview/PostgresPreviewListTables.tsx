@@ -445,6 +445,20 @@ function cleanQuery(query: Record<string, string | undefined>): Record<string, s
   return cleaned;
 }
 
+export function previewQueryHref(
+  basePath: string,
+  query: Record<string, string | undefined>
+) {
+  const params = new URLSearchParams();
+
+  Object.entries(cleanQuery(query)).forEach(([key, value]) => {
+    params.set(key, value);
+  });
+
+  const queryString = params.toString();
+  return queryString ? `${basePath}?${queryString}` : basePath;
+}
+
 function quickViewHref({
   basePath,
   pageSize,

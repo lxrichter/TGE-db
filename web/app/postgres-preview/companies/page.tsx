@@ -7,6 +7,7 @@ import {
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
   PostgresPreviewQuickViews,
+  previewQueryHref,
   previewFilterOptions,
   type PreviewFilterOption,
   type PreviewQuickView,
@@ -158,6 +159,7 @@ export default async function PostgresCompaniesListPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const data = await getCompaniesListData(resolvedSearchParams);
+  const exportFilters = getCompanyFilters(resolvedSearchParams);
 
   return (
     <main className="space-y-8">
@@ -166,6 +168,16 @@ export default async function PostgresCompaniesListPage({
           {
             href: "/postgres-preview",
             label: "Back to Preview",
+          },
+          {
+            href: previewQueryHref("/api/postgres-preview/companies/export", {
+              search: exportFilters.search,
+              country: exportFilters.country,
+              review: exportFilters.reviewStatus,
+              companyType: exportFilters.companyType,
+              missing: exportFilters.missing,
+            }),
+            label: "Export Filtered CSV",
           },
           {
             href: "/postgres-preview/companies/new",

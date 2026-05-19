@@ -3,6 +3,7 @@ import {
   parsePreviewListPageSize,
   parsePreviewTableDensity,
   PostgresPreviewListFilters,
+  previewQueryHref,
   previewFilterOptions,
   PostgresPreviewQuickViews,
   ProjectsPreviewTable,
@@ -157,6 +158,7 @@ export default async function PostgresProjectsListPage({
 }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const data = await getProjectsListData(resolvedSearchParams);
+  const exportFilters = getProjectFilters(resolvedSearchParams);
 
   return (
     <main className="space-y-8">
@@ -165,6 +167,17 @@ export default async function PostgresProjectsListPage({
           {
             href: "/postgres-preview",
             label: "Back to Preview",
+          },
+          {
+            href: previewQueryHref("/api/postgres-preview/projects/export", {
+              search: exportFilters.search,
+              country: exportFilters.country,
+              review: exportFilters.reviewStatus,
+              use: exportFilters.useType,
+              status: exportFilters.status,
+              missing: exportFilters.missing,
+            }),
+            label: "Export Filtered CSV",
           },
           {
             href: "/postgres-preview/projects/new",
