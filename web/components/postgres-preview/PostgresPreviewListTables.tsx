@@ -12,6 +12,46 @@ type HeaderAction = {
   variant?: "primary" | "secondary";
 };
 
+export type PreviewTableDensity = "comfortable" | "compact";
+
+export type PreviewTablePagination = {
+  basePath: string;
+  page: number;
+  pageSize: number;
+  total: number;
+  density: PreviewTableDensity;
+};
+
+export const DEFAULT_PREVIEW_PAGE_SIZE = 100;
+
+export const PREVIEW_PAGE_SIZE_OPTIONS = [50, 100, 250];
+
+export function parsePreviewListPage(value: string | undefined) {
+  const parsed = Number(value || "1");
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return Math.floor(parsed);
+}
+
+export function parsePreviewListPageSize(value: string | undefined) {
+  const parsed = Number(value || DEFAULT_PREVIEW_PAGE_SIZE);
+
+  if (!PREVIEW_PAGE_SIZE_OPTIONS.includes(parsed)) {
+    return DEFAULT_PREVIEW_PAGE_SIZE;
+  }
+
+  return parsed;
+}
+
+export function parsePreviewTableDensity(
+  value: string | undefined
+): PreviewTableDensity {
+  return value === "compact" ? "compact" : "comfortable";
+}
+
 function EmptyValue() {
   return <span className="text-gray-400">-</span>;
 }
@@ -42,17 +82,164 @@ function StatusBadge({ value }: { value: string | null }) {
   );
 }
 
+function previewTableHref(
+  pagination: PreviewTablePagination,
+  updates: Partial<Pick<PreviewTablePagination, "page" | "pageSize" | "density">>
+) {
+  const next = {
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    density: pagination.density,
+    ...updates,
+  };
+  const params = new URLSearchParams();
+
+  if (next.page > 1) {
+    params.set("page", String(next.page));
+  }
+
+  if (next.pageSize !== DEFAULT_PREVIEW_PAGE_SIZE) {
+    params.set("pageSize", String(next.pageSize));
+  }
+
+  if (next.density !== "comfortable") {
+    params.set("density", next.density);
+  }
+
+  const query = params.toString();
+  return query ? `${pagination.basePath}?${query}` : pagination.basePath;
+}
+
+function rangeLabel(pagination: PreviewTablePagination, count: number) {
+  if (pagination.total === 0) {
+    return "No records";
+  }
+
+  if (count === 0) {
+    return `No records on page ${formatCount(pagination.page)} of ${formatCount(
+      pagination.total
+    )} total records`;
+  }
+
+  const start = (pagination.page - 1) * pagination.pageSize + 1;
+  const end = Math.min(start + count - 1, pagination.total);
+
+  return `Showing ${formatCount(start)}-${formatCount(end)} of ${formatCount(
+    pagination.total
+  )} records`;
+}
+
+function PaginationControls({
+  pagination,
+  count,
+}: {
+  pagination: PreviewTablePagination;
+  count: number;
+}) {
+  const isFirstPage = pagination.page <= 1;
+  const isLastPage = pagination.page * pagination.pageSize >= pagination.total;
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 text-sm text-gray-600 lg:flex-row lg:items-center lg:justify-between">
+      <div>{rangeLabel(pagination, count)}</div>
+      <div className="flex flex-wrap gap-2">
+        <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Density
+        </span>
+        <Link
+          href={previewTableHref(pagination, {
+            density: "comfortable",
+            page: 1,
+          })}
+          className={`inline-flex h-9 items-center border px-3 text-xs font-semibold ${
+            pagination.density === "comfortable"
+              ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
+              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          }`}
+        >
+          Comfortable
+        </Link>
+        <Link
+          href={previewTableHref(pagination, { density: "compact", page: 1 })}
+          className={`inline-flex h-9 items-center border px-3 text-xs font-semibold ${
+            pagination.density === "compact"
+              ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
+              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          }`}
+        >
+          Compact
+        </Link>
+        <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Rows
+        </span>
+        {PREVIEW_PAGE_SIZE_OPTIONS.map((pageSize) => (
+          <Link
+            key={pageSize}
+            href={previewTableHref(pagination, { pageSize, page: 1 })}
+            className={`inline-flex h-9 items-center border px-3 text-xs font-semibold ${
+              pagination.pageSize === pageSize
+                ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
+                : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            }`}
+          >
+            {pageSize}
+          </Link>
+        ))}
+        <Link
+          href={previewTableHref(pagination, {
+            page: Math.max(pagination.page - 1, 1),
+          })}
+          aria-disabled={isFirstPage}
+          className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
+            isFirstPage
+              ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
+              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          }`}
+        >
+          Previous
+        </Link>
+        <span className="inline-flex h-9 items-center border border-gray-200 px-3 text-sm font-semibold text-gray-500">
+          Page {formatCount(pagination.page)}
+        </span>
+        <Link
+          href={previewTableHref(pagination, { page: pagination.page + 1 })}
+          aria-disabled={isLastPage}
+          className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
+            isLastPage
+              ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
+              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          }`}
+        >
+          Next
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function tableCellClass(density: PreviewTableDensity) {
+  return density === "compact" ? "px-4 py-2" : "px-5 py-4";
+}
+
+function tableHeadClass(density: PreviewTableDensity) {
+  return density === "compact" ? "px-4 py-2" : "px-5 py-3";
+}
+
 function SectionHeader({
   title,
   count,
   total,
+  pagination,
 }: {
   title: string;
   count: number;
   total?: number;
+  pagination?: PreviewTablePagination;
 }) {
   const countLabel =
-    total && total > count
+    pagination
+      ? rangeLabel(pagination, count)
+      : total && total > count
       ? `Showing ${formatCount(count)} of ${formatCount(total)} records`
       : `${formatCount(count)} records`;
 
@@ -137,30 +324,41 @@ export function PostgresPreviewListHeader({
 export function ProjectsPreviewTable({
   projects,
   total,
+  pagination,
 }: {
   projects: PostgresPreviewProject[];
   total?: number;
+  pagination?: PreviewTablePagination;
 }) {
+  const density = pagination?.density ?? "comfortable";
+  const cellClass = tableCellClass(density);
+  const headClass = tableHeadClass(density);
+
   return (
     <section className="border border-gray-200 bg-white">
-      <SectionHeader title="Projects" count={projects.length} total={total} />
+      <SectionHeader
+        title="Projects"
+        count={projects.length}
+        total={total}
+        pagination={pagination}
+      />
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[30%] px-5 py-3 font-semibold">Name</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Use</th>
-              <th className="w-[14%] px-5 py-3 font-semibold">Phase</th>
-              <th className="w-[16%] px-5 py-3 font-semibold">Location</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Power</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Thermal</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Review</th>
+              <th className={`w-[30%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Use</th>
+              <th className={`w-[14%] ${headClass} font-semibold`}>Phase</th>
+              <th className={`w-[16%] ${headClass} font-semibold`}>Location</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Power</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Thermal</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Review</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {projects.map((project) => (
               <tr key={project.project_id} className="align-top">
-                <td className="px-5 py-4">
+                <td className={cellClass}>
                   <Link
                     href={`/postgres-preview/projects/${project.project_id}`}
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
@@ -171,25 +369,25 @@ export function ProjectsPreviewTable({
                     {project.legacy_project_id || "new-postgres-record"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {project.primary_use_type_code}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {project.lifecycle_phase_code}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {project.country || <EmptyValue />}
                   <div className="mt-1 text-xs text-gray-500">
                     {project.region || <EmptyValue />}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   <MetricValue value={project.electric_capacity_mwe} suffix="MWe" />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   <MetricValue value={project.thermal_capacity_mwth} suffix="MWth" />
                 </td>
-                <td className="px-5 py-4">
+                <td className={cellClass}>
                   <StatusBadge value={project.review_status_code} />
                 </td>
               </tr>
@@ -197,6 +395,9 @@ export function ProjectsPreviewTable({
           </tbody>
         </table>
       </div>
+      {pagination ? (
+        <PaginationControls count={projects.length} pagination={pagination} />
+      ) : null}
     </section>
   );
 }
@@ -204,34 +405,41 @@ export function ProjectsPreviewTable({
 export function OperatingAssetsPreviewTable({
   operatingAssets,
   total,
+  pagination,
 }: {
   operatingAssets: PostgresPreviewOperatingAsset[];
   total?: number;
+  pagination?: PreviewTablePagination;
 }) {
+  const density = pagination?.density ?? "comfortable";
+  const cellClass = tableCellClass(density);
+  const headClass = tableHeadClass(density);
+
   return (
     <section className="border border-gray-200 bg-white">
       <SectionHeader
         title="Plants / Facilities"
         count={operatingAssets.length}
         total={total}
+        pagination={pagination}
       />
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[30%] px-5 py-3 font-semibold">Name</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Use</th>
-              <th className="w-[14%] px-5 py-3 font-semibold">Status</th>
-              <th className="w-[16%] px-5 py-3 font-semibold">Location</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Installed</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Running</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Review</th>
+              <th className={`w-[30%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Use</th>
+              <th className={`w-[14%] ${headClass} font-semibold`}>Status</th>
+              <th className={`w-[16%] ${headClass} font-semibold`}>Location</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Installed</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Running</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Review</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {operatingAssets.map((asset) => (
               <tr key={asset.operating_asset_id} className="align-top">
-                <td className="px-5 py-4">
+                <td className={cellClass}>
                   <Link
                     href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
@@ -242,28 +450,28 @@ export function OperatingAssetsPreviewTable({
                     {asset.legacy_plant_id || "new-postgres-record"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {asset.primary_use_type_code}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {asset.lifecycle_phase_code}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {asset.country || <EmptyValue />}
                   <div className="mt-1 text-xs text-gray-500">
                     {asset.region || <EmptyValue />}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   <MetricValue value={asset.electric_capacity_mwe} suffix="MWe" />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   <MetricValue
                     value={asset.electric_capacity_running_mwe}
                     suffix="MWe"
                   />
                 </td>
-                <td className="px-5 py-4">
+                <td className={cellClass}>
                   <StatusBadge value={asset.review_status_code} />
                 </td>
               </tr>
@@ -271,6 +479,12 @@ export function OperatingAssetsPreviewTable({
           </tbody>
         </table>
       </div>
+      {pagination ? (
+        <PaginationControls
+          count={operatingAssets.length}
+          pagination={pagination}
+        />
+      ) : null}
     </section>
   );
 }
@@ -278,28 +492,39 @@ export function OperatingAssetsPreviewTable({
 export function CompaniesPreviewTable({
   companies,
   total,
+  pagination,
 }: {
   companies: PostgresPreviewCompany[];
   total?: number;
+  pagination?: PreviewTablePagination;
 }) {
+  const density = pagination?.density ?? "comfortable";
+  const cellClass = tableCellClass(density);
+  const headClass = tableHeadClass(density);
+
   return (
     <section className="border border-gray-200 bg-white">
-      <SectionHeader title="Companies" count={companies.length} total={total} />
+      <SectionHeader
+        title="Companies"
+        count={companies.length}
+        total={total}
+        pagination={pagination}
+      />
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[34%] px-5 py-3 font-semibold">Name</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">Type</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">HQ</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">Focus</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Review</th>
+              <th className={`w-[34%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[18%] ${headClass} font-semibold`}>Type</th>
+              <th className={`w-[18%] ${headClass} font-semibold`}>HQ</th>
+              <th className={`w-[18%] ${headClass} font-semibold`}>Focus</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Review</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {companies.map((company) => (
               <tr key={company.company_id} className="align-top">
-                <td className="px-5 py-4">
+                <td className={cellClass}>
                   <Link
                     href={`/postgres-preview/companies/${company.company_id}`}
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
@@ -310,19 +535,19 @@ export function CompaniesPreviewTable({
                     {company.legacy_company_id || "new-postgres-record"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {company.company_type_primary_code || <EmptyValue />}
                   <div className="mt-1 text-xs text-gray-500">
                     {company.entity_type_code || <EmptyValue />}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {company.headquarters_country || <EmptyValue />}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`${cellClass} text-gray-700`}>
                   {company.geothermal_focus || <EmptyValue />}
                 </td>
-                <td className="px-5 py-4">
+                <td className={cellClass}>
                   <StatusBadge value={company.review_status_code} />
                 </td>
               </tr>
@@ -330,6 +555,9 @@ export function CompaniesPreviewTable({
           </tbody>
         </table>
       </div>
+      {pagination ? (
+        <PaginationControls count={companies.length} pagination={pagination} />
+      ) : null}
     </section>
   );
 }

@@ -1,7 +1,11 @@
 import {
   CompaniesPreviewTable,
+  parsePreviewListPage,
+  parsePreviewListPageSize,
+  parsePreviewTableDensity,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
+  type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
   getPostgresPreviewSummary,
@@ -11,30 +15,47 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const LIST_LIMIT = 500;
+type PreviewListSearchParams = {
+  page?: string;
+  pageSize?: string;
+  density?: string;
+};
 
 type CompaniesListData =
   | {
       ok: true;
       companies: PostgresPreviewCompany[];
       total: number;
+      page: number;
+      pageSize: number;
+      density: PreviewTableDensity;
     }
   | {
       ok: false;
       error: string;
     };
 
-async function getCompaniesListData(): Promise<CompaniesListData> {
+async function getCompaniesListData(
+  params: PreviewListSearchParams
+): Promise<CompaniesListData> {
+  const page = parsePreviewListPage(params.page);
+  const pageSize = parsePreviewListPageSize(params.pageSize);
+  const density = parsePreviewTableDensity(params.density);
+  const offset = (page - 1) * pageSize;
+
   try {
     const [summary, companies] = await Promise.all([
       getPostgresPreviewSummary(),
-      listPostgresPreviewCompanies(LIST_LIMIT),
+      listPostgresPreviewCompanies({ limit: pageSize, offset }),
     ]);
 
     return {
       ok: true,
       companies,
       total: summary.companyCount,
+      page,
+      pageSize,
+      density,
     };
   } catch (error) {
     return {
@@ -44,8 +65,13 @@ async function getCompaniesListData(): Promise<CompaniesListData> {
   }
 }
 
-export default async function PostgresCompaniesListPage() {
-  const data = await getCompaniesListData();
+export default async function PostgresCompaniesListPage({
+  searchParams,
+}: {
+  searchParams?: Promise<PreviewListSearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const data = await getCompaniesListData(resolvedSearchParams);
 
   return (
     <main className="space-y-8">
@@ -69,7 +95,17 @@ export default async function PostgresCompaniesListPage() {
       {!data.ok ? (
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
-        <CompaniesPreviewTable companies={data.companies} total={data.total} />
+        <CompaniesPreviewTable
+          companies={data.companies}
+          pagination={{
+            basePath: "/postgres-preview/companies",
+            density: data.density,
+            page: data.page,
+            pageSize: data.pageSize,
+            total: data.total,
+          }}
+          total={data.total}
+        />
       )}
     </main>
   );

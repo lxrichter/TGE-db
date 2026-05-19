@@ -1,7 +1,11 @@
 import {
+  parsePreviewListPage,
+  parsePreviewListPageSize,
+  parsePreviewTableDensity,
   ProjectsPreviewTable,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
+  type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
   getPostgresPreviewSummary,
@@ -11,30 +15,47 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const LIST_LIMIT = 500;
+type PreviewListSearchParams = {
+  page?: string;
+  pageSize?: string;
+  density?: string;
+};
 
 type ProjectsListData =
   | {
       ok: true;
       projects: PostgresPreviewProject[];
       total: number;
+      page: number;
+      pageSize: number;
+      density: PreviewTableDensity;
     }
   | {
       ok: false;
       error: string;
     };
 
-async function getProjectsListData(): Promise<ProjectsListData> {
+async function getProjectsListData(
+  params: PreviewListSearchParams
+): Promise<ProjectsListData> {
+  const page = parsePreviewListPage(params.page);
+  const pageSize = parsePreviewListPageSize(params.pageSize);
+  const density = parsePreviewTableDensity(params.density);
+  const offset = (page - 1) * pageSize;
+
   try {
     const [summary, projects] = await Promise.all([
       getPostgresPreviewSummary(),
-      listPostgresPreviewProjects(LIST_LIMIT),
+      listPostgresPreviewProjects({ limit: pageSize, offset }),
     ]);
 
     return {
       ok: true,
       projects,
       total: summary.projectCount,
+      page,
+      pageSize,
+      density,
     };
   } catch (error) {
     return {
@@ -44,8 +65,13 @@ async function getProjectsListData(): Promise<ProjectsListData> {
   }
 }
 
-export default async function PostgresProjectsListPage() {
-  const data = await getProjectsListData();
+export default async function PostgresProjectsListPage({
+  searchParams,
+}: {
+  searchParams?: Promise<PreviewListSearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const data = await getProjectsListData(resolvedSearchParams);
 
   return (
     <main className="space-y-8">
@@ -69,7 +95,17 @@ export default async function PostgresProjectsListPage() {
       {!data.ok ? (
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
-        <ProjectsPreviewTable projects={data.projects} total={data.total} />
+        <ProjectsPreviewTable
+          pagination={{
+            basePath: "/postgres-preview/projects",
+            density: data.density,
+            page: data.page,
+            pageSize: data.pageSize,
+            total: data.total,
+          }}
+          projects={data.projects}
+          total={data.total}
+        />
       )}
     </main>
   );

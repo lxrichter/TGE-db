@@ -1543,9 +1543,31 @@ function isMissingRelationError(error: unknown, relationName: string) {
   );
 }
 
+type PostgresPreviewListOptions = {
+  limit?: number;
+  offset?: number;
+};
+
+function normalizePreviewListOptions(
+  options: number | PostgresPreviewListOptions = 25
+) {
+  if (typeof options === "number") {
+    return {
+      limit: options,
+      offset: 0,
+    };
+  }
+
+  return {
+    limit: options.limit ?? 25,
+    offset: options.offset ?? 0,
+  };
+}
+
 export async function listPostgresPreviewProjects(
-  limit = 25
+  options: number | PostgresPreviewListOptions = 25
 ): Promise<PostgresPreviewProject[]> {
+  const { limit, offset } = normalizePreviewListOptions(options);
   const rows = await getPrismaClient().projects.findMany({
     select: {
       project_id: true,
@@ -1563,6 +1585,7 @@ export async function listPostgresPreviewProjects(
     },
     orderBy: [{ created_at: "desc" }, { project_name: "asc" }],
     take: limit,
+    skip: offset,
   });
 
   return rows.map((row) => ({
@@ -1574,8 +1597,9 @@ export async function listPostgresPreviewProjects(
 }
 
 export async function listPostgresPreviewOperatingAssets(
-  limit = 25
+  options: number | PostgresPreviewListOptions = 25
 ): Promise<PostgresPreviewOperatingAsset[]> {
+  const { limit, offset } = normalizePreviewListOptions(options);
   const rows = await getPrismaClient().operating_assets.findMany({
     select: {
       operating_asset_id: true,
@@ -1595,6 +1619,7 @@ export async function listPostgresPreviewOperatingAssets(
     },
     orderBy: [{ created_at: "desc" }, { asset_name: "asc" }],
     take: limit,
+    skip: offset,
   });
 
   return rows.map((row) => ({
@@ -1612,8 +1637,9 @@ export async function listPostgresPreviewOperatingAssets(
 }
 
 export async function listPostgresPreviewCompanies(
-  limit = 25
+  options: number | PostgresPreviewListOptions = 25
 ): Promise<PostgresPreviewCompany[]> {
+  const { limit, offset } = normalizePreviewListOptions(options);
   return getPrismaClient().companies.findMany({
     select: {
       company_id: true,
@@ -1628,6 +1654,7 @@ export async function listPostgresPreviewCompanies(
     },
     orderBy: [{ created_at: "desc" }, { company_name: "asc" }],
     take: limit,
+    skip: offset,
   });
 }
 
