@@ -54,6 +54,48 @@ function entityTypeLabel(value: string) {
   return value.replaceAll("_", " ");
 }
 
+function workflowLabel(candidate: PostgresFieldSuggestionCandidate) {
+  if (candidate.applied_at) {
+    return "Applied To Record";
+  }
+
+  if (candidate.suggestion_status_code === "confirmed") {
+    return "Confirmed, Not Written";
+  }
+
+  if (candidate.suggestion_status_code === "rejected") {
+    return "Rejected";
+  }
+
+  if (candidate.suggestion_status_code === "superseded") {
+    return "Superseded";
+  }
+
+  return "Open Review";
+}
+
+function workflowTone(candidate: PostgresFieldSuggestionCandidate) {
+  if (candidate.applied_at) {
+    return "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]";
+  }
+
+  if (candidate.suggestion_status_code === "confirmed") {
+    return "border-blue-200 bg-blue-50 text-blue-700";
+  }
+
+  if (candidate.suggestion_status_code === "rejected") {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+
+  return "border-amber-200 bg-amber-50 text-amber-800";
+}
+
+function fieldContext(candidate: PostgresFieldSuggestionCandidate) {
+  return candidate.current_value && candidate.current_value.trim()
+    ? "Existing value present"
+    : "Fills empty field";
+}
+
 export default function PostgresFieldSuggestionsPanel({
   candidates,
   canReviewStatus,
@@ -142,8 +184,9 @@ export default function PostgresFieldSuggestionsPanel({
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             Reviewable field candidates for this record. Confirming a suggestion
-            marks it as accepted. Applying confirmed suggestions is a separate
-            audited write step and only updates supported empty fields.
+            marks it as accepted but does NOT update the database record.
+            Applying confirmed suggestions is a separate audited write step and
+            only updates supported empty fields.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -236,6 +279,9 @@ export default function PostgresFieldSuggestionsPanel({
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {candidate.current_value || "-"}
+                      <div className="mt-2 text-xs font-semibold text-gray-500">
+                        {fieldContext(candidate)}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       <span className="font-semibold text-[#1f2937]">
@@ -265,8 +311,13 @@ export default function PostgresFieldSuggestionsPanel({
                       {formatConfidence(candidate.confidence_score)}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
-                      {candidate.suggestion_status_label ||
-                        candidate.suggestion_status_code}
+                      <span
+                        className={`inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${workflowTone(
+                          candidate
+                        )}`}
+                      >
+                        {workflowLabel(candidate)}
+                      </span>
                       {candidate.applied_at ? (
                         <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
                           Applied {formatDate(candidate.applied_at)}
@@ -284,7 +335,7 @@ export default function PostgresFieldSuggestionsPanel({
                             isApplied
                           }
                           onClick={() => submitAction(candidate, "confirm")}
-                          className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                          className="inline-flex h-8 items-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                         >
                           Confirm
                         </button>
@@ -294,9 +345,9 @@ export default function PostgresFieldSuggestionsPanel({
                             !canReviewStatus || isBusy || !isApplyReady
                           }
                           onClick={() => submitAction(candidate, "apply")}
-                          className="inline-flex h-8 items-center border border-[#1f2937] bg-[#1f2937] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                          className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                         >
-                          Apply
+                          Apply To DB
                         </button>
                         <button
                           type="button"

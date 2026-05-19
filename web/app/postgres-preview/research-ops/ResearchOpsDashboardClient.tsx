@@ -943,6 +943,54 @@ function isApplyReadyFieldSuggestion(
   );
 }
 
+function fieldSuggestionWorkflowLabel(
+  candidate: PostgresFieldSuggestionCandidate
+) {
+  if (candidate.applied_at) {
+    return "Applied To Record";
+  }
+
+  if (candidate.suggestion_status_code === "confirmed") {
+    return "Confirmed, Not Written";
+  }
+
+  if (candidate.suggestion_status_code === "rejected") {
+    return "Rejected";
+  }
+
+  if (candidate.suggestion_status_code === "superseded") {
+    return "Superseded";
+  }
+
+  return "Open Review";
+}
+
+function fieldSuggestionWorkflowTone(
+  candidate: PostgresFieldSuggestionCandidate
+) {
+  if (candidate.applied_at) {
+    return "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]";
+  }
+
+  if (candidate.suggestion_status_code === "confirmed") {
+    return "border-blue-200 bg-blue-50 text-blue-700";
+  }
+
+  if (candidate.suggestion_status_code === "rejected") {
+    return "border-red-200 bg-red-50 text-red-700";
+  }
+
+  return "border-amber-200 bg-amber-50 text-amber-800";
+}
+
+function fieldSuggestionFieldContext(
+  candidate: PostgresFieldSuggestionCandidate
+) {
+  return candidate.current_value && candidate.current_value.trim()
+    ? "Existing value present"
+    : "Fills empty field";
+}
+
 function FieldSuggestionReviewPanel({
   summary,
   candidates,
@@ -961,17 +1009,22 @@ function FieldSuggestionReviewPanel({
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const cards = [
     {
-      label: "Open",
+      label: "Open Review",
       value: summary.open,
       note: "Awaiting human review",
     },
     {
-      label: "Apply Ready",
-      value: summary.applyReady,
-      note: "Confirmed, not written yet",
+      label: "Confirmed, Not Written",
+      value: summary.confirmedUnapplied,
+      note: "Accepted, no DB write",
     },
     {
-      label: "Applied",
+      label: "Ready To Apply",
+      value: summary.applyReady,
+      note: "Safe audited write queue",
+    },
+    {
+      label: "Applied To Record",
       value: summary.applied,
       note: "Written with audit event",
     },
@@ -991,9 +1044,9 @@ function FieldSuggestionReviewPanel({
       note: "Weak or ambiguous",
     },
     {
-      label: "Confirmed",
+      label: "Confirmed Total",
       value: summary.confirmed,
-      note: "Accepted suggestions",
+      note: "Includes applied rows",
     },
     {
       label: "Rejected",
@@ -1171,6 +1224,32 @@ function FieldSuggestionReviewPanel({
         </span>
       </div>
 
+      <div className="border-b border-gray-100 px-5 py-4">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
+          {[
+            ["1", "AI Suggestion", "Candidate only"],
+            ["2", "Human Confirmation", "Accepted, not written"],
+            ["3", "Audited Apply", "Controlled database write"],
+            ["4", "Record Updated", "Audit trail visible"],
+          ].map(([step, label, note]) => (
+            <div
+              key={step}
+              className="border border-gray-200 bg-[#fbfbfb] px-3 py-3"
+            >
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-6 w-6 items-center justify-center border border-gray-300 bg-white text-xs font-bold text-[#1f2937]">
+                  {step}
+                </span>
+                <span className="text-xs font-bold uppercase tracking-wide text-[#1f2937]">
+                  {label}
+                </span>
+              </div>
+              <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-4 xl:grid-cols-8">
         {cards.map((card) => (
           <div key={card.label} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
@@ -1196,9 +1275,9 @@ function FieldSuggestionReviewPanel({
         <div className="border-t border-gray-100">
           <div className="flex flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-xs leading-5 text-gray-500">
-              {formatCount(selectedCount)} selected. Confirming accepts a
-              suggestion for the reviewed apply queue; it does not write the
-              value into the project, plant/facility, or company record yet.
+              {formatCount(selectedCount)} selected. Confirm accepts the AI
+              suggestion for later application. It does NOT update the database
+              record. Apply To Database is the audited write step.
             </div>
             <div className="flex flex-wrap gap-2">
               <button
@@ -1229,7 +1308,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("confirm")}
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {busyAction === "confirm" ? "Confirming..." : "Confirm selected"}
               </button>
@@ -1237,9 +1316,9 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("apply")}
-                className="inline-flex h-8 items-center border border-[#1f2937] bg-[#1f2937] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
-                {busyAction === "apply" ? "Applying..." : "Apply confirmed"}
+                {busyAction === "apply" ? "Applying..." : "Apply To Database"}
               </button>
               <button
                 type="button"
@@ -1324,9 +1403,12 @@ function FieldSuggestionReviewPanel({
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {formatEntityType(candidate.entity_type)}
-                      <div className="mt-1 text-xs text-gray-500">
-                        {candidate.suggestion_status_label ||
-                          candidate.suggestion_status_code}
+                      <div
+                        className={`mt-2 inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${fieldSuggestionWorkflowTone(
+                          candidate
+                        )}`}
+                      >
+                        {fieldSuggestionWorkflowLabel(candidate)}
                       </div>
                       {candidate.applied_at ? (
                         <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
@@ -1363,6 +1445,9 @@ function FieldSuggestionReviewPanel({
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {candidate.current_value || "-"}
+                      <div className="mt-2 text-xs font-semibold text-gray-500">
+                        {fieldSuggestionFieldContext(candidate)}
+                      </div>
                     </td>
                     <td className="px-4 py-3 font-semibold text-[#1f2937]">
                       {candidate.suggested_value}

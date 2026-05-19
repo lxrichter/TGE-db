@@ -455,6 +455,7 @@ export type PostgresResearchOpsDashboard = {
 export type PostgresFieldSuggestionSummary = {
   total: number;
   open: number;
+  confirmedUnapplied: number;
   applyReady: number;
   applied: number;
   highConfidence: number;
@@ -644,6 +645,7 @@ type RecentEditRow = Omit<PostgresResearchOpsRecentEdit, "updated_at"> & {
 type FieldSuggestionSummaryRow = {
   total: number | bigint;
   open: number | bigint;
+  confirmed_unapplied: number | bigint;
   apply_ready: number | bigint;
   applied: number | bigint;
   high_confidence: number | bigint;
@@ -4231,34 +4233,90 @@ export async function getPostgresFieldSuggestionSummary(): Promise<PostgresField
       SELECT
         COUNT(*)::int AS total,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code NOT IN ('confirmed', 'rejected', 'superseded')
+          WHERE f.suggestion_status_code NOT IN ('confirmed', 'rejected', 'superseded')
         )::int AS open,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'confirmed'
-            AND applied_at IS NULL
+          WHERE f.suggestion_status_code = 'confirmed'
+            AND f.applied_at IS NULL
+        )::int AS confirmed_unapplied,
+        COUNT(*) FILTER (
+          WHERE f.suggestion_status_code = 'confirmed'
+            AND f.applied_at IS NULL
+            AND (
+              (
+                f.entity_type = 'project'
+                AND f.field_name = 'electric_capacity_mwe'
+                AND EXISTS (
+                  SELECT 1
+                  FROM projects p
+                  WHERE p.project_id = f.project_id
+                    AND p.electric_capacity_mwe IS NULL
+                )
+              )
+              OR (
+                f.entity_type = 'project'
+                AND f.field_name = 'thermal_capacity_mwth'
+                AND EXISTS (
+                  SELECT 1
+                  FROM projects p
+                  WHERE p.project_id = f.project_id
+                    AND p.thermal_capacity_mwth IS NULL
+                )
+              )
+              OR (
+                f.entity_type = 'project'
+                AND f.field_name = 'target_cod_year'
+                AND EXISTS (
+                  SELECT 1
+                  FROM projects p
+                  WHERE p.project_id = f.project_id
+                    AND p.target_cod_year IS NULL
+                )
+              )
+              OR (
+                f.entity_type = 'operating_asset'
+                AND f.field_name = 'electric_capacity_mwe'
+                AND EXISTS (
+                  SELECT 1
+                  FROM operating_assets a
+                  WHERE a.operating_asset_id = f.operating_asset_id
+                    AND a.electric_capacity_mwe IS NULL
+                )
+              )
+              OR (
+                f.entity_type = 'operating_asset'
+                AND f.field_name = 'thermal_capacity_mwth'
+                AND EXISTS (
+                  SELECT 1
+                  FROM operating_assets a
+                  WHERE a.operating_asset_id = f.operating_asset_id
+                    AND a.thermal_capacity_mwth IS NULL
+                )
+              )
+            )
         )::int AS apply_ready,
         COUNT(*) FILTER (
-          WHERE applied_at IS NOT NULL
+          WHERE f.applied_at IS NOT NULL
         )::int AS applied,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'suggested_high_confidence'
+          WHERE f.suggestion_status_code = 'suggested_high_confidence'
         )::int AS high_confidence,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'suggested_medium_confidence'
+          WHERE f.suggestion_status_code = 'suggested_medium_confidence'
         )::int AS medium_confidence,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'suggested_low_confidence'
+          WHERE f.suggestion_status_code = 'suggested_low_confidence'
         )::int AS low_confidence,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'confirmed'
+          WHERE f.suggestion_status_code = 'confirmed'
         )::int AS confirmed,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'rejected'
+          WHERE f.suggestion_status_code = 'rejected'
         )::int AS rejected,
         COUNT(*) FILTER (
-          WHERE suggestion_status_code = 'superseded'
+          WHERE f.suggestion_status_code = 'superseded'
         )::int AS superseded
-      FROM field_suggestion_candidates
+      FROM field_suggestion_candidates f
       `
     );
     const row = rows[0];
@@ -4266,6 +4324,7 @@ export async function getPostgresFieldSuggestionSummary(): Promise<PostgresField
     return {
       total: toNumber(row?.total),
       open: toNumber(row?.open),
+      confirmedUnapplied: toNumber(row?.confirmed_unapplied),
       applyReady: toNumber(row?.apply_ready),
       applied: toNumber(row?.applied),
       highConfidence: toNumber(row?.high_confidence),
@@ -4280,6 +4339,7 @@ export async function getPostgresFieldSuggestionSummary(): Promise<PostgresField
       return {
         total: 0,
         open: 0,
+        confirmedUnapplied: 0,
         applyReady: 0,
         applied: 0,
         highConfidence: 0,
