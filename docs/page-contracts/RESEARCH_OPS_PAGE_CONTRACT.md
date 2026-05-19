@@ -38,6 +38,8 @@ Current limitations:
 - mobile treatment is not yet optimized
 - recently approved, source-addition, and assignment activity are inferred from
   recent edits rather than true dedicated activity streams
+- deep queue tables are not yet paginated or virtualized, so larger queue
+  result sets will need table pagination before daily heavy use
 - stale-data logic exists only through `needs_update`; automatic age-based stale
   detection is future work
 
@@ -349,3 +351,4 @@ Future Research Ops should support:
 - inline editing
 - field-level validation
 - full audit/diff views
+- pagination or virtualization for long operational tables

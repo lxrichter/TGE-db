@@ -187,6 +187,7 @@ http://localhost:3000/postgres-preview/research-ops
 Page contract:
 
 - [Research Ops Page Contract](page-contracts/RESEARCH_OPS_PAGE_CONTRACT.md)
+- [Sources / Documents Page Contract](page-contracts/SOURCES_DOCUMENTS_PAGE_CONTRACT.md)
 
 Review focus:
 

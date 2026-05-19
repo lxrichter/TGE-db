@@ -140,6 +140,18 @@ export type SourceReferenceData = {
   >;
 };
 
+export type SourceOperationalSummary = {
+  total: number;
+  credible: number;
+  needsReview: number;
+  weakOutdatedRejected: number;
+  tgeArticles: number;
+  restrictedVisibility: number;
+  duplicateFlagged: number;
+  unlinkedSources: number;
+  linkedEvidence: number;
+};
+
 export type SourceLinkTargetOption = {
   entity_type: SourceLink["entity_type"];
   entity_id: string;
@@ -495,6 +507,83 @@ export async function listSources(
   );
 
   return rows.map(toSourceListItem);
+}
+
+export async function getSourceOperationalSummary(
+  params: SourceListParams = {}
+): Promise<SourceOperationalSummary> {
+  const { whereSql, values } = buildSourceWhere(params);
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    Array<{
+      total: number;
+      credible: number;
+      needs_review: number;
+      weak_outdated_rejected: number;
+      tge_articles: number;
+      restricted_visibility: number;
+      duplicate_flagged: number;
+      unlinked_sources: number;
+      linked_evidence: number;
+    }>
+  >(
+    `
+    WITH filtered_sources AS (
+      SELECT
+        s.source_id,
+        s.source_type_code,
+        s.visibility_code,
+        s.credibility_status_code,
+        s.duplicate_source_flag
+      FROM sources s
+      ${whereSql}
+    ),
+    source_links AS (
+      SELECT
+        es.source_id,
+        COUNT(*)::int AS link_count
+      FROM entity_sources es
+      INNER JOIN filtered_sources fs
+        ON fs.source_id = es.source_id
+      GROUP BY es.source_id
+    )
+    SELECT
+      COUNT(fs.source_id)::int AS total,
+      COUNT(*) FILTER (WHERE fs.credibility_status_code = 'credible')::int AS credible,
+      COUNT(*) FILTER (WHERE fs.credibility_status_code = 'needs_review')::int AS needs_review,
+      COUNT(*) FILTER (
+        WHERE fs.credibility_status_code IN ('weak', 'outdated', 'rejected')
+      )::int AS weak_outdated_rejected,
+      COUNT(*) FILTER (WHERE fs.source_type_code = 'tge_article')::int AS tge_articles,
+      COUNT(*) FILTER (
+        WHERE fs.visibility_code IN (
+          'internal_only',
+          'client_confidential',
+          'not_for_publication',
+          'stakeholder_confirmation'
+        )
+      )::int AS restricted_visibility,
+      COUNT(*) FILTER (WHERE fs.duplicate_source_flag = TRUE)::int AS duplicate_flagged,
+      COUNT(*) FILTER (WHERE COALESCE(sl.link_count, 0) = 0)::int AS unlinked_sources,
+      COALESCE(SUM(COALESCE(sl.link_count, 0)), 0)::int AS linked_evidence
+    FROM filtered_sources fs
+    LEFT JOIN source_links sl
+      ON sl.source_id = fs.source_id
+    `,
+    ...values
+  );
+  const row = rows[0];
+
+  return {
+    total: toNumber(row?.total ?? 0),
+    credible: toNumber(row?.credible ?? 0),
+    needsReview: toNumber(row?.needs_review ?? 0),
+    weakOutdatedRejected: toNumber(row?.weak_outdated_rejected ?? 0),
+    tgeArticles: toNumber(row?.tge_articles ?? 0),
+    restrictedVisibility: toNumber(row?.restricted_visibility ?? 0),
+    duplicateFlagged: toNumber(row?.duplicate_flagged ?? 0),
+    unlinkedSources: toNumber(row?.unlinked_sources ?? 0),
+    linkedEvidence: toNumber(row?.linked_evidence ?? 0),
+  };
 }
 
 export async function listSourceMatchCandidates(

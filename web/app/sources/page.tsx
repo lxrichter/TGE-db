@@ -1,8 +1,10 @@
 import Link from "next/link";
 import {
+  getSourceOperationalSummary,
   getSourceReferenceData,
   listSources,
   type SourceListItem,
+  type SourceOperationalSummary,
   type SourceReferenceData,
   type SourceReferenceOption,
 } from "@/lib/services/sources";
@@ -21,6 +23,7 @@ type SourcesData =
   | {
       ok: true;
       sources: SourceListItem[];
+      summary: SourceOperationalSummary;
       referenceData: SourceReferenceData;
     }
   | {
@@ -32,18 +35,22 @@ async function getSourcesData(
   params: SourceSearchParams
 ): Promise<SourcesData> {
   try {
-    const [sources, referenceData] = await Promise.all([
+    const listParams = {
+      search: params.search,
+      sourceType: params.sourceType,
+      visibility: params.visibility,
+      status: params.status,
+    };
+    const [sources, referenceData, summary] = await Promise.all([
       listSources({
         limit: 100,
-        search: params.search,
-        sourceType: params.sourceType,
-        visibility: params.visibility,
-        status: params.status,
+        ...listParams,
       }),
       getSourceReferenceData(),
+      getSourceOperationalSummary(listParams),
     ]);
 
-    return { ok: true, sources, referenceData };
+    return { ok: true, sources, summary, referenceData };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -63,6 +70,7 @@ function formatDate(value: string | null) {
     year: "numeric",
     month: "short",
     day: "2-digit",
+    timeZone: "UTC",
   }).format(new Date(value));
 }
 
@@ -139,6 +147,59 @@ function StatTile({
   );
 }
 
+function OperationCard({
+  label,
+  value,
+  note,
+  href,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string | number;
+  note: string;
+  href?: string;
+  tone?: "green" | "amber" | "red" | "neutral";
+}) {
+  const toneClasses = {
+    green: "border-[#b9d98b] bg-[#f8fcf2]",
+    amber: "border-amber-200 bg-amber-50",
+    red: "border-red-200 bg-red-50",
+    neutral: "border-gray-200 bg-white",
+  };
+  const content = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            {label}
+          </div>
+          <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+            {value}
+          </div>
+        </div>
+        {href ? (
+          <span className="text-xs font-semibold text-[#4f7f1f]">Open</span>
+        ) : null}
+      </div>
+      <div className="mt-3 text-xs leading-5 text-gray-500">{note}</div>
+    </>
+  );
+
+  const className = `border px-4 py-4 transition ${toneClasses[tone]} ${
+    href ? "hover:border-[#8dc63f] hover:bg-[#fbfdf8]" : ""
+  }`;
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
+}
+
 function SelectFilter({
   label,
   name,
@@ -188,13 +249,19 @@ function SetupNotice({ error }: { error: string }) {
   );
 }
 
-function SourcesTable({ sources }: { sources: SourceListItem[] }) {
+function SourcesTable({
+  sources,
+  total,
+}: {
+  sources: SourceListItem[];
+  total: number;
+}) {
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">Source Records</h2>
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          {formatCount(sources.length)} shown
+          Showing {formatCount(sources.length)} of {formatCount(total)} matching
         </span>
       </div>
 
@@ -333,32 +400,71 @@ export default async function SourcesPage({
         <>
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <StatTile
-              label="Sources"
-              value={formatCount(data.sources.length)}
+              label="Total Sources"
+              value={formatCount(data.summary.total)}
               note="Records matching filters"
             />
             <StatTile
-              label="Types"
-              value={formatCount(data.referenceData.sourceTypes.length)}
-              note="Controlled source types"
+              label="TGE Articles"
+              value={formatCount(data.summary.tgeArticles)}
+              note="Historical article metadata"
             />
             <StatTile
-              label="Visibility"
-              value={formatCount(data.referenceData.visibilityLevels.length)}
-              note="Confidentiality levels"
+              label="Needs Review"
+              value={formatCount(data.summary.needsReview)}
+              note="Credibility work queue"
             />
             <StatTile
-              label="Statuses"
-              value={formatCount(data.referenceData.credibilityStatuses.length)}
-              note="Credibility labels"
+              label="Unlinked Sources"
+              value={formatCount(data.summary.unlinkedSources)}
+              note="No confirmed entity links"
             />
             <StatTile
               label="Linked Evidence"
-              value={formatCount(
-                data.sources.reduce((sum, source) => sum + source.linked_entity_count, 0)
-              )}
+              value={formatCount(data.summary.linkedEvidence)}
               note="Project/asset/company links"
             />
+          </section>
+
+          <section className="space-y-3">
+            <div>
+              <h2 className="text-lg font-bold text-[#1f2937]">
+                Evidence Operations
+              </h2>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+                Source governance should stay separate from article/entity
+                match review. Confirmed matches become real evidence links;
+                suggestions remain reviewable operational work.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <OperationCard
+                label="Source Review"
+                value={formatCount(data.summary.needsReview)}
+                note="Sources marked needs review"
+                href="/sources?status=needs_review"
+                tone={data.summary.needsReview > 0 ? "amber" : "green"}
+              />
+              <OperationCard
+                label="Article Archive"
+                value={formatCount(data.summary.tgeArticles)}
+                note="TGE article metadata records"
+                href="/sources?sourceType=tge_article"
+              />
+              <OperationCard
+                label="Match Review"
+                value="Open"
+                note="Review article/entity candidates"
+                href="/sources/matches"
+                tone="amber"
+              />
+              <OperationCard
+                label="Restricted Sources"
+                value={formatCount(data.summary.restrictedVisibility)}
+                note="Internal or confidential visibility"
+                tone={data.summary.restrictedVisibility > 0 ? "amber" : "neutral"}
+              />
+            </div>
           </section>
 
           <section className="border border-gray-200 bg-white px-5 py-5">
@@ -412,7 +518,7 @@ export default async function SourcesPage({
             </form>
           </section>
 
-          <SourcesTable sources={data.sources} />
+          <SourcesTable sources={data.sources} total={data.summary.total} />
         </>
       )}
     </main>

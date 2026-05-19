@@ -45,6 +45,7 @@ function formatDateTime(value: string | null) {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC",
   }).format(new Date(value));
 }
 
@@ -57,6 +58,7 @@ function formatDate(value: string | null) {
     year: "numeric",
     month: "short",
     day: "2-digit",
+    timeZone: "UTC",
   }).format(new Date(value));
 }
 
