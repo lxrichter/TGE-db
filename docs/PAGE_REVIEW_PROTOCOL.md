@@ -184,6 +184,10 @@ Start with:
 http://localhost:3000/postgres-preview/research-ops
 ```
 
+Page contract:
+
+- [Research Ops Page Contract](page-contracts/RESEARCH_OPS_PAGE_CONTRACT.md)
+
 Review focus:
 
 - whether the generated queue list is useful as a daily work surface

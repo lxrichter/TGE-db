@@ -28,9 +28,67 @@ type SeverityFilter = "all" | ResearchOpsQueueSeverity;
 type EntityFilter = "all" | EntityType;
 type BulkTarget = "records" | "sources";
 type AssignmentFilter = "all" | "mine" | "unassigned";
+type QueueGroupKey =
+  | "missing_data"
+  | "sources_evidence"
+  | "validation_approval"
+  | "duplicates_stale"
+  | "classification";
 
 const editorOnlyReviewStatuses = new Set(["approved", "export_ready", "archived"]);
 const editorOnlySourceStatuses = new Set(["credible", "weak", "outdated", "rejected"]);
+const exportBlockingQueueKeys = new Set<ResearchOpsQueueKey>([
+  "needs_source",
+  "missing_country",
+  "missing_lifecycle",
+  "missing_use_type",
+  "suspected_duplicates",
+]);
+
+const queueGroupDefinitions: Array<{
+  key: QueueGroupKey;
+  title: string;
+  description: string;
+  queueKeys: ResearchOpsQueueKey[];
+}> = [
+  {
+    key: "missing_data",
+    title: "Missing Data",
+    description: "Core field gaps that slow validation, maps, exports, and analysis.",
+    queueKeys: [
+      "missing_country",
+      "missing_coordinates",
+      "missing_capacity",
+      "missing_company_link",
+      "missing_lifecycle",
+      "missing_use_type",
+    ],
+  },
+  {
+    key: "sources_evidence",
+    title: "Sources / Evidence",
+    description: "Records and sources that need evidence coverage or credibility review.",
+    queueKeys: ["needs_source", "source_needs_review", "weak_or_outdated_source"],
+  },
+  {
+    key: "validation_approval",
+    title: "Validation / Approval",
+    description: "Draft, validation, or updated records that need editor attention.",
+    queueKeys: ["needs_approval", "needs_update"],
+  },
+  {
+    key: "duplicates_stale",
+    title: "Duplicates / Stale",
+    description: "Duplicate warnings and records that should be rechecked.",
+    queueKeys: ["suspected_duplicates", "needs_update"],
+  },
+  {
+    key: "classification",
+    title: "Classification",
+    description: "Use-type and direct-use classification work.",
+    queueKeys: ["missing_use_type", "direct_use_classification"],
+  },
+];
 
 function csvCell(value: unknown) {
   const text = value == null ? "" : String(value);
@@ -142,6 +200,13 @@ function statusOptionsForTarget({
     });
 }
 
+function sumQueueCounts(
+  queueCounts: Map<ResearchOpsQueueKey, number>,
+  queueKeys: ResearchOpsQueueKey[]
+) {
+  return queueKeys.reduce((sum, key) => sum + (queueCounts.get(key) || 0), 0);
+}
+
 function recordHref(record: ResearchOpsRecord) {
   if (record.entity_type === "source") {
     return `/sources/${record.entity_id}`;
@@ -233,25 +298,352 @@ function recordMatchesFilters(
   return recordMatchesSearch(record, search);
 }
 
-function StatTile({
-  label,
-  value,
-  note,
+function SectionIntro({
+  eyebrow,
+  title,
+  description,
 }: {
-  label: string;
-  value: number;
-  note: string;
+  eyebrow: string;
+  title: string;
+  description: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
+    <section className="border border-gray-200 bg-white px-5 py-5">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+        {eyebrow}
       </div>
-      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
-        {formatCount(value)}
+      <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{title}</h2>
+      <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+        {description}
+      </p>
+    </section>
+  );
+}
+
+function OperationalStatusBar({
+  metrics,
+}: {
+  metrics: Array<{
+    label: string;
+    value: number;
+    note: string;
+    tone: "critical" | "important" | "workflow" | "neutral";
+    onClick?: () => void;
+  }>;
+}) {
+  const toneClasses = {
+    critical: "border-red-200 bg-red-50 text-red-800",
+    important: "border-amber-200 bg-amber-50 text-amber-800",
+    workflow: "border-blue-200 bg-blue-50 text-blue-800",
+    neutral: "border-gray-200 bg-white text-[#1f2937]",
+  };
+
+  return (
+    <section className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+      {metrics.map((metric) => {
+        const content = (
+          <>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {metric.label}
+            </div>
+            <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+              {formatCount(metric.value)}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {metric.note}
+            </div>
+          </>
+        );
+
+        if (metric.onClick) {
+          return (
+            <button
+              key={metric.label}
+              className={`min-h-[120px] border px-4 py-4 text-left hover:border-[#8dc63f] hover:bg-[#f3f8ec] ${toneClasses[metric.tone]}`}
+              type="button"
+              onClick={metric.onClick}
+            >
+              {content}
+            </button>
+          );
+        }
+
+        return (
+          <div
+            key={metric.label}
+            className={`min-h-[120px] border px-4 py-4 ${toneClasses[metric.tone]}`}
+          >
+            {content}
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+function MyWorkPanel({
+  issues,
+  currentUser,
+}: {
+  issues: PostgresResearchOpsIssue[];
+  currentUser: { id: string; name: string | null } | null;
+}) {
+  const assignedToMe = currentUser
+    ? issues.filter((issue) => issue.assigned_to_user_id === currentUser.id)
+    : [];
+  const unassigned = issues.filter((issue) => !issue.assigned_to_user_id);
+  const previewIssues = assignedToMe.slice(0, 5);
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Human / Team Work
+          </div>
+          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            My Work / Team Work
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            Persistent human-created issues stay separate from generated system
+            queues. This is the lightweight assignment layer until formal task
+            objects are introduced.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
+            <div className="text-2xl font-bold text-[#1f2937]">
+              {formatCount(assignedToMe.length)}
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Mine
+            </div>
+          </div>
+          <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
+            <div className="text-2xl font-bold text-[#1f2937]">
+              {formatCount(unassigned.length)}
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Unassigned
+            </div>
+          </div>
+          <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
+            <div className="text-2xl font-bold text-[#1f2937]">
+              {formatCount(issues.length)}
+            </div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Team Open
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
-    </div>
+
+      {!currentUser ? (
+        <div className="px-5 py-4 text-sm leading-6 text-gray-600">
+          No mapped PostgreSQL user was found for the current session. Assignment
+          totals will become personal once the signed-in user maps to
+          `app_users`.
+        </div>
+      ) : previewIssues.length === 0 ? (
+        <div className="px-5 py-4 text-sm leading-6 text-gray-600">
+          No open persistent issues are assigned to{" "}
+          {currentUser.name || "the current user"}.
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {previewIssues.map((issue) => {
+            const href = issueHref(issue);
+
+            return (
+              <div
+                key={issue.research_ops_issue_id}
+                className="flex flex-col gap-3 px-5 py-4 lg:flex-row lg:items-start lg:justify-between"
+              >
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <SeverityBadge severity={issue.severity} />
+                    <StatusBadge value={issue.issue_status_label} />
+                  </div>
+                  <div className="mt-2 font-semibold text-[#1f2937]">
+                    {issue.title}
+                  </div>
+                  <div className="mt-1 text-sm text-gray-600">
+                    {issue.name} · {issue.country || "No country"} ·{" "}
+                    {issue.issue_type_label}
+                  </div>
+                </div>
+                {href ? (
+                  <Link
+                    className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    href={href}
+                  >
+                    Open Record
+                  </Link>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function QuickOperationalViews({
+  onApplyView,
+}: {
+  onApplyView: (view: {
+    queue?: QueueFilter;
+    severity?: SeverityFilter;
+    entity?: EntityFilter;
+  }) => void;
+}) {
+  const views: Array<{
+    label: string;
+    note: string;
+    view: {
+      queue?: QueueFilter;
+      severity?: SeverityFilter;
+      entity?: EntityFilter;
+    };
+  }> = [
+    {
+      label: "Critical / Export Blockers",
+      note: "High-priority records first",
+      view: { severity: "critical" },
+    },
+    {
+      label: "Needs Source",
+      note: "Evidence gaps",
+      view: { queue: "needs_source" },
+    },
+    {
+      label: "Source Validation",
+      note: "Evidence review",
+      view: { queue: "source_needs_review", entity: "source" },
+    },
+    {
+      label: "Missing Coordinates",
+      note: "Map blockers",
+      view: { queue: "missing_coordinates" },
+    },
+    {
+      label: "Duplicate Review",
+      note: "Possible duplicate records",
+      view: { queue: "suspected_duplicates" },
+    },
+    {
+      label: "Direct-Use Classification",
+      note: "Use/category work",
+      view: { queue: "direct_use_classification" },
+    },
+  ];
+
+  return (
+    <section className="border border-gray-200 bg-white px-5 py-5">
+      <div className="mb-4">
+        <h2 className="text-lg font-bold text-[#1f2937]">
+          Saved Operational Views
+        </h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+          MVP shortcut views are local filter presets for now. Persisted
+          user/team saved views should come after the workflow stabilizes.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        {views.map((item) => (
+          <button
+            key={item.label}
+            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 text-left hover:border-[#8dc63f] hover:bg-[#f3f8ec]"
+            type="button"
+            onClick={() => onApplyView(item.view)}
+          >
+            <div className="text-sm font-bold text-[#1f2937]">{item.label}</div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {item.note}
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SystemQueueGroups({
+  groups,
+  onSelectQueue,
+}: {
+  groups: Array<{
+    key: QueueGroupKey;
+    title: string;
+    description: string;
+    count: number;
+    criticalCount: number;
+    queues: Array<{
+      key: ResearchOpsQueueKey;
+      title: string;
+      count: number;
+      severity: ResearchOpsQueueSeverity;
+    }>;
+  }>;
+  onSelectQueue: (queue: ResearchOpsQueueKey) => void;
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          System-Generated Queues
+        </div>
+        <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+          Queue Groups
+        </h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+          These queues are calculated from current PostgreSQL staging data. They
+          are not human assignments unless a persistent issue is created from a
+          row.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 px-5 py-5 xl:grid-cols-5">
+        {groups.map((group) => (
+          <div key={group.key} className="border border-gray-200 bg-[#fbfbfb]">
+            <div className="border-b border-gray-200 px-4 py-4">
+              <div className="text-3xl font-bold leading-none text-[#1f2937]">
+                {formatCount(group.count)}
+              </div>
+              <h3 className="mt-3 text-base font-bold text-[#1f2937]">
+                {group.title}
+              </h3>
+              <p className="mt-2 text-xs leading-5 text-gray-500">
+                {group.description}
+              </p>
+              {group.criticalCount > 0 ? (
+                <div className="mt-3 inline-flex min-h-[26px] items-center border border-red-200 bg-red-50 px-2 text-xs font-semibold text-red-800">
+                  {formatCount(group.criticalCount)} critical
+                </div>
+              ) : null}
+            </div>
+            <div className="divide-y divide-gray-100">
+              {group.queues.map((queue) => (
+                <button
+                  key={queue.key}
+                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-[#f3f8ec]"
+                  type="button"
+                  onClick={() => onSelectQueue(queue.key)}
+                >
+                  <span className="text-xs font-semibold text-gray-700">
+                    {queue.title}
+                  </span>
+                  <span className="text-xs font-bold text-[#1f2937]">
+                    {formatCount(queue.count)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -556,6 +948,9 @@ function QueueCard({
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-bold text-[#1f2937]">{queue.title}</h2>
             <SeverityBadge severity={queue.severity} />
+            <span className="inline-flex h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-600">
+              System-generated
+            </span>
           </div>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             {queue.description}
@@ -1507,6 +1902,64 @@ export function ResearchOpsDashboardClient({
       .filter((record): record is ResearchOpsRecord => Boolean(record));
   }, [allRecordLookup, selectedBulkKeys]);
 
+  const queueCounts = useMemo(() => {
+    return new Map(
+      dashboard.queues.map((queue) => [queue.key, queue.count] as const)
+    );
+  }, [dashboard.queues]);
+
+  const myAssignedIssueCount = useMemo(() => {
+    if (!currentUser) {
+      return 0;
+    }
+
+    return dashboard.persistentIssues.filter(
+      (issue) => issue.assigned_to_user_id === currentUser.id
+    ).length;
+  }, [currentUser, dashboard.persistentIssues]);
+
+  const exportBlockerCount = useMemo(() => {
+    return dashboard.queues
+      .filter((queue) => exportBlockingQueueKeys.has(queue.key))
+      .reduce((sum, queue) => sum + queue.count, 0);
+  }, [dashboard.queues]);
+
+  const sourceGapCount = useMemo(
+    () =>
+      sumQueueCounts(queueCounts, [
+        "needs_source",
+        "source_needs_review",
+        "weak_or_outdated_source",
+      ]),
+    [queueCounts]
+  );
+
+  const queueGroups = useMemo(() => {
+    const queueByKey = new Map(
+      dashboard.queues.map((queue) => [queue.key, queue] as const)
+    );
+
+    return queueGroupDefinitions.map((group) => {
+      const queues = group.queueKeys
+        .map((queueKey) => queueByKey.get(queueKey))
+        .filter((queue): queue is PostgresResearchOpsQueue => Boolean(queue));
+
+      return {
+        ...group,
+        count: queues.reduce((sum, queue) => sum + queue.count, 0),
+        criticalCount: queues
+          .filter((queue) => queue.severity === "critical")
+          .reduce((sum, queue) => sum + queue.count, 0),
+        queues: queues.map((queue) => ({
+          key: queue.key,
+          title: queue.title,
+          count: queue.count,
+          severity: queue.severity,
+        })),
+      };
+    });
+  }, [dashboard.queues]);
+
   function clearFilters() {
     setQueueFilter("all");
     setSeverityFilter("all");
@@ -1551,6 +2004,19 @@ export function ResearchOpsDashboardClient({
 
   function selectFilteredRecords() {
     toggleBulkRecords(filteredRecords, true);
+  }
+
+  function applyOperationalView(view: {
+    queue?: QueueFilter;
+    severity?: SeverityFilter;
+    entity?: EntityFilter;
+  }) {
+    setQueueFilter(view.queue || "all");
+    setSeverityFilter(view.severity || "all");
+    setEntityFilter(view.entity || "all");
+    setCountryFilter("all");
+    setSearch("");
+    setShowEmptyQueues(false);
   }
 
   function exportFilteredIssues() {
@@ -1626,40 +2092,71 @@ export function ResearchOpsDashboardClient({
 
   return (
     <>
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-        <StatTile
-          label="Open Issues"
-          value={dashboard.totals.openIssues}
-          note="Generated + persistent"
-        />
-        <StatTile
-          label="Critical"
-          value={dashboard.totals.criticalIssues}
-          note="Blocking approval quality"
-        />
-        <StatTile
-          label="Important"
-          value={dashboard.totals.importantIssues}
-          note="Research completeness"
-        />
-        <StatTile
-          label="Workflow"
-          value={dashboard.totals.workflowIssues}
-          note="Approval and update state"
-        />
-        <StatTile
-          label="Filtered Rows"
-          value={filteredIssueRows}
-          note="Visible issue rows"
-        />
-        <StatTile
-          label="Persistent"
-          value={dashboard.totals.persistentIssues}
-          note="Human-created tasks"
-        />
-      </section>
+      <OperationalStatusBar
+        metrics={[
+          {
+            label: "Critical",
+            value: dashboard.totals.criticalIssues,
+            note: "Highest-priority data quality issues",
+            tone: "critical",
+            onClick: () => applyOperationalView({ severity: "critical" }),
+          },
+          {
+            label: "Validation Backlog",
+            value: queueCounts.get("needs_approval") || 0,
+            note: "Draft or validation records",
+            tone: "workflow",
+            onClick: () => applyOperationalView({ queue: "needs_approval" }),
+          },
+          {
+            label: "Assigned To Me",
+            value: myAssignedIssueCount,
+            note: "Persistent human-created issues",
+            tone: "neutral",
+          },
+          {
+            label: "Source Gaps",
+            value: sourceGapCount,
+            note: "Missing, weak, or unreviewed evidence",
+            tone: "important",
+            onClick: () => applyOperationalView({ queue: "needs_source" }),
+          },
+          {
+            label: "Duplicate Warnings",
+            value: queueCounts.get("suspected_duplicates") || 0,
+            note: "Potential duplicate records",
+            tone: "important",
+            onClick: () => applyOperationalView({ queue: "suspected_duplicates" }),
+          },
+          {
+            label: "Export Blockers",
+            value: exportBlockerCount,
+            note: "Critical queues before export-ready use",
+            tone: "critical",
+            onClick: () => applyOperationalView({ severity: "critical" }),
+          },
+        ]}
+      />
+
+      <MyWorkPanel
+        currentUser={currentUser}
+        issues={dashboard.persistentIssues}
+      />
+
+      <PersistentIssues
+        issues={dashboard.persistentIssues}
+        currentUser={currentUser}
+        issueReferenceData={issueReferenceData}
+      />
 
       <ArticleMatchReviewPanel summary={sourceMatchSummary} />
+
+      <QuickOperationalViews onApplyView={applyOperationalView} />
+
+      <SystemQueueGroups
+        groups={queueGroups}
+        onSelectQueue={(queue) => applyOperationalView({ queue })}
+      />
 
       <section className="border border-gray-200 bg-white px-5 py-5">
         <div className="flex flex-col gap-4">
@@ -1791,8 +2288,9 @@ export function ResearchOpsDashboardClient({
         <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
         PostgreSQL staging queues now support quick review-status changes for
         projects, plants/facilities, companies, and source credibility records.
-        This still does not import the live Hetzner SQLite database or replace
-        the existing SQLite app workflows. Generated {formatDate(dashboard.generatedAt)}.
+        Railway PostgreSQL staging uses a transformed copied Hetzner SQLite
+        backup for controlled review; the current live SQLite database remains
+        on the server. Generated {formatDate(dashboard.generatedAt)}.
       </section>
 
       <SelectedRecordPanel
@@ -1805,12 +2303,6 @@ export function ResearchOpsDashboardClient({
         onStatusChanged={handleStatusChanged}
       />
 
-      <PersistentIssues
-        issues={dashboard.persistentIssues}
-        currentUser={currentUser}
-        issueReferenceData={issueReferenceData}
-      />
-
       <BulkActionsPanel
         canReviewStatus={canReviewStatus}
         reviewStatuses={reviewStatuses}
@@ -1818,6 +2310,12 @@ export function ResearchOpsDashboardClient({
         sourceStatuses={sourceStatuses}
         onClearSelection={() => setSelectedBulkKeys(new Set())}
         onRecordsChanged={handleBulkStatusChanged}
+      />
+
+      <SectionIntro
+        eyebrow="Deep Table View"
+        title="Filtered System Queue Rows"
+        description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
       />
 
       <div className="space-y-5">
@@ -1833,6 +2331,12 @@ export function ResearchOpsDashboardClient({
           />
         ))}
       </div>
+
+      <SectionIntro
+        eyebrow="Research Activity"
+        title="Recent Activity"
+        description="This starts with recently edited PostgreSQL staging records. Recently approved records, source additions, and researcher activity summaries should be added as the workflow matures."
+      />
 
       <RecentEdits
         items={filteredRecentEdits}
