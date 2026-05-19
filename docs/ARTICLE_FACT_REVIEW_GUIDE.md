@@ -138,6 +138,8 @@ Start with:
 
 - 30 to 50 rows from the 2026 focused review sample
 - a mix of fact types
+- a mix of `top_confidence`, `middle_confidence`, and `lower_confidence`
+  sample buckets
 - at least a few rejected or unclear examples with notes
 
 Then run:

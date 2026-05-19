@@ -82,13 +82,15 @@ npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_docume
 Run the recommended local manual-review batch:
 
 ```bash
-npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --years 2026 --skip-entity-signals --review-sample-per-type 25 --out "../source-data/tge-news-article-fact-review-2026-focused"
+npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --years 2026 --skip-entity-signals --review-sample-per-type 25 --review-sample-mode mixed --out "../source-data/tge-news-article-fact-review-2026-focused"
 ```
 
 The review CSV is intentionally human-facing. It includes blank
 `review_decision` and `review_note` columns, then the candidate value, short
 evidence snippet, article title/URL, confidence score, and fact reason. This is
 for manual quality review only; it does not create confirmed evidence links.
+The recommended `mixed` sample mode includes high-, middle-, and lower-confidence
+examples per fact type so rule quality can be judged more realistically.
 
 Recommended review decisions:
 

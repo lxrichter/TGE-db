@@ -220,12 +220,14 @@ function summarize(records) {
   const invalidDecisionValues = new Map();
   const byFactType = new Map();
   const byFieldName = new Map();
+  const bySampleBucket = new Map();
   const ruleNoteRows = [];
 
   for (const record of records) {
     const decision = normalizeDecision(record.review_decision);
     const factType = record.fact_type_code || "unknown";
     const fieldName = record.field_name || "unknown";
+    const sampleBucket = record.review_sample_bucket || "not_recorded";
 
     increment(decisionCounts, decision);
 
@@ -237,8 +239,13 @@ function summarize(records) {
       byFieldName.set(fieldName, createBucket());
     }
 
+    if (!bySampleBucket.has(sampleBucket)) {
+      bySampleBucket.set(sampleBucket, createBucket());
+    }
+
     updateBucket(byFactType.get(factType), decision);
     updateBucket(byFieldName.get(fieldName), decision);
+    updateBucket(bySampleBucket.get(sampleBucket), decision);
 
     if (decision === "invalid") {
       increment(invalidDecisionValues, record.review_decision || "(blank)");
@@ -256,6 +263,7 @@ function summarize(records) {
         field_name: record.field_name,
         extracted_value: record.extracted_value,
         confidence_score: record.confidence_score,
+        review_sample_bucket: record.review_sample_bucket,
         fact_reason: record.fact_reason,
         source_reference: record.source_reference,
         article_title: record.article_title,
@@ -285,6 +293,11 @@ function summarize(records) {
         return concernDiff || b.reviewed - a.reviewed || b.total - a.total;
       })
   );
+  const bucketSummary = Object.fromEntries(
+    [...bySampleBucket.entries()]
+      .map(([key, bucket]) => [key, bucketReviewStats(bucket)])
+      .sort(([a], [b]) => String(a).localeCompare(String(b)))
+  );
 
   const totals = bucketReviewStats(
     records.reduce((bucket, record) => {
@@ -299,6 +312,7 @@ function summarize(records) {
     invalid_decision_values: countMapToObject(invalidDecisionValues),
     by_fact_type: factTypeSummary,
     by_field_name: fieldSummary,
+    by_sample_bucket: bucketSummary,
     rule_note_rows: ruleNoteRows,
   };
 }
@@ -311,6 +325,7 @@ function toRuleNotesCsv(rows) {
     "field_name",
     "extracted_value",
     "confidence_score",
+    "review_sample_bucket",
     "fact_reason",
     "source_reference",
     "article_title",
@@ -369,6 +384,19 @@ function createMarkdownReport({ input, generatedAt, summary }) {
       percent(stats.accept_rate_reviewed),
       percent(stats.rule_concern_rate_reviewed),
     ]);
+  const bucketRows = Object.entries(summary.by_sample_bucket).map(
+    ([bucket, stats]) => [
+      bucket,
+      stats.total,
+      stats.reviewed,
+      stats.accept,
+      stats.reject,
+      stats.unclear,
+      stats.needs_rule_change,
+      percent(stats.accept_rate_reviewed),
+      percent(stats.rule_concern_rate_reviewed),
+    ]
+  );
 
   return `# Article Fact Review Audit
 
@@ -419,6 +447,23 @@ ${markdownTable(
     "Concern rate",
   ],
   fieldRows
+)}
+
+## By Review Sample Bucket
+
+${markdownTable(
+  [
+    "Bucket",
+    "Rows",
+    "Reviewed",
+    "Accept",
+    "Reject",
+    "Unclear",
+    "Rule change",
+    "Accept rate",
+    "Concern rate",
+  ],
+  bucketRows
 )}
 
 ## Interpretation

@@ -16,6 +16,7 @@ const DEFAULT_SITE_URL = "https://www.thinkgeoenergy.com";
 const EXTRACTION_METHOD = "local_markdown_regex_v1";
 const CLOSED_STATUSES = new Set(["confirmed", "rejected", "superseded"]);
 const MAX_SNIPPET_LENGTH = 260;
+const REVIEW_SAMPLE_MODES = new Set(["mixed", "top"]);
 
 const COUNTRY_ALIASES = new Map(
   [
@@ -203,6 +204,7 @@ function parseArgs(argv) {
     factTypes: new Set(),
     skipEntitySignals: false,
     reviewSamplePerType: 25,
+    reviewSampleMode: "mixed",
     maxExecuteRows: 5000,
   };
 
@@ -257,6 +259,9 @@ function parseArgs(argv) {
     } else if (arg === "--review-sample-per-type" && next) {
       args.reviewSamplePerType = Math.max(Number(next) || 0, 0);
       index += 1;
+    } else if (arg === "--review-sample-mode" && next) {
+      args.reviewSampleMode = REVIEW_SAMPLE_MODES.has(next) ? next : "mixed";
+      index += 1;
     } else if (arg === "--max-execute-rows" && next) {
       args.maxExecuteRows = Math.max(Number(next) || 0, 0);
       index += 1;
@@ -289,6 +294,7 @@ Options:
   --fact-types <list>          Optional comma-separated fact types to output/write.
   --skip-entity-signals        Exclude broad non-generic tag/entity signals.
   --review-sample-per-type <n> Write n review rows per fact type. Defaults to 25.
+  --review-sample-mode <mode>  Review sample mode: mixed or top. Defaults to mixed.
   --max-execute-rows <n>       Safety cap for --execute. Defaults to 5000.
 
 Privacy:
@@ -975,7 +981,87 @@ function sortReviewCandidates(a, b) {
   );
 }
 
-function buildReviewSample(rows, samplePerType) {
+function withReviewBucket(row, bucket) {
+  return {
+    ...row,
+    review_sample_bucket: bucket,
+  };
+}
+
+function selectTopReviewRows(groupRows, samplePerType) {
+  return groupRows
+    .slice()
+    .sort(sortReviewCandidates)
+    .slice(0, samplePerType)
+    .map((row) => withReviewBucket(row, "top_confidence"));
+}
+
+function addSampleRows(selectedRows, selectedKeys, candidateRows, bucket, limit) {
+  for (const row of candidateRows) {
+    if (selectedRows.length >= limit) {
+      return;
+    }
+
+    if (selectedKeys.has(row.fact_key)) {
+      continue;
+    }
+
+    selectedKeys.add(row.fact_key);
+    selectedRows.push(withReviewBucket(row, bucket));
+  }
+}
+
+function selectMixedReviewRows(groupRows, samplePerType) {
+  const sortedRows = groupRows.slice().sort(sortReviewCandidates);
+
+  if (sortedRows.length <= samplePerType) {
+    return sortedRows.map((row) => withReviewBucket(row, "all_available"));
+  }
+
+  const topTarget = Math.max(1, Math.ceil(samplePerType * 0.4));
+  const midTarget =
+    samplePerType >= 3 ? Math.max(1, Math.floor(samplePerType * 0.3)) : 0;
+  const lowTarget = Math.max(0, samplePerType - topTarget - midTarget);
+  const selectedRows = [];
+  const selectedKeys = new Set();
+  const midStart = Math.max(
+    0,
+    Math.floor(sortedRows.length / 2 - midTarget / 2)
+  );
+
+  addSampleRows(
+    selectedRows,
+    selectedKeys,
+    sortedRows.slice(0, topTarget),
+    "top_confidence",
+    samplePerType
+  );
+  addSampleRows(
+    selectedRows,
+    selectedKeys,
+    sortedRows.slice(midStart, midStart + midTarget),
+    "middle_confidence",
+    samplePerType
+  );
+  addSampleRows(
+    selectedRows,
+    selectedKeys,
+    lowTarget ? sortedRows.slice(-lowTarget) : [],
+    "lower_confidence",
+    samplePerType
+  );
+  addSampleRows(
+    selectedRows,
+    selectedKeys,
+    sortedRows,
+    "additional_confidence",
+    samplePerType
+  );
+
+  return selectedRows;
+}
+
+function buildReviewSample(rows, samplePerType, sampleMode) {
   if (!samplePerType) {
     return [];
   }
@@ -994,9 +1080,13 @@ function buildReviewSample(rows, samplePerType) {
 
   return [...groups.entries()]
     .sort(([a], [b]) => String(a).localeCompare(String(b)))
-    .flatMap(([, groupRows]) =>
-      groupRows.slice().sort(sortReviewCandidates).slice(0, samplePerType)
-    );
+    .flatMap(([, groupRows]) => {
+      if (sampleMode === "top") {
+        return selectTopReviewRows(groupRows, samplePerType);
+      }
+
+      return selectMixedReviewRows(groupRows, samplePerType);
+    });
 }
 
 function formatReviewValue(row, column) {
@@ -1010,6 +1100,10 @@ function formatReviewValue(row, column) {
 
   if (column === "article_url") {
     return row.extraction_metadata?.url || "";
+  }
+
+  if (column === "review_sample_bucket") {
+    return row.review_sample_bucket || "";
   }
 
   if (column === "normalized_value") {
@@ -1026,6 +1120,7 @@ function toReviewCsv(rows) {
     "source_reference",
     "article_title",
     "article_url",
+    "review_sample_bucket",
     "published_date",
     "fact_type_code",
     "field_name",
@@ -1322,7 +1417,8 @@ async function main() {
     : null;
   const reviewSampleRows = buildReviewSample(
     factRows,
-    args.reviewSamplePerType
+    args.reviewSamplePerType,
+    args.reviewSampleMode
   );
 
   const summary = {
@@ -1337,6 +1433,7 @@ async function main() {
     fact_type_filter: args.factTypes.size ? [...args.factTypes] : null,
     skip_entity_signals: args.skipEntitySignals,
     review_sample_per_type: args.reviewSamplePerType,
+    review_sample_mode: args.reviewSampleMode,
     review_sample_rows: reviewSampleRows.length,
     max_execute_rows: args.maxExecuteRows,
     privacy: {
@@ -1396,6 +1493,7 @@ async function main() {
         articles_with_facts: summary.counts.articles_with_facts,
         by_fact_type: summary.counts.by_fact_type,
         by_field_name: summary.counts.by_field_name,
+        review_sample_mode: summary.review_sample_mode,
         review_sample_rows: summary.review_sample_rows,
         write_stats: summary.write_stats,
         output_directory: summary.output_directory,
