@@ -11,7 +11,8 @@ AI-assisted field-suggestion workflow is enabled.
 Current workflow:
 
 1. Generate local candidate facts from the markdown archive.
-2. Review `article_fact_review_sample.csv` locally.
+2. Review `article_fact_review_sample.xlsx` or
+   `article_fact_review_sample.csv` locally.
 3. Mark `review_decision` and optionally `review_note`.
 4. Run `npm run tge-news:fact-review`.
 5. Use the audit results to tune extraction rules.
@@ -149,6 +150,12 @@ cd "/Users/lxrichter/TGE Database/02_current_platform/tge-business-intel platfor
 npm run tge-news:fact-review -- --input "../source-data/tge-news-article-fact-review-2026-focused/article_fact_review_sample.csv"
 ```
 
+The audit can also read the generated Excel workbook:
+
+```bash
+npm run tge-news:fact-review -- --input "../source-data/tge-news-article-fact-review-2026-focused/article_fact_review_sample.xlsx"
+```
+
 Primary outputs:
 
 - `article_fact_review_audit.md`
@@ -157,6 +164,9 @@ Primary outputs:
 
 The rule notes CSV is the most important file for tuning the extractor. It
 collects rejected, unclear, and rule-change rows without touching the database.
+
+If you use the Excel workbook for review, run the audit against the `.xlsx`
+file. If you use the CSV, run the audit against the `.csv` file.
 
 ## What Good Looks Like Before Database Import
 

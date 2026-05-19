@@ -25,6 +25,7 @@ Current generated local outputs:
 - `article_fact_candidates_preview.ndjson`
 - `article_fact_candidates_preview.csv`
 - `article_fact_review_sample.csv`
+- `article_fact_review_sample.xlsx`
 - `article_fact_article_index.ndjson`
 
 These files are written under `source-data/`, which is intentionally ignored by
@@ -91,6 +92,8 @@ evidence snippet, article title/URL, confidence score, and fact reason. This is
 for manual quality review only; it does not create confirmed evidence links.
 The recommended `mixed` sample mode includes high-, middle-, and lower-confidence
 examples per fact type so rule quality can be judged more realistically.
+An Excel workbook is also generated for easier manual review. The CSV remains
+the canonical file used by the audit command.
 
 Recommended review decisions:
 
@@ -99,7 +102,8 @@ Recommended review decisions:
 - `unclear`
 - `needs_rule_change`
 
-After marking review decisions locally, run the audit:
+After marking review decisions locally in either the CSV or Excel workbook, run
+the audit:
 
 ```bash
 npm run tge-news:fact-review -- --input "../source-data/tge-news-article-fact-review-2026-focused/article_fact_review_sample.csv"
@@ -111,9 +115,10 @@ This creates:
 - `article_fact_review_audit.md`
 - `article_fact_review_rule_notes.csv`
 
-The audit is local-only and does not write to PostgreSQL. It summarizes accept,
-reject, unclear, and rule-change rates by fact type and field so extraction
-rules can be tuned before any database import.
+The audit is local-only and does not write to PostgreSQL. It can read the CSV or
+the generated `.xlsx` workbook. It summarizes accept, reject, unclear, and
+rule-change rates by fact type and field so extraction rules can be tuned before
+any database import.
 
 Use `docs/ARTICLE_FACT_REVIEW_GUIDE.md` for consistent review rules before
 marking the CSV.

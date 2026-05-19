@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import pg from "pg";
+import * as XLSX from "xlsx";
 
 const { Pool } = pg;
 
@@ -17,6 +18,28 @@ const EXTRACTION_METHOD = "local_markdown_regex_v1";
 const CLOSED_STATUSES = new Set(["confirmed", "rejected", "superseded"]);
 const MAX_SNIPPET_LENGTH = 260;
 const REVIEW_SAMPLE_MODES = new Set(["mixed", "top"]);
+const REVIEW_COLUMNS = [
+  "review_decision",
+  "review_note",
+  "source_reference",
+  "article_title",
+  "article_url",
+  "review_sample_bucket",
+  "published_date",
+  "fact_type_code",
+  "field_name",
+  "entity_type",
+  "entity_label",
+  "extracted_value",
+  "normalized_value",
+  "unit_code",
+  "confidence_score",
+  "fact_status_code",
+  "fact_reason",
+  "evidence_snippet",
+  "archive_file_path",
+  "fact_key",
+];
 
 const COUNTRY_ALIASES = new Map(
   [
@@ -1114,28 +1137,7 @@ function formatReviewValue(row, column) {
 }
 
 function toReviewCsv(rows) {
-  const columns = [
-    "review_decision",
-    "review_note",
-    "source_reference",
-    "article_title",
-    "article_url",
-    "review_sample_bucket",
-    "published_date",
-    "fact_type_code",
-    "field_name",
-    "entity_type",
-    "entity_label",
-    "extracted_value",
-    "normalized_value",
-    "unit_code",
-    "confidence_score",
-    "fact_status_code",
-    "fact_reason",
-    "evidence_snippet",
-    "archive_file_path",
-    "fact_key",
-  ];
+  const columns = REVIEW_COLUMNS;
   const lines = [columns.join(",")];
 
   for (const row of rows) {
@@ -1145,6 +1147,96 @@ function toReviewCsv(rows) {
   }
 
   return `${lines.join("\n")}\n`;
+}
+
+function toReviewWorkbookRows(rows) {
+  return rows.map((row) =>
+    Object.fromEntries(
+      REVIEW_COLUMNS.map((column) => [column, formatReviewValue(row, column)])
+    )
+  );
+}
+
+function setWorksheetDefaults(worksheet, columns, rowCount) {
+  const widthByColumn = {
+    review_decision: 18,
+    review_note: 32,
+    source_reference: 32,
+    article_title: 46,
+    article_url: 44,
+    review_sample_bucket: 22,
+    published_date: 14,
+    fact_type_code: 24,
+    field_name: 28,
+    entity_type: 16,
+    entity_label: 28,
+    extracted_value: 24,
+    normalized_value: 28,
+    unit_code: 12,
+    confidence_score: 16,
+    fact_status_code: 18,
+    fact_reason: 42,
+    evidence_snippet: 72,
+    archive_file_path: 54,
+    fact_key: 32,
+  };
+
+  worksheet["!cols"] = columns.map((column) => ({
+    wch: widthByColumn[column] || 18,
+  }));
+
+  if (rowCount > 0) {
+    worksheet["!autofilter"] = {
+      ref: XLSX.utils.encode_range({
+        s: { r: 0, c: 0 },
+        e: { r: rowCount, c: columns.length - 1 },
+      }),
+    };
+  }
+}
+
+function writeReviewWorkbook(filePath, rows) {
+  const workbook = XLSX.utils.book_new();
+  const reviewRows = toReviewWorkbookRows(rows);
+  const reviewSheet = XLSX.utils.json_to_sheet(reviewRows, {
+    header: REVIEW_COLUMNS,
+  });
+  const decisionRows = [
+    {
+      review_decision: "accept",
+      meaning: "Candidate is useful and supported by the snippet.",
+    },
+    {
+      review_decision: "reject",
+      meaning: "Candidate is not useful, wrong, or unsupported.",
+    },
+    {
+      review_decision: "unclear",
+      meaning: "Candidate may be useful but needs more context.",
+    },
+    {
+      review_decision: "needs_rule_change",
+      meaning: "Candidate reveals a repeated extraction-rule problem.",
+    },
+  ];
+  const decisionSheet = XLSX.utils.json_to_sheet(decisionRows);
+  const readmeRows = [
+    ["Purpose", "Manual review sample for local article fact candidates."],
+    ["Database writes", "None"],
+    ["Full article body stored", "No"],
+    ["Recommended first pass", "Review 30 to 50 rows across fact types and buckets."],
+    ["After review", "Run npm run tge-news:fact-review against the CSV file."],
+  ];
+  const readmeSheet = XLSX.utils.aoa_to_sheet(readmeRows);
+
+  setWorksheetDefaults(reviewSheet, REVIEW_COLUMNS, reviewRows.length);
+  decisionSheet["!cols"] = [{ wch: 22 }, { wch: 64 }];
+  readmeSheet["!cols"] = [{ wch: 26 }, { wch: 72 }];
+
+  XLSX.utils.book_append_sheet(workbook, reviewSheet, "Review Sample");
+  XLSX.utils.book_append_sheet(workbook, decisionSheet, "Decision Values");
+  XLSX.utils.book_append_sheet(workbook, readmeSheet, "README");
+  XLSX.writeFile(workbook, filePath, { compression: true });
 }
 
 function getDatabaseUrl() {
@@ -1477,6 +1569,10 @@ async function main() {
     path.join(args.out, "article_fact_review_sample.csv"),
     toReviewCsv(reviewSampleRows),
     "utf8"
+  );
+  writeReviewWorkbook(
+    path.join(args.out, "article_fact_review_sample.xlsx"),
+    reviewSampleRows
   );
   await fs.writeFile(
     path.join(args.out, "article_fact_article_index.ndjson"),
