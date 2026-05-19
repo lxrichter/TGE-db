@@ -17,6 +17,7 @@
     "tge-news:import": "node scripts/tge-news-archive-import.mjs",
     "tge-news:match": "node scripts/tge-news-entity-match-preview.mjs",
     "tge-news:preview": "node scripts/tge-news-archive-preview.mjs",
+    "field-suggestions:preview": "node scripts/tge-field-suggestions-preview.mjs",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
     "prisma:migrate:status": "prisma migrate status --schema prisma/schema.prisma",

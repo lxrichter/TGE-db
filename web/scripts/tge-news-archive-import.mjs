@@ -27,11 +27,66 @@ const REQUIRED_SOURCE_COLUMNS = [
   "last_synced_at",
 ];
 
+const COUNTRY_ALIASES = new Map(
+  [
+    ["argentina", "Argentina"],
+    ["australia", "Australia"],
+    ["austria", "Austria"],
+    ["bolivia", "Bolivia"],
+    ["canada", "Canada"],
+    ["chile", "Chile"],
+    ["china", "China"],
+    ["colombia", "Colombia"],
+    ["costa-rica", "Costa Rica"],
+    ["croatia", "Croatia"],
+    ["denmark", "Denmark"],
+    ["djibouti", "Djibouti"],
+    ["ecuador", "Ecuador"],
+    ["el-salvador", "El Salvador"],
+    ["ethiopia", "Ethiopia"],
+    ["finland", "Finland"],
+    ["france", "France"],
+    ["germany", "Germany"],
+    ["greece", "Greece"],
+    ["guatemala", "Guatemala"],
+    ["hungary", "Hungary"],
+    ["iceland", "Iceland"],
+    ["india", "India"],
+    ["indonesia", "Indonesia"],
+    ["ireland", "Ireland"],
+    ["italy", "Italy"],
+    ["japan", "Japan"],
+    ["kenya", "Kenya"],
+    ["mexico", "Mexico"],
+    ["netherlands", "Netherlands"],
+    ["new-zealand", "New Zealand"],
+    ["nicaragua", "Nicaragua"],
+    ["philippines", "Philippines"],
+    ["poland", "Poland"],
+    ["portugal", "Portugal"],
+    ["romania", "Romania"],
+    ["russia", "Russia"],
+    ["slovakia", "Slovakia"],
+    ["spain", "Spain"],
+    ["switzerland", "Switzerland"],
+    ["taiwan", "Taiwan"],
+    ["tanzania", "Tanzania"],
+    ["turkey", "Turkey"],
+    ["turkiye", "Türkiye"],
+    ["uk", "United Kingdom"],
+    ["united-kingdom", "United Kingdom"],
+    ["united-states", "United States"],
+    ["usa", "United States"],
+    ["us", "United States"],
+  ].sort((a, b) => a[0].localeCompare(b[0]))
+);
+
 function parseArgs(argv) {
   const args = {
     articleIndex: process.env.TGE_NEWS_ARTICLE_INDEX || DEFAULT_ARTICLE_INDEX,
     out: process.env.TGE_NEWS_IMPORT_OUT || DEFAULT_OUT_DIR,
     execute: false,
+    updateExistingOnly: false,
     limit: 0,
     batchSize: 500,
     importSource: "markdown_archive",
@@ -66,6 +121,8 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg === "--execute") {
       args.execute = true;
+    } else if (arg === "--update-existing-only") {
+      args.updateExistingOnly = true;
     } else if (arg === "--help" || arg === "-h") {
       printHelp();
       process.exit(0);
@@ -86,6 +143,8 @@ Options:
   --out <dir>             Local ignored output directory.
   --limit <n>             Import/check only first n article rows. Defaults to all.
   --batch-size <n>        PostgreSQL write batch size. Defaults to 500.
+  --execute               Write records to PostgreSQL. Default is dry-run only.
+  --update-existing-only  Fast metadata refresh by source_reference. Does not insert missing rows.
   --import-source <code>  Defaults to markdown_archive.
   --site-code <code>      Defaults to thinkgeoenergy.
   --language-code <code>  Defaults to en.
@@ -206,10 +265,15 @@ function inferContentType(article) {
 }
 
 function buildMetadataJson(article) {
+  const tags = normalizeList(article.tags);
+  const countryCandidates = inferCountryCandidates(tags);
+
   return {
     categories: normalizeList(article.categories),
-    tags: normalizeList(article.tags),
+    tags,
     inferred_use_type: article.inferred_use_type || "unknown",
+    country_candidates: countryCandidates,
+    country_candidate_count: countryCandidates.length,
     relative_path: article.relative_path || null,
     link_count: Number(article.link_count || 0),
     internal_tge_link_count: Number(article.internal_tge_link_count || 0),
@@ -220,6 +284,16 @@ function buildMetadataJson(article) {
   };
 }
 
+function inferCountryCandidates(tags) {
+  return [
+    ...new Set(
+      tags
+        .map((tag) => COUNTRY_ALIASES.get(String(tag || "").toLowerCase()))
+        .filter(Boolean)
+    ),
+  ].sort((a, b) => a.localeCompare(b));
+}
+
 function normalizeArticleForImport(article, args) {
   const sourceReference = String(article.source_reference || "").trim();
   const title = String(article.title || "").trim();
@@ -228,6 +302,7 @@ function normalizeArticleForImport(article, args) {
   const publishedDate = String(article.published_date || "").slice(0, 10);
   const contentType = inferContentType(article);
   const metadata = buildMetadataJson(article);
+  const country = metadata.country_candidates.length === 1 ? metadata.country_candidates[0] : null;
 
   if (!sourceReference || !title || !url || !publishedDate || !slug) {
     return null;
@@ -245,6 +320,7 @@ function normalizeArticleForImport(article, args) {
     site_code: args.siteCode,
     archive_file_path: article.relative_path || null,
     language_code: args.languageCode,
+    country,
     metadata_json: metadata,
   };
 }
@@ -328,6 +404,7 @@ async function upsertArticle(pool, article) {
         published_date = $5::date,
         accessed_at = COALESCE(accessed_at, now()),
         language_code = $12,
+        country = COALESCE($13, country),
         visibility_code = 'public',
         wordpress_post_id = $1::bigint,
         source_slug = $6,
@@ -352,6 +429,7 @@ async function upsertArticle(pool, article) {
         published_date,
         accessed_at,
         language_code,
+        country,
         visibility_code,
         credibility_status_code,
         wordpress_post_id,
@@ -373,6 +451,7 @@ async function upsertArticle(pool, article) {
         $5::date,
         now(),
         $12,
+        $13,
         'public',
         'needs_review',
         $1::bigint,
@@ -403,6 +482,7 @@ async function upsertArticle(pool, article) {
       article.archive_file_path,
       JSON.stringify(article.metadata_json),
       article.language_code,
+      article.country,
     ]
   );
 
@@ -441,6 +521,96 @@ async function importArticles(pool, articles, batchSize) {
       await pool.query("ROLLBACK");
       throw error;
     }
+  }
+
+  return stats;
+}
+
+async function updateExistingArticleBatch(pool, articles) {
+  const payload = articles.map((article) => ({
+    source_reference: article.source_reference,
+    title: article.title,
+    url: article.url,
+    published_date: article.published_date,
+    language_code: article.language_code,
+    country: article.country,
+    wordpress_post_id: article.wordpress_post_id,
+    source_slug: article.source_slug,
+    content_type_code: article.content_type_code,
+    import_source_code: article.import_source_code,
+    site_code: article.site_code,
+    archive_file_path: article.archive_file_path,
+    metadata_json: article.metadata_json,
+  }));
+
+  const result = await pool.query(
+    `
+    UPDATE sources s
+    SET
+      source_type_code = 'tge_article',
+      title = data.title,
+      url = data.url,
+      publisher = 'ThinkGeoEnergy',
+      author_organization = COALESCE(s.author_organization, 'ThinkGeoEnergy'),
+      published_date = data.published_date,
+      accessed_at = COALESCE(s.accessed_at, now()),
+      language_code = data.language_code,
+      country = COALESCE(data.country, s.country),
+      visibility_code = 'public',
+      wordpress_post_id = data.wordpress_post_id,
+      source_slug = data.source_slug,
+      content_type_code = data.content_type_code,
+      import_source_code = data.import_source_code,
+      site_code = data.site_code,
+      archive_file_path = data.archive_file_path,
+      metadata_json = COALESCE(data.metadata_json, '{}'::jsonb),
+      last_synced_at = now(),
+      updated_at = now()
+    FROM jsonb_to_recordset($1::jsonb) AS data(
+      source_reference text,
+      title text,
+      url text,
+      published_date date,
+      language_code text,
+      country text,
+      wordpress_post_id bigint,
+      source_slug text,
+      content_type_code text,
+      import_source_code text,
+      site_code text,
+      archive_file_path text,
+      metadata_json jsonb
+    )
+    WHERE s.source_reference = data.source_reference
+    RETURNING s.source_id
+    `,
+    [JSON.stringify(payload)]
+  );
+
+  return {
+    updated: result.rowCount,
+    skipped_missing_source_reference: articles.length - result.rowCount,
+  };
+}
+
+async function updateExistingArticles(pool, articles, batchSize) {
+  const stats = {
+    inserted: 0,
+    updated: 0,
+    skipped_missing_source_reference: 0,
+  };
+
+  for (let index = 0; index < articles.length; index += batchSize) {
+    const batch = articles.slice(index, index + batchSize);
+    const result = await updateExistingArticleBatch(pool, batch);
+    stats.updated += result.updated;
+    stats.skipped_missing_source_reference += result.skipped_missing_source_reference;
+    console.log(
+      `Updated batch ${Math.floor(index / batchSize) + 1}: ${Math.min(
+        index + batch.length,
+        articles.length
+      )}/${articles.length}`
+    );
   }
 
   return stats;
@@ -488,7 +658,9 @@ async function main() {
   }
 
   if (args.execute) {
-    importStats = await importArticles(pool, articles, args.batchSize);
+    importStats = args.updateExistingOnly
+      ? await updateExistingArticles(pool, articles, args.batchSize)
+      : await importArticles(pool, articles, args.batchSize);
     existingCounts = await getExistingArticleCounts(pool, args.importSource);
   }
 
@@ -514,12 +686,18 @@ async function main() {
       language_code: args.languageCode,
       limit: args.limit || null,
       batch_size: args.batchSize,
+      update_existing_only: args.updateExistingOnly,
     },
     counts: {
       article_rows_read: rawArticles.length,
       valid_article_rows: articles.length,
       skipped_invalid_rows: skipped,
       by_content_type: countBy(articles, "content_type_code"),
+      by_single_country: countBy(articles, "country"),
+      articles_with_single_country: articles.filter((article) => article.country).length,
+      articles_with_country_candidates: articles.filter(
+        (article) => article.metadata_json.country_candidate_count > 0
+      ).length,
       existing_postgres_counts: existingCounts,
       import_stats: importStats,
     },
@@ -529,6 +707,8 @@ async function main() {
       url: article.url,
       published_date: article.published_date,
       source_slug: article.source_slug,
+      country: article.country,
+      country_candidates: article.metadata_json.country_candidates,
       content_type_code: article.content_type_code,
       archive_file_path: article.archive_file_path,
     })),
