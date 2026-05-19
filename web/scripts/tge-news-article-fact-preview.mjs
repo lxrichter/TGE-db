@@ -202,6 +202,7 @@ function parseArgs(argv) {
     batchSize: 500,
     factTypes: new Set(),
     skipEntitySignals: false,
+    reviewSamplePerType: 25,
     maxExecuteRows: 5000,
   };
 
@@ -253,6 +254,9 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg === "--skip-entity-signals") {
       args.skipEntitySignals = true;
+    } else if (arg === "--review-sample-per-type" && next) {
+      args.reviewSamplePerType = Math.max(Number(next) || 0, 0);
+      index += 1;
     } else if (arg === "--max-execute-rows" && next) {
       args.maxExecuteRows = Math.max(Number(next) || 0, 0);
       index += 1;
@@ -284,6 +288,7 @@ Options:
   --batch-size <n>             PostgreSQL write batch size. Defaults to 500.
   --fact-types <list>          Optional comma-separated fact types to output/write.
   --skip-entity-signals        Exclude broad non-generic tag/entity signals.
+  --review-sample-per-type <n> Write n review rows per fact type. Defaults to 25.
   --max-execute-rows <n>       Safety cap for --execute. Defaults to 5000.
 
 Privacy:
@@ -961,6 +966,92 @@ function toCsv(rows) {
   return `${lines.join("\n")}\n`;
 }
 
+function sortReviewCandidates(a, b) {
+  return (
+    Number(b.confidence_score || 0) - Number(a.confidence_score || 0) ||
+    String(b.published_date || "").localeCompare(String(a.published_date || "")) ||
+    String(a.source_reference || "").localeCompare(String(b.source_reference || "")) ||
+    String(a.fact_key || "").localeCompare(String(b.fact_key || ""))
+  );
+}
+
+function buildReviewSample(rows, samplePerType) {
+  if (!samplePerType) {
+    return [];
+  }
+
+  const groups = new Map();
+
+  for (const row of rows) {
+    const key = row.fact_type_code || "unknown";
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+
+    groups.get(key).push(row);
+  }
+
+  return [...groups.entries()]
+    .sort(([a], [b]) => String(a).localeCompare(String(b)))
+    .flatMap(([, groupRows]) =>
+      groupRows.slice().sort(sortReviewCandidates).slice(0, samplePerType)
+    );
+}
+
+function formatReviewValue(row, column) {
+  if (column === "review_decision" || column === "review_note") {
+    return "";
+  }
+
+  if (column === "article_title") {
+    return row.extraction_metadata?.title || "";
+  }
+
+  if (column === "article_url") {
+    return row.extraction_metadata?.url || "";
+  }
+
+  if (column === "normalized_value") {
+    return row.normalized_value ? JSON.stringify(row.normalized_value) : "";
+  }
+
+  return row[column];
+}
+
+function toReviewCsv(rows) {
+  const columns = [
+    "review_decision",
+    "review_note",
+    "source_reference",
+    "article_title",
+    "article_url",
+    "published_date",
+    "fact_type_code",
+    "field_name",
+    "entity_type",
+    "entity_label",
+    "extracted_value",
+    "normalized_value",
+    "unit_code",
+    "confidence_score",
+    "fact_status_code",
+    "fact_reason",
+    "evidence_snippet",
+    "archive_file_path",
+    "fact_key",
+  ];
+  const lines = [columns.join(",")];
+
+  for (const row of rows) {
+    lines.push(
+      columns.map((column) => csvEscape(formatReviewValue(row, column))).join(",")
+    );
+  }
+
+  return `${lines.join("\n")}\n`;
+}
+
 function getDatabaseUrl() {
   const databaseUrl = process.env.DATABASE_PUBLIC_URL || process.env.DATABASE_URL;
 
@@ -1229,6 +1320,10 @@ async function main() {
         }
       })()
     : null;
+  const reviewSampleRows = buildReviewSample(
+    factRows,
+    args.reviewSamplePerType
+  );
 
   const summary = {
     generated_at: new Date().toISOString(),
@@ -1241,6 +1336,8 @@ async function main() {
     body_char_limit_scanned_locally: args.bodyCharLimit,
     fact_type_filter: args.factTypes.size ? [...args.factTypes] : null,
     skip_entity_signals: args.skipEntitySignals,
+    review_sample_per_type: args.reviewSamplePerType,
+    review_sample_rows: reviewSampleRows.length,
     max_execute_rows: args.maxExecuteRows,
     privacy: {
       local_only_default: true,
@@ -1280,6 +1377,11 @@ async function main() {
     "utf8"
   );
   await fs.writeFile(
+    path.join(args.out, "article_fact_review_sample.csv"),
+    toReviewCsv(reviewSampleRows),
+    "utf8"
+  );
+  await fs.writeFile(
     path.join(args.out, "article_fact_article_index.ndjson"),
     articleRows.map((row) => JSON.stringify(row)).join("\n") + "\n",
     "utf8"
@@ -1294,6 +1396,7 @@ async function main() {
         articles_with_facts: summary.counts.articles_with_facts,
         by_fact_type: summary.counts.by_fact_type,
         by_field_name: summary.counts.by_field_name,
+        review_sample_rows: summary.review_sample_rows,
         write_stats: summary.write_stats,
         output_directory: summary.output_directory,
         privacy: summary.privacy,

@@ -24,6 +24,7 @@ Current generated local outputs:
 - `article_fact_summary.json`
 - `article_fact_candidates_preview.ndjson`
 - `article_fact_candidates_preview.csv`
+- `article_fact_review_sample.csv`
 - `article_fact_article_index.ndjson`
 
 These files are written under `source-data/`, which is intentionally ignored by
@@ -77,6 +78,17 @@ Run a narrower, more operational extraction without broad entity/tag signals:
 ```bash
 npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --skip-entity-signals
 ```
+
+Run the recommended local manual-review batch:
+
+```bash
+npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --years 2026 --skip-entity-signals --review-sample-per-type 25 --out "../source-data/tge-news-article-fact-review-2026-focused"
+```
+
+The review CSV is intentionally human-facing. It includes blank
+`review_decision` and `review_note` columns, then the candidate value, short
+evidence snippet, article title/URL, confidence score, and fact reason. This is
+for manual quality review only; it does not create confirmed evidence links.
 
 Run only selected fact types:
 
