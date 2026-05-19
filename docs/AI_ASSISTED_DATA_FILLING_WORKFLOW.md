@@ -219,12 +219,13 @@ MVP groundwork:
 - Research Ops field suggestion review controls
 - record-level AI field suggestion panels
 - record-level article match candidate review
+- local markdown article fact extraction prototype
+- `article_fact_candidates` staging table for compact reviewable article facts
 
 Future:
 
 - controlled apply workflow for confirmed field suggestions
-- first deterministic extraction scripts for article metadata and selected
-  source fields
+- field suggestion generation from confirmed article facts
 - PDF/document ingestion
 - full-text semantic retrieval
 - AI extraction from document bodies

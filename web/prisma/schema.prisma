@@ -706,6 +706,15 @@ model ref_field_suggestion_statuses {
   is_active   Boolean @default(true)
 }
 
+model ref_article_fact_candidate_statuses {
+  code        String  @id
+  label       String
+  description String?
+  is_open     Boolean @default(true)
+  sort_order  Int     @default(0)
+  is_active   Boolean @default(true)
+}
+
 model ref_technology_tags {
   code                  String                  @id
   label                 String
@@ -844,6 +853,44 @@ model field_suggestion_candidates {
   @@index([confidence_score(sort: Desc)], map: "idx_field_suggestions_confidence")
   @@index([generated_at(sort: Desc)], map: "idx_field_suggestions_generated_at")
   @@index([suggestion_metadata], map: "idx_field_suggestions_metadata", type: Gin)
+}
+
+model article_fact_candidates {
+  article_fact_candidate_id String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fact_key                  String    @unique
+  source_id                 String?   @db.Uuid
+  source_reference          String
+  archive_file_path         String?
+  published_date            DateTime? @db.Date
+  fact_type_code            String
+  entity_type               String?
+  entity_label              String?
+  field_name                String?
+  extracted_value           String
+  normalized_value          Json      @default("{}")
+  unit_code                 String?
+  evidence_snippet          String?
+  confidence_score          Decimal   @db.Decimal(6, 5)
+  fact_status_code          String    @default("suggested")
+  fact_reason               String?
+  extraction_method         String    @default("local_markdown_regex_v1")
+  extraction_metadata       Json      @default("{}")
+  generated_at              DateTime  @default(now()) @db.Timestamptz(6)
+  reviewed_by_user_id       String?   @db.Uuid
+  reviewed_at               DateTime? @db.Timestamptz(6)
+  created_at                DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([source_id], map: "idx_article_fact_candidates_source")
+  @@index([source_reference], map: "idx_article_fact_candidates_reference")
+  @@index([fact_type_code], map: "idx_article_fact_candidates_type")
+  @@index([fact_status_code], map: "idx_article_fact_candidates_status")
+  @@index([entity_type, entity_label], map: "idx_article_fact_candidates_entity")
+  @@index([field_name], map: "idx_article_fact_candidates_field")
+  @@index([confidence_score(sort: Desc)], map: "idx_article_fact_candidates_confidence")
+  @@index([generated_at(sort: Desc)], map: "idx_article_fact_candidates_generated")
+  @@index([extraction_metadata], map: "idx_article_fact_candidates_metadata", type: Gin)
+  @@index([normalized_value], map: "idx_article_fact_candidates_normalized", type: Gin)
 }
 
 model ref_source_statuses {
