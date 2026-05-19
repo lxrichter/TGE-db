@@ -248,6 +248,24 @@ projects, plants/facilities, or companies, and it does not create evidence links
 The suggestions still require human review in Research Ops or record-level
 field suggestion panels.
 
+After field suggestions are reviewed and marked `confirmed`, preview the
+controlled apply step:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run field-suggestions:apply
+```
+
+Execute against a local PostgreSQL sandbox only after reviewing the preview:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run field-suggestions:apply -- --execute
+```
+
+The apply command only uses confirmed, unapplied suggestions. It updates
+whitelisted empty project or plant/facility fields, writes an `audit_events`
+record, and marks the suggestion as applied. It skips unsupported fields,
+invalid values, and targets that already have a value.
+
 The first reviewed pack from the adapted tuned workbook produced:
 
 - 125 input rows

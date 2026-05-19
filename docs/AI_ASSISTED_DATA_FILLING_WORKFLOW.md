@@ -235,12 +235,14 @@ MVP groundwork:
   and field-suggestion workflows
 - dry-run-first field suggestion generation from confirmed article facts plus
   confirmed article/entity matches, writing only review candidates
+- dry-run-first apply workflow for confirmed field suggestions; execute mode
+  updates only whitelisted empty project/plant fields, records an audit event,
+  and marks the suggestion as applied
 
 Future:
 
 - local PostgreSQL execution from confirmed reviewed article fact candidates
-- controlled apply workflow for confirmed field suggestions
-- field suggestion generation from confirmed article facts
+- record-level apply UI for confirmed field suggestions
 - PDF/document ingestion
 - full-text semantic retrieval
 - AI extraction from document bodies

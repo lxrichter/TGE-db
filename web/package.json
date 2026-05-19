@@ -25,6 +25,7 @@
     "tge-news:fact-field-suggestions": "node scripts/tge-news-article-fact-field-suggestions.mjs",
     "tge-news:preview": "node scripts/tge-news-archive-preview.mjs",
     "field-suggestions:preview": "node scripts/tge-field-suggestions-preview.mjs",
+    "field-suggestions:apply": "node scripts/tge-field-suggestions-apply-confirmed.mjs",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:migrate:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
     "prisma:migrate:status": "prisma migrate status --schema prisma/schema.prisma",

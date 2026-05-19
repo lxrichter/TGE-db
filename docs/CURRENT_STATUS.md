@@ -122,6 +122,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   article facts plus confirmed article/entity matches into reviewable
   `field_suggestion_candidates` for capacity and target COD fields, without
   applying values to entity records
+- dry-run-first confirmed field-suggestion apply command now provides the
+  controlled final step for local sandbox testing: confirmed suggestions can be
+  applied only to whitelisted empty project/plant fields, with audit events and
+  no automatic approval/export-ready status
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
