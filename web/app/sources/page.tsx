@@ -1,13 +1,20 @@
 import Link from "next/link";
 import {
+  getSourceMatchCandidateSummary,
   getSourceOperationalSummary,
   getSourceReferenceData,
   listSources,
+  type SourceListParams,
+  type SourceMatchCandidateSummary,
   type SourceListItem,
   type SourceOperationalSummary,
   type SourceReferenceData,
   type SourceReferenceOption,
 } from "@/lib/services/sources";
+import {
+  getArticleFactCandidateSummary,
+  type ArticleFactCandidateSummary,
+} from "@/lib/services/article-facts";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +24,9 @@ type SourceSearchParams = {
   sourceType?: string;
   visibility?: string;
   status?: string;
+  linkState?: string;
+  duplicate?: string;
+  quality?: string;
 };
 
 type SourcesData =
@@ -24,6 +34,8 @@ type SourcesData =
       ok: true;
       sources: SourceListItem[];
       summary: SourceOperationalSummary;
+      matchSummary: SourceMatchCandidateSummary;
+      articleFactSummary: ArticleFactCandidateSummary;
       referenceData: SourceReferenceData;
     }
   | {
@@ -35,22 +47,41 @@ async function getSourcesData(
   params: SourceSearchParams
 ): Promise<SourcesData> {
   try {
-    const listParams = {
+    const listParams: SourceListParams = {
       search: params.search,
       sourceType: params.sourceType,
       visibility: params.visibility,
       status: params.status,
+      linkState:
+        params.linkState === "linked" || params.linkState === "unlinked"
+          ? params.linkState
+          : undefined,
+      duplicate: params.duplicate === "1",
+      quality:
+        params.quality === "weak_outdated_rejected"
+          ? params.quality
+          : undefined,
     };
-    const [sources, referenceData, summary] = await Promise.all([
-      listSources({
-        limit: 100,
-        ...listParams,
-      }),
-      getSourceReferenceData(),
-      getSourceOperationalSummary(listParams),
-    ]);
+    const [sources, referenceData, summary, matchSummary, articleFactSummary] =
+      await Promise.all([
+        listSources({
+          limit: 100,
+          ...listParams,
+        }),
+        getSourceReferenceData(),
+        getSourceOperationalSummary(listParams),
+        getSourceMatchCandidateSummary(),
+        getArticleFactCandidateSummary(),
+      ]);
 
-    return { ok: true, sources, summary, referenceData };
+    return {
+      ok: true,
+      sources,
+      summary,
+      matchSummary,
+      articleFactSummary,
+      referenceData,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -200,6 +231,63 @@ function OperationCard({
   return <div className={className}>{content}</div>;
 }
 
+function WorkflowStrip() {
+  const steps = [
+    {
+      step: "1",
+      label: "Source Record",
+      note: "Article, report, website, document, or internal evidence.",
+    },
+    {
+      step: "2",
+      label: "Credibility Review",
+      note: "Marked credible, weak, outdated, rejected, or needs review.",
+    },
+    {
+      step: "3",
+      label: "Evidence Link",
+      note: "Confirmed link to project, plant/facility, company, or market.",
+    },
+    {
+      step: "4",
+      label: "Fact / AI Candidate",
+      note: "Extracted facts stay reviewable before field suggestions.",
+    },
+  ];
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-[#1f2937]">
+          Source Governance Flow
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          Source records, evidence links, article matches, and extracted facts
+          remain separate until reviewed. This keeps source governance ahead of
+          AI-assisted data filling.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-2 px-5 py-5 md:grid-cols-4">
+        {steps.map((item) => (
+          <div key={item.step} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center border border-gray-300 bg-white text-xs font-bold text-[#1f2937]">
+                {item.step}
+              </span>
+              <span className="text-xs font-bold uppercase tracking-wide text-[#1f2937]">
+                {item.label}
+              </span>
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {item.note}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function SelectFilter({
   label,
   name,
@@ -230,6 +318,17 @@ function SelectFilter({
       </select>
     </label>
   );
+}
+
+function activeOperationalFilterLabels(filters: SourceSearchParams) {
+  return [
+    filters.linkState === "unlinked" ? "Unlinked sources" : null,
+    filters.linkState === "linked" ? "Linked sources" : null,
+    filters.duplicate === "1" ? "Duplicate flagged" : null,
+    filters.quality === "weak_outdated_rejected"
+      ? "Weak / outdated / rejected"
+      : null,
+  ].filter((label): label is string => Boolean(label));
 }
 
 function SetupNotice({ error }: { error: string }) {
@@ -354,7 +453,11 @@ export default async function SourcesPage({
     sourceType: cleanParam(resolvedSearchParams.sourceType),
     visibility: cleanParam(resolvedSearchParams.visibility),
     status: cleanParam(resolvedSearchParams.status),
+    linkState: cleanParam(resolvedSearchParams.linkState),
+    duplicate: cleanParam(resolvedSearchParams.duplicate),
+    quality: cleanParam(resolvedSearchParams.quality),
   };
+  const activeOperationalFilters = activeOperationalFilterLabels(filters);
   const data = await getSourcesData(filters);
 
   return (
@@ -404,11 +507,18 @@ export default async function SourcesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <WorkflowStrip />
+
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
             <StatTile
               label="Total Sources"
               value={formatCount(data.summary.total)}
               note="Records matching filters"
+            />
+            <StatTile
+              label="Credible"
+              value={formatCount(data.summary.credible)}
+              note="Reviewed source records"
             />
             <StatTile
               label="TGE Articles"
@@ -429,6 +539,16 @@ export default async function SourcesPage({
               label="Linked Evidence"
               value={formatCount(data.summary.linkedEvidence)}
               note="Project/asset/company links"
+            />
+            <StatTile
+              label="Open Matches"
+              value={formatCount(data.matchSummary.open)}
+              note="Article/entity candidates"
+            />
+            <StatTile
+              label="Open Facts"
+              value={formatCount(data.articleFactSummary.open)}
+              note="Extracted fact candidates"
             />
           </section>
 
@@ -452,24 +572,25 @@ export default async function SourcesPage({
                 tone={data.summary.needsReview > 0 ? "amber" : "green"}
               />
               <OperationCard
-                label="Article Archive"
-                value={formatCount(data.summary.tgeArticles)}
-                note="TGE article metadata records"
-                href="/sources?sourceType=tge_article"
+                label="Unlinked Sources"
+                value={formatCount(data.summary.unlinkedSources)}
+                note="Need evidence links or archive-only classification"
+                href="/sources?linkState=unlinked"
+                tone={data.summary.unlinkedSources > 0 ? "amber" : "green"}
               />
               <OperationCard
                 label="Match Review"
-                value="Open"
-                note="Review article/entity candidates"
+                value={formatCount(data.matchSummary.open)}
+                note="Confirm matches to create evidence links"
                 href="/sources/matches"
-                tone="amber"
+                tone={data.matchSummary.open > 0 ? "amber" : "green"}
               />
               <OperationCard
                 label="Fact Review"
-                value="Open"
-                note="Review article fact candidates"
+                value={formatCount(data.articleFactSummary.open)}
+                note="Confirm extracted facts before field suggestions"
                 href="/sources/facts"
-                tone="amber"
+                tone={data.articleFactSummary.open > 0 ? "amber" : "green"}
               />
               <OperationCard
                 label="Restricted Sources"
@@ -478,10 +599,48 @@ export default async function SourcesPage({
                 tone={data.summary.restrictedVisibility > 0 ? "amber" : "neutral"}
               />
             </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <OperationCard
+                label="Article Archive"
+                value={formatCount(data.summary.tgeArticles)}
+                note="TGE article metadata records"
+                href="/sources?sourceType=tge_article"
+              />
+              <OperationCard
+                label="Weak / Outdated / Rejected"
+                value={formatCount(data.summary.weakOutdatedRejected)}
+                note="Sources not currently export-eligible"
+                href="/sources?quality=weak_outdated_rejected"
+                tone={data.summary.weakOutdatedRejected > 0 ? "red" : "green"}
+              />
+              <OperationCard
+                label="Duplicate Flags"
+                value={formatCount(data.summary.duplicateFlagged)}
+                note="Sources requiring duplicate review"
+                href="/sources?duplicate=1"
+                tone={data.summary.duplicateFlagged > 0 ? "red" : "green"}
+              />
+              <OperationCard
+                label="Confirmed Matches"
+                value={formatCount(data.matchSummary.confirmed)}
+                note="Article/entity links confirmed"
+                href="/sources/matches?status=confirmed"
+                tone="green"
+              />
+            </div>
           </section>
 
           <section className="border border-gray-200 bg-white px-5 py-5">
             <form className="flex flex-col gap-4 xl:flex-row xl:items-end" action="/sources">
+              {filters.linkState ? (
+                <input type="hidden" name="linkState" value={filters.linkState} />
+              ) : null}
+              {filters.duplicate ? (
+                <input type="hidden" name="duplicate" value={filters.duplicate} />
+              ) : null}
+              {filters.quality ? (
+                <input type="hidden" name="quality" value={filters.quality} />
+              ) : null}
               <label className="flex min-w-[260px] flex-[1.5] flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Search
                 <input
@@ -529,6 +688,24 @@ export default async function SourcesPage({
                 </Link>
               </div>
             </form>
+            {activeOperationalFilters.length > 0 ? (
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
+                {activeOperationalFilters.map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800"
+                  >
+                    {label}
+                  </span>
+                ))}
+                <Link
+                  href="/sources"
+                  className="inline-flex min-h-[28px] items-center border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                >
+                  Clear operational filters
+                </Link>
+              </div>
+            ) : null}
           </section>
 
           <SourcesTable sources={data.sources} total={data.summary.total} />

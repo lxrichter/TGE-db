@@ -14,6 +14,9 @@ export type SourceListParams = {
   sourceType?: string;
   visibility?: string;
   status?: string;
+  linkState?: "linked" | "unlinked";
+  duplicate?: boolean;
+  quality?: "weak_outdated_rejected";
 };
 
 export type SourceMatchCandidateListParams = {
@@ -438,6 +441,36 @@ function buildSourceWhere(params: SourceListParams) {
   if (params.status?.trim()) {
     values.push(params.status.trim());
     clauses.push(`s.credibility_status_code = $${values.length}`);
+  }
+
+  if (params.quality === "weak_outdated_rejected") {
+    clauses.push(`
+      s.credibility_status_code IN ('weak', 'outdated', 'rejected')
+    `);
+  }
+
+  if (params.duplicate) {
+    clauses.push(`s.duplicate_source_flag = TRUE`);
+  }
+
+  if (params.linkState === "linked") {
+    clauses.push(`
+      EXISTS (
+        SELECT 1
+        FROM entity_sources es
+        WHERE es.source_id = s.source_id
+      )
+    `);
+  }
+
+  if (params.linkState === "unlinked") {
+    clauses.push(`
+      NOT EXISTS (
+        SELECT 1
+        FROM entity_sources es
+        WHERE es.source_id = s.source_id
+      )
+    `);
   }
 
   return {
