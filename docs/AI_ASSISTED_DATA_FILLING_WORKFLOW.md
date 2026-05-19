@@ -221,10 +221,13 @@ MVP groundwork:
 - record-level article match candidate review
 - local markdown article fact extraction prototype
 - local article fact review sample and audit workflow
+- local reviewed article fact import packs generated from accepted/rejected
+  review decisions, including confirmed-only handoff files
 - `article_fact_candidates` staging table for compact reviewable article facts
 
 Future:
 
+- local PostgreSQL dry-write from confirmed reviewed article fact candidates
 - controlled apply workflow for confirmed field suggestions
 - field suggestion generation from confirmed article facts
 - PDF/document ingestion

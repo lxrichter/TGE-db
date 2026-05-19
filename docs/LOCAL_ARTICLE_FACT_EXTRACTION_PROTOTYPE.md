@@ -123,6 +123,44 @@ any database import.
 Use `docs/ARTICLE_FACT_REVIEW_GUIDE.md` for consistent review rules before
 marking the CSV.
 
+## Reviewed Import Pack
+
+After a review/audit pass, create a local DB-shaped import pack from the
+reviewed workbook:
+
+```bash
+npm run tge-news:fact-import-pack -- --input "../source-data/tge-news-article-fact-review-2026-tuned/article_fact_review_sample.xlsx" --out "../source-data/tge-news-article-fact-review-2026-tuned/import-pack"
+```
+
+For the safer handoff artifact, output only accepted/confirmed candidates:
+
+```bash
+npm run tge-news:fact-import-pack -- --input "../source-data/tge-news-article-fact-review-2026-tuned/article_fact_review_sample.xlsx" --out "../source-data/tge-news-article-fact-review-2026-tuned/import-pack-confirmed-only" --accepted-only
+```
+
+This creates:
+
+- `article_fact_candidates_reviewed_import.ndjson`
+- `article_fact_candidates_reviewed_import.csv`
+- `article_fact_candidates_confirmed.ndjson`
+- `article_fact_candidates_rejected.ndjson`
+- `article_fact_candidates_needs_review.ndjson`
+- `article_fact_import_pack_summary.json`
+
+The import pack is still local-only. It does not write to PostgreSQL, create
+real evidence links, update entity fields, or export full article body text.
+It exists to make reviewed decisions reproducible before a future local
+PostgreSQL dry-write step.
+
+The first reviewed pack from the adapted tuned workbook produced:
+
+- 125 input rows
+- 63 reviewed rows
+- 47 confirmed rows
+- 16 rejected rows
+- 62 pending rows
+- 0 invalid rows
+
 Run only selected fact types:
 
 ```bash

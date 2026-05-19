@@ -18,6 +18,7 @@
     "tge-news:match": "node scripts/tge-news-entity-match-preview.mjs",
     "tge-news:facts": "node scripts/tge-news-article-fact-preview.mjs",
     "tge-news:fact-review": "node scripts/tge-news-article-fact-review-audit.mjs",
+    "tge-news:fact-import-pack": "node scripts/tge-news-article-fact-import-pack.mjs",
     "tge-news:preview": "node scripts/tge-news-archive-preview.mjs",
     "field-suggestions:preview": "node scripts/tge-field-suggestions-preview.mjs",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
