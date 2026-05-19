@@ -66,6 +66,18 @@ function StatusBadge({
   );
 }
 
+function formatReviewFlag(value: string) {
+  if (value === "country_conflict") {
+    return "Country conflict";
+  }
+
+  return value.replaceAll("_", " ");
+}
+
+function hasReviewFlags(candidate: SourceMatchCandidateItem) {
+  return candidate.review_flags.length > 0;
+}
+
 function entityHref(candidate: SourceMatchCandidateItem) {
   if (!candidate.entity_id) {
     return null;
@@ -123,6 +135,14 @@ export default function SourceMatchCandidatesClient({
     [candidates]
   );
   const selectedIds = [...selected];
+  const selectedCandidates = useMemo(
+    () =>
+      candidates.filter((candidate) =>
+        selected.has(candidate.match_candidate_id)
+      ),
+    [candidates, selected]
+  );
+  const selectedFlaggedCount = selectedCandidates.filter(hasReviewFlags).length;
   const allSelected =
     candidateIds.length > 0 &&
     candidateIds.every((candidateId) => selected.has(candidateId));
@@ -148,6 +168,13 @@ export default function SourceMatchCandidatesClient({
   function runAction(action: SourceMatchCandidateAction) {
     if (selectedIds.length === 0) {
       setMessage("Select one or more match candidates first.");
+      return;
+    }
+
+    if (action === "confirm" && selectedFlaggedCount > 0) {
+      setMessage(
+        "Flagged candidates cannot be bulk confirmed. Review them separately or reject/mark needs review."
+      );
       return;
     }
 
@@ -200,7 +227,7 @@ export default function SourceMatchCandidatesClient({
           </span>
           <button
             type="button"
-            disabled={isPending || selected.size === 0}
+            disabled={isPending || selected.size === 0 || selectedFlaggedCount > 0}
             onClick={() => runAction("confirm")}
             className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
           >
@@ -231,6 +258,13 @@ export default function SourceMatchCandidatesClient({
         </div>
       ) : null}
 
+      {selectedFlaggedCount > 0 ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-900">
+          {selectedFlaggedCount} selected candidate(s) carry review flags.
+          Bulk confirmation is disabled for those rows.
+        </div>
+      ) : null}
+
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
@@ -244,9 +278,9 @@ export default function SourceMatchCandidatesClient({
                 />
               </th>
               <th className="w-[26%] px-4 py-3 font-semibold">Article Source</th>
-              <th className="w-[20%] px-4 py-3 font-semibold">Matched Entity</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Confidence</th>
-              <th className="w-[18%] px-4 py-3 font-semibold">Reason</th>
+              <th className="w-[19%] px-4 py-3 font-semibold">Matched Entity</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Confidence</th>
+              <th className="w-[20%] px-4 py-3 font-semibold">Reason / Signals</th>
               <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
               <th className="w-[10%] px-4 py-3 font-semibold">Generated</th>
             </tr>
@@ -283,6 +317,11 @@ export default function SourceMatchCandidatesClient({
                         ? formatDate(candidate.source_published_date)
                         : candidate.source_country || "No date/country metadata"}
                     </div>
+                    {candidate.source_country ? (
+                      <div className="mt-1 text-xs font-medium text-gray-600">
+                        Source country: {candidate.source_country}
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -305,6 +344,18 @@ export default function SourceMatchCandidatesClient({
                         Alias: {candidate.matched_alias}
                       </div>
                     ) : null}
+                    {candidate.entity_country || candidate.entity_use_type ? (
+                      <div className="mt-2 text-xs leading-5 text-gray-500">
+                        {candidate.entity_country ? (
+                          <div>Entity country: {candidate.entity_country}</div>
+                        ) : null}
+                        {candidate.entity_use_type ? (
+                          <div>
+                            Use type: {candidate.entity_use_type.replaceAll("_", " ")}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <div className="text-xl font-bold text-[#1f2937]">
@@ -317,7 +368,25 @@ export default function SourceMatchCandidatesClient({
                     </div>
                   </td>
                   <td className="px-4 py-4 text-xs leading-5 text-gray-600">
-                    {candidate.match_reason || "-"}
+                    <div>{candidate.match_reason || "-"}</div>
+                    {candidate.article_country_candidates.length > 0 ? (
+                      <div className="mt-2 text-gray-500">
+                        Article countries:{" "}
+                        {candidate.article_country_candidates.join(", ")}
+                      </div>
+                    ) : null}
+                    {candidate.review_flags.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {candidate.review_flags.map((flag) => (
+                          <span
+                            key={flag}
+                            className="inline-flex border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800"
+                          >
+                            {formatReviewFlag(flag)}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <StatusBadge

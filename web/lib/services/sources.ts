@@ -21,6 +21,7 @@ export type SourceMatchCandidateListParams = {
   search?: string;
   status?: string;
   entityType?: string;
+  flagged?: boolean;
 };
 
 export type SourceListItem = {
@@ -96,6 +97,10 @@ export type SourceMatchCandidateItem = {
   source_type_label: string | null;
   source_credibility_status_code: string;
   source_credibility_status_label: string | null;
+  entity_country: string | null;
+  entity_use_type: string | null;
+  article_country_candidates: string[];
+  review_flags: string[];
 };
 
 export type SourceMatchCandidateSummary = {
@@ -241,6 +246,8 @@ type SourceMatchCandidateRow = Omit<
   created_at: string | Date;
   updated_at: string | Date;
   source_published_date: string | Date | null;
+  article_country_candidates: unknown;
+  review_flags: unknown;
 };
 
 type SourceMatchCandidateSummaryRow = {
@@ -367,11 +374,30 @@ function toSourceMatchCandidate(
     source_published_date: row.source_published_date
       ? normalizeRequiredTimestamp(row.source_published_date).slice(0, 10)
       : null,
+    article_country_candidates: toStringArray(row.article_country_candidates),
+    review_flags: toStringArray(row.review_flags),
   };
 }
 
 function toNumber(value: number | bigint) {
   return Number(value);
+}
+
+function toStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map(String).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      return toStringArray(parsed);
+    } catch {
+      return value ? [value] : [];
+    }
+  }
+
+  return [];
 }
 
 function buildSourceWhere(params: SourceListParams) {
@@ -428,7 +454,8 @@ function buildSourceMatchCandidateWhere(
         COALESCE(s.source_reference, '') || ' ' ||
         COALESCE(c.entity_label, '') || ' ' ||
         COALESCE(c.matched_alias, '') || ' ' ||
-        COALESCE(c.match_reason, '')
+        COALESCE(c.match_reason, '') || ' ' ||
+        COALESCE(c.match_metadata::text, '')
       ) LIKE $${values.length}
     `);
   }
@@ -441,6 +468,14 @@ function buildSourceMatchCandidateWhere(
   if (params.entityType?.trim()) {
     values.push(params.entityType.trim());
     clauses.push(`c.entity_type = $${values.length}`);
+  }
+
+  if (params.flagged) {
+    clauses.push(`
+      c.match_metadata ? 'review_flags'
+      AND jsonb_typeof(c.match_metadata->'review_flags') = 'array'
+      AND jsonb_array_length(c.match_metadata->'review_flags') > 0
+    `);
   }
 
   return {
@@ -628,7 +663,11 @@ export async function listSourceMatchCandidates(
       s.source_type_code,
       st.label AS source_type_label,
       s.credibility_status_code AS source_credibility_status_code,
-      ss.label AS source_credibility_status_label
+      ss.label AS source_credibility_status_label,
+      c.match_metadata->>'entity_country' AS entity_country,
+      c.match_metadata->>'entity_use_type' AS entity_use_type,
+      COALESCE(c.match_metadata->'article_country_candidates', '[]'::jsonb) AS article_country_candidates,
+      COALESCE(c.match_metadata->'review_flags', '[]'::jsonb) AS review_flags
     FROM source_entity_match_candidates c
     INNER JOIN sources s
       ON s.source_id = c.source_id

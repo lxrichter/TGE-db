@@ -16,6 +16,7 @@ type SourceMatchSearchParams = {
   search?: string;
   status?: string;
   entityType?: string;
+  flagged?: string;
 };
 
 type SourceMatchData =
@@ -51,6 +52,7 @@ async function getSourceMatchData(
         search: params.search,
         status: params.status,
         entityType: params.entityType,
+        flagged: params.flagged === "1",
       }),
       listSourceMatchStatusOptions(),
       getSourceMatchCandidateSummary(),
@@ -111,6 +113,7 @@ export default async function SourceMatchCandidatesPage({
     search: cleanParam(resolvedSearchParams.search),
     status: cleanParam(resolvedSearchParams.status),
     entityType: cleanParam(resolvedSearchParams.entityType),
+    flagged: cleanParam(resolvedSearchParams.flagged),
   };
   const data = await getSourceMatchData(filters);
 
@@ -154,7 +157,7 @@ export default async function SourceMatchCandidatesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+          <section className="grid grid-cols-2 gap-3 lg:grid-cols-7">
             <StatTile
               label="Candidates"
               value={formatCount(data.summary.total)}
@@ -174,6 +177,11 @@ export default async function SourceMatchCandidatesPage({
               label="Medium"
               value={formatCount(data.summary.mediumConfidence)}
               note="Suggested medium confidence"
+            />
+            <StatTile
+              label="Flags"
+              value={formatCount(data.summary.flaggedForReview)}
+              note="Needs careful review"
             />
             <StatTile
               label="Confirmed"
@@ -234,6 +242,18 @@ export default async function SourceMatchCandidatesPage({
                 </select>
               </label>
 
+              <label className="flex min-w-[170px] flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Review Flags
+                <select
+                  name="flagged"
+                  defaultValue={filters.flagged || ""}
+                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                >
+                  <option value="">All candidates</option>
+                  <option value="1">Flagged only</option>
+                </select>
+              </label>
+
               <div className="flex gap-2">
                 <button
                   type="submit"
@@ -241,6 +261,12 @@ export default async function SourceMatchCandidatesPage({
                 >
                   Apply
                 </button>
+                <Link
+                  href="/sources/matches?flagged=1"
+                  className="inline-flex h-10 items-center justify-center border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+                >
+                  Flagged
+                </Link>
                 <Link
                   href="/sources/matches"
                   className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
