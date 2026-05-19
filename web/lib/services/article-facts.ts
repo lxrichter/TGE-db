@@ -4,6 +4,7 @@ export type ArticleFactCandidateListParams = {
   limit?: number;
   offset?: number;
   search?: string;
+  sourceId?: string;
   status?: string;
   factType?: string;
   fieldName?: string;
@@ -188,6 +189,11 @@ function buildArticleFactCandidateWhere(
         COALESCE(af.extraction_metadata->>'url', '')
       ) LIKE $${values.length}
     `);
+  }
+
+  if (params.sourceId?.trim() && isUuid(params.sourceId.trim())) {
+    values.push(params.sourceId.trim());
+    clauses.push(`af.source_id = $${values.length}::uuid`);
   }
 
   if (params.status?.trim()) {

@@ -1,15 +1,23 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
+import ArticleFactCandidatesClient from "@/components/sources/ArticleFactCandidatesClient";
+import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import SourceStatusActions from "@/components/sources/SourceStatusActions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview, type UserRole } from "@/lib/auth/roles";
 import { listPostgresFieldSuggestionCandidatesForSource } from "@/lib/postgres-preview";
 import {
+  countSourceMatchCandidates,
   getSourceById,
+  listSourceMatchCandidates,
   type SourceDetail,
   type SourceLink,
 } from "@/lib/services/sources";
+import {
+  countArticleFactCandidates,
+  listArticleFactCandidates,
+} from "@/lib/services/article-facts";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -92,6 +100,19 @@ function visibilityTone(visibility: string): BadgeTone {
   return "amber";
 }
 
+function formatCode(value: string | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return value
+    .replaceAll("_", " ")
+    .replace(/\bmw\b/gi, "MW")
+    .replace(/\bmwe\b/gi, "MWe")
+    .replace(/\bmwth\b/gi, "MWth")
+    .replace(/\bcod\b/gi, "COD");
+}
+
 function Badge({
   label,
   tone = "neutral",
@@ -112,6 +133,59 @@ function Badge({
     >
       {label || "Unknown"}
     </span>
+  );
+}
+
+function WorkflowStep({
+  step,
+  title,
+  note,
+}: {
+  step: string;
+  title: string;
+  note: string;
+}) {
+  return (
+    <div className="border border-gray-200 bg-white px-4 py-4">
+      <div className="inline-flex h-7 min-w-7 items-center justify-center border border-[#b9d98b] bg-[#f1f8e8] px-2 text-xs font-bold text-[#3f6f19]">
+        {step}
+      </div>
+      <div className="mt-3 text-sm font-bold text-[#1f2937]">{title}</div>
+      <p className="mt-2 text-xs leading-5 text-gray-500">{note}</p>
+    </div>
+  );
+}
+
+function StatusTile({
+  label,
+  value,
+  note,
+  tone = "neutral",
+}: {
+  label: string;
+  value: React.ReactNode;
+  note: string;
+  tone?: BadgeTone;
+}) {
+  const accents = {
+    green: "border-l-[#8dc63f]",
+    amber: "border-l-amber-300",
+    red: "border-l-red-300",
+    neutral: "border-l-gray-300",
+  };
+
+  return (
+    <div
+      className={`border border-l-4 border-gray-200 bg-white px-4 py-4 ${accents[tone]}`}
+    >
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+        {value}
+      </div>
+      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+    </div>
   );
 }
 
@@ -149,42 +223,90 @@ function Section({
   );
 }
 
+function entityHref(link: SourceLink) {
+  if (link.entity_type === "project") {
+    return `/postgres-preview/projects/${link.entity_id}`;
+  }
+
+  if (link.entity_type === "operating_asset") {
+    return `/postgres-preview/operating-assets/${link.entity_id}`;
+  }
+
+  return `/postgres-preview/companies/${link.entity_id}`;
+}
+
+function entityTypeLabel(value: SourceLink["entity_type"]) {
+  if (value === "operating_asset") {
+    return "Plant / Facility";
+  }
+
+  if (value === "project") {
+    return "Project";
+  }
+
+  return "Company";
+}
+
 function LinkedEntityTable({ links }: { links: SourceLink[] }) {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full table-fixed text-left text-sm">
+      <table className="min-w-[1080px] table-fixed text-left text-sm">
         <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
           <tr>
-            <th className="w-[18%] px-4 py-3 font-semibold">Entity</th>
-            <th className="w-[26%] px-4 py-3 font-semibold">Record</th>
-            <th className="w-[14%] px-4 py-3 font-semibold">Country</th>
-            <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
-            <th className="w-[14%] px-4 py-3 font-semibold">Confidence</th>
-            <th className="w-[14%] px-4 py-3 font-semibold">Updated</th>
+            <th className="w-[14%] px-4 py-3 font-semibold">Entity</th>
+            <th className="w-[24%] px-4 py-3 font-semibold">Record</th>
+            <th className="w-[11%] px-4 py-3 font-semibold">Country</th>
+            <th className="w-[14%] px-4 py-3 font-semibold">Evidence</th>
+            <th className="w-[18%] px-4 py-3 font-semibold">Claim / Value</th>
+            <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
+            <th className="w-[9%] px-4 py-3 font-semibold">Updated</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
           {links.map((link) => (
             <tr key={link.entity_source_id} className="align-top">
               <td className="px-4 py-3 text-gray-700">
-                {link.entity_type === "operating_asset"
-                  ? "Plant / Facility"
-                  : link.entity_type === "project"
-                    ? "Project"
-                    : "Company"}
+                {entityTypeLabel(link.entity_type)}
               </td>
               <td className="px-4 py-3">
-                <div className="font-semibold text-[#1f2937]">
+                <Link
+                  className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  href={entityHref(link)}
+                >
                   {link.entity_name || "Unnamed record"}
-                </div>
+                </Link>
                 <div className="mt-1 text-xs text-gray-500">
                   {link.legacy_id || link.entity_id}
                 </div>
               </td>
               <td className="px-4 py-3 text-gray-700">{link.country || "-"}</td>
-              <td className="px-4 py-3 text-gray-700">{link.linked_field || "-"}</td>
+              <td className="px-4 py-3 text-gray-700">
+                <div className="font-medium text-[#1f2937]">
+                  {formatCode(link.evidence_type)}
+                </div>
+                {link.evidence_note ? (
+                  <div className="mt-2 text-xs leading-5 text-gray-500">
+                    {link.evidence_note}
+                  </div>
+                ) : null}
+              </td>
+              <td className="px-4 py-3 text-gray-700">
+                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {formatCode(link.linked_field)}
+                </div>
+                {link.extracted_value ? (
+                  <div className="mt-1 font-semibold text-[#1f2937]">
+                    {link.extracted_value}
+                  </div>
+                ) : null}
+                {link.claim_text ? (
+                  <div className="mt-2 text-xs leading-5 text-gray-500">
+                    {link.claim_text}
+                  </div>
+                ) : null}
+              </td>
               <td className="px-4 py-3">
-                <Badge label={link.confidence_status_code} />
+                <Badge label={formatCode(link.confidence_status_code)} />
                 {link.is_primary_evidence ? (
                   <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
                     Primary evidence
@@ -199,7 +321,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
 
           {links.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+              <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
                 This source is not linked to project, plant/facility, or company
                 records yet.
               </td>
@@ -262,14 +384,38 @@ export default async function SourceDetailPage({
   const source = data.source;
   const sourceTitle =
     source.title || source.url || source.source_reference || "Untitled source";
-  const [session, fieldSuggestionCandidates] = await Promise.all([
+  const [
+    session,
+    sourceMatchCandidates,
+    articleFactCandidates,
+    openSourceMatchCount,
+    openArticleFactCount,
+    fieldSuggestionCandidates,
+  ] = await Promise.all([
     getServerSession(authOptions),
+    listSourceMatchCandidates({ sourceId: source.source_id, limit: 25 }),
+    listArticleFactCandidates({ sourceId: source.source_id, limit: 25 }),
+    countSourceMatchCandidates({
+      sourceId: source.source_id,
+      openOnly: true,
+    }),
+    countArticleFactCandidates({
+      sourceId: source.source_id,
+      openOnly: true,
+    }),
     listPostgresFieldSuggestionCandidatesForSource(source.source_id),
   ]);
   const sessionUser = session?.user as
     | { role?: UserRole | string | null }
     | undefined;
   const canReviewSource = canReview(sessionUser?.role);
+  const openFieldSuggestionCount = fieldSuggestionCandidates.filter(
+    (candidate) =>
+      !candidate.applied_at &&
+      !["confirmed", "rejected", "superseded"].includes(
+        candidate.suggestion_status_code
+      )
+  ).length;
 
   return (
     <main className="space-y-8">
@@ -290,8 +436,9 @@ export default async function SourceDetailPage({
                 {sourceTitle}
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                PostgreSQL source profile with visibility controls, credibility
-                state, metadata, and linked evidence records.
+                Operational evidence workspace for source metadata, credibility
+                review, entity links, extracted fact candidates, and audited
+                field suggestions.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -315,6 +462,77 @@ export default async function SourceDetailPage({
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <WorkflowStep
+          step="1"
+          title="Source Record"
+          note="Imported or manually added metadata, URL/reference, visibility, and source type."
+        />
+        <WorkflowStep
+          step="2"
+          title="Credibility Review"
+          note="Editors mark whether the source is credible, weak, outdated, rejected, or still pending."
+        />
+        <WorkflowStep
+          step="3"
+          title="Evidence Link"
+          note="Confirmed links connect this source to projects, plants/facilities, or companies."
+        />
+        <WorkflowStep
+          step="4"
+          title="Fact / Candidate"
+          note="Extracted facts and AI field suggestions stay reviewable before they affect records."
+        />
+      </section>
+
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+        <StatusTile
+          label="Credibility"
+          value={
+            <span className="text-xl">
+              {source.credibility_status_label ||
+                formatCode(source.credibility_status_code)}
+            </span>
+          }
+          note="Current source review state"
+          tone={statusTone(source.credibility_status_code)}
+        />
+        <StatusTile
+          label="Visibility"
+          value={
+            <span className="text-xl">
+              {source.visibility_label || formatCode(source.visibility_code)}
+            </span>
+          }
+          note="Controls future export/subscriber exposure"
+          tone={visibilityTone(source.visibility_code)}
+        />
+        <StatusTile
+          label="Evidence Links"
+          value={formatCount(source.linked_entity_count)}
+          note="Confirmed source-to-record relationships"
+          tone={source.linked_entity_count > 0 ? "green" : "amber"}
+        />
+        <StatusTile
+          label="Open Matches"
+          value={formatCount(openSourceMatchCount)}
+          note="Article/entity candidates needing review"
+          tone={openSourceMatchCount > 0 ? "amber" : "neutral"}
+        />
+        <StatusTile
+          label="Open Facts"
+          value={formatCount(openArticleFactCount)}
+          note="Extracted fact candidates not finalized"
+          tone={openArticleFactCount > 0 ? "amber" : "neutral"}
+        />
+        <StatusTile
+          label="AI Suggestions"
+          value={formatCount(openFieldSuggestionCount)}
+          note="Reviewable field suggestions"
+          tone={openFieldSuggestionCount > 0 ? "amber" : "neutral"}
+        />
       </section>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
@@ -394,8 +612,38 @@ export default async function SourceDetailPage({
       </Section>
 
       <Section title="Linked Evidence">
+        <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="font-semibold text-[#1f2937]">Evidence link</div>
+            <p className="mt-1 text-xs leading-5">
+              A confirmed relationship between this source and a database
+              record. It does not automatically change fields.
+            </p>
+          </div>
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="font-semibold text-[#1f2937]">Claim context</div>
+            <p className="mt-1 text-xs leading-5">
+              Linked field, extracted value, and evidence note explain what the
+              source supports.
+            </p>
+          </div>
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="font-semibold text-[#1f2937]">Primary evidence</div>
+            <p className="mt-1 text-xs leading-5">
+              Primary evidence can later drive export readiness and confidence
+              scoring.
+            </p>
+          </div>
+        </div>
         <LinkedEntityTable links={source.links} />
       </Section>
+
+      <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+
+      <ArticleFactCandidatesClient
+        canReview={canReviewSource}
+        candidates={articleFactCandidates}
+      />
 
       <PostgresFieldSuggestionsPanel
         canReviewStatus={canReviewSource}

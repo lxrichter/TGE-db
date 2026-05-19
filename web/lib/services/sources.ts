@@ -23,6 +23,7 @@ export type SourceMatchCandidateListParams = {
   limit?: number;
   offset?: number;
   search?: string;
+  sourceId?: string;
   status?: string;
   entityType?: string;
   entityId?: string;
@@ -498,6 +499,11 @@ function buildSourceMatchCandidateWhere(
         COALESCE(c.match_metadata::text, '')
       ) LIKE $${values.length}
     `);
+  }
+
+  if (params.sourceId?.trim() && isUuid(params.sourceId.trim())) {
+    values.push(params.sourceId.trim());
+    clauses.push(`c.source_id = $${values.length}::uuid`);
   }
 
   if (params.status?.trim()) {
