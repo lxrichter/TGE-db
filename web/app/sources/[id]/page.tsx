@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
+import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import SourceStatusActions from "@/components/sources/SourceStatusActions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview, type UserRole } from "@/lib/auth/roles";
+import { listPostgresFieldSuggestionCandidatesForSource } from "@/lib/postgres-preview";
 import {
   getSourceById,
   type SourceDetail,
@@ -260,7 +262,10 @@ export default async function SourceDetailPage({
   const source = data.source;
   const sourceTitle =
     source.title || source.url || source.source_reference || "Untitled source";
-  const session = await getServerSession(authOptions);
+  const [session, fieldSuggestionCandidates] = await Promise.all([
+    getServerSession(authOptions),
+    listPostgresFieldSuggestionCandidatesForSource(source.source_id),
+  ]);
   const sessionUser = session?.user as
     | { role?: UserRole | string | null }
     | undefined;
@@ -391,6 +396,12 @@ export default async function SourceDetailPage({
       <Section title="Linked Evidence">
         <LinkedEntityTable links={source.links} />
       </Section>
+
+      <PostgresFieldSuggestionsPanel
+        canReviewStatus={canReviewSource}
+        candidates={fieldSuggestionCandidates}
+        showEntity
+      />
 
       {canReviewSource ? (
         <SourceStatusActions

@@ -4342,6 +4342,92 @@ export async function listPostgresFieldSuggestionCandidatesForEntity(
   }
 }
 
+export async function listPostgresFieldSuggestionCandidatesForSource(
+  sourceId: string,
+  limit = 25
+): Promise<PostgresFieldSuggestionCandidate[]> {
+  if (!isUuid(sourceId)) {
+    return [];
+  }
+
+  try {
+    const rows = await getPrismaClient().$queryRawUnsafe<
+      FieldSuggestionCandidateRow[]
+    >(
+      `
+      SELECT
+        f.field_suggestion_candidate_id::text,
+        f.entity_type,
+        COALESCE(
+          f.project_id,
+          f.operating_asset_id,
+          f.company_id
+        )::text AS entity_id,
+        COALESCE(
+          p.project_name,
+          a.asset_name,
+          c.company_name,
+          'Unknown record'
+        ) AS entity_name,
+        COALESCE(
+          p.country,
+          a.country,
+          c.headquarters_country
+        ) AS country,
+        f.field_name,
+        f.current_value,
+        f.suggested_value,
+        f.source_id::text,
+        s.title AS source_title,
+        s.source_reference,
+        f.confidence_score::float8 AS confidence_score,
+        f.suggestion_status_code,
+        status.label AS suggestion_status_label,
+        f.suggestion_reason,
+        f.generated_by,
+        f.generated_at,
+        f.updated_at
+      FROM field_suggestion_candidates f
+      LEFT JOIN projects p
+        ON p.project_id = f.project_id
+      LEFT JOIN operating_assets a
+        ON a.operating_asset_id = f.operating_asset_id
+      LEFT JOIN companies c
+        ON c.company_id = f.company_id
+      LEFT JOIN sources s
+        ON s.source_id = f.source_id
+      LEFT JOIN ref_field_suggestion_statuses status
+        ON status.code = f.suggestion_status_code
+      WHERE f.source_id = $1::uuid
+      ORDER BY
+        CASE f.suggestion_status_code
+          WHEN 'suggested_high_confidence' THEN 1
+          WHEN 'suggested_medium_confidence' THEN 2
+          WHEN 'suggested_low_confidence' THEN 3
+          WHEN 'needs_review' THEN 4
+          WHEN 'confirmed' THEN 8
+          WHEN 'rejected' THEN 9
+          WHEN 'superseded' THEN 10
+          ELSE 7
+        END,
+        f.confidence_score DESC,
+        f.generated_at DESC
+      LIMIT $2
+      `,
+      sourceId,
+      Math.min(Math.max(limit, 1), 100)
+    );
+
+    return rows.map(toFieldSuggestionCandidate);
+  } catch (error) {
+    if (isMissingRelationError(error, "field_suggestion_candidates")) {
+      return [];
+    }
+
+    throw error;
+  }
+}
+
 async function setPostgresFieldSuggestionCandidateStatus(
   candidateId: string,
   statusCode: "confirmed" | "rejected" | "needs_review",

@@ -26,12 +26,42 @@ function sourceHref(candidate: PostgresFieldSuggestionCandidate) {
   return candidate.source_id ? `/sources/${candidate.source_id}` : null;
 }
 
+function entityHref(candidate: PostgresFieldSuggestionCandidate) {
+  if (candidate.entity_type === "project") {
+    return `/postgres-preview/projects/${candidate.entity_id}`;
+  }
+
+  if (candidate.entity_type === "operating_asset") {
+    return `/postgres-preview/operating-assets/${candidate.entity_id}`;
+  }
+
+  return `/postgres-preview/companies/${candidate.entity_id}`;
+}
+
+function entityTypeLabel(value: string) {
+  if (value === "operating_asset") {
+    return "Plant / Facility";
+  }
+
+  if (value === "project") {
+    return "Project";
+  }
+
+  if (value === "company") {
+    return "Company";
+  }
+
+  return value.replaceAll("_", " ");
+}
+
 export default function PostgresFieldSuggestionsPanel({
   candidates,
   canReviewStatus,
+  showEntity = false,
 }: {
   candidates: PostgresFieldSuggestionCandidate[];
   canReviewStatus: boolean;
+  showEntity?: boolean;
 }) {
   const router = useRouter();
   const [busyCandidateId, setBusyCandidateId] = useState<string | null>(null);
@@ -130,21 +160,29 @@ export default function PostgresFieldSuggestionsPanel({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-[980px] table-fixed text-left text-sm">
+          <table
+            className={`table-fixed text-left text-sm ${
+              showEntity ? "min-w-[1120px]" : "min-w-[980px]"
+            }`}
+          >
             <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
               <tr>
-                <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
-                <th className="w-[16%] px-4 py-3 font-semibold">Current</th>
-                <th className="w-[18%] px-4 py-3 font-semibold">Suggested</th>
-                <th className="w-[18%] px-4 py-3 font-semibold">Evidence</th>
-                <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
-                <th className="w-[10%] px-4 py-3 font-semibold">Status</th>
-                <th className="w-[14%] px-4 py-3 font-semibold">Actions</th>
+                {showEntity ? (
+                  <th className="w-[18%] px-4 py-3 font-semibold">Record</th>
+                ) : null}
+                <th className="w-[13%] px-4 py-3 font-semibold">Field</th>
+                <th className="w-[15%] px-4 py-3 font-semibold">Current</th>
+                <th className="w-[17%] px-4 py-3 font-semibold">Suggested</th>
+                <th className="w-[17%] px-4 py-3 font-semibold">Evidence</th>
+                <th className="w-[9%] px-4 py-3 font-semibold">Confidence</th>
+                <th className="w-[9%] px-4 py-3 font-semibold">Status</th>
+                <th className="w-[12%] px-4 py-3 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {candidates.map((candidate) => {
                 const href = sourceHref(candidate);
+                const targetHref = entityHref(candidate);
                 const isBusy =
                   busyCandidateId === candidate.field_suggestion_candidate_id;
                 const isSuperseded =
@@ -155,6 +193,22 @@ export default function PostgresFieldSuggestionsPanel({
                     key={candidate.field_suggestion_candidate_id}
                     className="align-top"
                   >
+                    {showEntity ? (
+                      <td className="px-4 py-3">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          {entityTypeLabel(candidate.entity_type)}
+                        </div>
+                        <Link
+                          href={targetHref}
+                          className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        >
+                          {candidate.entity_name}
+                        </Link>
+                        <div className="mt-1 text-xs text-gray-500">
+                          {candidate.country || "No country"}
+                        </div>
+                      </td>
+                    ) : null}
                     <td className="px-4 py-3 font-semibold text-[#1f2937]">
                       {candidate.field_name}
                       <div className="mt-1 text-xs font-normal text-gray-500">
