@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
 import { canEdit, canReview } from "@/lib/auth/roles";
 import {
+  AuditTrailPanel,
   DetailFieldGrid,
   DetailSection,
   DetailShell,
@@ -23,6 +24,7 @@ import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewOperatingAssetById,
   getPostgresResearchOpsIssueReferenceData,
+  listPostgresAuditEventsForEntity,
   listPostgresFieldSuggestionCandidatesForEntity,
   listPostgresOperatingAssetCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
@@ -154,6 +156,7 @@ export default async function PostgresOperatingAssetDetailPage({
     sourceReferenceData,
     fieldSuggestionCandidates,
     sourceMatchCandidates,
+    auditEvents,
     session,
   ] =
     await Promise.all([
@@ -172,6 +175,7 @@ export default async function PostgresOperatingAssetDetailPage({
         limit: 12,
         openOnly: true,
       }),
+      listPostgresAuditEventsForEntity("operating_asset", id),
       getServerSession(authOptions),
     ]);
 
@@ -319,6 +323,8 @@ export default async function PostgresOperatingAssetDetailPage({
         issueReferenceData={issueReferenceData}
         issues={researchIssues}
       />
+
+      <AuditTrailPanel events={auditEvents} />
 
       <ExportReadinessPanel
         issues={getAssetReadinessIssues(asset)}

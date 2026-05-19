@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import type { PostgresEntitySourceLink } from "@/lib/postgres-preview";
+import type {
+  PostgresAuditEvent,
+  PostgresEntitySourceLink,
+} from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
 
 export type DetailField = {
@@ -32,11 +35,160 @@ function renderValue(value: ReactNode) {
   return value;
 }
 
+function formatAuditEventType(value: string) {
+  return value.replaceAll("_", " ");
+}
+
+function formatAuditDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "UTC",
+  }).format(new Date(value));
+}
+
+function asAuditRecord(value: unknown): Record<string, unknown> | null {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return null;
+}
+
+function formatAuditValue(value: unknown): string {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(formatAuditValue).join(" -> ");
+  }
+
+  if (typeof value === "object") {
+    return JSON.stringify(value);
+  }
+
+  return String(value);
+}
+
+function auditChangeSummary(event: PostgresAuditEvent) {
+  const fields = asAuditRecord(event.changed_fields);
+
+  if (!fields) {
+    return event.event_note || "-";
+  }
+
+  if (typeof fields.field_name === "string") {
+    return `${fields.field_name}: ${formatAuditValue(
+      fields.previous_value
+    )} -> ${formatAuditValue(fields.next_value)}`;
+  }
+
+  if (Array.isArray(fields.review_status_code)) {
+    return `review_status_code: ${formatAuditValue(fields.review_status_code)}`;
+  }
+
+  const entries = Object.entries(fields)
+    .filter(([, value]) => value !== null && value !== undefined && value !== "")
+    .slice(0, 3);
+
+  if (entries.length === 0) {
+    return event.event_note || "-";
+  }
+
+  return entries
+    .map(([key, value]) => `${key}: ${formatAuditValue(value)}`)
+    .join("; ");
+}
+
 export function StatusBadge({ value }: { value: string | null }) {
   return (
     <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
       {value || "unknown"}
     </span>
+  );
+}
+
+export function AuditTrailPanel({ events }: { events: PostgresAuditEvent[] }) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Activity / Audit Trail
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Recent governed changes for this staging record, including review
+            status changes and audited AI-assisted field applications.
+          </p>
+        </div>
+        <StatusBadge value={`${formatCount(events.length)} events`} />
+      </div>
+
+      {events.length === 0 ? (
+        <div className="px-5 py-5">
+          <div className="border border-dashed border-gray-300 bg-[#fbfbfb] px-4 py-5 text-sm leading-6 text-gray-600">
+            No audit events recorded yet for this staging record.
+          </div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-[980px] table-fixed text-left text-sm">
+            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="w-[17%] px-4 py-3 font-semibold">Event</th>
+                <th className="w-[16%] px-4 py-3 font-semibold">Actor</th>
+                <th className="w-[19%] px-4 py-3 font-semibold">Review</th>
+                <th className="w-[30%] px-4 py-3 font-semibold">Change</th>
+                <th className="w-[18%] px-4 py-3 font-semibold">Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {events.map((event) => (
+                <tr key={event.audit_event_id} className="align-top">
+                  <td className="px-4 py-3 font-semibold capitalize text-[#1f2937]">
+                    {formatAuditEventType(event.event_type)}
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {event.actor_name || "System"}
+                    {event.actor_email ? (
+                      <div className="mt-1 text-xs text-gray-500">
+                        {event.actor_email}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {event.previous_review_status_code ||
+                    event.next_review_status_code ? (
+                      <>
+                        {event.previous_review_status_code || "-"} {"->"}{" "}
+                        {event.next_review_status_code || "-"}
+                      </>
+                    ) : (
+                      <EmptyValue />
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {auditChangeSummary(event)}
+                    {event.event_note ? (
+                      <div className="mt-2 line-clamp-2 text-xs text-gray-500">
+                        {event.event_note}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {formatAuditDate(event.created_at)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
 

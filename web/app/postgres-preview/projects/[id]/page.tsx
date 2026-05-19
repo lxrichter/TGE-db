@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
 import { canEdit, canPromoteProject, canReview } from "@/lib/auth/roles";
 import {
+  AuditTrailPanel,
   DetailFieldGrid,
   DetailSection,
   DetailShell,
@@ -25,6 +26,7 @@ import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
   getPostgresResearchOpsIssueReferenceData,
+  listPostgresAuditEventsForEntity,
   listPostgresFieldSuggestionCandidatesForEntity,
   listPostgresPromotedOperatingAssets,
   listPostgresProjectCompanyLinks,
@@ -155,6 +157,7 @@ export default async function PostgresProjectDetailPage({
     sourceReferenceData,
     fieldSuggestionCandidates,
     sourceMatchCandidates,
+    auditEvents,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
@@ -173,6 +176,7 @@ export default async function PostgresProjectDetailPage({
       limit: 12,
       openOnly: true,
     }),
+    listPostgresAuditEventsForEntity("project", id),
     getServerSession(authOptions),
   ]);
 
@@ -332,6 +336,8 @@ export default async function PostgresProjectDetailPage({
         issueReferenceData={issueReferenceData}
         issues={researchIssues}
       />
+
+      <AuditTrailPanel events={auditEvents} />
 
       <ExportReadinessPanel
         issues={getProjectReadinessIssues(project)}

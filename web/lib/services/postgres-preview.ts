@@ -593,6 +593,20 @@ export type PostgresReviewStatusUpdateResult = {
   updated_at: string;
 };
 
+export type PostgresAuditEvent = {
+  audit_event_id: string;
+  entity_type: PostgresReviewEntityType;
+  entity_id: string;
+  event_type: string;
+  previous_review_status_code: string | null;
+  next_review_status_code: string | null;
+  actor_name: string | null;
+  actor_email: string | null;
+  event_note: string | null;
+  changed_fields: unknown;
+  created_at: string;
+};
+
 export type PostgresPromotedOperatingAsset = {
   operating_asset_id: string;
   legacy_plant_id: string | null;
@@ -688,6 +702,10 @@ type ReviewStatusUpdateRow = Omit<
   "updated_at"
 > & {
   updated_at: string | Date;
+};
+
+type AuditEventRow = Omit<PostgresAuditEvent, "created_at"> & {
+  created_at: string | Date;
 };
 
 type PromotedOperatingAssetRow = Omit<
@@ -1805,6 +1823,45 @@ export async function updatePostgresReviewStatus(
     entity_type: config.entityType,
     updated_at: normalizeTimestamp(rows[0].updated_at),
   };
+}
+
+export async function listPostgresAuditEventsForEntity(
+  entityType: PostgresReviewEntityType,
+  entityId: string,
+  limit = 20
+): Promise<PostgresAuditEvent[]> {
+  if (!isUuid(entityId)) {
+    return [];
+  }
+
+  const rows = await getPrismaClient().$queryRawUnsafe<AuditEventRow[]>(
+    `
+    SELECT
+      audit.audit_event_id::text,
+      audit.entity_type,
+      audit.entity_id::text,
+      audit.event_type,
+      audit.previous_review_status_code,
+      audit.next_review_status_code,
+      actor.name AS actor_name,
+      actor.email AS actor_email,
+      audit.event_note,
+      audit.changed_fields,
+      audit.created_at
+    FROM audit_events audit
+    LEFT JOIN app_users actor
+      ON actor.user_id = audit.actor_user_id
+    WHERE audit.entity_type = $1
+      AND audit.entity_id = $2::uuid
+    ORDER BY audit.created_at DESC
+    LIMIT $3
+    `,
+    entityType,
+    entityId,
+    Math.min(Math.max(limit, 1), 100)
+  );
+
+  return rows.map(toAuditEvent);
 }
 
 export async function getPostgresEntityFormReferenceData(): Promise<PostgresEntityFormReferenceData> {
@@ -3165,6 +3222,13 @@ function toFieldSuggestionCandidate(
     generated_at: normalizeTimestamp(row.generated_at),
     applied_at: row.applied_at ? normalizeTimestamp(row.applied_at) : null,
     updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+function toAuditEvent(row: AuditEventRow): PostgresAuditEvent {
+  return {
+    ...row,
+    created_at: normalizeTimestamp(row.created_at),
   };
 }
 
