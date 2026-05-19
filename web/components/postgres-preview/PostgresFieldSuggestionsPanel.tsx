@@ -70,7 +70,7 @@ export default function PostgresFieldSuggestionsPanel({
     (candidate) =>
       !["confirmed", "rejected", "superseded"].includes(
         candidate.suggestion_status_code
-      )
+      ) && !candidate.applied_at
   ).length;
 
   async function submitAction(
@@ -96,16 +96,31 @@ export default function PostgresFieldSuggestionsPanel({
       const payload = (await response.json()) as {
         success?: boolean;
         error?: string;
-        result?: { requested?: number; updated?: number };
+        result?: {
+          requested?: number;
+          updated?: number;
+          applied?: number;
+          skipped?: number;
+        };
       };
 
       if (!response.ok || !payload.success) {
         throw new Error(payload.error || "Field suggestion update failed.");
       }
 
-      setMessage(
-        `Updated ${formatCount(payload.result?.updated || 0)} suggestion.`
-      );
+      if (action === "apply") {
+        setMessage(
+          `Applied ${formatCount(
+            payload.result?.applied || 0
+          )} confirmed suggestion; skipped ${formatCount(
+            payload.result?.skipped || 0
+          )}.`
+        );
+      } else {
+        setMessage(
+          `Updated ${formatCount(payload.result?.updated || 0)} suggestion.`
+        );
+      }
       router.refresh();
     } catch (error) {
       setMessage(
@@ -127,8 +142,8 @@ export default function PostgresFieldSuggestionsPanel({
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             Reviewable field candidates for this record. Confirming a suggestion
-            marks it as accepted for a later controlled apply workflow; it does
-            not update the record fields yet.
+            marks it as accepted. Applying confirmed suggestions is a separate
+            audited write step and only updates supported empty fields.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -187,6 +202,10 @@ export default function PostgresFieldSuggestionsPanel({
                   busyCandidateId === candidate.field_suggestion_candidate_id;
                 const isSuperseded =
                   candidate.suggestion_status_code === "superseded";
+                const isApplied = Boolean(candidate.applied_at);
+                const isApplyReady =
+                  candidate.suggestion_status_code === "confirmed" &&
+                  !isApplied;
 
                 return (
                   <tr
@@ -248,12 +267,22 @@ export default function PostgresFieldSuggestionsPanel({
                     <td className="px-4 py-3 text-gray-700">
                       {candidate.suggestion_status_label ||
                         candidate.suggestion_status_code}
+                      {candidate.applied_at ? (
+                        <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
+                          Applied {formatDate(candidate.applied_at)}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          disabled={!canReviewStatus || isBusy || isSuperseded}
+                          disabled={
+                            !canReviewStatus ||
+                            isBusy ||
+                            isSuperseded ||
+                            isApplied
+                          }
                           onClick={() => submitAction(candidate, "confirm")}
                           className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                         >
@@ -261,7 +290,22 @@ export default function PostgresFieldSuggestionsPanel({
                         </button>
                         <button
                           type="button"
-                          disabled={!canReviewStatus || isBusy || isSuperseded}
+                          disabled={
+                            !canReviewStatus || isBusy || !isApplyReady
+                          }
+                          onClick={() => submitAction(candidate, "apply")}
+                          className="inline-flex h-8 items-center border border-[#1f2937] bg-[#1f2937] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                        >
+                          Apply
+                        </button>
+                        <button
+                          type="button"
+                          disabled={
+                            !canReviewStatus ||
+                            isBusy ||
+                            isSuperseded ||
+                            isApplied
+                          }
                           onClick={() => submitAction(candidate, "reject")}
                           className="inline-flex h-8 items-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                         >

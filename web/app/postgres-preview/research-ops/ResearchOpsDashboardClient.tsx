@@ -31,7 +31,11 @@ type SeverityFilter = "all" | ResearchOpsQueueSeverity;
 type EntityFilter = "all" | EntityType;
 type BulkTarget = "records" | "sources";
 type AssignmentFilter = "all" | "mine" | "unassigned";
-type FieldSuggestionReviewAction = "confirm" | "reject" | "needs_review";
+type FieldSuggestionReviewAction =
+  | "confirm"
+  | "reject"
+  | "needs_review"
+  | "apply";
 type QueueGroupKey =
   | "missing_data"
   | "sources_evidence"
@@ -907,11 +911,35 @@ function fieldSuggestionHref(candidate: PostgresFieldSuggestionCandidate) {
   return `/postgres-preview/companies/${candidate.entity_id}`;
 }
 
-function isClosedFieldSuggestion(candidate: PostgresFieldSuggestionCandidate) {
+function isAppliedFieldSuggestion(candidate: PostgresFieldSuggestionCandidate) {
+  return Boolean(candidate.applied_at);
+}
+
+function isSelectableFieldSuggestion(
+  candidate: PostgresFieldSuggestionCandidate
+) {
   return (
-    candidate.suggestion_status_code === "confirmed" ||
-    candidate.suggestion_status_code === "rejected" ||
-    candidate.suggestion_status_code === "superseded"
+    !isAppliedFieldSuggestion(candidate) &&
+    candidate.suggestion_status_code !== "rejected" &&
+    candidate.suggestion_status_code !== "superseded"
+  );
+}
+
+function isReviewOpenFieldSuggestion(
+  candidate: PostgresFieldSuggestionCandidate
+) {
+  return (
+    isSelectableFieldSuggestion(candidate) &&
+    candidate.suggestion_status_code !== "confirmed"
+  );
+}
+
+function isApplyReadyFieldSuggestion(
+  candidate: PostgresFieldSuggestionCandidate
+) {
+  return (
+    !isAppliedFieldSuggestion(candidate) &&
+    candidate.suggestion_status_code === "confirmed"
   );
 }
 
@@ -936,6 +964,16 @@ function FieldSuggestionReviewPanel({
       label: "Open",
       value: summary.open,
       note: "Awaiting human review",
+    },
+    {
+      label: "Apply Ready",
+      value: summary.applyReady,
+      note: "Confirmed, not written yet",
+    },
+    {
+      label: "Applied",
+      value: summary.applied,
+      note: "Written with audit event",
     },
     {
       label: "High",
@@ -966,7 +1004,7 @@ function FieldSuggestionReviewPanel({
   const selectableCandidateIds = useMemo(
     () =>
       candidates
-        .filter((candidate) => !isClosedFieldSuggestion(candidate))
+        .filter(isSelectableFieldSuggestion)
         .map((candidate) => candidate.field_suggestion_candidate_id),
     [candidates]
   );
@@ -975,9 +1013,16 @@ function FieldSuggestionReviewPanel({
       candidates
         .filter(
           (candidate) =>
-            !isClosedFieldSuggestion(candidate) &&
+            isReviewOpenFieldSuggestion(candidate) &&
             candidate.suggestion_status_code === "suggested_high_confidence"
         )
+        .map((candidate) => candidate.field_suggestion_candidate_id),
+    [candidates]
+  );
+  const applyReadyCandidateIds = useMemo(
+    () =>
+      candidates
+        .filter(isApplyReadyFieldSuggestion)
         .map((candidate) => candidate.field_suggestion_candidate_id),
     [candidates]
   );
@@ -1035,6 +1080,11 @@ function FieldSuggestionReviewPanel({
     setSelectedCandidateIds(new Set(highConfidenceCandidateIds));
   }
 
+  function selectApplyReadyCandidates() {
+    setActionMessage(null);
+    setSelectedCandidateIds(new Set(applyReadyCandidateIds));
+  }
+
   async function submitFieldSuggestionAction(
     action: FieldSuggestionReviewAction
   ) {
@@ -1057,18 +1107,35 @@ function FieldSuggestionReviewPanel({
       const payload = (await response.json()) as {
         success?: boolean;
         error?: string;
-        result?: { requested?: number; updated?: number };
+        result?: {
+          requested?: number;
+          updated?: number;
+          applied?: number;
+          skipped?: number;
+        };
       };
 
       if (!response.ok || !payload.success) {
         throw new Error(payload.error || "Field suggestion update failed.");
       }
 
-      setActionMessage(
-        `Updated ${formatCount(payload.result?.updated || 0)} of ${formatCount(
-          payload.result?.requested || selectedCandidateIds.size
-        )} selected suggestion(s).`
-      );
+      if (action === "apply") {
+        setActionMessage(
+          `Applied ${formatCount(
+            payload.result?.applied || 0
+          )} confirmed suggestion(s); skipped ${formatCount(
+            payload.result?.skipped || 0
+          )}.`
+        );
+      } else {
+        setActionMessage(
+          `Updated ${formatCount(
+            payload.result?.updated || 0
+          )} of ${formatCount(
+            payload.result?.requested || selectedCandidateIds.size
+          )} selected suggestion(s).`
+        );
+      }
       setSelectedCandidateIds(new Set());
       router.refresh();
     } catch (error) {
@@ -1104,7 +1171,7 @@ function FieldSuggestionReviewPanel({
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-4 xl:grid-cols-8">
         {cards.map((card) => (
           <div key={card.label} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -1148,11 +1215,31 @@ function FieldSuggestionReviewPanel({
               </button>
               <button
                 type="button"
+                disabled={
+                  !canReviewStatus ||
+                  applyReadyCandidateIds.length === 0 ||
+                  Boolean(busyAction)
+                }
+                onClick={selectApplyReadyCandidates}
+                className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                Select apply-ready
+              </button>
+              <button
+                type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("confirm")}
                 className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {busyAction === "confirm" ? "Confirming..." : "Confirm selected"}
+              </button>
+              <button
+                type="button"
+                disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
+                onClick={() => submitFieldSuggestionAction("apply")}
+                className="inline-flex h-8 items-center border border-[#1f2937] bg-[#1f2937] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                {busyAction === "apply" ? "Applying..." : "Apply confirmed"}
               </button>
               <button
                 type="button"
@@ -1224,7 +1311,7 @@ function FieldSuggestionReviewPanel({
                         )}
                         disabled={
                           !canReviewStatus ||
-                          isClosedFieldSuggestion(candidate)
+                          !isSelectableFieldSuggestion(candidate)
                         }
                         onChange={(event) =>
                           toggleCandidate(
@@ -1241,6 +1328,11 @@ function FieldSuggestionReviewPanel({
                         {candidate.suggestion_status_label ||
                           candidate.suggestion_status_code}
                       </div>
+                      {candidate.applied_at ? (
+                        <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
+                          Applied {formatDate(candidate.applied_at)}
+                        </div>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3">
                       <Link
@@ -1303,9 +1395,10 @@ function FieldSuggestionReviewPanel({
       )}
 
       <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
-        Total candidates: {formatCount(summary.total)}. This review step only
-        updates suggestion status; applying accepted values to entity records
-        remains a later controlled workflow.
+        Total candidates: {formatCount(summary.total)}. Confirm first, then
+        apply confirmed suggestions as a separate audited write step. Applying
+        only updates supported empty fields and leaves validation/export
+        approval under editor control.
       </div>
     </section>
   );

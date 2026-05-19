@@ -455,6 +455,8 @@ export type PostgresResearchOpsDashboard = {
 export type PostgresFieldSuggestionSummary = {
   total: number;
   open: number;
+  applyReady: number;
+  applied: number;
   highConfidence: number;
   mediumConfidence: number;
   lowConfidence: number;
@@ -481,17 +483,22 @@ export type PostgresFieldSuggestionCandidate = {
   suggestion_reason: string | null;
   generated_by: string;
   generated_at: string;
+  applied_at: string | null;
+  applied_audit_event_id: string | null;
   updated_at: string;
 };
 
 export type PostgresFieldSuggestionAction =
   | "confirm"
   | "reject"
-  | "needs_review";
+  | "needs_review"
+  | "apply";
 
 export type PostgresFieldSuggestionBulkResult = {
   requested: number;
   updated: number;
+  applied?: number;
+  skipped?: number;
 };
 
 export type PostgresResearchOpsIssueType = PostgresReferenceOption & {
@@ -623,6 +630,8 @@ type RecentEditRow = Omit<PostgresResearchOpsRecentEdit, "updated_at"> & {
 type FieldSuggestionSummaryRow = {
   total: number | bigint;
   open: number | bigint;
+  apply_ready: number | bigint;
+  applied: number | bigint;
   high_confidence: number | bigint;
   medium_confidence: number | bigint;
   low_confidence: number | bigint;
@@ -633,15 +642,45 @@ type FieldSuggestionSummaryRow = {
 
 type FieldSuggestionCandidateRow = Omit<
   PostgresFieldSuggestionCandidate,
-  "confidence_score" | "generated_at" | "updated_at"
+  "confidence_score" | "generated_at" | "applied_at" | "updated_at"
 > & {
   confidence_score: number | string;
   generated_at: string | Date;
+  applied_at: string | Date | null;
   updated_at: string | Date;
 };
 
 type FieldSuggestionCandidateUpdateRow = {
   field_suggestion_candidate_id: string;
+};
+
+type FieldSuggestionApplyFieldConfig = {
+  fieldCast: "numeric" | "int";
+  valueType: "decimal" | "year";
+};
+
+type FieldSuggestionApplyTarget = {
+  tableName: "projects" | "operating_assets";
+  idColumn: "project_id" | "operating_asset_id";
+  fields: Record<string, FieldSuggestionApplyFieldConfig>;
+};
+
+type FieldSuggestionApplyCandidateRow = {
+  field_suggestion_candidate_id: string;
+  entity_type: string;
+  field_name: string;
+  suggested_value: string;
+  normalized_value: unknown;
+  suggestion_reason: string | null;
+  source_id: string | null;
+  source_reference: string | null;
+  confidence_score: number | string;
+  generated_by: string;
+};
+
+type FieldSuggestionApplyUpdateRow = {
+  field_suggestion_candidate_id: string;
+  applied_audit_event_id: string | null;
 };
 
 type ReviewStatusUpdateRow = Omit<
@@ -656,6 +695,26 @@ type PromotedOperatingAssetRow = Omit<
   "created_at"
 > & {
   created_at: string | Date;
+};
+
+const fieldSuggestionApplyTargets: Record<string, FieldSuggestionApplyTarget> = {
+  project: {
+    tableName: "projects",
+    idColumn: "project_id",
+    fields: {
+      electric_capacity_mwe: { fieldCast: "numeric", valueType: "decimal" },
+      thermal_capacity_mwth: { fieldCast: "numeric", valueType: "decimal" },
+      target_cod_year: { fieldCast: "int", valueType: "year" },
+    },
+  },
+  operating_asset: {
+    tableName: "operating_assets",
+    idColumn: "operating_asset_id",
+    fields: {
+      electric_capacity_mwe: { fieldCast: "numeric", valueType: "decimal" },
+      thermal_capacity_mwth: { fieldCast: "numeric", valueType: "decimal" },
+    },
+  },
 };
 
 type ResearchOpsIssueRow = Omit<
@@ -3104,6 +3163,7 @@ function toFieldSuggestionCandidate(
     ...row,
     confidence_score: Number(row.confidence_score),
     generated_at: normalizeTimestamp(row.generated_at),
+    applied_at: row.applied_at ? normalizeTimestamp(row.applied_at) : null,
     updated_at: normalizeTimestamp(row.updated_at),
   };
 }
@@ -4110,6 +4170,13 @@ export async function getPostgresFieldSuggestionSummary(): Promise<PostgresField
           WHERE suggestion_status_code NOT IN ('confirmed', 'rejected', 'superseded')
         )::int AS open,
         COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'confirmed'
+            AND applied_at IS NULL
+        )::int AS apply_ready,
+        COUNT(*) FILTER (
+          WHERE applied_at IS NOT NULL
+        )::int AS applied,
+        COUNT(*) FILTER (
           WHERE suggestion_status_code = 'suggested_high_confidence'
         )::int AS high_confidence,
         COUNT(*) FILTER (
@@ -4135,6 +4202,8 @@ export async function getPostgresFieldSuggestionSummary(): Promise<PostgresField
     return {
       total: toNumber(row?.total),
       open: toNumber(row?.open),
+      applyReady: toNumber(row?.apply_ready),
+      applied: toNumber(row?.applied),
       highConfidence: toNumber(row?.high_confidence),
       mediumConfidence: toNumber(row?.medium_confidence),
       lowConfidence: toNumber(row?.low_confidence),
@@ -4147,6 +4216,8 @@ export async function getPostgresFieldSuggestionSummary(): Promise<PostgresField
       return {
         total: 0,
         open: 0,
+        applyReady: 0,
+        applied: 0,
         highConfidence: 0,
         mediumConfidence: 0,
         lowConfidence: 0,
@@ -4199,6 +4270,8 @@ export async function listPostgresFieldSuggestionCandidates(
         f.suggestion_reason,
         f.generated_by,
         f.generated_at,
+        f.applied_at,
+        f.applied_audit_event_id::text,
         f.updated_at
       FROM field_suggestion_candidates f
       LEFT JOIN projects p
@@ -4298,6 +4371,8 @@ export async function listPostgresFieldSuggestionCandidatesForEntity(
         f.suggestion_reason,
         f.generated_by,
         f.generated_at,
+        f.applied_at,
+        f.applied_audit_event_id::text,
         f.updated_at
       FROM field_suggestion_candidates f
       LEFT JOIN projects p
@@ -4386,6 +4461,8 @@ export async function listPostgresFieldSuggestionCandidatesForSource(
         f.suggestion_reason,
         f.generated_by,
         f.generated_at,
+        f.applied_at,
+        f.applied_audit_event_id::text,
         f.updated_at
       FROM field_suggestion_candidates f
       LEFT JOIN projects p
@@ -4471,6 +4548,215 @@ async function setPostgresFieldSuggestionCandidateStatus(
   return rows[0] ?? null;
 }
 
+function asNormalizedValueRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+}
+
+function parseFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value.replace(/,/g, "").trim());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
+function parseSuggestedFieldValue(
+  row: FieldSuggestionApplyCandidateRow,
+  fieldConfig: FieldSuggestionApplyFieldConfig
+) {
+  const normalizedValue = asNormalizedValueRecord(row.normalized_value);
+
+  if (fieldConfig.valueType === "year") {
+    const normalizedYear = parseFiniteNumber(normalizedValue.year);
+    const textYear = parseFiniteNumber(row.suggested_value);
+    const year = normalizedYear ?? textYear;
+
+    if (year === null || !Number.isInteger(year) || year < 1900 || year > 2100) {
+      return null;
+    }
+
+    return year;
+  }
+
+  return (
+    parseFiniteNumber(normalizedValue.value) ??
+    parseFiniteNumber(row.suggested_value)
+  );
+}
+
+async function applyPostgresFieldSuggestionCandidate(
+  candidateId: string,
+  actorUserId?: string | null
+): Promise<FieldSuggestionApplyUpdateRow | null> {
+  const candidateRows = await getPrismaClient().$queryRawUnsafe<
+    FieldSuggestionApplyCandidateRow[]
+  >(
+    `
+    SELECT
+      f.field_suggestion_candidate_id::text,
+      f.entity_type,
+      f.field_name,
+      f.suggested_value,
+      f.normalized_value,
+      f.suggestion_reason,
+      f.source_id::text,
+      s.source_reference,
+      f.confidence_score::float8 AS confidence_score,
+      f.generated_by
+    FROM field_suggestion_candidates f
+    LEFT JOIN sources s
+      ON s.source_id = f.source_id
+    WHERE f.field_suggestion_candidate_id = $1::uuid
+      AND f.suggestion_status_code = 'confirmed'
+      AND f.applied_at IS NULL
+    LIMIT 1
+    `,
+    candidateId
+  );
+  const candidate = candidateRows[0];
+
+  if (!candidate) {
+    return null;
+  }
+
+  const targetConfig = fieldSuggestionApplyTargets[candidate.entity_type];
+  const fieldConfig = targetConfig?.fields[candidate.field_name];
+
+  if (!targetConfig || !fieldConfig) {
+    return null;
+  }
+
+  const parsedValue = parseSuggestedFieldValue(candidate, fieldConfig);
+
+  if (parsedValue === null) {
+    return null;
+  }
+
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
+  const eventNote = [
+    "Applied confirmed field suggestion.",
+    candidate.source_reference ? `Source: ${candidate.source_reference}.` : "",
+    candidate.suggestion_reason ? `Reason: ${candidate.suggestion_reason}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    FieldSuggestionApplyUpdateRow[]
+  >(
+    `
+    WITH actor AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $4::uuid
+      LIMIT 1
+    ),
+    candidate AS (
+      SELECT *
+      FROM field_suggestion_candidates
+      WHERE field_suggestion_candidate_id = $1::uuid
+        AND entity_type = $5
+        AND field_name = $6
+        AND suggestion_status_code = 'confirmed'
+        AND applied_at IS NULL
+      FOR UPDATE
+    ),
+    current_record AS (
+      SELECT
+        target.${targetConfig.idColumn},
+        target.${candidate.field_name}::text AS previous_value,
+        target.review_status_code AS previous_review_status_code
+      FROM ${targetConfig.tableName} target
+      INNER JOIN candidate
+        ON candidate.${targetConfig.idColumn} = target.${targetConfig.idColumn}
+      WHERE target.${candidate.field_name} IS NULL
+      FOR UPDATE
+    ),
+    updated_record AS (
+      UPDATE ${targetConfig.tableName} target
+      SET
+        ${candidate.field_name} = $2::${fieldConfig.fieldCast},
+        review_status_code = CASE
+          WHEN current_record.previous_review_status_code IN ('approved', 'export_ready')
+            THEN 'needs_update'
+          ELSE target.review_status_code
+        END,
+        last_updated_by_user_id = COALESCE(
+          (SELECT user_id FROM actor),
+          target.last_updated_by_user_id
+        ),
+        updated_at = now()
+      FROM current_record
+      WHERE target.${targetConfig.idColumn} = current_record.${targetConfig.idColumn}
+      RETURNING
+        target.${targetConfig.idColumn}::text AS entity_id,
+        current_record.previous_value,
+        target.${candidate.field_name}::text AS next_value,
+        current_record.previous_review_status_code,
+        target.review_status_code AS next_review_status_code
+    ),
+    audit AS (
+      INSERT INTO audit_events (
+        entity_type,
+        entity_id,
+        event_type,
+        previous_review_status_code,
+        next_review_status_code,
+        actor_user_id,
+        event_note,
+        changed_fields
+      )
+      SELECT
+        $5,
+        entity_id::uuid,
+        'field_suggestion_applied',
+        previous_review_status_code,
+        next_review_status_code,
+        (SELECT user_id FROM actor),
+        $3,
+        jsonb_build_object(
+          'field_name', $6::text,
+          'previous_value', previous_value,
+          'next_value', next_value,
+          'field_suggestion_candidate_id', $1::text,
+          'source_id', candidate.source_id::text,
+          'confidence_score', candidate.confidence_score::text,
+          'generated_by', candidate.generated_by
+        )
+      FROM updated_record
+      CROSS JOIN candidate
+      RETURNING audit_event_id
+    )
+    UPDATE field_suggestion_candidates f
+    SET
+      applied_at = now(),
+      applied_audit_event_id = (SELECT audit_event_id FROM audit),
+      updated_at = now()
+    WHERE f.field_suggestion_candidate_id = $1::uuid
+      AND EXISTS (SELECT 1 FROM audit)
+    RETURNING
+      f.field_suggestion_candidate_id::text,
+      f.applied_audit_event_id::text
+    `,
+    candidateId,
+    parsedValue,
+    cleanOptionalText(eventNote),
+    normalizedActorUserId,
+    candidate.entity_type,
+    candidate.field_name
+  );
+
+  return rows[0] ?? null;
+}
+
 export async function updatePostgresFieldSuggestionCandidates({
   candidateIds,
   action,
@@ -4481,16 +4767,46 @@ export async function updatePostgresFieldSuggestionCandidates({
   actorUserId?: string | null;
 }): Promise<PostgresFieldSuggestionBulkResult> {
   const validCandidateIds = [...new Set(candidateIds.filter(isUuid))];
+  const result: PostgresFieldSuggestionBulkResult = {
+    requested: validCandidateIds.length,
+    updated: 0,
+  };
+
+  if (action === "apply") {
+    result.applied = 0;
+    result.skipped = 0;
+
+    try {
+      for (const candidateId of validCandidateIds) {
+        const row = await applyPostgresFieldSuggestionCandidate(
+          candidateId,
+          actorUserId
+        );
+
+        if (row) {
+          result.applied += 1;
+          result.updated += 1;
+        } else {
+          result.skipped += 1;
+        }
+      }
+    } catch (error) {
+      if (isMissingRelationError(error, "field_suggestion_candidates")) {
+        return result;
+      }
+
+      throw error;
+    }
+
+    return result;
+  }
+
   const statusCode =
     action === "confirm"
       ? "confirmed"
       : action === "reject"
         ? "rejected"
         : "needs_review";
-  const result: PostgresFieldSuggestionBulkResult = {
-    requested: validCandidateIds.length,
-    updated: 0,
-  };
 
   try {
     for (const candidateId of validCandidateIds) {

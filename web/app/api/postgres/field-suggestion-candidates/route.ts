@@ -15,7 +15,12 @@ function asRecord(body: unknown): Record<string, unknown> | null {
 }
 
 function parseAction(value: unknown): PostgresFieldSuggestionAction | null {
-  if (value === "confirm" || value === "reject" || value === "needs_review") {
+  if (
+    value === "confirm" ||
+    value === "reject" ||
+    value === "needs_review" ||
+    value === "apply"
+  ) {
     return value;
   }
 
