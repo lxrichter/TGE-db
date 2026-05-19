@@ -17,14 +17,15 @@ Current implemented functionality:
 - TGE article/entity matching writes review candidates first
 - confirmed article/entity candidates can create real `entity_sources` links
 - Research Ops separates generated queues from persistent human-created issues
-
-Current newly prepared schema:
-
-- `field_suggestion_candidates`
-- `ref_field_suggestion_statuses`
-
-These tables are schema groundwork only. There is not yet a production AI
-extraction service, AI UI, or automatic field-update workflow.
+- `field_suggestion_candidates` and `ref_field_suggestion_statuses` exist in
+  PostgreSQL staging
+- Research Ops shows field suggestion counts and review candidates
+- editors/admins can confirm, reject, or mark field suggestions as needing
+  review
+- project, plant/facility, and company profiles show record-level field
+  suggestions
+- project, plant/facility, and company profiles show open article/source match
+  candidates when they exist
 
 ## Core Principle
 
@@ -40,7 +41,9 @@ AI-generated or rule-generated suggestions must not directly overwrite:
 - export-ready status
 
 Instead, AI-assisted workflows should create reviewable candidates. A researcher
-or editor can then confirm, reject, or revise those candidates.
+or editor can then confirm, reject, or defer those candidates. In the current
+implementation, confirming a field suggestion updates only the suggestion
+status. It does not yet apply the suggested value to the entity record.
 
 ## Candidate Workflow
 
@@ -52,12 +55,14 @@ Recommended workflow:
 4. Suggestions appear in Research Ops and on the relevant record profile.
 5. A researcher/editor reviews the evidence, current value, suggested value,
    confidence, and source.
-6. Confirmed suggestions update the real entity field through normal
-   application logic.
-7. Confirmation creates or reuses a real source/evidence link where appropriate.
-8. The target record moves to `validation` or `needs_update` if the change
-   affects approved/export-ready data.
-9. An audit event records the applied change.
+6. Confirmed suggestions enter the future controlled apply workflow.
+7. Applying a confirmed suggestion should update the real entity field through
+   normal application logic.
+8. Applying a confirmed suggestion should create or reuse a real source/evidence
+   link where appropriate.
+9. The target record should move to `validation` or `needs_update` if the
+   change affects approved/export-ready data.
+10. An audit event should record the applied change.
 
 Rejected suggestions remain stored for auditability and to avoid repeatedly
 suggesting the same weak match.
@@ -157,18 +162,23 @@ replace them.
 
 ## Record Page Integration
 
-Project, plant/facility, and company detail pages should eventually show a
-compact "Suggested Updates" panel:
+Project, plant/facility, and company detail pages currently show a compact AI
+Field Suggestions panel:
 
 - current value
 - suggested value
 - source/evidence
 - confidence
 - reason
-- confirm/reject/defer actions
+- confirm/reject actions
 
 Confirmed suggestions should open a controlled edit/review flow rather than
 silently changing fields inline.
+
+The same profiles also show open article/source match candidates when matching
+has suggested related TGE articles for that record. Confirming those article
+matches can create real evidence links; flagged candidates remain blocked from
+bulk confirmation.
 
 ## Source / Document Integration
 
@@ -205,18 +215,16 @@ MVP groundwork:
 - field suggestion candidate schema
 - Research Ops review queues
 - human confirmation requirement
-
-Next implementation slices:
-
-- list field suggestion candidates in Research Ops
-- show record-level suggestion panels
-- add confirm/reject API routes
-- add controlled apply workflow
-- create first deterministic extraction scripts for article metadata and
-  selected source fields
+- field suggestion review API
+- Research Ops field suggestion review controls
+- record-level AI field suggestion panels
+- record-level article match candidate review
 
 Future:
 
+- controlled apply workflow for confirmed field suggestions
+- first deterministic extraction scripts for article metadata and selected
+  source fields
 - PDF/document ingestion
 - full-text semantic retrieval
 - AI extraction from document bodies
