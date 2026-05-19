@@ -22,7 +22,9 @@ export type SourceMatchCandidateListParams = {
   search?: string;
   status?: string;
   entityType?: string;
+  entityId?: string;
   flagged?: boolean;
+  openOnly?: boolean;
 };
 
 export type SourceListItem = {
@@ -466,9 +468,18 @@ function buildSourceMatchCandidateWhere(
     clauses.push(`c.match_status_code = $${values.length}`);
   }
 
+  if (params.openOnly) {
+    clauses.push(`c.match_status_code NOT IN ('confirmed', 'rejected')`);
+  }
+
   if (params.entityType?.trim()) {
     values.push(params.entityType.trim());
     clauses.push(`c.entity_type = $${values.length}`);
+  }
+
+  if (params.entityId?.trim() && isUuid(params.entityId.trim())) {
+    values.push(params.entityId.trim());
+    clauses.push(`c.entity_id = $${values.length}::uuid`);
   }
 
   if (params.flagged) {

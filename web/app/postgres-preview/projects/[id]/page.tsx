@@ -18,6 +18,7 @@ import PostgresProjectPromotionPanel from "@/components/postgres-preview/Postgre
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
+import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import type { PostgresPreviewProjectDetail } from "@/lib/postgres-preview";
 import {
   getPostgresCompanyRelationshipReferenceData,
@@ -29,7 +30,11 @@ import {
   listPostgresProjectCompanyLinks,
   listPostgresResearchOpsIssuesForEntity,
 } from "@/lib/postgres-preview";
-import { getSourceFormReferenceData, listSources } from "@/lib/services/sources";
+import {
+  getSourceFormReferenceData,
+  listSourceMatchCandidates,
+  listSources,
+} from "@/lib/services/sources";
 import { formatCount, formatMw } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -149,6 +154,7 @@ export default async function PostgresProjectDetailPage({
     sourceOptions,
     sourceReferenceData,
     fieldSuggestionCandidates,
+    sourceMatchCandidates,
     session,
   ] = await Promise.all([
     getPostgresPreviewProjectById(id),
@@ -161,6 +167,12 @@ export default async function PostgresProjectDetailPage({
     listSources({ limit: 250 }),
     getSourceFormReferenceData(),
     listPostgresFieldSuggestionCandidatesForEntity("project", id),
+    listSourceMatchCandidates({
+      entityType: "project",
+      entityId: id,
+      limit: 12,
+      openOnly: true,
+    }),
     getServerSession(authOptions),
   ]);
 
@@ -280,6 +292,10 @@ export default async function PostgresProjectDetailPage({
         entityId={project.project_id}
         sources={project.sources}
       />
+
+      {sourceMatchCandidates.length > 0 ? (
+        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+      ) : null}
 
       <PostgresFieldSuggestionsPanel
         canReviewStatus={canReview(role)}

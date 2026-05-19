@@ -17,6 +17,7 @@ import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresR
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
+import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import {
   getPostgresCompanyRelationshipReferenceData,
   getPostgresEntityFormReferenceData,
@@ -29,7 +30,11 @@ import {
   listPostgresResearchOpsIssuesForEntity,
   type PostgresPreviewCompanyDetail,
 } from "@/lib/postgres-preview";
-import { getSourceFormReferenceData, listSources } from "@/lib/services/sources";
+import {
+  getSourceFormReferenceData,
+  listSourceMatchCandidates,
+  listSources,
+} from "@/lib/services/sources";
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -118,6 +123,7 @@ export default async function PostgresCompanyDetailPage({
     sourceOptions,
     sourceReferenceData,
     fieldSuggestionCandidates,
+    sourceMatchCandidates,
     session,
   ] = await Promise.all([
     getPostgresPreviewCompanyById(id),
@@ -131,6 +137,12 @@ export default async function PostgresCompanyDetailPage({
     listSources({ limit: 250 }),
     getSourceFormReferenceData(),
     listPostgresFieldSuggestionCandidatesForEntity("company", id),
+    listSourceMatchCandidates({
+      entityType: "company",
+      entityId: id,
+      limit: 12,
+      openOnly: true,
+    }),
     getServerSession(authOptions),
   ]);
 
@@ -262,6 +274,10 @@ export default async function PostgresCompanyDetailPage({
         entityId={company.company_id}
         sources={company.sources}
       />
+
+      {sourceMatchCandidates.length > 0 ? (
+        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+      ) : null}
 
       <PostgresFieldSuggestionsPanel
         canReviewStatus={canReview(role)}
