@@ -19,6 +19,10 @@ import {
   getSourceReferenceData,
   type SourceMatchCandidateSummary,
 } from "@/lib/services/sources";
+import {
+  getArticleFactCandidateSummary,
+  type ArticleFactCandidateSummary,
+} from "@/lib/services/article-facts";
 import { ResearchOpsDashboardClient } from "./ResearchOpsDashboardClient";
 
 export const dynamic = "force-dynamic";
@@ -46,6 +50,7 @@ type ResearchOpsData =
       } | null;
       issueReferenceData: PostgresResearchOpsIssueReferenceData;
       sourceMatchSummary: SourceMatchCandidateSummary;
+      articleFactSummary: ArticleFactCandidateSummary;
       fieldSuggestionSummary: PostgresFieldSuggestionSummary;
       fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
     }
@@ -62,6 +67,7 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
       sourceReferenceData,
       issueReferenceData,
       sourceMatchSummary,
+      articleFactSummary,
       fieldSuggestionSummary,
       fieldSuggestionCandidates,
     ] =
@@ -71,6 +77,7 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
         getSourceReferenceData(),
         getPostgresResearchOpsIssueReferenceData(),
         getSourceMatchCandidateSummary(),
+        getArticleFactCandidateSummary(),
         getPostgresFieldSuggestionSummary(),
         listPostgresFieldSuggestionCandidates(12),
       ]);
@@ -91,6 +98,7 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
         : null,
       issueReferenceData,
       sourceMatchSummary,
+      articleFactSummary,
       fieldSuggestionSummary,
       fieldSuggestionCandidates,
     };
@@ -158,6 +166,7 @@ export default async function PostgresResearchOpsPage() {
           currentUser={data.currentUser}
           issueReferenceData={data.issueReferenceData}
           sourceMatchSummary={data.sourceMatchSummary}
+          articleFactSummary={data.articleFactSummary}
           fieldSuggestionSummary={data.fieldSuggestionSummary}
           fieldSuggestionCandidates={data.fieldSuggestionCandidates}
         />

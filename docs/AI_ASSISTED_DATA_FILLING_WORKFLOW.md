@@ -228,6 +228,8 @@ MVP groundwork:
 - `article_fact_candidates` staging table for compact reviewable article facts
 - `/sources/facts` article fact review page with filters, pagination, compact
   evidence snippets, confidence/status display, and bulk candidate triage
+- Research Ops article fact review visibility with quick links into Sources /
+  Documents
 
 Future:
 

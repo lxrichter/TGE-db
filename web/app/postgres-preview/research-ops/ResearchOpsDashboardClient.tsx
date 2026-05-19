@@ -21,6 +21,7 @@ import {
   type ResearchOpsQueueSeverity,
 } from "@/lib/postgres-preview";
 import type { SourceMatchCandidateSummary } from "@/lib/services/sources";
+import type { ArticleFactCandidateSummary } from "@/lib/services/article-facts";
 
 type EntityType = PostgresResearchOpsQueueItem["entity_type"];
 type ResearchOpsRecord = PostgresResearchOpsQueueItem | PostgresResearchOpsRecentEdit;
@@ -354,7 +355,7 @@ function OperationalStatusBar({
   };
 
   return (
-    <section className="grid grid-cols-2 gap-3 xl:grid-cols-7">
+    <section className="grid grid-cols-2 gap-3 xl:grid-cols-8">
       {metrics.map((metric) => {
         const content = (
           <>
@@ -792,6 +793,103 @@ function ArticleMatchReviewPanel({
         Open candidate workload: {formatCount(summary.open)}. Matching does not
         create evidence links; confirmation in Sources creates or reuses
         reviewed evidence links.
+      </div>
+    </section>
+  );
+}
+
+function ArticleFactReviewPanel({
+  summary,
+}: {
+  summary: ArticleFactCandidateSummary;
+}) {
+  const factLinks = [
+    {
+      label: "Candidates",
+      value: summary.total,
+      href: "/sources/facts",
+      note: "Extracted article facts",
+    },
+    {
+      label: "Open",
+      value: summary.open,
+      href: "/sources/facts?status=suggested",
+      note: "Suggested or needs review",
+    },
+    {
+      label: "Confirmed",
+      value: summary.confirmed,
+      href: "/sources/facts?status=confirmed",
+      note: "Accepted facts",
+    },
+    {
+      label: "Rejected",
+      value: summary.rejected,
+      href: "/sources/facts?status=rejected",
+      note: "Dismissed facts",
+    },
+    {
+      label: "Entity Signals",
+      value: summary.withEntitySignal,
+      href: "/sources/facts",
+      note: "Facts with entity labels",
+    },
+    {
+      label: "Source Rows",
+      value: summary.withSourceRecord,
+      href: "/sources/facts",
+      note: "Linked to source records",
+    },
+  ];
+
+  return (
+    <section
+      id="article-fact-review"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Article Fact Review
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Compact article facts are reviewed separately from entity fields.
+            Confirmed facts can later feed human-approved field suggestions, but
+            they do not update project, plant/facility, or company records here.
+          </p>
+        </div>
+        <Link
+          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          href="/sources/facts"
+        >
+          Review Facts
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-6">
+        {factLinks.map((item) => (
+          <Link
+            key={item.label}
+            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f] hover:bg-[#f3f8ec]"
+            href={item.href}
+          >
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {item.label}
+            </div>
+            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+              {formatCount(item.value)}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {item.note}
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+        Article fact review is a staging layer for future AI-assisted data
+        filling. It intentionally stays separate from evidence-link creation and
+        entity field updates.
       </div>
     </section>
   );
@@ -2327,6 +2425,7 @@ export function ResearchOpsDashboardClient({
   currentUser,
   issueReferenceData,
   sourceMatchSummary,
+  articleFactSummary,
   fieldSuggestionSummary,
   fieldSuggestionCandidates,
 }: {
@@ -2337,6 +2436,7 @@ export function ResearchOpsDashboardClient({
   currentUser: { id: string; name: string | null } | null;
   issueReferenceData: PostgresResearchOpsIssueReferenceData;
   sourceMatchSummary: SourceMatchCandidateSummary;
+  articleFactSummary: ArticleFactCandidateSummary;
   fieldSuggestionSummary: PostgresFieldSuggestionSummary;
   fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
 }) {
@@ -2703,6 +2803,13 @@ export function ResearchOpsDashboardClient({
             tone: "workflow",
             onClick: () => scrollToPageSection("field-suggestion-review"),
           },
+          {
+            label: "Article Facts",
+            value: articleFactSummary.total,
+            note: "Reviewed extraction candidates",
+            tone: "workflow",
+            onClick: () => scrollToPageSection("article-fact-review"),
+          },
         ]}
       />
 
@@ -2718,6 +2825,8 @@ export function ResearchOpsDashboardClient({
       />
 
       <ArticleMatchReviewPanel summary={sourceMatchSummary} />
+
+      <ArticleFactReviewPanel summary={articleFactSummary} />
 
       <FieldSuggestionReviewPanel
         canReviewStatus={canReviewStatus}

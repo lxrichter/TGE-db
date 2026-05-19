@@ -111,6 +111,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   editor/admin bulk triage actions; these actions update only
   `article_fact_candidates` review status and do not update entity records or
   create evidence links
+- PostgreSQL Research Ops now includes article fact review visibility, linking
+  the extraction candidate workload into the operational dashboard while keeping
+  the detailed review workflow in Sources / Documents
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
