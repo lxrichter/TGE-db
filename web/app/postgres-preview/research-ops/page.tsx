@@ -4,8 +4,12 @@ import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
 import {
   getPostgresEntityFormReferenceData,
+  getPostgresFieldSuggestionSummary,
   getPostgresResearchOpsIssueReferenceData,
   getPostgresResearchOpsDashboard,
+  listPostgresFieldSuggestionCandidates,
+  type PostgresFieldSuggestionCandidate,
+  type PostgresFieldSuggestionSummary,
   type PostgresResearchOpsDashboard,
   type PostgresResearchOpsIssueReferenceData,
 } from "@/lib/postgres-preview";
@@ -42,6 +46,8 @@ type ResearchOpsData =
       } | null;
       issueReferenceData: PostgresResearchOpsIssueReferenceData;
       sourceMatchSummary: SourceMatchCandidateSummary;
+      fieldSuggestionSummary: PostgresFieldSuggestionSummary;
+      fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
     }
   | {
       ok: false;
@@ -56,6 +62,8 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
       sourceReferenceData,
       issueReferenceData,
       sourceMatchSummary,
+      fieldSuggestionSummary,
+      fieldSuggestionCandidates,
     ] =
       await Promise.all([
         getPostgresResearchOpsDashboard(100),
@@ -63,6 +71,8 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
         getSourceReferenceData(),
         getPostgresResearchOpsIssueReferenceData(),
         getSourceMatchCandidateSummary(),
+        getPostgresFieldSuggestionSummary(),
+        listPostgresFieldSuggestionCandidates(12),
       ]);
     const [session, currentUser] = await Promise.all([
       getServerSession(authOptions),
@@ -81,6 +91,8 @@ async function getResearchOpsData(): Promise<ResearchOpsData> {
         : null,
       issueReferenceData,
       sourceMatchSummary,
+      fieldSuggestionSummary,
+      fieldSuggestionCandidates,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -146,6 +158,8 @@ export default async function PostgresResearchOpsPage() {
           currentUser={data.currentUser}
           issueReferenceData={data.issueReferenceData}
           sourceMatchSummary={data.sourceMatchSummary}
+          fieldSuggestionSummary={data.fieldSuggestionSummary}
+          fieldSuggestionCandidates={data.fieldSuggestionCandidates}
         />
       )}
     </main>

@@ -452,6 +452,38 @@ export type PostgresResearchOpsDashboard = {
   recentEdits: PostgresResearchOpsRecentEdit[];
 };
 
+export type PostgresFieldSuggestionSummary = {
+  total: number;
+  open: number;
+  highConfidence: number;
+  mediumConfidence: number;
+  lowConfidence: number;
+  confirmed: number;
+  rejected: number;
+  superseded: number;
+};
+
+export type PostgresFieldSuggestionCandidate = {
+  field_suggestion_candidate_id: string;
+  entity_type: PostgresReviewEntityType;
+  entity_id: string;
+  entity_name: string;
+  country: string | null;
+  field_name: string;
+  current_value: string | null;
+  suggested_value: string;
+  source_id: string | null;
+  source_title: string | null;
+  source_reference: string | null;
+  confidence_score: number;
+  suggestion_status_code: string;
+  suggestion_status_label: string | null;
+  suggestion_reason: string | null;
+  generated_by: string;
+  generated_at: string;
+  updated_at: string;
+};
+
 export type PostgresResearchOpsIssueType = PostgresReferenceOption & {
   severity: ResearchOpsQueueSeverity;
   description: string | null;
@@ -575,6 +607,26 @@ type QueueItemRow = Omit<PostgresResearchOpsQueueItem, "updated_at"> & {
 };
 
 type RecentEditRow = Omit<PostgresResearchOpsRecentEdit, "updated_at"> & {
+  updated_at: string | Date;
+};
+
+type FieldSuggestionSummaryRow = {
+  total: number | bigint;
+  open: number | bigint;
+  high_confidence: number | bigint;
+  medium_confidence: number | bigint;
+  low_confidence: number | bigint;
+  confirmed: number | bigint;
+  rejected: number | bigint;
+  superseded: number | bigint;
+};
+
+type FieldSuggestionCandidateRow = Omit<
+  PostgresFieldSuggestionCandidate,
+  "confidence_score" | "generated_at" | "updated_at"
+> & {
+  confidence_score: number | string;
+  generated_at: string | Date;
   updated_at: string | Date;
 };
 
@@ -1383,6 +1435,19 @@ function toNullableNumber(value: NullableNumeric): number | null {
   }
 
   return value.toNumber();
+}
+
+function toNumber(value: number | bigint | string | null | undefined) {
+  return Number(value ?? 0);
+}
+
+function isMissingRelationError(error: unknown, relationName: string) {
+  const message = error instanceof Error ? error.message : String(error);
+
+  return (
+    message.includes(`relation "${relationName}" does not exist`) ||
+    message.includes(`relation ${relationName} does not exist`)
+  );
 }
 
 export async function listPostgresPreviewProjects(
@@ -3018,6 +3083,17 @@ function toResearchOpsIssue(row: ResearchOpsIssueRow): PostgresResearchOpsIssue 
   };
 }
 
+function toFieldSuggestionCandidate(
+  row: FieldSuggestionCandidateRow
+): PostgresFieldSuggestionCandidate {
+  return {
+    ...row,
+    confidence_score: Number(row.confidence_score),
+    generated_at: normalizeTimestamp(row.generated_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
 function entityColumnForResearchIssue(
   entityType: PostgresResearchOpsIssueEntityType
 ) {
@@ -4006,6 +4082,147 @@ export async function updatePostgresResearchOpsIssueStatus(
   return (
     issues.find((issue) => issue.research_ops_issue_id === input.issueId) ?? null
   );
+}
+
+export async function getPostgresFieldSuggestionSummary(): Promise<PostgresFieldSuggestionSummary> {
+  try {
+    const rows = await getPrismaClient().$queryRawUnsafe<
+      FieldSuggestionSummaryRow[]
+    >(
+      `
+      SELECT
+        COUNT(*)::int AS total,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code NOT IN ('confirmed', 'rejected', 'superseded')
+        )::int AS open,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'suggested_high_confidence'
+        )::int AS high_confidence,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'suggested_medium_confidence'
+        )::int AS medium_confidence,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'suggested_low_confidence'
+        )::int AS low_confidence,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'confirmed'
+        )::int AS confirmed,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'rejected'
+        )::int AS rejected,
+        COUNT(*) FILTER (
+          WHERE suggestion_status_code = 'superseded'
+        )::int AS superseded
+      FROM field_suggestion_candidates
+      `
+    );
+    const row = rows[0];
+
+    return {
+      total: toNumber(row?.total),
+      open: toNumber(row?.open),
+      highConfidence: toNumber(row?.high_confidence),
+      mediumConfidence: toNumber(row?.medium_confidence),
+      lowConfidence: toNumber(row?.low_confidence),
+      confirmed: toNumber(row?.confirmed),
+      rejected: toNumber(row?.rejected),
+      superseded: toNumber(row?.superseded),
+    };
+  } catch (error) {
+    if (isMissingRelationError(error, "field_suggestion_candidates")) {
+      return {
+        total: 0,
+        open: 0,
+        highConfidence: 0,
+        mediumConfidence: 0,
+        lowConfidence: 0,
+        confirmed: 0,
+        rejected: 0,
+        superseded: 0,
+      };
+    }
+
+    throw error;
+  }
+}
+
+export async function listPostgresFieldSuggestionCandidates(
+  limit = 12
+): Promise<PostgresFieldSuggestionCandidate[]> {
+  try {
+    const rows = await getPrismaClient().$queryRawUnsafe<
+      FieldSuggestionCandidateRow[]
+    >(
+      `
+      SELECT
+        f.field_suggestion_candidate_id::text,
+        f.entity_type,
+        COALESCE(
+          f.project_id,
+          f.operating_asset_id,
+          f.company_id
+        )::text AS entity_id,
+        COALESCE(
+          p.project_name,
+          a.asset_name,
+          c.company_name,
+          'Unknown record'
+        ) AS entity_name,
+        COALESCE(
+          p.country,
+          a.country,
+          c.headquarters_country
+        ) AS country,
+        f.field_name,
+        f.current_value,
+        f.suggested_value,
+        f.source_id::text,
+        s.title AS source_title,
+        s.source_reference,
+        f.confidence_score::float8 AS confidence_score,
+        f.suggestion_status_code,
+        status.label AS suggestion_status_label,
+        f.suggestion_reason,
+        f.generated_by,
+        f.generated_at,
+        f.updated_at
+      FROM field_suggestion_candidates f
+      LEFT JOIN projects p
+        ON p.project_id = f.project_id
+      LEFT JOIN operating_assets a
+        ON a.operating_asset_id = f.operating_asset_id
+      LEFT JOIN companies c
+        ON c.company_id = f.company_id
+      LEFT JOIN sources s
+        ON s.source_id = f.source_id
+      LEFT JOIN ref_field_suggestion_statuses status
+        ON status.code = f.suggestion_status_code
+      ORDER BY
+        CASE f.suggestion_status_code
+          WHEN 'suggested_high_confidence' THEN 1
+          WHEN 'suggested_medium_confidence' THEN 2
+          WHEN 'suggested_low_confidence' THEN 3
+          WHEN 'needs_review' THEN 4
+          WHEN 'confirmed' THEN 8
+          WHEN 'rejected' THEN 9
+          WHEN 'superseded' THEN 10
+          ELSE 7
+        END,
+        f.confidence_score DESC,
+        f.generated_at DESC
+      LIMIT $1
+      `,
+      Math.min(Math.max(limit, 1), 100)
+    );
+
+    return rows.map(toFieldSuggestionCandidate);
+  } catch (error) {
+    if (isMissingRelationError(error, "field_suggestion_candidates")) {
+      return [];
+    }
+
+    throw error;
+  }
 }
 
 export async function getPostgresResearchOpsDashboard(

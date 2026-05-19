@@ -10,6 +10,8 @@ import PostgresReviewStatusActions, {
 } from "@/components/postgres-preview/PostgresReviewStatusActions";
 import {
   type PostgresResearchOpsDashboard,
+  type PostgresFieldSuggestionCandidate,
+  type PostgresFieldSuggestionSummary,
   type PostgresResearchOpsIssue,
   type PostgresResearchOpsIssueReferenceData,
   type PostgresResearchOpsQueue,
@@ -151,6 +153,10 @@ function formatEntityType(value: EntityType) {
   }
 
   return "Source";
+}
+
+function formatConfidence(value: number) {
+  return `${Math.round(value * 100)}%`;
 }
 
 function severityClasses(severity: ResearchOpsQueueSeverity) {
@@ -347,7 +353,7 @@ function OperationalStatusBar({
   };
 
   return (
-    <section className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+    <section className="grid grid-cols-2 gap-3 xl:grid-cols-7">
       {metrics.map((metric) => {
         const content = (
           <>
@@ -779,6 +785,188 @@ function ArticleMatchReviewPanel({
         Open candidate workload: {formatCount(summary.open)}. Matching does not
         create evidence links; confirmation in Sources creates or reuses
         reviewed evidence links.
+      </div>
+    </section>
+  );
+}
+
+function fieldSuggestionHref(candidate: PostgresFieldSuggestionCandidate) {
+  if (candidate.entity_type === "project") {
+    return `/postgres-preview/projects/${candidate.entity_id}`;
+  }
+
+  if (candidate.entity_type === "operating_asset") {
+    return `/postgres-preview/operating-assets/${candidate.entity_id}`;
+  }
+
+  return `/postgres-preview/companies/${candidate.entity_id}`;
+}
+
+function FieldSuggestionReviewPanel({
+  summary,
+  candidates,
+}: {
+  summary: PostgresFieldSuggestionSummary;
+  candidates: PostgresFieldSuggestionCandidate[];
+}) {
+  const cards = [
+    {
+      label: "Open",
+      value: summary.open,
+      note: "Awaiting human review",
+    },
+    {
+      label: "High",
+      value: summary.highConfidence,
+      note: "Best first review set",
+    },
+    {
+      label: "Medium",
+      value: summary.mediumConfidence,
+      note: "Useful but needs care",
+    },
+    {
+      label: "Low",
+      value: summary.lowConfidence,
+      note: "Weak or ambiguous",
+    },
+    {
+      label: "Confirmed",
+      value: summary.confirmed,
+      note: "Accepted suggestions",
+    },
+    {
+      label: "Rejected",
+      value: summary.rejected + summary.superseded,
+      note: "Rejected or superseded",
+    },
+  ];
+
+  return (
+    <section
+      id="field-suggestion-review"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            AI Field Suggestion Review
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            AI-assisted extraction should create review candidates first. These
+            suggestions do not update project, plant/facility, or company fields
+            until a researcher/editor confirms them through a controlled apply
+            workflow.
+          </p>
+        </div>
+        <span className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800">
+          Human confirmation required
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-6">
+        {cards.map((card) => (
+          <div key={card.label} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {card.label}
+            </div>
+            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+              {formatCount(card.value)}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {card.note}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {candidates.length === 0 ? (
+        <div className="border-t border-gray-100 px-5 py-5 text-sm leading-6 text-gray-600">
+          No field suggestions are available yet. This is expected until
+          extraction scripts begin writing review candidates.
+        </div>
+      ) : (
+        <div className="overflow-x-auto border-t border-gray-100">
+          <table className="min-w-[1180px] table-fixed text-left text-sm">
+            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="w-[12%] px-4 py-3 font-semibold">Type</th>
+                <th className="w-[20%] px-4 py-3 font-semibold">Record</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
+                <th className="w-[15%] px-4 py-3 font-semibold">Current</th>
+                <th className="w-[15%] px-4 py-3 font-semibold">Suggested</th>
+                <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {candidates.map((candidate) => (
+                <tr
+                  key={candidate.field_suggestion_candidate_id}
+                  className="align-top"
+                >
+                  <td className="px-4 py-3 text-gray-700">
+                    {formatEntityType(candidate.entity_type)}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {candidate.suggestion_status_label ||
+                        candidate.suggestion_status_code}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={fieldSuggestionHref(candidate)}
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    >
+                      {candidate.entity_name}
+                    </Link>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {candidate.country || "No country"}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {candidate.field_name}
+                    {candidate.source_title || candidate.source_reference ? (
+                      <div className="mt-2 line-clamp-2 text-xs text-gray-500">
+                        {candidate.source_title || candidate.source_reference}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {candidate.current_value || "-"}
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-[#1f2937]">
+                    {candidate.suggested_value}
+                    {candidate.suggestion_reason ? (
+                      <div className="mt-2 line-clamp-2 text-xs font-normal text-gray-500">
+                        {candidate.suggestion_reason}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {formatConfidence(candidate.confidence_score)}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {formatDate(candidate.generated_at)}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={fieldSuggestionHref(candidate)}
+                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    >
+                      Open Record
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+        Total candidates: {formatCount(summary.total)}. Confirm/reject/apply
+        actions are intentionally deferred until the controlled apply workflow
+        is implemented.
       </div>
     </section>
   );
@@ -1942,6 +2130,8 @@ export function ResearchOpsDashboardClient({
   currentUser,
   issueReferenceData,
   sourceMatchSummary,
+  fieldSuggestionSummary,
+  fieldSuggestionCandidates,
 }: {
   dashboard: PostgresResearchOpsDashboard;
   reviewStatuses: PostgresStatusOption[];
@@ -1950,6 +2140,8 @@ export function ResearchOpsDashboardClient({
   currentUser: { id: string; name: string | null } | null;
   issueReferenceData: PostgresResearchOpsIssueReferenceData;
   sourceMatchSummary: SourceMatchCandidateSummary;
+  fieldSuggestionSummary: PostgresFieldSuggestionSummary;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
 }) {
   const [queueFilter, setQueueFilter] = useState<QueueFilter>("all");
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>("all");
@@ -2307,6 +2499,13 @@ export function ResearchOpsDashboardClient({
             tone: "critical",
             onClick: () => applyOperationalView({ severity: "critical" }),
           },
+          {
+            label: "AI Suggestions",
+            value: fieldSuggestionSummary.open,
+            note: "Field suggestions awaiting review",
+            tone: "workflow",
+            onClick: () => scrollToPageSection("field-suggestion-review"),
+          },
         ]}
       />
 
@@ -2322,6 +2521,11 @@ export function ResearchOpsDashboardClient({
       />
 
       <ArticleMatchReviewPanel summary={sourceMatchSummary} />
+
+      <FieldSuggestionReviewPanel
+        candidates={fieldSuggestionCandidates}
+        summary={fieldSuggestionSummary}
+      />
 
       <QuickOperationalViews onApplyView={applyOperationalView} />
 
