@@ -123,6 +123,7 @@ type RowIssueTone = "critical" | "important" | "useful";
 type RowIssue = {
   label: string;
   tone: RowIssueTone;
+  missingFilter?: string;
 };
 
 const rowIssueToneClass: Record<RowIssueTone, string> = {
@@ -144,7 +145,13 @@ function hasAnyNumber(values: Array<number | null | undefined>) {
   return values.some((value) => value !== null && value !== undefined);
 }
 
-function IssueBadges({ issues }: { issues: RowIssue[] }) {
+function IssueBadges({
+  issues,
+  pagination,
+}: {
+  issues: RowIssue[];
+  pagination?: PreviewTablePagination;
+}) {
   if (issues.length === 0) {
     return (
       <span className="inline-flex h-7 items-center border border-emerald-200 bg-emerald-50 px-2 text-xs font-semibold text-emerald-700">
@@ -158,14 +165,35 @@ function IssueBadges({ issues }: { issues: RowIssue[] }) {
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      {visibleIssues.map((issue) => (
-        <span
-          key={`${issue.tone}-${issue.label}`}
-          className={`inline-flex h-7 items-center border px-2 text-xs font-semibold ${rowIssueToneClass[issue.tone]}`}
-        >
-          {issue.label}
-        </span>
-      ))}
+      {visibleIssues.map((issue) => {
+        const className = `inline-flex h-7 items-center border px-2 text-xs font-semibold ${rowIssueToneClass[issue.tone]}`;
+
+        if (pagination && issue.missingFilter) {
+          return (
+            <Link
+              key={`${issue.tone}-${issue.label}`}
+              className={`${className} hover:border-[#8dc63f] hover:text-[#4f7f1f]`}
+              href={quickViewHref({
+                basePath: pagination.basePath,
+                density: pagination.density,
+                pageSize: pagination.pageSize,
+                query: {
+                  ...(pagination.query || {}),
+                  missing: issue.missingFilter,
+                },
+              })}
+            >
+              {issue.label}
+            </Link>
+          );
+        }
+
+        return (
+          <span key={`${issue.tone}-${issue.label}`} className={className}>
+            {issue.label}
+          </span>
+        );
+      })}
       {remainingCount > 0 ? (
         <span className="inline-flex h-7 items-center border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-500">
           +{formatCount(remainingCount)}
@@ -179,27 +207,51 @@ function projectRowIssues(project: PostgresPreviewProject): RowIssue[] {
   const issues: RowIssue[] = [];
 
   if (!hasText(project.country)) {
-    issues.push({ label: "No country", tone: "critical" });
+    issues.push({
+      label: "No country",
+      tone: "critical",
+      missingFilter: "country",
+    });
   }
 
   if (isUnknownCode(project.primary_use_type_code)) {
-    issues.push({ label: "No use type", tone: "critical" });
+    issues.push({
+      label: "No use type",
+      tone: "critical",
+      missingFilter: "use_type",
+    });
   }
 
   if (isUnknownCode(project.lifecycle_phase_code)) {
-    issues.push({ label: "No phase", tone: "critical" });
+    issues.push({
+      label: "No phase",
+      tone: "critical",
+      missingFilter: "status",
+    });
   }
 
   if (project.source_count === 0) {
-    issues.push({ label: "No source", tone: "critical" });
+    issues.push({
+      label: "No source",
+      tone: "critical",
+      missingFilter: "source",
+    });
   }
 
   if (project.company_link_count === 0) {
-    issues.push({ label: "No company", tone: "important" });
+    issues.push({
+      label: "No company",
+      tone: "important",
+      missingFilter: "company_link",
+    });
   }
 
   if (project.latitude === null || project.longitude === null) {
-    issues.push({ label: "No coordinates", tone: "important" });
+    issues.push({
+      label: "No coordinates",
+      tone: "important",
+      missingFilter: "coordinates",
+    });
   }
 
   if (
@@ -213,7 +265,11 @@ function projectRowIssues(project: PostgresPreviewProject): RowIssue[] {
       project.annual_cooling_supply_gwhc,
     ])
   ) {
-    issues.push({ label: "No capacity", tone: "important" });
+    issues.push({
+      label: "No capacity",
+      tone: "important",
+      missingFilter: "capacity",
+    });
   }
 
   return issues;
@@ -225,27 +281,51 @@ function operatingAssetRowIssues(
   const issues: RowIssue[] = [];
 
   if (!hasText(asset.country)) {
-    issues.push({ label: "No country", tone: "critical" });
+    issues.push({
+      label: "No country",
+      tone: "critical",
+      missingFilter: "country",
+    });
   }
 
   if (isUnknownCode(asset.primary_use_type_code)) {
-    issues.push({ label: "No use type", tone: "critical" });
+    issues.push({
+      label: "No use type",
+      tone: "critical",
+      missingFilter: "use_type",
+    });
   }
 
   if (isUnknownCode(asset.lifecycle_phase_code)) {
-    issues.push({ label: "No status", tone: "critical" });
+    issues.push({
+      label: "No status",
+      tone: "critical",
+      missingFilter: "status",
+    });
   }
 
   if (asset.source_count === 0) {
-    issues.push({ label: "No source", tone: "critical" });
+    issues.push({
+      label: "No source",
+      tone: "critical",
+      missingFilter: "source",
+    });
   }
 
   if (asset.company_link_count === 0) {
-    issues.push({ label: "No company", tone: "important" });
+    issues.push({
+      label: "No company",
+      tone: "important",
+      missingFilter: "company_link",
+    });
   }
 
   if (asset.latitude === null || asset.longitude === null) {
-    issues.push({ label: "No coordinates", tone: "important" });
+    issues.push({
+      label: "No coordinates",
+      tone: "important",
+      missingFilter: "coordinates",
+    });
   }
 
   if (
@@ -258,11 +338,15 @@ function operatingAssetRowIssues(
       asset.annual_cooling_supply_gwhc,
     ])
   ) {
-    issues.push({ label: "No capacity", tone: "important" });
+    issues.push({
+      label: "No capacity",
+      tone: "important",
+      missingFilter: "capacity",
+    });
   }
 
   if (asset.cod_year === null) {
-    issues.push({ label: "No COD", tone: "important" });
+    issues.push({ label: "No COD", tone: "important", missingFilter: "cod" });
   }
 
   return issues;
@@ -274,23 +358,43 @@ function companyRowIssues(company: PostgresPreviewCompany): RowIssue[] {
     company.project_link_count + company.operating_asset_link_count;
 
   if (!hasText(company.company_type_primary_code)) {
-    issues.push({ label: "No primary type", tone: "critical" });
+    issues.push({
+      label: "No primary type",
+      tone: "critical",
+      missingFilter: "primary_type",
+    });
   }
 
   if (company.source_count === 0) {
-    issues.push({ label: "No source", tone: "critical" });
+    issues.push({
+      label: "No source",
+      tone: "critical",
+      missingFilter: "source",
+    });
   }
 
   if (activityLinkCount === 0) {
-    issues.push({ label: "No activity link", tone: "important" });
+    issues.push({
+      label: "No activity link",
+      tone: "important",
+      missingFilter: "activity_link",
+    });
   }
 
   if (!hasText(company.headquarters_country)) {
-    issues.push({ label: "No HQ country", tone: "important" });
+    issues.push({
+      label: "No HQ country",
+      tone: "important",
+      missingFilter: "country",
+    });
   }
 
   if (!hasText(company.website_url)) {
-    issues.push({ label: "No website", tone: "useful" });
+    issues.push({
+      label: "No website",
+      tone: "useful",
+      missingFilter: "website",
+    });
   }
 
   return issues;
@@ -830,7 +934,7 @@ export function ProjectsPreviewTable({
                     <StatusBadge value={project.review_status_code} />
                   </td>
                   <td className={cellClass}>
-                    <IssueBadges issues={issues} />
+                    <IssueBadges issues={issues} pagination={pagination} />
                   </td>
                 </tr>
               );
@@ -925,7 +1029,7 @@ export function OperatingAssetsPreviewTable({
                     <StatusBadge value={asset.review_status_code} />
                   </td>
                   <td className={cellClass}>
-                    <IssueBadges issues={issues} />
+                    <IssueBadges issues={issues} pagination={pagination} />
                   </td>
                 </tr>
               );
@@ -1009,7 +1113,7 @@ export function CompaniesPreviewTable({
                     <StatusBadge value={company.review_status_code} />
                   </td>
                   <td className={cellClass}>
-                    <IssueBadges issues={issues} />
+                    <IssueBadges issues={issues} pagination={pagination} />
                   </td>
                 </tr>
               );
