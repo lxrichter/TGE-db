@@ -20,6 +20,20 @@ export type PreviewTablePagination = {
   pageSize: number;
   total: number;
   density: PreviewTableDensity;
+  query?: Record<string, string | undefined>;
+};
+
+export type PreviewFilterOption = {
+  value: string;
+  label: string;
+};
+
+export type PreviewFilterSelect = {
+  name: string;
+  label: string;
+  value?: string;
+  placeholder: string;
+  options: PreviewFilterOption[];
 };
 
 export const DEFAULT_PREVIEW_PAGE_SIZE = 100;
@@ -50,6 +64,22 @@ export function parsePreviewTableDensity(
   value: string | undefined
 ): PreviewTableDensity {
   return value === "compact" ? "compact" : "comfortable";
+}
+
+export function formatPreviewFilterLabel(value: string) {
+  return value
+    .replaceAll("_", " ")
+    .replace(/\bmw\b/gi, "MW")
+    .replace(/\bmwe\b/gi, "MWe")
+    .replace(/\bmwth\b/gi, "MWth")
+    .replace(/\bcod\b/gi, "COD");
+}
+
+export function previewFilterOptions(values: string[]): PreviewFilterOption[] {
+  return values.map((value) => ({
+    value,
+    label: formatPreviewFilterLabel(value),
+  }));
 }
 
 function EmptyValue() {
@@ -93,6 +123,11 @@ function previewTableHref(
     ...updates,
   };
   const params = new URLSearchParams();
+  Object.entries(pagination.query || {}).forEach(([key, value]) => {
+    if (value) {
+      params.set(key, value);
+    }
+  });
 
   if (next.page > 1) {
     params.set("page", String(next.page));
@@ -108,6 +143,91 @@ function previewTableHref(
 
   const query = params.toString();
   return query ? `${pagination.basePath}?${query}` : pagination.basePath;
+}
+
+export function PostgresPreviewListFilters({
+  basePath,
+  search,
+  selects,
+  pageSize,
+  density,
+}: {
+  basePath: string;
+  search?: string;
+  selects: PreviewFilterSelect[];
+  pageSize: number;
+  density: PreviewTableDensity;
+}) {
+  const activeCount =
+    (search ? 1 : 0) +
+    selects.filter((select) => Boolean(select.value)).length;
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <form
+        action={basePath}
+        className="grid gap-4 px-5 py-5 lg:grid-cols-[minmax(220px,1.4fr)_repeat(4,minmax(150px,1fr))_auto]"
+      >
+        {pageSize !== DEFAULT_PREVIEW_PAGE_SIZE ? (
+          <input name="pageSize" type="hidden" value={pageSize} />
+        ) : null}
+        {density !== "comfortable" ? (
+          <input name="density" type="hidden" value={density} />
+        ) : null}
+        <label className="block">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Search
+          </span>
+          <input
+            className="mt-2 h-10 w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+            defaultValue={search || ""}
+            name="search"
+            placeholder="Name, ID, country, group..."
+          />
+        </label>
+        {selects.map((select) => (
+          <label key={select.name} className="block">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {select.label}
+            </span>
+            <select
+              className="mt-2 h-10 w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+              defaultValue={select.value || ""}
+              name={select.name}
+            >
+              <option value="">{select.placeholder}</option>
+              {select.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ))}
+        <div className="flex items-end gap-2">
+          <button
+            className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+            type="submit"
+          >
+            Apply
+          </button>
+          <Link
+            className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            href={basePath}
+          >
+            Reset
+          </Link>
+        </div>
+      </form>
+      <div className="border-t border-gray-200 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {activeCount > 0
+          ? `${formatCount(activeCount)} active filter${
+              activeCount === 1 ? "" : "s"
+            }`
+          : "No active filters"}
+      </div>
+    </section>
+  );
 }
 
 function rangeLabel(pagination: PreviewTablePagination, count: number) {

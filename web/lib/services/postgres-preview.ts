@@ -1,4 +1,5 @@
 import { getPrismaClient } from "@/lib/db/prisma";
+import type { Prisma } from "@/prisma/generated/client/client";
 
 type NullableNumeric = number | string | { toNumber: () => number } | null;
 
@@ -53,6 +54,40 @@ export type PostgresPreviewCompany = {
   geothermal_focus: string | null;
   review_status_code: string;
   research_status: string | null;
+};
+
+export type PostgresPreviewProjectListFilters = {
+  search?: string;
+  country?: string;
+  reviewStatus?: string;
+  useType?: string;
+  status?: string;
+  missing?: string;
+};
+
+export type PostgresPreviewOperatingAssetListFilters = {
+  search?: string;
+  country?: string;
+  reviewStatus?: string;
+  useType?: string;
+  status?: string;
+  missing?: string;
+};
+
+export type PostgresPreviewCompanyListFilters = {
+  search?: string;
+  country?: string;
+  reviewStatus?: string;
+  companyType?: string;
+  missing?: string;
+};
+
+export type PostgresPreviewListFacets = {
+  countries: string[];
+  reviewStatuses: string[];
+  useTypes: string[];
+  statuses: string[];
+  companyTypes: string[];
 };
 
 export type PostgresEntitySourceLink = {
@@ -1548,6 +1583,11 @@ type PostgresPreviewListOptions = {
   offset?: number;
 };
 
+function cleanFilterValue(value: string | null | undefined) {
+  const trimmed = value?.trim();
+  return trimmed || undefined;
+}
+
 function normalizePreviewListOptions(
   options: number | PostgresPreviewListOptions = 25
 ) {
@@ -1564,11 +1604,229 @@ function normalizePreviewListOptions(
   };
 }
 
+function missingTextCondition(field: string) {
+  return {
+    OR: [
+      { [field]: null },
+      { [field]: "" },
+    ],
+  };
+}
+
+function buildProjectListWhere(
+  filters: PostgresPreviewProjectListFilters = {}
+): Prisma.projectsWhereInput {
+  const search = cleanFilterValue(filters.search);
+  const country = cleanFilterValue(filters.country);
+  const reviewStatus = cleanFilterValue(filters.reviewStatus);
+  const useType = cleanFilterValue(filters.useType);
+  const status = cleanFilterValue(filters.status);
+  const missing = cleanFilterValue(filters.missing);
+  const where: Prisma.projectsWhereInput = {};
+  const and: Prisma.projectsWhereInput[] = [];
+
+  if (search) {
+    and.push({
+      OR: [
+        { project_name: { contains: search, mode: "insensitive" } },
+        { project_group: { contains: search, mode: "insensitive" } },
+        { other_name: { contains: search, mode: "insensitive" } },
+        { country: { contains: search, mode: "insensitive" } },
+        { region: { contains: search, mode: "insensitive" } },
+        { legacy_project_id: { contains: search, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  if (country) {
+    and.push({ country });
+  }
+
+  if (reviewStatus) {
+    and.push({ review_status_code: reviewStatus });
+  }
+
+  if (useType) {
+    and.push({ primary_use_type_code: useType });
+  }
+
+  if (status) {
+    and.push({ lifecycle_phase_code: status });
+  }
+
+  if (missing === "country") {
+    and.push(missingTextCondition("country"));
+  } else if (missing === "coordinates") {
+    and.push({ OR: [{ latitude: null }, { longitude: null }] });
+  } else if (missing === "capacity") {
+    and.push({
+      electric_capacity_mwe: null,
+      thermal_capacity_mwth: null,
+      potential_min_mwe: null,
+      potential_max_mwe: null,
+      annual_power_generation_gwhe: null,
+      annual_heat_supply_gwhth: null,
+      annual_cooling_supply_gwhc: null,
+    });
+  } else if (missing === "use_type") {
+    and.push({ primary_use_type_code: "unknown" });
+  } else if (missing === "status") {
+    and.push({ lifecycle_phase_code: "unknown" });
+  } else if (missing === "source") {
+    and.push({ entity_sources: { none: {} } });
+  } else if (missing === "company_link") {
+    and.push({ company_project_links: { none: {} } });
+  }
+
+  if (and.length > 0) {
+    where.AND = and;
+  }
+
+  return where;
+}
+
+function buildOperatingAssetListWhere(
+  filters: PostgresPreviewOperatingAssetListFilters = {}
+): Prisma.operating_assetsWhereInput {
+  const search = cleanFilterValue(filters.search);
+  const country = cleanFilterValue(filters.country);
+  const reviewStatus = cleanFilterValue(filters.reviewStatus);
+  const useType = cleanFilterValue(filters.useType);
+  const status = cleanFilterValue(filters.status);
+  const missing = cleanFilterValue(filters.missing);
+  const where: Prisma.operating_assetsWhereInput = {};
+  const and: Prisma.operating_assetsWhereInput[] = [];
+
+  if (search) {
+    and.push({
+      OR: [
+        { asset_name: { contains: search, mode: "insensitive" } },
+        { project_group: { contains: search, mode: "insensitive" } },
+        { other_name: { contains: search, mode: "insensitive" } },
+        { country: { contains: search, mode: "insensitive" } },
+        { region: { contains: search, mode: "insensitive" } },
+        { legacy_plant_id: { contains: search, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  if (country) {
+    and.push({ country });
+  }
+
+  if (reviewStatus) {
+    and.push({ review_status_code: reviewStatus });
+  }
+
+  if (useType) {
+    and.push({ primary_use_type_code: useType });
+  }
+
+  if (status) {
+    and.push({ lifecycle_phase_code: status });
+  }
+
+  if (missing === "country") {
+    and.push(missingTextCondition("country"));
+  } else if (missing === "coordinates") {
+    and.push({ OR: [{ latitude: null }, { longitude: null }] });
+  } else if (missing === "capacity") {
+    and.push({
+      electric_capacity_mwe: null,
+      electric_capacity_running_mwe: null,
+      thermal_capacity_mwth: null,
+      annual_power_generation_gwhe: null,
+      annual_heat_supply_gwhth: null,
+      annual_cooling_supply_gwhc: null,
+    });
+  } else if (missing === "use_type") {
+    and.push({ primary_use_type_code: "unknown" });
+  } else if (missing === "status") {
+    and.push({ lifecycle_phase_code: "unknown" });
+  } else if (missing === "source") {
+    and.push({ entity_sources: { none: {} } });
+  } else if (missing === "company_link") {
+    and.push({ company_operating_asset_links: { none: {} } });
+  } else if (missing === "cod") {
+    and.push({ cod_year: null });
+  }
+
+  if (and.length > 0) {
+    where.AND = and;
+  }
+
+  return where;
+}
+
+function buildCompanyListWhere(
+  filters: PostgresPreviewCompanyListFilters = {}
+): Prisma.companiesWhereInput {
+  const search = cleanFilterValue(filters.search);
+  const country = cleanFilterValue(filters.country);
+  const reviewStatus = cleanFilterValue(filters.reviewStatus);
+  const companyType = cleanFilterValue(filters.companyType);
+  const missing = cleanFilterValue(filters.missing);
+  const where: Prisma.companiesWhereInput = {};
+  const and: Prisma.companiesWhereInput[] = [];
+
+  if (search) {
+    and.push({
+      OR: [
+        { company_name: { contains: search, mode: "insensitive" } },
+        { company_name_short: { contains: search, mode: "insensitive" } },
+        { company_legal_name: { contains: search, mode: "insensitive" } },
+        { website_url: { contains: search, mode: "insensitive" } },
+        { headquarters_country: { contains: search, mode: "insensitive" } },
+        { geothermal_focus: { contains: search, mode: "insensitive" } },
+        { legacy_company_id: { contains: search, mode: "insensitive" } },
+      ],
+    });
+  }
+
+  if (country) {
+    and.push({ headquarters_country: country });
+  }
+
+  if (reviewStatus) {
+    and.push({ review_status_code: reviewStatus });
+  }
+
+  if (companyType) {
+    and.push({ company_type_primary_code: companyType });
+  }
+
+  if (missing === "country") {
+    and.push(missingTextCondition("headquarters_country"));
+  } else if (missing === "website") {
+    and.push(missingTextCondition("website_url"));
+  } else if (missing === "primary_type") {
+    and.push(missingTextCondition("company_type_primary_code"));
+  } else if (missing === "source") {
+    and.push({ entity_sources: { none: {} } });
+  } else if (missing === "activity_link") {
+    and.push({
+      company_project_links: { none: {} },
+      company_operating_asset_links: { none: {} },
+    });
+  }
+
+  if (and.length > 0) {
+    where.AND = and;
+  }
+
+  return where;
+}
+
 export async function listPostgresPreviewProjects(
-  options: number | PostgresPreviewListOptions = 25
+  options: number | (PostgresPreviewListOptions & {
+    filters?: PostgresPreviewProjectListFilters;
+  }) = 25
 ): Promise<PostgresPreviewProject[]> {
   const { limit, offset } = normalizePreviewListOptions(options);
+  const filters = typeof options === "number" ? undefined : options.filters;
+  const where = buildProjectListWhere(filters);
   const rows = await getPrismaClient().projects.findMany({
+    where,
     select: {
       project_id: true,
       legacy_project_id: true,
@@ -1597,10 +1855,15 @@ export async function listPostgresPreviewProjects(
 }
 
 export async function listPostgresPreviewOperatingAssets(
-  options: number | PostgresPreviewListOptions = 25
+  options: number | (PostgresPreviewListOptions & {
+    filters?: PostgresPreviewOperatingAssetListFilters;
+  }) = 25
 ): Promise<PostgresPreviewOperatingAsset[]> {
   const { limit, offset } = normalizePreviewListOptions(options);
+  const filters = typeof options === "number" ? undefined : options.filters;
+  const where = buildOperatingAssetListWhere(filters);
   const rows = await getPrismaClient().operating_assets.findMany({
+    where,
     select: {
       operating_asset_id: true,
       legacy_plant_id: true,
@@ -1637,10 +1900,15 @@ export async function listPostgresPreviewOperatingAssets(
 }
 
 export async function listPostgresPreviewCompanies(
-  options: number | PostgresPreviewListOptions = 25
+  options: number | (PostgresPreviewListOptions & {
+    filters?: PostgresPreviewCompanyListFilters;
+  }) = 25
 ): Promise<PostgresPreviewCompany[]> {
   const { limit, offset } = normalizePreviewListOptions(options);
+  const filters = typeof options === "number" ? undefined : options.filters;
+  const where = buildCompanyListWhere(filters);
   return getPrismaClient().companies.findMany({
+    where,
     select: {
       company_id: true,
       legacy_company_id: true,
@@ -1656,6 +1924,138 @@ export async function listPostgresPreviewCompanies(
     take: limit,
     skip: offset,
   });
+}
+
+export async function countPostgresPreviewProjects(
+  filters: PostgresPreviewProjectListFilters = {}
+) {
+  return getPrismaClient().projects.count({
+    where: buildProjectListWhere(filters),
+  });
+}
+
+export async function countPostgresPreviewOperatingAssets(
+  filters: PostgresPreviewOperatingAssetListFilters = {}
+) {
+  return getPrismaClient().operating_assets.count({
+    where: buildOperatingAssetListWhere(filters),
+  });
+}
+
+export async function countPostgresPreviewCompanies(
+  filters: PostgresPreviewCompanyListFilters = {}
+) {
+  return getPrismaClient().companies.count({
+    where: buildCompanyListWhere(filters),
+  });
+}
+
+function compactFacetValues(rows: Array<Record<string, string | null>>) {
+  return Array.from(
+    new Set(
+      rows
+        .flatMap((row) => Object.values(row))
+        .map((value) => value?.trim())
+        .filter((value): value is string => Boolean(value))
+    )
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+export async function getPostgresPreviewProjectListFacets(): Promise<PostgresPreviewListFacets> {
+  const prisma = getPrismaClient();
+  const [countries, reviewStatuses, useTypes, statuses] = await Promise.all([
+    prisma.projects.findMany({
+      distinct: ["country"],
+      orderBy: { country: "asc" },
+      select: { country: true },
+    }),
+    prisma.projects.findMany({
+      distinct: ["review_status_code"],
+      orderBy: { review_status_code: "asc" },
+      select: { review_status_code: true },
+    }),
+    prisma.projects.findMany({
+      distinct: ["primary_use_type_code"],
+      orderBy: { primary_use_type_code: "asc" },
+      select: { primary_use_type_code: true },
+    }),
+    prisma.projects.findMany({
+      distinct: ["lifecycle_phase_code"],
+      orderBy: { lifecycle_phase_code: "asc" },
+      select: { lifecycle_phase_code: true },
+    }),
+  ]);
+
+  return {
+    countries: compactFacetValues(countries),
+    reviewStatuses: compactFacetValues(reviewStatuses),
+    useTypes: compactFacetValues(useTypes),
+    statuses: compactFacetValues(statuses),
+    companyTypes: [],
+  };
+}
+
+export async function getPostgresPreviewOperatingAssetListFacets(): Promise<PostgresPreviewListFacets> {
+  const prisma = getPrismaClient();
+  const [countries, reviewStatuses, useTypes, statuses] = await Promise.all([
+    prisma.operating_assets.findMany({
+      distinct: ["country"],
+      orderBy: { country: "asc" },
+      select: { country: true },
+    }),
+    prisma.operating_assets.findMany({
+      distinct: ["review_status_code"],
+      orderBy: { review_status_code: "asc" },
+      select: { review_status_code: true },
+    }),
+    prisma.operating_assets.findMany({
+      distinct: ["primary_use_type_code"],
+      orderBy: { primary_use_type_code: "asc" },
+      select: { primary_use_type_code: true },
+    }),
+    prisma.operating_assets.findMany({
+      distinct: ["lifecycle_phase_code"],
+      orderBy: { lifecycle_phase_code: "asc" },
+      select: { lifecycle_phase_code: true },
+    }),
+  ]);
+
+  return {
+    countries: compactFacetValues(countries),
+    reviewStatuses: compactFacetValues(reviewStatuses),
+    useTypes: compactFacetValues(useTypes),
+    statuses: compactFacetValues(statuses),
+    companyTypes: [],
+  };
+}
+
+export async function getPostgresPreviewCompanyListFacets(): Promise<PostgresPreviewListFacets> {
+  const prisma = getPrismaClient();
+  const [countries, reviewStatuses, companyTypes] = await Promise.all([
+    prisma.companies.findMany({
+      distinct: ["headquarters_country"],
+      orderBy: { headquarters_country: "asc" },
+      select: { headquarters_country: true },
+    }),
+    prisma.companies.findMany({
+      distinct: ["review_status_code"],
+      orderBy: { review_status_code: "asc" },
+      select: { review_status_code: true },
+    }),
+    prisma.companies.findMany({
+      distinct: ["company_type_primary_code"],
+      orderBy: { company_type_primary_code: "asc" },
+      select: { company_type_primary_code: true },
+    }),
+  ]);
+
+  return {
+    countries: compactFacetValues(countries),
+    reviewStatuses: compactFacetValues(reviewStatuses),
+    useTypes: [],
+    statuses: [],
+    companyTypes: compactFacetValues(companyTypes),
+  };
 }
 
 function cleanOptionalText(value: string | null | undefined) {

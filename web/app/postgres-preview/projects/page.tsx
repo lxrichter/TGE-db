@@ -2,15 +2,21 @@ import {
   parsePreviewListPage,
   parsePreviewListPageSize,
   parsePreviewTableDensity,
+  PostgresPreviewListFilters,
+  previewFilterOptions,
   ProjectsPreviewTable,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
+  type PreviewFilterOption,
   type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
-  getPostgresPreviewSummary,
+  countPostgresPreviewProjects,
+  getPostgresPreviewProjectListFacets,
   listPostgresPreviewProjects,
+  type PostgresPreviewListFacets,
   type PostgresPreviewProject,
+  type PostgresPreviewProjectListFilters,
 } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +25,12 @@ type PreviewListSearchParams = {
   page?: string;
   pageSize?: string;
   density?: string;
+  search?: string;
+  country?: string;
+  review?: string;
+  use?: string;
+  status?: string;
+  missing?: string;
 };
 
 type ProjectsListData =
@@ -26,6 +38,8 @@ type ProjectsListData =
       ok: true;
       projects: PostgresPreviewProject[];
       total: number;
+      filters: PostgresPreviewProjectListFilters;
+      facets: PostgresPreviewListFacets;
       page: number;
       pageSize: number;
       density: PreviewTableDensity;
@@ -35,24 +49,55 @@ type ProjectsListData =
       error: string;
     };
 
+const projectMissingOptions: PreviewFilterOption[] = [
+  { value: "country", label: "Missing Country" },
+  { value: "coordinates", label: "Missing Coordinates" },
+  { value: "capacity", label: "Missing Capacity / Output" },
+  { value: "use_type", label: "Missing Use Type" },
+  { value: "status", label: "Missing Lifecycle / Status" },
+  { value: "source", label: "Missing Source" },
+  { value: "company_link", label: "Missing Company Link" },
+];
+
+function cleanParam(value: string | undefined) {
+  return value?.trim() || undefined;
+}
+
+function getProjectFilters(
+  params: PreviewListSearchParams
+): PostgresPreviewProjectListFilters {
+  return {
+    search: cleanParam(params.search),
+    country: cleanParam(params.country),
+    reviewStatus: cleanParam(params.review),
+    useType: cleanParam(params.use),
+    status: cleanParam(params.status),
+    missing: cleanParam(params.missing),
+  };
+}
+
 async function getProjectsListData(
   params: PreviewListSearchParams
 ): Promise<ProjectsListData> {
   const page = parsePreviewListPage(params.page);
   const pageSize = parsePreviewListPageSize(params.pageSize);
   const density = parsePreviewTableDensity(params.density);
+  const filters = getProjectFilters(params);
   const offset = (page - 1) * pageSize;
 
   try {
-    const [summary, projects] = await Promise.all([
-      getPostgresPreviewSummary(),
-      listPostgresPreviewProjects({ limit: pageSize, offset }),
+    const [projects, filteredCount, facets] = await Promise.all([
+      listPostgresPreviewProjects({ limit: pageSize, offset, filters }),
+      countPostgresPreviewProjects(filters),
+      getPostgresPreviewProjectListFacets(),
     ]);
 
     return {
       ok: true,
       projects,
-      total: summary.projectCount,
+      total: filteredCount,
+      filters,
+      facets,
       page,
       pageSize,
       density,
@@ -95,17 +140,70 @@ export default async function PostgresProjectsListPage({
       {!data.ok ? (
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
-        <ProjectsPreviewTable
-          pagination={{
-            basePath: "/postgres-preview/projects",
-            density: data.density,
-            page: data.page,
-            pageSize: data.pageSize,
-            total: data.total,
-          }}
-          projects={data.projects}
-          total={data.total}
-        />
+        <>
+          <PostgresPreviewListFilters
+            basePath="/postgres-preview/projects"
+            density={data.density}
+            pageSize={data.pageSize}
+            search={data.filters.search}
+            selects={[
+              {
+                name: "country",
+                label: "Country",
+                value: data.filters.country,
+                placeholder: "All Countries",
+                options: previewFilterOptions(data.facets.countries),
+              },
+              {
+                name: "review",
+                label: "Review",
+                value: data.filters.reviewStatus,
+                placeholder: "All Review States",
+                options: previewFilterOptions(data.facets.reviewStatuses),
+              },
+              {
+                name: "use",
+                label: "Use Type",
+                value: data.filters.useType,
+                placeholder: "All Use Types",
+                options: previewFilterOptions(data.facets.useTypes),
+              },
+              {
+                name: "status",
+                label: "Lifecycle",
+                value: data.filters.status,
+                placeholder: "All Lifecycle States",
+                options: previewFilterOptions(data.facets.statuses),
+              },
+              {
+                name: "missing",
+                label: "Missing Data",
+                value: data.filters.missing,
+                placeholder: "Any Completeness",
+                options: projectMissingOptions,
+              },
+            ]}
+          />
+          <ProjectsPreviewTable
+            pagination={{
+              basePath: "/postgres-preview/projects",
+              density: data.density,
+              page: data.page,
+              pageSize: data.pageSize,
+              total: data.total,
+              query: {
+                search: data.filters.search,
+                country: data.filters.country,
+                review: data.filters.reviewStatus,
+                use: data.filters.useType,
+                status: data.filters.status,
+                missing: data.filters.missing,
+              },
+            }}
+            projects={data.projects}
+            total={data.total}
+          />
+        </>
       )}
     </main>
   );
