@@ -16,8 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-[#f5f5f5] text-[#1f2937]">
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className="bg-[#f5f5f5] text-[#1f2937]"
+        suppressHydrationWarning
+      >
         <SessionProviderClient>
           <div className="screen-only">
             <AppHeaderShell>{children}</AppHeaderShell>
