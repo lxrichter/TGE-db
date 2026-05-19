@@ -85,6 +85,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - field suggestion candidate schema has been added for future AI-assisted data
   filling, but no AI extraction service, suggestion UI, or automatic apply
   workflow exists yet
+- local-only article fact extraction now includes a balanced manual-review CSV
+  sample, a local review-audit command, and review guidance for tuning rules
+  before any PostgreSQL import
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

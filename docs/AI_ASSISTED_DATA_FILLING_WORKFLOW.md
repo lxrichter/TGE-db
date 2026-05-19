@@ -220,6 +220,7 @@ MVP groundwork:
 - record-level AI field suggestion panels
 - record-level article match candidate review
 - local markdown article fact extraction prototype
+- local article fact review sample and audit workflow
 - `article_fact_candidates` staging table for compact reviewable article facts
 
 Future:

@@ -113,6 +113,9 @@ The audit is local-only and does not write to PostgreSQL. It summarizes accept,
 reject, unclear, and rule-change rates by fact type and field so extraction
 rules can be tuned before any database import.
 
+Use `docs/ARTICLE_FACT_REVIEW_GUIDE.md` for consistent review rules before
+marking the CSV.
+
 Run only selected fact types:
 
 ```bash
