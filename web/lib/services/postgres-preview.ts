@@ -20,11 +20,19 @@ export type PostgresPreviewProject = {
   lifecycle_phase_code: string;
   country: string | null;
   region: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  potential_min_mwe: number | null;
+  potential_max_mwe: number | null;
   electric_capacity_mwe: number | null;
   thermal_capacity_mwth: number | null;
+  annual_power_generation_gwhe: number | null;
   annual_heat_supply_gwhth: number | null;
+  annual_cooling_supply_gwhc: number | null;
   review_status_code: string;
   research_status: string | null;
+  source_count: number;
+  company_link_count: number;
 };
 
 export type PostgresPreviewOperatingAsset = {
@@ -35,13 +43,19 @@ export type PostgresPreviewOperatingAsset = {
   lifecycle_phase_code: string;
   country: string | null;
   region: string | null;
+  latitude: number | null;
+  longitude: number | null;
   electric_capacity_mwe: number | null;
   electric_capacity_running_mwe: number | null;
   thermal_capacity_mwth: number | null;
   annual_power_generation_gwhe: number | null;
   annual_heat_supply_gwhth: number | null;
+  annual_cooling_supply_gwhc: number | null;
+  cod_year: number | null;
   review_status_code: string;
   research_status: string | null;
+  source_count: number;
+  company_link_count: number;
 };
 
 export type PostgresPreviewCompany = {
@@ -51,9 +65,13 @@ export type PostgresPreviewCompany = {
   entity_type_code: string | null;
   company_type_primary_code: string | null;
   headquarters_country: string | null;
+  website_url: string | null;
   geothermal_focus: string | null;
   review_status_code: string;
   research_status: string | null;
+  source_count: number;
+  project_link_count: number;
+  operating_asset_link_count: number;
 };
 
 export type PostgresPreviewProjectListFilters = {
@@ -1835,22 +1853,46 @@ export async function listPostgresPreviewProjects(
       lifecycle_phase_code: true,
       country: true,
       region: true,
+      latitude: true,
+      longitude: true,
+      potential_min_mwe: true,
+      potential_max_mwe: true,
       electric_capacity_mwe: true,
       thermal_capacity_mwth: true,
+      annual_power_generation_gwhe: true,
       annual_heat_supply_gwhth: true,
+      annual_cooling_supply_gwhc: true,
       review_status_code: true,
       research_status: true,
+      _count: {
+        select: {
+          entity_sources: true,
+          company_project_links: true,
+        },
+      },
     },
     orderBy: [{ created_at: "desc" }, { project_name: "asc" }],
     take: limit,
     skip: offset,
   });
 
-  return rows.map((row) => ({
+  return rows.map(({ _count, ...row }) => ({
     ...row,
+    latitude: toNullableNumber(row.latitude),
+    longitude: toNullableNumber(row.longitude),
+    potential_min_mwe: toNullableNumber(row.potential_min_mwe),
+    potential_max_mwe: toNullableNumber(row.potential_max_mwe),
     electric_capacity_mwe: toNullableNumber(row.electric_capacity_mwe),
     thermal_capacity_mwth: toNullableNumber(row.thermal_capacity_mwth),
+    annual_power_generation_gwhe: toNullableNumber(
+      row.annual_power_generation_gwhe
+    ),
     annual_heat_supply_gwhth: toNullableNumber(row.annual_heat_supply_gwhth),
+    annual_cooling_supply_gwhc: toNullableNumber(
+      row.annual_cooling_supply_gwhc
+    ),
+    source_count: _count.entity_sources,
+    company_link_count: _count.company_project_links,
   }));
 }
 
@@ -1872,21 +1914,33 @@ export async function listPostgresPreviewOperatingAssets(
       lifecycle_phase_code: true,
       country: true,
       region: true,
+      latitude: true,
+      longitude: true,
       electric_capacity_mwe: true,
       electric_capacity_running_mwe: true,
       thermal_capacity_mwth: true,
       annual_power_generation_gwhe: true,
       annual_heat_supply_gwhth: true,
+      annual_cooling_supply_gwhc: true,
+      cod_year: true,
       review_status_code: true,
       research_status: true,
+      _count: {
+        select: {
+          entity_sources: true,
+          company_operating_asset_links: true,
+        },
+      },
     },
     orderBy: [{ created_at: "desc" }, { asset_name: "asc" }],
     take: limit,
     skip: offset,
   });
 
-  return rows.map((row) => ({
+  return rows.map(({ _count, ...row }) => ({
     ...row,
+    latitude: toNullableNumber(row.latitude),
+    longitude: toNullableNumber(row.longitude),
     electric_capacity_mwe: toNullableNumber(row.electric_capacity_mwe),
     electric_capacity_running_mwe: toNullableNumber(
       row.electric_capacity_running_mwe
@@ -1896,6 +1950,11 @@ export async function listPostgresPreviewOperatingAssets(
       row.annual_power_generation_gwhe
     ),
     annual_heat_supply_gwhth: toNullableNumber(row.annual_heat_supply_gwhth),
+    annual_cooling_supply_gwhc: toNullableNumber(
+      row.annual_cooling_supply_gwhc
+    ),
+    source_count: _count.entity_sources,
+    company_link_count: _count.company_operating_asset_links,
   }));
 }
 
@@ -1907,7 +1966,7 @@ export async function listPostgresPreviewCompanies(
   const { limit, offset } = normalizePreviewListOptions(options);
   const filters = typeof options === "number" ? undefined : options.filters;
   const where = buildCompanyListWhere(filters);
-  return getPrismaClient().companies.findMany({
+  const rows = await getPrismaClient().companies.findMany({
     where,
     select: {
       company_id: true,
@@ -1916,14 +1975,29 @@ export async function listPostgresPreviewCompanies(
       entity_type_code: true,
       company_type_primary_code: true,
       headquarters_country: true,
+      website_url: true,
       geothermal_focus: true,
       review_status_code: true,
       research_status: true,
+      _count: {
+        select: {
+          entity_sources: true,
+          company_project_links: true,
+          company_operating_asset_links: true,
+        },
+      },
     },
     orderBy: [{ created_at: "desc" }, { company_name: "asc" }],
     take: limit,
     skip: offset,
   });
+
+  return rows.map(({ _count, ...row }) => ({
+    ...row,
+    source_count: _count.entity_sources,
+    project_link_count: _count.company_project_links,
+    operating_asset_link_count: _count.company_operating_asset_links,
+  }));
 }
 
 export async function countPostgresPreviewProjects(

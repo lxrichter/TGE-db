@@ -118,6 +118,184 @@ function StatusBadge({ value }: { value: string | null }) {
   );
 }
 
+type RowIssueTone = "critical" | "important" | "useful";
+
+type RowIssue = {
+  label: string;
+  tone: RowIssueTone;
+};
+
+const rowIssueToneClass: Record<RowIssueTone, string> = {
+  critical: "border-red-200 bg-red-50 text-red-700",
+  important: "border-amber-200 bg-amber-50 text-amber-700",
+  useful: "border-gray-200 bg-gray-50 text-gray-600",
+};
+
+function hasText(value: string | null | undefined) {
+  return Boolean(value?.trim());
+}
+
+function isUnknownCode(value: string | null | undefined) {
+  const normalized = value?.trim().toLowerCase();
+  return !normalized || normalized === "unknown";
+}
+
+function hasAnyNumber(values: Array<number | null | undefined>) {
+  return values.some((value) => value !== null && value !== undefined);
+}
+
+function IssueBadges({ issues }: { issues: RowIssue[] }) {
+  if (issues.length === 0) {
+    return (
+      <span className="inline-flex h-7 items-center border border-emerald-200 bg-emerald-50 px-2 text-xs font-semibold text-emerald-700">
+        No key gaps
+      </span>
+    );
+  }
+
+  const visibleIssues = issues.slice(0, 4);
+  const remainingCount = issues.length - visibleIssues.length;
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {visibleIssues.map((issue) => (
+        <span
+          key={`${issue.tone}-${issue.label}`}
+          className={`inline-flex h-7 items-center border px-2 text-xs font-semibold ${rowIssueToneClass[issue.tone]}`}
+        >
+          {issue.label}
+        </span>
+      ))}
+      {remainingCount > 0 ? (
+        <span className="inline-flex h-7 items-center border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-500">
+          +{formatCount(remainingCount)}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function projectRowIssues(project: PostgresPreviewProject): RowIssue[] {
+  const issues: RowIssue[] = [];
+
+  if (!hasText(project.country)) {
+    issues.push({ label: "No country", tone: "critical" });
+  }
+
+  if (isUnknownCode(project.primary_use_type_code)) {
+    issues.push({ label: "No use type", tone: "critical" });
+  }
+
+  if (isUnknownCode(project.lifecycle_phase_code)) {
+    issues.push({ label: "No phase", tone: "critical" });
+  }
+
+  if (project.source_count === 0) {
+    issues.push({ label: "No source", tone: "critical" });
+  }
+
+  if (project.company_link_count === 0) {
+    issues.push({ label: "No company", tone: "important" });
+  }
+
+  if (project.latitude === null || project.longitude === null) {
+    issues.push({ label: "No coordinates", tone: "important" });
+  }
+
+  if (
+    !hasAnyNumber([
+      project.potential_min_mwe,
+      project.potential_max_mwe,
+      project.electric_capacity_mwe,
+      project.thermal_capacity_mwth,
+      project.annual_power_generation_gwhe,
+      project.annual_heat_supply_gwhth,
+      project.annual_cooling_supply_gwhc,
+    ])
+  ) {
+    issues.push({ label: "No capacity", tone: "important" });
+  }
+
+  return issues;
+}
+
+function operatingAssetRowIssues(
+  asset: PostgresPreviewOperatingAsset
+): RowIssue[] {
+  const issues: RowIssue[] = [];
+
+  if (!hasText(asset.country)) {
+    issues.push({ label: "No country", tone: "critical" });
+  }
+
+  if (isUnknownCode(asset.primary_use_type_code)) {
+    issues.push({ label: "No use type", tone: "critical" });
+  }
+
+  if (isUnknownCode(asset.lifecycle_phase_code)) {
+    issues.push({ label: "No status", tone: "critical" });
+  }
+
+  if (asset.source_count === 0) {
+    issues.push({ label: "No source", tone: "critical" });
+  }
+
+  if (asset.company_link_count === 0) {
+    issues.push({ label: "No company", tone: "important" });
+  }
+
+  if (asset.latitude === null || asset.longitude === null) {
+    issues.push({ label: "No coordinates", tone: "important" });
+  }
+
+  if (
+    !hasAnyNumber([
+      asset.electric_capacity_mwe,
+      asset.electric_capacity_running_mwe,
+      asset.thermal_capacity_mwth,
+      asset.annual_power_generation_gwhe,
+      asset.annual_heat_supply_gwhth,
+      asset.annual_cooling_supply_gwhc,
+    ])
+  ) {
+    issues.push({ label: "No capacity", tone: "important" });
+  }
+
+  if (asset.cod_year === null) {
+    issues.push({ label: "No COD", tone: "important" });
+  }
+
+  return issues;
+}
+
+function companyRowIssues(company: PostgresPreviewCompany): RowIssue[] {
+  const issues: RowIssue[] = [];
+  const activityLinkCount =
+    company.project_link_count + company.operating_asset_link_count;
+
+  if (!hasText(company.company_type_primary_code)) {
+    issues.push({ label: "No primary type", tone: "critical" });
+  }
+
+  if (company.source_count === 0) {
+    issues.push({ label: "No source", tone: "critical" });
+  }
+
+  if (activityLinkCount === 0) {
+    issues.push({ label: "No activity link", tone: "important" });
+  }
+
+  if (!hasText(company.headquarters_country)) {
+    issues.push({ label: "No HQ country", tone: "important" });
+  }
+
+  if (!hasText(company.website_url)) {
+    issues.push({ label: "No website", tone: "useful" });
+  }
+
+  return issues;
+}
+
 function previewTableHref(
   pagination: PreviewTablePagination,
   updates: Partial<Pick<PreviewTablePagination, "page" | "pageSize" | "density">>
@@ -594,55 +772,69 @@ export function ProjectsPreviewTable({
         pagination={pagination}
       />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1180px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className={`w-[30%] ${headClass} font-semibold`}>Name</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Use</th>
-              <th className={`w-[14%] ${headClass} font-semibold`}>Phase</th>
-              <th className={`w-[16%] ${headClass} font-semibold`}>Location</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Power</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Thermal</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Review</th>
+              <th className={`w-[24%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Use</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Phase</th>
+              <th className={`w-[14%] ${headClass} font-semibold`}>Location</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Power</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Thermal</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Review</th>
+              <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {projects.map((project) => (
-              <tr key={project.project_id} className="align-top">
-                <td className={cellClass}>
-                  <Link
-                    href={`/postgres-preview/projects/${project.project_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                  >
-                    {project.project_name}
-                  </Link>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {project.legacy_project_id || "new-postgres-record"}
-                  </div>
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {project.primary_use_type_code}
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {project.lifecycle_phase_code}
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {project.country || <EmptyValue />}
-                  <div className="mt-1 text-xs text-gray-500">
-                    {project.region || <EmptyValue />}
-                  </div>
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  <MetricValue value={project.electric_capacity_mwe} suffix="MWe" />
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  <MetricValue value={project.thermal_capacity_mwth} suffix="MWth" />
-                </td>
-                <td className={cellClass}>
-                  <StatusBadge value={project.review_status_code} />
-                </td>
-              </tr>
-            ))}
+            {projects.map((project) => {
+              const issues = projectRowIssues(project);
+
+              return (
+                <tr key={project.project_id} className="align-top">
+                  <td className={cellClass}>
+                    <Link
+                      href={`/postgres-preview/projects/${project.project_id}`}
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    >
+                      {project.project_name}
+                    </Link>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {project.legacy_project_id || "new-postgres-record"}
+                    </div>
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {project.primary_use_type_code}
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {project.lifecycle_phase_code}
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {project.country || <EmptyValue />}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {project.region || <EmptyValue />}
+                    </div>
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    <MetricValue
+                      value={project.electric_capacity_mwe}
+                      suffix="MWe"
+                    />
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    <MetricValue
+                      value={project.thermal_capacity_mwth}
+                      suffix="MWth"
+                    />
+                  </td>
+                  <td className={cellClass}>
+                    <StatusBadge value={project.review_status_code} />
+                  </td>
+                  <td className={cellClass}>
+                    <IssueBadges issues={issues} />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -675,58 +867,69 @@ export function OperatingAssetsPreviewTable({
         pagination={pagination}
       />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1180px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className={`w-[30%] ${headClass} font-semibold`}>Name</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Use</th>
-              <th className={`w-[14%] ${headClass} font-semibold`}>Status</th>
-              <th className={`w-[16%] ${headClass} font-semibold`}>Location</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Installed</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Running</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Review</th>
+              <th className={`w-[24%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Use</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>Status</th>
+              <th className={`w-[14%] ${headClass} font-semibold`}>Location</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Installed</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Running</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Review</th>
+              <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {operatingAssets.map((asset) => (
-              <tr key={asset.operating_asset_id} className="align-top">
-                <td className={cellClass}>
-                  <Link
-                    href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                  >
-                    {asset.asset_name}
-                  </Link>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {asset.legacy_plant_id || "new-postgres-record"}
-                  </div>
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {asset.primary_use_type_code}
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {asset.lifecycle_phase_code}
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {asset.country || <EmptyValue />}
-                  <div className="mt-1 text-xs text-gray-500">
-                    {asset.region || <EmptyValue />}
-                  </div>
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  <MetricValue value={asset.electric_capacity_mwe} suffix="MWe" />
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  <MetricValue
-                    value={asset.electric_capacity_running_mwe}
-                    suffix="MWe"
-                  />
-                </td>
-                <td className={cellClass}>
-                  <StatusBadge value={asset.review_status_code} />
-                </td>
-              </tr>
-            ))}
+            {operatingAssets.map((asset) => {
+              const issues = operatingAssetRowIssues(asset);
+
+              return (
+                <tr key={asset.operating_asset_id} className="align-top">
+                  <td className={cellClass}>
+                    <Link
+                      href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    >
+                      {asset.asset_name}
+                    </Link>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {asset.legacy_plant_id || "new-postgres-record"}
+                    </div>
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {asset.primary_use_type_code}
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {asset.lifecycle_phase_code}
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {asset.country || <EmptyValue />}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {asset.region || <EmptyValue />}
+                    </div>
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    <MetricValue
+                      value={asset.electric_capacity_mwe}
+                      suffix="MWe"
+                    />
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    <MetricValue
+                      value={asset.electric_capacity_running_mwe}
+                      suffix="MWe"
+                    />
+                  </td>
+                  <td className={cellClass}>
+                    <StatusBadge value={asset.review_status_code} />
+                  </td>
+                  <td className={cellClass}>
+                    <IssueBadges issues={issues} />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -762,47 +965,55 @@ export function CompaniesPreviewTable({
         pagination={pagination}
       />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1040px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className={`w-[34%] ${headClass} font-semibold`}>Name</th>
-              <th className={`w-[18%] ${headClass} font-semibold`}>Type</th>
-              <th className={`w-[18%] ${headClass} font-semibold`}>HQ</th>
-              <th className={`w-[18%] ${headClass} font-semibold`}>Focus</th>
-              <th className={`w-[12%] ${headClass} font-semibold`}>Review</th>
+              <th className={`w-[28%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[16%] ${headClass} font-semibold`}>Type</th>
+              <th className={`w-[14%] ${headClass} font-semibold`}>HQ</th>
+              <th className={`w-[16%] ${headClass} font-semibold`}>Focus</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Review</th>
+              <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {companies.map((company) => (
-              <tr key={company.company_id} className="align-top">
-                <td className={cellClass}>
-                  <Link
-                    href={`/postgres-preview/companies/${company.company_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                  >
-                    {company.company_name}
-                  </Link>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {company.legacy_company_id || "new-postgres-record"}
-                  </div>
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {company.company_type_primary_code || <EmptyValue />}
-                  <div className="mt-1 text-xs text-gray-500">
-                    {company.entity_type_code || <EmptyValue />}
-                  </div>
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {company.headquarters_country || <EmptyValue />}
-                </td>
-                <td className={`${cellClass} text-gray-700`}>
-                  {company.geothermal_focus || <EmptyValue />}
-                </td>
-                <td className={cellClass}>
-                  <StatusBadge value={company.review_status_code} />
-                </td>
-              </tr>
-            ))}
+            {companies.map((company) => {
+              const issues = companyRowIssues(company);
+
+              return (
+                <tr key={company.company_id} className="align-top">
+                  <td className={cellClass}>
+                    <Link
+                      href={`/postgres-preview/companies/${company.company_id}`}
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    >
+                      {company.company_name}
+                    </Link>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {company.legacy_company_id || "new-postgres-record"}
+                    </div>
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {company.company_type_primary_code || <EmptyValue />}
+                    <div className="mt-1 text-xs text-gray-500">
+                      {company.entity_type_code || <EmptyValue />}
+                    </div>
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {company.headquarters_country || <EmptyValue />}
+                  </td>
+                  <td className={`${cellClass} text-gray-700`}>
+                    {company.geothermal_focus || <EmptyValue />}
+                  </td>
+                  <td className={cellClass}>
+                    <StatusBadge value={company.review_status_code} />
+                  </td>
+                  <td className={cellClass}>
+                    <IssueBadges issues={issues} />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
