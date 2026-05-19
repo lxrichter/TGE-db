@@ -93,6 +93,11 @@ foundation. Current implemented PostgreSQL staging areas include:
 - first live SQLite dry-run migration into Railway PostgreSQL staging completed
   and validated successfully; result documented in
   `docs/schema/LIVE_SQLITE_DRY_RUN_RESULT_2026-05-18.md`
+- Railway PostgreSQL staging now contains the transformed copied Hetzner SQLite
+  backup for controlled review, while the current live SQLite database remains
+  on the server and database files remain ignored locally
+- PostgreSQL preview list entry points exist for `/postgres-preview/projects`,
+  `/postgres-preview/operating-assets`, and `/postgres-preview/companies`
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite
@@ -141,6 +146,13 @@ variables through `DATABASE_PUBLIC_URL` or `DATABASE_URL`.
 
 No production data dump is included in Git.
 
+For PostgreSQL staging review, start local development with:
+
+```bash
+cd web
+railway run --service Postgres -- npm run dev
+```
+
 ## Known Gaps
 
 Known current gaps and risks:
@@ -163,9 +175,12 @@ Known current gaps and risks:
 
 Last checked locally:
 
-- `npm run dev`: app starts and responds on `http://localhost:3000`
+- `railway run --service Postgres -- npm run dev`: app starts and PostgreSQL
+  staging routes respond on `http://localhost:3000`
 - `/`: redirects to `/login`
-- `npm run lint`: fails on existing lint debt
+- targeted lint and `npm run build` passed for the PostgreSQL preview list-page
+  changes added on 2026-05-18
+- full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.
 

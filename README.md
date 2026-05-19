@@ -45,6 +45,9 @@ Intended build direction:
 - use Prisma as the PostgreSQL migration and application data-access foundation
 - keep PostgreSQL staging workflows under `/postgres-preview` until they are
   ready to replace the current SQLite prototype routes
+- use the copied Hetzner SQLite backup imported into Railway PostgreSQL staging
+  as a controlled review baseline while the current live database remains on
+  the server
 - add source registry and AI-assisted research support only after the core model and workflow are stable
 
 ## Repository Layout
@@ -101,6 +104,26 @@ By default, local development expects SQLite data at:
 
 Set `DB_PATH` in `web/.env.local` to override this path.
 
+### PostgreSQL Staging Development
+
+To run the PostgreSQL staging preview locally with Railway variables:
+
+```bash
+cd web
+railway run --service Postgres -- npm run dev
+```
+
+Primary PostgreSQL staging routes:
+
+```text
+http://localhost:3000/postgres-preview
+http://localhost:3000/postgres-preview/research-ops
+http://localhost:3000/postgres-preview/projects
+http://localhost:3000/postgres-preview/operating-assets
+http://localhost:3000/postgres-preview/companies
+http://localhost:3000/sources
+```
+
 ## Environment Variables
 
 See `web/.env.example`.
@@ -150,6 +173,7 @@ Start here:
 - [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md)
 - [docs/DEPLOYMENT_BASELINE.md](docs/DEPLOYMENT_BASELINE.md)
 - [docs/DATA_AND_SECURITY.md](docs/DATA_AND_SECURITY.md)
+- [docs/PAGE_REVIEW_PROTOCOL.md](docs/PAGE_REVIEW_PROTOCOL.md)
 - [docs/schema/README.md](docs/schema/README.md)
 
 PostgreSQL schema baseline:
@@ -170,6 +194,8 @@ PostgreSQL schema baseline:
 Current PostgreSQL staging implementation:
 
 - `/postgres-preview` reads Railway PostgreSQL staging records
+- `/postgres-preview/projects`, `/postgres-preview/operating-assets`, and
+  `/postgres-preview/companies` provide PostgreSQL staging list entry points
 - `/postgres-preview/projects/new` and `/postgres-preview/projects/[id]/edit`
   provide staging-only project create/edit scaffolds
 - `/postgres-preview/operating-assets/new` and
@@ -200,8 +226,10 @@ Current PostgreSQL staging implementation:
   source review, and evidence-link review metadata
 
 These PostgreSQL routes are current implementation work in progress. They do
-not yet replace the SQLite prototype, and the live Hetzner SQLite database has
-not been imported.
+not yet replace the SQLite prototype. A copied 2026-05-18 Hetzner SQLite backup
+has been transformed into Railway PostgreSQL staging for controlled review; the
+current live SQLite database remains on the server and local database files stay
+ignored by Git.
 
 Live SQLite migration preparation is now handled through a local, read-only
 inspection script:

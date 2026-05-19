@@ -118,9 +118,12 @@ The current implementation includes:
 - filters by issue type, severity, entity type, and country
 - row-level inspection panel
 - updated-by field ready for PostgreSQL user metadata
-- no live Hetzner SQLite import
-- no write actions against PostgreSQL records yet
-- no full PostgreSQL record detail/edit pages yet
+- transformed copied Hetzner SQLite backup available in Railway PostgreSQL
+  staging for controlled review
+- review/status quick actions and persistent human-created Research Ops issues
+  in PostgreSQL staging
+- PostgreSQL staging record list, detail, create, and edit pages for projects,
+  plants/facilities, and companies
 
 The existing SQLite application also has earlier prototype pages and workflows
 for projects, plants, companies, maps, analysis, and exports.

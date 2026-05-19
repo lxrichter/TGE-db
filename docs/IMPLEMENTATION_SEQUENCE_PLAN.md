@@ -70,6 +70,10 @@ Current implemented foundation:
   transform tests, committed staging transforms, and validation reporting
 - first live SQLite dry-run migration into Railway PostgreSQL staging completed
   with validation status `pass`
+- PostgreSQL preview list entry points for projects, plants/facilities, and
+  companies are available for staging review
+- page review protocol added to guide detailed page-by-page decisions before
+  replacing the SQLite prototype routes
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -85,7 +89,8 @@ Current implemented foundation:
 
 Current deliberate constraints:
 
-- do not import the live Hetzner SQLite database yet
+- do not commit or publicly upload copied live SQLite database files
+- do not treat the current Railway staging import as final production migration
 - do not build the subscriber portal yet
 - do not build full AI workflows yet
 - do not build a full report builder yet
@@ -140,6 +145,8 @@ Remaining actions:
 - review migrated Railway PostgreSQL staging data in `/postgres-preview`, then
   prioritize migration warning cleanup and decide when PostgreSQL pages should
   replace the SQLite prototype routes
+- use `docs/PAGE_REVIEW_PROTOCOL.md` for page-by-page review of exact data,
+  presentation, workflow, permissions, exports, and mobile behavior
 - avoid adding major functionality until the next technical slice is agreed
 
 ## Phase 1: PostgreSQL Application Foundation
