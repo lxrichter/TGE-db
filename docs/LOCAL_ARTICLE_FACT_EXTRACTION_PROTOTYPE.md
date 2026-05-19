@@ -173,6 +173,27 @@ The audit validates required fields, status values, duplicate fact keys,
 confidence-score ranges, evidence snippet length, date shape, JSON object
 fields, and privacy/safety flags.
 
+Run a dry load check against the confirmed-only import pack:
+
+```bash
+npm run tge-news:fact-import-load -- --input "../source-data/tge-news-article-fact-review-2026-tuned/import-pack-confirmed-only/article_fact_candidates_reviewed_import.ndjson"
+```
+
+This is still dry-run-only by default. It checks that the pack is suitable for
+loading into `article_fact_candidates` and refuses non-confirmed rows unless
+`--allow-non-confirmed` is passed.
+
+When a local PostgreSQL sandbox is available, a controlled local execution will
+look like:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run tge-news:fact-import-load -- --input "../source-data/tge-news-article-fact-review-2026-tuned/import-pack-confirmed-only/article_fact_candidates_reviewed_import.ndjson" --execute
+```
+
+The load command blocks non-local database URLs by default. It writes only to
+`article_fact_candidates`; it does not create `entity_sources`, update entity
+fields, approve records, or mark anything export-ready.
+
 The first reviewed pack from the adapted tuned workbook produced:
 
 - 125 input rows

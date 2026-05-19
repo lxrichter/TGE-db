@@ -102,6 +102,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   any database staging step, including required fields, duplicate fact keys,
   status values, confidence ranges, snippet length, JSON shape, and privacy
   safety flags
+- dry-run-first article fact import-pack loader now prepares confirmed reviewed
+  candidates for local PostgreSQL sandbox insertion, with execute mode blocked
+  for non-local database URLs by default and no path to update entity fields or
+  create real evidence links
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
