@@ -110,6 +110,7 @@ Layer 5: Analysis layer
 Layer 6: AI layer
 
 - extraction support
+- reviewed field-suggestion candidates
 - summarization
 - QA assistance
 - search
@@ -125,4 +126,7 @@ These layers are conceptual. They do not define build order.
 
 Structure -> Meaning -> Workflow -> AI
 
-The platform should first make geothermal data structured and meaningful, then make the research workflow reliable, then add AI and subscriber-facing product layers on top.
+The platform should first make geothermal data structured and meaningful, then
+make the research workflow reliable, then add AI and subscriber-facing product
+layers on top. AI-generated data changes should enter the platform as reviewed
+suggestions before they become confirmed structured data.

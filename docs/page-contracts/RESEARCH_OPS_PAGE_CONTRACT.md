@@ -22,6 +22,7 @@ Current implemented functionality:
 - filtered CSV export
 - lightweight bulk status changes
 - article/entity match candidate visibility
+- future field-suggestion candidate schema for AI-assisted data filling
 - recent edit table
 - operational status bar with click-through/filter behavior
 - My Work / Team Work section separated from generated queues
@@ -53,6 +54,7 @@ It should coordinate:
 - validation and approval workflows
 - source/evidence review
 - article/entity match review
+- AI-assisted field suggestion review
 - duplicate warnings
 - researcher assignments
 - recently edited/approved activity
@@ -138,6 +140,8 @@ Individual queues:
 - Stale / needs update
 - Source needs validation
 - Approved record edited, needs re-review
+- AI field suggestions needing review
+- AI suggestions for export-blocking fields
 - Export blockers
 
 ### 4. Research Activity
@@ -227,6 +231,8 @@ Open record detail for:
 - bulk approve, editor only
 - bulk reject candidate match
 - bulk confirm source/article match
+- bulk confirm AI-assisted field suggestion, later
+- bulk reject AI-assisted field suggestion, later
 - bulk export selected/filtered
 - bulk change issue status
 - bulk add note
@@ -338,6 +344,13 @@ Slice 3:
 - add recently approved activity
 - add mobile-specific compact card layout
 
+Slice 4:
+
+- add AI-assisted field suggestion queues
+- add record-level suggested update panels
+- add confirm/reject/apply workflow
+- keep all AI-assisted changes human-reviewed before mutating real entity data
+
 ## Future Direction
 
 Future Research Ops should support:
@@ -345,6 +358,7 @@ Future Research Ops should support:
 - formal task/ticket objects
 - automated assignment suggestions
 - AI-generated queue prioritization
+- AI-assisted field suggestion review and controlled apply workflows
 - automated stale detection
 - advanced performance/quality analytics
 - side-panel review

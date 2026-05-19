@@ -82,6 +82,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   links into the Sources review workflow
 - PostgreSQL project, plant/facility, and company detail pages now surface
   confirmed `tge_article` evidence links as Related TGE News / Evidence
+- field suggestion candidate schema has been added for future AI-assisted data
+  filling, but no AI extraction service, suggestion UI, or automatic apply
+  workflow exists yet
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
@@ -169,7 +172,8 @@ Known current gaps and risks:
 - no committed sanitized fixture database exists yet
 - deployment process needs hardening and should be evaluated against Railway requirements
 - subscriber access is not yet a completed product layer
-- AI layer is not yet a stable implemented platform feature
+- AI layer is not yet a stable implemented platform feature; current work only
+  prepares reviewed suggestion candidates and human-confirmation workflows
 
 ## Validation Snapshot
 

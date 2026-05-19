@@ -25,12 +25,15 @@ Current implemented functionality:
 - article/entity match candidates stored separately from confirmed evidence
   links
 - bulk article match review actions for confirm, reject, and needs review
+- field suggestion candidate schema exists for future AI-assisted extraction
+  from sources into reviewable project/asset/company field suggestions
 
 Current limitations:
 
 - full article body text is not stored in PostgreSQL
 - source list pagination is not yet implemented
 - source/entity candidates are still early matching outputs and require review
+- AI-assisted field suggestions are not yet surfaced in the Sources UI
 - source forms exist, but field-level claim/evidence workflows are future work
 - uploaded document/PDF parsing, OCR, embeddings, and AI extraction are future
   work
@@ -79,12 +82,14 @@ MVP workflows:
 - review article/entity match candidates
 - bulk confirm or reject match candidates
 - mark source credibility as credible, needs review, weak, outdated, or rejected
+- prepare source-derived field suggestions for later human review
 
 Future workflows:
 
 - upload and parse PDFs/reports
 - extract entities and claims from documents
 - link evidence to specific fields and claims
+- generate field suggestions that remain review candidates until confirmed
 - detect duplicate or conflicting sources
 - approve AI-generated source summaries
 - perform semantic search across article/document text
@@ -168,6 +173,7 @@ Future:
 - column chooser
 - source quality filters
 - field-level evidence filters
+- AI-generated field suggestion filters
 - side-panel review
 
 ## Actions
@@ -189,6 +195,7 @@ Future actions:
 - bulk tag country/market relevance
 - bulk merge duplicate sources
 - approve extracted claims
+- send extracted facts into field-suggestion review queues
 - approve AI summaries
 - generate source quality report
 
@@ -275,6 +282,7 @@ Future changes:
 - PDF parsing/OCR
 - WordPress API/RSS current-article sync
 - AI extraction and semantic search
+- AI-assisted field suggestion candidate review
 - source confidence scoring
 - conflicting claim detection
 

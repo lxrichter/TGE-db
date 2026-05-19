@@ -216,6 +216,8 @@ During page reviews:
   task/issue
 - keep article/entity match candidates reviewable before they create real
   evidence links
+- keep AI-assisted field suggestions reviewable before they change real
+  project, plant/facility, or company data
 - keep source/evidence and validation logic visible in Research Ops
 - keep internal-only notes and confidential visibility separate from
   export-ready or future subscriber surfaces
