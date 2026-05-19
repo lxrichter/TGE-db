@@ -114,6 +114,10 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL Research Ops now includes article fact review visibility, linking
   the extraction candidate workload into the operational dashboard while keeping
   the detailed review workflow in Sources / Documents
+- dry-run-first article fact source backfill command now creates or updates
+  `tge_article` source metadata rows from reviewed article facts and relinks
+  `article_fact_candidates.source_id`; it remains metadata-only and does not
+  create evidence links or update entity fields
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

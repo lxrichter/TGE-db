@@ -230,6 +230,9 @@ MVP groundwork:
   evidence snippets, confidence/status display, and bulk candidate triage
 - Research Ops article fact review visibility with quick links into Sources /
   Documents
+- dry-run-first source metadata backfill from reviewed article facts so
+  candidates can attach to `tge_article` source records before later evidence
+  and field-suggestion workflows
 
 Future:
 

@@ -205,6 +205,27 @@ snippets, confidence display, and editor/admin bulk triage. Triage changes only
 the `article_fact_candidates` status; it does not apply values to projects,
 plants/facilities, companies, sources, or evidence links.
 
+To connect confirmed article facts to the source/evidence layer, backfill TGE
+article source records from reviewed fact candidates:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run tge-news:fact-source-backfill
+```
+
+The command is dry-run by default. It summarizes which confirmed article fact
+source references do not yet have matching `sources` rows.
+
+Execute against a local PostgreSQL sandbox:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run tge-news:fact-source-backfill -- --execute
+```
+
+This creates or updates `tge_article` source metadata rows and relinks matching
+`article_fact_candidates.source_id`. It does not create `entity_sources`, update
+entity fields, approve records, or store article body text. Execute mode blocks
+non-local database URLs unless `--allow-remote-db` is supplied.
+
 The first reviewed pack from the adapted tuned workbook produced:
 
 - 125 input rows
