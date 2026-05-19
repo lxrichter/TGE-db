@@ -24,6 +24,14 @@ export const dynamic = "force-dynamic";
 
 type BadgeTone = "green" | "amber" | "red" | "neutral";
 
+type LifecycleState = "complete" | "attention" | "blocked" | "neutral";
+
+type LifecycleStep = {
+  title: string;
+  state: LifecycleState;
+  note: string;
+};
+
 type SourceDetailData =
   | {
       ok: true;
@@ -100,6 +108,18 @@ function visibilityTone(visibility: string): BadgeTone {
   return "amber";
 }
 
+function confidenceTone(status: string): BadgeTone {
+  if (status === "verified") {
+    return "green";
+  }
+
+  if (status === "reported" || status === "estimated" || status === "inferred") {
+    return "amber";
+  }
+
+  return "neutral";
+}
+
 function formatCode(value: string | null) {
   if (!value) {
     return "-";
@@ -111,6 +131,22 @@ function formatCode(value: string | null) {
     .replace(/\bmwe\b/gi, "MWe")
     .replace(/\bmwth\b/gi, "MWth")
     .replace(/\bcod\b/gi, "COD");
+}
+
+function lifecycleStateLabel(state: LifecycleState) {
+  if (state === "complete") {
+    return "Complete";
+  }
+
+  if (state === "attention") {
+    return "Needs Review";
+  }
+
+  if (state === "blocked") {
+    return "Blocked";
+  }
+
+  return "Not Started";
 }
 
 function Badge({
@@ -132,6 +168,23 @@ function Badge({
       className={`inline-flex min-h-[28px] items-center border px-2 text-xs font-semibold ${classes[tone]}`}
     >
       {label || "Unknown"}
+    </span>
+  );
+}
+
+function LifecycleBadge({ state }: { state: LifecycleState }) {
+  const classes = {
+    complete: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+    attention: "border-amber-200 bg-amber-50 text-amber-800",
+    blocked: "border-red-200 bg-red-50 text-red-700",
+    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+  };
+
+  return (
+    <span
+      className={`inline-flex min-h-[26px] items-center border px-2 text-[11px] font-semibold ${classes[state]}`}
+    >
+      {lifecycleStateLabel(state)}
     </span>
   );
 }
@@ -186,6 +239,37 @@ function StatusTile({
       </div>
       <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
     </div>
+  );
+}
+
+function SourceLifecyclePanel({ steps }: { steps: LifecycleStep[] }) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-[#1f2937]">Source Lifecycle</h2>
+        <p className="mt-2 text-sm leading-6 text-gray-600">
+          Current operational state from imported source record through reviewed
+          evidence and controlled AI-assisted updates.
+        </p>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {steps.map((step, index) => (
+          <div
+            key={step.title}
+            className="grid gap-3 px-5 py-4 sm:grid-cols-[32px_1fr_auto] sm:items-start"
+          >
+            <div className="flex h-8 w-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] text-xs font-bold text-gray-600">
+              {index + 1}
+            </div>
+            <div>
+              <div className="font-semibold text-[#1f2937]">{step.title}</div>
+              <p className="mt-1 text-xs leading-5 text-gray-500">{step.note}</p>
+            </div>
+            <LifecycleBadge state={step.state} />
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -245,6 +329,155 @@ function entityTypeLabel(value: SourceLink["entity_type"]) {
   }
 
   return "Company";
+}
+
+function SourceSupportsPanel({
+  links,
+  openMatchCount,
+}: {
+  links: SourceLink[];
+  openMatchCount: number;
+}) {
+  const groups: Array<{
+    code: SourceLink["entity_type"];
+    label: string;
+    links: SourceLink[];
+  }> = [
+    {
+      code: "project",
+      label: "Projects",
+      links: links.filter((link) => link.entity_type === "project"),
+    },
+    {
+      code: "operating_asset",
+      label: "Plants / Facilities",
+      links: links.filter((link) => link.entity_type === "operating_asset"),
+    },
+    {
+      code: "company",
+      label: "Companies",
+      links: links.filter((link) => link.entity_type === "company"),
+    },
+  ];
+  const primaryEvidenceCount = links.filter((link) => link.is_primary_evidence).length;
+  const confidenceCounts = links.reduce<Record<string, number>>((acc, link) => {
+    acc[link.confidence_status_code] =
+      (acc[link.confidence_status_code] || 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-[#1f2937]">
+              What This Source Supports
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              Confirmed evidence relationships. This is the core bridge between
+              source governance and geothermal records.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Badge
+              label={`${formatCount(links.length)} confirmed link${
+                links.length === 1 ? "" : "s"
+              }`}
+              tone={links.length > 0 ? "green" : "amber"}
+            />
+            <Badge
+              label={`${formatCount(openMatchCount)} open match${
+                openMatchCount === 1 ? "" : "es"
+              }`}
+              tone={openMatchCount > 0 ? "amber" : "neutral"}
+            />
+          </div>
+        </div>
+      </div>
+
+      {links.length === 0 ? (
+        <div className="px-5 py-5">
+          <div className="border border-dashed border-amber-200 bg-amber-50 px-5 py-5">
+            <div className="font-semibold text-amber-900">
+              No confirmed evidence links yet
+            </div>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+              This source exists as a governed source record, but it does not yet
+              support a specific project, plant/facility, or company. Review
+              article match candidates or add an evidence link before using it
+              in export-ready records.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-4 px-5 py-5 xl:grid-cols-[1fr_260px]">
+          <div className="grid gap-3 md:grid-cols-3">
+            {groups.map((group) => (
+              <div key={group.code} className="border border-gray-200 bg-[#fbfbfb]">
+                <div className="border-b border-gray-200 px-4 py-3">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    {group.label}
+                  </div>
+                  <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+                    {formatCount(group.links.length)}
+                  </div>
+                </div>
+                <div className="divide-y divide-gray-100">
+                  {group.links.slice(0, 4).map((link) => (
+                    <div key={link.entity_source_id} className="px-4 py-3">
+                      <Link
+                        href={entityHref(link)}
+                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      >
+                        {link.entity_name || "Unnamed record"}
+                      </Link>
+                      <div className="mt-1 text-xs leading-5 text-gray-500">
+                        {link.country || "No country"} ·{" "}
+                        {formatCode(link.linked_field)}
+                      </div>
+                    </div>
+                  ))}
+                  {group.links.length === 0 ? (
+                    <div className="px-4 py-4 text-sm text-gray-500">
+                      No confirmed links.
+                    </div>
+                  ) : null}
+                  {group.links.length > 4 ? (
+                    <div className="px-4 py-3 text-xs font-semibold text-gray-500">
+                      +{formatCount(group.links.length - 4)} more in linked
+                      evidence table
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+            <div className="text-sm font-bold text-[#1f2937]">
+              Evidence Confidence
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {Object.entries(confidenceCounts).map(([status, count]) => (
+                <Badge
+                  key={status}
+                  label={`${formatCode(status)} · ${formatCount(count)}`}
+                  tone={confidenceTone(status)}
+                />
+              ))}
+            </div>
+            <div className="mt-4 border-t border-gray-200 pt-4 text-xs leading-5 text-gray-500">
+              {formatCount(primaryEvidenceCount)} primary evidence link
+              {primaryEvidenceCount === 1 ? "" : "s"} marked. Confidence labels
+              describe the evidence relationship, separate from the source
+              credibility status.
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
 }
 
 function LinkedEntityTable({ links }: { links: SourceLink[] }) {
@@ -416,6 +649,79 @@ export default async function SourceDetailPage({
         candidate.suggestion_status_code
       )
   ).length;
+  const confirmedArticleFactCount = articleFactCandidates.filter(
+    (candidate) => candidate.fact_status_code === "confirmed"
+  ).length;
+  const appliedFieldSuggestionCount = fieldSuggestionCandidates.filter(
+    (candidate) => Boolean(candidate.applied_at)
+  ).length;
+  const sourceLifecycleSteps: LifecycleStep[] = [
+    {
+      title: "Source record",
+      state: "complete",
+      note: "Metadata exists and this source is part of the governed source layer.",
+    },
+    {
+      title: "Credibility review",
+      state:
+        source.credibility_status_code === "credible"
+          ? "complete"
+          : source.credibility_status_code === "rejected"
+            ? "blocked"
+            : "attention",
+      note:
+        source.credibility_status_code === "credible"
+          ? "Reviewed as credible for evidence use."
+          : source.credibility_status_code === "rejected"
+            ? "Rejected sources should not support export-ready records."
+            : "Needs editor review before it becomes strong evidence.",
+    },
+    {
+      title: "Evidence links",
+      state:
+        source.linked_entity_count > 0
+          ? "complete"
+          : openSourceMatchCount > 0
+            ? "attention"
+            : "neutral",
+      note:
+        source.linked_entity_count > 0
+          ? "Confirmed links show what this source supports."
+          : openSourceMatchCount > 0
+            ? "Open match candidates can become evidence links after review."
+            : "No confirmed links or open match candidates yet.",
+    },
+    {
+      title: "Extracted facts",
+      state:
+        openArticleFactCount > 0
+          ? "attention"
+          : confirmedArticleFactCount > 0
+            ? "complete"
+            : "neutral",
+      note:
+        openArticleFactCount > 0
+          ? "Fact candidates are waiting for human review."
+          : confirmedArticleFactCount > 0
+            ? "Extracted facts have been confirmed but do not write fields."
+            : "No extracted fact workflow is active for this source.",
+    },
+    {
+      title: "AI field suggestions",
+      state:
+        openFieldSuggestionCount > 0
+          ? "attention"
+          : appliedFieldSuggestionCount > 0
+            ? "complete"
+            : "neutral",
+      note:
+        openFieldSuggestionCount > 0
+          ? "Field suggestions need review before any audited apply step."
+          : appliedFieldSuggestionCount > 0
+            ? "At least one confirmed suggestion has been applied with audit."
+            : "No field suggestions are active for this source.",
+    },
+  ];
 
   return (
     <main className="space-y-8">
@@ -533,6 +839,14 @@ export default async function SourceDetailPage({
           note="Reviewable field suggestions"
           tone={openFieldSuggestionCount > 0 ? "amber" : "neutral"}
         />
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <SourceSupportsPanel
+          links={source.links}
+          openMatchCount={openSourceMatchCount}
+        />
+        <SourceLifecyclePanel steps={sourceLifecycleSteps} />
       </section>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
