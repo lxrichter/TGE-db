@@ -226,6 +226,8 @@ MVP groundwork:
 - local reviewed import-pack audit before any PostgreSQL staging write
 - dry-run-first local import-pack loader for reviewed article facts
 - `article_fact_candidates` staging table for compact reviewable article facts
+- `/sources/facts` article fact review page with filters, pagination, compact
+  evidence snippets, confidence/status display, and bulk candidate triage
 
 Future:
 

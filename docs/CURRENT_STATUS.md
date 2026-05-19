@@ -106,6 +106,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   candidates for local PostgreSQL sandbox insertion, with execute mode blocked
   for non-local database URLs by default and no path to update entity fields or
   create real evidence links
+- `/sources/facts` now provides the first PostgreSQL-backed article fact review
+  surface, with filters, pagination, status summary, candidate table, and
+  editor/admin bulk triage actions; these actions update only
+  `article_fact_candidates` review status and do not update entity records or
+  create evidence links
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

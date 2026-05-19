@@ -194,6 +194,17 @@ The load command blocks non-local database URLs by default. It writes only to
 `article_fact_candidates`; it does not create `entity_sources`, update entity
 fields, approve records, or mark anything export-ready.
 
+After loading candidates into a PostgreSQL sandbox, review them in the app:
+
+```text
+/sources/facts
+```
+
+The page supports status/fact/field filters, pagination, compact evidence
+snippets, confidence display, and editor/admin bulk triage. Triage changes only
+the `article_fact_candidates` status; it does not apply values to projects,
+plants/facilities, companies, sources, or evidence links.
+
 The first reviewed pack from the adapted tuned workbook produced:
 
 - 125 input rows
