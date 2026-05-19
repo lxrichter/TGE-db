@@ -122,7 +122,7 @@ async function listCandidateArticleSources(pool, args) {
       MAX(NULLIF(af.extraction_metadata->>'url', '')) AS url,
       COUNT(*)::int AS fact_count,
       COUNT(*) FILTER (WHERE af.source_id IS NULL)::int AS unlinked_fact_count,
-      MAX(s.source_id)::text AS existing_source_id
+      MAX(s.source_id::text) AS existing_source_id
     FROM article_fact_candidates af
     LEFT JOIN sources s
       ON s.source_reference = af.source_reference
