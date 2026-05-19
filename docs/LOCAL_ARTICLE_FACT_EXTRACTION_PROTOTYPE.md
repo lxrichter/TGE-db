@@ -90,6 +90,29 @@ The review CSV is intentionally human-facing. It includes blank
 evidence snippet, article title/URL, confidence score, and fact reason. This is
 for manual quality review only; it does not create confirmed evidence links.
 
+Recommended review decisions:
+
+- `accept`
+- `reject`
+- `unclear`
+- `needs_rule_change`
+
+After marking review decisions locally, run the audit:
+
+```bash
+npm run tge-news:fact-review -- --input "../source-data/tge-news-article-fact-review-2026-focused/article_fact_review_sample.csv"
+```
+
+This creates:
+
+- `article_fact_review_audit.json`
+- `article_fact_review_audit.md`
+- `article_fact_review_rule_notes.csv`
+
+The audit is local-only and does not write to PostgreSQL. It summarizes accept,
+reject, unclear, and rule-change rates by fact type and field so extraction
+rules can be tuned before any database import.
+
 Run only selected fact types:
 
 ```bash
