@@ -118,6 +118,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   `tge_article` source metadata rows from reviewed article facts and relinks
   `article_fact_candidates.source_id`; it remains metadata-only and does not
   create evidence links or update entity fields
+- dry-run-first article fact field-suggestion command now turns confirmed
+  article facts plus confirmed article/entity matches into reviewable
+  `field_suggestion_candidates` for capacity and target COD fields, without
+  applying values to entity records
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

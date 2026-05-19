@@ -233,6 +233,8 @@ MVP groundwork:
 - dry-run-first source metadata backfill from reviewed article facts so
   candidates can attach to `tge_article` source records before later evidence
   and field-suggestion workflows
+- dry-run-first field suggestion generation from confirmed article facts plus
+  confirmed article/entity matches, writing only review candidates
 
 Future:
 

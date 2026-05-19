@@ -226,6 +226,28 @@ This creates or updates `tge_article` source metadata rows and relinks matching
 entity fields, approve records, or store article body text. Execute mode blocks
 non-local database URLs unless `--allow-remote-db` is supplied.
 
+After article facts are linked to source rows and article/entity matches exist,
+preview field suggestions from confirmed article facts:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run tge-news:fact-field-suggestions
+```
+
+By default this uses confirmed article facts and confirmed article/entity
+matches only. It can suggest capacity and target COD fields where the matched
+project or plant/facility field is currently empty.
+
+Execute against a local PostgreSQL sandbox:
+
+```bash
+DATABASE_URL="postgresql://localhost:5432/tge_local" npm run tge-news:fact-field-suggestions -- --execute
+```
+
+This writes only to `field_suggestion_candidates`. It does not apply values to
+projects, plants/facilities, or companies, and it does not create evidence links.
+The suggestions still require human review in Research Ops or record-level
+field suggestion panels.
+
 The first reviewed pack from the adapted tuned workbook produced:
 
 - 125 input rows

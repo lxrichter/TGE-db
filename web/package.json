@@ -22,6 +22,7 @@
     "tge-news:fact-import-audit": "node scripts/tge-news-article-fact-import-pack-audit.mjs",
     "tge-news:fact-import-load": "node scripts/tge-news-article-fact-import-pack-load.mjs",
     "tge-news:fact-source-backfill": "node scripts/tge-news-article-fact-source-backfill.mjs",
+    "tge-news:fact-field-suggestions": "node scripts/tge-news-article-fact-field-suggestions.mjs",
     "tge-news:preview": "node scripts/tge-news-archive-preview.mjs",
     "field-suggestions:preview": "node scripts/tge-field-suggestions-preview.mjs",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
