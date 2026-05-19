@@ -223,6 +223,7 @@ MVP groundwork:
 - local article fact review sample and audit workflow
 - local reviewed article fact import packs generated from accepted/rejected
   review decisions, including confirmed-only handoff files
+- local reviewed import-pack audit before any PostgreSQL staging write
 - `article_fact_candidates` staging table for compact reviewable article facts
 
 Future:

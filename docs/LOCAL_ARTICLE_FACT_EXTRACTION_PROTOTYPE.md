@@ -152,6 +152,27 @@ real evidence links, update entity fields, or export full article body text.
 It exists to make reviewed decisions reproducible before a future local
 PostgreSQL dry-write step.
 
+Audit the generated pack before any database staging step:
+
+```bash
+npm run tge-news:fact-import-audit -- --input "../source-data/tge-news-article-fact-review-2026-tuned/import-pack/article_fact_candidates_reviewed_import.ndjson"
+```
+
+Audit the confirmed-only pack more strictly:
+
+```bash
+npm run tge-news:fact-import-audit -- --input "../source-data/tge-news-article-fact-review-2026-tuned/import-pack-confirmed-only/article_fact_candidates_reviewed_import.ndjson" --confirmed-only
+```
+
+This creates:
+
+- `article_fact_import_pack_audit.json`
+- `article_fact_import_pack_audit.md`
+
+The audit validates required fields, status values, duplicate fact keys,
+confidence-score ranges, evidence snippet length, date shape, JSON object
+fields, and privacy/safety flags.
+
 The first reviewed pack from the adapted tuned workbook produced:
 
 - 125 input rows

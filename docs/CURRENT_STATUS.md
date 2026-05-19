@@ -98,6 +98,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   decisions into DB-shaped NDJSON/CSV candidate files, including a
   confirmed-only pack; it performs no network calls, no database writes, no
   entity field updates, and no full article body export
+- local-only article fact import-pack audit now validates reviewed packs before
+  any database staging step, including required fields, duplicate fact keys,
+  status values, confidence ranges, snippet length, JSON shape, and privacy
+  safety flags
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
