@@ -6,8 +6,10 @@ import {
   PostgresPreviewListFilters,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
+  PostgresPreviewQuickViews,
   previewFilterOptions,
   type PreviewFilterOption,
+  type PreviewQuickView,
   type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
@@ -54,6 +56,49 @@ const companyMissingOptions: PreviewFilterOption[] = [
   { value: "primary_type", label: "Missing Primary Type" },
   { value: "source", label: "Missing Source" },
   { value: "activity_link", label: "Missing Project / Asset Link" },
+];
+
+const companyQuickViews: PreviewQuickView[] = [
+  {
+    label: "All Companies",
+    description: "Full company staging list.",
+    query: {},
+  },
+  {
+    label: "Missing Source",
+    description: "Companies without confirmed evidence links.",
+    query: { missing: "source" },
+  },
+  {
+    label: "Missing Activity Link",
+    description: "Companies not yet linked to projects or assets.",
+    query: { missing: "activity_link" },
+  },
+  {
+    label: "Missing Website",
+    description: "Companies without website or equivalent reference.",
+    query: { missing: "website" },
+  },
+  {
+    label: "Missing HQ Country",
+    description: "Companies missing headquarters country.",
+    query: { missing: "country" },
+  },
+  {
+    label: "Missing Primary Type",
+    description: "Companies without controlled primary category.",
+    query: { missing: "primary_type" },
+  },
+  {
+    label: "Drafts",
+    description: "Company records still in draft state.",
+    query: { review: "draft" },
+  },
+  {
+    label: "Needs Update",
+    description: "Previously reviewed records requiring re-check.",
+    query: { review: "needs_update" },
+  },
 ];
 
 function cleanParam(value: string | undefined) {
@@ -137,6 +182,19 @@ export default async function PostgresCompaniesListPage({
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
+          <PostgresPreviewQuickViews
+            basePath="/postgres-preview/companies"
+            currentQuery={{
+              search: data.filters.search,
+              country: data.filters.country,
+              review: data.filters.reviewStatus,
+              companyType: data.filters.companyType,
+              missing: data.filters.missing,
+            }}
+            density={data.density}
+            pageSize={data.pageSize}
+            views={companyQuickViews}
+          />
           <PostgresPreviewListFilters
             basePath="/postgres-preview/companies"
             density={data.density}

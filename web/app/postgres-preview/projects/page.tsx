@@ -4,10 +4,12 @@ import {
   parsePreviewTableDensity,
   PostgresPreviewListFilters,
   previewFilterOptions,
+  PostgresPreviewQuickViews,
   ProjectsPreviewTable,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
   type PreviewFilterOption,
+  type PreviewQuickView,
   type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
@@ -57,6 +59,44 @@ const projectMissingOptions: PreviewFilterOption[] = [
   { value: "status", label: "Missing Lifecycle / Status" },
   { value: "source", label: "Missing Source" },
   { value: "company_link", label: "Missing Company Link" },
+];
+
+const projectQuickViews: PreviewQuickView[] = [
+  {
+    label: "All Projects",
+    description: "Full project staging list.",
+    query: {},
+  },
+  {
+    label: "Needs Review",
+    description: "Projects currently in validation review.",
+    query: { review: "validation" },
+  },
+  {
+    label: "Missing Source",
+    description: "Records without confirmed evidence links.",
+    query: { missing: "source" },
+  },
+  {
+    label: "Missing Coordinates",
+    description: "Projects not ready for coordinate-confirmed maps.",
+    query: { missing: "coordinates" },
+  },
+  {
+    label: "Missing Company Link",
+    description: "Projects without structured company relationships.",
+    query: { missing: "company_link" },
+  },
+  {
+    label: "Direct-Use",
+    description: "Direct-use project pipeline records.",
+    query: { use: "direct_use" },
+  },
+  {
+    label: "Needs Update",
+    description: "Previously reviewed records requiring re-check.",
+    query: { review: "needs_update" },
+  },
 ];
 
 function cleanParam(value: string | undefined) {
@@ -141,6 +181,20 @@ export default async function PostgresProjectsListPage({
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
+          <PostgresPreviewQuickViews
+            basePath="/postgres-preview/projects"
+            currentQuery={{
+              search: data.filters.search,
+              country: data.filters.country,
+              review: data.filters.reviewStatus,
+              use: data.filters.useType,
+              status: data.filters.status,
+              missing: data.filters.missing,
+            }}
+            density={data.density}
+            pageSize={data.pageSize}
+            views={projectQuickViews}
+          />
           <PostgresPreviewListFilters
             basePath="/postgres-preview/projects"
             density={data.density}

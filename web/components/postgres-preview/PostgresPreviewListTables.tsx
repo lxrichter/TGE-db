@@ -36,6 +36,12 @@ export type PreviewFilterSelect = {
   options: PreviewFilterOption[];
 };
 
+export type PreviewQuickView = {
+  label: string;
+  description: string;
+  query: Record<string, string | undefined>;
+};
+
 export const DEFAULT_PREVIEW_PAGE_SIZE = 100;
 
 export const PREVIEW_PAGE_SIZE_OPTIONS = [50, 100, 250];
@@ -143,6 +149,131 @@ function previewTableHref(
 
   const query = params.toString();
   return query ? `${pagination.basePath}?${query}` : pagination.basePath;
+}
+
+function cleanQuery(query: Record<string, string | undefined>): Record<string, string> {
+  const cleaned: Record<string, string> = {};
+
+  Object.entries(query).forEach(([key, value]) => {
+    if (value) {
+      cleaned[key] = value;
+    }
+  });
+
+  return cleaned;
+}
+
+function quickViewHref({
+  basePath,
+  pageSize,
+  density,
+  query,
+}: {
+  basePath: string;
+  pageSize: number;
+  density: PreviewTableDensity;
+  query: Record<string, string | undefined>;
+}) {
+  const params = new URLSearchParams();
+
+  Object.entries(cleanQuery(query)).forEach(([key, value]) => {
+    params.set(key, value);
+  });
+
+  if (pageSize !== DEFAULT_PREVIEW_PAGE_SIZE) {
+    params.set("pageSize", String(pageSize));
+  }
+
+  if (density !== "comfortable") {
+    params.set("density", density);
+  }
+
+  const queryString = params.toString();
+  return queryString ? `${basePath}?${queryString}` : basePath;
+}
+
+function isQuickViewActive({
+  currentQuery,
+  viewQuery,
+}: {
+  currentQuery: Record<string, string | undefined>;
+  viewQuery: Record<string, string | undefined>;
+}) {
+  const current = cleanQuery(currentQuery);
+  const view = cleanQuery(viewQuery);
+  const currentEntries = Object.entries(current);
+  const viewEntries = Object.entries(view);
+
+  if (currentEntries.length !== viewEntries.length) {
+    return false;
+  }
+
+  return viewEntries.every(([key, value]) => current[key] === value);
+}
+
+export function PostgresPreviewQuickViews({
+  basePath,
+  pageSize,
+  density,
+  currentQuery,
+  views,
+}: {
+  basePath: string;
+  pageSize: number;
+  density: PreviewTableDensity;
+  currentQuery: Record<string, string | undefined>;
+  views: PreviewQuickView[];
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-[#1f2937]">
+          Quick Operational Views
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          Reusable filter presets for common research and data-quality work.
+          These are static MVP views; user/team saved views can build on this
+          pattern later.
+        </p>
+      </div>
+      <div className="grid gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
+        {views.map((view) => {
+          const active = isQuickViewActive({
+            currentQuery,
+            viewQuery: view.query,
+          });
+
+          return (
+            <Link
+              key={view.label}
+              className={`border px-4 py-4 text-left ${
+                active
+                  ? "border-[#8dc63f] bg-[#f3f8ec]"
+                  : "border-gray-200 bg-white hover:border-[#8dc63f] hover:bg-[#fbfff7]"
+              }`}
+              href={quickViewHref({
+                basePath,
+                density,
+                pageSize,
+                query: view.query,
+              })}
+            >
+              <div
+                className={`text-sm font-bold ${
+                  active ? "text-[#4f7f1f]" : "text-[#1f2937]"
+                }`}
+              >
+                {view.label}
+              </div>
+              <div className="mt-2 text-xs leading-5 text-gray-500">
+                {view.description}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 export function PostgresPreviewListFilters({

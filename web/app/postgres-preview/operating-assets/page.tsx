@@ -6,8 +6,10 @@ import {
   PostgresPreviewListFilters,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
+  PostgresPreviewQuickViews,
   previewFilterOptions,
   type PreviewFilterOption,
+  type PreviewQuickView,
   type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
@@ -58,6 +60,49 @@ const operatingAssetMissingOptions: PreviewFilterOption[] = [
   { value: "source", label: "Missing Source" },
   { value: "company_link", label: "Missing Company Link" },
   { value: "cod", label: "Missing COD / Year" },
+];
+
+const operatingAssetQuickViews: PreviewQuickView[] = [
+  {
+    label: "All Assets",
+    description: "Full plant/facility staging list.",
+    query: {},
+  },
+  {
+    label: "Operating",
+    description: "Currently operating asset records.",
+    query: { status: "operating" },
+  },
+  {
+    label: "Missing Source",
+    description: "Assets without confirmed evidence links.",
+    query: { missing: "source" },
+  },
+  {
+    label: "Missing Coordinates",
+    description: "Assets not ready for coordinate-confirmed maps.",
+    query: { missing: "coordinates" },
+  },
+  {
+    label: "Missing Company Link",
+    description: "Assets without structured owner/operator relationships.",
+    query: { missing: "company_link" },
+  },
+  {
+    label: "Missing COD",
+    description: "Operating assets missing commissioning year.",
+    query: { missing: "cod" },
+  },
+  {
+    label: "Direct-Use",
+    description: "Direct-use operating facilities.",
+    query: { use: "direct_use" },
+  },
+  {
+    label: "Needs Update",
+    description: "Previously reviewed records requiring re-check.",
+    query: { review: "needs_update" },
+  },
 ];
 
 function cleanParam(value: string | undefined) {
@@ -142,6 +187,20 @@ export default async function PostgresOperatingAssetsListPage({
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
+          <PostgresPreviewQuickViews
+            basePath="/postgres-preview/operating-assets"
+            currentQuery={{
+              search: data.filters.search,
+              country: data.filters.country,
+              review: data.filters.reviewStatus,
+              use: data.filters.useType,
+              status: data.filters.status,
+              missing: data.filters.missing,
+            }}
+            density={data.density}
+            pageSize={data.pageSize}
+            views={operatingAssetQuickViews}
+          />
           <PostgresPreviewListFilters
             basePath="/postgres-preview/operating-assets"
             density={data.density}
