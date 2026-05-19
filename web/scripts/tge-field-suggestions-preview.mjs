@@ -669,7 +669,13 @@ async function writeCandidatesToPostgres({ pool, candidates, batchSize, generate
 }
 
 async function getDiagnostics(pool, args) {
-  const [matchStatuses, sourceMetadata, matchedSourceMetadata, existingSuggestions] =
+  const [
+    matchStatuses,
+    sourceMetadata,
+    matchedSourceMetadata,
+    fieldOpportunities,
+    existingSuggestions,
+  ] =
     await Promise.all([
       pool.query(
         `
@@ -729,6 +735,129 @@ async function getDiagnostics(pool, args) {
       ),
       pool.query(
         `
+        WITH matched_sources AS (
+          SELECT
+            c.match_candidate_id,
+            c.source_id,
+            c.entity_type,
+            c.entity_id,
+            c.confidence_score::float8 AS match_confidence,
+            c.match_status_code,
+            s.source_type_code,
+            s.url AS source_url,
+            s.country AS source_country,
+            NULLIF(s.metadata_json->>'inferred_use_type', '') AS inferred_use_type
+          FROM source_entity_match_candidates c
+          JOIN sources s ON s.source_id = c.source_id
+          WHERE c.entity_id IS NOT NULL
+            AND c.entity_type = ANY($2::text[])
+            AND c.match_status_code = ANY($3::text[])
+            AND c.confidence_score >= $1::numeric
+        ),
+        normalized_matches AS (
+          SELECT
+            *,
+            CASE lower(inferred_use_type)
+              WHEN 'power' THEN 'power'
+              WHEN 'direct_use' THEN 'direct_use'
+              WHEN 'direct-use' THEN 'direct_use'
+              WHEN 'direct use' THEN 'direct_use'
+              WHEN 'hybrid' THEN 'hybrid'
+              WHEN 'hybrid_mineral' THEN 'hybrid'
+              WHEN 'mineral' THEN 'mineral_extraction'
+              WHEN 'mineral_extraction' THEN 'mineral_extraction'
+              ELSE NULL
+            END AS suggested_use_type_code
+          FROM matched_sources
+        )
+        SELECT
+          COUNT(*)::int AS matched_sources,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND NULLIF(BTRIM(m.source_country), '') IS NOT NULL
+          )::int AS project_matches_with_source_country,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND NULLIF(BTRIM(m.source_country), '') IS NOT NULL
+              AND NULLIF(BTRIM(p.country), '') IS NULL
+          )::int AS project_country_empty_opportunities,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND NULLIF(BTRIM(m.source_country), '') IS NOT NULL
+              AND NULLIF(BTRIM(p.country), '') IS NOT NULL
+          )::int AS project_country_already_filled,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND NULLIF(BTRIM(m.source_country), '') IS NOT NULL
+          )::int AS asset_matches_with_source_country,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND NULLIF(BTRIM(m.source_country), '') IS NOT NULL
+              AND NULLIF(BTRIM(a.country), '') IS NULL
+          )::int AS asset_country_empty_opportunities,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND NULLIF(BTRIM(m.source_country), '') IS NOT NULL
+              AND NULLIF(BTRIM(a.country), '') IS NOT NULL
+          )::int AS asset_country_already_filled,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND m.suggested_use_type_code IS NOT NULL
+          )::int AS project_matches_with_use_type_signal,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND m.suggested_use_type_code IS NOT NULL
+              AND COALESCE(NULLIF(BTRIM(p.primary_use_type_code), ''), 'unknown') = 'unknown'
+          )::int AS project_use_type_unknown_opportunities,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'project'
+              AND m.suggested_use_type_code IS NOT NULL
+              AND COALESCE(NULLIF(BTRIM(p.primary_use_type_code), ''), 'unknown') <> 'unknown'
+          )::int AS project_use_type_already_filled,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND m.suggested_use_type_code IS NOT NULL
+          )::int AS asset_matches_with_use_type_signal,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND m.suggested_use_type_code IS NOT NULL
+              AND COALESCE(NULLIF(BTRIM(a.primary_use_type_code), ''), 'unknown') = 'unknown'
+          )::int AS asset_use_type_unknown_opportunities,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'operating_asset'
+              AND m.suggested_use_type_code IS NOT NULL
+              AND COALESCE(NULLIF(BTRIM(a.primary_use_type_code), ''), 'unknown') <> 'unknown'
+          )::int AS asset_use_type_already_filled,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'company'
+              AND m.source_type_code = 'company_website'
+              AND NULLIF(BTRIM(m.source_url), '') IS NOT NULL
+          )::int AS company_website_source_matches,
+          COUNT(*) FILTER (
+            WHERE m.entity_type = 'company'
+              AND m.source_type_code = 'company_website'
+              AND NULLIF(BTRIM(m.source_url), '') IS NOT NULL
+              AND (
+                NULLIF(BTRIM(c.website_url), '') IS NULL
+                OR lower(BTRIM(c.website_url)) <> lower(BTRIM(m.source_url))
+              )
+          )::int AS company_website_opportunities
+        FROM normalized_matches m
+        LEFT JOIN projects p
+          ON m.entity_type = 'project' AND p.project_id = m.entity_id
+        LEFT JOIN operating_assets a
+          ON m.entity_type = 'operating_asset' AND a.operating_asset_id = m.entity_id
+        LEFT JOIN companies c
+          ON m.entity_type = 'company' AND c.company_id = m.entity_id
+        `,
+        [
+          args.minConfidence,
+          ["project", "operating_asset", "company"],
+          args.matchStatuses,
+        ]
+      ),
+      pool.query(
+        `
         SELECT suggestion_status_code, entity_type, field_name, COUNT(*)::int AS count
         FROM field_suggestion_candidates
         GROUP BY suggestion_status_code, entity_type, field_name
@@ -741,6 +870,7 @@ async function getDiagnostics(pool, args) {
     source_match_candidates_by_status: matchStatuses.rows,
     source_metadata: sourceMetadata.rows[0],
     matched_source_metadata_for_current_filters: matchedSourceMetadata.rows[0],
+    field_opportunity_diagnostics: fieldOpportunities.rows[0],
     existing_field_suggestions_by_status: existingSuggestions.rows,
   };
 }
