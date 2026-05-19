@@ -890,6 +890,12 @@ async function confirmSourceMatchCandidate(
       WHERE match_candidate_id = $1::uuid
         AND entity_type IN ('project', 'operating_asset', 'company')
         AND entity_id IS NOT NULL
+        AND match_status_code NOT IN ('confirmed', 'rejected')
+        AND NOT (
+          match_metadata ? 'review_flags'
+          AND jsonb_typeof(match_metadata->'review_flags') = 'array'
+          AND jsonb_array_length(match_metadata->'review_flags') > 0
+        )
       FOR UPDATE
     ),
     existing AS (

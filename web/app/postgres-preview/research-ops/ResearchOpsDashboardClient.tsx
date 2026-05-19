@@ -726,7 +726,7 @@ function ArticleMatchReviewPanel({
     {
       label: "Flags",
       value: summary.flaggedForReview,
-      href: "/sources/matches",
+      href: "/sources/matches?flagged=1",
       note: "Country or quality flags",
     },
     {
