@@ -724,6 +724,12 @@ function ArticleMatchReviewPanel({
       note: "Usually careful review",
     },
     {
+      label: "Flags",
+      value: summary.flaggedForReview,
+      href: "/sources/matches",
+      note: "Country or quality flags",
+    },
+    {
       label: "Confirmed",
       value: summary.confirmed,
       href: "/sources/matches?status=confirmed",
@@ -761,7 +767,7 @@ function ArticleMatchReviewPanel({
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-7">
         {matchLinks.map((item) => (
           <Link
             key={item.label}

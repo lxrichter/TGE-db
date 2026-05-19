@@ -104,6 +104,7 @@ export type SourceMatchCandidateSummary = {
   highConfidence: number;
   mediumConfidence: number;
   lowConfidence: number;
+  flaggedForReview: number;
   confirmed: number;
   rejected: number;
 };
@@ -248,6 +249,7 @@ type SourceMatchCandidateSummaryRow = {
   high_confidence: number | bigint;
   medium_confidence: number | bigint;
   low_confidence: number | bigint;
+  flagged_for_review: number | bigint;
   confirmed: number | bigint;
   rejected: number | bigint;
 };
@@ -680,6 +682,11 @@ export async function getSourceMatchCandidateSummary(): Promise<SourceMatchCandi
         WHERE match_status_code = 'suggested_low_confidence'
       )::int AS low_confidence,
       COUNT(*) FILTER (
+        WHERE match_metadata ? 'review_flags'
+          AND jsonb_typeof(match_metadata->'review_flags') = 'array'
+          AND jsonb_array_length(match_metadata->'review_flags') > 0
+      )::int AS flagged_for_review,
+      COUNT(*) FILTER (
         WHERE match_status_code = 'confirmed'
       )::int AS confirmed,
       COUNT(*) FILTER (
@@ -696,6 +703,7 @@ export async function getSourceMatchCandidateSummary(): Promise<SourceMatchCandi
     highConfidence: toNumber(row?.high_confidence ?? 0),
     mediumConfidence: toNumber(row?.medium_confidence ?? 0),
     lowConfidence: toNumber(row?.low_confidence ?? 0),
+    flaggedForReview: toNumber(row?.flagged_for_review ?? 0),
     confirmed: toNumber(row?.confirmed ?? 0),
     rejected: toNumber(row?.rejected ?? 0),
   };

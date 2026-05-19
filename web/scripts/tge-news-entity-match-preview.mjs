@@ -68,6 +68,60 @@ const COUNTRY_SYNONYMS = new Map([
   ["El Salvador", ["el salvador", "el-salvador"]],
 ]);
 
+const COUNTRY_TAG_ALIASES = new Map(
+  [
+    ["argentina", "Argentina"],
+    ["australia", "Australia"],
+    ["austria", "Austria"],
+    ["bolivia", "Bolivia"],
+    ["canada", "Canada"],
+    ["chile", "Chile"],
+    ["china", "China"],
+    ["colombia", "Colombia"],
+    ["costa-rica", "Costa Rica"],
+    ["croatia", "Croatia"],
+    ["denmark", "Denmark"],
+    ["djibouti", "Djibouti"],
+    ["ecuador", "Ecuador"],
+    ["el-salvador", "El Salvador"],
+    ["ethiopia", "Ethiopia"],
+    ["finland", "Finland"],
+    ["france", "France"],
+    ["germany", "Germany"],
+    ["greece", "Greece"],
+    ["guatemala", "Guatemala"],
+    ["hungary", "Hungary"],
+    ["iceland", "Iceland"],
+    ["india", "India"],
+    ["indonesia", "Indonesia"],
+    ["ireland", "Ireland"],
+    ["italy", "Italy"],
+    ["japan", "Japan"],
+    ["kenya", "Kenya"],
+    ["mexico", "Mexico"],
+    ["netherlands", "Netherlands"],
+    ["new-zealand", "New Zealand"],
+    ["nicaragua", "Nicaragua"],
+    ["philippines", "Philippines"],
+    ["poland", "Poland"],
+    ["portugal", "Portugal"],
+    ["romania", "Romania"],
+    ["russia", "Russia"],
+    ["slovakia", "Slovakia"],
+    ["spain", "Spain"],
+    ["switzerland", "Switzerland"],
+    ["taiwan", "Taiwan"],
+    ["tanzania", "Tanzania"],
+    ["turkey", "Turkey"],
+    ["turkiye", "Türkiye"],
+    ["uk", "United Kingdom"],
+    ["united-kingdom", "United Kingdom"],
+    ["united-states", "United States"],
+    ["usa", "United States"],
+    ["us", "United States"],
+  ].sort((a, b) => a[0].localeCompare(b[0]))
+);
+
 function parseArgs(argv) {
   const args = {
     articleIndex: process.env.TGE_NEWS_ARTICLE_INDEX || DEFAULT_ARTICLE_INDEX,
@@ -75,6 +129,7 @@ function parseArgs(argv) {
     out: process.env.TGE_NEWS_MATCH_OUT || DEFAULT_OUT_DIR,
     fromPostgres: false,
     writeCandidates: false,
+    demoteCountryConflicts: false,
     threshold: 0.55,
     limit: 5000,
     articleLimit: 0,
@@ -99,6 +154,8 @@ function parseArgs(argv) {
       args.fromPostgres = true;
     } else if (arg === "--write-candidates") {
       args.writeCandidates = true;
+    } else if (arg === "--demote-country-conflicts") {
+      args.demoteCountryConflicts = true;
     } else if (arg === "--threshold" && next) {
       args.threshold = Math.min(Math.max(Number(next) || 0.55, 0), 1);
       index += 1;
@@ -134,6 +191,8 @@ Options:
   --entities-json <file>  Local entity JSON file for projects/assets/companies.
   --from-postgres         Read entity names from PostgreSQL using DATABASE_URL.
   --write-candidates      Write candidates to source_entity_match_candidates. Requires --from-postgres.
+  --demote-country-conflicts
+                           Demote open project/asset candidates when source country conflicts with entity country.
   --out <dir>             Output directory. Defaults to ../source-data/tge-news-entity-match-preview.
   --threshold <0-1>       Minimum confidence. Defaults to 0.55.
   --limit <n>             Max candidate rows to write. Defaults to 5000. Use 0 for unlimited.
@@ -377,6 +436,23 @@ function countryTokens(country) {
   ]).filter(Boolean);
 }
 
+function articleCountryCandidates(article) {
+  const tags = Array.isArray(article.tags) ? article.tags : [];
+
+  return uniq(
+    tags
+      .map((tag) => COUNTRY_TAG_ALIASES.get(slugify(tag)))
+      .filter(Boolean)
+  ).sort((a, b) => a.localeCompare(b));
+}
+
+function countryMatches(left, right) {
+  const leftTokens = new Set(countryTokens(left));
+  const rightTokens = countryTokens(right);
+
+  return rightTokens.some((token) => leftTokens.has(token));
+}
+
 function articleHaystack(article) {
   const tags = Array.isArray(article.tags) ? article.tags : [];
   const categories = Array.isArray(article.categories) ? article.categories : [];
@@ -411,6 +487,22 @@ function hasCountrySignal(articleText, country) {
       includesPhrase(articleText.slug, token) ||
       includesPhrase(articleText.tags, token)
   );
+}
+
+function hasCountryCandidateMatch(countryCandidates, country) {
+  return countryCandidates.some((candidate) => countryMatches(candidate, country));
+}
+
+function hasCountryCandidateConflict(articleText, countryCandidates, entity) {
+  if (entity.entity_type === "company" || !entity.country || countryCandidates.length === 0) {
+    return false;
+  }
+
+  if (hasCountryCandidateMatch(countryCandidates, entity.country)) {
+    return false;
+  }
+
+  return !hasCountrySignal(articleText, entity.country);
 }
 
 function hasUseTypeSignal(article, entity) {
@@ -448,6 +540,8 @@ function statusForConfidence(confidence) {
 function scoreAlias(article, articleText, entity, alias) {
   let confidence = 0;
   const reasons = [];
+  const reviewFlags = [];
+  const countryCandidates = articleCountryCandidates(article);
 
   if (alias.text.length < 3) {
     return null;
@@ -486,6 +580,10 @@ function scoreAlias(article, articleText, entity, alias) {
   if (hasCountrySignal(articleText, entity.country)) {
     confidence += 0.08;
     reasons.push("country signal");
+  } else if (hasCountryCandidateConflict(articleText, countryCandidates, entity)) {
+    confidence -= 0.25;
+    reasons.push("article country conflicts with entity country");
+    reviewFlags.push("country_conflict");
   }
 
   if (hasUseTypeSignal(article, entity)) {
@@ -494,8 +592,10 @@ function scoreAlias(article, articleText, entity, alias) {
   }
 
   return {
-    confidence: Math.min(confidence, 0.98),
+    confidence: Math.min(Math.max(confidence, 0), 0.98),
     reasons,
+    review_flags: reviewFlags,
+    article_country_candidates: countryCandidates,
   };
 }
 
@@ -549,6 +649,8 @@ function matchArticlesToEntities({ articles, entities, threshold, limit }) {
         entity_country: entity.country,
         entity_use_type: entity.use_type,
         matched_alias: best.alias,
+        article_country_candidates: best.article_country_candidates,
+        review_flags: best.review_flags,
         confidence,
         match_status_code: statusForConfidence(confidence),
         reason: best.reasons.join("; "),
@@ -587,6 +689,8 @@ function toCsv(rows) {
     "entity_country",
     "entity_use_type",
     "matched_alias",
+    "article_country_candidates",
+    "review_flags",
     "confidence",
     "match_status_code",
     "reason",
@@ -638,9 +742,11 @@ function buildCandidateMetadata(row) {
     article_url: row.article_url,
     article_date: row.article_date,
     article_use_type: row.article_use_type,
+    article_country_candidates: row.article_country_candidates,
     entity_country: row.entity_country,
     entity_use_type: row.entity_use_type,
     matched_alias: row.matched_alias,
+    review_flags: row.review_flags,
     body_text_read: false,
     creates_entity_source_link: false,
   };
@@ -791,6 +897,91 @@ function countBy(rows, key) {
     .map(([value, count]) => ({ value, count }));
 }
 
+function countFlags(rows, key) {
+  const counts = new Map();
+
+  for (const row of rows) {
+    const flags = Array.isArray(row[key]) ? row[key] : [];
+
+    for (const flag of flags) {
+      counts.set(flag, (counts.get(flag) || 0) + 1);
+    }
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))
+    .map(([value, count]) => ({ value, count }));
+}
+
+async function demoteCountryConflictingCandidates(pool) {
+  const result = await pool.query(
+    `
+    WITH candidate_entities AS (
+      SELECT
+        c.match_candidate_id,
+        s.country AS source_country,
+        COALESCE(p.country, a.country) AS entity_country
+      FROM source_entity_match_candidates c
+      JOIN sources s ON s.source_id = c.source_id
+      LEFT JOIN projects p
+        ON c.entity_type = 'project'
+        AND p.project_id = c.entity_id
+      LEFT JOIN operating_assets a
+        ON c.entity_type = 'operating_asset'
+        AND a.operating_asset_id = c.entity_id
+      WHERE c.entity_type IN ('project', 'operating_asset')
+        AND c.match_status_code NOT IN ('confirmed', 'rejected')
+        AND s.country IS NOT NULL
+        AND BTRIM(s.country) <> ''
+        AND COALESCE(p.country, a.country) IS NOT NULL
+        AND BTRIM(COALESCE(p.country, a.country)) <> ''
+    ),
+    conflicts AS (
+      SELECT *
+      FROM candidate_entities
+      WHERE regexp_replace(
+          replace(replace(lower(BTRIM(source_country)), 'türkiye', 'turkey'), '&', 'and'),
+          '[^a-z0-9]+',
+          '',
+          'g'
+        ) <> regexp_replace(
+          replace(replace(lower(BTRIM(entity_country)), 'türkiye', 'turkey'), '&', 'and'),
+          '[^a-z0-9]+',
+          '',
+          'g'
+        )
+    )
+    UPDATE source_entity_match_candidates c
+    SET
+      confidence_score = LEAST(c.confidence_score, 0.55000::numeric),
+      match_status_code = 'suggested_low_confidence',
+      match_reason = CASE
+        WHEN c.match_reason ILIKE '%country conflict review flag%' THEN c.match_reason
+        WHEN c.match_reason IS NULL OR BTRIM(c.match_reason) = '' THEN 'country conflict review flag'
+        ELSE concat(c.match_reason, '; country conflict review flag')
+      END,
+      match_metadata = COALESCE(c.match_metadata, '{}'::jsonb) || jsonb_build_object(
+        'review_flags',
+        jsonb_build_array('country_conflict'),
+        'source_country',
+        conflicts.source_country,
+        'entity_country',
+        conflicts.entity_country,
+        'country_conflict_demoted_at',
+        now()
+      ),
+      updated_at = now()
+    FROM conflicts
+    WHERE c.match_candidate_id = conflicts.match_candidate_id
+    RETURNING c.match_candidate_id
+    `
+  );
+
+  return {
+    demoted_country_conflicts: result.rowCount,
+  };
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
@@ -804,6 +995,10 @@ async function main() {
 
   if (args.writeCandidates && !args.fromPostgres) {
     throw new Error("--write-candidates requires --from-postgres.");
+  }
+
+  if (args.demoteCountryConflicts && !args.fromPostgres) {
+    throw new Error("--demote-country-conflicts requires --from-postgres.");
   }
 
   let pool = null;
@@ -837,6 +1032,10 @@ async function main() {
         generatedBy: args.generatedBy,
       })
     : null;
+  const countryConflictDemotionStats =
+    args.demoteCountryConflicts && pool
+      ? await demoteCountryConflictingCandidates(pool)
+      : null;
 
   if (pool) {
     await pool.end();
@@ -861,6 +1060,7 @@ async function main() {
       article_limit: args.articleLimit || null,
       candidate_batch_size: args.candidateBatchSize,
       generated_by: args.generatedBy,
+      demote_country_conflicts: args.demoteCountryConflicts,
     },
     counts: {
       articles_read: articles.length,
@@ -869,7 +1069,9 @@ async function main() {
       candidates_by_entity_type: countBy(candidates, "entity_type"),
       candidates_by_confidence: countBy(candidates, "confidence"),
       candidates_by_status: countBy(candidates, "match_status_code"),
+      candidates_by_review_flag: countFlags(candidates, "review_flags"),
       candidate_write_stats: candidateWriteStats,
+      country_conflict_demotion_stats: countryConflictDemotionStats,
     },
     sample_candidates: candidates.slice(0, 25),
   };
@@ -895,6 +1097,11 @@ async function main() {
     );
   } else {
     console.log("Candidate write skipped. Add --write-candidates to persist review rows.");
+  }
+  if (countryConflictDemotionStats) {
+    console.log(
+      `Country-conflict candidates demoted: ${countryConflictDemotionStats.demoted_country_conflicts}`
+    );
   }
   console.log(`Output: ${args.out}`);
   console.log("No article body text read. No entity_sources links created.");
