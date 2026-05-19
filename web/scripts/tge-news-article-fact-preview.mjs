@@ -200,6 +200,9 @@ function parseArgs(argv) {
     maxFactsPerArticle: 25,
     minConfidence: 0.5,
     batchSize: 500,
+    factTypes: new Set(),
+    skipEntitySignals: false,
+    maxExecuteRows: 5000,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -240,6 +243,19 @@ function parseArgs(argv) {
     } else if (arg === "--batch-size" && next) {
       args.batchSize = Math.min(Math.max(Number(next) || 500, 1), 5000);
       index += 1;
+    } else if (arg === "--fact-types" && next) {
+      args.factTypes = new Set(
+        next
+          .split(",")
+          .map((type) => type.trim())
+          .filter(Boolean)
+      );
+      index += 1;
+    } else if (arg === "--skip-entity-signals") {
+      args.skipEntitySignals = true;
+    } else if (arg === "--max-execute-rows" && next) {
+      args.maxExecuteRows = Math.max(Number(next) || 0, 0);
+      index += 1;
     } else if (arg === "--help" || arg === "-h") {
       printHelp();
       process.exit(0);
@@ -266,6 +282,9 @@ Options:
   --max-facts-per-article <n>  Maximum extracted candidate facts per article. Defaults to 25.
   --min-confidence <0-1>       Minimum confidence for output/write. Defaults to 0.5.
   --batch-size <n>             PostgreSQL write batch size. Defaults to 500.
+  --fact-types <list>          Optional comma-separated fact types to output/write.
+  --skip-entity-signals        Exclude broad non-generic tag/entity signals.
+  --max-execute-rows <n>       Safety cap for --execute. Defaults to 5000.
 
 Privacy:
   This script is local-only by default, makes no network calls, does not call an
@@ -880,6 +899,20 @@ function extractFactsForArticle(article, tags, body, args) {
   return facts;
 }
 
+function applyFactFilters(facts, args) {
+  return facts.filter((fact) => {
+    if (args.skipEntitySignals && fact.fact_type_code === "entity_signal") {
+      return false;
+    }
+
+    if (args.factTypes.size && !args.factTypes.has(fact.fact_type_code)) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
 function countBy(rows, key) {
   const counts = new Map();
 
@@ -1151,7 +1184,10 @@ async function main() {
       categories,
       tags,
     };
-    const facts = extractFactsForArticle(article, tags, body, args);
+    const facts = applyFactFilters(
+      extractFactsForArticle(article, tags, body, args),
+      args
+    );
 
     articleRows.push({
       source_reference: article.source_reference,
@@ -1163,6 +1199,18 @@ async function main() {
       extracted_fact_count: facts.length,
     });
     factRows.push(...facts);
+  }
+
+  if (
+    args.execute &&
+    args.maxExecuteRows > 0 &&
+    factRows.length > args.maxExecuteRows
+  ) {
+    throw new Error(
+      `Refusing to write ${factRows.length} candidates with --execute. ` +
+        `Use --fact-types, --skip-entity-signals, --limit, --years, or raise ` +
+        `--max-execute-rows after reviewing the dry run.`
+    );
   }
 
   const writeStats = args.execute
@@ -1191,6 +1239,9 @@ async function main() {
     total_markdown_files_processed: filteredFiles.length,
     extraction_method: EXTRACTION_METHOD,
     body_char_limit_scanned_locally: args.bodyCharLimit,
+    fact_type_filter: args.factTypes.size ? [...args.factTypes] : null,
+    skip_entity_signals: args.skipEntitySignals,
+    max_execute_rows: args.maxExecuteRows,
     privacy: {
       local_only_default: true,
       network_calls: false,

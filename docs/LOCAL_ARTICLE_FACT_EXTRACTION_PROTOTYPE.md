@@ -72,6 +72,18 @@ Run a broader local dry run:
 npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical"
 ```
 
+Run a narrower, more operational extraction without broad entity/tag signals:
+
+```bash
+npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --skip-entity-signals
+```
+
+Run only selected fact types:
+
+```bash
+npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --fact-types capacity_signal,cod_year_signal,funding_amount_signal
+```
+
 ## Optional PostgreSQL Write
 
 Do not run this until the migration has been deployed to the intended PostgreSQL
@@ -82,6 +94,10 @@ railway run --service Postgres -- npm run tge-news:facts -- --root "/Users/lxric
 ```
 
 This writes only review candidates to `article_fact_candidates`.
+
+For safety, `--execute` refuses to write more than 5,000 candidates unless
+`--max-execute-rows` is raised. Prefer narrowing with `--years`, `--limit`,
+`--fact-types`, or `--skip-entity-signals` before writing.
 
 It does not:
 
