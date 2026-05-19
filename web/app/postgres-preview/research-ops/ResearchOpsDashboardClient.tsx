@@ -907,6 +907,14 @@ function fieldSuggestionHref(candidate: PostgresFieldSuggestionCandidate) {
   return `/postgres-preview/companies/${candidate.entity_id}`;
 }
 
+function isClosedFieldSuggestion(candidate: PostgresFieldSuggestionCandidate) {
+  return (
+    candidate.suggestion_status_code === "confirmed" ||
+    candidate.suggestion_status_code === "rejected" ||
+    candidate.suggestion_status_code === "superseded"
+  );
+}
+
 function FieldSuggestionReviewPanel({
   summary,
   candidates,
@@ -958,7 +966,18 @@ function FieldSuggestionReviewPanel({
   const selectableCandidateIds = useMemo(
     () =>
       candidates
-        .filter((candidate) => candidate.suggestion_status_code !== "superseded")
+        .filter((candidate) => !isClosedFieldSuggestion(candidate))
+        .map((candidate) => candidate.field_suggestion_candidate_id),
+    [candidates]
+  );
+  const highConfidenceCandidateIds = useMemo(
+    () =>
+      candidates
+        .filter(
+          (candidate) =>
+            !isClosedFieldSuggestion(candidate) &&
+            candidate.suggestion_status_code === "suggested_high_confidence"
+        )
         .map((candidate) => candidate.field_suggestion_candidate_id),
     [candidates]
   );
@@ -1009,6 +1028,11 @@ function FieldSuggestionReviewPanel({
 
       return next;
     });
+  }
+
+  function selectHighConfidenceCandidates() {
+    setActionMessage(null);
+    setSelectedCandidateIds(new Set(highConfidenceCandidateIds));
   }
 
   async function submitFieldSuggestionAction(
@@ -1112,6 +1136,18 @@ function FieldSuggestionReviewPanel({
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
+                disabled={
+                  !canReviewStatus ||
+                  highConfidenceCandidateIds.length === 0 ||
+                  Boolean(busyAction)
+                }
+                onClick={selectHighConfidenceCandidates}
+                className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+              >
+                Select high confidence
+              </button>
+              <button
+                type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("confirm")}
                 className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
@@ -1188,7 +1224,7 @@ function FieldSuggestionReviewPanel({
                         )}
                         disabled={
                           !canReviewStatus ||
-                          candidate.suggestion_status_code === "superseded"
+                          isClosedFieldSuggestion(candidate)
                         }
                         onChange={(event) =>
                           toggleCandidate(
@@ -1223,6 +1259,14 @@ function FieldSuggestionReviewPanel({
                         <div className="mt-2 line-clamp-2 text-xs text-gray-500">
                           {candidate.source_title || candidate.source_reference}
                         </div>
+                      ) : null}
+                      {candidate.source_id ? (
+                        <Link
+                          href={`/sources/${candidate.source_id}`}
+                          className="mt-2 inline-flex text-xs font-semibold text-[#4f7f1f] hover:underline"
+                        >
+                          Open source
+                        </Link>
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
