@@ -207,6 +207,14 @@ function sumQueueCounts(
   return queueKeys.reduce((sum, key) => sum + (queueCounts.get(key) || 0), 0);
 }
 
+function scrollToPageSection(sectionId: string) {
+  window.setTimeout(() => {
+    document
+      .getElementById(sectionId)
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 0);
+}
+
 function recordHref(record: ResearchOpsRecord) {
   if (record.entity_type === "source") {
     return `/sources/${record.entity_id}`;
@@ -395,7 +403,7 @@ function MyWorkPanel({
   const previewIssues = assignedToMe.slice(0, 5);
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section id="my-work" className="scroll-mt-6 border border-gray-200 bg-white">
       <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
@@ -436,6 +444,23 @@ function MyWorkPanel({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
+        <button
+          className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          type="button"
+          onClick={() => scrollToPageSection("persistent-issues")}
+        >
+          Review Persistent Issues
+        </button>
+        <button
+          className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          type="button"
+          onClick={() => scrollToPageSection("system-queue-groups")}
+        >
+          Review System Queues
+        </button>
       </div>
 
       {!currentUser ? (
@@ -533,6 +558,11 @@ function QuickOperationalViews({
       view: { queue: "suspected_duplicates" },
     },
     {
+      label: "Stale / Needs Update",
+      note: "Records needing re-review",
+      view: { queue: "needs_update" },
+    },
+    {
       label: "Direct-Use Classification",
       note: "Use/category work",
       view: { queue: "direct_use_classification" },
@@ -589,7 +619,10 @@ function SystemQueueGroups({
   onSelectQueue: (queue: ResearchOpsQueueKey) => void;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id="system-queue-groups"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
       <div className="border-b border-gray-200 px-5 py-4">
         <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
           System-Generated Queues
@@ -631,8 +664,15 @@ function SystemQueueGroups({
                   type="button"
                   onClick={() => onSelectQueue(queue.key)}
                 >
-                  <span className="text-xs font-semibold text-gray-700">
-                    {queue.title}
+                  <span>
+                    <span className="text-xs font-semibold text-gray-700">
+                      {queue.title}
+                    </span>
+                    {exportBlockingQueueKeys.has(queue.key) ? (
+                      <span className="mt-1 block text-[10px] font-semibold uppercase tracking-wide text-red-700">
+                        Export blocker
+                      </span>
+                    ) : null}
                   </span>
                   <span className="text-xs font-bold text-[#1f2937]">
                     {formatCount(queue.count)}
@@ -692,7 +732,10 @@ function ArticleMatchReviewPanel({
   ];
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id="article-match-review"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
       <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
@@ -928,21 +971,30 @@ function EntityTable({
 
 function QueueCard({
   queue,
+  collapsed,
   selectedKey,
   selectedBulkKeys,
+  onToggleCollapsed,
   onToggleBulk,
   onToggleVisible,
   onSelect,
 }: {
   queue: PostgresResearchOpsQueue;
+  collapsed: boolean;
   selectedKey: string | null;
   selectedBulkKeys: Set<string>;
+  onToggleCollapsed: () => void;
   onToggleBulk: (record: ResearchOpsRecord, checked: boolean) => void;
   onToggleVisible: (records: ResearchOpsRecord[], checked: boolean) => void;
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
+  const isExportBlocking = exportBlockingQueueKeys.has(queue.key);
+
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id="persistent-issues"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
       <div className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -951,28 +1003,50 @@ function QueueCard({
             <span className="inline-flex h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-600">
               System-generated
             </span>
+            {isExportBlocking ? (
+              <span className="inline-flex h-7 items-center border border-red-200 bg-red-50 px-2 text-xs font-semibold text-red-800">
+                Export blocker
+              </span>
+            ) : null}
           </div>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             {queue.description}
           </p>
         </div>
-        <div className="text-left md:text-right">
-          <div className="text-2xl font-bold leading-none text-[#1f2937]">
-            {formatCount(queue.items.length)}
+        <div className="flex items-start gap-3 md:justify-end">
+          <div className="text-left md:text-right">
+            <div className="text-2xl font-bold leading-none text-[#1f2937]">
+              {formatCount(queue.items.length)}
+            </div>
+            <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              shown of {formatCount(queue.count)}
+            </div>
           </div>
-          <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            shown of {formatCount(queue.count)}
-          </div>
+          <button
+            className="h-9 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            type="button"
+            onClick={onToggleCollapsed}
+          >
+            {collapsed ? "Expand" : "Collapse"}
+          </button>
         </div>
       </div>
-      <EntityTable
-        items={queue.items}
-        onSelect={onSelect}
-        onToggleBulk={onToggleBulk}
-        onToggleVisible={onToggleVisible}
-        selectedBulkKeys={selectedBulkKeys}
-        selectedKey={selectedKey}
-      />
+      {collapsed ? (
+        <div className="border-t border-gray-100 px-5 py-4 text-sm leading-6 text-gray-600">
+          Queue collapsed. {formatCount(queue.items.length)} matching row
+          {queue.items.length === 1 ? "" : "s"} remain in the current filter
+          state.
+        </div>
+      ) : (
+        <EntityTable
+          items={queue.items}
+          onSelect={onSelect}
+          onToggleBulk={onToggleBulk}
+          onToggleVisible={onToggleVisible}
+          selectedBulkKeys={selectedBulkKeys}
+          selectedKey={selectedKey}
+        />
+      )}
     </section>
   );
 }
@@ -1753,6 +1827,77 @@ function PersistentIssues({
   );
 }
 
+function ResearchActivitySummary({
+  recentEdits,
+}: {
+  recentEdits: PostgresResearchOpsRecentEdit[];
+}) {
+  const sourceUpdates = recentEdits.filter(
+    (item) => item.entity_type === "source"
+  ).length;
+  const approvedOrReady = recentEdits.filter((item) =>
+    ["approved", "export_ready", "credible"].includes(
+      item.review_status_code || ""
+    )
+  ).length;
+  const needsReview = recentEdits.filter((item) =>
+    ["draft", "validation", "needs_review", "needs_update"].includes(
+      item.review_status_code || ""
+    )
+  ).length;
+  const touchedBy = new Set(
+    recentEdits
+      .map((item) => item.last_updated_by_name)
+      .filter((name): name is string => Boolean(name))
+  ).size;
+
+  const cards = [
+    {
+      label: "Recent Edits",
+      value: recentEdits.length,
+      note: "Latest staging updates",
+    },
+    {
+      label: "Approved / Ready",
+      value: approvedOrReady,
+      note: "Recently updated approved states",
+    },
+    {
+      label: "Needs Review",
+      value: needsReview,
+      note: "Recent rows still needing review",
+    },
+    {
+      label: "Source Updates",
+      value: sourceUpdates,
+      note: "Recent evidence activity",
+    },
+    {
+      label: "Researchers",
+      value: touchedBy,
+      note: "Named users in recent edits",
+    },
+  ];
+
+  return (
+    <section className="grid grid-cols-2 gap-3 xl:grid-cols-5">
+      {cards.map((card) => (
+        <div key={card.label} className="border border-gray-200 bg-white px-4 py-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            {card.label}
+          </div>
+          <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+            {formatCount(card.value)}
+          </div>
+          <div className="mt-2 text-xs leading-5 text-gray-500">
+            {card.note}
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
 function RecentEdits({
   items,
   selectedKey,
@@ -1818,6 +1963,9 @@ export function ResearchOpsDashboardClient({
   const [selectedBulkKeys, setSelectedBulkKeys] = useState<Set<string>>(
     () => new Set()
   );
+  const [collapsedQueueKeys, setCollapsedQueueKeys] = useState<
+    Set<ResearchOpsQueueKey>
+  >(() => new Set());
 
   const normalizedSearch = search.trim().toLowerCase();
 
@@ -2017,6 +2165,29 @@ export function ResearchOpsDashboardClient({
     setCountryFilter("all");
     setSearch("");
     setShowEmptyQueues(false);
+    scrollToPageSection("deep-table");
+  }
+
+  function toggleQueueCollapsed(queueKey: ResearchOpsQueueKey) {
+    setCollapsedQueueKeys((current) => {
+      const next = new Set(current);
+
+      if (next.has(queueKey)) {
+        next.delete(queueKey);
+      } else {
+        next.add(queueKey);
+      }
+
+      return next;
+    });
+  }
+
+  function collapseAllQueues() {
+    setCollapsedQueueKeys(new Set(filteredQueues.map((queue) => queue.key)));
+  }
+
+  function expandAllQueues() {
+    setCollapsedQueueKeys(new Set());
   }
 
   function exportFilteredIssues() {
@@ -2113,6 +2284,7 @@ export function ResearchOpsDashboardClient({
             value: myAssignedIssueCount,
             note: "Persistent human-created issues",
             tone: "neutral",
+            onClick: () => scrollToPageSection("my-work"),
           },
           {
             label: "Source Gaps",
@@ -2158,7 +2330,10 @@ export function ResearchOpsDashboardClient({
         onSelectQueue={(queue) => applyOperationalView({ queue })}
       />
 
-      <section className="border border-gray-200 bg-white px-5 py-5">
+      <section
+        id="deep-table"
+        className="scroll-mt-6 border border-gray-200 bg-white px-5 py-5"
+      >
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -2313,30 +2488,12 @@ export function ResearchOpsDashboardClient({
       />
 
       <SectionIntro
-        eyebrow="Deep Table View"
-        title="Filtered System Queue Rows"
-        description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
-      />
-
-      <div className="space-y-5">
-        {filteredQueues.map((queue) => (
-          <QueueCard
-            key={queue.key}
-            queue={queue}
-            onSelect={setSelectedRecord}
-            onToggleBulk={toggleBulkRecord}
-            onToggleVisible={toggleBulkRecords}
-            selectedBulkKeys={selectedBulkKeys}
-            selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
-          />
-        ))}
-      </div>
-
-      <SectionIntro
         eyebrow="Research Activity"
         title="Recent Activity"
-        description="This starts with recently edited PostgreSQL staging records. Recently approved records, source additions, and researcher activity summaries should be added as the workflow matures."
+        description="This starts with recently edited PostgreSQL staging records and summary indicators for recent source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
       />
+
+      <ResearchActivitySummary recentEdits={filteredRecentEdits} />
 
       <RecentEdits
         items={filteredRecentEdits}
@@ -2346,6 +2503,52 @@ export function ResearchOpsDashboardClient({
         selectedBulkKeys={selectedBulkKeys}
         selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
       />
+
+      <SectionIntro
+        eyebrow="Deep Table View"
+        title="Filtered System Queue Rows"
+        description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
+      />
+
+      <section className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-5 py-4">
+        <div className="text-sm leading-6 text-gray-600">
+          {formatCount(filteredQueues.length)} queue
+          {filteredQueues.length === 1 ? "" : "s"} visible. Collapse queues to
+          keep the workbench manageable while preserving the active filter state.
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            type="button"
+            onClick={collapseAllQueues}
+          >
+            Collapse All
+          </button>
+          <button
+            className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            type="button"
+            onClick={expandAllQueues}
+          >
+            Expand All
+          </button>
+        </div>
+      </section>
+
+      <div className="space-y-5">
+        {filteredQueues.map((queue) => (
+          <QueueCard
+            key={queue.key}
+            queue={queue}
+            collapsed={collapsedQueueKeys.has(queue.key)}
+            onSelect={setSelectedRecord}
+            onToggleCollapsed={() => toggleQueueCollapsed(queue.key)}
+            onToggleBulk={toggleBulkRecord}
+            onToggleVisible={toggleBulkRecords}
+            selectedBulkKeys={selectedBulkKeys}
+            selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
+          />
+        ))}
+      </div>
     </>
   );
 }

@@ -23,16 +23,23 @@ Current implemented functionality:
 - lightweight bulk status changes
 - article/entity match candidate visibility
 - recent edit table
+- operational status bar with click-through/filter behavior
+- My Work / Team Work section separated from generated queues
+- saved operational view presets
+- system queue group cards
+- queue-level export-blocker labels
+- deep queue collapse/expand controls
+- recent activity summary cards
 
 Current limitations:
 
-- hierarchy is still too flat
-- generated queues and human-created work need clearer separation
-- "My work" needs to be visible immediately
-- export blockers need clearer treatment
 - saved operational views are not yet persisted
 - field-level issues are not yet fully structured
 - mobile treatment is not yet optimized
+- recently approved, source-addition, and assignment activity are inferred from
+  recent edits rather than true dedicated activity streams
+- stale-data logic exists only through `needs_update`; automatic age-based stale
+  detection is future work
 
 ## Primary Purpose
 
@@ -309,12 +316,18 @@ Slice 1:
 - clarify export blocker and source/evidence workload
 - update stale page copy
 
+Status: implemented.
+
 Slice 2:
 
 - add saved operational view presets
 - add researcher/activity summary
-- add clearer issue priority/field labels
-- improve bulk issue assignment
+- add queue collapse/expand behavior
+- add clearer click-through and scroll behavior
+- add queue-level export-blocking labels
+- improve recent activity prominence
+
+Status: first implementation complete; still needs user review.
 
 Slice 3:
 
