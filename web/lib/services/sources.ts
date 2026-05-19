@@ -18,6 +18,7 @@ export type SourceListParams = {
 
 export type SourceMatchCandidateListParams = {
   limit?: number;
+  offset?: number;
   search?: string;
   status?: string;
   entityType?: string;
@@ -627,8 +628,10 @@ export async function listSourceMatchCandidates(
   params: SourceMatchCandidateListParams = {}
 ): Promise<SourceMatchCandidateItem[]> {
   const limit = Math.min(Math.max(params.limit ?? 100, 1), 500);
+  const offset = Math.max(params.offset ?? 0, 0);
   const { whereSql, values } = buildSourceMatchCandidateWhere(params);
   const limitPlaceholder = values.length + 1;
+  const offsetPlaceholder = values.length + 2;
 
   const rows = await getPrismaClient().$queryRawUnsafe<
     SourceMatchCandidateRow[]
@@ -693,12 +696,34 @@ export async function listSourceMatchCandidates(
       c.confidence_score DESC,
       c.generated_at DESC
     LIMIT $${limitPlaceholder}
+    OFFSET $${offsetPlaceholder}
     `,
     ...values,
-    limit
+    limit,
+    offset
   );
 
   return rows.map(toSourceMatchCandidate);
+}
+
+export async function countSourceMatchCandidates(
+  params: SourceMatchCandidateListParams = {}
+): Promise<number> {
+  const { whereSql, values } = buildSourceMatchCandidateWhere(params);
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    Array<{ count: number | bigint }>
+  >(
+    `
+    SELECT COUNT(*)::int AS count
+    FROM source_entity_match_candidates c
+    INNER JOIN sources s
+      ON s.source_id = c.source_id
+    ${whereSql}
+    `,
+    ...values
+  );
+
+  return toNumber(rows[0]?.count ?? 0);
 }
 
 export async function getSourceMatchCandidateSummary(): Promise<SourceMatchCandidateSummary> {

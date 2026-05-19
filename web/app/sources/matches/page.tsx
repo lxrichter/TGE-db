@@ -2,6 +2,7 @@ import Link from "next/link";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import { formatCount } from "@/lib/format";
 import {
+  countSourceMatchCandidates,
   getSourceMatchCandidateSummary,
   listSourceMatchCandidates,
   listSourceMatchStatusOptions,
@@ -17,6 +18,7 @@ type SourceMatchSearchParams = {
   status?: string;
   entityType?: string;
   flagged?: string;
+  page?: string;
 };
 
 type SourceMatchData =
@@ -25,6 +27,9 @@ type SourceMatchData =
       candidates: SourceMatchCandidateItem[];
       statuses: SourceMatchCandidateStatusOption[];
       summary: SourceMatchCandidateSummary;
+      filteredCount: number;
+      page: number;
+      pageSize: number;
     }
   | {
       ok: false;
@@ -37,28 +42,70 @@ const entityTypeOptions = [
   { code: "company", label: "Companies" },
   { code: "country_market", label: "Countries / Markets" },
 ];
+const pageSize = 100;
 
 function cleanParam(value: string | undefined) {
   return value?.trim() || undefined;
 }
 
+function parsePage(value: string | undefined) {
+  const parsed = Number(value || "1");
+
+  if (!Number.isFinite(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return Math.floor(parsed);
+}
+
+function sourceMatchHref(
+  filters: SourceMatchSearchParams,
+  nextPage: number
+) {
+  const params = new URLSearchParams();
+
+  if (filters.search) params.set("search", filters.search);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.entityType) params.set("entityType", filters.entityType);
+  if (filters.flagged) params.set("flagged", filters.flagged);
+  if (nextPage > 1) params.set("page", String(nextPage));
+
+  const query = params.toString();
+  return query ? `/sources/matches?${query}` : "/sources/matches";
+}
+
 async function getSourceMatchData(
   params: SourceMatchSearchParams
 ): Promise<SourceMatchData> {
+  const page = parsePage(params.page);
+  const offset = (page - 1) * pageSize;
   try {
-    const [candidates, statuses, summary] = await Promise.all([
+    const listParams = {
+      limit: pageSize,
+      offset,
+      search: params.search,
+      status: params.status,
+      entityType: params.entityType,
+      flagged: params.flagged === "1",
+    };
+    const [candidates, filteredCount, statuses, summary] = await Promise.all([
       listSourceMatchCandidates({
-        limit: 200,
-        search: params.search,
-        status: params.status,
-        entityType: params.entityType,
-        flagged: params.flagged === "1",
+        ...listParams,
       }),
+      countSourceMatchCandidates(listParams),
       listSourceMatchStatusOptions(),
       getSourceMatchCandidateSummary(),
     ]);
 
-    return { ok: true, candidates, statuses, summary };
+    return {
+      ok: true,
+      candidates,
+      filteredCount,
+      statuses,
+      summary,
+      page,
+      pageSize,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -114,6 +161,7 @@ export default async function SourceMatchCandidatesPage({
     status: cleanParam(resolvedSearchParams.status),
     entityType: cleanParam(resolvedSearchParams.entityType),
     flagged: cleanParam(resolvedSearchParams.flagged),
+    page: cleanParam(resolvedSearchParams.page),
   };
   const data = await getSourceMatchData(filters);
 
@@ -278,6 +326,48 @@ export default async function SourceMatchCandidatesPage({
           </section>
 
           <SourceMatchCandidatesClient candidates={data.candidates} />
+
+          <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+            <div>
+              Showing{" "}
+              <span className="font-semibold text-[#1f2937]">
+                {data.filteredCount === 0
+                  ? 0
+                  : (data.page - 1) * data.pageSize + 1}
+                -
+                {Math.min(data.page * data.pageSize, data.filteredCount)}
+              </span>{" "}
+              of{" "}
+              <span className="font-semibold text-[#1f2937]">
+                {formatCount(data.filteredCount)}
+              </span>{" "}
+              filtered candidates
+            </div>
+            <div className="flex gap-2">
+              <Link
+                aria-disabled={data.page <= 1}
+                className={`inline-flex h-9 items-center justify-center border px-4 text-sm font-semibold ${
+                  data.page <= 1
+                    ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
+                    : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                }`}
+                href={sourceMatchHref(filters, Math.max(data.page - 1, 1))}
+              >
+                Previous
+              </Link>
+              <Link
+                aria-disabled={data.page * data.pageSize >= data.filteredCount}
+                className={`inline-flex h-9 items-center justify-center border px-4 text-sm font-semibold ${
+                  data.page * data.pageSize >= data.filteredCount
+                    ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
+                    : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                }`}
+                href={sourceMatchHref(filters, data.page + 1)}
+              >
+                Next
+              </Link>
+            </div>
+          </section>
         </>
       )}
     </main>
