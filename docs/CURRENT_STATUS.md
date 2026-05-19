@@ -91,6 +91,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - first local article fact review pass completed on a 2026 focused sample:
   104 accepted, 29 rejected; the first rule-tuning pass removed 15 rejected
   examples while preserving the accepted examples in the reviewed sample
+- second local article fact review/tuning pass completed on the tuned sample:
+  reviewed rows showed 47 accepted and 16 rejected; follow-up rules removed 14
+  rejected examples and added an explicit proposal/call signal
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

@@ -192,6 +192,26 @@ remaining false positives are mostly semantic/contextual cases that should be
 handled later through entity matching, article type classification, or human
 review rather than heavier regex filtering.
 
+A second review pass on the tuned 2026 sample covered 63 rows:
+
+- 47 accepted rows
+- 16 rejected rows
+- 62 pending rows
+
+The follow-up tuning pass:
+
+- reduced generic `activity_status_signal` noise by removing broad
+  `loan`/`investment`/`financing` triggers
+- made PPA/offtake and exploration-license status signals title-first
+- added a more explicit `Proposal / call` activity signal
+- removed policy-threshold capacity false positives
+- filtered past-year COD candidates when they are historical rather than
+  forward-looking
+
+Against the reviewed rows in that second pass, the updated rules removed 14 of
+16 rejected rows and kept 46 of 47 accepted rows. The one removed accepted row
+was replaced semantically by the newer `Proposal / call` signal.
+
 ## Governance
 
 All extracted facts remain candidates until reviewed.

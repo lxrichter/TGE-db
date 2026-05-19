@@ -184,6 +184,7 @@ const STATUS_PATTERNS = [
     code: "exploration_license",
     label: "Exploration license",
     pattern: /\b(exploration licen[sc]e|geothermal licen[sc]e|exploration permit)\b/i,
+    titleOnly: true,
   },
   {
     code: "construction_start",
@@ -199,16 +200,23 @@ const STATUS_PATTERNS = [
     code: "ppa_offtake",
     label: "PPA / offtake",
     pattern: /\b(power purchase agreement|PPA|offtake agreement|offtaker)\b/i,
+    titleOnly: true,
+  },
+  {
+    code: "proposal",
+    label: "Proposal / call",
+    pattern: /\b(call for proposals|proposal|proposed)\b/i,
+    titleOnly: true,
   },
   {
     code: "funding_award",
     label: "Funding / award",
-    pattern: /\b(funding|grant|loan|investment|raises|awarded|financing)\b/i,
+    pattern: /\b(funding|grant|raises|raised|award(?:ed)?|awards)\b/i,
   },
   {
     code: "policy_tariff",
     label: "Policy / tariff",
-    pattern: /\b(feed-in tariff|FiT|tariff|incentive|regulation|policy)\b/i,
+    pattern: /\b(feed-in tariff|FiT|tariff|incentive|policy support|policy direction|government policy|support mechanism)\b/i,
   },
 ];
 
@@ -570,7 +578,7 @@ function hasStrictCodContext(snippet) {
 function hasHistoricalCodContext(snippet, year, article) {
   const articleYear = getArticleYear(article);
 
-  if (articleYear && Number(year) < articleYear - 1) {
+  if (articleYear && Number(year) < articleYear) {
     return true;
   }
 
@@ -581,6 +589,12 @@ function hasHistoricalCodContext(snippet, year, article) {
 
 function hasMacroCodContext(snippet) {
   return /\b(per year|market target|national|country|worldwide|globally|strategy|policy|aim of commissioning|pace of implementation|support mechanism)\b/i.test(
+    snippet
+  );
+}
+
+function hasPolicyThresholdCapacityContext(snippet) {
+  return /\b(threshold|minimal importance|tariff|feed-in tariff|rate|rates|kWh|per kWh)\b/i.test(
     snippet
   );
 }
@@ -748,6 +762,10 @@ function extractCapacitySignals(article, scanText, titleLength, minConfidence, m
     const snippet = getSnippet(scanText, match.index, match[0].length);
 
     if (!inTitle && isEventArticle(article)) {
+      continue;
+    }
+
+    if (hasPolicyThresholdCapacityContext(snippet)) {
       continue;
     }
 
@@ -956,6 +974,10 @@ function extractCategoryAndStatusSignals(article, scanText, titleLength, minConf
     }
 
     const inTitle = match.index < titleLength;
+
+    if (item.titleOnly && !inTitle) {
+      continue;
+    }
 
     if (!inTitle && isEventArticle(article)) {
       continue;
