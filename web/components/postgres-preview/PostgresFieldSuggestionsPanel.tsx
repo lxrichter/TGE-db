@@ -185,6 +185,15 @@ export default function PostgresFieldSuggestionsPanel({
       return;
     }
 
+    if (
+      action === "apply" &&
+      !window.confirm(
+        `Apply this confirmed suggestion to ${candidate.entity_name}? This is the audited database write step and should only be used after human review.`
+      )
+    ) {
+      return;
+    }
+
     setBusyCandidateId(candidate.field_suggestion_candidate_id);
     setMessage(null);
 

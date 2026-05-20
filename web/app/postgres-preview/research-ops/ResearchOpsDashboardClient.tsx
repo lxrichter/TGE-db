@@ -1534,6 +1534,17 @@ function FieldSuggestionReviewPanel({
       return;
     }
 
+    if (
+      action === "apply" &&
+      !window.confirm(
+        `Apply ${formatCount(
+          selectedCandidateIds.size
+        )} confirmed suggestion(s) to database records? This is the audited write step and should only be used after human review.`
+      )
+    ) {
+      return;
+    }
+
     setBusyAction(action);
     setActionMessage(null);
 
