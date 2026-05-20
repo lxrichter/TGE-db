@@ -397,7 +397,18 @@ function entityAnchorPrefix(entityType: EntityType) {
 }
 
 function entityAnchorForQueue(record: ResearchOpsRecord) {
-  if (!("queue_key" in record) || record.entity_type === "source") {
+  if (!("queue_key" in record)) {
+    return null;
+  }
+
+  if (record.entity_type === "source") {
+    if (
+      record.queue_key === "source_needs_review" ||
+      record.queue_key === "weak_or_outdated_source"
+    ) {
+      return "source-credibility-actions";
+    }
+
     return null;
   }
 
@@ -499,7 +510,7 @@ function recordHref(record: ResearchOpsRecord) {
   const anchorSuffix = anchor ? `#${anchor}` : "";
 
   if (record.entity_type === "source") {
-    return `/sources/${record.entity_id}`;
+    return `/sources/${record.entity_id}${anchorSuffix}`;
   }
 
   if (record.entity_type === "project") {
