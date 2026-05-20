@@ -2361,6 +2361,256 @@ function isApprovedStatus(status: string) {
   return status === "approved" || status === "export_ready";
 }
 
+export class PostgresApprovalReadinessError extends Error {
+  issues: string[];
+
+  constructor(
+    entityType: PostgresReviewEntityType,
+    reviewStatusCode: string,
+    issues: string[]
+  ) {
+    super(
+      `Cannot mark ${entityType.replaceAll("_", " ")} as ${reviewStatusCode} until: ${issues.join("; ")}.`
+    );
+    this.name = "PostgresApprovalReadinessError";
+    this.issues = issues;
+  }
+}
+
+type ApprovalReadinessRelationships = {
+  sourceCount: number;
+  companyLinkCount?: number;
+  activityLinkCount?: number;
+};
+
+function approvalText(value: unknown) {
+  return String(value ?? "").trim();
+}
+
+function approvalHasText(data: Record<string, unknown>, field: string) {
+  return Boolean(approvalText(data[field]));
+}
+
+function approvalIsUnknown(data: Record<string, unknown>, field: string) {
+  const value = approvalText(data[field]).toLowerCase();
+  return !value || value === "unknown";
+}
+
+function approvalReadinessIssues({
+  entityType,
+  data,
+  relationships,
+}: {
+  entityType: PostgresReviewEntityType;
+  data: Record<string, unknown>;
+  relationships: ApprovalReadinessRelationships;
+}) {
+  const issues: string[] = [];
+
+  if (entityType === "project") {
+    if (!approvalHasText(data, "project_name")) {
+      issues.push("project name is missing");
+    }
+
+    if (!approvalHasText(data, "country")) {
+      issues.push("country is missing");
+    }
+
+    if (approvalIsUnknown(data, "primary_use_type_code")) {
+      issues.push("use type is missing");
+    }
+
+    if (
+      approvalIsUnknown(data, "lifecycle_phase_code") ||
+      approvalText(data.lifecycle_phase_code).toLowerCase() === "prospect_tbd"
+    ) {
+      issues.push("lifecycle phase needs classification");
+    }
+  } else if (entityType === "operating_asset") {
+    if (!approvalHasText(data, "asset_name")) {
+      issues.push("plant / facility name is missing");
+    }
+
+    if (!approvalHasText(data, "country")) {
+      issues.push("country is missing");
+    }
+
+    if (approvalIsUnknown(data, "primary_use_type_code")) {
+      issues.push("use type is missing");
+    }
+
+    if (approvalIsUnknown(data, "lifecycle_phase_code")) {
+      issues.push("operating status is missing");
+    }
+  } else {
+    if (!approvalHasText(data, "company_name")) {
+      issues.push("company name is missing");
+    }
+
+    if (approvalIsUnknown(data, "company_type_primary_code")) {
+      issues.push("primary company type is missing");
+    }
+  }
+
+  if (relationships.sourceCount < 1) {
+    issues.push("at least one source/evidence link is required");
+  }
+
+  return issues;
+}
+
+function assertApprovalReadiness({
+  entityType,
+  reviewStatusCode,
+  data,
+  relationships,
+}: {
+  entityType: PostgresReviewEntityType;
+  reviewStatusCode: string;
+  data: Record<string, unknown>;
+  relationships: ApprovalReadinessRelationships;
+}) {
+  if (!isApprovedStatus(reviewStatusCode)) {
+    return;
+  }
+
+  const issues = approvalReadinessIssues({
+    entityType,
+    data,
+    relationships,
+  });
+
+  if (issues.length > 0) {
+    throw new PostgresApprovalReadinessError(
+      entityType,
+      reviewStatusCode,
+      issues
+    );
+  }
+}
+
+async function getApprovalReadinessRelationships(
+  entityType: PostgresReviewEntityType,
+  entityId: string | null
+): Promise<ApprovalReadinessRelationships> {
+  if (!entityId || !isUuid(entityId)) {
+    return {
+      sourceCount: 0,
+      companyLinkCount: 0,
+      activityLinkCount: 0,
+    };
+  }
+
+  if (entityType === "project") {
+    const rows = await getPrismaClient().$queryRawUnsafe<
+      Array<{ source_count: number | bigint; company_link_count: number | bigint }>
+    >(
+      `
+      SELECT
+        (
+          SELECT COUNT(*)
+          FROM entity_sources es
+          WHERE es.project_id = $1::uuid
+        ) AS source_count,
+        (
+          SELECT COUNT(*)
+          FROM company_project_links cpl
+          WHERE cpl.project_id = $1::uuid
+        ) AS company_link_count
+      `,
+      entityId
+    );
+
+    return {
+      sourceCount: toNumber(rows[0]?.source_count),
+      companyLinkCount: toNumber(rows[0]?.company_link_count),
+    };
+  }
+
+  if (entityType === "operating_asset") {
+    const rows = await getPrismaClient().$queryRawUnsafe<
+      Array<{ source_count: number | bigint; company_link_count: number | bigint }>
+    >(
+      `
+      SELECT
+        (
+          SELECT COUNT(*)
+          FROM entity_sources es
+          WHERE es.operating_asset_id = $1::uuid
+        ) AS source_count,
+        (
+          SELECT COUNT(*)
+          FROM company_operating_asset_links coal
+          WHERE coal.operating_asset_id = $1::uuid
+        ) AS company_link_count
+      `,
+      entityId
+    );
+
+    return {
+      sourceCount: toNumber(rows[0]?.source_count),
+      companyLinkCount: toNumber(rows[0]?.company_link_count),
+    };
+  }
+
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    Array<{ source_count: number | bigint; activity_link_count: number | bigint }>
+  >(
+    `
+    SELECT
+      (
+        SELECT COUNT(*)
+        FROM entity_sources es
+        WHERE es.company_id = $1::uuid
+      ) AS source_count,
+      (
+        SELECT COUNT(*)
+        FROM company_project_links cpl
+        WHERE cpl.company_id = $1::uuid
+      ) +
+      (
+        SELECT COUNT(*)
+        FROM company_operating_asset_links coal
+        WHERE coal.company_id = $1::uuid
+      ) AS activity_link_count
+    `,
+    entityId
+  );
+
+  return {
+    sourceCount: toNumber(rows[0]?.source_count),
+    activityLinkCount: toNumber(rows[0]?.activity_link_count),
+  };
+}
+
+async function assertExistingRecordApprovalReadiness(
+  entityType: PostgresReviewEntityType,
+  entityId: string,
+  reviewStatusCode: string
+) {
+  if (!isApprovedStatus(reviewStatusCode)) {
+    return;
+  }
+
+  const detail =
+    entityType === "project"
+      ? await getPostgresPreviewProjectById(entityId)
+      : entityType === "operating_asset"
+        ? await getPostgresPreviewOperatingAssetById(entityId)
+        : await getPostgresPreviewCompanyById(entityId);
+
+  if (!detail) {
+    return;
+  }
+
+  assertApprovalReadiness({
+    entityType,
+    reviewStatusCode,
+    data: detail as unknown as Record<string, unknown>,
+    relationships: await getApprovalReadinessRelationships(entityType, entityId),
+  });
+}
+
 function getReviewTimestampFields(reviewStatusCode: string) {
   if (!isApprovedStatus(reviewStatusCode)) {
     return {};
@@ -2604,6 +2854,12 @@ export async function updatePostgresReviewStatus(
     ? input.actorUserId
     : null;
   const eventNote = cleanOptionalText(input.eventNote);
+
+  await assertExistingRecordApprovalReadiness(
+    input.entityType,
+    input.entityId,
+    input.reviewStatusCode
+  );
 
   const rows = await getPrismaClient().$queryRawUnsafe<ReviewStatusUpdateRow[]>(
     `
@@ -3718,6 +3974,16 @@ export async function promotePostgresProjectToOperatingAsset({
 export async function createPostgresPreviewProject(
   input: PostgresProjectMutationInput
 ): Promise<PostgresPreviewProjectDetail> {
+  assertApprovalReadiness({
+    entityType: "project",
+    reviewStatusCode: input.review_status_code,
+    data: input as unknown as Record<string, unknown>,
+    relationships: {
+      sourceCount: 0,
+      companyLinkCount: 0,
+    },
+  });
+
   const project = await getPrismaClient().projects.create({
     data: {
       project_name: input.project_name,
@@ -3829,6 +4095,13 @@ export async function updatePostgresPreviewProject(
     changedFields.review_status_code = [existing.review_status_code, reviewStatus];
   }
 
+  assertApprovalReadiness({
+    entityType: "project",
+    reviewStatusCode: reviewStatus,
+    data: input as unknown as Record<string, unknown>,
+    relationships: await getApprovalReadinessRelationships("project", projectId),
+  });
+
   await prisma.projects.update({
     where: { project_id: projectId },
     data: {
@@ -3884,6 +4157,16 @@ export async function updatePostgresPreviewProject(
 export async function createPostgresPreviewOperatingAsset(
   input: PostgresOperatingAssetMutationInput
 ): Promise<PostgresPreviewOperatingAssetDetail> {
+  assertApprovalReadiness({
+    entityType: "operating_asset",
+    reviewStatusCode: input.review_status_code,
+    data: input as unknown as Record<string, unknown>,
+    relationships: {
+      sourceCount: 0,
+      companyLinkCount: 0,
+    },
+  });
+
   const asset = await getPrismaClient().operating_assets.create({
     data: {
       asset_name: input.asset_name,
@@ -4001,6 +4284,16 @@ export async function updatePostgresPreviewOperatingAsset(
     changedFields.review_status_code = [existing.review_status_code, reviewStatus];
   }
 
+  assertApprovalReadiness({
+    entityType: "operating_asset",
+    reviewStatusCode: reviewStatus,
+    data: input as unknown as Record<string, unknown>,
+    relationships: await getApprovalReadinessRelationships(
+      "operating_asset",
+      operatingAssetId
+    ),
+  });
+
   await prisma.operating_assets.update({
     where: { operating_asset_id: operatingAssetId },
     data: {
@@ -4058,6 +4351,16 @@ export async function updatePostgresPreviewOperatingAsset(
 export async function createPostgresPreviewCompany(
   input: PostgresCompanyMutationInput
 ): Promise<PostgresPreviewCompanyDetail> {
+  assertApprovalReadiness({
+    entityType: "company",
+    reviewStatusCode: input.review_status_code,
+    data: input as unknown as Record<string, unknown>,
+    relationships: {
+      sourceCount: 0,
+      activityLinkCount: 0,
+    },
+  });
+
   const company = await getPrismaClient().companies.create({
     data: {
       company_name: input.company_name,
@@ -4148,6 +4451,13 @@ export async function updatePostgresPreviewCompany(
   if (existing.review_status_code !== reviewStatus) {
     changedFields.review_status_code = [existing.review_status_code, reviewStatus];
   }
+
+  assertApprovalReadiness({
+    entityType: "company",
+    reviewStatusCode: reviewStatus,
+    data: input as unknown as Record<string, unknown>,
+    relationships: await getApprovalReadinessRelationships("company", companyId),
+  });
 
   await prisma.companies.update({
     where: { company_id: companyId },

@@ -3,6 +3,7 @@ import { canCreateDraft, canReview } from "@/lib/auth/roles";
 import {
   createPostgresPreviewOperatingAsset,
   listPostgresPreviewOperatingAssets,
+  PostgresApprovalReadinessError,
 } from "@/lib/postgres-preview";
 import {
   getCurrentPostgresPreviewUser,
@@ -62,6 +63,13 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("PostgreSQL preview operating asset create error:", error);
+    if (error instanceof PostgresApprovalReadinessError) {
+      return NextResponse.json(
+        { success: false, error: error.message, issues: error.issues },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,

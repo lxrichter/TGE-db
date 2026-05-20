@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { canEdit, canReview } from "@/lib/auth/roles";
 import {
   getPostgresEntityFormReferenceData,
+  PostgresApprovalReadinessError,
   updatePostgresReviewStatus,
   type PostgresReviewEntityType,
 } from "@/lib/postgres-preview";
@@ -171,6 +172,13 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ success: true, status });
   } catch (error) {
     console.error("PostgreSQL research ops status update error:", error);
+    if (error instanceof PostgresApprovalReadinessError) {
+      return NextResponse.json(
+        { success: false, error: error.message, issues: error.issues },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       { success: false, error: "Failed to update PostgreSQL workflow status." },
       { status: 500 }

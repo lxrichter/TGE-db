@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { canEdit, canReview } from "@/lib/auth/roles";
 import {
   getPostgresPreviewOperatingAssetById,
+  PostgresApprovalReadinessError,
   updatePostgresPreviewOperatingAsset,
 } from "@/lib/postgres-preview";
 import {
@@ -87,6 +88,13 @@ export async function PATCH(
     return NextResponse.json({ success: true, operatingAsset });
   } catch (error) {
     console.error("PostgreSQL preview operating asset update error:", error);
+    if (error instanceof PostgresApprovalReadinessError) {
+      return NextResponse.json(
+        { success: false, error: error.message, issues: error.issues },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
