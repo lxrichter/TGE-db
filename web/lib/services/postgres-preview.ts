@@ -72,6 +72,20 @@ export type PostgresReplacementReadiness = {
   latestMigrationRun: PostgresReplacementMigrationSummary | null;
 };
 
+export type PostgresPreviewMapGroup = {
+  group_name: string;
+  representative_id: string;
+  country: string | null;
+  region: string | null;
+  latitude: number;
+  longitude: number;
+  record_count: number;
+  total_capacity_mw: number | null;
+  potential_min_mw: number | null;
+  phase: string | null;
+  type: "plant" | "project";
+};
+
 export type PostgresPreviewProject = {
   project_id: string;
   legacy_project_id: string | null;
@@ -868,6 +882,21 @@ type ReplacementMigrationSummaryRow = Omit<
   transform_completed_at: string | Date | null;
   validation_completed_at: string | Date | null;
   created_at: string | Date;
+};
+
+type PostgresPreviewMapGroupRow = Omit<
+  PostgresPreviewMapGroup,
+  | "latitude"
+  | "longitude"
+  | "record_count"
+  | "total_capacity_mw"
+  | "potential_min_mw"
+> & {
+  latitude: number | string;
+  longitude: number | string;
+  record_count: number | bigint | string;
+  total_capacity_mw: number | string | null;
+  potential_min_mw: number | string | null;
 };
 
 const fieldSuggestionApplyTargets: Record<string, FieldSuggestionApplyTarget> = {
@@ -2129,6 +2158,73 @@ export async function listPostgresCountryMarketSummaries(
     missing_source_count: toNumber(row.missing_source_count),
     latest_update_at: normalizeTimestamp(row.latest_update_at),
   }));
+}
+
+export async function listPostgresPreviewMapGroups(): Promise<{
+  plants: PostgresPreviewMapGroup[];
+  projects: PostgresPreviewMapGroup[];
+}> {
+  const [plants, projects] = await Promise.all([
+    getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(`
+      SELECT
+        COALESCE(NULLIF(a.project_group, ''), a.asset_name) AS group_name,
+        min(a.operating_asset_id)::text AS representative_id,
+        a.country,
+        a.region,
+        avg(a.latitude)::float8 AS latitude,
+        avg(a.longitude)::float8 AS longitude,
+        count(*)::int AS record_count,
+        sum(COALESCE(a.electric_capacity_mwe, 0))::float8
+          AS total_capacity_mw,
+        NULL::float8 AS potential_min_mw,
+        max(a.lifecycle_phase_code) AS phase,
+        'plant'::text AS type
+      FROM operating_assets a
+      WHERE a.latitude IS NOT NULL
+        AND a.longitude IS NOT NULL
+      GROUP BY COALESCE(NULLIF(a.project_group, ''), a.asset_name), a.country, a.region
+      ORDER BY group_name ASC
+    `),
+    getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(`
+      SELECT
+        COALESCE(NULLIF(p.project_group, ''), p.project_name) AS group_name,
+        min(p.project_id)::text AS representative_id,
+        p.country,
+        p.region,
+        avg(p.latitude)::float8 AS latitude,
+        avg(p.longitude)::float8 AS longitude,
+        count(*)::int AS record_count,
+        sum(COALESCE(p.electric_capacity_mwe, 0))::float8
+          AS total_capacity_mw,
+        min(COALESCE(p.potential_min_mwe, 0))::float8 AS potential_min_mw,
+        max(p.lifecycle_phase_code) AS phase,
+        'project'::text AS type
+      FROM projects p
+      WHERE p.latitude IS NOT NULL
+        AND p.longitude IS NOT NULL
+      GROUP BY COALESCE(NULLIF(p.project_group, ''), p.project_name), p.country, p.region
+      ORDER BY group_name ASC
+    `),
+  ]);
+
+  const normalizeGroup = (
+    group: PostgresPreviewMapGroupRow
+  ): PostgresPreviewMapGroup => ({
+    ...group,
+    latitude: toNumber(group.latitude),
+    longitude: toNumber(group.longitude),
+    record_count: toNumber(group.record_count),
+    total_capacity_mw:
+      group.total_capacity_mw === null ? null : toNumber(group.total_capacity_mw),
+    potential_min_mw:
+      group.potential_min_mw === null ? null : toNumber(group.potential_min_mw),
+    type: group.type,
+  });
+
+  return {
+    plants: plants.map(normalizeGroup),
+    projects: projects.map(normalizeGroup),
+  };
 }
 
 function toNullableNumber(value: NullableNumeric): number | null {

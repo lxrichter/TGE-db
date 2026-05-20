@@ -369,6 +369,12 @@ export default async function PostgresPreviewPage() {
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/postgres-preview/map"
+              >
+                Map Preview
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href="/postgres-preview/readiness"
               >
                 Replacement Readiness

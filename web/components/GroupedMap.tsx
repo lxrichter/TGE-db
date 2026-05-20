@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { LayerGroup, Map as LeafletMap, TileLayer } from "leaflet";
 import { normalizePhaseName } from "@/components/ui/PhaseBadge";
 
 type GroupedMarker = {
@@ -108,7 +109,11 @@ function getTileConfig(viewMode: ViewMode) {
       };
 }
 
-export default function GroupedMap() {
+export default function GroupedMap({
+  apiPath = "/api/map",
+}: {
+  apiPath?: string;
+}) {
   const [data, setData] = useState<MapApiResponse>({ plants: [], projects: [] });
   const [showPlants, setShowPlants] = useState(true);
   const [showProjects, setShowProjects] = useState(true);
@@ -117,13 +122,13 @@ export default function GroupedMap() {
   const [regionFilter, setRegionFilter] = useState("All Regions");
 
   const mapRef = useRef<HTMLDivElement | null>(null);
-  const leafletMapRef = useRef<any>(null);
-  const tileLayerRef = useRef<any>(null);
-  const markerLayerRef = useRef<any>(null);
+  const leafletMapRef = useRef<LeafletMap | null>(null);
+  const tileLayerRef = useRef<TileLayer | null>(null);
+  const markerLayerRef = useRef<LayerGroup | null>(null);
   const hasFittedBoundsRef = useRef(false);
 
   useEffect(() => {
-    fetch("/api/map")
+    fetch(apiPath)
       .then(async (res) => {
         if (!res.ok) {
           const text = await res.text();
@@ -142,7 +147,7 @@ export default function GroupedMap() {
         console.error("Failed to load map data:", error);
         setData({ plants: [], projects: [] });
       });
-  }, []);
+  }, [apiPath]);
 
   const allMarkers = useMemo(
     () => [...data.plants, ...data.projects],
@@ -407,7 +412,7 @@ export default function GroupedMap() {
     return () => {
       cancelled = true;
     };
-  }, [visibleMarkers]);
+  }, [viewMode, visibleMarkers]);
 
   useEffect(() => {
     return () => {
