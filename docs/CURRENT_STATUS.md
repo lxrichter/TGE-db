@@ -85,6 +85,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   explicit matcher write path; no real `entity_sources` links are auto-created
 - `/sources/matches` now provides the first filtered review surface for article
   match candidates; confirmation creates or reuses reviewed evidence links
+- `/sources/matches` and embedded article match candidate panels now paginate
+  visible review rows and keep bulk confirmation limited to clean visible
+  candidates unless reviewed one by one
 - PostgreSQL Research Ops now shows article match candidate counts and quick
   links into the Sources review workflow
 - PostgreSQL project, plant/facility, and company detail pages now surface
@@ -119,6 +122,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   editor/admin bulk triage actions; these actions update only
   `article_fact_candidates` review status and do not update entity records or
   create evidence links
+- `/sources/facts` and embedded article fact candidate panels now paginate
+  visible review rows so larger extraction review batches remain manageable
 - PostgreSQL Research Ops now includes article fact review visibility, linking
   the extraction candidate workload into the operational dashboard while keeping
   the detailed review workflow in Sources / Documents

@@ -308,6 +308,8 @@ Review candidates in the app at:
 
 The matcher never creates `entity_sources` links directly. Confirming selected
 candidates in the review UI creates or reuses the reviewed evidence links.
+The match review table also paginates visible review rows and keeps the "clean
+visible" selector scoped to the current page.
 
 Metadata-only archive import is dry-run by default:
 
@@ -324,6 +326,10 @@ railway run --service Postgres -- npm run tge-news:import -- --execute
 The importer stores article metadata as `tge_article` source records. It does
 not read or store full article body text and does not auto-link articles to
 entities.
+
+Article fact review rows in `/sources/facts` and embedded source-detail fact
+panels are also paginated client-side, while the route keeps its server-side
+filters and page navigation.
 
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
 for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
