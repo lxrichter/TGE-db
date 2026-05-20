@@ -139,7 +139,19 @@ export default function ArticleFactCandidatesClient({
   }
 
   function toggleAll() {
-    setSelected(() => (allSelected ? new Set() : new Set(selectableIds)));
+    setSelected((current) => {
+      const next = new Set(current);
+
+      selectableIds.forEach((candidateId) => {
+        if (allSelected) {
+          next.delete(candidateId);
+        } else {
+          next.add(candidateId);
+        }
+      });
+
+      return next;
+    });
   }
 
   function runAction(action: ArticleFactCandidateAction) {

@@ -206,7 +206,19 @@ export default function SourceMatchCandidatesClient({
   }
 
   function toggleAll() {
-    setSelected(() => (allSelected ? new Set() : new Set(candidateIds)));
+    setSelected((current) => {
+      const next = new Set(current);
+
+      candidateIds.forEach((candidateId) => {
+        if (allSelected) {
+          next.delete(candidateId);
+        } else {
+          next.add(candidateId);
+        }
+      });
+
+      return next;
+    });
   }
 
   function selectCleanVisible() {
@@ -216,7 +228,13 @@ export default function SourceMatchCandidatesClient({
     }
 
     setMessage(null);
-    setSelected(new Set(cleanHighConfidenceIds));
+    setSelected((current) => {
+      const next = new Set(current);
+
+      cleanHighConfidenceIds.forEach((candidateId) => next.add(candidateId));
+
+      return next;
+    });
   }
 
   function clearSelection() {
