@@ -305,6 +305,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   readiness view for staged record counts, review coverage, source gaps,
   persistent Research Ops issues, critical issues, latest live SQLite migration
   rehearsal status, and cutover-planning gates
+- `/api/health` now provides a minimal no-store app/PostgreSQL health check for
+  Hetzner deployment monitoring without exposing database credentials or record
+  data
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

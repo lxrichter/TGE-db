@@ -126,6 +126,31 @@ server {
 
 TLS should be added with Certbot after DNS and Nginx are confirmed.
 
+## Health Check
+
+The app exposes a minimal public health endpoint for server monitoring:
+
+```bash
+curl -fsS https://internal.thinkgeoenergy.com/api/health
+```
+
+Expected healthy response:
+
+```json
+{
+  "status": "ok",
+  "checks": {
+    "app": "ok",
+    "postgres": "ok"
+  }
+}
+```
+
+The endpoint does not expose database credentials or record data. It only
+confirms that the app can start and that PostgreSQL responds to a simple
+connectivity query. Production deployment checks should still include login,
+forms, Research Ops, Sources, exports, and search.
+
 ## Migration And Cutover Sequence
 
 Recommended future cutover sequence:
