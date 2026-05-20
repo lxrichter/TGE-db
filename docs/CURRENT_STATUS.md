@@ -230,6 +230,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   suppress source/company-role workflow warnings once the saved record already
   has linked evidence or relationships, keeping validation guidance more
   actionable
+- Form readiness warnings now include `Go To Field` jump links where a warning
+  maps to an editable governed field, making validation gaps faster to fix
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

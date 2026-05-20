@@ -48,7 +48,7 @@ async function safeJson(res: Response) {
 }
 
 function inputClass() {
-  return "min-h-10 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
+  return "min-h-10 scroll-mt-24 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
 }
 
 function normalizeComparisonValue(value: string | undefined) {
@@ -277,6 +277,7 @@ function TextInput({
   return (
     <input
       className={inputClass()}
+      id={`field-${name}`}
       name={name}
       placeholder={placeholder}
       required={required}
@@ -301,6 +302,7 @@ function TextArea({
   return (
     <textarea
       className={`${inputClass()} min-h-[120px] resize-y`}
+      id={`field-${name}`}
       name={name}
       placeholder={placeholder}
       value={form[name] || ""}
@@ -323,6 +325,7 @@ function SelectInput({
   return (
     <select
       className={inputClass()}
+      id={`field-${name}`}
       name={name}
       value={form[name] || ""}
       onChange={(event) => setField(name, event.target.value)}
@@ -410,6 +413,25 @@ function formatFieldLabel(fieldName: string) {
     .replace(/\bcod\b/gi, "COD")
     .replace(/\bhq\b/gi, "HQ")
     .replace(/\b\w/g, (value) => value.toUpperCase());
+}
+
+const readinessFieldAnchorOverrides: Record<string, string | null> = {
+  capacity_output: "electric_capacity_mwe",
+  sources: null,
+  company_links: null,
+  company_roles: null,
+};
+
+function issueFieldHref(issue: FormReadinessIssue) {
+  const fieldName = issue.linkedField?.split(",")[0]?.trim();
+
+  if (!fieldName) {
+    return null;
+  }
+
+  const targetField = readinessFieldAnchorOverrides[fieldName] ?? fieldName;
+
+  return targetField ? `#field-${targetField}` : null;
 }
 
 function FormReadinessPanel({
@@ -613,42 +635,59 @@ function FormReadinessPanel({
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            {issues.map((issue) => (
-              <div
-                key={`${issue.severity}-${issue.label}`}
-                className={`border px-4 py-3 ${issueTone(issue.severity)}`}
-              >
-                <div className="text-xs font-semibold uppercase tracking-wide">
-                  {issue.severity}
-                </div>
-                <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <div className="text-sm font-bold">{issue.label}</div>
-                    <div className="mt-1 text-xs leading-5">{issue.detail}</div>
+            {issues.map((issue) => {
+              const fieldHref = issueFieldHref(issue);
+
+              return (
+                <div
+                  key={`${issue.severity}-${issue.label}`}
+                  className={`border px-4 py-3 ${issueTone(issue.severity)}`}
+                >
+                  <div className="text-xs font-semibold uppercase tracking-wide">
+                    {issue.severity}
                   </div>
-                  {issueContext ? (
-                    <button
-                      className="h-8 shrink-0 border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={Boolean(creatingIssueKey)}
-                      type="button"
-                      onClick={() =>
-                        createIssue({
-                          key: `issue-${issue.label}`,
-                          issueTypeCode: issue.issueTypeCode || "research_note",
-                          title: issue.label,
-                          description: issue.detail,
-                          linkedField: issue.linkedField,
-                        })
-                      }
-                    >
-                      {creatingIssueKey === `issue-${issue.label}`
-                        ? "Creating..."
-                        : "Add Issue"}
-                    </button>
-                  ) : null}
+                  <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="text-sm font-bold">{issue.label}</div>
+                      <div className="mt-1 text-xs leading-5">
+                        {issue.detail}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      {fieldHref ? (
+                        <a
+                          className="inline-flex h-8 items-center border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white"
+                          href={fieldHref}
+                        >
+                          Go To Field
+                        </a>
+                      ) : null}
+                      {issueContext ? (
+                        <button
+                          className="h-8 border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={Boolean(creatingIssueKey)}
+                          type="button"
+                          onClick={() =>
+                            createIssue({
+                              key: `issue-${issue.label}`,
+                              issueTypeCode:
+                                issue.issueTypeCode || "research_note",
+                              title: issue.label,
+                              description: issue.detail,
+                              linkedField: issue.linkedField,
+                            })
+                          }
+                        >
+                          {creatingIssueKey === `issue-${issue.label}`
+                            ? "Creating..."
+                            : "Add Issue"}
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
