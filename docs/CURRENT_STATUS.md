@@ -204,6 +204,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Evidence-link creation on source edit pages now labels source-to-record link
   fields as governed evidence context and clarifies that links do not update
   project, plant/facility, or company fields directly
+- PostgreSQL company-role and company-relationship forms now label required,
+  important, and approval-sensitive relationship fields, with inline governance
+  notices to reinforce that structured links should be evidence-supported
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

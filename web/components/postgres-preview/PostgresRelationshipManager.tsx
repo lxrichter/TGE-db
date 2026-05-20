@@ -45,15 +45,67 @@ function inputClass() {
 function Field({
   label,
   children,
+  required = false,
+  important = false,
+  approvalSensitive = false,
+  workflow = false,
 }: {
   label: string;
   children: React.ReactNode;
+  required?: boolean;
+  important?: boolean;
+  approvalSensitive?: boolean;
+  workflow?: boolean;
 }) {
   return (
-    <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-      {label}
+    <label className="flex flex-col gap-2 border border-transparent px-3 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <span className="flex flex-wrap items-center gap-2">
+        {label}
+        {required ? (
+          <span className="border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-800">
+            Required
+          </span>
+        ) : null}
+        {important ? (
+          <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+            Important
+          </span>
+        ) : null}
+        {approvalSensitive ? (
+          <span className="border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
+            Approval Field
+          </span>
+        ) : null}
+        {workflow ? (
+          <span className="border border-gray-200 bg-[#f7f7f7] px-1.5 py-0.5 text-[10px] font-bold text-gray-700">
+            Workflow
+          </span>
+        ) : null}
+      </span>
       {children}
     </label>
+  );
+}
+
+function RelationshipGovernanceNotice({
+  scope,
+}: {
+  scope: "project" | "asset" | "company";
+}) {
+  const label =
+    scope === "project"
+      ? "project company-role"
+      : scope === "asset"
+        ? "plant/facility company-role"
+        : "company relationship";
+
+  return (
+    <div className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-800">
+      Structured {label} links feed analytics, Research Ops, profile pages, and
+      exports. They should be supported by source evidence, and adding or
+      removing a relationship does not delete the underlying project,
+      plant/facility, or company record.
+    </div>
   );
 }
 
@@ -303,8 +355,9 @@ export function ProjectCompanyLinksPanel({
       description="Structured company-role links for this PostgreSQL staging project."
     >
       <Notice error={error} message={message} />
+      <RelationshipGovernanceNotice scope="project" />
       <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
-        <Field label="Company">
+        <Field label="Company" approvalSensitive required>
           <select
             className={inputClass()}
             value={form.company_id}
@@ -323,14 +376,14 @@ export function ProjectCompanyLinksPanel({
             ))}
           </select>
         </Field>
-        <Field label="Role">
+        <Field label="Role" approvalSensitive required>
           <RoleOptions
             referenceData={referenceData}
             value={form.role_code}
             onChange={(value) => setForm((prev) => ({ ...prev, role_code: value }))}
           />
         </Field>
-        <Field label="Role Detail">
+        <Field label="Role Detail" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.role_detail}
@@ -339,7 +392,7 @@ export function ProjectCompanyLinksPanel({
             }
           />
         </Field>
-        <Field label="Ownership %">
+        <Field label="Ownership %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -367,7 +420,7 @@ export function ProjectCompanyLinksPanel({
           Primary role
         </label>
         <div className="xl:col-span-4">
-          <Field label="Notes">
+          <Field label="Notes" workflow>
             <input
               className={inputClass()}
               value={form.notes}
@@ -541,8 +594,9 @@ export function OperatingAssetCompanyLinksPanel({
       description="Structured company-role links for this PostgreSQL staging plant/facility."
     >
       <Notice error={error} message={message} />
+      <RelationshipGovernanceNotice scope="asset" />
       <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
-        <Field label="Company">
+        <Field label="Company" approvalSensitive required>
           <select
             className={inputClass()}
             value={form.company_id}
@@ -561,14 +615,14 @@ export function OperatingAssetCompanyLinksPanel({
             ))}
           </select>
         </Field>
-        <Field label="Role">
+        <Field label="Role" approvalSensitive required>
           <RoleOptions
             referenceData={referenceData}
             value={form.role_code}
             onChange={(value) => setForm((prev) => ({ ...prev, role_code: value }))}
           />
         </Field>
-        <Field label="Role Detail">
+        <Field label="Role Detail" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.role_detail}
@@ -577,7 +631,7 @@ export function OperatingAssetCompanyLinksPanel({
             }
           />
         </Field>
-        <Field label="Ownership %">
+        <Field label="Ownership %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -605,7 +659,7 @@ export function OperatingAssetCompanyLinksPanel({
           Primary role
         </label>
         <div className="xl:col-span-4">
-          <Field label="Notes">
+          <Field label="Notes" workflow>
             <input
               className={inputClass()}
               value={form.notes}
@@ -772,8 +826,9 @@ function CompanyProjectPortfolio({
   return (
     <div className="space-y-4">
       <Notice error={error} message={message} />
+      <RelationshipGovernanceNotice scope="project" />
       <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
-        <Field label="Project">
+        <Field label="Project" approvalSensitive required>
           <select
             className={inputClass()}
             value={form.project_id}
@@ -790,14 +845,14 @@ function CompanyProjectPortfolio({
             ))}
           </select>
         </Field>
-        <Field label="Role">
+        <Field label="Role" approvalSensitive required>
           <RoleOptions
             referenceData={referenceData}
             value={form.role_code}
             onChange={(value) => setForm((prev) => ({ ...prev, role_code: value }))}
           />
         </Field>
-        <Field label="Role Detail">
+        <Field label="Role Detail" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.role_detail}
@@ -806,7 +861,7 @@ function CompanyProjectPortfolio({
             }
           />
         </Field>
-        <Field label="Ownership %">
+        <Field label="Ownership %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -969,8 +1024,9 @@ function CompanyAssetPortfolio({
   return (
     <div className="space-y-4">
       <Notice error={error} message={message} />
+      <RelationshipGovernanceNotice scope="asset" />
       <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
-        <Field label="Plant / Facility">
+        <Field label="Plant / Facility" approvalSensitive required>
           <select
             className={inputClass()}
             value={form.operating_asset_id}
@@ -990,14 +1046,14 @@ function CompanyAssetPortfolio({
             ))}
           </select>
         </Field>
-        <Field label="Role">
+        <Field label="Role" approvalSensitive required>
           <RoleOptions
             referenceData={referenceData}
             value={form.role_code}
             onChange={(value) => setForm((prev) => ({ ...prev, role_code: value }))}
           />
         </Field>
-        <Field label="Role Detail">
+        <Field label="Role Detail" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.role_detail}
@@ -1006,7 +1062,7 @@ function CompanyAssetPortfolio({
             }
           />
         </Field>
-        <Field label="Ownership %">
+        <Field label="Ownership %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -1217,11 +1273,12 @@ export function CompanyRelationshipPanel({
         </h3>
         <div className="mt-4 space-y-4">
           <Notice error={error} message={message} />
+          <RelationshipGovernanceNotice scope="company" />
           <form
             className="grid grid-cols-1 gap-4 xl:grid-cols-5"
             onSubmit={handleSubmit}
           >
-            <Field label="Related Company">
+            <Field label="Related Company" approvalSensitive required>
               <select
                 className={inputClass()}
                 value={form.company_id_to}
@@ -1243,7 +1300,7 @@ export function CompanyRelationshipPanel({
                 ))}
               </select>
             </Field>
-            <Field label="Relationship Type">
+            <Field label="Relationship Type" approvalSensitive required>
               <select
                 className={inputClass()}
                 value={form.relationship_type_code}
@@ -1261,7 +1318,7 @@ export function CompanyRelationshipPanel({
                 ))}
               </select>
             </Field>
-            <Field label="Ownership %">
+            <Field label="Ownership %" approvalSensitive important>
               <input
                 className={inputClass()}
                 value={form.ownership_percentage}
@@ -1295,7 +1352,7 @@ export function CompanyRelationshipPanel({
               {saving ? "Saving..." : "Add Relationship"}
             </button>
             <div className="xl:col-span-5">
-              <Field label="Notes">
+              <Field label="Notes" workflow>
                 <input
                   className={inputClass()}
                   value={form.notes}
