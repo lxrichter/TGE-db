@@ -33,6 +33,8 @@ const companyExportColumns: CsvColumn<PostgresPreviewCompany>[] = [
     header: "operating_asset_link_count",
     value: (row) => row.operating_asset_link_count,
   },
+  { header: "open_issue_count", value: (row) => row.open_issue_count },
+  { header: "critical_issue_count", value: (row) => row.critical_issue_count },
 ];
 
 function cleanParam(value: string | null) {

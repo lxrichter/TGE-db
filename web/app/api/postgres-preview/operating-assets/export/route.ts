@@ -46,6 +46,8 @@ const operatingAssetExportColumns: CsvColumn<PostgresPreviewOperatingAsset>[] = 
   { header: "research_status", value: (row) => row.research_status },
   { header: "source_count", value: (row) => row.source_count },
   { header: "company_link_count", value: (row) => row.company_link_count },
+  { header: "open_issue_count", value: (row) => row.open_issue_count },
+  { header: "critical_issue_count", value: (row) => row.critical_issue_count },
 ];
 
 function cleanParam(value: string | null) {

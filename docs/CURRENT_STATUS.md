@@ -241,6 +241,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Research Ops recent activity now includes latest audit-event context where
   available, including form-update / audited-apply labels and changed-field
   counts
+- PostgreSQL project, plant/facility, and company filtered CSV exports now
+  include open and critical persistent Research Ops issue counts
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
