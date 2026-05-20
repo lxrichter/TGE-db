@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
 import type {
   SourceMatchCandidateAction,
   SourceMatchCandidateItem,
@@ -147,22 +148,30 @@ export default function SourceMatchCandidatesClient({
   candidates: SourceMatchCandidateItem[];
 }) {
   const router = useRouter();
+  const pageSize = 25;
+  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
+  const clampedPage = Math.min(page, pageCount);
+  const pageStartIndex = (clampedPage - 1) * pageSize;
+  const pageItems = candidates.slice(pageStartIndex, pageStartIndex + pageSize);
+  const pageStart = candidates.length === 0 ? 0 : pageStartIndex + 1;
+  const pageEnd = Math.min(pageStartIndex + pageItems.length, candidates.length);
   const candidateIds = useMemo(
     () =>
-      candidates
+      pageItems
         .filter((candidate) => !isClosedCandidate(candidate))
         .map((candidate) => candidate.match_candidate_id),
-    [candidates]
+    [pageItems]
   );
   const cleanHighConfidenceIds = useMemo(
     () =>
-      candidates
+      pageItems
         .filter(isCleanHighConfidence)
         .map((candidate) => candidate.match_candidate_id),
-    [candidates]
+    [pageItems]
   );
   const selectedIds = [...selected];
   const selectedCandidates = useMemo(
@@ -347,8 +356,9 @@ export default function SourceMatchCandidatesClient({
         <div>
           <div className="font-semibold text-[#1f2937]">Clean visible is safest</div>
           <p className="mt-1 leading-5">
-            The clean selector only picks high-confidence rows without review
-            flags and without competing open candidates for the same source.
+            The clean selector only picks high-confidence rows on the current
+            page without review flags and without competing open candidates for
+            the same source.
           </p>
         </div>
         <div>
@@ -377,13 +387,23 @@ export default function SourceMatchCandidatesClient({
         </div>
       ) : null}
 
+      <ReviewTablePagination
+        noun="candidate"
+        page={clampedPage}
+        pageCount={pageCount}
+        pageEnd={pageEnd}
+        pageStart={pageStart}
+        total={candidates.length}
+        onPageChange={setPage}
+      />
+
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[44px] px-4 py-3 font-semibold">
                 <input
-                  aria-label="Select all candidates"
+                  aria-label="Select visible match candidates on this page"
                   checked={allSelected}
                   onChange={toggleAll}
                   type="checkbox"
@@ -398,7 +418,7 @@ export default function SourceMatchCandidatesClient({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {candidates.map((candidate) => {
+            {pageItems.map((candidate) => {
               const href = entityHref(candidate);
               const isClosed = isClosedCandidate(candidate);
               const isAmbiguous = hasSourceAmbiguity(candidate);
@@ -563,6 +583,17 @@ export default function SourceMatchCandidatesClient({
           </tbody>
         </table>
       </div>
+      {pageCount > 1 ? (
+        <ReviewTablePagination
+          noun="candidate"
+          page={clampedPage}
+          pageCount={pageCount}
+          pageEnd={pageEnd}
+          pageStart={pageStart}
+          total={candidates.length}
+          onPageChange={setPage}
+        />
+      ) : null}
     </section>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
 import type {
   ArticleFactCandidateAction,
   ArticleFactCandidateItem,
@@ -100,15 +101,23 @@ export default function ArticleFactCandidatesClient({
   canReview: boolean;
 }) {
   const router = useRouter();
+  const pageSize = 25;
+  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
+  const clampedPage = Math.min(page, pageCount);
+  const pageStartIndex = (clampedPage - 1) * pageSize;
+  const pageItems = candidates.slice(pageStartIndex, pageStartIndex + pageSize);
+  const pageStart = candidates.length === 0 ? 0 : pageStartIndex + 1;
+  const pageEnd = Math.min(pageStartIndex + pageItems.length, candidates.length);
   const selectableIds = useMemo(
     () =>
-      candidates
+      pageItems
         .filter((candidate) => candidate.fact_status_code !== "superseded")
         .map((candidate) => candidate.article_fact_candidate_id),
-    [candidates]
+    [pageItems]
   );
   const selectedIds = [...selected];
   const allSelected =
@@ -223,6 +232,16 @@ export default function ArticleFactCandidatesClient({
         </div>
       ) : null}
 
+      <ReviewTablePagination
+        noun="candidate"
+        page={clampedPage}
+        pageCount={pageCount}
+        pageEnd={pageEnd}
+        pageStart={pageStart}
+        total={candidates.length}
+        onPageChange={setPage}
+      />
+
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
@@ -245,7 +264,7 @@ export default function ArticleFactCandidatesClient({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {candidates.map((candidate) => {
+            {pageItems.map((candidate) => {
               const href = sourceHref(candidate);
               const sourceLabel =
                 candidate.source_title ||
@@ -359,6 +378,17 @@ export default function ArticleFactCandidatesClient({
           </tbody>
         </table>
       </div>
+      {pageCount > 1 ? (
+        <ReviewTablePagination
+          noun="candidate"
+          page={clampedPage}
+          pageCount={pageCount}
+          pageEnd={pageEnd}
+          pageStart={pageStart}
+          total={candidates.length}
+          onPageChange={setPage}
+        />
+      ) : null}
     </section>
   );
 }
