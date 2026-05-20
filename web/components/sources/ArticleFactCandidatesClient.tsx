@@ -88,13 +88,23 @@ function sourceHref(candidate: ArticleFactCandidateItem) {
   return null;
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function valuePreview(candidate: ArticleFactCandidateItem) {
-  const value = candidate.extracted_value.trim();
+  let value = candidate.extracted_value.trim();
   const unit = candidate.unit_code?.trim();
 
   if (!unit) {
     return value;
   }
+
+  const repeatedTrailingUnit = new RegExp(
+    `(?:\\s+${escapeRegExp(unit)}){2,}$`,
+    "i"
+  );
+  value = value.replace(repeatedTrailingUnit, ` ${unit}`);
 
   const compactValue = value.replace(/\s/g, "").toLowerCase();
   const compactUnit = unit.replace(/\s/g, "").toLowerCase();

@@ -253,6 +253,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Detail-page review buttons and Research Ops bulk status actions now surface
   the same approval/export-readiness blockers, keeping approval failures
   understandable outside the edit forms
+- Article fact candidate values now suppress duplicated trailing units in the
+  review UI, avoiding display artifacts such as repeated `MWe`
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
