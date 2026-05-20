@@ -439,6 +439,214 @@ function CompanyGovernanceOverview({
   );
 }
 
+type CompanyActionTone = "blocker" | "warning" | "ready" | "neutral";
+
+type CompanyAction = {
+  label: string;
+  detail: string;
+  href: string;
+  tone: CompanyActionTone;
+  primary?: boolean;
+};
+
+const companyActionToneClasses: Record<CompanyActionTone, string> = {
+  blocker: "border-red-200 bg-red-50 text-red-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  ready: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+  neutral: "border-gray-200 bg-white text-gray-700",
+};
+
+function companyActionLinkClass(action: CompanyAction) {
+  const base =
+    "block border px-4 py-4 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
+
+  return `${base} ${companyActionToneClasses[action.tone]} ${
+    action.primary ? "ring-2 ring-[#8dc63f]/20" : ""
+  }`;
+}
+
+function CompanyActionHub({
+  company,
+  readinessIssues,
+  researchIssues,
+  projectLinks,
+  operatingAssetLinks,
+  relationships,
+  openSourceMatchCount,
+  fieldSuggestionCandidates,
+  canEditRecord,
+}: {
+  company: PostgresPreviewCompanyDetail;
+  readinessIssues: ExportReadinessIssue[];
+  researchIssues: PostgresResearchOpsIssue[];
+  projectLinks: PostgresCompanyProjectLink[];
+  operatingAssetLinks: PostgresCompanyOperatingAssetLink[];
+  relationships: PostgresCompanyRelationship[];
+  openSourceMatchCount: number;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
+  canEditRecord: boolean;
+}) {
+  const blockers = readinessIssues.filter((issue) => issue.severity === "blocker");
+  const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
+  const openIssues = openResearchIssues(researchIssues);
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const activityLinkCount =
+    projectLinks.length + operatingAssetLinks.length + relationships.length;
+  const actions: CompanyAction[] = [];
+
+  if (canEditRecord) {
+    actions.push({
+      label: "Edit Core Fields",
+      detail:
+        "Update identity, classification, HQ details, website, market focus, and notes.",
+      href: `/postgres-preview/companies/${company.company_id}/edit`,
+      tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
+      primary: blockers.length > 0,
+    });
+  }
+
+  actions.push({
+    label: "Review Classification",
+    detail:
+      company.company_type_primary_code && company.headquarters_country
+        ? "Primary category and HQ country are present."
+        : "Confirm primary company type, status, HQ country, and website details.",
+    href: "#company-classification",
+    tone:
+      company.company_type_primary_code && company.headquarters_country
+        ? "ready"
+        : "warning",
+  });
+
+  actions.push({
+    label: "Relationships / Portfolio",
+    detail:
+      activityLinkCount > 0
+        ? `${formatCount(activityLinkCount)} structured project, asset, or company relationship${
+            activityLinkCount === 1 ? "" : "s"
+          } linked.`
+        : "Add project roles, plant/facility roles, ownership, group, or JV relationships.",
+    href: "#company-relationships",
+    tone: activityLinkCount > 0 ? "ready" : "warning",
+  });
+
+  actions.push({
+    label: company.sources.length === 0 ? "Add Evidence" : "Review Evidence",
+    detail:
+      company.sources.length === 0
+        ? "No source is linked yet. Add evidence before export-ready use."
+        : `${formatCount(company.sources.length)} linked source${
+            company.sources.length === 1 ? "" : "s"
+          }; review credibility and relationship claims.`,
+    href: "#company-source-evidence",
+    tone: company.sources.length === 0 ? "blocker" : "ready",
+    primary: company.sources.length === 0,
+  });
+
+  if (openSourceMatchCount > 0) {
+    actions.push({
+      label: "Review Article Matches",
+      detail: `${formatCount(openSourceMatchCount)} source/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } can support related news and evidence links.`,
+      href: "#company-article-matches",
+      tone: "warning",
+      primary: company.sources.length === 0,
+    });
+  }
+
+  if (fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0) {
+    actions.push({
+      label: "Review AI Suggestions",
+      detail: `${formatCount(fieldSuggestionSummary.open)} open and ${formatCount(
+        fieldSuggestionSummary.applyReady
+      )} ready-to-apply field suggestion${
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady === 1
+          ? ""
+          : "s"
+      }.`,
+      href: "#company-ai-suggestions",
+      tone: "warning",
+    });
+  }
+
+  if (openIssues.length > 0) {
+    actions.push({
+      label: "Research Issues",
+      detail: `${formatCount(openIssues.length)} open persistent issue${
+        openIssues.length === 1 ? "" : "s"
+      } assigned or tracked for this record.`,
+      href: "#company-research-issues",
+      tone: "warning",
+    });
+  }
+
+  actions.push({
+    label: "Export Readiness",
+    detail:
+      blockers.length > 0
+        ? `${formatCount(blockers.length)} blocker${
+            blockers.length === 1 ? "" : "s"
+          } and ${formatCount(warnings.length)} warning${
+            warnings.length === 1 ? "" : "s"
+          } detected.`
+        : warnings.length > 0
+          ? `${formatCount(warnings.length)} warning${
+              warnings.length === 1 ? "" : "s"
+            } left for editor judgment.`
+          : "No export-readiness blockers detected.",
+    href: "#company-export-readiness",
+    tone: blockers.length > 0 ? "blocker" : warnings.length > 0 ? "warning" : "ready",
+  });
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Record Workbench
+          </div>
+          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            Company Action Hub
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            Use this as the operational entry point for this company record:
+            confirm classification, manage portfolios and ownership links,
+            strengthen evidence, review AI suggestions, and check export readiness.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={`${formatCount(blockers.length)} blockers`} />
+          <StatusBadge value={`${formatCount(warnings.length)} warnings`} />
+          <Link
+            href="/postgres-preview/research-ops"
+            className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            Research Ops
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
+        {actions.map((action) => (
+          <Link
+            key={`${action.label}-${action.href}`}
+            className={companyActionLinkClass(action)}
+            href={action.href}
+          >
+            <div className="text-sm font-bold text-[#1f2937]">
+              {action.label}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-600">
+              {action.detail}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function PostgresCompanyDetailPage({
   params,
 }: {
@@ -493,6 +701,8 @@ export default async function PostgresCompanyDetailPage({
   }
   const role = (session?.user as { role?: string | null } | undefined)?.role;
   const readinessIssues = getCompanyReadinessIssues(company);
+  const canEditRecord = canEdit(role);
+  const canReviewRecord = canReview(role);
 
   return (
     <DetailShell
@@ -555,7 +765,19 @@ export default async function PostgresCompanyDetailPage({
         sources={company.sources}
       />
 
-      <DetailSection title="Identity And Classification">
+      <CompanyActionHub
+        canEditRecord={canEditRecord}
+        company={company}
+        fieldSuggestionCandidates={fieldSuggestionCandidates}
+        openSourceMatchCount={openSourceMatchCount}
+        operatingAssetLinks={operatingAssetLinks}
+        projectLinks={projectLinks}
+        readinessIssues={readinessIssues}
+        relationships={relationships}
+        researchIssues={researchIssues}
+      />
+
+      <DetailSection id="company-classification" title="Identity And Classification">
         <DetailFieldGrid
           fields={[
             { label: "Legacy ID", value: company.legacy_company_id },
@@ -610,39 +832,46 @@ export default async function PostgresCompanyDetailPage({
       </DetailSection>
 
       <PostgresReviewStatusActions
-        canReviewStatus={canReview(role)}
+        canReviewStatus={canReviewRecord}
         currentStatus={company.review_status_code}
         entityId={company.company_id}
         entityType="company"
         reviewStatuses={entityReferenceData.reviewStatuses}
       />
 
-      <CompanyRelationshipPanel
-        companyId={company.company_id}
-        operatingAssetLinks={operatingAssetLinks}
-        projectLinks={projectLinks}
-        referenceData={relationshipReferenceData}
-        relationships={relationships}
-      />
+      <div id="company-relationships" className="scroll-mt-6">
+        <CompanyRelationshipPanel
+          companyId={company.company_id}
+          operatingAssetLinks={operatingAssetLinks}
+          projectLinks={projectLinks}
+          referenceData={relationshipReferenceData}
+          relationships={relationships}
+        />
+      </div>
 
       <RelatedTgeNewsPanel
         entityType="company"
         entityId={company.company_id}
+        id="company-tge-news"
         sources={company.sources}
       />
 
       {sourceMatchCandidates.length > 0 ? (
-        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        <div id="company-article-matches" className="scroll-mt-6">
+          <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        </div>
       ) : null}
 
-      <PostgresFieldSuggestionsPanel
-        canReviewStatus={canReview(role)}
-        candidates={fieldSuggestionCandidates}
-      />
+      <div id="company-ai-suggestions" className="scroll-mt-6">
+        <PostgresFieldSuggestionsPanel
+          canReviewStatus={canReviewRecord}
+          candidates={fieldSuggestionCandidates}
+        />
+      </div>
 
-      <DetailSection title="Source Evidence">
+      <DetailSection id="company-source-evidence" title="Source Evidence">
         <PostgresSourceEvidencePanel
-          canManageSources={canEdit(role)}
+          canManageSources={canEditRecord}
           confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="company"
           entityId={company.company_id}
@@ -651,17 +880,20 @@ export default async function PostgresCompanyDetailPage({
         />
       </DetailSection>
 
-      <PostgresResearchIssuesPanel
-        canManageIssues={canEdit(role)}
-        entityId={company.company_id}
-        entityType="company"
-        issueReferenceData={issueReferenceData}
-        issues={researchIssues}
-      />
+      <div id="company-research-issues" className="scroll-mt-6">
+        <PostgresResearchIssuesPanel
+          canManageIssues={canEditRecord}
+          entityId={company.company_id}
+          entityType="company"
+          issueReferenceData={issueReferenceData}
+          issues={researchIssues}
+        />
+      </div>
 
-      <AuditTrailPanel events={auditEvents} />
+      <AuditTrailPanel events={auditEvents} id="company-audit-trail" />
 
       <ExportReadinessPanel
+        id="company-export-readiness"
         issues={readinessIssues}
         sourceCount={company.sources.length}
         credibleSourceCount={
