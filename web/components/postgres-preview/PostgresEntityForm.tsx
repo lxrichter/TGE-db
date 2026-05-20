@@ -24,6 +24,11 @@ type EntityIssueContext = {
   entityType: "project" | "operating_asset" | "company";
   entityId: string;
 };
+type ReadinessRelationshipContext = {
+  sourceCount?: number;
+  companyLinkCount?: number;
+  activityLinkCount?: number;
+};
 
 function toInputValue(value: string | number | null | undefined) {
   if (value === null || value === undefined) {
@@ -651,7 +656,10 @@ function FormReadinessPanel({
   );
 }
 
-function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
+function getProjectReadinessIssues(
+  form: EntityFormValues,
+  relationships: ReadinessRelationshipContext = {}
+): FormReadinessIssue[] {
   const issues: FormReadinessIssue[] = [];
 
   if (!hasValue(form, "project_name")) {
@@ -727,26 +735,34 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
     });
   }
 
-  issues.push({
-    severity: "workflow",
-    label: "Source evidence handled separately",
-    detail: "Add source/evidence links after saving the staging record.",
-    issueTypeCode: "missing_source",
-    linkedField: "sources",
-  });
+  if ((relationships.sourceCount || 0) === 0) {
+    issues.push({
+      severity: "workflow",
+      label: "Source evidence needed",
+      detail: "Add at least one source/evidence link before review or export readiness.",
+      issueTypeCode: "missing_source",
+      linkedField: "sources",
+    });
+  }
 
-  issues.push({
-    severity: "workflow",
-    label: "Company roles handled separately",
-    detail: "Developer, owner, operator, and supplier links are managed on the detail page.",
-    issueTypeCode: "missing_company_link",
-    linkedField: "company_links",
-  });
+  if ((relationships.companyLinkCount || 0) === 0) {
+    issues.push({
+      severity: "workflow",
+      label: "Company role links needed",
+      detail:
+        "Developer, owner, operator, and supplier links are managed on the detail page.",
+      issueTypeCode: "missing_company_link",
+      linkedField: "company_links",
+    });
+  }
 
   return issues;
 }
 
-function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
+function getAssetReadinessIssues(
+  form: EntityFormValues,
+  relationships: ReadinessRelationshipContext = {}
+): FormReadinessIssue[] {
   const issues: FormReadinessIssue[] = [];
 
   if (!hasValue(form, "asset_name")) {
@@ -830,26 +846,34 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
     });
   }
 
-  issues.push({
-    severity: "workflow",
-    label: "Source evidence handled separately",
-    detail: "Add source/evidence links after saving the staging record.",
-    issueTypeCode: "missing_source",
-    linkedField: "sources",
-  });
+  if ((relationships.sourceCount || 0) === 0) {
+    issues.push({
+      severity: "workflow",
+      label: "Source evidence needed",
+      detail: "Add at least one source/evidence link before review or export readiness.",
+      issueTypeCode: "missing_source",
+      linkedField: "sources",
+    });
+  }
 
-  issues.push({
-    severity: "workflow",
-    label: "Company roles handled separately",
-    detail: "Owner, operator, supplier, and contractor links are managed on the detail page.",
-    issueTypeCode: "missing_company_link",
-    linkedField: "company_links",
-  });
+  if ((relationships.companyLinkCount || 0) === 0) {
+    issues.push({
+      severity: "workflow",
+      label: "Company role links needed",
+      detail:
+        "Owner, operator, supplier, and contractor links are managed on the detail page.",
+      issueTypeCode: "missing_company_link",
+      linkedField: "company_links",
+    });
+  }
 
   return issues;
 }
 
-function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
+function getCompanyReadinessIssues(
+  form: EntityFormValues,
+  relationships: ReadinessRelationshipContext = {}
+): FormReadinessIssue[] {
   const issues: FormReadinessIssue[] = [];
 
   if (!hasValue(form, "company_name")) {
@@ -902,21 +926,25 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
     });
   }
 
-  issues.push({
-    severity: "workflow",
-    label: "Source evidence handled separately",
-    detail: "Add source/evidence links after saving the staging company record.",
-    issueTypeCode: "missing_source",
-    linkedField: "sources",
-  });
+  if ((relationships.sourceCount || 0) === 0) {
+    issues.push({
+      severity: "workflow",
+      label: "Source evidence needed",
+      detail: "Add at least one source/evidence link before review or export readiness.",
+      issueTypeCode: "missing_source",
+      linkedField: "sources",
+    });
+  }
 
-  issues.push({
-    severity: "workflow",
-    label: "Project and asset roles handled separately",
-    detail: "Company portfolios and ownership links are managed on the detail page.",
-    issueTypeCode: "missing_company_link",
-    linkedField: "company_roles",
-  });
+  if ((relationships.activityLinkCount || 0) === 0) {
+    issues.push({
+      severity: "workflow",
+      label: "Project or asset role links needed",
+      detail: "Company portfolios and ownership links are managed on the detail page.",
+      issueTypeCode: "missing_company_link",
+      linkedField: "company_roles",
+    });
+  }
 
   return issues;
 }
@@ -1143,7 +1171,10 @@ export function PostgresProjectForm({
             ? { entityType: "project", entityId: project.project_id }
             : undefined
         }
-        issues={getProjectReadinessIssues(form)}
+        issues={getProjectReadinessIssues(form, {
+          sourceCount: project?.source_count,
+          companyLinkCount: project?.company_link_count,
+        })}
       />
 
       <Section title="Identity And Location">
@@ -1461,7 +1492,10 @@ export function PostgresOperatingAssetForm({
               }
             : undefined
         }
-        issues={getAssetReadinessIssues(form)}
+        issues={getAssetReadinessIssues(form, {
+          sourceCount: asset?.source_count,
+          companyLinkCount: asset?.company_link_count,
+        })}
       />
 
       <Section title="Identity And Location">
@@ -1789,7 +1823,12 @@ export function PostgresCompanyForm({
             ? { entityType: "company", entityId: company.company_id }
             : undefined
         }
-        issues={getCompanyReadinessIssues(form)}
+        issues={getCompanyReadinessIssues(form, {
+          sourceCount: company?.source_count,
+          activityLinkCount:
+            (company?.project_link_count || 0) +
+            (company?.operating_asset_link_count || 0),
+        })}
       />
 
       <Section title="Identity And Classification">
