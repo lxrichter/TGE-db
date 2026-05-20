@@ -51,6 +51,47 @@ type SourceLinkFormValues = {
   is_primary_evidence: boolean;
 };
 
+type FieldTone = "critical" | "important" | "workflow";
+
+type SourceChangeState = {
+  changedFields: Set<keyof SourceFormValues>;
+  approvalSensitiveChangedFields: Set<keyof SourceFormValues>;
+};
+
+const sourceApprovalSensitiveFields = new Set<keyof SourceFormValues>([
+  "source_type_code",
+  "title",
+  "url",
+  "source_reference",
+  "publisher",
+  "author_organization",
+  "country",
+  "language_code",
+  "visibility_code",
+  "credibility_status_code",
+  "published_date",
+  "accessed_at",
+  "extracted_summary",
+  "relevant_excerpt",
+  "attachment_url",
+  "duplicate_source_flag",
+]);
+
+const sourceRequiredFields = new Set<keyof SourceFormValues>([
+  "source_type_code",
+  "visibility_code",
+  "credibility_status_code",
+]);
+
+const sourceImportantFields = new Set<keyof SourceFormValues>([
+  "published_date",
+  "accessed_at",
+  "country",
+  "publisher",
+  "author_organization",
+  "relevant_excerpt",
+]);
+
 function toDatetimeLocal(value: string | null | undefined) {
   if (!value) {
     return "";
@@ -101,6 +142,62 @@ function initialLinkValues(): SourceLinkFormValues {
   };
 }
 
+function normalizeChangeValue(value: unknown) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+
+  return String(value).trim();
+}
+
+function useSourceChangeState(
+  form: SourceFormValues,
+  originalForm: SourceFormValues,
+  mode: "create" | "edit"
+): SourceChangeState {
+  return useMemo(() => {
+    const changedFields = new Set<keyof SourceFormValues>();
+    const approvalSensitiveChangedFields = new Set<keyof SourceFormValues>();
+
+    if (mode !== "edit") {
+      return { changedFields, approvalSensitiveChangedFields };
+    }
+
+    (Object.keys(form) as Array<keyof SourceFormValues>).forEach((field) => {
+      if (
+        normalizeChangeValue(form[field]) !==
+        normalizeChangeValue(originalForm[field])
+      ) {
+        changedFields.add(field);
+
+        if (sourceApprovalSensitiveFields.has(field)) {
+          approvalSensitiveChangedFields.add(field);
+        }
+      }
+    });
+
+    return { changedFields, approvalSensitiveChangedFields };
+  }, [form, mode, originalForm]);
+}
+
+function sourceFieldMeta(
+  name: keyof SourceFormValues,
+  changeState: SourceChangeState,
+  tone: FieldTone = "important"
+) {
+  return {
+    changed: changeState.changedFields.has(name),
+    required: sourceRequiredFields.has(name),
+    important: sourceImportantFields.has(name),
+    approvalSensitive: sourceApprovalSensitiveFields.has(name),
+    tone,
+  };
+}
+
 async function safeJson(res: Response) {
   try {
     const text = await res.text();
@@ -113,13 +210,58 @@ async function safeJson(res: Response) {
 function Field({
   label,
   children,
+  changed = false,
+  required = false,
+  important = false,
+  approvalSensitive = false,
+  tone = "important",
 }: {
   label: string;
   children: React.ReactNode;
+  changed?: boolean;
+  required?: boolean;
+  important?: boolean;
+  approvalSensitive?: boolean;
+  tone?: FieldTone;
 }) {
+  const toneClass =
+    tone === "critical"
+      ? "border-red-200 bg-red-50 text-red-800"
+      : tone === "workflow"
+        ? "border-blue-200 bg-blue-50 text-blue-800"
+        : "border-amber-200 bg-amber-50 text-amber-800";
+
   return (
-    <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-      {label}
+    <label
+      className={`flex flex-col gap-2 border px-3 py-3 text-xs font-semibold uppercase tracking-wide ${
+        changed
+          ? "border-amber-300 bg-amber-50/60 text-gray-600"
+          : "border-transparent text-gray-500"
+      }`}
+    >
+      <span className="flex flex-wrap items-center gap-2">
+        {label}
+        {required ? (
+          <span className="border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-800">
+            Required
+          </span>
+        ) : null}
+        {important ? (
+          <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+            Important
+          </span>
+        ) : null}
+        {approvalSensitive ? (
+          <span className="border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
+            Approval Field
+          </span>
+        ) : null}
+        {changed ? (
+          <span className={`border px-1.5 py-0.5 text-[10px] font-bold ${toneClass}`}>
+            Edited
+          </span>
+        ) : null}
+      </span>
       {children}
     </label>
   );
@@ -189,6 +331,127 @@ function Section({
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       </div>
       <div className="px-5 py-5">{children}</div>
+    </section>
+  );
+}
+
+function FormReadinessPanel({
+  form,
+  changeState,
+  currentCredibilityStatus,
+  mode,
+}: {
+  form: SourceFormValues;
+  changeState: SourceChangeState;
+  currentCredibilityStatus?: string | null;
+  mode: "create" | "edit";
+}) {
+  const hasIdentifier = Boolean(
+    form.title.trim() || form.url.trim() || form.source_reference.trim()
+  );
+  const issues = [
+    !form.source_type_code ? "Source type is required." : null,
+    !hasIdentifier
+      ? "Add at least a title, URL, or source reference before saving."
+      : null,
+    !form.visibility_code ? "Visibility is required." : null,
+    !form.credibility_status_code ? "Credibility status is required." : null,
+    form.credibility_status_code === "credible" &&
+    !form.url.trim() &&
+    !form.source_reference.trim()
+      ? "Credible sources should normally include a URL or structured reference."
+      : null,
+    form.duplicate_source_flag
+      ? "Duplicate suspected is set; review before relying on this source."
+      : null,
+  ].filter((issue): issue is string => Boolean(issue));
+
+  const changedCount = changeState.changedFields.size;
+  const approvalSensitiveCount = changeState.approvalSensitiveChangedFields.size;
+  const reviewedSourceWillNeedReview =
+    mode === "edit" &&
+    approvalSensitiveCount > 0 &&
+    currentCredibilityStatus !== "needs_review" &&
+    form.credibility_status_code === currentCredibilityStatus;
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-5 py-4">
+        <h2 className="text-lg font-bold text-[#1f2937]">Source Readiness</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          This panel keeps source metadata, credibility review, and evidence
+          governance visible while editing. It does not apply extracted facts to
+          entity records.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-4">
+        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Required Checks
+          </div>
+          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+            {issues.length === 0 ? "Ready" : issues.length}
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {issues.length === 0 ? "No blocking form issues" : "items need attention"}
+          </div>
+        </div>
+        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Edited Fields
+          </div>
+          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+            {changedCount}
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            highlighted in this form
+          </div>
+        </div>
+        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Approval Fields
+          </div>
+          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+            {approvalSensitiveCount}
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            edited metadata/evidence fields
+          </div>
+        </div>
+        <div
+          className={`border px-4 py-3 ${
+            reviewedSourceWillNeedReview
+              ? "border-amber-200 bg-amber-50"
+              : "border-[#d9eac2] bg-[#f5faee]"
+          }`}
+        >
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Review Impact
+          </div>
+          <div className="mt-1 text-sm font-bold text-[#1f2937]">
+            {reviewedSourceWillNeedReview
+              ? "Returns to Needs Review"
+              : "No review downgrade"}
+          </div>
+          <div className="mt-1 text-xs leading-5 text-gray-600">
+            {reviewedSourceWillNeedReview
+              ? "Saving governed metadata changes on a reviewed source will move credibility back to needs_review."
+              : "Current changes do not trigger an automatic credibility reset."}
+          </div>
+        </div>
+      </div>
+      {issues.length > 0 ? (
+        <div className="border-t border-gray-200 px-5 py-4">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Validation Notes
+          </div>
+          <ul className="mt-2 space-y-1 text-sm text-gray-700">
+            {issues.map((issue) => (
+              <li key={issue}>- {issue}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -320,6 +583,13 @@ function SourceLinkManager({
           </div>
         ) : null}
 
+        <div className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-800">
+          Evidence links are governed relationships between this source and a
+          record. Creating a link does not update project, plant/facility, or
+          company fields; it only creates reviewed evidence context for later
+          confirmation and audited field updates.
+        </div>
+
         <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
           <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Quick Fact Type
@@ -351,7 +621,7 @@ function SourceLinkManager({
         </div>
 
         <form className="grid grid-cols-1 gap-4 xl:grid-cols-4" onSubmit={handleAddLink}>
-          <Field label="Entity Type">
+          <Field label="Entity Type" approvalSensitive required tone="critical">
             <select
               className={inputClass()}
               value={linkForm.entity_type}
@@ -369,7 +639,7 @@ function SourceLinkManager({
             </select>
           </Field>
 
-          <Field label="Record">
+          <Field label="Record" approvalSensitive required tone="critical">
             <select
               className={inputClass()}
               value={linkForm.entity_id}
@@ -387,7 +657,7 @@ function SourceLinkManager({
             </select>
           </Field>
 
-          <Field label="Confidence">
+          <Field label="Confidence" approvalSensitive important tone="workflow">
             <select
               className={inputClass()}
               value={linkForm.confidence_status_code}
@@ -406,7 +676,7 @@ function SourceLinkManager({
             </select>
           </Field>
 
-          <Field label="Linked Field">
+          <Field label="Linked Field" approvalSensitive important>
             <input
               className={inputClass()}
               placeholder="capacity, COD, owner..."
@@ -420,7 +690,7 @@ function SourceLinkManager({
             />
           </Field>
 
-          <Field label="Fact / Evidence Type">
+          <Field label="Fact / Evidence Type" approvalSensitive important>
             <input
               className={inputClass()}
               placeholder="capacity_signal, financing_investment_signal..."
@@ -434,7 +704,7 @@ function SourceLinkManager({
             />
           </Field>
 
-          <Field label="Extracted Value">
+          <Field label="Extracted Value" approvalSensitive important>
             <input
               className={inputClass()}
               placeholder="35 MWe, COD 2027..."
@@ -472,7 +742,7 @@ function SourceLinkManager({
           </button>
 
           <div className="xl:col-span-2">
-            <Field label="Claim Text">
+            <Field label="Claim Text" approvalSensitive important>
               <textarea
                 className={`${inputClass()} min-h-[86px] resize-y`}
                 placeholder="What claim or data point does this source support?"
@@ -488,7 +758,7 @@ function SourceLinkManager({
           </div>
 
           <div className="xl:col-span-2">
-            <Field label="Evidence Note">
+            <Field label="Evidence Note" approvalSensitive tone="workflow">
               <textarea
                 className={`${inputClass()} min-h-[86px] resize-y`}
                 placeholder="Internal note about this source-record link"
@@ -588,9 +858,11 @@ export default function SourceForm({
   initialLinkTarget?: InitialLinkTarget | null;
 }) {
   const router = useRouter();
+  const originalForm = useMemo(() => initialSourceValues(source), [source]);
   const [form, setForm] = useState<SourceFormValues>(() =>
     initialSourceValues(source)
   );
+  const changeState = useSourceChangeState(form, originalForm, mode);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -684,9 +956,19 @@ export default function SourceForm({
       ) : null}
 
       <form className="space-y-6" onSubmit={handleSubmit}>
+        <FormReadinessPanel
+          changeState={changeState}
+          currentCredibilityStatus={source?.credibility_status_code}
+          form={form}
+          mode={mode}
+        />
+
         <Section title="Source Identity">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <Field label="Source Type">
+            <Field
+              label="Source Type"
+              {...sourceFieldMeta("source_type_code", changeState, "critical")}
+            >
               <select
                 className={inputClass()}
                 value={form.source_type_code}
@@ -699,7 +981,13 @@ export default function SourceForm({
                 ))}
               </select>
             </Field>
-            <Field label="Title">
+            <Field
+              label="Title"
+              approvalSensitive
+              changed={changeState.changedFields.has("title")}
+              important
+              tone="critical"
+            >
               <TextInput
                 name="title"
                 placeholder="Source title"
@@ -707,7 +995,13 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Source Reference">
+            <Field
+              label="Source Reference"
+              approvalSensitive
+              changed={changeState.changedFields.has("source_reference")}
+              important
+              tone="critical"
+            >
               <TextInput
                 name="source_reference"
                 placeholder="Citation, internal source ID, report reference"
@@ -715,7 +1009,13 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="URL">
+            <Field
+              label="URL"
+              approvalSensitive
+              changed={changeState.changedFields.has("url")}
+              important
+              tone="critical"
+            >
               <TextInput
                 name="url"
                 placeholder="https://..."
@@ -723,7 +1023,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Publisher">
+            <Field
+              label="Publisher"
+              {...sourceFieldMeta("publisher", changeState)}
+            >
               <TextInput
                 name="publisher"
                 placeholder="Publisher"
@@ -731,7 +1034,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Author / Organization">
+            <Field
+              label="Author / Organization"
+              {...sourceFieldMeta("author_organization", changeState)}
+            >
               <TextInput
                 name="author_organization"
                 placeholder="Author or organization"
@@ -744,7 +1050,10 @@ export default function SourceForm({
 
         <Section title="Classification And Review">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-            <Field label="Visibility">
+            <Field
+              label="Visibility"
+              {...sourceFieldMeta("visibility_code", changeState, "critical")}
+            >
               <select
                 className={inputClass()}
                 value={form.visibility_code}
@@ -757,7 +1066,14 @@ export default function SourceForm({
                 ))}
               </select>
             </Field>
-            <Field label="Credibility Status">
+            <Field
+              label="Credibility Status"
+              {...sourceFieldMeta(
+                "credibility_status_code",
+                changeState,
+                "workflow"
+              )}
+            >
               <select
                 className={inputClass()}
                 value={form.credibility_status_code}
@@ -772,7 +1088,10 @@ export default function SourceForm({
                 ))}
               </select>
             </Field>
-            <Field label="Country / Market">
+            <Field
+              label="Country / Market"
+              {...sourceFieldMeta("country", changeState)}
+            >
               <TextInput
                 name="country"
                 placeholder="Country"
@@ -780,7 +1099,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Language">
+            <Field
+              label="Language"
+              {...sourceFieldMeta("language_code", changeState)}
+            >
               <TextInput
                 name="language_code"
                 placeholder="en, es, tr..."
@@ -788,7 +1110,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Published Date">
+            <Field
+              label="Published Date"
+              {...sourceFieldMeta("published_date", changeState)}
+            >
               <TextInput
                 name="published_date"
                 type="date"
@@ -796,7 +1121,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Accessed At">
+            <Field
+              label="Accessed At"
+              {...sourceFieldMeta("accessed_at", changeState)}
+            >
               <TextInput
                 name="accessed_at"
                 type="datetime-local"
@@ -804,7 +1132,13 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <label className="flex min-h-10 items-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
+            <label
+              className={`flex min-h-10 items-center gap-2 self-end border px-3 text-sm font-semibold ${
+                changeState.changedFields.has("duplicate_source_flag")
+                  ? "border-amber-300 bg-amber-50 text-amber-800"
+                  : "border-gray-300 bg-white text-gray-700"
+              }`}
+            >
               <input
                 checked={form.duplicate_source_flag}
                 className="h-4 w-4 accent-[#8dc63f]"
@@ -817,13 +1151,21 @@ export default function SourceForm({
                 }
               />
               Duplicate suspected
+              {changeState.changedFields.has("duplicate_source_flag") ? (
+                <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                  Edited
+                </span>
+              ) : null}
             </label>
           </div>
         </Section>
 
         <Section title="Summary And Notes">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <Field label="Extracted Summary">
+            <Field
+              label="Extracted Summary"
+              {...sourceFieldMeta("extracted_summary", changeState, "workflow")}
+            >
               <TextArea
                 name="extracted_summary"
                 placeholder="Short source summary or extracted finding"
@@ -831,7 +1173,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Relevant Excerpt">
+            <Field
+              label="Relevant Excerpt"
+              {...sourceFieldMeta("relevant_excerpt", changeState)}
+            >
               <TextArea
                 name="relevant_excerpt"
                 placeholder="Short relevant excerpt or data point"
@@ -839,7 +1184,11 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Internal Notes">
+            <Field
+              label="Internal Notes"
+              changed={changeState.changedFields.has("notes")}
+              tone="workflow"
+            >
               <TextArea
                 name="notes"
                 placeholder="Research notes, caveats, source quality context"
@@ -847,7 +1196,10 @@ export default function SourceForm({
                 onChange={setField}
               />
             </Field>
-            <Field label="Attachment URL">
+            <Field
+              label="Attachment URL"
+              {...sourceFieldMeta("attachment_url", changeState)}
+            >
               <TextInput
                 name="attachment_url"
                 placeholder="Internal attachment URL or future file reference"

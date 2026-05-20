@@ -285,6 +285,25 @@ type SourceIdRow = {
   source_id: string;
 };
 
+type SourceGovernanceComparisonRow = {
+  source_type_code: string | null;
+  title: string | null;
+  url: string | null;
+  source_reference: string | null;
+  publisher: string | null;
+  author_organization: string | null;
+  country: string | null;
+  language_code: string | null;
+  visibility_code: string | null;
+  credibility_status_code: string | null;
+  published_date: string | Date | null;
+  accessed_at: string | Date | null;
+  extracted_summary: string | null;
+  relevant_excerpt: string | null;
+  attachment_url: string | null;
+  duplicate_source_flag: boolean | null;
+};
+
 type SourceLinkIdRow = {
   entity_source_id: string;
 };
@@ -326,6 +345,22 @@ function cleanRequiredText(value: string | null | undefined, fallback: string) {
   return cleanOptionalText(value) || fallback;
 }
 
+function normalizeSourceComparisonValue(value: unknown) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "true" : "false";
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  return String(value).trim();
+}
+
 function normalizeDateInput(value: string | null | undefined) {
   const trimmed = value?.trim();
 
@@ -350,6 +385,122 @@ function normalizeTimestampInput(value: string | null | undefined) {
   }
 
   return parsed.toISOString();
+}
+
+async function getSourceGovernanceComparison(
+  sourceId: string
+): Promise<SourceGovernanceComparisonRow | null> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    SourceGovernanceComparisonRow[]
+  >(
+    `
+    SELECT
+      source_type_code,
+      title,
+      url,
+      source_reference,
+      publisher,
+      author_organization,
+      country,
+      language_code,
+      visibility_code,
+      credibility_status_code,
+      published_date,
+      accessed_at,
+      extracted_summary,
+      relevant_excerpt,
+      attachment_url,
+      duplicate_source_flag
+    FROM sources
+    WHERE source_id = $1::uuid
+    LIMIT 1
+    `,
+    sourceId
+  );
+
+  return rows[0] ?? null;
+}
+
+function sourceGovernanceFieldsChanged(
+  current: SourceGovernanceComparisonRow | null,
+  input: SourceMutationInput
+) {
+  if (!current) {
+    return false;
+  }
+
+  const nextValues: Record<keyof SourceGovernanceComparisonRow, unknown> = {
+    source_type_code: cleanRequiredText(input.source_type_code, "web"),
+    title: cleanOptionalText(input.title),
+    url: cleanOptionalText(input.url),
+    source_reference: cleanOptionalText(input.source_reference),
+    publisher: cleanOptionalText(input.publisher),
+    author_organization: cleanOptionalText(input.author_organization),
+    country: cleanOptionalText(input.country),
+    language_code: cleanOptionalText(input.language_code),
+    visibility_code: cleanRequiredText(input.visibility_code, "public"),
+    credibility_status_code: current.credibility_status_code,
+    published_date: normalizeDateInput(input.published_date),
+    accessed_at: normalizeTimestampInput(input.accessed_at),
+    extracted_summary: cleanOptionalText(input.extracted_summary),
+    relevant_excerpt: cleanOptionalText(input.relevant_excerpt),
+    attachment_url: cleanOptionalText(input.attachment_url),
+    duplicate_source_flag: Boolean(input.duplicate_source_flag),
+  };
+
+  return (
+    normalizeSourceComparisonValue(current.source_type_code) !==
+      normalizeSourceComparisonValue(nextValues.source_type_code) ||
+    normalizeSourceComparisonValue(current.title) !==
+      normalizeSourceComparisonValue(nextValues.title) ||
+    normalizeSourceComparisonValue(current.url) !==
+      normalizeSourceComparisonValue(nextValues.url) ||
+    normalizeSourceComparisonValue(current.source_reference) !==
+      normalizeSourceComparisonValue(nextValues.source_reference) ||
+    normalizeSourceComparisonValue(current.publisher) !==
+      normalizeSourceComparisonValue(nextValues.publisher) ||
+    normalizeSourceComparisonValue(current.author_organization) !==
+      normalizeSourceComparisonValue(nextValues.author_organization) ||
+    normalizeSourceComparisonValue(current.country) !==
+      normalizeSourceComparisonValue(nextValues.country) ||
+    normalizeSourceComparisonValue(current.language_code) !==
+      normalizeSourceComparisonValue(nextValues.language_code) ||
+    normalizeSourceComparisonValue(current.visibility_code) !==
+      normalizeSourceComparisonValue(nextValues.visibility_code) ||
+    normalizeSourceComparisonValue(
+      current.published_date
+        ? normalizeRequiredTimestamp(current.published_date).slice(0, 10)
+        : null
+    ) !== normalizeSourceComparisonValue(nextValues.published_date) ||
+    normalizeSourceComparisonValue(normalizeTimestamp(current.accessed_at)) !==
+      normalizeSourceComparisonValue(nextValues.accessed_at) ||
+    normalizeSourceComparisonValue(current.extracted_summary) !==
+      normalizeSourceComparisonValue(nextValues.extracted_summary) ||
+    normalizeSourceComparisonValue(current.relevant_excerpt) !==
+      normalizeSourceComparisonValue(nextValues.relevant_excerpt) ||
+    normalizeSourceComparisonValue(current.attachment_url) !==
+      normalizeSourceComparisonValue(nextValues.attachment_url) ||
+    normalizeSourceComparisonValue(current.duplicate_source_flag) !==
+      normalizeSourceComparisonValue(nextValues.duplicate_source_flag)
+  );
+}
+
+function deriveUpdatedSourceCredibilityStatus(
+  current: SourceGovernanceComparisonRow | null,
+  requestedStatus: string,
+  governedFieldsChanged: boolean
+) {
+  const currentStatus = current?.credibility_status_code || "needs_review";
+
+  if (
+    governedFieldsChanged &&
+    currentStatus !== "needs_review" &&
+    requestedStatus === currentStatus
+  ) {
+    return "needs_review";
+  }
+
+  return requestedStatus;
 }
 
 function toSourceListItem(row: SourceListRow): SourceListItem {
@@ -1253,6 +1404,16 @@ export async function updateSource(
   input: SourceMutationInput,
   actorUserId?: string | null
 ): Promise<SourceDetail | null> {
+  const currentSource = await getSourceGovernanceComparison(sourceId);
+  const governedFieldsChanged = sourceGovernanceFieldsChanged(
+    currentSource,
+    input
+  );
+  const credibilityStatusCode = deriveUpdatedSourceCredibilityStatus(
+    currentSource,
+    cleanRequiredText(input.credibility_status_code, "needs_review"),
+    governedFieldsChanged
+  );
   const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
   const rows = await getPrismaClient().$queryRawUnsafe<SourceIdRow[]>(
     `
@@ -1301,7 +1462,7 @@ export async function updateSource(
     cleanOptionalText(input.country),
     cleanOptionalText(input.language_code),
     cleanRequiredText(input.visibility_code, "public"),
-    cleanRequiredText(input.credibility_status_code, "needs_review"),
+    credibilityStatusCode,
     normalizeDateInput(input.published_date),
     normalizeTimestampInput(input.accessed_at),
     cleanOptionalText(input.notes),

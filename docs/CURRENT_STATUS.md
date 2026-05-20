@@ -197,6 +197,13 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Approved/export-ready PostgreSQL records now move back to `needs_update`
   when core form fields are changed, keeping re-approval as a separate
   governed review action
+- Source create/edit forms now use the same governance pattern: required and
+  approval-sensitive fields are labeled, edited source metadata is highlighted,
+  and reviewed source records return to `needs_review` when governed metadata
+  changes without an explicit new review decision
+- Evidence-link creation on source edit pages now labels source-to-record link
+  fields as governed evidence context and clarifies that links do not update
+  project, plant/facility, or company fields directly
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
