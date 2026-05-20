@@ -186,6 +186,12 @@ function RoleBadge({ role }: { role: string | null }) {
   );
 }
 
+function confirmStructuredRelationshipRemoval(description: string) {
+  return window.confirm(
+    `Remove ${description}? This removes the structured relationship from this record but does not delete the underlying project, plant/facility, or company.`
+  );
+}
+
 function RemoveButton({
   disabled,
   onClick,
@@ -253,6 +259,18 @@ export function ProjectCompanyLinksPanel({
   }
 
   async function handleDelete(linkId: string) {
+    const link = links.find(
+      (companyLink) => companyLink.company_project_link_id === linkId
+    );
+
+    if (
+      !confirmStructuredRelationshipRemoval(
+        `the company role${link?.company_name ? ` for ${link.company_name}` : ""}`
+      )
+    ) {
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -479,6 +497,18 @@ export function OperatingAssetCompanyLinksPanel({
   }
 
   async function handleDelete(linkId: string) {
+    const link = links.find(
+      (companyLink) => companyLink.company_operating_asset_link_id === linkId
+    );
+
+    if (
+      !confirmStructuredRelationshipRemoval(
+        `the company role${link?.company_name ? ` for ${link.company_name}` : ""}`
+      )
+    ) {
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -701,6 +731,18 @@ function CompanyProjectPortfolio({
   }
 
   async function handleDelete(linkId: string) {
+    const link = links.find(
+      (projectLink) => projectLink.company_project_link_id === linkId
+    );
+
+    if (
+      !confirmStructuredRelationshipRemoval(
+        `the project role${link?.project_name ? ` for ${link.project_name}` : ""}`
+      )
+    ) {
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -882,6 +924,20 @@ function CompanyAssetPortfolio({
   }
 
   async function handleDelete(linkId: string) {
+    const link = links.find(
+      (assetLink) => assetLink.company_operating_asset_link_id === linkId
+    );
+
+    if (
+      !confirmStructuredRelationshipRemoval(
+        `the plant/facility role${
+          link?.asset_name ? ` for ${link.asset_name}` : ""
+        }`
+      )
+    ) {
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
@@ -1082,6 +1138,23 @@ export function CompanyRelationshipPanel({
   }
 
   async function handleDelete(relationshipId: string) {
+    const relationship = relationships.find(
+      (companyRelationship) =>
+        companyRelationship.company_relationship_id === relationshipId
+    );
+
+    if (
+      !confirmStructuredRelationshipRemoval(
+        `the company relationship${
+          relationship?.company_name_from && relationship.company_name_to
+            ? ` between ${relationship.company_name_from} and ${relationship.company_name_to}`
+            : ""
+        }`
+      )
+    ) {
+      return;
+    }
+
     setSaving(true);
     setError("");
     setMessage("");
