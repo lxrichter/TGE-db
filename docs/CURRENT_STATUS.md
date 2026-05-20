@@ -255,6 +255,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   understandable outside the edit forms
 - Article fact candidate values now suppress duplicated trailing units in the
   review UI, avoiding display artifacts such as repeated `MWe`
+- Research Ops filtered CSV export is now disabled for non-review roles in the
+  client UI, aligning the operational export button with the editor/admin export
+  permission model
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

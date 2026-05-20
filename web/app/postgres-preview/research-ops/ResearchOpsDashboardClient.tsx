@@ -3828,6 +3828,10 @@ export function ResearchOpsDashboardClient({
   }
 
   function exportFilteredIssues() {
+    if (!canReviewStatus) {
+      return;
+    }
+
     const rows: unknown[][] = [
       [
         "queue",
@@ -4112,9 +4116,14 @@ export function ResearchOpsDashboardClient({
               </button>
               <button
                 className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={filteredIssueRows === 0}
+                disabled={!canReviewStatus || filteredIssueRows === 0}
                 type="button"
                 onClick={exportFilteredIssues}
+                title={
+                  canReviewStatus
+                    ? undefined
+                    : "Exports require editor or admin permissions."
+                }
               >
                 Export Filtered CSV
               </button>
