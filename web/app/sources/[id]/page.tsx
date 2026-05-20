@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
+import PostgresRecordActionHub, {
+  type PostgresRecordAction,
+} from "@/components/postgres-preview/PostgresRecordActionHub";
 import ArticleFactCandidatesClient from "@/components/sources/ArticleFactCandidatesClient";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import SourceStatusActions from "@/components/sources/SourceStatusActions";
@@ -291,14 +294,16 @@ function DetailField({
 }
 
 function Section({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section id={id} className={id ? "scroll-mt-6 border border-gray-200 bg-white" : "border border-gray-200 bg-white"}>
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       </div>
@@ -367,7 +372,7 @@ function SourceSupportsPanel({
   }, {});
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section id="source-supports" className="scroll-mt-6 border border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-5 py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
@@ -477,6 +482,115 @@ function SourceSupportsPanel({
         </div>
       )}
     </section>
+  );
+}
+
+function SourceActionHub({
+  source,
+  openSourceMatchCount,
+  openArticleFactCount,
+  openFieldSuggestionCount,
+  canReviewSource,
+}: {
+  source: SourceDetail;
+  openSourceMatchCount: number;
+  openArticleFactCount: number;
+  openFieldSuggestionCount: number;
+  canReviewSource: boolean;
+}) {
+  const blockerCount = source.credibility_status_code === "rejected" ? 1 : 0;
+  const warningCount =
+    (source.credibility_status_code === "credible" ? 0 : 1) +
+    (source.linked_entity_count > 0 ? 0 : 1) +
+    (openSourceMatchCount > 0 ? 1 : 0) +
+    (openArticleFactCount > 0 ? 1 : 0) +
+    (openFieldSuggestionCount > 0 ? 1 : 0);
+  const actions: PostgresRecordAction[] = [
+    {
+      label: "Edit Source Metadata",
+      detail:
+        "Update title, URL/reference, source type, visibility, publication date, and notes.",
+      href: `/sources/${source.source_id}/edit`,
+      tone: "neutral",
+    },
+    {
+      label: "Review Credibility",
+      detail:
+        source.credibility_status_code === "credible"
+          ? "Source is currently marked credible for evidence use."
+          : canReviewSource
+            ? "Mark this source credible, weak, outdated, rejected, or needs review."
+            : "Credibility changes require editor/admin permissions.",
+      href: canReviewSource ? "#source-credibility-actions" : "#source-review-metadata",
+      tone:
+        source.credibility_status_code === "credible"
+          ? "ready"
+          : source.credibility_status_code === "rejected"
+            ? "blocker"
+            : "warning",
+      primary: source.credibility_status_code !== "credible",
+    },
+    {
+      label: "What It Supports",
+      detail:
+        source.linked_entity_count > 0
+          ? `${formatCount(source.linked_entity_count)} confirmed evidence link${
+              source.linked_entity_count === 1 ? "" : "s"
+            } across projects, plants/facilities, or companies.`
+          : "No confirmed evidence links yet. Review matches or link this source.",
+      href: "#source-supports",
+      tone: source.linked_entity_count > 0 ? "ready" : "warning",
+    },
+    {
+      label: "Linked Evidence Table",
+      detail:
+        "Inspect linked fields, claims, extracted values, confidence, and primary evidence flags.",
+      href: "#source-linked-evidence",
+      tone: source.linked_entity_count > 0 ? "ready" : "neutral",
+    },
+  ];
+
+  if (openSourceMatchCount > 0) {
+    actions.push({
+      label: "Review Match Candidates",
+      detail: `${formatCount(openSourceMatchCount)} article/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } waiting for review.`,
+      href: "#source-match-candidates",
+      tone: "warning",
+    });
+  }
+
+  if (openArticleFactCount > 0) {
+    actions.push({
+      label: "Review Extracted Facts",
+      detail: `${formatCount(openArticleFactCount)} fact candidate${
+        openArticleFactCount === 1 ? "" : "s"
+      } waiting for human review.`,
+      href: "#source-fact-candidates",
+      tone: "warning",
+    });
+  }
+
+  if (openFieldSuggestionCount > 0) {
+    actions.push({
+      label: "Review AI Suggestions",
+      detail: `${formatCount(openFieldSuggestionCount)} field suggestion${
+        openFieldSuggestionCount === 1 ? "" : "s"
+      } connected to this source.`,
+      href: "#source-ai-suggestions",
+      tone: "warning",
+    });
+  }
+
+  return (
+    <PostgresRecordActionHub
+      actions={actions}
+      blockerCount={blockerCount}
+      description="Use this as the operational entry point for this source: review credibility, confirm what it supports, inspect extracted facts, and control AI-assisted evidence workflows."
+      title="Source Action Hub"
+      warningCount={warningCount}
+    />
   );
 }
 
@@ -841,6 +955,14 @@ export default async function SourceDetailPage({
         />
       </section>
 
+      <SourceActionHub
+        canReviewSource={canReviewSource}
+        openArticleFactCount={openArticleFactCount}
+        openFieldSuggestionCount={openFieldSuggestionCount}
+        openSourceMatchCount={openSourceMatchCount}
+        source={source}
+      />
+
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <SourceSupportsPanel
           links={source.links}
@@ -863,7 +985,7 @@ export default async function SourceDetailPage({
         />
       </section>
 
-      <Section title="Reference">
+      <Section id="source-reference" title="Reference">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <DetailField
             label="URL"
@@ -894,7 +1016,7 @@ export default async function SourceDetailPage({
         </div>
       </Section>
 
-      <Section title="Summary And Notes">
+      <Section id="source-summary-notes" title="Summary And Notes">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <DetailField
             label="Extracted Summary"
@@ -925,7 +1047,7 @@ export default async function SourceDetailPage({
         </div>
       </Section>
 
-      <Section title="Linked Evidence">
+      <Section id="source-linked-evidence" title="Linked Evidence">
         <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
           <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
             <div className="font-semibold text-[#1f2937]">Evidence link</div>
@@ -952,27 +1074,35 @@ export default async function SourceDetailPage({
         <LinkedEntityTable links={source.links} />
       </Section>
 
-      <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+      <div id="source-match-candidates" className="scroll-mt-6">
+        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+      </div>
 
-      <ArticleFactCandidatesClient
-        canReview={canReviewSource}
-        candidates={articleFactCandidates}
-      />
+      <div id="source-fact-candidates" className="scroll-mt-6">
+        <ArticleFactCandidatesClient
+          canReview={canReviewSource}
+          candidates={articleFactCandidates}
+        />
+      </div>
 
-      <PostgresFieldSuggestionsPanel
-        canReviewStatus={canReviewSource}
-        candidates={fieldSuggestionCandidates}
-        showEntity
-      />
+      <div id="source-ai-suggestions" className="scroll-mt-6">
+        <PostgresFieldSuggestionsPanel
+          canReviewStatus={canReviewSource}
+          candidates={fieldSuggestionCandidates}
+          showEntity
+        />
+      </div>
 
       {canReviewSource ? (
-        <SourceStatusActions
-          sourceId={source.source_id}
-          currentStatus={source.credibility_status_code}
-        />
+        <div id="source-credibility-actions" className="scroll-mt-6">
+          <SourceStatusActions
+            sourceId={source.source_id}
+            currentStatus={source.credibility_status_code}
+          />
+        </div>
       ) : null}
 
-      <Section title="Review Metadata">
+      <Section id="source-review-metadata" title="Review Metadata">
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
           <DetailField label="Added By" value={source.added_by_name || "Unknown"} />
           <DetailField label="Reviewed By" value={source.reviewed_by_name || "-"} />
