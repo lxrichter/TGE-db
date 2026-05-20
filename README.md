@@ -41,11 +41,12 @@ Intended build direction:
 - refactor or rebuild unstable implementation areas
 - define a stronger semantic model for geothermal capacity, lifecycle phases, roles, and relationships
 - migrate toward a stronger production database foundation on PostgreSQL
-- plan deployment around Railway as the intended hosting platform
+- use local/Railway PostgreSQL for controlled staging while preparing the final
+  app deployment path around the ThinkGeoEnergy Hetzner server environment
 - use Prisma as the PostgreSQL migration and application data-access foundation
 - keep PostgreSQL staging workflows under `/postgres-preview` until they are
   ready to replace the current SQLite prototype routes
-- use the copied Hetzner SQLite backup imported into Railway PostgreSQL staging
+- use the copied Hetzner SQLite backup imported into PostgreSQL staging
   as a controlled review baseline while the current live database remains on
   the server
 - add source registry and AI-assisted research support only after the core model and workflow are stable
@@ -113,6 +114,13 @@ cd web
 railway run --service Postgres -- npm run dev
 ```
 
+Railway is currently a staging/development aid, not a final production hosting
+decision. The final app-hosting target is expected to be the ThinkGeoEnergy
+Hetzner server environment, currently serving `internal.thinkgeoenergy.com`.
+Production PostgreSQL hosting still needs a final decision: Hetzner-hosted
+PostgreSQL for maximum control, or managed PostgreSQL to reduce operations
+burden.
+
 Primary PostgreSQL staging routes:
 
 ```text
@@ -172,6 +180,7 @@ Start here:
 - [docs/SEMANTIC_MODEL_V1.md](docs/SEMANTIC_MODEL_V1.md)
 - [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md)
 - [docs/DEPLOYMENT_BASELINE.md](docs/DEPLOYMENT_BASELINE.md)
+- [docs/HETZNER_DEPLOYMENT_PREP.md](docs/HETZNER_DEPLOYMENT_PREP.md)
 - [docs/DATA_AND_SECURITY.md](docs/DATA_AND_SECURITY.md)
 - [docs/PAGE_REVIEW_PROTOCOL.md](docs/PAGE_REVIEW_PROTOCOL.md)
 - [docs/schema/README.md](docs/schema/README.md)
@@ -193,7 +202,7 @@ PostgreSQL schema baseline:
 
 Current PostgreSQL staging implementation:
 
-- `/postgres-preview` reads Railway PostgreSQL staging records
+- `/postgres-preview` reads PostgreSQL staging records
 - `/postgres-preview/projects`, `/postgres-preview/operating-assets`, and
   `/postgres-preview/companies` provide PostgreSQL staging list entry points
 - `/postgres-preview/projects/new` and `/postgres-preview/projects/[id]/edit`
@@ -227,8 +236,8 @@ Current PostgreSQL staging implementation:
 
 These PostgreSQL routes are current implementation work in progress. They do
 not yet replace the SQLite prototype. A copied 2026-05-18 Hetzner SQLite backup
-has been transformed into Railway PostgreSQL staging for controlled review; the
-current live SQLite database remains on the server and local database files stay
+has been transformed into PostgreSQL staging for controlled review; the current
+live SQLite database remains on the server and local database files stay
 ignored by Git.
 
 Live SQLite migration preparation is now handled through a local, read-only
