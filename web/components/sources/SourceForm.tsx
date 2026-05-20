@@ -340,12 +340,18 @@ function FormReadinessPanel({
   changeState,
   currentCredibilityStatus,
   mode,
+  sourceId,
 }: {
   form: SourceFormValues;
   changeState: SourceChangeState;
   currentCredibilityStatus?: string | null;
   mode: "create" | "edit";
+  sourceId?: string;
 }) {
+  const router = useRouter();
+  const [creatingIssue, setCreatingIssue] = useState(false);
+  const [issueActionError, setIssueActionError] = useState("");
+  const [issueActionMessage, setIssueActionMessage] = useState("");
   const hasIdentifier = Boolean(
     form.title.trim() || form.url.trim() || form.source_reference.trim()
   );
@@ -373,6 +379,63 @@ function FormReadinessPanel({
     approvalSensitiveCount > 0 &&
     currentCredibilityStatus !== "needs_review" &&
     form.credibility_status_code === currentCredibilityStatus;
+  const canCreateSourceIssue =
+    Boolean(sourceId) &&
+    mode === "edit" &&
+    (reviewedSourceWillNeedReview || form.duplicate_source_flag || issues.length > 0);
+
+  async function createSourceReviewIssue() {
+    if (!sourceId) {
+      return;
+    }
+
+    setCreatingIssue(true);
+    setIssueActionError("");
+    setIssueActionMessage("");
+
+    try {
+      const res = await fetch("/api/postgres-preview/research-ops/issues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_type: "source",
+          entity_id: sourceId,
+          issue_type_code: form.duplicate_source_flag
+            ? "duplicate_suspected"
+            : "source_validation",
+          title: form.duplicate_source_flag
+            ? "Review possible duplicate source"
+            : "Review source metadata changes",
+          description:
+            issues.length > 0
+              ? issues.join(" ")
+              : "Source metadata or credibility-relevant fields changed and should be reviewed.",
+          linked_field: reviewedSourceWillNeedReview
+            ? "source_metadata"
+            : form.duplicate_source_flag
+              ? "duplicate_source_flag"
+              : "source_review",
+          assign_to_self: true,
+        }),
+      });
+      const json = await safeJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to create source review issue.");
+      }
+
+      setIssueActionMessage("Source review issue created and assigned to you.");
+      router.refresh();
+    } catch (error) {
+      setIssueActionError(
+        error instanceof Error
+          ? error.message
+          : "Failed to create source review issue."
+      );
+    } finally {
+      setCreatingIssue(false);
+    }
+  }
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -440,6 +503,30 @@ function FormReadinessPanel({
           </div>
         </div>
       </div>
+      {issueActionError || issueActionMessage || canCreateSourceIssue ? (
+        <div className="space-y-3 border-t border-gray-200 px-5 py-4">
+          {issueActionError ? (
+            <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {issueActionError}
+            </div>
+          ) : null}
+          {issueActionMessage ? (
+            <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+              {issueActionMessage}
+            </div>
+          ) : null}
+          {canCreateSourceIssue ? (
+            <button
+              className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={creatingIssue}
+              type="button"
+              onClick={createSourceReviewIssue}
+            >
+              {creatingIssue ? "Creating..." : "Add Source Review Issue"}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {issues.length > 0 ? (
         <div className="border-t border-gray-200 px-5 py-4">
           <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -961,6 +1048,7 @@ export default function SourceForm({
           currentCredibilityStatus={source?.credibility_status_code}
           form={form}
           mode={mode}
+          sourceId={source?.source_id}
         />
 
         <Section title="Source Identity">
