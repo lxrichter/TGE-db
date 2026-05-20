@@ -388,6 +388,66 @@ function recordKey(record: ResearchOpsRecord) {
   return `${record.entity_type}-${record.entity_id}`;
 }
 
+function entityAnchorPrefix(entityType: EntityType) {
+  if (entityType === "operating_asset") {
+    return "asset";
+  }
+
+  return entityType;
+}
+
+function entityAnchorForQueue(record: ResearchOpsRecord) {
+  if (!("queue_key" in record) || record.entity_type === "source") {
+    return null;
+  }
+
+  const prefix = entityAnchorPrefix(record.entity_type);
+
+  if (record.queue_key === "needs_source") {
+    return `${prefix}-source-evidence`;
+  }
+
+  if (record.queue_key === "missing_company_link") {
+    return record.entity_type === "company"
+      ? "company-relationships"
+      : `${prefix}-company-links`;
+  }
+
+  if (record.queue_key === "missing_capacity") {
+    if (record.entity_type === "project") {
+      return "project-resource-timeline";
+    }
+
+    if (record.entity_type === "operating_asset") {
+      return "asset-operating-data";
+    }
+
+    return null;
+  }
+
+  if (
+    record.queue_key === "missing_country" ||
+    record.queue_key === "missing_lifecycle" ||
+    record.queue_key === "missing_use_type" ||
+    record.queue_key === "missing_coordinates" ||
+    record.queue_key === "direct_use_classification"
+  ) {
+    return record.entity_type === "company"
+      ? "company-classification"
+      : `${prefix}-identity-location`;
+  }
+
+  if (
+    record.queue_key === "needs_approval" ||
+    record.queue_key === "needs_update" ||
+    record.queue_key === "suspected_duplicates"
+  ) {
+    return `${prefix}-export-readiness`;
+  }
+
+  return null;
+}
+
 function statusOptionsForTarget({
   target,
   reviewStatuses,
@@ -435,20 +495,23 @@ function scrollToPageSection(sectionId: string) {
 }
 
 function recordHref(record: ResearchOpsRecord) {
+  const anchor = entityAnchorForQueue(record);
+  const anchorSuffix = anchor ? `#${anchor}` : "";
+
   if (record.entity_type === "source") {
     return `/sources/${record.entity_id}`;
   }
 
   if (record.entity_type === "project") {
-    return `/postgres-preview/projects/${record.entity_id}`;
+    return `/postgres-preview/projects/${record.entity_id}${anchorSuffix}`;
   }
 
   if (record.entity_type === "operating_asset") {
-    return `/postgres-preview/operating-assets/${record.entity_id}`;
+    return `/postgres-preview/operating-assets/${record.entity_id}${anchorSuffix}`;
   }
 
   if (record.entity_type === "company") {
-    return `/postgres-preview/companies/${record.entity_id}`;
+    return `/postgres-preview/companies/${record.entity_id}${anchorSuffix}`;
   }
 
   return null;
@@ -1212,14 +1275,14 @@ function ArticleFactReviewPanel({
 
 function fieldSuggestionHref(candidate: PostgresFieldSuggestionCandidate) {
   if (candidate.entity_type === "project") {
-    return `/postgres-preview/projects/${candidate.entity_id}`;
+    return `/postgres-preview/projects/${candidate.entity_id}#project-ai-suggestions`;
   }
 
   if (candidate.entity_type === "operating_asset") {
-    return `/postgres-preview/operating-assets/${candidate.entity_id}`;
+    return `/postgres-preview/operating-assets/${candidate.entity_id}#asset-ai-suggestions`;
   }
 
-  return `/postgres-preview/companies/${candidate.entity_id}`;
+  return `/postgres-preview/companies/${candidate.entity_id}#company-ai-suggestions`;
 }
 
 function isAppliedFieldSuggestion(candidate: PostgresFieldSuggestionCandidate) {
@@ -1966,7 +2029,8 @@ function EntityTable({
                       >
                         Add Source
                       </Link>
-                    ) : href ? (
+                    ) : null}
+                    {href ? (
                       <Link
                         className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                         href={href}

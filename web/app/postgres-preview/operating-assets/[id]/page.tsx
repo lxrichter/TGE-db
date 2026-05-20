@@ -612,7 +612,7 @@ export default async function PostgresOperatingAssetDetailPage({
         researchIssues={researchIssues}
       />
 
-      <DetailSection title="Identity And Location">
+      <DetailSection id="asset-identity-location" title="Identity And Location">
         <DetailFieldGrid
           fields={[
             { label: "Legacy ID", value: asset.legacy_plant_id },

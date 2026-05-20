@@ -607,7 +607,7 @@ export default async function PostgresProjectDetailPage({
         researchIssues={researchIssues}
       />
 
-      <DetailSection title="Identity And Location">
+      <DetailSection id="project-identity-location" title="Identity And Location">
         <DetailFieldGrid
           fields={[
             { label: "Legacy ID", value: project.legacy_project_id },
@@ -623,7 +623,10 @@ export default async function PostgresProjectDetailPage({
         />
       </DetailSection>
 
-      <DetailSection title="Resource, Capacity, And Timeline">
+      <DetailSection
+        id="project-resource-timeline"
+        title="Resource, Capacity, And Timeline"
+      >
         <DetailFieldGrid
           fields={[
             { label: "Resource Type", value: project.resource_type },
