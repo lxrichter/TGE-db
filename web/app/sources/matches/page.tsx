@@ -1,5 +1,8 @@
 import Link from "next/link";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
+import SourceReviewFilterChips, {
+  type SourceReviewFilterChip,
+} from "@/components/sources/SourceReviewFilterChips";
 import { formatCount } from "@/lib/format";
 import {
   countSourceMatchCandidates,
@@ -72,6 +75,13 @@ function sourceMatchHref(
 
   const query = params.toString();
   return query ? `/sources/matches?${query}` : "/sources/matches";
+}
+
+function sourceMatchFilterHref(
+  filters: SourceMatchSearchParams,
+  overrides: Partial<SourceMatchSearchParams>
+) {
+  return sourceMatchHref({ ...filters, ...overrides, page: undefined }, 1);
 }
 
 async function getSourceMatchData(
@@ -164,6 +174,47 @@ export default async function SourceMatchCandidatesPage({
     page: cleanParam(resolvedSearchParams.page),
   };
   const data = await getSourceMatchData(filters);
+  const activeFilterChips: SourceReviewFilterChip[] = data.ok
+    ? [
+        filters.search
+          ? {
+              key: "search",
+              label: "Search",
+              value: filters.search,
+              href: sourceMatchFilterHref(filters, { search: undefined }),
+            }
+          : null,
+        filters.status
+          ? {
+              key: "status",
+              label: "Status",
+              value:
+                data.statuses.find((status) => status.code === filters.status)
+                  ?.label || filters.status,
+              href: sourceMatchFilterHref(filters, { status: undefined }),
+            }
+          : null,
+        filters.entityType
+          ? {
+              key: "entityType",
+              label: "Entity Type",
+              value:
+                entityTypeOptions.find(
+                  (option) => option.code === filters.entityType
+                )?.label || filters.entityType,
+              href: sourceMatchFilterHref(filters, { entityType: undefined }),
+            }
+          : null,
+        filters.flagged
+          ? {
+              key: "flagged",
+              label: "Review Flags",
+              value: "Flagged only",
+              href: sourceMatchFilterHref(filters, { flagged: undefined }),
+            }
+          : null,
+      ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
+    : [];
 
   return (
     <main className="space-y-8">
@@ -323,6 +374,11 @@ export default async function SourceMatchCandidatesPage({
                 </Link>
               </div>
             </form>
+            <SourceReviewFilterChips
+              chips={activeFilterChips}
+              resetHref="/sources/matches"
+              emptyLabel="All article match candidates"
+            />
           </section>
 
           <SourceMatchCandidatesClient candidates={data.candidates} />

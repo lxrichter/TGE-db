@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import ArticleFactCandidatesClient from "@/components/sources/ArticleFactCandidatesClient";
+import SourceReviewFilterChips, {
+  type SourceReviewFilterChip,
+} from "@/components/sources/SourceReviewFilterChips";
 import { getArticleFactTypeDefinition } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
@@ -72,6 +75,13 @@ function articleFactHref(filters: ArticleFactSearchParams, nextPage: number) {
 
   const query = params.toString();
   return query ? `/sources/facts?${query}` : "/sources/facts";
+}
+
+function articleFactFilterHref(
+  filters: ArticleFactSearchParams,
+  overrides: Partial<ArticleFactSearchParams>
+) {
+  return articleFactHref({ ...filters, ...overrides, page: undefined }, 1);
 }
 
 async function getArticleFactData(
@@ -288,6 +298,48 @@ export default async function ArticleFactCandidatesPage({
     page: cleanParam(resolvedSearchParams.page),
   };
   const data = await getArticleFactData(filters);
+  const activeFilterChips: SourceReviewFilterChip[] = data.ok
+    ? [
+        filters.search
+          ? {
+              key: "search",
+              label: "Search",
+              value: filters.search,
+              href: articleFactFilterHref(filters, { search: undefined }),
+            }
+          : null,
+        filters.status
+          ? {
+              key: "status",
+              label: "Status",
+              value:
+                data.statuses.find((status) => status.code === filters.status)
+                  ?.label || filters.status,
+              href: articleFactFilterHref(filters, { status: undefined }),
+            }
+          : null,
+        filters.factType
+          ? {
+              key: "factType",
+              label: "Fact Type",
+              value:
+                data.factTypes.find((factType) => factType.code === filters.factType)
+                  ?.label || filters.factType,
+              href: articleFactFilterHref(filters, { factType: undefined }),
+            }
+          : null,
+        filters.fieldName
+          ? {
+              key: "fieldName",
+              label: "Field",
+              value:
+                data.fieldNames.find((field) => field.code === filters.fieldName)
+                  ?.label || filters.fieldName,
+              href: articleFactFilterHref(filters, { fieldName: undefined }),
+            }
+          : null,
+      ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
+    : [];
 
   return (
     <main className="space-y-8">
@@ -430,6 +482,11 @@ export default async function ArticleFactCandidatesPage({
                 </Link>
               </div>
             </form>
+            <SourceReviewFilterChips
+              chips={activeFilterChips}
+              resetHref="/sources/facts"
+              emptyLabel="All article fact candidates"
+            />
           </section>
 
           <FactTypeTrainingCard factType={filters.factType} />
