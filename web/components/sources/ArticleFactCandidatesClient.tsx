@@ -154,6 +154,11 @@ export default function ArticleFactCandidatesClient({
     });
   }
 
+  function clearSelection() {
+    setSelected(new Set());
+    setMessage(null);
+  }
+
   function runAction(action: ArticleFactCandidateAction) {
     if (!canReview) {
       setMessage("You need editor permissions to update article fact candidates.");
@@ -234,6 +239,14 @@ export default function ArticleFactCandidatesClient({
             className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
           >
             Needs Review
+          </button>
+          <button
+            type="button"
+            disabled={isPending || selected.size === 0}
+            onClick={clearSelection}
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+          >
+            Clear
           </button>
         </div>
       </div>
