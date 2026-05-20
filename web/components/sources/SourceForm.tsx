@@ -256,6 +256,19 @@ function SourceLinkManager({
   }
 
   async function handleDeleteLink(linkId: string) {
+    const link = source.links.find(
+      (sourceLink) => sourceLink.entity_source_id === linkId
+    );
+    const confirmed = window.confirm(
+      `Remove this evidence link${
+        link?.entity_name ? ` to ${link.entity_name}` : ""
+      }? This unlinks the source from the record but does not delete the source itself.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     setSavingLink(true);
     setLinkError("");
     setLinkMessage("");
