@@ -87,6 +87,7 @@ export type PostgresPreviewProjectListFilters = {
   useType?: string;
   status?: string;
   missing?: string;
+  researchIssueEntityIds?: string[];
 };
 
 export type PostgresPreviewOperatingAssetListFilters = {
@@ -96,6 +97,7 @@ export type PostgresPreviewOperatingAssetListFilters = {
   useType?: string;
   status?: string;
   missing?: string;
+  researchIssueEntityIds?: string[];
 };
 
 export type PostgresPreviewCompanyListFilters = {
@@ -104,6 +106,7 @@ export type PostgresPreviewCompanyListFilters = {
   reviewStatus?: string;
   companyType?: string;
   missing?: string;
+  researchIssueEntityIds?: string[];
 };
 
 export type PostgresPreviewListFacets = {
@@ -1599,6 +1602,10 @@ type OpenResearchOpsIssueCountRow = {
   critical_issue_count: number | bigint | string;
 };
 
+type OpenResearchOpsIssueEntityIdRow = {
+  entity_id: string;
+};
+
 type OpenResearchOpsIssueCounts = {
   open_issue_count: number;
   critical_issue_count: number;
@@ -1647,6 +1654,54 @@ async function listOpenResearchOpsIssueCounts({
       },
     ])
   );
+}
+
+async function listOpenResearchOpsIssueEntityIds({
+  entityType,
+  entityColumn,
+}: {
+  entityType: "project" | "operating_asset" | "company";
+  entityColumn: "project_id" | "operating_asset_id" | "company_id";
+}) {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    OpenResearchOpsIssueEntityIdRow[]
+  >(
+    `
+    SELECT DISTINCT i.${entityColumn}::text AS entity_id
+    FROM research_ops_issues i
+    INNER JOIN ref_research_issue_statuses ist
+      ON ist.code = i.issue_status_code
+    WHERE
+      i.entity_type = $1
+      AND i.${entityColumn} IS NOT NULL
+      AND ist.is_open = TRUE
+    `,
+    entityType
+  );
+
+  return rows.map((row) => row.entity_id);
+}
+
+async function resolveResearchIssueFilter<T extends { missing?: string }>({
+  filters,
+  entityType,
+  entityColumn,
+}: {
+  filters: T;
+  entityType: "project" | "operating_asset" | "company";
+  entityColumn: "project_id" | "operating_asset_id" | "company_id";
+}): Promise<T & { researchIssueEntityIds?: string[] }> {
+  if (cleanFilterValue(filters.missing) !== "research_issue") {
+    return filters;
+  }
+
+  return {
+    ...filters,
+    researchIssueEntityIds: await listOpenResearchOpsIssueEntityIds({
+      entityType,
+      entityColumn,
+    }),
+  };
 }
 
 function openResearchOpsIssueCountsFor(
@@ -1714,6 +1769,7 @@ function buildProjectListWhere(
   const useType = cleanFilterValue(filters.useType);
   const status = cleanFilterValue(filters.status);
   const missing = cleanFilterValue(filters.missing);
+  const researchIssueEntityIds = filters.researchIssueEntityIds;
   const where: Prisma.projectsWhereInput = {};
   const and: Prisma.projectsWhereInput[] = [];
 
@@ -1772,6 +1828,8 @@ function buildProjectListWhere(
     and.push({ entity_sources: { none: {} } });
   } else if (missing === "company_link") {
     and.push({ company_project_links: { none: {} } });
+  } else if (missing === "research_issue") {
+    and.push({ project_id: { in: researchIssueEntityIds || [] } });
   }
 
   if (and.length > 0) {
@@ -1790,6 +1848,7 @@ function buildOperatingAssetListWhere(
   const useType = cleanFilterValue(filters.useType);
   const status = cleanFilterValue(filters.status);
   const missing = cleanFilterValue(filters.missing);
+  const researchIssueEntityIds = filters.researchIssueEntityIds;
   const where: Prisma.operating_assetsWhereInput = {};
   const and: Prisma.operating_assetsWhereInput[] = [];
 
@@ -1849,6 +1908,10 @@ function buildOperatingAssetListWhere(
     and.push({ company_operating_asset_links: { none: {} } });
   } else if (missing === "cod") {
     and.push({ cod_year: null });
+  } else if (missing === "research_issue") {
+    and.push({
+      operating_asset_id: { in: researchIssueEntityIds || [] },
+    });
   }
 
   if (and.length > 0) {
@@ -1866,6 +1929,7 @@ function buildCompanyListWhere(
   const reviewStatus = cleanFilterValue(filters.reviewStatus);
   const companyType = cleanFilterValue(filters.companyType);
   const missing = cleanFilterValue(filters.missing);
+  const researchIssueEntityIds = filters.researchIssueEntityIds;
   const where: Prisma.companiesWhereInput = {};
   const and: Prisma.companiesWhereInput[] = [];
 
@@ -1912,6 +1976,8 @@ function buildCompanyListWhere(
       company_project_links: { none: {} },
       company_operating_asset_links: { none: {} },
     });
+  } else if (missing === "research_issue") {
+    and.push({ company_id: { in: researchIssueEntityIds || [] } });
   }
 
   if (and.length > 0) {
@@ -1928,7 +1994,12 @@ export async function listPostgresPreviewProjects(
 ): Promise<PostgresPreviewProject[]> {
   const { limit, offset } = normalizePreviewListOptions(options);
   const filters = typeof options === "number" ? undefined : options.filters;
-  const where = buildProjectListWhere(filters);
+  const resolvedFilters = await resolveResearchIssueFilter({
+    filters: filters || {},
+    entityType: "project",
+    entityColumn: "project_id",
+  });
+  const where = buildProjectListWhere(resolvedFilters);
   const rows = await getPrismaClient().projects.findMany({
     where,
     select: {
@@ -1995,7 +2066,12 @@ export async function listPostgresPreviewOperatingAssets(
 ): Promise<PostgresPreviewOperatingAsset[]> {
   const { limit, offset } = normalizePreviewListOptions(options);
   const filters = typeof options === "number" ? undefined : options.filters;
-  const where = buildOperatingAssetListWhere(filters);
+  const resolvedFilters = await resolveResearchIssueFilter({
+    filters: filters || {},
+    entityType: "operating_asset",
+    entityColumn: "operating_asset_id",
+  });
+  const where = buildOperatingAssetListWhere(resolvedFilters);
   const rows = await getPrismaClient().operating_assets.findMany({
     where,
     select: {
@@ -2063,7 +2139,12 @@ export async function listPostgresPreviewCompanies(
 ): Promise<PostgresPreviewCompany[]> {
   const { limit, offset } = normalizePreviewListOptions(options);
   const filters = typeof options === "number" ? undefined : options.filters;
-  const where = buildCompanyListWhere(filters);
+  const resolvedFilters = await resolveResearchIssueFilter({
+    filters: filters || {},
+    entityType: "company",
+    entityColumn: "company_id",
+  });
+  const where = buildCompanyListWhere(resolvedFilters);
   const rows = await getPrismaClient().companies.findMany({
     where,
     select: {
@@ -2107,24 +2188,42 @@ export async function listPostgresPreviewCompanies(
 export async function countPostgresPreviewProjects(
   filters: PostgresPreviewProjectListFilters = {}
 ) {
+  const resolvedFilters = await resolveResearchIssueFilter({
+    filters,
+    entityType: "project",
+    entityColumn: "project_id",
+  });
+
   return getPrismaClient().projects.count({
-    where: buildProjectListWhere(filters),
+    where: buildProjectListWhere(resolvedFilters),
   });
 }
 
 export async function countPostgresPreviewOperatingAssets(
   filters: PostgresPreviewOperatingAssetListFilters = {}
 ) {
+  const resolvedFilters = await resolveResearchIssueFilter({
+    filters,
+    entityType: "operating_asset",
+    entityColumn: "operating_asset_id",
+  });
+
   return getPrismaClient().operating_assets.count({
-    where: buildOperatingAssetListWhere(filters),
+    where: buildOperatingAssetListWhere(resolvedFilters),
   });
 }
 
 export async function countPostgresPreviewCompanies(
   filters: PostgresPreviewCompanyListFilters = {}
 ) {
+  const resolvedFilters = await resolveResearchIssueFilter({
+    filters,
+    entityType: "company",
+    entityColumn: "company_id",
+  });
+
   return getPrismaClient().companies.count({
-    where: buildCompanyListWhere(filters),
+    where: buildCompanyListWhere(resolvedFilters),
   });
 }
 

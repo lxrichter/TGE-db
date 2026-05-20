@@ -159,6 +159,7 @@ function appendPersistentIssueBadges(
         criticalIssueCount === 1 ? "" : "s"
       }`,
       tone: "critical",
+      missingFilter: "research_issue",
     });
   }
 
@@ -170,6 +171,7 @@ function appendPersistentIssueBadges(
         nonCriticalIssueCount === 1 ? "" : "s"
       }`,
       tone: "workflow",
+      missingFilter: "research_issue",
     });
   }
 

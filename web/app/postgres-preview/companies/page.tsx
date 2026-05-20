@@ -57,6 +57,7 @@ const companyMissingOptions: PreviewFilterOption[] = [
   { value: "primary_type", label: "Missing Primary Type" },
   { value: "source", label: "Missing Source" },
   { value: "activity_link", label: "Missing Project / Asset Link" },
+  { value: "research_issue", label: "Open Research Ops Issues" },
 ];
 
 const companyQuickViews: PreviewQuickView[] = [
@@ -89,6 +90,11 @@ const companyQuickViews: PreviewQuickView[] = [
     label: "Missing Primary Type",
     description: "Companies without controlled primary category.",
     query: { missing: "primary_type" },
+  },
+  {
+    label: "Open Issues",
+    description: "Companies with persistent Research Ops follow-ups.",
+    query: { missing: "research_issue" },
   },
   {
     label: "Drafts",

@@ -223,6 +223,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company list rows now surface open
   persistent Research Ops issue counts directly in their issue badges, so
   form-created follow-ups remain visible outside the Research Ops page
+- PostgreSQL project, plant/facility, and company list pages now support an
+  `Open Research Ops Issues` quick view/filter, and issue-count badges link
+  into that filtered worklist state
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

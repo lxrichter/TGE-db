@@ -60,6 +60,7 @@ const projectMissingOptions: PreviewFilterOption[] = [
   { value: "status", label: "Missing Lifecycle / Status" },
   { value: "source", label: "Missing Source" },
   { value: "company_link", label: "Missing Company Link" },
+  { value: "research_issue", label: "Open Research Ops Issues" },
 ];
 
 const projectQuickViews: PreviewQuickView[] = [
@@ -87,6 +88,11 @@ const projectQuickViews: PreviewQuickView[] = [
     label: "Missing Company Link",
     description: "Projects without structured company relationships.",
     query: { missing: "company_link" },
+  },
+  {
+    label: "Open Issues",
+    description: "Projects with persistent Research Ops follow-ups.",
+    query: { missing: "research_issue" },
   },
   {
     label: "Direct-Use",

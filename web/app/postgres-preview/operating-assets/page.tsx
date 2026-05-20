@@ -61,6 +61,7 @@ const operatingAssetMissingOptions: PreviewFilterOption[] = [
   { value: "source", label: "Missing Source" },
   { value: "company_link", label: "Missing Company Link" },
   { value: "cod", label: "Missing COD / Year" },
+  { value: "research_issue", label: "Open Research Ops Issues" },
 ];
 
 const operatingAssetQuickViews: PreviewQuickView[] = [
@@ -93,6 +94,11 @@ const operatingAssetQuickViews: PreviewQuickView[] = [
     label: "Missing COD",
     description: "Operating assets missing commissioning year.",
     query: { missing: "cod" },
+  },
+  {
+    label: "Open Issues",
+    description: "Assets with persistent Research Ops follow-ups.",
+    query: { missing: "research_issue" },
   },
   {
     label: "Direct-Use",
