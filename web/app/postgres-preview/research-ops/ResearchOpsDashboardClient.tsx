@@ -2964,6 +2964,45 @@ function PersistentIssues({
     await setIssueStatus(issue, issue.issue_status_code, { assignToUserId });
   }
 
+  function exportVisibleIssues() {
+    const rows: unknown[][] = [
+      [
+        "issue_type",
+        "severity",
+        "status",
+        "entity_type",
+        "entity_id",
+        "legacy_id",
+        "record_name",
+        "country",
+        "linked_field",
+        "title",
+        "description",
+        "assigned_to",
+        "created_by",
+        "updated_at",
+      ],
+      ...visibleIssues.map((issue) => [
+        issue.issue_type_label,
+        issue.severity,
+        issue.issue_status_label,
+        issue.entity_type,
+        issue.entity_id,
+        issue.legacy_id,
+        issue.name,
+        issue.country,
+        issue.linked_field,
+        issue.title,
+        issue.description,
+        issue.assigned_to_name,
+        issue.created_by_name,
+        issue.updated_at,
+      ]),
+    ];
+
+    downloadCsv("tge-research-ops-persistent-issues.csv", rows);
+  }
+
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
@@ -3083,6 +3122,14 @@ function PersistentIssues({
               onClick={clearPersistentIssueFilters}
             >
               Clear Issue Filters
+            </button>
+            <button
+              className="h-10 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={visibleIssues.length === 0}
+              type="button"
+              onClick={exportVisibleIssues}
+            >
+              Export Issues CSV
             </button>
             {currentUser ? (
               <span className="self-center text-xs font-medium text-gray-500">

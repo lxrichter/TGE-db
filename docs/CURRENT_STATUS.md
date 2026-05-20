@@ -218,6 +218,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Research Ops persistent issues now support assignment, issue-type, and
   linked-field filtering, with field-linked issue counts and a dedicated field
   column for faster review of form-created follow-ups
+- Filtered persistent Research Ops issues can now be exported as a CSV work
+  list, including linked field, assignment, status, entity, and issue metadata
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
