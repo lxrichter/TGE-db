@@ -191,6 +191,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   compact record workflow strip for identity, evidence, relationships,
   AI/review work, and export readiness so each profile is easier to scan before
   deeper section review
+- `/search` now provides a first global PostgreSQL staging search across
+  projects, plants/facilities, companies, sources, and country signals, with a
+  compact header search box and quick operational command links
 - Source/evidence panels on PostgreSQL detail pages now summarize linked,
   credible, primary, field-linked, and needs-care evidence before the detailed
   table, reinforcing source governance and future AI-assisted review workflows

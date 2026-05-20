@@ -61,8 +61,24 @@ function UserContextBar() {
 
   return (
     <div className="border-b border-[#d6e8b5] bg-[#f3f8ea]">
-      <div className="mx-auto flex h-[38px] max-w-[1600px] items-center justify-between px-8">
-        <div />
+      <div className="mx-auto flex min-h-[38px] max-w-[1600px] flex-col gap-2 px-8 py-2 lg:flex-row lg:items-center lg:justify-between lg:py-0">
+        <form
+          action="/search"
+          className="flex w-full max-w-xl items-center gap-2"
+        >
+          <input
+            className="h-[28px] min-w-0 flex-1 border border-[#b7cf8b] bg-white px-3 text-[12px] font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+            name="q"
+            placeholder="Search projects, plants, companies, sources..."
+            type="search"
+          />
+          <button
+            className="h-[28px] border border-[#b7cf8b] bg-white px-3 text-[11px] font-semibold text-[#3f4a35] hover:bg-[#e9f3d8]"
+            type="submit"
+          >
+            Search
+          </button>
+        </form>
         <div className="flex items-center gap-4 text-[12px]">
           <span className="font-medium text-[#1f2937]">
             {user.name || "User"}
