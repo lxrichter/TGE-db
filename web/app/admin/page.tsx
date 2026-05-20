@@ -2,8 +2,13 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 import ActionButton from "@/components/ui/ActionButton";
+import { ARTICLE_FACT_TYPE_DEFINITIONS } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import { canAccessAdmin, canManageUsers } from "@/lib/auth/roles";
+import { SOURCE_FACT_TYPE_PRESETS } from "@/lib/sourceFactTypePresets";
+import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
+import { listArticleFactCandidateStatusOptions } from "@/lib/services/article-facts";
+import { getSourceReferenceData } from "@/lib/services/sources";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -89,6 +94,93 @@ function RuleCard({
   );
 }
 
+type GovernanceSnapshot =
+  | {
+      ok: true;
+      entityVocabularyCount: number;
+      sourceVocabularyCount: number;
+      articleFactTypeCount: number;
+      sourceFactPresetCount: number;
+      reviewStatusCount: number;
+      sourceStatusCount: number;
+      articleFactStatusCount: number;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+async function getGovernanceSnapshot(): Promise<GovernanceSnapshot> {
+  try {
+    const [entityReferenceData, sourceReferenceData, articleFactStatuses] =
+      await Promise.all([
+        getPostgresEntityFormReferenceData(),
+        getSourceReferenceData(),
+        listArticleFactCandidateStatusOptions(),
+      ]);
+
+    return {
+      ok: true,
+      entityVocabularyCount:
+        entityReferenceData.useTypes.length +
+        entityReferenceData.lifecyclePhases.length +
+        entityReferenceData.estimateStatuses.length +
+        entityReferenceData.companyEntityTypes.length +
+        entityReferenceData.companyPrimaryTypes.length,
+      sourceVocabularyCount:
+        sourceReferenceData.sourceTypes.length +
+        sourceReferenceData.visibilityLevels.length,
+      articleFactTypeCount: ARTICLE_FACT_TYPE_DEFINITIONS.length,
+      sourceFactPresetCount: SOURCE_FACT_TYPE_PRESETS.length,
+      reviewStatusCount: entityReferenceData.reviewStatuses.length,
+      sourceStatusCount: sourceReferenceData.credibilityStatuses.length,
+      articleFactStatusCount: articleFactStatuses.length,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Unknown PostgreSQL error",
+    };
+  }
+}
+
+function GovernanceMetric({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string | number;
+  note: string;
+}) {
+  return (
+    <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+        {value}
+      </div>
+      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+    </div>
+  );
+}
+
+function GovernanceRule({
+  title,
+  text,
+}: {
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="border border-[#d7e8bf] bg-[#f5faef] px-4 py-3">
+      <div className="text-sm font-bold text-[#1f2937]">{title}</div>
+      <div className="mt-1 text-xs leading-5 text-gray-600">{text}</div>
+    </div>
+  );
+}
+
 function FaqItem({
   question,
   children,
@@ -137,6 +229,8 @@ export default async function AdminPage() {
     redirect("/");
   }
 
+  const governanceSnapshot = await getGovernanceSnapshot();
+
   return (
     <main className="space-y-8">
       <section className="border border-gray-200 bg-white">
@@ -171,6 +265,7 @@ export default async function AdminPage() {
         <div className="border-t border-gray-200 bg-white px-6 py-4 md:px-8">
           <div className="flex flex-wrap gap-3">
             <TocLink href="#workflow" label="Workflow" />
+            <TocLink href="#governance" label="Governance" />
             <TocLink href="#classification" label="Company Logic" />
             <TocLink href="#linking" label="Linking Rules" />
             <TocLink href="#company-link-roles" label="Company Link Roles" />
@@ -179,6 +274,65 @@ export default async function AdminPage() {
           </div>
         </div>
       </section>
+
+      <SectionCard
+        id="governance"
+        title="PostgreSQL Governance Snapshot"
+        description="Read-only MVP control layer for taxonomy coverage, review states, export gates, and AI/source workflow readiness."
+      >
+        {governanceSnapshot.ok ? (
+          <>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <GovernanceMetric
+                label="Entity Vocabularies"
+                value={governanceSnapshot.entityVocabularyCount}
+                note="Use types, lifecycle phases, estimate states, and company categories"
+              />
+              <GovernanceMetric
+                label="Source Vocabularies"
+                value={governanceSnapshot.sourceVocabularyCount}
+                note="Source types and visibility levels"
+              />
+              <GovernanceMetric
+                label="Review States"
+                value={
+                  governanceSnapshot.reviewStatusCount +
+                  governanceSnapshot.sourceStatusCount +
+                  governanceSnapshot.articleFactStatusCount
+                }
+                note="Entity, source, and article-fact review workflows"
+              />
+              <GovernanceMetric
+                label="Fact Presets"
+                value={
+                  governanceSnapshot.articleFactTypeCount +
+                  governanceSnapshot.sourceFactPresetCount
+                }
+                note="Article fact definitions and source evidence presets"
+              />
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-3">
+              <GovernanceRule
+                title="Approval Gate"
+                text="Projects, plants/facilities, and companies cannot move to approved/export-ready without required identity, classification, and linked evidence."
+              />
+              <GovernanceRule
+                title="Evidence Governance"
+                text="Source links create evidence context only; they do not overwrite entity fields without separate human-confirmed review."
+              />
+              <GovernanceRule
+                title="Export Permissions"
+                text="Broad PostgreSQL exports are limited to editor, senior editor, and admin roles."
+              />
+            </div>
+          </>
+        ) : (
+          <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            PostgreSQL governance snapshot is unavailable in this environment.
+            Error: {governanceSnapshot.error}
+          </div>
+        )}
+      </SectionCard>
 
       <SectionCard
         id="workflow"

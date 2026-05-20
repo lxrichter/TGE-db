@@ -258,6 +258,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Research Ops filtered CSV export is now disabled for non-review roles in the
   client UI, aligning the operational export button with the editor/admin export
   permission model
+- Admin now includes a read-only PostgreSQL governance snapshot with controlled
+  vocabulary counts, review-state coverage, fact/evidence preset counts, and
+  implemented approval/evidence/export rule summaries
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
