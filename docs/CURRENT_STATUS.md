@@ -261,6 +261,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Admin now includes a read-only PostgreSQL governance snapshot with controlled
   vocabulary counts, review-state coverage, fact/evidence preset counts, and
   implemented approval/evidence/export rule summaries
+- Admin users now have a controlled-vocabulary management page for selected
+  PostgreSQL reference tables, supporting label, description, sort order, active
+  state, and new-term creation without delete/destructive actions
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

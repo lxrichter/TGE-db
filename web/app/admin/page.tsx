@@ -4,7 +4,11 @@ import { redirect } from "next/navigation";
 import ActionButton from "@/components/ui/ActionButton";
 import { ARTICLE_FACT_TYPE_DEFINITIONS } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
-import { canAccessAdmin, canManageUsers } from "@/lib/auth/roles";
+import {
+  canAccessAdmin,
+  canManageUsers,
+  canManageVocabularies,
+} from "@/lib/auth/roles";
 import { SOURCE_FACT_TYPE_PRESETS } from "@/lib/sourceFactTypePresets";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 import { listArticleFactCandidateStatusOptions } from "@/lib/services/article-facts";
@@ -224,6 +228,7 @@ export default async function AdminPage() {
 
   const role = (session.user as { role?: string | null }).role;
   const isUserManager = canManageUsers(role);
+  const isVocabularyManager = canManageVocabularies(role);
 
   if (!canAccessAdmin(role)) {
     redirect("/");
@@ -256,6 +261,11 @@ export default async function AdminPage() {
               {isUserManager ? (
                 <ActionButton href="/admin/users" variant="primary">
                   Open User Management
+                </ActionButton>
+              ) : null}
+              {isVocabularyManager ? (
+                <ActionButton href="/admin/vocabularies" variant="secondary">
+                  Manage Vocabularies
                 </ActionButton>
               ) : null}
             </div>

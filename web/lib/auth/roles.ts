@@ -140,6 +140,10 @@ export function canManageUsers(role?: UserRole | string | null) {
   return normalizeUserRole(role) === "admin";
 }
 
+export function canManageVocabularies(role?: UserRole | string | null) {
+  return normalizeUserRole(role) === "admin";
+}
+
 export function canImport(role?: UserRole | string | null) {
   return normalizeUserRole(role) === "admin";
 }
