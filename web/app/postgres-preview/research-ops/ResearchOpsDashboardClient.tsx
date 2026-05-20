@@ -3346,31 +3346,61 @@ export function ResearchOpsDashboardClient({
   }, [dashboard.queues]);
 
   const activeOperationalFilters = useMemo(() => {
-    const labels: string[] = [];
+    const filters: Array<{
+      key: "queue" | "severity" | "entity" | "country" | "search" | "showEmpty";
+      label: string;
+      value: string;
+    }> = [];
 
     if (queueFilter !== "all") {
-      labels.push(`Queue: ${queueTitleByKey.get(queueFilter) || queueFilter}`);
+      filters.push({
+        key: "queue",
+        label: "Queue",
+        value: queueTitleByKey.get(queueFilter) || queueFilter,
+      });
     }
 
     if (severityFilter !== "all") {
-      labels.push(`Severity: ${severityFilter}`);
+      filters.push({
+        key: "severity",
+        label: "Severity",
+        value: severityFilter,
+      });
     }
 
     if (entityFilter !== "all") {
-      labels.push(`Entity: ${formatEntityType(entityFilter)}`);
+      filters.push({
+        key: "entity",
+        label: "Entity",
+        value: formatEntityType(entityFilter),
+      });
     }
 
     if (countryFilter !== "all") {
-      labels.push(
-        `Country: ${countryFilter === "__missing__" ? "Missing country" : countryFilter}`
-      );
+      filters.push({
+        key: "country",
+        label: "Country",
+        value: countryFilter === "__missing__" ? "Missing country" : countryFilter,
+      });
     }
 
     if (search) {
-      labels.push(`Search: ${search}`);
+      filters.push({
+        key: "search",
+        label: "Search",
+        value: search,
+      });
     }
 
-    return labels;
+    if (showEmptyQueues) {
+      filters.push({
+        key: "showEmpty",
+        label: "Queue Display",
+        value: "Show empty queues",
+      });
+    }
+
+    return filters;
   }, [
     countryFilter,
     entityFilter,
@@ -3378,6 +3408,7 @@ export function ResearchOpsDashboardClient({
     queueTitleByKey,
     search,
     severityFilter,
+    showEmptyQueues,
   ]);
 
   function clearFilters() {
@@ -3387,6 +3418,39 @@ export function ResearchOpsDashboardClient({
     setCountryFilter("all");
     setSearch("");
     setShowEmptyQueues(false);
+  }
+
+  function removeOperationalFilter(
+    filterKey: (typeof activeOperationalFilters)[number]["key"]
+  ) {
+    if (filterKey === "queue") {
+      setQueueFilter("all");
+      return;
+    }
+
+    if (filterKey === "severity") {
+      setSeverityFilter("all");
+      return;
+    }
+
+    if (filterKey === "entity") {
+      setEntityFilter("all");
+      return;
+    }
+
+    if (filterKey === "country") {
+      setCountryFilter("all");
+      return;
+    }
+
+    if (filterKey === "search") {
+      setSearch("");
+      return;
+    }
+
+    if (filterKey === "showEmpty") {
+      setShowEmptyQueues(false);
+    }
   }
 
   function toggleBulkRecord(record: ResearchOpsRecord, checked: boolean) {
@@ -3758,13 +3822,30 @@ export function ResearchOpsDashboardClient({
 
           <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3 text-sm text-gray-600">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <span className="font-semibold text-[#1f2937]">
-                  Active Research Ops view:
-                </span>{" "}
-                {activeOperationalFilters.length > 0
-                  ? activeOperationalFilters.join(" · ")
-                  : "All generated queues"}
+              <div className="min-w-0">
+                <div className="font-semibold text-[#1f2937]">
+                  Active Research Ops view
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {activeOperationalFilters.length > 0 ? (
+                    activeOperationalFilters.map((filter) => (
+                      <button
+                        className="inline-flex min-h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f]"
+                        key={filter.key}
+                        type="button"
+                        onClick={() => removeOperationalFilter(filter.key)}
+                      >
+                        <span className="text-gray-500">{filter.label}:</span>
+                        <span className="ml-1">{filter.value}</span>
+                        <span className="ml-2 text-gray-400">x</span>
+                      </button>
+                    ))
+                  ) : (
+                    <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                      All generated queues
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 {formatCount(filteredIssueRows)} queue rows ·{" "}

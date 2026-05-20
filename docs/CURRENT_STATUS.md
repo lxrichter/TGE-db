@@ -178,6 +178,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company list filters now show
   explicit active-filter chips with one-click removal and clear-all behavior,
   making Research Ops queue click-through states easier to understand
+- Research Ops deep-table filters now use the same visible active-view chip
+  pattern, including one-click removal for queue, severity, entity, country,
+  search, and empty-queue display filters
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
