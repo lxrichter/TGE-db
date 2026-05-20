@@ -175,6 +175,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   and reuse the same quick fact type presets as source edit pages, keeping
   source linking, field suggestions, and article fact review aligned around one
   controlled evidence vocabulary
+- PostgreSQL project, plant/facility, and company list filters now show
+  explicit active-filter chips with one-click removal and clear-all behavior,
+  making Research Ops queue click-through states easier to understand
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

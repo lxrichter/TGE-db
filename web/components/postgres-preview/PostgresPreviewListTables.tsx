@@ -488,6 +488,25 @@ function quickViewHref({
   return queryString ? `${basePath}?${queryString}` : basePath;
 }
 
+function filterStateHref({
+  basePath,
+  pageSize,
+  density,
+  query,
+}: {
+  basePath: string;
+  pageSize: number;
+  density: PreviewTableDensity;
+  query: Record<string, string | undefined>;
+}) {
+  return quickViewHref({
+    basePath,
+    pageSize,
+    density,
+    query,
+  });
+}
+
 function isQuickViewActive({
   currentQuery,
   viewQuery,
@@ -585,9 +604,47 @@ export function PostgresPreviewListFilters({
   pageSize: number;
   density: PreviewTableDensity;
 }) {
-  const activeCount =
-    (search ? 1 : 0) +
-    selects.filter((select) => Boolean(select.value)).length;
+  const currentQuery = {
+    search,
+    ...Object.fromEntries(selects.map((select) => [select.name, select.value])),
+  };
+  const activeFilters = [
+    ...(search
+      ? [
+          {
+            key: "search",
+            label: "Search",
+            value: search,
+            href: filterStateHref({
+              basePath,
+              pageSize,
+              density,
+              query: { ...currentQuery, search: undefined },
+            }),
+          },
+        ]
+      : []),
+    ...selects
+      .filter((select) => Boolean(select.value))
+      .map((select) => {
+        const selectedOption = select.options.find(
+          (option) => option.value === select.value
+        );
+
+        return {
+          key: select.name,
+          label: select.label,
+          value: selectedOption?.label || formatPreviewFilterLabel(select.value || ""),
+          href: filterStateHref({
+            basePath,
+            pageSize,
+            density,
+            query: { ...currentQuery, [select.name]: undefined },
+          }),
+        };
+      }),
+  ];
+  const activeCount = activeFilters.length;
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -646,12 +703,43 @@ export function PostgresPreviewListFilters({
           </Link>
         </div>
       </form>
-      <div className="border-t border-gray-200 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        {activeCount > 0
-          ? `${formatCount(activeCount)} active filter${
-              activeCount === 1 ? "" : "s"
-            }`
-          : "No active filters"}
+      <div className="border-t border-gray-200 px-5 py-3">
+        {activeCount > 0 ? (
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {formatCount(activeCount)} active filter
+                {activeCount === 1 ? "" : "s"}
+              </span>
+              {activeFilters.map((filter) => (
+                <Link
+                  key={filter.key}
+                  href={filter.href}
+                  className="inline-flex min-h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f]"
+                >
+                  <span className="text-gray-500">{filter.label}:</span>
+                  <span className="ml-1">{filter.value}</span>
+                  <span className="ml-2 text-gray-400">x</span>
+                </Link>
+              ))}
+            </div>
+            <Link
+              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href={filterStateHref({
+                basePath,
+                pageSize,
+                density,
+                query: {},
+              })}
+            >
+              Clear Filters
+            </Link>
+          </div>
+        ) : (
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            No active filters
+          </div>
+        )}
       </div>
     </section>
   );
