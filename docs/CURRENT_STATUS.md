@@ -220,6 +220,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   column for faster review of form-created follow-ups
 - Filtered persistent Research Ops issues can now be exported as a CSV work
   list, including linked field, assignment, status, entity, and issue metadata
+- PostgreSQL project, plant/facility, and company list rows now surface open
+  persistent Research Ops issue counts directly in their issue badges, so
+  form-created follow-ups remain visible outside the Research Ops page
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

@@ -118,7 +118,7 @@ function StatusBadge({ value }: { value: string | null }) {
   );
 }
 
-type RowIssueTone = "critical" | "important" | "useful";
+type RowIssueTone = "critical" | "important" | "workflow" | "useful";
 
 type RowIssue = {
   label: string;
@@ -129,6 +129,7 @@ type RowIssue = {
 const rowIssueToneClass: Record<RowIssueTone, string> = {
   critical: "border-red-200 bg-red-50 text-red-700",
   important: "border-amber-200 bg-amber-50 text-amber-700",
+  workflow: "border-sky-200 bg-sky-50 text-sky-700",
   useful: "border-gray-200 bg-gray-50 text-gray-600",
 };
 
@@ -143,6 +144,36 @@ function isUnknownCode(value: string | null | undefined) {
 
 function hasAnyNumber(values: Array<number | null | undefined>) {
   return values.some((value) => value !== null && value !== undefined);
+}
+
+function appendPersistentIssueBadges(
+  issues: RowIssue[],
+  openIssueCount: number,
+  criticalIssueCount: number
+) {
+  const persistentIssues: RowIssue[] = [];
+
+  if (criticalIssueCount > 0) {
+    persistentIssues.push({
+      label: `${formatCount(criticalIssueCount)} critical issue${
+        criticalIssueCount === 1 ? "" : "s"
+      }`,
+      tone: "critical",
+    });
+  }
+
+  const nonCriticalIssueCount = Math.max(0, openIssueCount - criticalIssueCount);
+
+  if (nonCriticalIssueCount > 0) {
+    persistentIssues.push({
+      label: `${formatCount(nonCriticalIssueCount)} research issue${
+        nonCriticalIssueCount === 1 ? "" : "s"
+      }`,
+      tone: "workflow",
+    });
+  }
+
+  issues.unshift(...persistentIssues);
 }
 
 function IssueBadges({
@@ -272,6 +303,12 @@ function projectRowIssues(project: PostgresPreviewProject): RowIssue[] {
     });
   }
 
+  appendPersistentIssueBadges(
+    issues,
+    project.open_issue_count,
+    project.critical_issue_count
+  );
+
   return issues;
 }
 
@@ -349,6 +386,12 @@ function operatingAssetRowIssues(
     issues.push({ label: "No COD", tone: "important", missingFilter: "cod" });
   }
 
+  appendPersistentIssueBadges(
+    issues,
+    asset.open_issue_count,
+    asset.critical_issue_count
+  );
+
   return issues;
 }
 
@@ -396,6 +439,12 @@ function companyRowIssues(company: PostgresPreviewCompany): RowIssue[] {
       missingFilter: "website",
     });
   }
+
+  appendPersistentIssueBadges(
+    issues,
+    company.open_issue_count,
+    company.critical_issue_count
+  );
 
   return issues;
 }

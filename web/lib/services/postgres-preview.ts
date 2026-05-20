@@ -33,6 +33,8 @@ export type PostgresPreviewProject = {
   research_status: string | null;
   source_count: number;
   company_link_count: number;
+  open_issue_count: number;
+  critical_issue_count: number;
 };
 
 export type PostgresPreviewOperatingAsset = {
@@ -56,6 +58,8 @@ export type PostgresPreviewOperatingAsset = {
   research_status: string | null;
   source_count: number;
   company_link_count: number;
+  open_issue_count: number;
+  critical_issue_count: number;
 };
 
 export type PostgresPreviewCompany = {
@@ -72,6 +76,8 @@ export type PostgresPreviewCompany = {
   source_count: number;
   project_link_count: number;
   operating_asset_link_count: number;
+  open_issue_count: number;
+  critical_issue_count: number;
 };
 
 export type PostgresPreviewProjectListFilters = {
@@ -1587,6 +1593,74 @@ function toNumber(value: number | bigint | string | null | undefined) {
   return Number(value ?? 0);
 }
 
+type OpenResearchOpsIssueCountRow = {
+  entity_id: string;
+  open_issue_count: number | bigint | string;
+  critical_issue_count: number | bigint | string;
+};
+
+type OpenResearchOpsIssueCounts = {
+  open_issue_count: number;
+  critical_issue_count: number;
+};
+
+async function listOpenResearchOpsIssueCounts({
+  entityType,
+  entityColumn,
+  entityIds,
+}: {
+  entityType: "project" | "operating_asset" | "company";
+  entityColumn: "project_id" | "operating_asset_id" | "company_id";
+  entityIds: string[];
+}) {
+  if (entityIds.length === 0) {
+    return new Map<string, OpenResearchOpsIssueCounts>();
+  }
+
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    OpenResearchOpsIssueCountRow[]
+  >(
+    `
+    SELECT
+      i.${entityColumn}::text AS entity_id,
+      COUNT(*)::int AS open_issue_count,
+      COUNT(*) FILTER (WHERE i.severity = 'critical')::int AS critical_issue_count
+    FROM research_ops_issues i
+    INNER JOIN ref_research_issue_statuses ist
+      ON ist.code = i.issue_status_code
+    WHERE
+      i.entity_type = $1
+      AND i.${entityColumn} = ANY($2::uuid[])
+      AND ist.is_open = TRUE
+    GROUP BY i.${entityColumn}
+    `,
+    entityType,
+    entityIds
+  );
+
+  return new Map(
+    rows.map((row) => [
+      row.entity_id,
+      {
+        open_issue_count: toNumber(row.open_issue_count),
+        critical_issue_count: toNumber(row.critical_issue_count),
+      },
+    ])
+  );
+}
+
+function openResearchOpsIssueCountsFor(
+  counts: Map<string, OpenResearchOpsIssueCounts>,
+  entityId: string
+) {
+  return (
+    counts.get(entityId) || {
+      open_issue_count: 0,
+      critical_issue_count: 0,
+    }
+  );
+}
+
 function isMissingRelationError(error: unknown, relationName: string) {
   const message = error instanceof Error ? error.message : String(error);
 
@@ -1887,6 +1961,11 @@ export async function listPostgresPreviewProjects(
     take: limit,
     skip: offset,
   });
+  const openIssueCounts = await listOpenResearchOpsIssueCounts({
+    entityType: "project",
+    entityColumn: "project_id",
+    entityIds: rows.map((row) => row.project_id),
+  });
 
   return rows.map(({ _count, ...row }) => ({
     ...row,
@@ -1905,6 +1984,7 @@ export async function listPostgresPreviewProjects(
     ),
     source_count: _count.entity_sources,
     company_link_count: _count.company_project_links,
+    ...openResearchOpsIssueCountsFor(openIssueCounts, row.project_id),
   }));
 }
 
@@ -1948,6 +2028,11 @@ export async function listPostgresPreviewOperatingAssets(
     take: limit,
     skip: offset,
   });
+  const openIssueCounts = await listOpenResearchOpsIssueCounts({
+    entityType: "operating_asset",
+    entityColumn: "operating_asset_id",
+    entityIds: rows.map((row) => row.operating_asset_id),
+  });
 
   return rows.map(({ _count, ...row }) => ({
     ...row,
@@ -1967,6 +2052,7 @@ export async function listPostgresPreviewOperatingAssets(
     ),
     source_count: _count.entity_sources,
     company_link_count: _count.company_operating_asset_links,
+    ...openResearchOpsIssueCountsFor(openIssueCounts, row.operating_asset_id),
   }));
 }
 
@@ -2003,12 +2089,18 @@ export async function listPostgresPreviewCompanies(
     take: limit,
     skip: offset,
   });
+  const openIssueCounts = await listOpenResearchOpsIssueCounts({
+    entityType: "company",
+    entityColumn: "company_id",
+    entityIds: rows.map((row) => row.company_id),
+  });
 
   return rows.map(({ _count, ...row }) => ({
     ...row,
     source_count: _count.entity_sources,
     project_link_count: _count.company_project_links,
     operating_asset_link_count: _count.company_operating_asset_links,
+    ...openResearchOpsIssueCountsFor(openIssueCounts, row.company_id),
   }));
 }
 
