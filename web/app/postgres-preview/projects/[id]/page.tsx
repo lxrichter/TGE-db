@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth/auth";
 import { canEdit, canPromoteProject, canReview } from "@/lib/auth/roles";
 import {
   AuditTrailPanel,
+  DetailAnchorNav,
   DetailFieldGrid,
   DetailSection,
   DetailShell,
@@ -605,6 +606,61 @@ export default async function PostgresProjectDetailPage({
         promotedAssetCount={promotedAssets.length}
         readinessIssues={readinessIssues}
         researchIssues={researchIssues}
+      />
+
+      <DetailAnchorNav
+        items={[
+          {
+            label: "Identity",
+            href: "#project-identity-location",
+            note: "Core identity, location, and research status fields",
+          },
+          {
+            label: "Resource / Timeline",
+            href: "#project-resource-timeline",
+            note: "Resource, capacity, technology, and COD timing fields",
+          },
+          {
+            label: "TGE News",
+            href: "#project-tge-news",
+            note: "Confirmed ThinkGeoEnergy article evidence",
+          },
+          {
+            label: "AI Suggestions",
+            href: "#project-ai-suggestions",
+            note: "Human-reviewed field suggestions from source extraction",
+          },
+          {
+            label: "Evidence",
+            href: "#project-source-evidence",
+            note: "Source/evidence links and linked field claims",
+          },
+          {
+            label: "Companies",
+            href: "#project-company-links",
+            note: "Developer, owner, operator, supplier, and investor roles",
+          },
+          {
+            label: "Promotion",
+            href: "#project-promotion",
+            note: "Project to plant/facility promotion workflow",
+          },
+          {
+            label: "Issues",
+            href: "#project-research-issues",
+            note: "Persistent Research Ops issues",
+          },
+          {
+            label: "Audit",
+            href: "#project-audit-trail",
+            note: "Governed change history",
+          },
+          {
+            label: "Export",
+            href: "#project-export-readiness",
+            note: "Preview export-readiness checks",
+          },
+        ]}
       />
 
       <DetailSection id="project-identity-location" title="Identity And Location">

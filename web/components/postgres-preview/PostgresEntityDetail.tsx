@@ -17,6 +17,12 @@ export type DetailStat = {
   note: string;
 };
 
+export type DetailNavItem = {
+  label: string;
+  href: string;
+  note?: string;
+};
+
 export type ExportReadinessIssue = {
   severity: "blocker" | "warning";
   label: string;
@@ -233,6 +239,39 @@ export function StatGrid({ stats }: { stats: DetailStat[] }) {
         </div>
       ))}
     </section>
+  );
+}
+
+export function DetailAnchorNav({
+  title = "Record Sections",
+  items,
+}: {
+  title?: string;
+  items: DetailNavItem[];
+}) {
+  return (
+    <nav className="border border-gray-200 bg-white px-5 py-4" aria-label={title}>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Navigation
+          </div>
+          <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
+        </div>
+        <div className="flex max-w-5xl flex-wrap gap-2">
+          {items.map((item) => (
+            <Link
+              key={`${item.href}-${item.label}`}
+              href={item.href}
+              className="inline-flex min-h-9 items-center border border-gray-200 bg-[#fbfbfb] px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+              title={item.note}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </nav>
   );
 }
 

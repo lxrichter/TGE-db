@@ -167,6 +167,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   numbers inside markdown link URLs/related-article references, so the local
   article scanner now strips markdown link targets and bare URLs before fact
   extraction while preserving visible link text
+- PostgreSQL project, plant/facility, and company detail pages now include a
+  compact record-section navigation strip so researchers/editors can jump
+  quickly to identity, operating data, market focus, evidence, AI suggestions,
+  relationships, audit, and export-readiness areas on long records
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

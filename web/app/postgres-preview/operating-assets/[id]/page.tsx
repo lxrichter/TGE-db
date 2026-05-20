@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth/auth";
 import { canEdit, canReview } from "@/lib/auth/roles";
 import {
   AuditTrailPanel,
+  DetailAnchorNav,
   DetailFieldGrid,
   DetailSection,
   DetailShell,
@@ -610,6 +611,56 @@ export default async function PostgresOperatingAssetDetailPage({
         openSourceMatchCount={openSourceMatchCount}
         readinessIssues={readinessIssues}
         researchIssues={researchIssues}
+      />
+
+      <DetailAnchorNav
+        items={[
+          {
+            label: "Identity",
+            href: "#asset-identity-location",
+            note: "Core identity, location, and research status fields",
+          },
+          {
+            label: "Operation",
+            href: "#asset-operating-data",
+            note: "Operating status, capacity, technology, and COD fields",
+          },
+          {
+            label: "TGE News",
+            href: "#asset-tge-news",
+            note: "Confirmed ThinkGeoEnergy article evidence",
+          },
+          {
+            label: "AI Suggestions",
+            href: "#asset-ai-suggestions",
+            note: "Human-reviewed field suggestions from source extraction",
+          },
+          {
+            label: "Evidence",
+            href: "#asset-source-evidence",
+            note: "Source/evidence links and linked field claims",
+          },
+          {
+            label: "Companies",
+            href: "#asset-company-links",
+            note: "Owner, operator, supplier, EPC, and other asset roles",
+          },
+          {
+            label: "Issues",
+            href: "#asset-research-issues",
+            note: "Persistent Research Ops issues",
+          },
+          {
+            label: "Audit",
+            href: "#asset-audit-trail",
+            note: "Governed change history",
+          },
+          {
+            label: "Export",
+            href: "#asset-export-readiness",
+            note: "Preview export-readiness checks",
+          },
+        ]}
       />
 
       <DetailSection id="asset-identity-location" title="Identity And Location">

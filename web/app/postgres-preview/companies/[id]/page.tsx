@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth/auth";
 import { canEdit, canReview } from "@/lib/auth/roles";
 import {
   AuditTrailPanel,
+  DetailAnchorNav,
   DetailFieldGrid,
   DetailSection,
   DetailShell,
@@ -717,6 +718,56 @@ export default async function PostgresCompanyDetailPage({
         researchIssues={researchIssues}
       />
 
+      <DetailAnchorNav
+        items={[
+          {
+            label: "Classification",
+            href: "#company-classification",
+            note: "Identity, legal name, category, status, and HQ fields",
+          },
+          {
+            label: "Market Focus",
+            href: "#company-market-focus",
+            note: "Geothermal focus, technology focus, and market scope",
+          },
+          {
+            label: "Relationships",
+            href: "#company-relationships",
+            note: "Project, plant/facility, ownership, group, and JV links",
+          },
+          {
+            label: "TGE News",
+            href: "#company-tge-news",
+            note: "Confirmed ThinkGeoEnergy article evidence",
+          },
+          {
+            label: "AI Suggestions",
+            href: "#company-ai-suggestions",
+            note: "Human-reviewed field suggestions from source extraction",
+          },
+          {
+            label: "Evidence",
+            href: "#company-source-evidence",
+            note: "Source/evidence links and linked field claims",
+          },
+          {
+            label: "Issues",
+            href: "#company-research-issues",
+            note: "Persistent Research Ops issues",
+          },
+          {
+            label: "Audit",
+            href: "#company-audit-trail",
+            note: "Governed change history",
+          },
+          {
+            label: "Export",
+            href: "#company-export-readiness",
+            note: "Preview export-readiness checks",
+          },
+        ]}
+      />
+
       <DetailSection id="company-classification" title="Identity And Classification">
         <DetailFieldGrid
           fields={[
@@ -733,7 +784,7 @@ export default async function PostgresCompanyDetailPage({
         />
       </DetailSection>
 
-      <DetailSection title="Market Focus">
+      <DetailSection id="company-market-focus" title="Market Focus">
         <DetailFieldGrid
           fields={[
             { label: "Geothermal Focus", value: company.geothermal_focus },
