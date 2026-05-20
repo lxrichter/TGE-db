@@ -1661,7 +1661,11 @@ function buildProjectListWhere(
   }
 
   if (reviewStatus) {
-    and.push({ review_status_code: reviewStatus });
+    if (reviewStatus === "draft_or_validation") {
+      and.push({ review_status_code: { in: ["draft", "validation"] } });
+    } else {
+      and.push({ review_status_code: reviewStatus });
+    }
   }
 
   if (useType) {
@@ -1733,7 +1737,11 @@ function buildOperatingAssetListWhere(
   }
 
   if (reviewStatus) {
-    and.push({ review_status_code: reviewStatus });
+    if (reviewStatus === "draft_or_validation") {
+      and.push({ review_status_code: { in: ["draft", "validation"] } });
+    } else {
+      and.push({ review_status_code: reviewStatus });
+    }
   }
 
   if (useType) {
@@ -1806,7 +1814,11 @@ function buildCompanyListWhere(
   }
 
   if (reviewStatus) {
-    and.push({ review_status_code: reviewStatus });
+    if (reviewStatus === "draft_or_validation") {
+      and.push({ review_status_code: { in: ["draft", "validation"] } });
+    } else {
+      and.push({ review_status_code: reviewStatus });
+    }
   }
 
   if (companyType) {

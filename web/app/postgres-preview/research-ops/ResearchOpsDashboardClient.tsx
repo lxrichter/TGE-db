@@ -98,6 +98,213 @@ const queueGroupDefinitions: Array<{
   },
 ];
 
+type QueueListTarget = {
+  label: string;
+  href: string;
+  note: string;
+};
+
+type QueueTargetConfig = {
+  label: string;
+  basePath: string;
+  query: Record<string, string>;
+  note: string;
+};
+
+const queueListTargetConfig: Partial<
+  Record<ResearchOpsQueueKey, QueueTargetConfig[]>
+> = {
+  needs_source: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "source" },
+      note: "Project records missing evidence",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "source" },
+      note: "Operating records missing evidence",
+    },
+    {
+      label: "Companies",
+      basePath: "/postgres-preview/companies",
+      query: { missing: "source" },
+      note: "Company records missing evidence",
+    },
+  ],
+  source_needs_review: [
+    {
+      label: "Sources",
+      basePath: "/sources",
+      query: { status: "needs_review" },
+      note: "Source credibility review",
+    },
+  ],
+  weak_or_outdated_source: [
+    {
+      label: "Sources",
+      basePath: "/sources",
+      query: { quality: "weak_outdated_rejected" },
+      note: "Weak, outdated, or rejected sources",
+    },
+  ],
+  missing_country: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "country" },
+      note: "Projects without country",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "country" },
+      note: "Assets without country",
+    },
+  ],
+  missing_lifecycle: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "status" },
+      note: "Projects without lifecycle",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "status" },
+      note: "Assets without status",
+    },
+  ],
+  missing_use_type: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "use_type" },
+      note: "Projects without use type",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "use_type" },
+      note: "Assets without use type",
+    },
+  ],
+  missing_company_link: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "company_link" },
+      note: "Projects without company links",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "company_link" },
+      note: "Assets without company links",
+    },
+  ],
+  missing_coordinates: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "coordinates" },
+      note: "Projects missing map coordinates",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "coordinates" },
+      note: "Assets missing map coordinates",
+    },
+  ],
+  missing_capacity: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { missing: "capacity" },
+      note: "Projects without capacity/output",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { missing: "capacity" },
+      note: "Assets without capacity/output",
+    },
+  ],
+  needs_approval: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { review: "draft_or_validation" },
+      note: "Draft or validation projects",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { review: "draft_or_validation" },
+      note: "Draft or validation assets",
+    },
+    {
+      label: "Companies",
+      basePath: "/postgres-preview/companies",
+      query: { review: "draft_or_validation" },
+      note: "Draft or validation companies",
+    },
+  ],
+  needs_update: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { review: "needs_update" },
+      note: "Projects requiring re-check",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { review: "needs_update" },
+      note: "Assets requiring re-check",
+    },
+    {
+      label: "Companies",
+      basePath: "/postgres-preview/companies",
+      query: { review: "needs_update" },
+      note: "Companies requiring re-check",
+    },
+  ],
+  direct_use_classification: [
+    {
+      label: "Projects",
+      basePath: "/postgres-preview/projects",
+      query: { use: "direct_use" },
+      note: "Direct-use project list",
+    },
+    {
+      label: "Plants / Facilities",
+      basePath: "/postgres-preview/operating-assets",
+      query: { use: "direct_use" },
+      note: "Direct-use asset list",
+    },
+  ],
+};
+
+function queryHref(basePath: string, query: Record<string, string>) {
+  const params = new URLSearchParams(query);
+  const queryString = params.toString();
+
+  return queryString ? `${basePath}?${queryString}` : basePath;
+}
+
+function queueListTargets(queueKey: ResearchOpsQueueKey): QueueListTarget[] {
+  return (queueListTargetConfig[queueKey] || []).map((target) => ({
+    label: target.label,
+    href: queryHref(target.basePath, target.query),
+    note: target.note,
+  }));
+}
+
 function csvCell(value: unknown) {
   const text = value == null ? "" : String(value);
 
@@ -611,6 +818,103 @@ function QuickOperationalViews({
   );
 }
 
+function QueueTargetLinks({ targets }: { targets: QueueListTarget[] }) {
+  if (targets.length === 0) {
+    return (
+      <div className="text-xs leading-5 text-gray-500">
+        Detailed review stays in Research Ops for this queue until a dedicated
+        entity-list filter exists.
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {targets.map((target) => (
+        <Link
+          key={`${target.href}-${target.label}`}
+          className="inline-flex min-h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          href={target.href}
+          title={target.note}
+        >
+          Open {target.label}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function ExportBlockerPanel({
+  queues,
+  onSelectQueue,
+}: {
+  queues: PostgresResearchOpsQueue[];
+  onSelectQueue: (queue: ResearchOpsQueueKey) => void;
+}) {
+  const blockerQueues = queues.filter((queue) =>
+    exportBlockingQueueKeys.has(queue.key)
+  );
+  const total = blockerQueues.reduce((sum, queue) => sum + queue.count, 0);
+
+  return (
+    <section className="border border-red-200 bg-red-50">
+      <div className="flex flex-col gap-3 border-b border-red-100 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-red-700">
+            Export Readiness
+          </div>
+          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            Export-Blocking Queues
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-red-900">
+            These generated queues should be cleared or explicitly accepted
+            before data is treated as approved/export-ready for formal outputs.
+            Operational CSV exports remain internal working exports.
+          </p>
+        </div>
+        <div className="border border-red-200 bg-white px-4 py-3 text-right">
+          <div className="text-3xl font-bold leading-none text-[#1f2937]">
+            {formatCount(total)}
+          </div>
+          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-red-700">
+            blockers
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 lg:grid-cols-2 xl:grid-cols-5">
+        {blockerQueues.map((queue) => (
+          <div key={queue.key} className="border border-red-200 bg-white px-4 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-sm font-bold text-[#1f2937]">
+                  {queue.title}
+                </div>
+                <div className="mt-2 text-xs leading-5 text-gray-500">
+                  {queue.description}
+                </div>
+              </div>
+              <div className="text-xl font-bold leading-none text-red-700">
+                {formatCount(queue.count)}
+              </div>
+            </div>
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                className="inline-flex h-8 items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+                type="button"
+                onClick={() => onSelectQueue(queue.key)}
+              >
+                Focus In Research Ops
+              </button>
+              <QueueTargetLinks targets={queueListTargets(queue.key)} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function SystemQueueGroups({
   groups,
   onSelectQueue,
@@ -670,11 +974,9 @@ function SystemQueueGroups({
             </div>
             <div className="divide-y divide-gray-100">
               {group.queues.map((queue) => (
-                <button
+                <div
                   key={queue.key}
-                  className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-[#f3f8ec]"
-                  type="button"
-                  onClick={() => onSelectQueue(queue.key)}
+                  className="flex items-start justify-between gap-3 px-4 py-3"
                 >
                   <span>
                     <span className="text-xs font-semibold text-gray-700">
@@ -686,10 +988,19 @@ function SystemQueueGroups({
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-xs font-bold text-[#1f2937]">
-                    {formatCount(queue.count)}
+                  <span className="flex shrink-0 flex-col items-end gap-2">
+                    <span className="text-xs font-bold text-[#1f2937]">
+                      {formatCount(queue.count)}
+                    </span>
+                    <button
+                      className="h-7 border border-gray-300 bg-white px-2 text-[11px] font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      type="button"
+                      onClick={() => onSelectQueue(queue.key)}
+                    >
+                      Focus
+                    </button>
                   </span>
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -1694,10 +2005,11 @@ function QueueCard({
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
   const isExportBlocking = exportBlockingQueueKeys.has(queue.key);
+  const targets = queueListTargets(queue.key);
 
   return (
     <section
-      id="persistent-issues"
+      id={`queue-${queue.key}`}
       className="scroll-mt-6 border border-gray-200 bg-white"
     >
       <div className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-start md:justify-between">
@@ -1717,6 +2029,9 @@ function QueueCard({
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             {queue.description}
           </p>
+          <div className="mt-3">
+            <QueueTargetLinks targets={targets} />
+          </div>
         </div>
         <div className="flex items-start gap-3 md:justify-end">
           <div className="text-left md:text-right">
@@ -1876,7 +2191,10 @@ function BulkActionsPanel({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id="persistent-issues"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
@@ -2767,6 +3085,12 @@ export function ResearchOpsDashboardClient({
     );
   }, [dashboard.queues]);
 
+  const queueTitleByKey = useMemo(() => {
+    return new Map(
+      dashboard.queues.map((queue) => [queue.key, queue.title] as const)
+    );
+  }, [dashboard.queues]);
+
   const myAssignedIssueCount = useMemo(() => {
     if (!currentUser) {
       return 0;
@@ -2818,6 +3142,41 @@ export function ResearchOpsDashboardClient({
       };
     });
   }, [dashboard.queues]);
+
+  const activeOperationalFilters = useMemo(() => {
+    const labels: string[] = [];
+
+    if (queueFilter !== "all") {
+      labels.push(`Queue: ${queueTitleByKey.get(queueFilter) || queueFilter}`);
+    }
+
+    if (severityFilter !== "all") {
+      labels.push(`Severity: ${severityFilter}`);
+    }
+
+    if (entityFilter !== "all") {
+      labels.push(`Entity: ${formatEntityType(entityFilter)}`);
+    }
+
+    if (countryFilter !== "all") {
+      labels.push(
+        `Country: ${countryFilter === "__missing__" ? "Missing country" : countryFilter}`
+      );
+    }
+
+    if (search) {
+      labels.push(`Search: ${search}`);
+    }
+
+    return labels;
+  }, [
+    countryFilter,
+    entityFilter,
+    queueFilter,
+    queueTitleByKey,
+    search,
+    severityFilter,
+  ]);
 
   function clearFilters() {
     setQueueFilter("all");
@@ -3035,6 +3394,11 @@ export function ResearchOpsDashboardClient({
         ]}
       />
 
+      <ExportBlockerPanel
+        queues={dashboard.queues}
+        onSelectQueue={(queue) => applyOperationalView({ queue })}
+      />
+
       <MyWorkPanel
         currentUser={currentUser}
         issues={dashboard.persistentIssues}
@@ -3187,6 +3551,28 @@ export function ResearchOpsDashboardClient({
               >
                 Export Filtered CSV
               </button>
+            </div>
+          </div>
+
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3 text-sm text-gray-600">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <span className="font-semibold text-[#1f2937]">
+                  Active Research Ops view:
+                </span>{" "}
+                {activeOperationalFilters.length > 0
+                  ? activeOperationalFilters.join(" · ")
+                  : "All generated queues"}
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {formatCount(filteredIssueRows)} queue rows ·{" "}
+                {formatCount(filteredRecords.length)} unique records
+              </div>
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              Queue origin: generated from PostgreSQL staging data. Use the
+              queue cards below for record-level review, or open the filtered
+              entity lists for table/export work.
             </div>
           </div>
         </div>

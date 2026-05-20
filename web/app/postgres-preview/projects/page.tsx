@@ -226,7 +226,13 @@ export default async function PostgresProjectsListPage({
                 label: "Review",
                 value: data.filters.reviewStatus,
                 placeholder: "All Review States",
-                options: previewFilterOptions(data.facets.reviewStatuses),
+                options: [
+                  {
+                    value: "draft_or_validation",
+                    label: "Draft / Validation",
+                  },
+                  ...previewFilterOptions(data.facets.reviewStatuses),
+                ],
               },
               {
                 name: "use",
