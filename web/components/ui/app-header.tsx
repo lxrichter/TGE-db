@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { canAccessAdmin, type UserRole } from "@/lib/auth/roles";
+import GlobalCommandPalette from "@/components/search/GlobalCommandPalette";
 
 function NavDivider() {
   return <div className="h-5 w-px bg-white/20" />;
@@ -43,7 +44,7 @@ function NavItem({
   );
 }
 
-function UserContextBar() {
+function UserContextBar({ showAdmin }: { showAdmin: boolean }) {
   const { data: session } = useSession();
 
   if (!session?.user) {
@@ -64,7 +65,7 @@ function UserContextBar() {
       <div className="mx-auto flex min-h-[38px] max-w-[1600px] flex-col gap-2 px-8 py-2 lg:flex-row lg:items-center lg:justify-between lg:py-0">
         <form
           action="/search"
-          className="flex w-full max-w-xl items-center gap-2"
+          className="flex w-full max-w-lg items-center gap-2"
         >
           <input
             className="h-[28px] min-w-0 flex-1 border border-[#b7cf8b] bg-white px-3 text-[12px] font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
@@ -79,6 +80,7 @@ function UserContextBar() {
             Search
           </button>
         </form>
+        <GlobalCommandPalette showAdmin={showAdmin} />
         <div className="flex items-center gap-4 text-[12px]">
           <span className="font-medium text-[#1f2937]">
             {user.name || "User"}
@@ -163,7 +165,7 @@ export default function AppHeaderShell({
         </div>
       </header>
 
-      <UserContextBar />
+      <UserContextBar showAdmin={showAdmin} />
 
       <div className="mx-auto max-w-[1600px] px-8 py-10">{children}</div>
     </>
