@@ -210,6 +210,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL edit forms now let researchers create persistent Research Ops
   issues directly from form readiness warnings and edited approval-sensitive
   fields, turning validation gaps into assigned operational follow-up items
+- Entity Research Ops issue panels now surface open, critical, field-linked,
+  and assigned issue counts, and show linked fields as their own table column
+  for faster review of form-created issues
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

@@ -30,6 +30,26 @@ function severityClass(severity: string) {
   return "border-amber-200 bg-amber-50 text-amber-800";
 }
 
+function formatLinkedField(value: string | null) {
+  if (!value) {
+    return "Record-level";
+  }
+
+  return value
+    .split(",")
+    .map((part) =>
+      part
+        .trim()
+        .replace(/_/g, " ")
+        .replace(/\bmwe\b/gi, "MWe")
+        .replace(/\bmwth\b/gi, "MWth")
+        .replace(/\bcod\b/gi, "COD")
+        .replace(/\bhq\b/gi, "HQ")
+    )
+    .filter(Boolean)
+    .join(", ");
+}
+
 async function readJson(res: Response) {
   try {
     const text = await res.text();
@@ -88,6 +108,12 @@ export default function PostgresResearchIssuesPanel({
   const [savingIssueId, setSavingIssueId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const criticalIssueCount = issues.filter(
+    (issue) => issue.severity === "critical"
+  ).length;
+  const assignedIssueCount = issues.filter((issue) => issue.assigned_to_user_id)
+    .length;
+  const fieldLinkedIssueCount = issues.filter((issue) => issue.linked_field).length;
 
   useEffect(() => {
     if (!issueTypes.some((issueType) => issueType.code === issueTypeCode)) {
@@ -246,6 +272,43 @@ export default function PostgresResearchIssuesPanel({
           </div>
         ) : null}
 
+        {issues.length > 0 ? (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Open Issues
+              </div>
+              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+                {issues.length}
+              </div>
+            </div>
+            <div className="border border-red-100 bg-red-50 px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
+                Critical
+              </div>
+              <div className="mt-1 text-2xl font-bold text-red-800">
+                {criticalIssueCount}
+              </div>
+            </div>
+            <div className="border border-blue-100 bg-blue-50 px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+                Field-Linked
+              </div>
+              <div className="mt-1 text-2xl font-bold text-blue-800">
+                {fieldLinkedIssueCount}
+              </div>
+            </div>
+            <div className="border border-[#d9eac2] bg-[#f5faee] px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                Assigned
+              </div>
+              <div className="mt-1 text-2xl font-bold text-[#3f6f19]">
+                {assignedIssueCount}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         {showCreate && canManageIssues ? (
           <div className="space-y-4 border border-gray-200 bg-[#fbfbfb] px-4 py-4">
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
@@ -335,15 +398,16 @@ export default function PostgresResearchIssuesPanel({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[980px] table-fixed text-left text-sm">
+            <table className="min-w-[1080px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
-                  <th className="w-[17%] px-4 py-3 font-semibold">Type</th>
-                  <th className="w-[32%] px-4 py-3 font-semibold">Issue</th>
-                  <th className="w-[13%] px-4 py-3 font-semibold">Severity</th>
+                  <th className="w-[15%] px-4 py-3 font-semibold">Type</th>
+                  <th className="w-[29%] px-4 py-3 font-semibold">Issue</th>
+                  <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Severity</th>
                   <th className="w-[12%] px-4 py-3 font-semibold">Assigned</th>
                   <th className="w-[10%] px-4 py-3 font-semibold">Updated</th>
-                  <th className="w-[16%] px-4 py-3 font-semibold">Actions</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -365,9 +429,13 @@ export default function PostgresResearchIssuesPanel({
                           </div>
                         ) : null}
                         <div className="mt-1 text-xs text-gray-500">
-                          {issue.linked_field || "record-level"} |{" "}
                           {issue.issue_status_label}
                         </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex min-h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+                          {formatLinkedField(issue.linked_field)}
+                        </span>
                       </td>
                       <td className="px-4 py-3">
                         <span
