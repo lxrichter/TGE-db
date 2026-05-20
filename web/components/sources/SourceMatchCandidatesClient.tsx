@@ -228,6 +228,15 @@ export default function SourceMatchCandidatesClient({
       return;
     }
 
+    if (
+      action === "confirm" &&
+      !window.confirm(
+        `Confirm ${selectedIds.length} article match candidate(s) and create or reuse evidence link(s)? This links sources to records but does not update project, plant/facility, or company fields.`
+      )
+    ) {
+      return;
+    }
+
     setMessage(null);
     startTransition(() => {
       void (async () => {
