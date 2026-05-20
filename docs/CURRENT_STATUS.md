@@ -215,6 +215,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   for faster review of form-created issues
 - Source edit readiness can now create a persistent source review issue for
   duplicate flags, metadata review warnings, or governed source changes
+- Research Ops persistent issues now support assignment, issue-type, and
+  linked-field filtering, with field-linked issue counts and a dedicated field
+  column for faster review of form-created follow-ups
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

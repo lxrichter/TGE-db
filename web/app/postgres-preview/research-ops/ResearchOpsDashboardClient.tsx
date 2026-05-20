@@ -30,7 +30,7 @@ type QueueFilter = "all" | ResearchOpsQueueKey;
 type SeverityFilter = "all" | ResearchOpsQueueSeverity;
 type EntityFilter = "all" | EntityType;
 type BulkTarget = "records" | "sources";
-type AssignmentFilter = "all" | "mine" | "unassigned";
+type AssignmentFilter = "all" | "mine" | "unassigned" | `user:${string}`;
 type FieldSuggestionReviewAction =
   | "confirm"
   | "reject"
@@ -535,6 +535,26 @@ function issueHref(issue: PostgresResearchOpsIssue) {
   } as ResearchOpsRecord;
 
   return recordHref(record);
+}
+
+function formatLinkedField(value: string | null) {
+  if (!value) {
+    return "Record-level";
+  }
+
+  return value
+    .split(",")
+    .map((part) =>
+      part
+        .trim()
+        .replace(/_/g, " ")
+        .replace(/\bmwe\b/gi, "MWe")
+        .replace(/\bmwth\b/gi, "MWth")
+        .replace(/\bcod\b/gi, "COD")
+        .replace(/\bhq\b/gi, "HQ")
+    )
+    .filter(Boolean)
+    .join(", ");
 }
 
 function addSourceHref(record: ResearchOpsRecord) {
@@ -2792,10 +2812,38 @@ function PersistentIssues({
   const [eventNote, setEventNote] = useState("");
   const [assignmentFilter, setAssignmentFilter] =
     useState<AssignmentFilter>("all");
+  const [issueTypeFilter, setIssueTypeFilter] = useState("all");
+  const [linkedFieldFilter, setLinkedFieldFilter] = useState("all");
   const [error, setError] = useState("");
   const assignableUsers = issueReferenceData.assignableUsers
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name));
+  const issueTypeOptions = issueReferenceData.issueTypes
+    .filter((issueType) => issueType.is_active !== false)
+    .slice()
+    .sort((a, b) => {
+      const aOrder = a.sort_order ?? 0;
+      const bOrder = b.sort_order ?? 0;
+
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      return a.label.localeCompare(b.label);
+    });
+  const linkedFieldOptions = useMemo(() => {
+    const values = new Set<string>();
+
+    issues.forEach((issue) => {
+      if (issue.linked_field) {
+        values.add(issue.linked_field);
+      }
+    });
+
+    return Array.from(values).sort((a, b) =>
+      formatLinkedField(a).localeCompare(formatLinkedField(b))
+    );
+  }, [issues]);
   const visibleIssues = issues
     .filter((issue) => !hiddenIssueIds.has(issue.research_ops_issue_id))
     .filter((issue) => {
@@ -2809,11 +2857,52 @@ function PersistentIssues({
         return !issue.assigned_to_user_id;
       }
 
+      if (assignmentFilter.startsWith("user:")) {
+        return issue.assigned_to_user_id === assignmentFilter.slice(5);
+      }
+
+      return true;
+    })
+    .filter((issue) => {
+      if (issueTypeFilter !== "all") {
+        return issue.issue_type_code === issueTypeFilter;
+      }
+
+      return true;
+    })
+    .filter((issue) => {
+      if (linkedFieldFilter === "field_linked") {
+        return Boolean(issue.linked_field);
+      }
+
+      if (linkedFieldFilter === "record_level") {
+        return !issue.linked_field;
+      }
+
+      if (linkedFieldFilter.startsWith("field:")) {
+        return issue.linked_field === linkedFieldFilter.slice(6);
+      }
+
       return true;
     });
+  const criticalIssueCount = visibleIssues.filter(
+    (issue) => issue.severity === "critical"
+  ).length;
+  const fieldLinkedIssueCount = visibleIssues.filter(
+    (issue) => issue.linked_field
+  ).length;
+  const assignedIssueCount = visibleIssues.filter(
+    (issue) => issue.assigned_to_user_id
+  ).length;
   const statusOptions = issueReferenceData.issueStatuses.filter(
     (status) => status.is_active !== false
   );
+
+  function clearPersistentIssueFilters() {
+    setAssignmentFilter("all");
+    setIssueTypeFilter("all");
+    setLinkedFieldFilter("all");
+  }
 
   async function setIssueStatus(
     issue: PostgresResearchOpsIssue,
@@ -2899,6 +2988,41 @@ function PersistentIssues({
           </div>
         ) : null}
 
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Filtered Open
+            </div>
+            <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+              {formatCount(visibleIssues.length)}
+            </div>
+          </div>
+          <div className="border border-red-100 bg-red-50 px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
+              Critical
+            </div>
+            <div className="mt-1 text-2xl font-bold text-red-800">
+              {formatCount(criticalIssueCount)}
+            </div>
+          </div>
+          <div className="border border-blue-100 bg-blue-50 px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+              Field-Linked
+            </div>
+            <div className="mt-1 text-2xl font-bold text-blue-800">
+              {formatCount(fieldLinkedIssueCount)}
+            </div>
+          </div>
+          <div className="border border-[#d9eac2] bg-[#f5faee] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+              Assigned
+            </div>
+            <div className="mt-1 text-2xl font-bold text-[#3f6f19]">
+              {formatCount(assignedIssueCount)}
+            </div>
+          </div>
+        </div>
+
         <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
           Resolution / Status Note
           <input
@@ -2909,7 +3033,7 @@ function PersistentIssues({
           />
         </label>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[220px_220px_260px_minmax(0,1fr)]">
           <FilterSelect
             label="Assignment"
             value={assignmentFilter}
@@ -2920,12 +3044,52 @@ function PersistentIssues({
               Assigned To Me
             </option>
             <option value="unassigned">Unassigned</option>
+            {assignableUsers.map((user) => (
+              <option key={user.user_id} value={`user:${user.user_id}`}>
+                {user.name}
+              </option>
+            ))}
           </FilterSelect>
-          {currentUser ? (
-            <span className="text-xs font-medium text-gray-500">
-              Current PostgreSQL user: {currentUser.name || "Current user"}
-            </span>
-          ) : null}
+          <FilterSelect
+            label="Issue Type"
+            value={issueTypeFilter}
+            onChange={setIssueTypeFilter}
+          >
+            <option value="all">All issue types</option>
+            {issueTypeOptions.map((issueType) => (
+              <option key={issueType.code} value={issueType.code}>
+                {issueType.label}
+              </option>
+            ))}
+          </FilterSelect>
+          <FilterSelect
+            label="Linked Field"
+            value={linkedFieldFilter}
+            onChange={setLinkedFieldFilter}
+          >
+            <option value="all">All fields</option>
+            <option value="field_linked">Any field-linked issue</option>
+            <option value="record_level">Record-level only</option>
+            {linkedFieldOptions.map((linkedField) => (
+              <option key={linkedField} value={`field:${linkedField}`}>
+                {formatLinkedField(linkedField)}
+              </option>
+            ))}
+          </FilterSelect>
+          <div className="flex flex-wrap items-end gap-3">
+            <button
+              className="h-10 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              type="button"
+              onClick={clearPersistentIssueFilters}
+            >
+              Clear Issue Filters
+            </button>
+            {currentUser ? (
+              <span className="self-center text-xs font-medium text-gray-500">
+                Current PostgreSQL user: {currentUser.name || "Current user"}
+              </span>
+            ) : null}
+          </div>
         </div>
 
         {visibleIssues.length === 0 ? (
@@ -2934,14 +3098,15 @@ function PersistentIssues({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1180px] table-fixed text-left text-sm">
+            <table className="min-w-[1280px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="w-[13%] px-4 py-3 font-semibold">Issue</th>
-                  <th className="w-[25%] px-4 py-3 font-semibold">Record</th>
-                  <th className="w-[11%] px-4 py-3 font-semibold">Severity</th>
-                  <th className="w-[11%] px-4 py-3 font-semibold">Status</th>
-                  <th className="w-[13%] px-4 py-3 font-semibold">Assigned</th>
+                  <th className="w-[23%] px-4 py-3 font-semibold">Record</th>
+                  <th className="w-[13%] px-4 py-3 font-semibold">Field</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Severity</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Status</th>
+                  <th className="w-[14%] px-4 py-3 font-semibold">Assigned</th>
                   <th className="w-[10%] px-4 py-3 font-semibold">Updated</th>
                   <th className="w-[17%] px-4 py-3 font-semibold">Actions</th>
                 </tr>
@@ -2958,7 +3123,7 @@ function PersistentIssues({
                           {issue.issue_type_label}
                         </div>
                         <div className="mt-1 text-xs text-gray-500">
-                          {issue.linked_field || "record-level"}
+                          {formatEntityType(issue.entity_type)}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -2973,6 +3138,21 @@ function PersistentIssues({
                             {issue.description}
                           </div>
                         ) : null}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          className="inline-flex min-h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-left text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                          type="button"
+                          onClick={() =>
+                            setLinkedFieldFilter(
+                              issue.linked_field
+                                ? `field:${issue.linked_field}`
+                                : "record_level"
+                            )
+                          }
+                        >
+                          {formatLinkedField(issue.linked_field)}
+                        </button>
                       </td>
                       <td className="px-4 py-3">
                         <SeverityBadge severity={issue.severity} />
