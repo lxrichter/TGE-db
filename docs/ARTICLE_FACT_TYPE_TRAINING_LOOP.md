@@ -41,6 +41,28 @@ The goal is not perfection. The goal is a stable review pipeline where
 high-confidence candidates are useful and weak candidates are easy to reject in
 bulk.
 
+## First Capacity Tuning Result
+
+The first reviewed `capacity_signal` batch showed:
+
+- 50 reviewed rows
+- 40 accepted
+- 10 rejected
+- 80% accept rate
+- 100% accept rate for the top-confidence bucket
+
+Main rule issue:
+
+- rejected values were mostly capacity numbers embedded in markdown link URLs
+  or related-article references, not the article's actual claim
+
+Implemented response:
+
+- the local scanner now strips markdown link targets and bare URLs before fact
+  extraction while preserving visible link text
+- this keeps real article wording reviewable but avoids training on capacity
+  numbers hidden inside URLs
+
 ## Review Batch Command
 
 Run one fact type at a time:
@@ -147,4 +169,3 @@ Proposed future improvements:
 - bulk-confirm workflows for repeatedly reliable candidate types
 - semantic document layer for full article text and PDFs
 - field-level evidence/claim model
-

@@ -162,6 +162,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   definition cards when a single fact type is selected, and
   `docs/ARTICLE_FACT_TYPE_TRAINING_LOOP.md` documents the local one-type sample
   review cycle
+- first `capacity_signal` training audit completed: 50 reviewed rows, 40
+  accepted, 10 rejected; repeated false positives came mainly from capacity
+  numbers inside markdown link URLs/related-article references, so the local
+  article scanner now strips markdown link targets and bare URLs before fact
+  extraction while preserving visible link text
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

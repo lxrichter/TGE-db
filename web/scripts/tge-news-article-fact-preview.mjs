@@ -466,6 +466,15 @@ function normalizeWhitespace(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
+function sanitizeMarkdownForFactScan(markdown) {
+  return String(markdown || "")
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\[[^\]]*\]/g, "$1")
+    .replace(/^\s*\[[^\]]+\]:\s+\S+.*$/gm, "")
+    .replace(/https?:\/\/\S+/gi, "");
+}
+
 function getSnippet(text, index, matchLength) {
   const start = Math.max(index - 110, 0);
   const end = Math.min(index + matchLength + 110, text.length);
@@ -1074,7 +1083,7 @@ function extractCategoryAndStatusSignals(article, scanText, titleLength, minConf
 }
 
 function extractFactsForArticle(article, tags, body, args) {
-  const bodyScan = body.slice(0, args.bodyCharLimit);
+  const bodyScan = sanitizeMarkdownForFactScan(body).slice(0, args.bodyCharLimit);
   const titleScan = article.title || "";
   const scanText = `${titleScan}\n${bodyScan}`;
   const titleLength = titleScan.length + 1;
@@ -1647,7 +1656,7 @@ async function main() {
     const publishedDate = String(frontmatter.date || filenameDate || "").trim();
     const tags = normalizeList(frontmatter.tags).map((tag) => tag.toLowerCase());
     const categories = normalizeList(frontmatter.categories);
-    const bodyScan = body.slice(0, args.bodyCharLimit);
+    const bodyScan = sanitizeMarkdownForFactScan(body).slice(0, args.bodyCharLimit);
     const article = {
       source_reference: `TGE-MD-${path.basename(file, ".md")}`,
       title,
