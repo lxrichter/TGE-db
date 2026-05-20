@@ -333,6 +333,12 @@ export function GovernanceEvidenceSnapshot({
                   ) : null}
                 </div>
                 <div className="mt-3 text-xs leading-5 text-gray-500">
+                  {source.evidence_type ? (
+                    <div>
+                      <span className="font-semibold text-gray-700">Fact type:</span>{" "}
+                      {formatGovernanceCode(source.evidence_type)}
+                    </div>
+                  ) : null}
                   {source.linked_field ? (
                     <div>
                       <span className="font-semibold text-gray-700">Field:</span>{" "}

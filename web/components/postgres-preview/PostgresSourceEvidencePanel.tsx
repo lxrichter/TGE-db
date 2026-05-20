@@ -9,6 +9,10 @@ import type {
   SourceReferenceOption,
   SourceLink,
 } from "@/lib/services/sources";
+import {
+  SOURCE_FACT_TYPE_PRESETS,
+  type SourceFactTypePreset,
+} from "@/lib/sourceFactTypePresets";
 
 type TgeArticleResult = {
   wordpress_id: number;
@@ -45,6 +49,19 @@ function StatusBadge({ value }: { value: string | null }) {
   );
 }
 
+function formatEvidenceCode(value: string | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return value
+    .replaceAll("_", " ")
+    .replace(/\bmw\b/gi, "MW")
+    .replace(/\bmwe\b/gi, "MWe")
+    .replace(/\bmwth\b/gi, "MWth")
+    .replace(/\bcod\b/gi, "COD");
+}
+
 export default function PostgresSourceEvidencePanel({
   sources,
   entityType,
@@ -76,6 +93,7 @@ export default function PostgresSourceEvidencePanel({
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [showTgeArticleSearch, setShowTgeArticleSearch] = useState(false);
   const [sourceId, setSourceId] = useState("");
+  const [evidenceType, setEvidenceType] = useState("record_source");
   const [confidenceStatusCode, setConfidenceStatusCode] = useState("unknown");
   const [linkedField, setLinkedField] = useState("");
   const [extractedValue, setExtractedValue] = useState("");
@@ -105,7 +123,7 @@ export default function PostgresSourceEvidencePanel({
           source_id: sourceId,
           entity_type: entityType,
           entity_id: entityId,
-          evidence_type: "record_source",
+          evidence_type: evidenceType,
           evidence_note: evidenceNote,
           confidence_status_code: confidenceStatusCode,
           linked_field: linkedField,
@@ -122,6 +140,7 @@ export default function PostgresSourceEvidencePanel({
 
       setMessage("Source linked.");
       setSourceId("");
+      setEvidenceType("record_source");
       setLinkedField("");
       setExtractedValue("");
       setClaimText("");
@@ -207,6 +226,11 @@ export default function PostgresSourceEvidencePanel({
     }
   }
 
+  function applyFactTypePreset(preset: SourceFactTypePreset) {
+    setEvidenceType(preset.evidenceType);
+    setLinkedField(preset.linkedField);
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -261,6 +285,36 @@ export default function PostgresSourceEvidencePanel({
 
       {showLinkForm && canManageSources ? (
         <div className="space-y-4 border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+          <div className="border border-gray-200 bg-white px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Quick Fact Type
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {SOURCE_FACT_TYPE_PRESETS.map((preset) => {
+                const selected = evidenceType === preset.evidenceType;
+
+                return (
+                  <button
+                    key={preset.evidenceType}
+                    className={`border px-3 py-1.5 text-xs font-semibold ${
+                      selected
+                        ? "border-[#8dc63f] bg-[#edf7df] text-[#4f7f1f]"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-[#8dc63f]"
+                    }`}
+                    type="button"
+                    onClick={() => applyFactTypePreset(preset)}
+                  >
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Presets fill the fact/evidence type and linked field only. The
+              link still needs human review before export-ready use.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_220px_180px]">
             <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
               Source
@@ -305,6 +359,15 @@ export default function PostgresSourceEvidencePanel({
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
             <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Fact / Evidence Type
+              <input
+                className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                placeholder="capacity_signal, record_source..."
+                value={evidenceType}
+                onChange={(event) => setEvidenceType(event.target.value)}
+              />
+            </label>
+            <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
               Linked Field
               <input
                 className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
@@ -322,17 +385,9 @@ export default function PostgresSourceEvidencePanel({
                 onChange={(event) => setExtractedValue(event.target.value)}
               />
             </label>
-            <button
-              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={saving || !sourceId}
-              type="button"
-              onClick={linkExistingSource}
-            >
-              {saving ? "Linking..." : "Link Source"}
-            </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_160px]">
             <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
               Claim Text
               <textarea
@@ -351,6 +406,14 @@ export default function PostgresSourceEvidencePanel({
                 onChange={(event) => setEvidenceNote(event.target.value)}
               />
             </label>
+            <button
+              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={saving || !sourceId}
+              type="button"
+              onClick={linkExistingSource}
+            >
+              {saving ? "Linking..." : "Link Source"}
+            </button>
           </div>
         </div>
       ) : null}
@@ -438,11 +501,12 @@ export default function PostgresSourceEvidencePanel({
             <tr>
               <th className="w-[26%] px-4 py-3 font-semibold">Source</th>
               <th className="w-[14%] px-4 py-3 font-semibold">Type</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Credibility</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Value</th>
+              <th className="w-[13%] px-4 py-3 font-semibold">Credibility</th>
+              <th className="w-[13%] px-4 py-3 font-semibold">Fact Type</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Field</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Value</th>
               <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
-              <th className="w-[8%] px-4 py-3 font-semibold">Open</th>
+              <th className="w-[8%] px-4 py-3 font-semibold">Edit</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -468,7 +532,10 @@ export default function PostgresSourceEvidencePanel({
                   <StatusBadge value={source.credibility_status_code} />
                 </td>
                 <td className="px-4 py-3 text-gray-700">
-                  {source.linked_field || "-"}
+                  {formatEvidenceCode(source.evidence_type)}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {formatEvidenceCode(source.linked_field)}
                 </td>
                 <td className="px-4 py-3 text-gray-700">
                   {source.extracted_value || "-"}
@@ -495,7 +562,7 @@ export default function PostgresSourceEvidencePanel({
             {sources.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={8}
                   className="px-4 py-8 text-center text-sm text-gray-500"
                 >
                   No source links yet. Add one before this record can become

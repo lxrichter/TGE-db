@@ -171,6 +171,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   compact record-section navigation strip so researchers/editors can jump
   quickly to identity, operating data, market focus, evidence, AI suggestions,
   relationships, audit, and export-readiness areas on long records
+- record-level source/evidence panels now expose fact/evidence type directly
+  and reuse the same quick fact type presets as source edit pages, keeping
+  source linking, field suggestions, and article fact review aligned around one
+  controlled evidence vocabulary
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

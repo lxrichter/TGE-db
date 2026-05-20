@@ -367,6 +367,19 @@ export function ExportReadinessPanel({
   );
 }
 
+function formatSourceLinkCode(value: string | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return value
+    .replaceAll("_", " ")
+    .replace(/\bmw\b/gi, "MW")
+    .replace(/\bmwe\b/gi, "MWe")
+    .replace(/\bmwth\b/gi, "MWth")
+    .replace(/\bcod\b/gi, "COD");
+}
+
 export function SourceEvidenceTable({
   sources,
   entityType,
@@ -396,9 +409,10 @@ export function SourceEvidenceTable({
             <tr>
               <th className="w-[26%] px-4 py-3 font-semibold">Source</th>
               <th className="w-[14%] px-4 py-3 font-semibold">Type</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Credibility</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Value</th>
+              <th className="w-[13%] px-4 py-3 font-semibold">Credibility</th>
+              <th className="w-[13%] px-4 py-3 font-semibold">Fact Type</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Field</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Value</th>
               <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
               <th className="w-[8%] px-4 py-3 font-semibold">Open</th>
             </tr>
@@ -426,7 +440,10 @@ export function SourceEvidenceTable({
                   <StatusBadge value={source.credibility_status_code} />
                 </td>
                 <td className="px-4 py-3 text-gray-700">
-                  {source.linked_field || "-"}
+                  {formatSourceLinkCode(source.evidence_type)}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {formatSourceLinkCode(source.linked_field)}
                 </td>
                 <td className="px-4 py-3 text-gray-700">
                   {source.extracted_value || "-"}
@@ -452,7 +469,7 @@ export function SourceEvidenceTable({
 
             {sources.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-gray-500">
                   No source links yet. Add one before this record can become
                   export-ready.
                 </td>
@@ -565,12 +582,23 @@ export function RelatedTgeNewsPanel({
                   </div>
                 </div>
 
-                {article.claim_text || article.extracted_value || article.linked_field ? (
+                {article.claim_text ||
+                article.extracted_value ||
+                article.linked_field ||
+                article.evidence_type ? (
                   <div className="mt-3 border-t border-gray-200 pt-3 text-xs leading-5 text-gray-600">
+                    {article.evidence_type ? (
+                      <div>
+                        <span className="font-semibold text-gray-700">
+                          Fact type:
+                        </span>{" "}
+                        {formatSourceLinkCode(article.evidence_type)}
+                      </div>
+                    ) : null}
                     {article.linked_field ? (
                       <div>
                         <span className="font-semibold text-gray-700">Field:</span>{" "}
-                        {article.linked_field}
+                        {formatSourceLinkCode(article.linked_field)}
                       </div>
                     ) : null}
                     {article.extracted_value ? (
