@@ -341,6 +341,215 @@ function AssetGovernanceOverview({
   );
 }
 
+type AssetActionTone = "blocker" | "warning" | "ready" | "neutral";
+
+type AssetAction = {
+  label: string;
+  detail: string;
+  href: string;
+  tone: AssetActionTone;
+  primary?: boolean;
+};
+
+const assetActionToneClasses: Record<AssetActionTone, string> = {
+  blocker: "border-red-200 bg-red-50 text-red-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  ready: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+  neutral: "border-gray-200 bg-white text-gray-700",
+};
+
+function assetActionLinkClass(action: AssetAction) {
+  const base =
+    "block border px-4 py-4 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
+
+  return `${base} ${assetActionToneClasses[action.tone]} ${
+    action.primary ? "ring-2 ring-[#8dc63f]/20" : ""
+  }`;
+}
+
+function AssetActionHub({
+  asset,
+  readinessIssues,
+  researchIssues,
+  openSourceMatchCount,
+  fieldSuggestionCandidates,
+  companyLinkCount,
+  canEditRecord,
+}: {
+  asset: PostgresPreviewOperatingAssetDetail;
+  readinessIssues: ExportReadinessIssue[];
+  researchIssues: PostgresResearchOpsIssue[];
+  openSourceMatchCount: number;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
+  companyLinkCount: number;
+  canEditRecord: boolean;
+}) {
+  const blockers = readinessIssues.filter((issue) => issue.severity === "blocker");
+  const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
+  const openIssues = openResearchIssues(researchIssues);
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const hasCod = Boolean(asset.cod_year || asset.cod_raw);
+  const actions: AssetAction[] = [];
+
+  if (canEditRecord) {
+    actions.push({
+      label: "Edit Core Fields",
+      detail:
+        "Update identity, location, operating status, use type, COD, capacity, and notes.",
+      href: `/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`,
+      tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
+      primary: blockers.length > 0,
+    });
+  }
+
+  actions.push({
+    label: "Review COD / Capacity",
+    detail:
+      hasAssetCapacity(asset) && hasCod
+        ? "Capacity/output and COD fields are present for this plant/facility."
+        : "Confirm COD, installed/running capacity, thermal output, or explain gaps.",
+    href: "#asset-operating-data",
+    tone: hasAssetCapacity(asset) && hasCod ? "ready" : "warning",
+  });
+
+  actions.push({
+    label: asset.sources.length === 0 ? "Add Evidence" : "Review Evidence",
+    detail:
+      asset.sources.length === 0
+        ? "No source is linked yet. Add evidence before export-ready use."
+        : `${formatCount(asset.sources.length)} linked source${
+            asset.sources.length === 1 ? "" : "s"
+          }; review credibility and operating claims.`,
+    href: "#asset-source-evidence",
+    tone: asset.sources.length === 0 ? "blocker" : "ready",
+    primary: asset.sources.length === 0,
+  });
+
+  if (openSourceMatchCount > 0) {
+    actions.push({
+      label: "Review Article Matches",
+      detail: `${formatCount(openSourceMatchCount)} source/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } can support related news and evidence links.`,
+      href: "#asset-article-matches",
+      tone: "warning",
+      primary: asset.sources.length === 0,
+    });
+  }
+
+  if (fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0) {
+    actions.push({
+      label: "Review AI Suggestions",
+      detail: `${formatCount(fieldSuggestionSummary.open)} open and ${formatCount(
+        fieldSuggestionSummary.applyReady
+      )} ready-to-apply field suggestion${
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady === 1
+          ? ""
+          : "s"
+      }.`,
+      href: "#asset-ai-suggestions",
+      tone: "warning",
+    });
+  }
+
+  actions.push({
+    label: "Company Links",
+    detail:
+      companyLinkCount > 0
+        ? `${formatCount(companyLinkCount)} structured company role${
+            companyLinkCount === 1 ? "" : "s"
+          } linked to this plant/facility.`
+        : "Review owner, operator, supplier, EPC, offtaker, and other asset roles.",
+    href: "#asset-company-links",
+    tone: companyLinkCount > 0 ? "ready" : "neutral",
+  });
+
+  if (asset.promoted_from_project_id) {
+    actions.push({
+      label: "Originating Project",
+      detail: "Open the source project that promoted into this operating asset.",
+      href: `/postgres-preview/projects/${asset.promoted_from_project_id}`,
+      tone: "ready",
+    });
+  }
+
+  if (openIssues.length > 0) {
+    actions.push({
+      label: "Research Issues",
+      detail: `${formatCount(openIssues.length)} open persistent issue${
+        openIssues.length === 1 ? "" : "s"
+      } assigned or tracked for this record.`,
+      href: "#asset-research-issues",
+      tone: "warning",
+    });
+  }
+
+  actions.push({
+    label: "Export Readiness",
+    detail:
+      blockers.length > 0
+        ? `${formatCount(blockers.length)} blocker${
+            blockers.length === 1 ? "" : "s"
+          } and ${formatCount(warnings.length)} warning${
+            warnings.length === 1 ? "" : "s"
+          } detected.`
+        : warnings.length > 0
+          ? `${formatCount(warnings.length)} warning${
+              warnings.length === 1 ? "" : "s"
+            } left for editor judgment.`
+          : "No export-readiness blockers detected.",
+    href: "#asset-export-readiness",
+    tone: blockers.length > 0 ? "blocker" : warnings.length > 0 ? "warning" : "ready",
+  });
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Record Workbench
+          </div>
+          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            Plant / Facility Action Hub
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            Use this as the operational entry point for this plant/facility:
+            confirm operating data, strengthen evidence, review AI suggestions,
+            manage company roles, and check export readiness.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={`${formatCount(blockers.length)} blockers`} />
+          <StatusBadge value={`${formatCount(warnings.length)} warnings`} />
+          <Link
+            href="/postgres-preview/research-ops"
+            className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            Research Ops
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
+        {actions.map((action) => (
+          <Link
+            key={`${action.label}-${action.href}`}
+            className={assetActionLinkClass(action)}
+            href={action.href}
+          >
+            <div className="text-sm font-bold text-[#1f2937]">
+              {action.label}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-600">
+              {action.detail}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function PostgresOperatingAssetDetailPage({
   params,
 }: {
@@ -392,6 +601,8 @@ export default async function PostgresOperatingAssetDetailPage({
   }
   const role = (session?.user as { role?: string | null } | undefined)?.role;
   const readinessIssues = getAssetReadinessIssues(asset);
+  const canEditRecord = canEdit(role);
+  const canReviewRecord = canReview(role);
 
   return (
     <DetailShell
@@ -451,6 +662,16 @@ export default async function PostgresOperatingAssetDetailPage({
         sources={asset.sources}
       />
 
+      <AssetActionHub
+        asset={asset}
+        canEditRecord={canEditRecord}
+        companyLinkCount={companyLinks.length}
+        fieldSuggestionCandidates={fieldSuggestionCandidates}
+        openSourceMatchCount={openSourceMatchCount}
+        readinessIssues={readinessIssues}
+        researchIssues={researchIssues}
+      />
+
       <DetailSection title="Identity And Location">
         <DetailFieldGrid
           fields={[
@@ -467,7 +688,7 @@ export default async function PostgresOperatingAssetDetailPage({
         />
       </DetailSection>
 
-      <DetailSection title="Resource, Capacity, And Operation">
+      <DetailSection id="asset-operating-data" title="Resource, Capacity, And Operation">
         <DetailFieldGrid
           fields={[
             { label: "Resource Type", value: asset.resource_type },
@@ -496,7 +717,7 @@ export default async function PostgresOperatingAssetDetailPage({
       </DetailSection>
 
       <PostgresReviewStatusActions
-        canReviewStatus={canReview(role)}
+        canReviewStatus={canReviewRecord}
         currentStatus={asset.review_status_code}
         entityId={asset.operating_asset_id}
         entityType="operating_asset"
@@ -506,21 +727,26 @@ export default async function PostgresOperatingAssetDetailPage({
       <RelatedTgeNewsPanel
         entityType="operating_asset"
         entityId={asset.operating_asset_id}
+        id="asset-tge-news"
         sources={asset.sources}
       />
 
       {sourceMatchCandidates.length > 0 ? (
-        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        <div id="asset-article-matches" className="scroll-mt-6">
+          <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        </div>
       ) : null}
 
-      <PostgresFieldSuggestionsPanel
-        canReviewStatus={canReview(role)}
-        candidates={fieldSuggestionCandidates}
-      />
+      <div id="asset-ai-suggestions" className="scroll-mt-6">
+        <PostgresFieldSuggestionsPanel
+          canReviewStatus={canReviewRecord}
+          candidates={fieldSuggestionCandidates}
+        />
+      </div>
 
-      <DetailSection title="Source Evidence">
+      <DetailSection id="asset-source-evidence" title="Source Evidence">
         <PostgresSourceEvidencePanel
-          canManageSources={canEdit(role)}
+          canManageSources={canEditRecord}
           confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="operating_asset"
           entityId={asset.operating_asset_id}
@@ -529,23 +755,28 @@ export default async function PostgresOperatingAssetDetailPage({
         />
       </DetailSection>
 
-      <OperatingAssetCompanyLinksPanel
-        links={companyLinks}
-        operatingAssetId={asset.operating_asset_id}
-        referenceData={relationshipReferenceData}
-      />
+      <div id="asset-company-links" className="scroll-mt-6">
+        <OperatingAssetCompanyLinksPanel
+          links={companyLinks}
+          operatingAssetId={asset.operating_asset_id}
+          referenceData={relationshipReferenceData}
+        />
+      </div>
 
-      <PostgresResearchIssuesPanel
-        canManageIssues={canEdit(role)}
-        entityId={asset.operating_asset_id}
-        entityType="operating_asset"
-        issueReferenceData={issueReferenceData}
-        issues={researchIssues}
-      />
+      <div id="asset-research-issues" className="scroll-mt-6">
+        <PostgresResearchIssuesPanel
+          canManageIssues={canEditRecord}
+          entityId={asset.operating_asset_id}
+          entityType="operating_asset"
+          issueReferenceData={issueReferenceData}
+          issues={researchIssues}
+        />
+      </div>
 
-      <AuditTrailPanel events={auditEvents} />
+      <AuditTrailPanel events={auditEvents} id="asset-audit-trail" />
 
       <ExportReadinessPanel
+        id="asset-export-readiness"
         issues={readinessIssues}
         sourceCount={asset.sources.length}
         credibleSourceCount={
