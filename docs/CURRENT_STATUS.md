@@ -266,6 +266,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   treat `Prospect / TBD` as an important review signal rather than a critical
   blocker, use clearer project terminology, and show an evidence/company-role/
   linked-asset workflow bridge directly on the form
+- PostgreSQL plant/facility forms now use the same workflow bridge pattern for
+  source evidence, owner/operator/company roles, and originating project or unit
+  follow-up, with clearer operating-status and capacity terminology
 - Detail-page review buttons and Research Ops bulk status actions now surface
   the same approval/export-readiness blockers, keeping approval failures
   understandable outside the edit forms

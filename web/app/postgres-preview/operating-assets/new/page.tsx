@@ -60,6 +60,9 @@ export default async function NewPostgresOperatingAssetPage() {
           <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
             Create a staging operating asset for power plants, direct-use
             facilities, hybrid assets, or historically relevant retired units.
+            Draft saving is allowed while evidence, owner/operator roles, and
+            linked project or unit relationships are completed in the saved
+            detail workflow.
           </p>
         </div>
       </section>

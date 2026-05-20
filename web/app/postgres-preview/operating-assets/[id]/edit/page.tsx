@@ -87,9 +87,10 @@ export default async function EditPostgresOperatingAssetPage({
                 Edit Plant / Facility
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Update the staging operating asset record. Unit-level,
-                promotion, source, and company-role workflows remain separate
-                follow-on steps.
+                Update the staging operating asset record. Draft saves remain
+                allowed while source evidence, owner/operator roles, and
+                originating project or unit relationships are completed through
+                the saved detail workflow.
               </p>
             </div>
             {data.ok ? (

@@ -1200,6 +1200,113 @@ function ProjectWorkflowBridge({
   );
 }
 
+function AssetWorkflowBridge({
+  mode,
+  asset,
+}: {
+  mode: EntityFormMode;
+  asset?: PostgresPreviewOperatingAssetDetail | null;
+}) {
+  const assetHref = asset
+    ? `/postgres-preview/operating-assets/${asset.operating_asset_id}`
+    : null;
+  const evidenceHref = assetHref ? `${assetHref}#asset-source-evidence` : null;
+  const relationshipsHref = assetHref ? `${assetHref}#asset-company-links` : null;
+  const linkedProjectHref = assetHref ? `${assetHref}#asset-workflow-actions` : null;
+
+  return (
+    <Section title="Evidence And Relationship Workflow">
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Evidence / Source
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Source URL, source title, date, source type, linked field, extracted
+            value, claim text, and confidence note are managed as evidence links.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {evidenceHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={evidenceHref}
+              >
+                Add / Review Evidence
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add evidence
+              </span>
+            )}
+            <Link
+              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href="/sources/new"
+            >
+              New Source
+            </Link>
+          </div>
+        </div>
+
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Related Companies
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Owner, operator, developer, turbine supplier, EPC, drilling
+            contractor, direct-use operator, and offtaker roles are structured
+            relationship records, not free-text asset fields.
+          </p>
+          <div className="mt-3">
+            {relationshipsHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={relationshipsHref}
+              >
+                Add Company Roles
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add company roles
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Originating Project / Units
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Originating project, expansion, unit, plant group, field group, and
+            promotion history stay in the operating-asset detail workflow.
+          </p>
+          <div className="mt-3">
+            {linkedProjectHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={linkedProjectHref}
+              >
+                Review Asset Workflow
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to link projects or units
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {mode === "create" ? (
+        <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
+          For new records, save the draft first. The saved detail page then
+          exposes evidence, owner/operator, Research Ops, and linked-project or
+          unit workflows against the new plant/facility ID.
+        </p>
+      ) : null}
+    </Section>
+  );
+}
+
 function initialProjectValues(
   project?: PostgresPreviewProjectDetail | null
 ): EntityFormValues {
@@ -1740,6 +1847,8 @@ export function PostgresOperatingAssetForm({
         })}
       />
 
+      <AssetWorkflowBridge asset={asset} mode={mode} />
+
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
@@ -1796,7 +1905,7 @@ export function PostgresOperatingAssetForm({
       <Section title="Workflow And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
-            label="Use Type"
+            label="Geothermal Use Category"
             {...fieldMeta(changeState, "primary_use_type_code", {
               required: true,
               tone: "critical",
@@ -1862,7 +1971,7 @@ export function PostgresOperatingAssetForm({
       <Section title="Capacity And Output">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
-            label="Installed MWe"
+            label="Installed Electric Capacity MWe"
             {...fieldMeta(changeState, "electric_capacity_mwe", {
               important: true,
               tone: "important",
@@ -1875,7 +1984,7 @@ export function PostgresOperatingAssetForm({
             />
           </Field>
           <Field
-            label="Running MWe"
+            label="Running / Current Electric Capacity MWe"
             {...fieldMeta(changeState, "electric_capacity_running_mwe", {
               important: true,
               tone: "important",
@@ -1887,17 +1996,26 @@ export function PostgresOperatingAssetForm({
               setField={setField}
             />
           </Field>
-          <Field label="Thermal MWth" {...fieldMeta(changeState, "thermal_capacity_mwth")}>
+          <Field
+            label="Thermal Capacity MWth"
+            {...fieldMeta(changeState, "thermal_capacity_mwth")}
+          >
             <TextInput
               form={form}
               name="thermal_capacity_mwth"
               setField={setField}
             />
           </Field>
-          <Field label="Potential Min MWe" {...fieldMeta(changeState, "potential_min_mwe")}>
+          <Field
+            label="Estimated Capacity Range Min MWe"
+            {...fieldMeta(changeState, "potential_min_mwe")}
+          >
             <TextInput form={form} name="potential_min_mwe" setField={setField} />
           </Field>
-          <Field label="Potential Max MWe" {...fieldMeta(changeState, "potential_max_mwe")}>
+          <Field
+            label="Estimated Capacity Range Max MWe"
+            {...fieldMeta(changeState, "potential_max_mwe")}
+          >
             <TextInput form={form} name="potential_max_mwe" setField={setField} />
           </Field>
           <Field
@@ -1945,7 +2063,7 @@ export function PostgresOperatingAssetForm({
             <TextInput form={form} name="start_dev_year" setField={setField} />
           </Field>
           <Field
-            label="COD Year"
+            label="Commissioning / COD Year"
             {...fieldMeta(changeState, "cod_year", {
               important: true,
               tone: "important",
@@ -1953,10 +2071,13 @@ export function PostgresOperatingAssetForm({
           >
             <TextInput form={form} name="cod_year" setField={setField} />
           </Field>
-          <Field label="COD Month" {...fieldMeta(changeState, "cod_month")}>
+          <Field label="Commissioning / COD Month" {...fieldMeta(changeState, "cod_month")}>
             <TextInput form={form} name="cod_month" setField={setField} />
           </Field>
-          <Field label="COD Raw" {...fieldMeta(changeState, "cod_raw")}>
+          <Field
+            label="COD Source Text / Original Wording"
+            {...fieldMeta(changeState, "cod_raw")}
+          >
             <TextInput form={form} name="cod_raw" setField={setField} />
           </Field>
           <Field label="Units" {...fieldMeta(changeState, "number_of_units")}>

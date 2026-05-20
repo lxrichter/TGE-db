@@ -705,15 +705,17 @@ export default async function PostgresOperatingAssetDetailPage({
         sources={asset.sources}
       />
 
-      <AssetActionHub
-        asset={asset}
-        canEditRecord={canEditRecord}
-        companyLinkCount={companyLinks.length}
-        fieldSuggestionCandidates={fieldSuggestionCandidates}
-        openSourceMatchCount={openSourceMatchCount}
-        readinessIssues={readinessIssues}
-        researchIssues={researchIssues}
-      />
+      <div id="asset-workflow-actions" className="scroll-mt-6">
+        <AssetActionHub
+          asset={asset}
+          canEditRecord={canEditRecord}
+          companyLinkCount={companyLinks.length}
+          fieldSuggestionCandidates={fieldSuggestionCandidates}
+          openSourceMatchCount={openSourceMatchCount}
+          readinessIssues={readinessIssues}
+          researchIssues={researchIssues}
+        />
+      </div>
 
       <DetailAnchorNav
         items={[
@@ -796,9 +798,9 @@ export default async function PostgresOperatingAssetDetailPage({
               value: asset.capacity_estimate_status_code,
             },
             { label: "Output Confidence", value: asset.output_estimate_status_code },
-            { label: "COD Year", value: asset.cod_year },
-            { label: "COD Month", value: asset.cod_month },
-            { label: "COD Raw", value: asset.cod_raw },
+            { label: "Commissioning / COD Year", value: asset.cod_year },
+            { label: "Commissioning / COD Month", value: asset.cod_month },
+            { label: "COD Source Text / Original Wording", value: asset.cod_raw },
             { label: "Units", value: asset.number_of_units },
             { label: "Technology", value: asset.plant_technology },
             { label: "Turbine Supplier", value: asset.turbine_supplier },
