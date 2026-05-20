@@ -304,6 +304,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - `/postgres-preview/map` and `/api/postgres-preview/map` now provide a first
   PostgreSQL-backed coordinate-confirmed grouped map layer for staged projects
   and plants/facilities
+- `/postgres-preview/analysis` now provides a first PostgreSQL-backed analysis
+  preview for project lifecycle, plant/facility status, use-type distribution,
+  and top-country operating/pipeline capacity signals
 - `/postgres-preview/readiness` now provides a live PostgreSQL replacement
   readiness view for staged record counts, review coverage, source gaps,
   persistent Research Ops issues, critical issues, latest live SQLite migration

@@ -86,6 +86,20 @@ export type PostgresPreviewMapGroup = {
   type: "plant" | "project";
 };
 
+export type PostgresPreviewAnalysisBucket = {
+  bucket_code: string;
+  record_count: number;
+  electric_capacity_mwe: number;
+  thermal_capacity_mwth: number;
+};
+
+export type PostgresPreviewAnalysisSummary = {
+  projectLifecycle: PostgresPreviewAnalysisBucket[];
+  operatingAssetStatus: PostgresPreviewAnalysisBucket[];
+  useTypeBreakdown: PostgresPreviewAnalysisBucket[];
+  topCountries: PostgresCountryMarketSummary[];
+};
+
 export type PostgresPreviewProject = {
   project_id: string;
   legacy_project_id: string | null;
@@ -897,6 +911,14 @@ type PostgresPreviewMapGroupRow = Omit<
   record_count: number | bigint | string;
   total_capacity_mw: number | string | null;
   potential_min_mw: number | string | null;
+};
+
+type PostgresPreviewAnalysisBucketRow = {
+  bucket_group: "project_lifecycle" | "asset_status" | "use_type";
+  bucket_code: string | null;
+  record_count: number | bigint | string;
+  electric_capacity_mwe: number | string | null;
+  thermal_capacity_mwth: number | string | null;
 };
 
 const fieldSuggestionApplyTargets: Record<string, FieldSuggestionApplyTarget> = {
@@ -2224,6 +2246,104 @@ export async function listPostgresPreviewMapGroups(): Promise<{
   return {
     plants: plants.map(normalizeGroup),
     projects: projects.map(normalizeGroup),
+  };
+}
+
+export async function getPostgresPreviewAnalysisSummary(): Promise<PostgresPreviewAnalysisSummary> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    PostgresPreviewAnalysisBucketRow[]
+  >(`
+    SELECT
+      'project_lifecycle'::text AS bucket_group,
+      p.lifecycle_phase_code AS bucket_code,
+      count(*)::int AS record_count,
+      sum(COALESCE(p.electric_capacity_mwe, 0))::float8
+        AS electric_capacity_mwe,
+      sum(COALESCE(p.thermal_capacity_mwth, 0))::float8
+        AS thermal_capacity_mwth
+    FROM projects p
+    GROUP BY p.lifecycle_phase_code
+
+    UNION ALL
+
+    SELECT
+      'asset_status'::text AS bucket_group,
+      a.lifecycle_phase_code AS bucket_code,
+      count(*)::int AS record_count,
+      sum(COALESCE(a.electric_capacity_mwe, 0))::float8
+        AS electric_capacity_mwe,
+      sum(COALESCE(a.thermal_capacity_mwth, 0))::float8
+        AS thermal_capacity_mwth
+    FROM operating_assets a
+    GROUP BY a.lifecycle_phase_code
+
+    UNION ALL
+
+    SELECT
+      'use_type'::text AS bucket_group,
+      use_records.primary_use_type_code AS bucket_code,
+      count(*)::int AS record_count,
+      sum(COALESCE(use_records.electric_capacity_mwe, 0))::float8
+        AS electric_capacity_mwe,
+      sum(COALESCE(use_records.thermal_capacity_mwth, 0))::float8
+        AS thermal_capacity_mwth
+    FROM (
+      SELECT
+        primary_use_type_code,
+        electric_capacity_mwe,
+        thermal_capacity_mwth
+      FROM projects
+      UNION ALL
+      SELECT
+        primary_use_type_code,
+        electric_capacity_mwe,
+        thermal_capacity_mwth
+      FROM operating_assets
+    ) use_records
+    GROUP BY use_records.primary_use_type_code
+  `);
+  const topCountries = await listPostgresCountryMarketSummaries(10);
+  const normalizeBucket = (
+    row: PostgresPreviewAnalysisBucketRow
+  ): PostgresPreviewAnalysisBucket => ({
+    bucket_code: row.bucket_code || "unknown",
+    record_count: toNumber(row.record_count),
+    electric_capacity_mwe:
+      row.electric_capacity_mwe === null ? 0 : toNumber(row.electric_capacity_mwe),
+    thermal_capacity_mwth:
+      row.thermal_capacity_mwth === null ? 0 : toNumber(row.thermal_capacity_mwth),
+  });
+
+  const buckets = {
+    projectLifecycle: [] as PostgresPreviewAnalysisBucket[],
+    operatingAssetStatus: [] as PostgresPreviewAnalysisBucket[],
+    useTypeBreakdown: [] as PostgresPreviewAnalysisBucket[],
+  };
+
+  for (const row of rows) {
+    if (row.bucket_group === "project_lifecycle") {
+      buckets.projectLifecycle.push(normalizeBucket(row));
+    } else if (row.bucket_group === "asset_status") {
+      buckets.operatingAssetStatus.push(normalizeBucket(row));
+    } else {
+      buckets.useTypeBreakdown.push(normalizeBucket(row));
+    }
+  }
+
+  const sortByCapacityThenCount = (
+    a: PostgresPreviewAnalysisBucket,
+    b: PostgresPreviewAnalysisBucket
+  ) =>
+    b.electric_capacity_mwe - a.electric_capacity_mwe ||
+    b.record_count - a.record_count ||
+    a.bucket_code.localeCompare(b.bucket_code);
+
+  return {
+    projectLifecycle: buckets.projectLifecycle.sort(sortByCapacityThenCount),
+    operatingAssetStatus:
+      buckets.operatingAssetStatus.sort(sortByCapacityThenCount),
+    useTypeBreakdown: buckets.useTypeBreakdown.sort(sortByCapacityThenCount),
+    topCountries,
   };
 }
 
