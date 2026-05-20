@@ -386,6 +386,12 @@ export default async function PostgresPreviewPage() {
                 Replacement Readiness
               </Link>
               <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href="/postgres-preview/pilot"
+              >
+                Pilot Workflow
+              </Link>
+              <Link
                 className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href="/postgres-preview/projects/new"
               >

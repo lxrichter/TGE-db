@@ -311,6 +311,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   readiness view for staged record counts, review coverage, source gaps,
   persistent Research Ops issues, critical issues, latest live SQLite migration
   rehearsal status, and cutover-planning gates
+- `/postgres-preview/pilot` now provides a guided manual acceptance workflow
+  for testing one realistic project, plant/facility, company, source/evidence,
+  Research Ops, and output/search loop before broader internal use
 - `/api/health` now provides a minimal no-store app/PostgreSQL health check for
   Hetzner deployment monitoring without exposing database credentials or record
   data
