@@ -8,6 +8,7 @@ import {
   DetailFieldGrid,
   DetailSection,
   DetailShell,
+  DetailWorkflowMap,
   ExportReadinessPanel,
   NotFoundNotice,
   RelatedTgeNewsPanel,
@@ -544,6 +545,25 @@ export default async function PostgresOperatingAssetDetailPage({
   const readinessIssues = getAssetReadinessIssues(asset);
   const canEditRecord = canEdit(role);
   const canReviewRecord = canReview(role);
+  const credibleSourceCount = asset.sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const readinessBlockers = readinessIssues.filter(
+    (issue) => issue.severity === "blocker"
+  );
+  const readinessWarnings = readinessIssues.filter(
+    (issue) => issue.severity === "warning"
+  );
+  const openIssueCount = openResearchIssues(researchIssues).length;
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const identityComplete = Boolean(
+    asset.asset_name &&
+      asset.country &&
+      asset.lifecycle_phase_code &&
+      asset.lifecycle_phase_code !== "unknown" &&
+      asset.primary_use_type_code &&
+      asset.primary_use_type_code !== "unknown"
+  );
 
   return (
     <DetailShell
@@ -593,6 +613,87 @@ export default async function PostgresOperatingAssetDetailPage({
         },
       ]}
     >
+      <DetailWorkflowMap
+        description="Use this sequence to scan the plant/facility record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
+        steps={[
+          {
+            label: "Identity",
+            href: "#asset-identity-location",
+            status: identityComplete ? "complete" : "attention",
+            note: identityComplete
+              ? "Core plant/facility identity, country, status, and use type are present."
+              : "Confirm asset name, country, operating status, and use type.",
+            meta: asset.country || "No country",
+          },
+          {
+            label: "Evidence",
+            href: "#asset-source-evidence",
+            status:
+              credibleSourceCount > 0
+                ? "complete"
+                : asset.sources.length > 0 || openSourceMatchCount > 0
+                  ? "attention"
+                  : "blocked",
+            note:
+              credibleSourceCount > 0
+                ? "At least one credible source is linked."
+                : "Add or review source evidence before export-ready use.",
+            meta: `${formatCount(credibleSourceCount)}/${formatCount(
+              asset.sources.length
+            )} credible sources`,
+          },
+          {
+            label: "Companies",
+            href: "#asset-company-links",
+            status: companyLinks.length > 0 ? "complete" : "attention",
+            note:
+              companyLinks.length > 0
+                ? "Structured owner, operator, supplier, or contractor roles are linked."
+                : "Add owner, operator, supplier, EPC, or other asset roles.",
+            meta: `${formatCount(companyLinks.length)} relationship${
+              companyLinks.length === 1 ? "" : "s"
+            }`,
+          },
+          {
+            label: "AI / Review",
+            href: "#asset-ai-suggestions",
+            status:
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0 ||
+              openIssueCount > 0
+                ? "attention"
+                : fieldSuggestionSummary.applied > 0
+                  ? "complete"
+                  : "neutral",
+            note:
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
+                ? "Review field suggestions before applying any database writes."
+                : "Check Research Ops issues and AI suggestions when present.",
+            meta: `${formatCount(openIssueCount)} issue${
+              openIssueCount === 1 ? "" : "s"
+            } · ${formatCount(
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+            )} AI pending`,
+          },
+          {
+            label: "Export",
+            href: "#asset-export-readiness",
+            status:
+              readinessBlockers.length > 0
+                ? "blocked"
+                : readinessWarnings.length > 0
+                  ? "attention"
+                  : "complete",
+            note:
+              readinessBlockers.length > 0
+                ? "Resolve blockers before export-ready use."
+                : "Review warnings before marking this asset export-ready.",
+            meta: `${formatCount(readinessBlockers.length)} blocker${
+              readinessBlockers.length === 1 ? "" : "s"
+            }`,
+          },
+        ]}
+      />
+
       <AssetGovernanceOverview
         asset={asset}
         auditEvents={auditEvents}
@@ -770,11 +871,7 @@ export default async function PostgresOperatingAssetDetailPage({
         id="asset-export-readiness"
         issues={readinessIssues}
         sourceCount={asset.sources.length}
-        credibleSourceCount={
-          asset.sources.filter(
-            (source) => source.credibility_status_code === "credible"
-          ).length
-        }
+        credibleSourceCount={credibleSourceCount}
       />
 
       <DetailSection title="Notes">

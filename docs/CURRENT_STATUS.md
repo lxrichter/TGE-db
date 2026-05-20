@@ -184,6 +184,10 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Article match and article fact review pages now show active filter chips with
   one-click removal, making source/archive review and fact-type training states
   clearer during controlled local review batches
+- PostgreSQL project, plant/facility, and company detail pages now include a
+  compact record workflow strip for identity, evidence, relationships,
+  AI/review work, and export readiness so each profile is easier to scan before
+  deeper section review
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

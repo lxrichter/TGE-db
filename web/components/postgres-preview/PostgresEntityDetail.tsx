@@ -23,6 +23,14 @@ export type DetailNavItem = {
   note?: string;
 };
 
+export type DetailWorkflowStep = {
+  label: string;
+  href: string;
+  status: "complete" | "attention" | "blocked" | "neutral";
+  note: string;
+  meta?: string;
+};
+
 export type ExportReadinessIssue = {
   severity: "blocker" | "warning";
   label: string;
@@ -272,6 +280,101 @@ export function DetailAnchorNav({
         </div>
       </div>
     </nav>
+  );
+}
+
+function workflowStepTone(status: DetailWorkflowStep["status"]) {
+  if (status === "complete") {
+    return {
+      badge: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+      card: "hover:border-[#8dc63f]",
+      label: "Complete",
+    };
+  }
+
+  if (status === "blocked") {
+    return {
+      badge: "border-red-200 bg-red-50 text-red-700",
+      card: "hover:border-red-300",
+      label: "Blocked",
+    };
+  }
+
+  if (status === "attention") {
+    return {
+      badge: "border-amber-200 bg-amber-50 text-amber-800",
+      card: "hover:border-amber-300",
+      label: "Needs Attention",
+    };
+  }
+
+  return {
+    badge: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+    card: "hover:border-gray-300",
+    label: "Not Started",
+  };
+}
+
+export function DetailWorkflowMap({
+  title = "Record Workflow",
+  description,
+  steps,
+}: {
+  title?: string;
+  description: string;
+  steps: DetailWorkflowStep[];
+}) {
+  return (
+    <section className="border border-gray-200 bg-white px-5 py-5">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Workflow
+          </div>
+          <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            {description}
+          </p>
+        </div>
+        <StatusBadge value={`${formatCount(steps.length)} steps`} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-5">
+        {steps.map((step, index) => {
+          const tone = workflowStepTone(step.status);
+
+          return (
+            <Link
+              key={`${step.href}-${step.label}`}
+              href={step.href}
+              className={`block border border-gray-200 bg-[#fbfbfb] px-4 py-4 ${tone.card}`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  Step {index + 1}
+                </div>
+                <span
+                  className={`inline-flex min-h-6 items-center border px-2 text-[11px] font-semibold ${tone.badge}`}
+                >
+                  {tone.label}
+                </span>
+              </div>
+              <div className="mt-3 text-sm font-bold leading-5 text-[#1f2937]">
+                {step.label}
+              </div>
+              <div className="mt-2 text-xs leading-5 text-gray-600">
+                {step.note}
+              </div>
+              {step.meta ? (
+                <div className="mt-3 border-t border-gray-200 pt-2 text-xs font-semibold text-gray-500">
+                  {step.meta}
+                </div>
+              ) : null}
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 

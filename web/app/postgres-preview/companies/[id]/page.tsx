@@ -8,6 +8,7 @@ import {
   DetailFieldGrid,
   DetailSection,
   DetailShell,
+  DetailWorkflowMap,
   ExportReadinessPanel,
   NotFoundNotice,
   RelatedTgeNewsPanel,
@@ -644,6 +645,22 @@ export default async function PostgresCompanyDetailPage({
   const readinessIssues = getCompanyReadinessIssues(company);
   const canEditRecord = canEdit(role);
   const canReviewRecord = canReview(role);
+  const credibleSourceCount = company.sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const readinessBlockers = readinessIssues.filter(
+    (issue) => issue.severity === "blocker"
+  );
+  const readinessWarnings = readinessIssues.filter(
+    (issue) => issue.severity === "warning"
+  );
+  const openIssueCount = openResearchIssues(researchIssues).length;
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const activityLinkCount =
+    projectLinks.length + operatingAssetLinks.length + relationships.length;
+  const identityComplete = Boolean(
+    company.company_name && company.company_type_primary_code
+  );
 
   return (
     <DetailShell
@@ -693,6 +710,87 @@ export default async function PostgresCompanyDetailPage({
         },
       ]}
     >
+      <DetailWorkflowMap
+        description="Use this sequence to scan the company record: confirm classification, strengthen evidence, check activity and ownership relationships, handle AI/review work, then decide whether the record is export-ready."
+        steps={[
+          {
+            label: "Identity",
+            href: "#company-classification",
+            status: identityComplete ? "complete" : "attention",
+            note: identityComplete
+              ? "Company name and primary category are present."
+              : "Confirm company name, legal identity, status, and primary category.",
+            meta: company.headquarters_country || "No HQ country",
+          },
+          {
+            label: "Evidence",
+            href: "#company-source-evidence",
+            status:
+              credibleSourceCount > 0
+                ? "complete"
+                : company.sources.length > 0 || openSourceMatchCount > 0
+                  ? "attention"
+                  : "blocked",
+            note:
+              credibleSourceCount > 0
+                ? "At least one credible source is linked."
+                : "Add or review source evidence before export-ready use.",
+            meta: `${formatCount(credibleSourceCount)}/${formatCount(
+              company.sources.length
+            )} credible sources`,
+          },
+          {
+            label: "Relationships",
+            href: "#company-relationships",
+            status: activityLinkCount > 0 ? "complete" : "attention",
+            note:
+              activityLinkCount > 0
+                ? "Structured project, asset, or company relationships are linked."
+                : "Add project roles, plant/facility roles, ownership, group, or JV links.",
+            meta: `${formatCount(activityLinkCount)} relationship${
+              activityLinkCount === 1 ? "" : "s"
+            }`,
+          },
+          {
+            label: "AI / Review",
+            href: "#company-ai-suggestions",
+            status:
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0 ||
+              openIssueCount > 0
+                ? "attention"
+                : fieldSuggestionSummary.applied > 0
+                  ? "complete"
+                  : "neutral",
+            note:
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
+                ? "Review field suggestions before applying any database writes."
+                : "Check Research Ops issues and AI suggestions when present.",
+            meta: `${formatCount(openIssueCount)} issue${
+              openIssueCount === 1 ? "" : "s"
+            } · ${formatCount(
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+            )} AI pending`,
+          },
+          {
+            label: "Export",
+            href: "#company-export-readiness",
+            status:
+              readinessBlockers.length > 0
+                ? "blocked"
+                : readinessWarnings.length > 0
+                  ? "attention"
+                  : "complete",
+            note:
+              readinessBlockers.length > 0
+                ? "Resolve blockers before export-ready use."
+                : "Review warnings before marking this company export-ready.",
+            meta: `${formatCount(readinessBlockers.length)} blocker${
+              readinessBlockers.length === 1 ? "" : "s"
+            }`,
+          },
+        ]}
+      />
+
       <CompanyGovernanceOverview
         auditEvents={auditEvents}
         company={company}
@@ -887,11 +985,7 @@ export default async function PostgresCompanyDetailPage({
         id="company-export-readiness"
         issues={readinessIssues}
         sourceCount={company.sources.length}
-        credibleSourceCount={
-          company.sources.filter(
-            (source) => source.credibility_status_code === "credible"
-          ).length
-        }
+        credibleSourceCount={credibleSourceCount}
       />
 
       <DetailSection title="Notes">

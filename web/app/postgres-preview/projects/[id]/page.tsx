@@ -8,6 +8,7 @@ import {
   DetailFieldGrid,
   DetailSection,
   DetailShell,
+  DetailWorkflowMap,
   ExportReadinessPanel,
   NotFoundNotice,
   RelatedTgeNewsPanel,
@@ -532,6 +533,25 @@ export default async function PostgresProjectDetailPage({
   const canEditRecord = canEdit(role);
   const canReviewRecord = canReview(role);
   const canPromoteRecord = canPromoteProject(role);
+  const credibleSourceCount = project.sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const readinessBlockers = readinessIssues.filter(
+    (issue) => issue.severity === "blocker"
+  );
+  const readinessWarnings = readinessIssues.filter(
+    (issue) => issue.severity === "warning"
+  );
+  const openIssueCount = openResearchIssues(researchIssues).length;
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const identityComplete = Boolean(
+    project.project_name &&
+      project.country &&
+      project.lifecycle_phase_code &&
+      project.lifecycle_phase_code !== "unknown" &&
+      project.primary_use_type_code &&
+      project.primary_use_type_code !== "unknown"
+  );
 
   return (
     <DetailShell
@@ -587,6 +607,87 @@ export default async function PostgresProjectDetailPage({
         },
       ]}
     >
+      <DetailWorkflowMap
+        description="Use this sequence to scan the project record: confirm identity, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
+        steps={[
+          {
+            label: "Identity",
+            href: "#project-identity-location",
+            status: identityComplete ? "complete" : "attention",
+            note: identityComplete
+              ? "Core project identity, country, lifecycle, and use type are present."
+              : "Confirm project name, country, lifecycle phase, and use type.",
+            meta: project.country || "No country",
+          },
+          {
+            label: "Evidence",
+            href: "#project-source-evidence",
+            status:
+              credibleSourceCount > 0
+                ? "complete"
+                : project.sources.length > 0 || openSourceMatchCount > 0
+                  ? "attention"
+                  : "blocked",
+            note:
+              credibleSourceCount > 0
+                ? "At least one credible source is linked."
+                : "Add or review source evidence before export-ready use.",
+            meta: `${formatCount(credibleSourceCount)}/${formatCount(
+              project.sources.length
+            )} credible sources`,
+          },
+          {
+            label: "Companies",
+            href: "#project-company-links",
+            status: companyLinks.length > 0 ? "complete" : "attention",
+            note:
+              companyLinks.length > 0
+                ? "Structured company roles are linked."
+                : "Add developer, owner, operator, supplier, or investor roles.",
+            meta: `${formatCount(companyLinks.length)} relationship${
+              companyLinks.length === 1 ? "" : "s"
+            }`,
+          },
+          {
+            label: "AI / Review",
+            href: "#project-ai-suggestions",
+            status:
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0 ||
+              openIssueCount > 0
+                ? "attention"
+                : fieldSuggestionSummary.applied > 0
+                  ? "complete"
+                  : "neutral",
+            note:
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
+                ? "Review field suggestions before applying any database writes."
+                : "Check Research Ops issues and AI suggestions when present.",
+            meta: `${formatCount(openIssueCount)} issue${
+              openIssueCount === 1 ? "" : "s"
+            } · ${formatCount(
+              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+            )} AI pending`,
+          },
+          {
+            label: "Export",
+            href: "#project-export-readiness",
+            status:
+              readinessBlockers.length > 0
+                ? "blocked"
+                : readinessWarnings.length > 0
+                  ? "attention"
+                  : "complete",
+            note:
+              readinessBlockers.length > 0
+                ? "Resolve blockers before export-ready use."
+                : "Review warnings before marking this project export-ready.",
+            meta: `${formatCount(readinessBlockers.length)} blocker${
+              readinessBlockers.length === 1 ? "" : "s"
+            }`,
+          },
+        ]}
+      />
+
       <ProjectGovernanceOverview
         auditEvents={auditEvents}
         fieldSuggestionCandidates={fieldSuggestionCandidates}
@@ -781,11 +882,7 @@ export default async function PostgresProjectDetailPage({
         id="project-export-readiness"
         issues={readinessIssues}
         sourceCount={project.sources.length}
-        credibleSourceCount={
-          project.sources.filter(
-            (source) => source.credibility_status_code === "credible"
-          ).length
-        }
+        credibleSourceCount={credibleSourceCount}
       />
 
       <DetailSection title="Notes">
