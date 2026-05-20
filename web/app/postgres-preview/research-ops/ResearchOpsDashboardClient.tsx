@@ -1386,6 +1386,8 @@ function FieldSuggestionReviewPanel({
   canReviewStatus: boolean;
 }) {
   const router = useRouter();
+  const pageSize = 10;
+  const [page, setPage] = useState(1);
   const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(
     () => new Set()
   );
@@ -1439,13 +1441,6 @@ function FieldSuggestionReviewPanel({
       note: "Rejected or superseded",
     },
   ];
-  const selectableCandidateIds = useMemo(
-    () =>
-      candidates
-        .filter(isSelectableFieldSuggestion)
-        .map((candidate) => candidate.field_suggestion_candidate_id),
-    [candidates]
-  );
   const highConfidenceCandidateIds = useMemo(
     () =>
       candidates
@@ -1464,9 +1459,18 @@ function FieldSuggestionReviewPanel({
         .map((candidate) => candidate.field_suggestion_candidate_id),
     [candidates]
   );
+  const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
+  const clampedPage = Math.min(page, pageCount);
+  const pageStartIndex = (clampedPage - 1) * pageSize;
+  const pageItems = candidates.slice(pageStartIndex, pageStartIndex + pageSize);
+  const pageStart = candidates.length === 0 ? 0 : pageStartIndex + 1;
+  const pageEnd = Math.min(pageStartIndex + pageItems.length, candidates.length);
+  const selectablePageCandidateIds = pageItems
+    .filter(isSelectableFieldSuggestion)
+    .map((candidate) => candidate.field_suggestion_candidate_id);
   const allVisibleSelected =
-    selectableCandidateIds.length > 0 &&
-    selectableCandidateIds.every((id) => selectedCandidateIds.has(id));
+    selectablePageCandidateIds.length > 0 &&
+    selectablePageCandidateIds.every((id) => selectedCandidateIds.has(id));
   const selectedCount = selectedCandidateIds.size;
 
   useEffect(() => {
@@ -1501,7 +1505,7 @@ function FieldSuggestionReviewPanel({
     setSelectedCandidateIds((current) => {
       const next = new Set(current);
 
-      selectableCandidateIds.forEach((candidateId) => {
+      selectablePageCandidateIds.forEach((candidateId) => {
         if (checked) {
           next.add(candidateId);
         } else {
@@ -1733,6 +1737,15 @@ function FieldSuggestionReviewPanel({
               Review actions require editor/admin permissions.
             </div>
           ) : null}
+          <PaginationControls
+            noun="suggestion"
+            page={clampedPage}
+            pageCount={pageCount}
+            pageEnd={pageEnd}
+            pageStart={pageStart}
+            total={candidates.length}
+            onPageChange={setPage}
+          />
           <div className="overflow-x-auto">
             <table className="min-w-[1240px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
@@ -1740,10 +1753,11 @@ function FieldSuggestionReviewPanel({
                   <th className="w-[4%] px-4 py-3 font-semibold">
                     <input
                       type="checkbox"
-                      aria-label="Select visible field suggestions"
+                      aria-label="Select visible field suggestions on this page"
                       checked={allVisibleSelected}
                       disabled={
-                        !canReviewStatus || selectableCandidateIds.length === 0
+                        !canReviewStatus ||
+                        selectablePageCandidateIds.length === 0
                       }
                       onChange={(event) =>
                         toggleVisibleCandidates(event.target.checked)
@@ -1761,7 +1775,7 @@ function FieldSuggestionReviewPanel({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {candidates.map((candidate) => (
+                {pageItems.map((candidate) => (
                   <tr
                     key={candidate.field_suggestion_candidate_id}
                     className="align-top"
@@ -1861,6 +1875,17 @@ function FieldSuggestionReviewPanel({
               </tbody>
             </table>
           </div>
+          {pageCount > 1 ? (
+            <PaginationControls
+              noun="suggestion"
+              page={clampedPage}
+              pageCount={pageCount}
+              pageEnd={pageEnd}
+              pageStart={pageStart}
+              total={candidates.length}
+              onPageChange={setPage}
+            />
+          ) : null}
         </div>
       )}
 
@@ -1934,6 +1959,7 @@ function PaginationControls({
   pageEnd,
   total,
   onPageChange,
+  noun = "record",
 }: {
   page: number;
   pageCount: number;
@@ -1941,11 +1967,13 @@ function PaginationControls({
   pageEnd: number;
   total: number;
   onPageChange: (page: number) => void;
+  noun?: string;
 }) {
   if (pageCount <= 1) {
     return (
       <div className="border-t border-gray-100 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Showing {formatCount(total)} record{total === 1 ? "" : "s"}
+        Showing {formatCount(total)} {noun}
+        {total === 1 ? "" : "s"}
       </div>
     );
   }
