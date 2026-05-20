@@ -17,6 +17,12 @@ type FormReadinessIssue = {
   severity: "critical" | "important" | "workflow";
   label: string;
   detail: string;
+  issueTypeCode?: string;
+  linkedField?: string;
+};
+type EntityIssueContext = {
+  entityType: "project" | "operating_asset" | "company";
+  entityId: string;
 };
 
 function toInputValue(value: string | number | null | undefined) {
@@ -390,17 +396,34 @@ function issueTone(severity: FormReadinessIssue["severity"]) {
   return "border-blue-200 bg-blue-50 text-blue-800";
 }
 
+function formatFieldLabel(fieldName: string) {
+  return fieldName
+    .replace(/_/g, " ")
+    .replace(/\bmwe\b/gi, "MWe")
+    .replace(/\bmwth\b/gi, "MWth")
+    .replace(/\bgwh(e|th|c)?\b/gi, (value) => value.toUpperCase())
+    .replace(/\bcod\b/gi, "COD")
+    .replace(/\bhq\b/gi, "HQ")
+    .replace(/\b\w/g, (value) => value.toUpperCase());
+}
+
 function FormReadinessPanel({
   issues,
   entityLabel,
   changeState,
   currentReviewStatus,
+  issueContext,
 }: {
   issues: FormReadinessIssue[];
   entityLabel: string;
   changeState?: FormChangeState;
   currentReviewStatus?: string;
+  issueContext?: EntityIssueContext;
 }) {
+  const router = useRouter();
+  const [creatingIssueKey, setCreatingIssueKey] = useState("");
+  const [issueActionError, setIssueActionError] = useState("");
+  const [issueActionMessage, setIssueActionMessage] = useState("");
   const criticalCount = issues.filter(
     (issue) => issue.severity === "critical"
   ).length;
@@ -412,6 +435,82 @@ function FormReadinessPanel({
     changeState?.approvalSensitiveChangedFieldNames.length || 0;
   const approvedStatus =
     currentReviewStatus === "approved" || currentReviewStatus === "export_ready";
+  const approvalSensitiveFields =
+    changeState?.approvalSensitiveChangedFieldNames || [];
+
+  async function createIssue({
+    key,
+    issueTypeCode,
+    title,
+    description,
+    linkedField,
+  }: {
+    key: string;
+    issueTypeCode: string;
+    title: string;
+    description: string;
+    linkedField?: string;
+  }) {
+    if (!issueContext) {
+      return;
+    }
+
+    setCreatingIssueKey(key);
+    setIssueActionError("");
+    setIssueActionMessage("");
+
+    try {
+      const res = await fetch("/api/postgres-preview/research-ops/issues", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entity_type: issueContext.entityType,
+          entity_id: issueContext.entityId,
+          issue_type_code: issueTypeCode,
+          title,
+          description,
+          linked_field: linkedField,
+          assign_to_self: true,
+        }),
+      });
+      const json = await safeJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to create Research Ops issue.");
+      }
+
+      setIssueActionMessage("Research Ops issue created and assigned to you.");
+      router.refresh();
+    } catch (error) {
+      setIssueActionError(
+        error instanceof Error
+          ? error.message
+          : "Failed to create Research Ops issue."
+      );
+    } finally {
+      setCreatingIssueKey("");
+    }
+  }
+
+  async function createEditedFieldsIssue() {
+    if (!approvalSensitiveFields.length) {
+      return;
+    }
+
+    const fieldLabels = approvalSensitiveFields.map(formatFieldLabel);
+
+    await createIssue({
+      key: "edited-approval-fields",
+      issueTypeCode: "research_note",
+      title: "Review edited approval-sensitive fields",
+      description: `${
+        approvedStatus
+          ? "Approved/export-ready record has edited approval-sensitive fields."
+          : "Approval-sensitive fields were edited and should be reviewed."
+      } Fields: ${fieldLabels.join(", ")}.`,
+      linkedField: approvalSensitiveFields.slice(0, 8).join(", "),
+    });
+  }
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -438,23 +537,67 @@ function FormReadinessPanel({
         </div>
       </div>
       <div className="space-y-4 px-5 py-5">
+        {issueActionError ? (
+          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {issueActionError}
+          </div>
+        ) : null}
+        {issueActionMessage ? (
+          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            {issueActionMessage}
+          </div>
+        ) : null}
+
         {changeState && changedCount > 0 ? (
           <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-            <span className="font-semibold">
-              {changedCount} field{changedCount === 1 ? "" : "s"} edited
-            </span>
-            {approvalChangedCount > 0 ? (
-              <>
-                {" "}
-                including {approvalChangedCount} approval-sensitive field
-                {approvalChangedCount === 1 ? "" : "s"}.
-              </>
-            ) : (
-              "."
-            )}{" "}
-            {approvedStatus
-              ? "Saving changes to an approved/export-ready record will move it back to needs_update for review."
-              : "Edited fields are highlighted in the form below."}
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <span className="font-semibold">
+                  {changedCount} field{changedCount === 1 ? "" : "s"} edited
+                </span>
+                {approvalChangedCount > 0 ? (
+                  <>
+                    {" "}
+                    including {approvalChangedCount} approval-sensitive field
+                    {approvalChangedCount === 1 ? "" : "s"}.
+                  </>
+                ) : (
+                  "."
+                )}{" "}
+                {approvedStatus
+                  ? "Saving changes to an approved/export-ready record will move it back to needs_update for review."
+                  : "Edited fields are highlighted in the form below."}
+                {approvalSensitiveFields.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {approvalSensitiveFields.slice(0, 8).map((fieldName) => (
+                      <span
+                        key={fieldName}
+                        className="border border-amber-200 bg-white px-2 py-1 text-xs font-semibold text-amber-900"
+                      >
+                        {formatFieldLabel(fieldName)}
+                      </span>
+                    ))}
+                    {approvalSensitiveFields.length > 8 ? (
+                      <span className="border border-amber-200 bg-white px-2 py-1 text-xs font-semibold text-amber-900">
+                        +{approvalSensitiveFields.length - 8} more
+                      </span>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+              {issueContext && approvalSensitiveFields.length > 0 ? (
+                <button
+                  className="h-9 shrink-0 border border-amber-300 bg-white px-3 text-xs font-semibold text-amber-900 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={Boolean(creatingIssueKey)}
+                  type="button"
+                  onClick={createEditedFieldsIssue}
+                >
+                  {creatingIssueKey === "edited-approval-fields"
+                    ? "Creating..."
+                    : "Add Re-review Issue"}
+                </button>
+              ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -473,8 +616,32 @@ function FormReadinessPanel({
                 <div className="text-xs font-semibold uppercase tracking-wide">
                   {issue.severity}
                 </div>
-                <div className="mt-1 text-sm font-bold">{issue.label}</div>
-                <div className="mt-1 text-xs leading-5">{issue.detail}</div>
+                <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="text-sm font-bold">{issue.label}</div>
+                    <div className="mt-1 text-xs leading-5">{issue.detail}</div>
+                  </div>
+                  {issueContext ? (
+                    <button
+                      className="h-8 shrink-0 border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={Boolean(creatingIssueKey)}
+                      type="button"
+                      onClick={() =>
+                        createIssue({
+                          key: `issue-${issue.label}`,
+                          issueTypeCode: issue.issueTypeCode || "research_note",
+                          title: issue.label,
+                          description: issue.detail,
+                          linkedField: issue.linkedField,
+                        })
+                      }
+                    >
+                      {creatingIssueKey === `issue-${issue.label}`
+                        ? "Creating..."
+                        : "Add Issue"}
+                    </button>
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>
@@ -492,6 +659,8 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "critical",
       label: "Missing project name",
       detail: "A project needs a stable name before it can be reviewed.",
+      issueTypeCode: "research_note",
+      linkedField: "project_name",
     });
   }
 
@@ -500,6 +669,8 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "critical",
       label: "Missing country",
       detail: "Country is required for market pages, maps, charts, and exports.",
+      issueTypeCode: "missing_country_location",
+      linkedField: "country",
     });
   }
 
@@ -508,6 +679,8 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "critical",
       label: "Missing use type",
       detail: "Power, direct-use, hybrid, or mineral classification is required.",
+      issueTypeCode: "missing_use_type",
+      linkedField: "primary_use_type_code",
     });
   }
 
@@ -519,6 +692,8 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "critical",
       label: "Lifecycle needs classification",
       detail: "Prospect / TBD can be saved, but should stay visible as a review gap.",
+      issueTypeCode: "missing_lifecycle_status",
+      linkedField: "lifecycle_phase_code",
     });
   }
 
@@ -537,6 +712,8 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "important",
       label: "Missing capacity or output",
       detail: "Add MWe, MWth, GWh, or a potential range when credible data exists.",
+      issueTypeCode: "missing_capacity_output",
+      linkedField: "capacity_output",
     });
   }
 
@@ -545,6 +722,8 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "important",
       label: "Missing coordinates",
       detail: "Coordinate-confirmed map layers only show records with latitude and longitude.",
+      issueTypeCode: "missing_coordinates",
+      linkedField: "latitude, longitude",
     });
   }
 
@@ -552,12 +731,16 @@ function getProjectReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
     severity: "workflow",
     label: "Source evidence handled separately",
     detail: "Add source/evidence links after saving the staging record.",
+    issueTypeCode: "missing_source",
+    linkedField: "sources",
   });
 
   issues.push({
     severity: "workflow",
     label: "Company roles handled separately",
     detail: "Developer, owner, operator, and supplier links are managed on the detail page.",
+    issueTypeCode: "missing_company_link",
+    linkedField: "company_links",
   });
 
   return issues;
@@ -571,6 +754,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "critical",
       label: "Missing plant / facility name",
       detail: "An operating asset needs a stable name before review.",
+      issueTypeCode: "research_note",
+      linkedField: "asset_name",
     });
   }
 
@@ -579,6 +764,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "critical",
       label: "Missing country",
       detail: "Country is required for operating totals, maps, and exports.",
+      issueTypeCode: "missing_country_location",
+      linkedField: "country",
     });
   }
 
@@ -587,6 +774,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "critical",
       label: "Missing use type",
       detail: "Power, direct-use, hybrid, or mineral classification is required.",
+      issueTypeCode: "missing_use_type",
+      linkedField: "primary_use_type_code",
     });
   }
 
@@ -595,6 +784,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "critical",
       label: "Missing operating status",
       detail: "Operating, retired, offline, or refurbishment status is required.",
+      issueTypeCode: "missing_lifecycle_status",
+      linkedField: "lifecycle_phase_code",
     });
   }
 
@@ -614,6 +805,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "important",
       label: "Missing capacity or output",
       detail: "Add installed/running MWe, MWth, annual output, or a capacity note.",
+      issueTypeCode: "missing_capacity_output",
+      linkedField: "capacity_output",
     });
   }
 
@@ -622,6 +815,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "important",
       label: "Missing coordinates",
       detail: "Coordinate-confirmed map layers only show records with latitude and longitude.",
+      issueTypeCode: "missing_coordinates",
+      linkedField: "latitude, longitude",
     });
   }
 
@@ -630,6 +825,8 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
       severity: "important",
       label: "Missing COD / commissioning date",
       detail: "Add a structured COD year or raw commissioning note when known.",
+      issueTypeCode: "research_note",
+      linkedField: "cod_year, cod_raw",
     });
   }
 
@@ -637,12 +834,16 @@ function getAssetReadinessIssues(form: EntityFormValues): FormReadinessIssue[] {
     severity: "workflow",
     label: "Source evidence handled separately",
     detail: "Add source/evidence links after saving the staging record.",
+    issueTypeCode: "missing_source",
+    linkedField: "sources",
   });
 
   issues.push({
     severity: "workflow",
     label: "Company roles handled separately",
     detail: "Owner, operator, supplier, and contractor links are managed on the detail page.",
+    issueTypeCode: "missing_company_link",
+    linkedField: "company_links",
   });
 
   return issues;
@@ -656,6 +857,8 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "critical",
       label: "Missing company name",
       detail: "A company needs a stable name before it can be reviewed.",
+      issueTypeCode: "research_note",
+      linkedField: "company_name",
     });
   }
 
@@ -664,6 +867,8 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "critical",
       label: "Missing primary company type",
       detail: "Primary category is required for company intelligence and filtering.",
+      issueTypeCode: "missing_use_type",
+      linkedField: "company_type_primary_code",
     });
   }
 
@@ -672,6 +877,8 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "important",
       label: "Missing entity type",
       detail: "Legal entity, group, institution, or other entity type improves governance.",
+      issueTypeCode: "research_note",
+      linkedField: "entity_type_code",
     });
   }
 
@@ -680,6 +887,8 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "important",
       label: "Missing headquarters country",
       detail: "HQ country helps company portfolio and market activity analysis.",
+      issueTypeCode: "missing_country_location",
+      linkedField: "headquarters_country",
     });
   }
 
@@ -688,6 +897,8 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
       severity: "important",
       label: "Missing website",
       detail: "A company website or equivalent source improves validation confidence.",
+      issueTypeCode: "source_validation",
+      linkedField: "website_url",
     });
   }
 
@@ -695,12 +906,16 @@ function getCompanyReadinessIssues(form: EntityFormValues): FormReadinessIssue[]
     severity: "workflow",
     label: "Source evidence handled separately",
     detail: "Add source/evidence links after saving the staging company record.",
+    issueTypeCode: "missing_source",
+    linkedField: "sources",
   });
 
   issues.push({
     severity: "workflow",
     label: "Project and asset roles handled separately",
     detail: "Company portfolios and ownership links are managed on the detail page.",
+    issueTypeCode: "missing_company_link",
+    linkedField: "company_roles",
   });
 
   return issues;
@@ -923,6 +1138,11 @@ export function PostgresProjectForm({
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
         entityLabel="project"
+        issueContext={
+          mode === "edit" && project?.project_id
+            ? { entityType: "project", entityId: project.project_id }
+            : undefined
+        }
         issues={getProjectReadinessIssues(form)}
       />
 
@@ -1233,6 +1453,14 @@ export function PostgresOperatingAssetForm({
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
         entityLabel="plant / facility"
+        issueContext={
+          mode === "edit" && asset?.operating_asset_id
+            ? {
+                entityType: "operating_asset",
+                entityId: asset.operating_asset_id,
+              }
+            : undefined
+        }
         issues={getAssetReadinessIssues(form)}
       />
 
@@ -1556,6 +1784,11 @@ export function PostgresCompanyForm({
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
         entityLabel="company"
+        issueContext={
+          mode === "edit" && company?.company_id
+            ? { entityType: "company", entityId: company.company_id }
+            : undefined
+        }
         issues={getCompanyReadinessIssues(form)}
       />
 

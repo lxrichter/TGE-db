@@ -207,6 +207,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL company-role and company-relationship forms now label required,
   important, and approval-sensitive relationship fields, with inline governance
   notices to reinforce that structured links should be evidence-supported
+- PostgreSQL edit forms now let researchers create persistent Research Ops
+  issues directly from form readiness warnings and edited approval-sensitive
+  fields, turning validation gaps into assigned operational follow-up items
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
