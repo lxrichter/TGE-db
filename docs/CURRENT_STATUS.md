@@ -250,6 +250,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company forms now render server-side
   approval/export-readiness blockers as structured issue lists when a save is
   rejected
+- Detail-page review buttons and Research Ops bulk status actions now surface
+  the same approval/export-readiness blockers, keeping approval failures
+  understandable outside the edit forms
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

@@ -23,6 +23,28 @@ function safeJson(text: string) {
   }
 }
 
+function getApiIssues(json: unknown) {
+  if (!json || typeof json !== "object" || !("issues" in json)) {
+    return [];
+  }
+
+  const issues = (json as { issues?: unknown }).issues;
+  if (!Array.isArray(issues)) {
+    return [];
+  }
+
+  return issues.filter((issue): issue is string => typeof issue === "string");
+}
+
+function getApiError(json: unknown, fallback: string) {
+  if (!json || typeof json !== "object" || !("error" in json)) {
+    return fallback;
+  }
+
+  const error = (json as { error?: unknown }).error;
+  return typeof error === "string" && error.trim() ? error : fallback;
+}
+
 function statusTone(code: string) {
   if (code === "approved" || code === "credible") {
     return "border-[#8dc63f] bg-[#8dc63f] text-white hover:bg-[#78ad35]";
@@ -102,6 +124,7 @@ export default function PostgresReviewStatusActions({
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
   const [eventNote, setEventNote] = useState("");
   const [error, setError] = useState("");
+  const [errorIssues, setErrorIssues] = useState<string[]>([]);
   const [message, setMessage] = useState("");
 
   const statusOptions = useMemo(() => {
@@ -134,6 +157,7 @@ export default function PostgresReviewStatusActions({
   async function setStatus(statusCode: string) {
     setSavingStatus(statusCode);
     setError("");
+    setErrorIssues([]);
     setMessage("");
 
     try {
@@ -150,7 +174,8 @@ export default function PostgresReviewStatusActions({
       const json = await safeJson(await res.text());
 
       if (!res.ok || !json?.success) {
-        throw new Error(json?.error || "Failed to update workflow status.");
+        setErrorIssues(getApiIssues(json));
+        throw new Error(getApiError(json, "Failed to update workflow status."));
       }
 
       setMessage(`Status updated to ${statusCode}.`);
@@ -184,7 +209,14 @@ export default function PostgresReviewStatusActions({
       <div className="space-y-4 px-5 py-5">
         {error ? (
           <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
+            <div>{error}</div>
+            {errorIssues.length > 0 ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5">
+                {errorIssues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         ) : null}
         {message ? (

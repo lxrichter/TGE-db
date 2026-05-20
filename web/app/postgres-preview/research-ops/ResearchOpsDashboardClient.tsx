@@ -338,6 +338,28 @@ async function readJson(res: Response) {
   }
 }
 
+function getApiIssues(json: unknown) {
+  if (!json || typeof json !== "object" || !("issues" in json)) {
+    return [];
+  }
+
+  const issues = (json as { issues?: unknown }).issues;
+  if (!Array.isArray(issues)) {
+    return [];
+  }
+
+  return issues.filter((issue): issue is string => typeof issue === "string");
+}
+
+function getApiError(json: unknown, fallback: string) {
+  if (!json || typeof json !== "object" || !("error" in json)) {
+    return fallback;
+  }
+
+  const error = (json as { error?: unknown }).error;
+  return typeof error === "string" && error.trim() ? error : fallback;
+}
+
 function formatDate(value: string | null) {
   if (!value) {
     return "-";
@@ -2343,6 +2365,7 @@ function BulkActionsPanel({
   const [eventNote, setEventNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [errorIssues, setErrorIssues] = useState<string[]>([]);
   const [message, setMessage] = useState("");
 
   const hasSources = selectedRecords.some((record) => record.entity_type === "source");
@@ -2386,10 +2409,12 @@ function BulkActionsPanel({
 
     setSaving(true);
     setError("");
+    setErrorIssues([]);
     setMessage("");
 
     const updatedKeys: string[] = [];
     const failures: string[] = [];
+    const failureIssues: string[] = [];
 
     for (const record of targetRecords) {
       try {
@@ -2406,7 +2431,11 @@ function BulkActionsPanel({
         const json = await readJson(res);
 
         if (!res.ok || !json?.success) {
-          throw new Error(json?.error || "Failed to update status.");
+          const issues = getApiIssues(json);
+          failureIssues.push(
+            ...issues.map((issue) => `${record.name}: ${issue}`)
+          );
+          throw new Error(getApiError(json, "Failed to update status."));
         }
 
         updatedKeys.push(recordKey(record));
@@ -2432,6 +2461,7 @@ function BulkActionsPanel({
 
     if (failures.length > 0) {
       setError(failures.slice(0, 3).join(" "));
+      setErrorIssues(failureIssues.slice(0, 12));
     }
 
     setSaving(false);
@@ -2469,7 +2499,14 @@ function BulkActionsPanel({
       <div className="space-y-4 px-5 py-5">
         {error ? (
           <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
+            <div>{error}</div>
+            {errorIssues.length > 0 ? (
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5">
+                {errorIssues.map((issue) => (
+                  <li key={issue}>{issue}</li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         ) : null}
         {message ? (
