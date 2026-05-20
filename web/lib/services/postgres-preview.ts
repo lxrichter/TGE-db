@@ -2194,7 +2194,43 @@ function getPreservedReviewTimestampFields(
   };
 }
 
-function deriveUpdatedReviewStatus(current: string, requested: string) {
+function normalizeMutationComparisonValue(value: unknown) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value).trim();
+}
+
+function hasMutationFieldChanges({
+  existing,
+  input,
+  fields,
+}: {
+  existing: Record<string, unknown>;
+  input: Record<string, unknown>;
+  fields: string[];
+}) {
+  return fields.some(
+    (field) =>
+      normalizeMutationComparisonValue(existing[field]) !==
+      normalizeMutationComparisonValue(input[field])
+  );
+}
+
+function deriveUpdatedReviewStatus(
+  current: string,
+  requested: string,
+  hasCoreFieldChanges = false
+) {
+  if (
+    isApprovedStatus(current) &&
+    hasCoreFieldChanges &&
+    isApprovedStatus(requested)
+  ) {
+    return "needs_update";
+  }
+
   if (
     isApprovedStatus(current) &&
     (requested === "draft" || requested === "validation")
@@ -2204,6 +2240,94 @@ function deriveUpdatedReviewStatus(current: string, requested: string) {
 
   return requested;
 }
+
+const projectMutationFieldNames = [
+  "project_name",
+  "project_group",
+  "primary_use_type_code",
+  "lifecycle_phase_code",
+  "location_text",
+  "country",
+  "region",
+  "wb_region",
+  "latitude",
+  "longitude",
+  "resource_type",
+  "resource_temp_c",
+  "potential_min_mwe",
+  "potential_max_mwe",
+  "electric_capacity_mwe",
+  "thermal_capacity_mwth",
+  "annual_power_generation_gwhe",
+  "annual_heat_supply_gwhth",
+  "annual_cooling_supply_gwhc",
+  "capacity_estimate_status_code",
+  "output_estimate_status_code",
+  "start_dev_year",
+  "target_cod_year",
+  "target_cod_month",
+  "cod_raw",
+  "plant_technology",
+  "turbine_supplier",
+  "research_status",
+  "notes",
+];
+
+const operatingAssetMutationFieldNames = [
+  "asset_name",
+  "project_group",
+  "primary_use_type_code",
+  "lifecycle_phase_code",
+  "location_text",
+  "country",
+  "region",
+  "wb_region",
+  "latitude",
+  "longitude",
+  "resource_type",
+  "resource_temp_c",
+  "potential_min_mwe",
+  "potential_max_mwe",
+  "electric_capacity_mwe",
+  "electric_capacity_running_mwe",
+  "thermal_capacity_mwth",
+  "annual_power_generation_gwhe",
+  "annual_heat_supply_gwhth",
+  "annual_cooling_supply_gwhc",
+  "capacity_estimate_status_code",
+  "output_estimate_status_code",
+  "start_dev_year",
+  "cod_year",
+  "cod_month",
+  "cod_raw",
+  "number_of_units",
+  "plant_technology",
+  "turbine_supplier",
+  "research_status",
+  "notes",
+];
+
+const companyMutationFieldNames = [
+  "company_name",
+  "company_name_short",
+  "company_legal_name",
+  "website_url",
+  "linkedin_url",
+  "entity_type_code",
+  "company_type_primary_code",
+  "ownership_type",
+  "company_status",
+  "headquarters_city",
+  "headquarters_country",
+  "region",
+  "wb_region",
+  "geothermal_focus",
+  "technology_focus",
+  "service_scope_summary",
+  "operating_markets_summary",
+  "research_status",
+  "notes",
+];
 
 function getReviewEntityConfig(entityType: PostgresReviewEntityType) {
   if (entityType === "project") {
@@ -3405,7 +3529,36 @@ export async function updatePostgresPreviewProject(
   const prisma = getPrismaClient();
   const existing = await prisma.projects.findUnique({
     select: {
+      project_name: true,
+      project_group: true,
+      primary_use_type_code: true,
+      lifecycle_phase_code: true,
+      location_text: true,
+      country: true,
+      region: true,
+      wb_region: true,
+      latitude: true,
+      longitude: true,
+      resource_type: true,
+      resource_temp_c: true,
+      potential_min_mwe: true,
+      potential_max_mwe: true,
+      electric_capacity_mwe: true,
+      thermal_capacity_mwth: true,
+      annual_power_generation_gwhe: true,
+      annual_heat_supply_gwhth: true,
+      annual_cooling_supply_gwhc: true,
+      capacity_estimate_status_code: true,
+      output_estimate_status_code: true,
+      start_dev_year: true,
+      target_cod_year: true,
+      target_cod_month: true,
+      cod_raw: true,
+      plant_technology: true,
+      turbine_supplier: true,
       review_status_code: true,
+      research_status: true,
+      notes: true,
       approved_at: true,
       export_ready_at: true,
     },
@@ -3418,7 +3571,12 @@ export async function updatePostgresPreviewProject(
 
   const reviewStatus = deriveUpdatedReviewStatus(
     existing.review_status_code,
-    input.review_status_code
+    input.review_status_code,
+    hasMutationFieldChanges({
+      existing,
+      input: input as unknown as Record<string, unknown>,
+      fields: projectMutationFieldNames,
+    })
   );
 
   await prisma.projects.update({
@@ -3524,7 +3682,38 @@ export async function updatePostgresPreviewOperatingAsset(
   const prisma = getPrismaClient();
   const existing = await prisma.operating_assets.findUnique({
     select: {
+      asset_name: true,
+      project_group: true,
+      primary_use_type_code: true,
+      lifecycle_phase_code: true,
+      location_text: true,
+      country: true,
+      region: true,
+      wb_region: true,
+      latitude: true,
+      longitude: true,
+      resource_type: true,
+      resource_temp_c: true,
+      potential_min_mwe: true,
+      potential_max_mwe: true,
+      electric_capacity_mwe: true,
+      electric_capacity_running_mwe: true,
+      thermal_capacity_mwth: true,
+      annual_power_generation_gwhe: true,
+      annual_heat_supply_gwhth: true,
+      annual_cooling_supply_gwhc: true,
+      capacity_estimate_status_code: true,
+      output_estimate_status_code: true,
+      start_dev_year: true,
+      cod_year: true,
+      cod_month: true,
+      cod_raw: true,
+      number_of_units: true,
+      plant_technology: true,
+      turbine_supplier: true,
       review_status_code: true,
+      research_status: true,
+      notes: true,
       approved_at: true,
       export_ready_at: true,
     },
@@ -3537,7 +3726,12 @@ export async function updatePostgresPreviewOperatingAsset(
 
   const reviewStatus = deriveUpdatedReviewStatus(
     existing.review_status_code,
-    input.review_status_code
+    input.review_status_code,
+    hasMutationFieldChanges({
+      existing,
+      input: input as unknown as Record<string, unknown>,
+      fields: operatingAssetMutationFieldNames,
+    })
   );
 
   await prisma.operating_assets.update({
@@ -3631,7 +3825,26 @@ export async function updatePostgresPreviewCompany(
   const prisma = getPrismaClient();
   const existing = await prisma.companies.findUnique({
     select: {
+      company_name: true,
+      company_name_short: true,
+      company_legal_name: true,
+      website_url: true,
+      linkedin_url: true,
+      entity_type_code: true,
+      company_type_primary_code: true,
+      ownership_type: true,
+      company_status: true,
+      headquarters_city: true,
+      headquarters_country: true,
+      region: true,
+      wb_region: true,
+      geothermal_focus: true,
+      technology_focus: true,
+      service_scope_summary: true,
+      operating_markets_summary: true,
       review_status_code: true,
+      research_status: true,
+      notes: true,
       approved_at: true,
       export_ready_at: true,
     },
@@ -3644,7 +3857,12 @@ export async function updatePostgresPreviewCompany(
 
   const reviewStatus = deriveUpdatedReviewStatus(
     existing.review_status_code,
-    input.review_status_code
+    input.review_status_code,
+    hasMutationFieldChanges({
+      existing,
+      input: input as unknown as Record<string, unknown>,
+      fields: companyMutationFieldNames,
+    })
   );
 
   await prisma.companies.update({

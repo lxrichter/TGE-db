@@ -191,6 +191,12 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Source/evidence panels on PostgreSQL detail pages now summarize linked,
   credible, primary, field-linked, and needs-care evidence before the detailed
   table, reinforcing source governance and future AI-assisted review workflows
+- PostgreSQL create/edit forms now label required, important, and approval
+  fields; edit forms highlight changed field cells and summarize edited
+  approval-sensitive fields before saving
+- Approved/export-ready PostgreSQL records now move back to `needs_update`
+  when core form fields are changed, keeping re-approval as a separate
+  governed review action
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import type {
   PostgresEntityFormReferenceData,
   PostgresPreviewCompanyDetail,
@@ -12,6 +12,7 @@ import type {
 
 type EntityFormMode = "create" | "edit";
 type EntityFormValues = Record<string, string>;
+type FieldTone = "critical" | "important" | "workflow";
 type FormReadinessIssue = {
   severity: "critical" | "important" | "workflow";
   label: string;
@@ -39,16 +40,209 @@ function inputClass() {
   return "min-h-10 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
 }
 
+function normalizeComparisonValue(value: string | undefined) {
+  return (value || "").trim();
+}
+
+const projectApprovalSensitiveFields = new Set([
+  "project_name",
+  "country",
+  "primary_use_type_code",
+  "lifecycle_phase_code",
+  "latitude",
+  "longitude",
+  "resource_type",
+  "resource_temp_c",
+  "potential_min_mwe",
+  "potential_max_mwe",
+  "electric_capacity_mwe",
+  "thermal_capacity_mwth",
+  "annual_power_generation_gwhe",
+  "annual_heat_supply_gwhth",
+  "annual_cooling_supply_gwhc",
+  "capacity_estimate_status_code",
+  "output_estimate_status_code",
+  "start_dev_year",
+  "target_cod_year",
+  "target_cod_month",
+  "cod_raw",
+  "plant_technology",
+  "turbine_supplier",
+]);
+
+const assetApprovalSensitiveFields = new Set([
+  "asset_name",
+  "country",
+  "primary_use_type_code",
+  "lifecycle_phase_code",
+  "latitude",
+  "longitude",
+  "resource_type",
+  "resource_temp_c",
+  "electric_capacity_mwe",
+  "electric_capacity_running_mwe",
+  "thermal_capacity_mwth",
+  "potential_min_mwe",
+  "potential_max_mwe",
+  "annual_power_generation_gwhe",
+  "annual_heat_supply_gwhth",
+  "annual_cooling_supply_gwhc",
+  "capacity_estimate_status_code",
+  "output_estimate_status_code",
+  "cod_year",
+  "cod_month",
+  "cod_raw",
+  "number_of_units",
+  "plant_technology",
+  "turbine_supplier",
+]);
+
+const companyApprovalSensitiveFields = new Set([
+  "company_name",
+  "company_legal_name",
+  "website_url",
+  "entity_type_code",
+  "company_type_primary_code",
+  "ownership_type",
+  "company_status",
+  "headquarters_country",
+  "geothermal_focus",
+  "technology_focus",
+  "service_scope_summary",
+  "operating_markets_summary",
+]);
+
+type FormChangeState = {
+  changedFieldNames: string[];
+  approvalSensitiveChangedFieldNames: string[];
+  isChanged: (name: string) => boolean;
+  isApprovalSensitive: (name: string) => boolean;
+};
+
+function useFormChangeState({
+  enabled,
+  form,
+  originalForm,
+  approvalSensitiveFields,
+}: {
+  enabled: boolean;
+  form: EntityFormValues;
+  originalForm: EntityFormValues;
+  approvalSensitiveFields: Set<string>;
+}): FormChangeState {
+  const changedFieldNames = useMemo(() => {
+    if (!enabled) {
+      return [];
+    }
+
+    const fieldNames = new Set([
+      ...Object.keys(originalForm),
+      ...Object.keys(form),
+    ]);
+
+    return [...fieldNames].filter(
+      (fieldName) =>
+        normalizeComparisonValue(form[fieldName]) !==
+        normalizeComparisonValue(originalForm[fieldName])
+    );
+  }, [enabled, form, originalForm]);
+
+  const approvalSensitiveChangedFieldNames = useMemo(
+    () =>
+      changedFieldNames.filter((fieldName) =>
+        approvalSensitiveFields.has(fieldName)
+      ),
+    [approvalSensitiveFields, changedFieldNames]
+  );
+
+  return {
+    changedFieldNames,
+    approvalSensitiveChangedFieldNames,
+    isChanged: (name: string) => changedFieldNames.includes(name),
+    isApprovalSensitive: (name: string) => approvalSensitiveFields.has(name),
+  };
+}
+
+function fieldMeta(
+  changeState: FormChangeState,
+  name: string,
+  options: {
+    required?: boolean;
+    important?: boolean;
+    tone?: FieldTone;
+  } = {}
+) {
+  return {
+    approvalSensitive: changeState.isApprovalSensitive(name),
+    changed: changeState.isChanged(name),
+    required: options.required,
+    important: options.important,
+    tone: options.tone,
+  };
+}
+
 function Field({
   label,
   children,
+  changed = false,
+  required = false,
+  important = false,
+  approvalSensitive = false,
+  tone,
 }: {
   label: string;
   children: React.ReactNode;
+  changed?: boolean;
+  required?: boolean;
+  important?: boolean;
+  approvalSensitive?: boolean;
+  tone?: FieldTone;
 }) {
+  const toneLabel =
+    tone === "critical"
+      ? "Critical"
+      : tone === "important"
+        ? "Important"
+        : tone === "workflow"
+          ? "Workflow"
+          : null;
+
   return (
-    <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-      {label}
+    <label
+      className={`flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 ${
+        changed
+          ? "border border-amber-200 bg-amber-50 px-3 py-3"
+          : "border border-transparent"
+      }`}
+    >
+      <span className="flex flex-wrap items-center gap-2">
+        <span>{label}</span>
+        {required ? (
+          <span className="border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+            Required
+          </span>
+        ) : null}
+        {important ? (
+          <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+            Important
+          </span>
+        ) : null}
+        {approvalSensitive ? (
+          <span className="border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-800">
+            Approval Field
+          </span>
+        ) : null}
+        {toneLabel ? (
+          <span className="border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
+            {toneLabel}
+          </span>
+        ) : null}
+        {changed ? (
+          <span className="border border-amber-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+            Edited
+          </span>
+        ) : null}
+      </span>
       {children}
     </label>
   );
@@ -199,9 +393,13 @@ function issueTone(severity: FormReadinessIssue["severity"]) {
 function FormReadinessPanel({
   issues,
   entityLabel,
+  changeState,
+  currentReviewStatus,
 }: {
   issues: FormReadinessIssue[];
   entityLabel: string;
+  changeState?: FormChangeState;
+  currentReviewStatus?: string;
 }) {
   const criticalCount = issues.filter(
     (issue) => issue.severity === "critical"
@@ -209,6 +407,11 @@ function FormReadinessPanel({
   const importantCount = issues.filter(
     (issue) => issue.severity === "important"
   ).length;
+  const changedCount = changeState?.changedFieldNames.length || 0;
+  const approvalChangedCount =
+    changeState?.approvalSensitiveChangedFieldNames.length || 0;
+  const approvedStatus =
+    currentReviewStatus === "approved" || currentReviewStatus === "export_ready";
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -227,9 +430,34 @@ function FormReadinessPanel({
           <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
             {importantCount} important
           </span>
+          {changeState ? (
+            <span className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800">
+              {changedCount} edited
+            </span>
+          ) : null}
         </div>
       </div>
       <div className="space-y-4 px-5 py-5">
+        {changeState && changedCount > 0 ? (
+          <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            <span className="font-semibold">
+              {changedCount} field{changedCount === 1 ? "" : "s"} edited
+            </span>
+            {approvalChangedCount > 0 ? (
+              <>
+                {" "}
+                including {approvalChangedCount} approval-sensitive field
+                {approvalChangedCount === 1 ? "" : "s"}.
+              </>
+            ) : (
+              "."
+            )}{" "}
+            {approvedStatus
+              ? "Saving changes to an approved/export-ready record will move it back to needs_update for review."
+              : "Edited fields are highlighted in the form below."}
+          </div>
+        ) : null}
+
         {issues.length === 0 ? (
           <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
             No form-level gaps detected. Source/evidence and company-role links
@@ -632,6 +860,9 @@ export function PostgresProjectForm({
   referenceData: PostgresEntityFormReferenceData;
 }) {
   const router = useRouter();
+  const [originalForm] = useState<EntityFormValues>(() =>
+    initialProjectValues(project)
+  );
   const [form, setForm] = useState<EntityFormValues>(() =>
     initialProjectValues(project)
   );
@@ -645,6 +876,12 @@ export function PostgresProjectForm({
   const backHref = project
     ? `/postgres-preview/projects/${project.project_id}`
     : "/postgres-preview";
+  const changeState = useFormChangeState({
+    enabled: mode === "edit",
+    form,
+    originalForm,
+    approvalSensitiveFields: projectApprovalSensitiveFields,
+  });
 
   function setField(name: string, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -683,13 +920,21 @@ export function PostgresProjectForm({
       <FormNotice error={error} message={message} />
 
       <FormReadinessPanel
+        changeState={mode === "edit" ? changeState : undefined}
+        currentReviewStatus={originalForm.review_status_code}
         entityLabel="project"
         issues={getProjectReadinessIssues(form)}
       />
 
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Project Name">
+          <Field
+            label="Project Name"
+            {...fieldMeta(changeState, "project_name", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <TextInput
               form={form}
               name="project_name"
@@ -697,25 +942,43 @@ export function PostgresProjectForm({
               setField={setField}
             />
           </Field>
-          <Field label="Project / Field Group">
+          <Field label="Project / Field Group" {...fieldMeta(changeState, "project_group")}>
             <TextInput form={form} name="project_group" setField={setField} />
           </Field>
-          <Field label="Country">
+          <Field
+            label="Country"
+            {...fieldMeta(changeState, "country", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <TextInput form={form} name="country" setField={setField} />
           </Field>
-          <Field label="Region">
+          <Field label="Region" {...fieldMeta(changeState, "region")}>
             <TextInput form={form} name="region" setField={setField} />
           </Field>
-          <Field label="World Bank Region">
+          <Field label="World Bank Region" {...fieldMeta(changeState, "wb_region")}>
             <TextInput form={form} name="wb_region" setField={setField} />
           </Field>
-          <Field label="Location Text">
+          <Field label="Location Text" {...fieldMeta(changeState, "location_text")}>
             <TextInput form={form} name="location_text" setField={setField} />
           </Field>
-          <Field label="Latitude">
+          <Field
+            label="Latitude"
+            {...fieldMeta(changeState, "latitude", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput form={form} name="latitude" setField={setField} />
           </Field>
-          <Field label="Longitude">
+          <Field
+            label="Longitude"
+            {...fieldMeta(changeState, "longitude", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput form={form} name="longitude" setField={setField} />
           </Field>
         </div>
@@ -723,7 +986,13 @@ export function PostgresProjectForm({
 
       <Section title="Workflow And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Use Type">
+          <Field
+            label="Use Type"
+            {...fieldMeta(changeState, "primary_use_type_code", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <SelectInput
               form={form}
               name="primary_use_type_code"
@@ -731,7 +1000,13 @@ export function PostgresProjectForm({
               setField={setField}
             />
           </Field>
-          <Field label="Lifecycle Phase">
+          <Field
+            label="Lifecycle Phase"
+            {...fieldMeta(changeState, "lifecycle_phase_code", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <SelectInput
               form={form}
               name="lifecycle_phase_code"
@@ -739,7 +1014,7 @@ export function PostgresProjectForm({
               setField={setField}
             />
           </Field>
-          <Field label="Review Status">
+          <Field label="Review Status" {...fieldMeta(changeState, "review_status_code")}>
             <SelectInput
               form={form}
               name="review_status_code"
@@ -747,7 +1022,10 @@ export function PostgresProjectForm({
               setField={setField}
             />
           </Field>
-          <Field label="Capacity Confidence">
+          <Field
+            label="Capacity Confidence"
+            {...fieldMeta(changeState, "capacity_estimate_status_code")}
+          >
             <SelectInput
               form={form}
               name="capacity_estimate_status_code"
@@ -755,7 +1033,10 @@ export function PostgresProjectForm({
               setField={setField}
             />
           </Field>
-          <Field label="Output Confidence">
+          <Field
+            label="Output Confidence"
+            {...fieldMeta(changeState, "output_estimate_status_code")}
+          >
             <SelectInput
               form={form}
               name="output_estimate_status_code"
@@ -763,7 +1044,7 @@ export function PostgresProjectForm({
               setField={setField}
             />
           </Field>
-          <Field label="Research Status">
+          <Field label="Research Status" {...fieldMeta(changeState, "research_status")}>
             <TextInput form={form} name="research_status" setField={setField} />
           </Field>
         </div>
@@ -771,41 +1052,56 @@ export function PostgresProjectForm({
 
       <Section title="Capacity And Output">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Potential Min MWe">
+          <Field label="Potential Min MWe" {...fieldMeta(changeState, "potential_min_mwe")}>
             <TextInput form={form} name="potential_min_mwe" setField={setField} />
           </Field>
-          <Field label="Potential Max MWe">
+          <Field label="Potential Max MWe" {...fieldMeta(changeState, "potential_max_mwe")}>
             <TextInput form={form} name="potential_max_mwe" setField={setField} />
           </Field>
-          <Field label="Planned MWe">
+          <Field
+            label="Planned MWe"
+            {...fieldMeta(changeState, "electric_capacity_mwe", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput
               form={form}
               name="electric_capacity_mwe"
               setField={setField}
             />
           </Field>
-          <Field label="Thermal MWth">
+          <Field label="Thermal MWth" {...fieldMeta(changeState, "thermal_capacity_mwth")}>
             <TextInput
               form={form}
               name="thermal_capacity_mwth"
               setField={setField}
             />
           </Field>
-          <Field label="Annual Power GWh">
+          <Field
+            label="Annual Power GWh"
+            {...fieldMeta(changeState, "annual_power_generation_gwhe")}
+          >
             <TextInput
               form={form}
               name="annual_power_generation_gwhe"
               setField={setField}
             />
           </Field>
-          <Field label="Annual Heat GWhth">
+          <Field
+            label="Annual Heat GWhth"
+            {...fieldMeta(changeState, "annual_heat_supply_gwhth")}
+          >
             <TextInput
               form={form}
               name="annual_heat_supply_gwhth"
               setField={setField}
             />
           </Field>
-          <Field label="Annual Cooling GWhc">
+          <Field
+            label="Annual Cooling GWhc"
+            {...fieldMeta(changeState, "annual_cooling_supply_gwhc")}
+          >
             <TextInput
               form={form}
               name="annual_cooling_supply_gwhc"
@@ -817,40 +1113,42 @@ export function PostgresProjectForm({
 
       <Section title="Resource, Timeline, And Technology">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Resource Type">
+          <Field label="Resource Type" {...fieldMeta(changeState, "resource_type")}>
             <TextInput form={form} name="resource_type" setField={setField} />
           </Field>
-          <Field label="Resource Temp C">
+          <Field label="Resource Temp C" {...fieldMeta(changeState, "resource_temp_c")}>
             <TextInput form={form} name="resource_temp_c" setField={setField} />
           </Field>
-          <Field label="Start Dev Year">
+          <Field label="Start Dev Year" {...fieldMeta(changeState, "start_dev_year")}>
             <TextInput form={form} name="start_dev_year" setField={setField} />
           </Field>
-          <Field label="Target COD Year">
+          <Field label="Target COD Year" {...fieldMeta(changeState, "target_cod_year")}>
             <TextInput form={form} name="target_cod_year" setField={setField} />
           </Field>
-          <Field label="Target COD Month">
+          <Field label="Target COD Month" {...fieldMeta(changeState, "target_cod_month")}>
             <TextInput form={form} name="target_cod_month" setField={setField} />
           </Field>
-          <Field label="COD Raw">
+          <Field label="COD Raw" {...fieldMeta(changeState, "cod_raw")}>
             <TextInput form={form} name="cod_raw" setField={setField} />
           </Field>
-          <Field label="Plant Technology">
+          <Field label="Plant Technology" {...fieldMeta(changeState, "plant_technology")}>
             <TextInput form={form} name="plant_technology" setField={setField} />
           </Field>
-          <Field label="Turbine Supplier">
+          <Field label="Turbine Supplier" {...fieldMeta(changeState, "turbine_supplier")}>
             <TextInput form={form} name="turbine_supplier" setField={setField} />
           </Field>
         </div>
       </Section>
 
       <Section title="Notes">
-        <TextArea
-          form={form}
-          name="notes"
-          placeholder="Research notes, assumptions, and missing-data comments."
-          setField={setField}
-        />
+        <Field label="Notes" {...fieldMeta(changeState, "notes")}>
+          <TextArea
+            form={form}
+            name="notes"
+            placeholder="Research notes, assumptions, and missing-data comments."
+            setField={setField}
+          />
+        </Field>
       </Section>
 
       <FormActions backHref={backHref} saving={saving} />
@@ -868,6 +1166,9 @@ export function PostgresOperatingAssetForm({
   referenceData: PostgresEntityFormReferenceData;
 }) {
   const router = useRouter();
+  const [originalForm] = useState<EntityFormValues>(() =>
+    initialOperatingAssetValues(asset)
+  );
   const [form, setForm] = useState<EntityFormValues>(() =>
     initialOperatingAssetValues(asset)
   );
@@ -881,6 +1182,12 @@ export function PostgresOperatingAssetForm({
   const backHref = asset
     ? `/postgres-preview/operating-assets/${asset.operating_asset_id}`
     : "/postgres-preview";
+  const changeState = useFormChangeState({
+    enabled: mode === "edit",
+    form,
+    originalForm,
+    approvalSensitiveFields: assetApprovalSensitiveFields,
+  });
 
   function setField(name: string, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -923,34 +1230,60 @@ export function PostgresOperatingAssetForm({
       <FormNotice error={error} message={message} />
 
       <FormReadinessPanel
+        changeState={mode === "edit" ? changeState : undefined}
+        currentReviewStatus={originalForm.review_status_code}
         entityLabel="plant / facility"
         issues={getAssetReadinessIssues(form)}
       />
 
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Plant / Facility Name">
+          <Field
+            label="Plant / Facility Name"
+            {...fieldMeta(changeState, "asset_name", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <TextInput form={form} name="asset_name" required setField={setField} />
           </Field>
-          <Field label="Plant / Field Group">
+          <Field label="Plant / Field Group" {...fieldMeta(changeState, "project_group")}>
             <TextInput form={form} name="project_group" setField={setField} />
           </Field>
-          <Field label="Country">
+          <Field
+            label="Country"
+            {...fieldMeta(changeState, "country", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <TextInput form={form} name="country" setField={setField} />
           </Field>
-          <Field label="Region">
+          <Field label="Region" {...fieldMeta(changeState, "region")}>
             <TextInput form={form} name="region" setField={setField} />
           </Field>
-          <Field label="World Bank Region">
+          <Field label="World Bank Region" {...fieldMeta(changeState, "wb_region")}>
             <TextInput form={form} name="wb_region" setField={setField} />
           </Field>
-          <Field label="Location Text">
+          <Field label="Location Text" {...fieldMeta(changeState, "location_text")}>
             <TextInput form={form} name="location_text" setField={setField} />
           </Field>
-          <Field label="Latitude">
+          <Field
+            label="Latitude"
+            {...fieldMeta(changeState, "latitude", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput form={form} name="latitude" setField={setField} />
           </Field>
-          <Field label="Longitude">
+          <Field
+            label="Longitude"
+            {...fieldMeta(changeState, "longitude", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput form={form} name="longitude" setField={setField} />
           </Field>
         </div>
@@ -958,7 +1291,13 @@ export function PostgresOperatingAssetForm({
 
       <Section title="Workflow And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Use Type">
+          <Field
+            label="Use Type"
+            {...fieldMeta(changeState, "primary_use_type_code", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <SelectInput
               form={form}
               name="primary_use_type_code"
@@ -966,7 +1305,13 @@ export function PostgresOperatingAssetForm({
               setField={setField}
             />
           </Field>
-          <Field label="Operating Status">
+          <Field
+            label="Operating Status"
+            {...fieldMeta(changeState, "lifecycle_phase_code", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <SelectInput
               form={form}
               name="lifecycle_phase_code"
@@ -974,7 +1319,7 @@ export function PostgresOperatingAssetForm({
               setField={setField}
             />
           </Field>
-          <Field label="Review Status">
+          <Field label="Review Status" {...fieldMeta(changeState, "review_status_code")}>
             <SelectInput
               form={form}
               name="review_status_code"
@@ -982,7 +1327,10 @@ export function PostgresOperatingAssetForm({
               setField={setField}
             />
           </Field>
-          <Field label="Capacity Confidence">
+          <Field
+            label="Capacity Confidence"
+            {...fieldMeta(changeState, "capacity_estimate_status_code")}
+          >
             <SelectInput
               form={form}
               name="capacity_estimate_status_code"
@@ -990,7 +1338,10 @@ export function PostgresOperatingAssetForm({
               setField={setField}
             />
           </Field>
-          <Field label="Output Confidence">
+          <Field
+            label="Output Confidence"
+            {...fieldMeta(changeState, "output_estimate_status_code")}
+          >
             <SelectInput
               form={form}
               name="output_estimate_status_code"
@@ -998,7 +1349,7 @@ export function PostgresOperatingAssetForm({
               setField={setField}
             />
           </Field>
-          <Field label="Research Status">
+          <Field label="Research Status" {...fieldMeta(changeState, "research_status")}>
             <TextInput form={form} name="research_status" setField={setField} />
           </Field>
         </div>
@@ -1006,48 +1357,69 @@ export function PostgresOperatingAssetForm({
 
       <Section title="Capacity And Output">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Installed MWe">
+          <Field
+            label="Installed MWe"
+            {...fieldMeta(changeState, "electric_capacity_mwe", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput
               form={form}
               name="electric_capacity_mwe"
               setField={setField}
             />
           </Field>
-          <Field label="Running MWe">
+          <Field
+            label="Running MWe"
+            {...fieldMeta(changeState, "electric_capacity_running_mwe", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput
               form={form}
               name="electric_capacity_running_mwe"
               setField={setField}
             />
           </Field>
-          <Field label="Thermal MWth">
+          <Field label="Thermal MWth" {...fieldMeta(changeState, "thermal_capacity_mwth")}>
             <TextInput
               form={form}
               name="thermal_capacity_mwth"
               setField={setField}
             />
           </Field>
-          <Field label="Potential Min MWe">
+          <Field label="Potential Min MWe" {...fieldMeta(changeState, "potential_min_mwe")}>
             <TextInput form={form} name="potential_min_mwe" setField={setField} />
           </Field>
-          <Field label="Potential Max MWe">
+          <Field label="Potential Max MWe" {...fieldMeta(changeState, "potential_max_mwe")}>
             <TextInput form={form} name="potential_max_mwe" setField={setField} />
           </Field>
-          <Field label="Annual Power GWh">
+          <Field
+            label="Annual Power GWh"
+            {...fieldMeta(changeState, "annual_power_generation_gwhe")}
+          >
             <TextInput
               form={form}
               name="annual_power_generation_gwhe"
               setField={setField}
             />
           </Field>
-          <Field label="Annual Heat GWhth">
+          <Field
+            label="Annual Heat GWhth"
+            {...fieldMeta(changeState, "annual_heat_supply_gwhth")}
+          >
             <TextInput
               form={form}
               name="annual_heat_supply_gwhth"
               setField={setField}
             />
           </Field>
-          <Field label="Annual Cooling GWhc">
+          <Field
+            label="Annual Cooling GWhc"
+            {...fieldMeta(changeState, "annual_cooling_supply_gwhc")}
+          >
             <TextInput
               form={form}
               name="annual_cooling_supply_gwhc"
@@ -1059,43 +1431,51 @@ export function PostgresOperatingAssetForm({
 
       <Section title="Resource, Operation, And Technology">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Resource Type">
+          <Field label="Resource Type" {...fieldMeta(changeState, "resource_type")}>
             <TextInput form={form} name="resource_type" setField={setField} />
           </Field>
-          <Field label="Resource Temp C">
+          <Field label="Resource Temp C" {...fieldMeta(changeState, "resource_temp_c")}>
             <TextInput form={form} name="resource_temp_c" setField={setField} />
           </Field>
-          <Field label="Start Dev Year">
+          <Field label="Start Dev Year" {...fieldMeta(changeState, "start_dev_year")}>
             <TextInput form={form} name="start_dev_year" setField={setField} />
           </Field>
-          <Field label="COD Year">
+          <Field
+            label="COD Year"
+            {...fieldMeta(changeState, "cod_year", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput form={form} name="cod_year" setField={setField} />
           </Field>
-          <Field label="COD Month">
+          <Field label="COD Month" {...fieldMeta(changeState, "cod_month")}>
             <TextInput form={form} name="cod_month" setField={setField} />
           </Field>
-          <Field label="COD Raw">
+          <Field label="COD Raw" {...fieldMeta(changeState, "cod_raw")}>
             <TextInput form={form} name="cod_raw" setField={setField} />
           </Field>
-          <Field label="Units">
+          <Field label="Units" {...fieldMeta(changeState, "number_of_units")}>
             <TextInput form={form} name="number_of_units" setField={setField} />
           </Field>
-          <Field label="Plant Technology">
+          <Field label="Plant Technology" {...fieldMeta(changeState, "plant_technology")}>
             <TextInput form={form} name="plant_technology" setField={setField} />
           </Field>
-          <Field label="Turbine Supplier">
+          <Field label="Turbine Supplier" {...fieldMeta(changeState, "turbine_supplier")}>
             <TextInput form={form} name="turbine_supplier" setField={setField} />
           </Field>
         </div>
       </Section>
 
       <Section title="Notes">
-        <TextArea
-          form={form}
-          name="notes"
-          placeholder="Operating history, capacity notes, and validation context."
-          setField={setField}
-        />
+        <Field label="Notes" {...fieldMeta(changeState, "notes")}>
+          <TextArea
+            form={form}
+            name="notes"
+            placeholder="Operating history, capacity notes, and validation context."
+            setField={setField}
+          />
+        </Field>
       </Section>
 
       <FormActions backHref={backHref} saving={saving} />
@@ -1113,6 +1493,9 @@ export function PostgresCompanyForm({
   referenceData: PostgresEntityFormReferenceData;
 }) {
   const router = useRouter();
+  const [originalForm] = useState<EntityFormValues>(() =>
+    initialCompanyValues(company)
+  );
   const [form, setForm] = useState<EntityFormValues>(() =>
     initialCompanyValues(company)
   );
@@ -1126,6 +1509,12 @@ export function PostgresCompanyForm({
   const backHref = company
     ? `/postgres-preview/companies/${company.company_id}`
     : "/postgres-preview";
+  const changeState = useFormChangeState({
+    enabled: mode === "edit",
+    form,
+    originalForm,
+    approvalSensitiveFields: companyApprovalSensitiveFields,
+  });
 
   function setField(name: string, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -1164,13 +1553,21 @@ export function PostgresCompanyForm({
       <FormNotice error={error} message={message} />
 
       <FormReadinessPanel
+        changeState={mode === "edit" ? changeState : undefined}
+        currentReviewStatus={originalForm.review_status_code}
         entityLabel="company"
         issues={getCompanyReadinessIssues(form)}
       />
 
       <Section title="Identity And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Company Name">
+          <Field
+            label="Company Name"
+            {...fieldMeta(changeState, "company_name", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <TextInput
               form={form}
               name="company_name"
@@ -1178,21 +1575,27 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Short Name">
+          <Field label="Short Name" {...fieldMeta(changeState, "company_name_short")}>
             <TextInput
               form={form}
               name="company_name_short"
               setField={setField}
             />
           </Field>
-          <Field label="Legal Name">
+          <Field label="Legal Name" {...fieldMeta(changeState, "company_legal_name")}>
             <TextInput
               form={form}
               name="company_legal_name"
               setField={setField}
             />
           </Field>
-          <Field label="Entity Type">
+          <Field
+            label="Entity Type"
+            {...fieldMeta(changeState, "entity_type_code", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <SelectInput
               form={form}
               name="entity_type_code"
@@ -1200,7 +1603,13 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Primary Company Type">
+          <Field
+            label="Primary Company Type"
+            {...fieldMeta(changeState, "company_type_primary_code", {
+              required: true,
+              tone: "critical",
+            })}
+          >
             <SelectInput
               form={form}
               name="company_type_primary_code"
@@ -1208,7 +1617,7 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Review Status">
+          <Field label="Review Status" {...fieldMeta(changeState, "review_status_code")}>
             <SelectInput
               form={form}
               name="review_status_code"
@@ -1216,13 +1625,13 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Company Status">
+          <Field label="Company Status" {...fieldMeta(changeState, "company_status")}>
             <TextInput form={form} name="company_status" setField={setField} />
           </Field>
-          <Field label="Ownership Type">
+          <Field label="Ownership Type" {...fieldMeta(changeState, "ownership_type")}>
             <TextInput form={form} name="ownership_type" setField={setField} />
           </Field>
-          <Field label="Research Status">
+          <Field label="Research Status" {...fieldMeta(changeState, "research_status")}>
             <TextInput form={form} name="research_status" setField={setField} />
           </Field>
         </div>
@@ -1230,30 +1639,42 @@ export function PostgresCompanyForm({
 
       <Section title="Location And Links">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="HQ City">
+          <Field label="HQ City" {...fieldMeta(changeState, "headquarters_city")}>
             <TextInput
               form={form}
               name="headquarters_city"
               setField={setField}
             />
           </Field>
-          <Field label="HQ Country">
+          <Field
+            label="HQ Country"
+            {...fieldMeta(changeState, "headquarters_country", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput
               form={form}
               name="headquarters_country"
               setField={setField}
             />
           </Field>
-          <Field label="Region">
+          <Field label="Region" {...fieldMeta(changeState, "region")}>
             <TextInput form={form} name="region" setField={setField} />
           </Field>
-          <Field label="World Bank Region">
+          <Field label="World Bank Region" {...fieldMeta(changeState, "wb_region")}>
             <TextInput form={form} name="wb_region" setField={setField} />
           </Field>
-          <Field label="Website">
+          <Field
+            label="Website"
+            {...fieldMeta(changeState, "website_url", {
+              important: true,
+              tone: "important",
+            })}
+          >
             <TextInput form={form} name="website_url" setField={setField} />
           </Field>
-          <Field label="LinkedIn">
+          <Field label="LinkedIn" {...fieldMeta(changeState, "linkedin_url")}>
             <TextInput form={form} name="linkedin_url" setField={setField} />
           </Field>
         </div>
@@ -1261,7 +1682,7 @@ export function PostgresCompanyForm({
 
       <Section title="Geothermal Focus">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <Field label="Geothermal Focus">
+          <Field label="Geothermal Focus" {...fieldMeta(changeState, "geothermal_focus")}>
             <TextArea
               form={form}
               name="geothermal_focus"
@@ -1269,7 +1690,7 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Technology Focus">
+          <Field label="Technology Focus" {...fieldMeta(changeState, "technology_focus")}>
             <TextArea
               form={form}
               name="technology_focus"
@@ -1277,7 +1698,7 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Service Scope">
+          <Field label="Service Scope" {...fieldMeta(changeState, "service_scope_summary")}>
             <TextArea
               form={form}
               name="service_scope_summary"
@@ -1285,7 +1706,10 @@ export function PostgresCompanyForm({
               setField={setField}
             />
           </Field>
-          <Field label="Operating Markets">
+          <Field
+            label="Operating Markets"
+            {...fieldMeta(changeState, "operating_markets_summary")}
+          >
             <TextArea
               form={form}
               name="operating_markets_summary"
@@ -1297,12 +1721,14 @@ export function PostgresCompanyForm({
       </Section>
 
       <Section title="Notes">
-        <TextArea
-          form={form}
-          name="notes"
-          placeholder="Internal research notes and classification context."
-          setField={setField}
-        />
+        <Field label="Notes" {...fieldMeta(changeState, "notes")}>
+          <TextArea
+            form={form}
+            name="notes"
+            placeholder="Internal research notes and classification context."
+            setField={setField}
+          />
+        </Field>
       </Section>
 
       <FormActions backHref={backHref} saving={saving} />
