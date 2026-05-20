@@ -12,6 +12,26 @@ export type PostgresPreviewSummary = {
   companyAssetLinkCount: number;
 };
 
+export type PostgresCountryMarketSummary = {
+  country: string;
+  project_count: number;
+  active_project_count: number;
+  operating_asset_count: number;
+  operating_asset_active_count: number;
+  company_count: number;
+  project_pipeline_mwe: number;
+  project_thermal_mwth: number;
+  operating_installed_mwe: number;
+  operating_running_mwe: number;
+  operating_thermal_mwth: number;
+  direct_use_project_count: number;
+  direct_use_asset_count: number;
+  approved_record_count: number;
+  draft_record_count: number;
+  missing_source_count: number;
+  latest_update_at: string;
+};
+
 export type PostgresPreviewProject = {
   project_id: string;
   legacy_project_id: string | null;
@@ -781,6 +801,13 @@ type PromotedOperatingAssetRow = Omit<
   "created_at"
 > & {
   created_at: string | Date;
+};
+
+type CountryMarketSummaryRow = Omit<
+  PostgresCountryMarketSummary,
+  "latest_update_at"
+> & {
+  latest_update_at: string | Date;
 };
 
 const fieldSuggestionApplyTargets: Record<string, FieldSuggestionApplyTarget> = {
@@ -1578,6 +1605,190 @@ export async function getPostgresPreviewSummary(): Promise<PostgresPreviewSummar
     companyProjectLinkCount,
     companyAssetLinkCount,
   };
+}
+
+export async function listPostgresCountryMarketSummaries(
+  limit = 250
+): Promise<PostgresCountryMarketSummary[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    CountryMarketSummaryRow[]
+  >(
+    `
+    WITH countries AS (
+      SELECT DISTINCT country
+      FROM (
+        SELECT NULLIF(trim(country), '') AS country FROM projects
+        UNION ALL
+        SELECT NULLIF(trim(country), '') AS country FROM operating_assets
+        UNION ALL
+        SELECT NULLIF(trim(headquarters_country), '') AS country FROM companies
+      ) seed
+      WHERE country IS NOT NULL
+    ),
+    project_stats AS (
+      SELECT
+        p.country,
+        count(*)::int AS project_count,
+        count(*) FILTER (
+          WHERE COALESCE(p.lifecycle_phase_code, '') NOT IN ('cancelled', 'archived')
+        )::int AS active_project_count,
+        sum(COALESCE(p.electric_capacity_mwe, 0))::float8 AS project_pipeline_mwe,
+        sum(COALESCE(p.thermal_capacity_mwth, 0))::float8 AS project_thermal_mwth,
+        count(*) FILTER (WHERE p.primary_use_type_code = 'direct_use')::int
+          AS direct_use_project_count,
+        count(*) FILTER (
+          WHERE p.review_status_code IN ('approved', 'export_ready')
+        )::int AS approved_project_count,
+        count(*) FILTER (
+          WHERE p.review_status_code IN ('draft', 'validation', 'needs_update')
+        )::int AS draft_project_count,
+        count(*) FILTER (
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM entity_sources es
+            WHERE es.project_id = p.project_id
+          )
+        )::int AS project_missing_source_count,
+        max(p.updated_at) AS latest_project_update_at
+      FROM projects p
+      WHERE p.country IS NOT NULL AND trim(p.country) <> ''
+      GROUP BY p.country
+    ),
+    asset_stats AS (
+      SELECT
+        a.country,
+        count(*)::int AS operating_asset_count,
+        count(*) FILTER (WHERE a.lifecycle_phase_code = 'operating')::int
+          AS operating_asset_active_count,
+        sum(COALESCE(a.electric_capacity_mwe, 0))::float8
+          AS operating_installed_mwe,
+        sum(COALESCE(a.electric_capacity_running_mwe, 0))::float8
+          AS operating_running_mwe,
+        sum(COALESCE(a.thermal_capacity_mwth, 0))::float8
+          AS operating_thermal_mwth,
+        count(*) FILTER (WHERE a.primary_use_type_code = 'direct_use')::int
+          AS direct_use_asset_count,
+        count(*) FILTER (
+          WHERE a.review_status_code IN ('approved', 'export_ready')
+        )::int AS approved_asset_count,
+        count(*) FILTER (
+          WHERE a.review_status_code IN ('draft', 'validation', 'needs_update')
+        )::int AS draft_asset_count,
+        count(*) FILTER (
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM entity_sources es
+            WHERE es.operating_asset_id = a.operating_asset_id
+          )
+        )::int AS asset_missing_source_count,
+        max(a.updated_at) AS latest_asset_update_at
+      FROM operating_assets a
+      WHERE a.country IS NOT NULL AND trim(a.country) <> ''
+      GROUP BY a.country
+    ),
+    company_stats AS (
+      SELECT
+        c.headquarters_country AS country,
+        count(*)::int AS company_count,
+        count(*) FILTER (
+          WHERE c.review_status_code IN ('approved', 'export_ready')
+        )::int AS approved_company_count,
+        count(*) FILTER (
+          WHERE c.review_status_code IN ('draft', 'validation', 'needs_update')
+        )::int AS draft_company_count,
+        count(*) FILTER (
+          WHERE NOT EXISTS (
+            SELECT 1
+            FROM entity_sources es
+            WHERE es.company_id = c.company_id
+          )
+        )::int AS company_missing_source_count,
+        max(c.updated_at) AS latest_company_update_at
+      FROM companies c
+      WHERE c.headquarters_country IS NOT NULL
+        AND trim(c.headquarters_country) <> ''
+      GROUP BY c.headquarters_country
+    )
+    SELECT
+      countries.country,
+      COALESCE(project_stats.project_count, 0)::int AS project_count,
+      COALESCE(project_stats.active_project_count, 0)::int AS active_project_count,
+      COALESCE(asset_stats.operating_asset_count, 0)::int
+        AS operating_asset_count,
+      COALESCE(asset_stats.operating_asset_active_count, 0)::int
+        AS operating_asset_active_count,
+      COALESCE(company_stats.company_count, 0)::int AS company_count,
+      COALESCE(project_stats.project_pipeline_mwe, 0)::float8
+        AS project_pipeline_mwe,
+      COALESCE(project_stats.project_thermal_mwth, 0)::float8
+        AS project_thermal_mwth,
+      COALESCE(asset_stats.operating_installed_mwe, 0)::float8
+        AS operating_installed_mwe,
+      COALESCE(asset_stats.operating_running_mwe, 0)::float8
+        AS operating_running_mwe,
+      COALESCE(asset_stats.operating_thermal_mwth, 0)::float8
+        AS operating_thermal_mwth,
+      COALESCE(project_stats.direct_use_project_count, 0)::int
+        AS direct_use_project_count,
+      COALESCE(asset_stats.direct_use_asset_count, 0)::int
+        AS direct_use_asset_count,
+      (
+        COALESCE(project_stats.approved_project_count, 0) +
+        COALESCE(asset_stats.approved_asset_count, 0) +
+        COALESCE(company_stats.approved_company_count, 0)
+      )::int AS approved_record_count,
+      (
+        COALESCE(project_stats.draft_project_count, 0) +
+        COALESCE(asset_stats.draft_asset_count, 0) +
+        COALESCE(company_stats.draft_company_count, 0)
+      )::int AS draft_record_count,
+      (
+        COALESCE(project_stats.project_missing_source_count, 0) +
+        COALESCE(asset_stats.asset_missing_source_count, 0) +
+        COALESCE(company_stats.company_missing_source_count, 0)
+      )::int AS missing_source_count,
+      GREATEST(
+        COALESCE(project_stats.latest_project_update_at, '1970-01-01'::timestamp),
+        COALESCE(asset_stats.latest_asset_update_at, '1970-01-01'::timestamp),
+        COALESCE(company_stats.latest_company_update_at, '1970-01-01'::timestamp)
+      ) AS latest_update_at
+    FROM countries
+    LEFT JOIN project_stats
+      ON project_stats.country = countries.country
+    LEFT JOIN asset_stats
+      ON asset_stats.country = countries.country
+    LEFT JOIN company_stats
+      ON company_stats.country = countries.country
+    ORDER BY
+      (
+        COALESCE(asset_stats.operating_installed_mwe, 0) +
+        COALESCE(project_stats.project_pipeline_mwe, 0)
+      ) DESC,
+      countries.country ASC
+    LIMIT $1
+    `,
+    Math.min(Math.max(limit, 1), 500)
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    project_count: toNumber(row.project_count),
+    active_project_count: toNumber(row.active_project_count),
+    operating_asset_count: toNumber(row.operating_asset_count),
+    operating_asset_active_count: toNumber(row.operating_asset_active_count),
+    company_count: toNumber(row.company_count),
+    project_pipeline_mwe: toNumber(row.project_pipeline_mwe),
+    project_thermal_mwth: toNumber(row.project_thermal_mwth),
+    operating_installed_mwe: toNumber(row.operating_installed_mwe),
+    operating_running_mwe: toNumber(row.operating_running_mwe),
+    operating_thermal_mwth: toNumber(row.operating_thermal_mwth),
+    direct_use_project_count: toNumber(row.direct_use_project_count),
+    direct_use_asset_count: toNumber(row.direct_use_asset_count),
+    approved_record_count: toNumber(row.approved_record_count),
+    draft_record_count: toNumber(row.draft_record_count),
+    missing_source_count: toNumber(row.missing_source_count),
+    latest_update_at: normalizeTimestamp(row.latest_update_at),
+  }));
 }
 
 function toNullableNumber(value: NullableNumeric): number | null {

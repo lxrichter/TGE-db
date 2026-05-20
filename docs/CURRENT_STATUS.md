@@ -298,6 +298,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   on the server and database files remain ignored locally
 - PostgreSQL preview list entry points exist for `/postgres-preview/projects`,
   `/postgres-preview/operating-assets`, and `/postgres-preview/companies`
+- `/postgres-preview/countries` now provides a first PostgreSQL-backed country
+  and market aggregation layer across projects, plants/facilities, and
+  companies, with links into filtered entity worklists
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite
