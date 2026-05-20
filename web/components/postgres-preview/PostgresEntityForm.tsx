@@ -47,6 +47,28 @@ async function safeJson(res: Response) {
   }
 }
 
+function getApiIssues(json: unknown) {
+  if (!json || typeof json !== "object" || !("issues" in json)) {
+    return [];
+  }
+
+  const issues = (json as { issues?: unknown }).issues;
+  if (!Array.isArray(issues)) {
+    return [];
+  }
+
+  return issues.filter((issue): issue is string => typeof issue === "string");
+}
+
+function getApiError(json: unknown, fallback: string) {
+  if (!json || typeof json !== "object" || !("error" in json)) {
+    return fallback;
+  }
+
+  const error = (json as { error?: unknown }).error;
+  return typeof error === "string" && error.trim() ? error : fallback;
+}
+
 function inputClass() {
   return "min-h-10 scroll-mt-24 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
 }
@@ -358,16 +380,25 @@ function Section({
 
 function FormNotice({
   error,
+  errorIssues = [],
   message,
 }: {
   error: string;
+  errorIssues?: string[];
   message: string;
 }) {
   return (
     <>
       {error ? (
         <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-          {error}
+          <div>{error}</div>
+          {errorIssues.length > 0 ? (
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5">
+              {errorIssues.map((issue) => (
+                <li key={issue}>{issue}</li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       ) : null}
       {message ? (
@@ -1150,6 +1181,7 @@ export function PostgresProjectForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [errorIssues, setErrorIssues] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const endpoint =
     mode === "create"
@@ -1173,6 +1205,7 @@ export function PostgresProjectForm({
     event.preventDefault();
     setSaving(true);
     setError("");
+    setErrorIssues([]);
     setMessage("");
 
     try {
@@ -1184,7 +1217,8 @@ export function PostgresProjectForm({
       const json = await safeJson(res);
 
       if (!res.ok || !json?.success) {
-        throw new Error(json?.error || "Failed to save project.");
+        setErrorIssues(getApiIssues(json));
+        throw new Error(getApiError(json, "Failed to save project."));
       }
 
       setMessage("Project saved.");
@@ -1199,7 +1233,7 @@ export function PostgresProjectForm({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <FormNotice error={error} message={message} />
+      <FormNotice error={error} errorIssues={errorIssues} message={message} />
 
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}
@@ -1464,6 +1498,7 @@ export function PostgresOperatingAssetForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [errorIssues, setErrorIssues] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const endpoint =
     mode === "create"
@@ -1487,6 +1522,7 @@ export function PostgresOperatingAssetForm({
     event.preventDefault();
     setSaving(true);
     setError("");
+    setErrorIssues([]);
     setMessage("");
 
     try {
@@ -1498,7 +1534,8 @@ export function PostgresOperatingAssetForm({
       const json = await safeJson(res);
 
       if (!res.ok || !json?.success) {
-        throw new Error(json?.error || "Failed to save plant / facility.");
+        setErrorIssues(getApiIssues(json));
+        throw new Error(getApiError(json, "Failed to save plant / facility."));
       }
 
       setMessage("Plant / Facility saved.");
@@ -1517,7 +1554,7 @@ export function PostgresOperatingAssetForm({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <FormNotice error={error} message={message} />
+      <FormNotice error={error} errorIssues={errorIssues} message={message} />
 
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}
@@ -1802,6 +1839,7 @@ export function PostgresCompanyForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [errorIssues, setErrorIssues] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const endpoint =
     mode === "create"
@@ -1825,6 +1863,7 @@ export function PostgresCompanyForm({
     event.preventDefault();
     setSaving(true);
     setError("");
+    setErrorIssues([]);
     setMessage("");
 
     try {
@@ -1836,7 +1875,8 @@ export function PostgresCompanyForm({
       const json = await safeJson(res);
 
       if (!res.ok || !json?.success) {
-        throw new Error(json?.error || "Failed to save company.");
+        setErrorIssues(getApiIssues(json));
+        throw new Error(getApiError(json, "Failed to save company."));
       }
 
       setMessage("Company saved.");
@@ -1851,7 +1891,7 @@ export function PostgresCompanyForm({
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
-      <FormNotice error={error} message={message} />
+      <FormNotice error={error} errorIssues={errorIssues} message={message} />
 
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}

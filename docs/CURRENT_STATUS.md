@@ -247,6 +247,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   and companies now enforce server-side readiness checks for core identity,
   classification, and linked evidence, returning actionable validation errors
   instead of allowing incomplete records to be approved silently
+- PostgreSQL project, plant/facility, and company forms now render server-side
+  approval/export-readiness blockers as structured issue lists when a save is
+  rejected
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
