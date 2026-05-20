@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { PostgresEntitySourceLink } from "@/lib/postgres-preview";
+import { formatCount } from "@/lib/format";
 import type {
   SourceListItem,
   SourceReferenceOption,
@@ -62,6 +63,37 @@ function formatEvidenceCode(value: string | null) {
     .replace(/\bcod\b/gi, "COD");
 }
 
+function EvidenceSummaryTile({
+  label,
+  value,
+  note,
+  tone = "neutral",
+}: {
+  label: string;
+  value: string;
+  note: string;
+  tone?: "neutral" | "green" | "amber" | "red";
+}) {
+  const tones = {
+    neutral: "border-gray-200 bg-[#fbfbfb]",
+    green: "border-[#b9d98b] bg-[#f1f8e8]",
+    amber: "border-amber-200 bg-amber-50",
+    red: "border-red-200 bg-red-50",
+  };
+
+  return (
+    <div className={`border px-4 py-3 ${tones[tone]}`}>
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+        {value}
+      </div>
+      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+    </div>
+  );
+}
+
 export default function PostgresSourceEvidencePanel({
   sources,
   entityType,
@@ -82,6 +114,34 @@ export default function PostgresSourceEvidencePanel({
     () => new Set(sources.map((source) => source.source_id)),
     [sources]
   );
+  const evidenceSummary = useMemo(() => {
+    const credibleSources = sources.filter(
+      (source) => source.credibility_status_code === "credible"
+    );
+    const attentionSources = sources.filter((source) =>
+      ["needs_review", "weak", "outdated", "rejected"].includes(
+        source.credibility_status_code || ""
+      )
+    );
+    const primaryEvidence = sources.filter((source) => source.is_primary_evidence);
+    const fieldLinked = sources.filter(
+      (source) =>
+        Boolean(source.linked_field) ||
+        Boolean(source.extracted_value) ||
+        Boolean(source.claim_text)
+    );
+    const tgeArticles = sources.filter(
+      (source) => source.source_type_code === "tge_article"
+    );
+
+    return {
+      credibleSources,
+      attentionSources,
+      primaryEvidence,
+      fieldLinked,
+      tgeArticles,
+    };
+  }, [sources]);
   const availableSources = useMemo(
     () =>
       sourceOptions
@@ -235,7 +295,9 @@ export default function PostgresSourceEvidencePanel({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="max-w-3xl text-sm leading-6 text-gray-600">
-          Source/evidence links for this PostgreSQL staging record.
+          Source/evidence links for this PostgreSQL staging record. Evidence
+          is reviewed separately from database field updates: source record,
+          credibility, fact type, field/value, then human-confirmed use.
         </p>
         <div className="flex flex-wrap gap-2">
           {canManageSources ? (
@@ -271,6 +333,50 @@ export default function PostgresSourceEvidencePanel({
           </Link>
         </div>
       </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <EvidenceSummaryTile
+          label="Linked"
+          value={formatCount(sources.length)}
+          note="Source-record links"
+          tone={sources.length > 0 ? "neutral" : "red"}
+        />
+        <EvidenceSummaryTile
+          label="Credible"
+          value={`${formatCount(evidenceSummary.credibleSources.length)}/${formatCount(
+            sources.length
+          )}`}
+          note="Marked credible"
+          tone={evidenceSummary.credibleSources.length > 0 ? "green" : "amber"}
+        />
+        <EvidenceSummaryTile
+          label="Primary"
+          value={formatCount(evidenceSummary.primaryEvidence.length)}
+          note="Primary evidence flags"
+          tone={evidenceSummary.primaryEvidence.length > 0 ? "green" : "neutral"}
+        />
+        <EvidenceSummaryTile
+          label="Field-Linked"
+          value={formatCount(evidenceSummary.fieldLinked.length)}
+          note="Field, value, or claim"
+          tone={evidenceSummary.fieldLinked.length > 0 ? "green" : "neutral"}
+        />
+        <EvidenceSummaryTile
+          label="Needs Care"
+          value={formatCount(evidenceSummary.attentionSources.length)}
+          note="Review, weak, outdated, or rejected"
+          tone={evidenceSummary.attentionSources.length > 0 ? "amber" : "neutral"}
+        />
+      </div>
+
+      {evidenceSummary.tgeArticles.length > 0 ? (
+        <div className="border border-[#d7e8bf] bg-[#f5faef] px-4 py-3 text-xs leading-5 text-[#4f7f1f]">
+          {formatCount(evidenceSummary.tgeArticles.length)} ThinkGeoEnergy
+          article link{evidenceSummary.tgeArticles.length === 1 ? "" : "s"} are
+          connected to this record. Confirmed article links can support related
+          news, source evidence, and future AI-assisted field suggestions.
+        </div>
+      ) : null}
 
       {error ? (
         <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">

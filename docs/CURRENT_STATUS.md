@@ -188,6 +188,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   compact record workflow strip for identity, evidence, relationships,
   AI/review work, and export readiness so each profile is easier to scan before
   deeper section review
+- Source/evidence panels on PostgreSQL detail pages now summarize linked,
+  credible, primary, field-linked, and needs-care evidence before the detailed
+  table, reinforcing source governance and future AI-assisted review workflows
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
