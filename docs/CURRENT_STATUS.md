@@ -154,6 +154,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   debt/loans, contracts, license/lease-sale values, license/permit status,
   ownership/operator, direct-use classification, technology/resource, and
   policy/tariff evidence links
+- source edit and entity evidence-link forms now group quick fact-type presets
+  by core, money/funding, classification, and matching signals, and show compact
+  accept/reject definition cards to support faster article fact-type training
 - article fact candidate display now avoids duplicate unit rendering, and the
   local extraction taxonomy separates public funding/grants, private
   financing/investment raises, loans, contract awards, and license/lease-sale

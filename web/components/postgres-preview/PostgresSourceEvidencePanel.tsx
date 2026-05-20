@@ -11,6 +11,7 @@ import type {
   SourceLink,
 } from "@/lib/services/sources";
 import {
+  getSourceFactTypeDefinition,
   SOURCE_FACT_TYPE_PRESETS,
   type SourceFactTypePreset,
 } from "@/lib/sourceFactTypePresets";
@@ -94,6 +95,57 @@ function EvidenceSummaryTile({
   );
 }
 
+function FactTypeDefinitionCard({
+  evidenceType,
+}: {
+  evidenceType: string | null | undefined;
+}) {
+  const definition = getSourceFactTypeDefinition(evidenceType);
+
+  if (!definition) {
+    return null;
+  }
+
+  return (
+    <div className="border border-[#d7e8bf] bg-[#f5faef] px-4 py-3">
+      <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        Fact Type Definition
+      </div>
+      <div className="mt-2 text-sm font-bold text-[#1f2937]">
+        {definition.label}
+      </div>
+      <p className="mt-1 text-xs leading-5 text-gray-600">
+        {definition.purpose}
+      </p>
+      <p className="mt-2 text-xs font-semibold leading-5 text-gray-700">
+        {definition.reviewQuestion}
+      </p>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Accept When
+          </div>
+          <ul className="mt-1 space-y-1 text-xs leading-5 text-gray-600">
+            {definition.accept.slice(0, 2).map((item) => (
+              <li key={item}>- {item}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Avoid Mixing With
+          </div>
+          <ul className="mt-1 space-y-1 text-xs leading-5 text-gray-600">
+            {definition.reject.slice(0, 2).map((item) => (
+              <li key={item}>- {item}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PostgresSourceEvidencePanel({
   sources,
   entityType,
@@ -169,6 +221,22 @@ export default function PostgresSourceEvidencePanel({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const factPresetGroups = useMemo(
+    () =>
+      [
+        ["core", "Core Signals"],
+        ["money", "Money / Funding"],
+        ["classification", "Classification"],
+        ["matching", "Matching"],
+      ].map(([category, label]) => ({
+        category,
+        label,
+        presets: SOURCE_FACT_TYPE_PRESETS.filter(
+          (preset) => preset.category === category
+        ),
+      })),
+    []
+  );
 
   async function linkExistingSource() {
     setSaving(true);
@@ -395,30 +463,42 @@ export default function PostgresSourceEvidencePanel({
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
               Quick Fact Type
             </div>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {SOURCE_FACT_TYPE_PRESETS.map((preset) => {
-                const selected = evidenceType === preset.evidenceType;
+            <div className="mt-3 space-y-3">
+              {factPresetGroups.map((group) => (
+                <div key={group.category}>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    {group.label}
+                  </div>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {group.presets.map((preset) => {
+                      const selected = evidenceType === preset.evidenceType;
 
-                return (
-                  <button
-                    key={preset.evidenceType}
-                    className={`border px-3 py-1.5 text-xs font-semibold ${
-                      selected
-                        ? "border-[#8dc63f] bg-[#edf7df] text-[#4f7f1f]"
-                        : "border-gray-200 bg-white text-gray-700 hover:border-[#8dc63f]"
-                    }`}
-                    type="button"
-                    onClick={() => applyFactTypePreset(preset)}
-                  >
-                    {preset.label}
-                  </button>
-                );
-              })}
+                      return (
+                        <button
+                          key={preset.evidenceType}
+                          className={`border px-3 py-1.5 text-xs font-semibold ${
+                            selected
+                              ? "border-[#8dc63f] bg-[#edf7df] text-[#4f7f1f]"
+                              : "border-gray-200 bg-white text-gray-700 hover:border-[#8dc63f]"
+                          }`}
+                          type="button"
+                          onClick={() => applyFactTypePreset(preset)}
+                        >
+                          {preset.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
             <p className="mt-2 text-xs text-gray-500">
               Presets fill the fact/evidence type and linked field only. The
               link still needs human review before export-ready use.
             </p>
+            <div className="mt-3">
+              <FactTypeDefinitionCard evidenceType={evidenceType} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_220px_180px]">

@@ -135,6 +135,24 @@ export const ARTICLE_FACT_TYPE_DEFINITIONS: ArticleFactTypeDefinition[] = [
     ],
   },
   {
+    code: "license_permit_award_signal",
+    label: "License / Permit Status",
+    purpose:
+      "Captures non-money license, permit, lease, concession, or award-status signals.",
+    reviewQuestion:
+      "Does this signal support a license, permit, concession, lease, or award status for a project, company, or market?",
+    accept: [
+      "exploration license, concession, lease, or permit awards",
+      "companies securing, winning, or receiving geothermal development rights",
+      "license or permit status changes useful for project lifecycle review",
+    ],
+    reject: [
+      "license/lease-sale money values that belong in the amount fact type",
+      "generic policy wording without a specific permit or concession signal",
+      "unrelated regulatory or corporate license mentions",
+    ],
+  },
+  {
     code: "funding_amount_signal",
     label: "Funding Amount Fallback",
     purpose:
@@ -166,6 +184,60 @@ export const ARTICLE_FACT_TYPE_DEFINITIONS: ArticleFactTypeDefinition[] = [
       "generic sector wording without article-specific relevance",
       "power-only geothermal articles with incidental heat/cooling wording",
       "non-geothermal heating/cooling context",
+    ],
+  },
+  {
+    code: "ownership_operator_signal",
+    label: "Ownership / Operator Signal",
+    purpose:
+      "Captures article evidence for owner, operator, developer, or responsible-party roles.",
+    reviewQuestion:
+      "Does this source support a company role or ownership/operator claim for a project or plant/facility?",
+    accept: [
+      "owner, operator, developer, concession holder, or responsible company roles",
+      "role claims tied to a named project, plant/facility, or company",
+      "company-role evidence useful for structured relationship records",
+    ],
+    reject: [
+      "company mentions without a clear relationship role",
+      "generic partner lists where no role can be inferred safely",
+      "supplier or contractor roles better captured as contract/activity signals",
+    ],
+  },
+  {
+    code: "technology_resource_signal",
+    label: "Technology / Resource Signal",
+    purpose:
+      "Captures technology, resource type, turbine, heat-pump, and geothermal system signals.",
+    reviewQuestion:
+      "Does this source support a technology, resource, or system classification for a record?",
+    accept: [
+      "binary, flash, dry steam, EGS, closed-loop, heat-pump, or direct-use system claims",
+      "resource type or temperature signals tied to a project or facility",
+      "supplier/technology information useful for filtering and analysis",
+    ],
+    reject: [
+      "generic technology wording not tied to the record",
+      "company marketing language without a concrete project/facility claim",
+      "capacity, funding, or lifecycle claims that belong to another fact type",
+    ],
+  },
+  {
+    code: "policy_tariff_signal",
+    label: "Policy / Tariff Signal",
+    purpose:
+      "Captures policy, incentive, tariff, FIT, tender, and regulatory market signals.",
+    reviewQuestion:
+      "Does this article support a policy, tariff, incentive, tender, or regulatory claim useful for market intelligence?",
+    accept: [
+      "feed-in tariffs, incentives, tenders, calls for proposals, or regulatory programmes",
+      "policy changes tied to geothermal development, direct use, drilling, or market growth",
+      "country/market policy evidence useful for market pages or reports",
+    ],
+    reject: [
+      "project financing amounts better handled as money fact types",
+      "generic political commentary without usable geothermal policy content",
+      "article dates, event dates, or background years not tied to policy substance",
     ],
   },
   {
