@@ -2393,7 +2393,7 @@ function normalizeMutationComparisonValue(value: unknown) {
   return String(value).trim();
 }
 
-function hasMutationFieldChanges({
+function buildMutationChangedFields({
   existing,
   input,
   fields,
@@ -2402,11 +2402,57 @@ function hasMutationFieldChanges({
   input: Record<string, unknown>;
   fields: string[];
 }) {
-  return fields.some(
-    (field) =>
-      normalizeMutationComparisonValue(existing[field]) !==
-      normalizeMutationComparisonValue(input[field])
-  );
+  const changedFields: Record<string, [string, string]> = {};
+
+  fields.forEach((field) => {
+    const previousValue = normalizeMutationComparisonValue(existing[field]);
+    const nextValue = normalizeMutationComparisonValue(input[field]);
+
+    if (previousValue !== nextValue) {
+      changedFields[field] = [previousValue, nextValue];
+    }
+  });
+
+  return changedFields;
+}
+
+async function recordEntityFormAudit({
+  entityType,
+  entityId,
+  actorUserId,
+  previousReviewStatus,
+  nextReviewStatus,
+  changedFields,
+}: {
+  entityType: PostgresReviewEntityType;
+  entityId: string;
+  actorUserId?: string | null;
+  previousReviewStatus: string;
+  nextReviewStatus: string;
+  changedFields: Record<string, [string, string]>;
+}) {
+  if (
+    Object.keys(changedFields).length === 0 &&
+    previousReviewStatus === nextReviewStatus
+  ) {
+    return;
+  }
+
+  await getPrismaClient().audit_events.create({
+    data: {
+      entity_type: entityType,
+      entity_id: entityId,
+      event_type: "form_update",
+      previous_review_status_code: previousReviewStatus,
+      next_review_status_code: nextReviewStatus,
+      actor_user_id: isUuid(actorUserId) ? actorUserId : undefined,
+      event_note:
+        previousReviewStatus !== nextReviewStatus
+          ? "Form update changed review status."
+          : "Form update saved.",
+      changed_fields: changedFields as Prisma.InputJsonValue,
+    },
+  });
 }
 
 function deriveUpdatedReviewStatus(
@@ -3715,9 +3761,11 @@ export async function createPostgresPreviewProject(
 
 export async function updatePostgresPreviewProject(
   projectId: string,
-  input: PostgresProjectMutationInput
+  input: PostgresProjectMutationInput,
+  actorUserId?: string | null
 ): Promise<PostgresPreviewProjectDetail | null> {
   const prisma = getPrismaClient();
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
   const existing = await prisma.projects.findUnique({
     select: {
       project_name: true,
@@ -3760,15 +3808,20 @@ export async function updatePostgresPreviewProject(
     return null;
   }
 
+  const changedFields = buildMutationChangedFields({
+    existing,
+    input: input as unknown as Record<string, unknown>,
+    fields: projectMutationFieldNames,
+  });
   const reviewStatus = deriveUpdatedReviewStatus(
     existing.review_status_code,
     input.review_status_code,
-    hasMutationFieldChanges({
-      existing,
-      input: input as unknown as Record<string, unknown>,
-      fields: projectMutationFieldNames,
-    })
+    Object.keys(changedFields).length > 0
   );
+
+  if (existing.review_status_code !== reviewStatus) {
+    changedFields.review_status_code = [existing.review_status_code, reviewStatus];
+  }
 
   await prisma.projects.update({
     where: { project_id: projectId },
@@ -3804,9 +3857,19 @@ export async function updatePostgresPreviewProject(
       review_status_code: reviewStatus,
       research_status: cleanOptionalText(input.research_status),
       notes: cleanOptionalText(input.notes),
+      last_updated_by_user_id: normalizedActorUserId || undefined,
       updated_at: new Date(),
       ...getPreservedReviewTimestampFields(reviewStatus, existing),
     },
+  });
+
+  await recordEntityFormAudit({
+    entityType: "project",
+    entityId: projectId,
+    actorUserId: normalizedActorUserId,
+    previousReviewStatus: existing.review_status_code,
+    nextReviewStatus: reviewStatus,
+    changedFields,
   });
 
   return getPostgresPreviewProjectById(projectId);
@@ -3868,9 +3931,11 @@ export async function createPostgresPreviewOperatingAsset(
 
 export async function updatePostgresPreviewOperatingAsset(
   operatingAssetId: string,
-  input: PostgresOperatingAssetMutationInput
+  input: PostgresOperatingAssetMutationInput,
+  actorUserId?: string | null
 ): Promise<PostgresPreviewOperatingAssetDetail | null> {
   const prisma = getPrismaClient();
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
   const existing = await prisma.operating_assets.findUnique({
     select: {
       asset_name: true,
@@ -3915,15 +3980,20 @@ export async function updatePostgresPreviewOperatingAsset(
     return null;
   }
 
+  const changedFields = buildMutationChangedFields({
+    existing,
+    input: input as unknown as Record<string, unknown>,
+    fields: operatingAssetMutationFieldNames,
+  });
   const reviewStatus = deriveUpdatedReviewStatus(
     existing.review_status_code,
     input.review_status_code,
-    hasMutationFieldChanges({
-      existing,
-      input: input as unknown as Record<string, unknown>,
-      fields: operatingAssetMutationFieldNames,
-    })
+    Object.keys(changedFields).length > 0
   );
+
+  if (existing.review_status_code !== reviewStatus) {
+    changedFields.review_status_code = [existing.review_status_code, reviewStatus];
+  }
 
   await prisma.operating_assets.update({
     where: { operating_asset_id: operatingAssetId },
@@ -3961,9 +4031,19 @@ export async function updatePostgresPreviewOperatingAsset(
       review_status_code: reviewStatus,
       research_status: cleanOptionalText(input.research_status),
       notes: cleanOptionalText(input.notes),
+      last_updated_by_user_id: normalizedActorUserId || undefined,
       updated_at: new Date(),
       ...getPreservedReviewTimestampFields(reviewStatus, existing),
     },
+  });
+
+  await recordEntityFormAudit({
+    entityType: "operating_asset",
+    entityId: operatingAssetId,
+    actorUserId: normalizedActorUserId,
+    previousReviewStatus: existing.review_status_code,
+    nextReviewStatus: reviewStatus,
+    changedFields,
   });
 
   return getPostgresPreviewOperatingAssetById(operatingAssetId);
@@ -4011,9 +4091,11 @@ export async function createPostgresPreviewCompany(
 
 export async function updatePostgresPreviewCompany(
   companyId: string,
-  input: PostgresCompanyMutationInput
+  input: PostgresCompanyMutationInput,
+  actorUserId?: string | null
 ): Promise<PostgresPreviewCompanyDetail | null> {
   const prisma = getPrismaClient();
+  const normalizedActorUserId = isUuid(actorUserId) ? actorUserId : null;
   const existing = await prisma.companies.findUnique({
     select: {
       company_name: true,
@@ -4046,15 +4128,20 @@ export async function updatePostgresPreviewCompany(
     return null;
   }
 
+  const changedFields = buildMutationChangedFields({
+    existing,
+    input: input as unknown as Record<string, unknown>,
+    fields: companyMutationFieldNames,
+  });
   const reviewStatus = deriveUpdatedReviewStatus(
     existing.review_status_code,
     input.review_status_code,
-    hasMutationFieldChanges({
-      existing,
-      input: input as unknown as Record<string, unknown>,
-      fields: companyMutationFieldNames,
-    })
+    Object.keys(changedFields).length > 0
   );
+
+  if (existing.review_status_code !== reviewStatus) {
+    changedFields.review_status_code = [existing.review_status_code, reviewStatus];
+  }
 
   await prisma.companies.update({
     where: { company_id: companyId },
@@ -4080,9 +4167,19 @@ export async function updatePostgresPreviewCompany(
       review_status_code: reviewStatus,
       research_status: cleanOptionalText(input.research_status),
       notes: cleanOptionalText(input.notes),
+      last_updated_by_user_id: normalizedActorUserId || undefined,
       updated_at: new Date(),
       ...getPreservedReviewTimestampFields(reviewStatus, existing),
     },
+  });
+
+  await recordEntityFormAudit({
+    entityType: "company",
+    entityId: companyId,
+    actorUserId: normalizedActorUserId,
+    previousReviewStatus: existing.review_status_code,
+    nextReviewStatus: reviewStatus,
+    changedFields,
   });
 
   return getPostgresPreviewCompanyById(companyId);

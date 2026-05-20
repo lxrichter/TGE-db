@@ -73,7 +73,8 @@ export async function PATCH(
 
     const operatingAsset = await updatePostgresPreviewOperatingAsset(
       id,
-      parsed.input
+      parsed.input,
+      user.id
     );
 
     if (!operatingAsset) {

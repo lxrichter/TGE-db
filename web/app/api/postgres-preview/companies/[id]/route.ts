@@ -68,7 +68,7 @@ export async function PATCH(
       );
     }
 
-    const company = await updatePostgresPreviewCompany(id, parsed.input);
+    const company = await updatePostgresPreviewCompany(id, parsed.input, user.id);
 
     if (!company) {
       return NextResponse.json(

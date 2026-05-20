@@ -232,6 +232,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   actionable
 - Form readiness warnings now include `Go To Field` jump links where a warning
   maps to an editable governed field, making validation gaps faster to fix
+- PostgreSQL project, plant/facility, and company form saves now write
+  `form_update` audit events with changed field names, review-status movement,
+  and actor metadata when available
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

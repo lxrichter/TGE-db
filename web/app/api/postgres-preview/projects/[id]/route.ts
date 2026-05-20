@@ -68,7 +68,7 @@ export async function PATCH(
       );
     }
 
-    const project = await updatePostgresPreviewProject(id, parsed.input);
+    const project = await updatePostgresPreviewProject(id, parsed.input, user.id);
 
     if (!project) {
       return NextResponse.json(
