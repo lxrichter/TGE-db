@@ -303,7 +303,8 @@ foundation. Current implemented PostgreSQL staging areas include:
   companies, with links into filtered entity worklists
 - `/postgres-preview/readiness` now provides a live PostgreSQL replacement
   readiness view for staged record counts, review coverage, source gaps,
-  persistent Research Ops issues, critical issues, and cutover-planning gates
+  persistent Research Ops issues, critical issues, latest live SQLite migration
+  rehearsal status, and cutover-planning gates
 - preview-only export-readiness panels on PostgreSQL entity detail pages
 
 These PostgreSQL routes are not yet the production replacement for the SQLite

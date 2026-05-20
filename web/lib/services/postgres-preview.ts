@@ -50,8 +50,26 @@ export type PostgresReplacementReadinessEntity = {
   latest_update_at: string;
 };
 
+export type PostgresReplacementMigrationSummary = {
+  run_id: string;
+  run_label: string;
+  status: string;
+  source_database_file_name: string | null;
+  source_database_size_bytes: number;
+  import_completed_at: string | null;
+  transform_completed_at: string | null;
+  validation_completed_at: string | null;
+  created_at: string;
+  validation_check_count: number;
+  validation_pass_count: number;
+  validation_fail_count: number;
+  warning_count: number;
+  error_warning_count: number;
+};
+
 export type PostgresReplacementReadiness = {
   entities: PostgresReplacementReadinessEntity[];
+  latestMigrationRun: PostgresReplacementMigrationSummary | null;
 };
 
 export type PostgresPreviewProject = {
@@ -837,6 +855,19 @@ type ReplacementReadinessEntityRow = Omit<
   "latest_update_at"
 > & {
   latest_update_at: string | Date;
+};
+
+type ReplacementMigrationSummaryRow = Omit<
+  PostgresReplacementMigrationSummary,
+  | "import_completed_at"
+  | "transform_completed_at"
+  | "validation_completed_at"
+  | "created_at"
+> & {
+  import_completed_at: string | Date | null;
+  transform_completed_at: string | Date | null;
+  validation_completed_at: string | Date | null;
+  created_at: string | Date;
 };
 
 const fieldSuggestionApplyTargets: Record<string, FieldSuggestionApplyTarget> = {
@@ -1637,7 +1668,8 @@ export async function getPostgresPreviewSummary(): Promise<PostgresPreviewSummar
 }
 
 export async function getPostgresReplacementReadiness(): Promise<PostgresReplacementReadiness> {
-  const rows = await getPrismaClient().$queryRawUnsafe<
+  const prisma = getPrismaClient();
+  const rows = await prisma.$queryRawUnsafe<
     ReplacementReadinessEntityRow[]
   >(`
     WITH open_issues AS (
@@ -1814,6 +1846,55 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
       AND oi.company_id = c.company_id
     ORDER BY entity_type
   `);
+  const migrationRows = await prisma.$queryRawUnsafe<
+    ReplacementMigrationSummaryRow[]
+  >(`
+    WITH latest_run AS (
+      SELECT *
+      FROM live_sqlite_migration_runs
+      ORDER BY created_at DESC
+      LIMIT 1
+    )
+    SELECT
+      latest_run.run_id::text,
+      latest_run.run_label,
+      latest_run.status,
+      latest_run.source_database_file_name,
+      COALESCE(latest_run.source_database_size_bytes, 0)::float8
+        AS source_database_size_bytes,
+      latest_run.import_completed_at,
+      latest_run.transform_completed_at,
+      latest_run.validation_completed_at,
+      latest_run.created_at,
+      COALESCE(validation_counts.validation_check_count, 0)::int
+        AS validation_check_count,
+      COALESCE(validation_counts.validation_pass_count, 0)::int
+        AS validation_pass_count,
+      COALESCE(validation_counts.validation_fail_count, 0)::int
+        AS validation_fail_count,
+      COALESCE(warning_counts.warning_count, 0)::int AS warning_count,
+      COALESCE(warning_counts.error_warning_count, 0)::int
+        AS error_warning_count
+    FROM latest_run
+    LEFT JOIN LATERAL (
+      SELECT
+        count(*)::int AS validation_check_count,
+        count(*) FILTER (WHERE status = 'pass')::int
+          AS validation_pass_count,
+        count(*) FILTER (WHERE status <> 'pass')::int
+          AS validation_fail_count
+      FROM live_sqlite_migration_validation_results vr
+      WHERE vr.run_id = latest_run.run_id
+    ) validation_counts ON TRUE
+    LEFT JOIN LATERAL (
+      SELECT
+        count(*)::int AS warning_count,
+        count(*) FILTER (WHERE severity = 'error')::int
+          AS error_warning_count
+      FROM live_sqlite_migration_warnings mw
+      WHERE mw.run_id = latest_run.run_id
+    ) warning_counts ON TRUE
+  `);
 
   return {
     entities: rows.map((row) => ({
@@ -1834,6 +1915,35 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
       critical_issue_count: toNumber(row.critical_issue_count),
       latest_update_at: normalizeTimestamp(row.latest_update_at),
     })),
+    latestMigrationRun: migrationRows[0]
+      ? {
+          ...migrationRows[0],
+          source_database_size_bytes: toNumber(
+            migrationRows[0].source_database_size_bytes
+          ),
+          validation_check_count: toNumber(
+            migrationRows[0].validation_check_count
+          ),
+          validation_pass_count: toNumber(
+            migrationRows[0].validation_pass_count
+          ),
+          validation_fail_count: toNumber(
+            migrationRows[0].validation_fail_count
+          ),
+          warning_count: toNumber(migrationRows[0].warning_count),
+          error_warning_count: toNumber(migrationRows[0].error_warning_count),
+          import_completed_at: migrationRows[0].import_completed_at
+            ? normalizeTimestamp(migrationRows[0].import_completed_at)
+            : null,
+          transform_completed_at: migrationRows[0].transform_completed_at
+            ? normalizeTimestamp(migrationRows[0].transform_completed_at)
+            : null,
+          validation_completed_at: migrationRows[0].validation_completed_at
+            ? normalizeTimestamp(migrationRows[0].validation_completed_at)
+            : null,
+          created_at: normalizeTimestamp(migrationRows[0].created_at),
+        }
+      : null,
   };
 }
 

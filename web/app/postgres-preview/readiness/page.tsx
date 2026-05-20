@@ -3,6 +3,7 @@ import {
   getPostgresReplacementReadiness,
   type PostgresReplacementReadiness,
   type PostgresReplacementReadinessEntity,
+  type PostgresReplacementMigrationSummary,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
@@ -83,6 +84,18 @@ function formatDate(value: string | null | undefined) {
   }).format(new Date(value));
 }
 
+function formatFileSize(value: number) {
+  if (!value) {
+    return "-";
+  }
+
+  const mb = value / 1024 / 1024;
+
+  return `${mb.toLocaleString("en-US", {
+    maximumFractionDigits: 1,
+  })} MB`;
+}
+
 function StatTile({
   label,
   value,
@@ -109,6 +122,102 @@ function StatTile({
       <div className="mt-2 text-2xl font-bold leading-none">{value}</div>
       <div className="mt-2 text-xs leading-5 opacity-80">{note}</div>
     </div>
+  );
+}
+
+function MigrationRehearsalPanel({
+  migration,
+}: {
+  migration: PostgresReplacementMigrationSummary | null;
+}) {
+  if (!migration) {
+    return (
+      <section className="border border-amber-200 bg-amber-50 px-5 py-5">
+        <h2 className="text-lg font-bold text-amber-900">
+          Migration Rehearsal
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+          No live SQLite migration rehearsal run is recorded in PostgreSQL yet.
+          Before internal replacement, run a fresh backup import, transform, and
+          validation pass.
+        </p>
+      </section>
+    );
+  }
+
+  const validationReady =
+    migration.validation_check_count > 0 &&
+    migration.validation_fail_count === 0 &&
+    migration.error_warning_count === 0;
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Latest Migration Rehearsal
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            Fresh live SQLite backup import, transform, and validation must be
+            repeated before production cutover.
+          </p>
+        </div>
+        <span
+          className={`inline-flex h-7 items-center border px-2 text-xs font-semibold ${
+            validationReady
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-amber-200 bg-amber-50 text-amber-700"
+          }`}
+        >
+          {validationReady ? "Validation clean" : "Needs cutover review"}
+        </span>
+      </div>
+      <div className="grid gap-3 px-5 py-5 md:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Run
+          </div>
+          <div className="mt-1 font-semibold text-[#1f2937]">
+            {migration.run_label}
+          </div>
+          <div className="mt-1 text-xs text-gray-500">{migration.status}</div>
+        </div>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Source Backup
+          </div>
+          <div className="mt-1 font-semibold text-[#1f2937]">
+            {migration.source_database_file_name || "not recorded"}
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {formatFileSize(migration.source_database_size_bytes)}
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Validation
+          </div>
+          <div className="mt-1 font-semibold text-[#1f2937]">
+            {formatCount(migration.validation_pass_count)} pass ·{" "}
+            {formatCount(migration.validation_fail_count)} fail
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            {formatCount(migration.warning_count)} warning rows
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Completed
+          </div>
+          <div className="mt-1 font-semibold text-[#1f2937]">
+            {formatDate(migration.validation_completed_at)}
+          </div>
+          <div className="mt-1 text-xs text-gray-500">
+            Transform {formatDate(migration.transform_completed_at)}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -390,6 +499,10 @@ export default async function PostgresReadinessPage() {
               value={formatCount(totals.needsUpdate)}
             />
           </section>
+
+          <MigrationRehearsalPanel
+            migration={data.readiness.latestMigrationRun}
+          />
 
           <section className="space-y-3">
             <GateRow
