@@ -278,7 +278,7 @@ The first reviewed pack from the adapted tuned workbook produced:
 Run only selected fact types:
 
 ```bash
-npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --fact-types capacity_signal,cod_year_signal,funding_amount_signal
+npm run tge-news:facts -- --root "/Users/lxrichter/Documents/TGE_AI/03_ai_documents/tge_news_md_canonical" --fact-types capacity_signal,cod_year_signal,financing_investment_amount_signal,public_funding_grant_amount_signal
 ```
 
 ## Optional PostgreSQL Write
@@ -313,12 +313,23 @@ Current deterministic extraction supports:
 - `entity_signal`
 - `capacity_signal`
 - `funding_amount_signal`
+- `public_funding_grant_amount_signal`
+- `financing_investment_amount_signal`
+- `debt_loan_amount_signal`
+- `contract_award_amount_signal`
+- `license_lease_sale_amount_signal`
 - `cod_year_signal`
 - `direct_use_category_signal`
 - `activity_status_signal`
 
 These are intentionally broad article facts. They are not yet final structured
 database values.
+
+The money/funding taxonomy is deliberately split for review quality: public
+grants, private financing/investment raises, debt/loans, contract awards, and
+license/lease-sale values should not be treated as one generic funding event.
+`funding_amount_signal` remains only as a broad fallback for ambiguous funding
+language.
 
 ## First Review Tuning Pass
 

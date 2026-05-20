@@ -149,6 +149,15 @@ foundation. Current implemented PostgreSQL staging areas include:
   source supports, linked evidence, match candidates, article fact candidates,
   AI suggestions, credibility actions, and review metadata as one governed
   evidence workspace
+- source edit pages now include quick linked-evidence fact type presets for
+  capacity, timing, public funding/grants, private financing/investment,
+  debt/loans, contracts, license/lease-sale values, license/permit status,
+  ownership/operator, direct-use classification, technology/resource, and
+  policy/tariff evidence links
+- article fact candidate display now avoids duplicate unit rendering, and the
+  local extraction taxonomy separates public funding/grants, private
+  financing/investment raises, loans, contract awards, and license/lease-sale
+  values instead of treating all money signals as one generic funding category
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

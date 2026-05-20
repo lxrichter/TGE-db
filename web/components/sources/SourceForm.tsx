@@ -47,6 +47,75 @@ type SourceLinkFormValues = {
   is_primary_evidence: boolean;
 };
 
+type SourceFactTypePreset = {
+  label: string;
+  evidenceType: string;
+  linkedField: string;
+};
+
+const SOURCE_FACT_TYPE_PRESETS: SourceFactTypePreset[] = [
+  {
+    label: "Capacity",
+    evidenceType: "capacity_signal",
+    linkedField: "capacity",
+  },
+  {
+    label: "COD / Timing",
+    evidenceType: "cod_year_signal",
+    linkedField: "target_cod_year",
+  },
+  {
+    label: "Public Funding / Grant Amount",
+    evidenceType: "public_funding_grant_amount_signal",
+    linkedField: "public_funding_or_grant_amount",
+  },
+  {
+    label: "Financing / Investment Amount",
+    evidenceType: "financing_investment_amount_signal",
+    linkedField: "financing_or_investment_amount",
+  },
+  {
+    label: "Debt / Loan Amount",
+    evidenceType: "debt_loan_amount_signal",
+    linkedField: "debt_or_loan_amount",
+  },
+  {
+    label: "Contract Award Amount",
+    evidenceType: "contract_award_amount_signal",
+    linkedField: "contract_value",
+  },
+  {
+    label: "License / Lease Sale Amount",
+    evidenceType: "license_lease_sale_amount_signal",
+    linkedField: "license_or_lease_sale_amount",
+  },
+  {
+    label: "License / Permit Status",
+    evidenceType: "license_permit_award_signal",
+    linkedField: "license_or_permit_status",
+  },
+  {
+    label: "Ownership / Operator",
+    evidenceType: "ownership_operator_signal",
+    linkedField: "owner_operator",
+  },
+  {
+    label: "Direct-Use Category",
+    evidenceType: "direct_use_category_signal",
+    linkedField: "direct_use_category",
+  },
+  {
+    label: "Technology / Resource",
+    evidenceType: "technology_resource_signal",
+    linkedField: "technology_or_resource",
+  },
+  {
+    label: "Policy / Tariff",
+    evidenceType: "policy_tariff_signal",
+    linkedField: "policy_or_tariff",
+  },
+];
+
 function toDatetimeLocal(value: string | null | undefined) {
   if (!value) {
     return "";
@@ -294,6 +363,14 @@ function SourceLinkManager({
     }
   }
 
+  function applyFactTypePreset(preset: SourceFactTypePreset) {
+    setLinkForm((prev) => ({
+      ...prev,
+      evidence_type: preset.evidenceType,
+      linked_field: preset.linkedField,
+    }));
+  }
+
   return (
     <Section title="Linked Evidence">
       <div className="space-y-5">
@@ -307,6 +384,36 @@ function SourceLinkManager({
             {linkMessage}
           </div>
         ) : null}
+
+        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Quick Fact Type
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {SOURCE_FACT_TYPE_PRESETS.map((preset) => {
+              const selected = linkForm.evidence_type === preset.evidenceType;
+
+              return (
+                <button
+                  key={preset.evidenceType}
+                  className={`border px-3 py-1.5 text-xs font-semibold ${
+                    selected
+                      ? "border-[#8dc63f] bg-[#edf7df] text-[#4f7f1f]"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-[#8dc63f]"
+                  }`}
+                  type="button"
+                  onClick={() => applyFactTypePreset(preset)}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-gray-500">
+            Presets fill the fact/evidence type and linked field only. They do
+            not confirm or apply extracted facts.
+          </p>
+        </div>
 
         <form className="grid grid-cols-1 gap-4 xl:grid-cols-4" onSubmit={handleAddLink}>
           <Field label="Entity Type">
@@ -378,10 +485,10 @@ function SourceLinkManager({
             />
           </Field>
 
-          <Field label="Evidence Type">
+          <Field label="Fact / Evidence Type">
             <input
               className={inputClass()}
-              placeholder="source, claim, confirmation..."
+              placeholder="capacity_signal, financing_investment_signal..."
               value={linkForm.evidence_type}
               onChange={(event) =>
                 setLinkForm((prev) => ({
@@ -466,12 +573,13 @@ function SourceLinkManager({
           <table className="min-w-full table-fixed text-left text-sm">
             <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
               <tr>
-                <th className="w-[16%] px-4 py-3 font-semibold">Entity</th>
-                <th className="w-[24%] px-4 py-3 font-semibold">Record</th>
-                <th className="w-[16%] px-4 py-3 font-semibold">Field</th>
-                <th className="w-[16%] px-4 py-3 font-semibold">Value</th>
-                <th className="w-[16%] px-4 py-3 font-semibold">Confidence</th>
-                <th className="w-[12%] px-4 py-3 font-semibold">Action</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Entity</th>
+                <th className="w-[21%] px-4 py-3 font-semibold">Record</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Fact Type</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Field</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Value</th>
+                <th className="w-[13%] px-4 py-3 font-semibold">Confidence</th>
+                <th className="w-[10%] px-4 py-3 font-semibold">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -487,6 +595,9 @@ function SourceLinkManager({
                     <div className="mt-1 text-xs text-gray-500">
                       {link.legacy_id || link.entity_id}
                     </div>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">
+                    {link.evidence_type || "-"}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
                     {link.linked_field || "-"}
@@ -517,7 +628,7 @@ function SourceLinkManager({
 
               {source.links.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
                     No linked records yet.
                   </td>
                 </tr>

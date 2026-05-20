@@ -209,9 +209,25 @@ const STATUS_PATTERNS = [
     titleOnly: true,
   },
   {
-    code: "funding_award",
-    label: "Funding / award",
-    pattern: /\b(funding|grant|raises|raised|award(?:ed)?|awards)\b/i,
+    code: "public_funding_grant",
+    label: "Public funding / grant",
+    pattern: /\b(public funding|state funding|government funding|grant|subsidy|funding support|eu funding|moderni[sz]ation fund|incentive program)\b/i,
+  },
+  {
+    code: "financing_investment_raise",
+    label: "Financing / investment raise",
+    pattern: /\b(raises|raised|financing round|funding round|investment round|capital raise|equity investment|series [a-z])\b/i,
+  },
+  {
+    code: "contract_award",
+    label: "Contract award",
+    pattern: /\b(awarded?[^.]{0,70}contract|contract[^.]{0,50}awarded?|supply contract|drilling contract|epc contract)\b/i,
+  },
+  {
+    code: "license_permit_award",
+    label: "License / permit award",
+    pattern: /\b(awarded?[^.]{0,70}(licen[sc]e|permit|lease)|secures?[^.]{0,70}(licen[sc]e|permit|lease)|wins?[^.]{0,70}(licen[sc]e|permit|lease)|lease sale)\b/i,
+    titleOnly: true,
   },
   {
     code: "policy_tariff",
@@ -817,17 +833,69 @@ function extractCapacitySignals(article, scanText, titleLength, minConfidence, m
   return facts;
 }
 
+function classifyMoneySignal(snippet) {
+  if (/\b(lease sale|parcel|lease|licen[sc]e|permit)\b/i.test(snippet)) {
+    return {
+      factType: "license_lease_sale_amount_signal",
+      fieldName: "license_or_lease_sale_amount",
+      reason: "Currency amount detected near license, permit, or lease sale language.",
+    };
+  }
+
+  if (/\b(contract|awarded|supply agreement|supply contract|drilling contract|epc)\b/i.test(snippet)) {
+    return {
+      factType: "contract_award_amount_signal",
+      fieldName: "contract_value",
+      reason: "Currency amount detected near contract award language.",
+    };
+  }
+
+  if (/\b(loan|debt financing|credit facility|credit line|debt facility)\b/i.test(snippet)) {
+    return {
+      factType: "debt_loan_amount_signal",
+      fieldName: "debt_or_loan_amount",
+      reason: "Currency amount detected near debt or loan financing language.",
+    };
+  }
+
+  if (/\b(raises|raised|series [a-z]|financing round|funding round|investment round|investment|equity|capital raise|venture)\b/i.test(snippet)) {
+    return {
+      factType: "financing_investment_amount_signal",
+      fieldName: "financing_or_investment_amount",
+      reason: "Currency amount detected near financing or investment language.",
+    };
+  }
+
+  if (/\b(grant|public funding|state funding|government funding|subsidy|funding support|incentive|eu funding|moderni[sz]ation fund)\b/i.test(snippet)) {
+    return {
+      factType: "public_funding_grant_amount_signal",
+      fieldName: "public_funding_or_grant_amount",
+      reason: "Currency amount detected near public funding or grant language.",
+    };
+  }
+
+  if (/\b(funding|financing|secures)\b/i.test(snippet)) {
+    return {
+      factType: "funding_amount_signal",
+      fieldName: "funding_or_investment_amount",
+      reason: "Currency amount detected near broad funding or financing language.",
+    };
+  }
+
+  return null;
+}
+
 function extractMoneySignals(article, scanText, titleLength, minConfidence, maxFactsPerArticle) {
   const facts = [];
   const seenKeys = new Set();
-  const financeContext = /\b(funding|financing|investment|grant|loan|raises|raised|awarded|secures|contract)\b/i;
   const pattern = /\b(US\$|\$|EUR|USD|GBP|CAD|AUD|CHF|ISK|NOK|DKK|SEK|\u20ac|\u00a3)\s*([0-9]+(?:[,\s][0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*(million|billion|bn|m)?\b/gi;
   let match;
 
   while ((match = pattern.exec(scanText)) !== null) {
     const snippet = getSnippet(scanText, match.index, match[0].length);
+    const classification = classifyMoneySignal(snippet);
 
-    if (!financeContext.test(snippet)) {
+    if (!classification) {
       continue;
     }
 
@@ -848,8 +916,8 @@ function extractMoneySignals(article, scanText, titleLength, minConfidence, maxF
       seenKeys,
       buildFact({
         article,
-        factType: "funding_amount_signal",
-        fieldName: "funding_or_investment_amount",
+        factType: classification.factType,
+        fieldName: classification.fieldName,
         extractedValue: normalizeWhitespace(match[0]),
         normalizedValue: {
           amount,
@@ -859,7 +927,7 @@ function extractMoneySignals(article, scanText, titleLength, minConfidence, maxF
         unitCode: match[1],
         snippet,
         confidence: inTitle ? 0.8 : 0.64,
-        reason: "Currency amount detected near finance/funding language.",
+        reason: classification.reason,
         metadata: { signal_source: inTitle ? "title" : "body_scan" },
       }),
       maxFactsPerArticle,

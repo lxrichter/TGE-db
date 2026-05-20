@@ -98,13 +98,28 @@ Reject when the number is:
 Use `unclear` when the value may be capacity but the snippet lacks enough
 context.
 
-### `funding_amount_signal`
+### Money / funding fact types
 
-Accept when the value is clearly an investment, funding award, grant, loan,
-financing package, or raise.
+Use the more specific money fact types whenever possible:
 
-Reject when the value is a lease sale price, tariff, revenue number, installed
-capacity, or general market value.
+- `public_funding_grant_amount_signal`: public funding, state funding,
+  government support, grants, subsidies, incentive programmes, EU funds, or
+  similar public-sector support.
+- `financing_investment_amount_signal`: private-sector financing rounds,
+  investment raises, equity funding, company expansion financing, or venture
+  funding.
+- `debt_loan_amount_signal`: loans, debt financing, credit facilities, or
+  similar repayable finance.
+- `contract_award_amount_signal`: contract values, supply contracts, drilling
+  contracts, EPC contracts, or awarded work packages.
+- `license_lease_sale_amount_signal`: lease-sale proceeds, license/permit
+  award values, lease parcels, or similar concession/licensing money signals.
+- `funding_amount_signal`: broad legacy fallback where the snippet clearly
+  relates to funding/financing but cannot yet be classified safely.
+
+Reject when the value is a tariff, revenue number, installed capacity, general
+market value, event sponsorship amount, or a money value not useful for project,
+asset, company, or market intelligence.
 
 ### `cod_year_signal`
 
@@ -125,7 +140,8 @@ context without article-specific relevance.
 ### `activity_status_signal`
 
 Accept when the phrase clearly indicates project or asset activity, such as
-construction, drilling, tender, funding, policy/tariff, acquisition, or project
+construction, drilling, tender, public funding/grant, private financing,
+contract award, license/permit award, policy/tariff, acquisition, or project
 progress.
 
 Reject when the phrase is generic article wording, unrelated corporate news,

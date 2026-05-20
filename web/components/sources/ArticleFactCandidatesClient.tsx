@@ -89,8 +89,21 @@ function sourceHref(candidate: ArticleFactCandidateItem) {
 }
 
 function valuePreview(candidate: ArticleFactCandidateItem) {
-  const unit = candidate.unit_code ? ` ${candidate.unit_code}` : "";
-  return `${candidate.extracted_value}${unit}`;
+  const value = candidate.extracted_value.trim();
+  const unit = candidate.unit_code?.trim();
+
+  if (!unit) {
+    return value;
+  }
+
+  const compactValue = value.replace(/\s/g, "").toLowerCase();
+  const compactUnit = unit.replace(/\s/g, "").toLowerCase();
+
+  if (compactValue.includes(compactUnit)) {
+    return value;
+  }
+
+  return `${value} ${unit}`;
 }
 
 export default function ArticleFactCandidatesClient({
