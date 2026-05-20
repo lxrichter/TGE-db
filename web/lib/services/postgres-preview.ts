@@ -32,6 +32,28 @@ export type PostgresCountryMarketSummary = {
   latest_update_at: string;
 };
 
+export type PostgresReplacementReadinessEntity = {
+  entity_type: "projects" | "operating_assets" | "companies";
+  label: string;
+  record_count: number;
+  approved_or_export_ready_count: number;
+  draft_or_validation_count: number;
+  needs_update_count: number;
+  missing_source_count: number;
+  missing_country_count: number;
+  missing_use_or_status_count: number;
+  missing_capacity_count: number;
+  missing_company_link_count: number;
+  missing_coordinates_count: number;
+  open_issue_count: number;
+  critical_issue_count: number;
+  latest_update_at: string;
+};
+
+export type PostgresReplacementReadiness = {
+  entities: PostgresReplacementReadinessEntity[];
+};
+
 export type PostgresPreviewProject = {
   project_id: string;
   legacy_project_id: string | null;
@@ -805,6 +827,13 @@ type PromotedOperatingAssetRow = Omit<
 
 type CountryMarketSummaryRow = Omit<
   PostgresCountryMarketSummary,
+  "latest_update_at"
+> & {
+  latest_update_at: string | Date;
+};
+
+type ReplacementReadinessEntityRow = Omit<
+  PostgresReplacementReadinessEntity,
   "latest_update_at"
 > & {
   latest_update_at: string | Date;
@@ -1604,6 +1633,207 @@ export async function getPostgresPreviewSummary(): Promise<PostgresPreviewSummar
     directUseComponentCount,
     companyProjectLinkCount,
     companyAssetLinkCount,
+  };
+}
+
+export async function getPostgresReplacementReadiness(): Promise<PostgresReplacementReadiness> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    ReplacementReadinessEntityRow[]
+  >(`
+    WITH open_issues AS (
+      SELECT
+        entity_type,
+        project_id,
+        operating_asset_id,
+        company_id,
+        count(*)::int AS open_issue_count,
+        count(*) FILTER (WHERE severity = 'critical')::int AS critical_issue_count
+      FROM research_ops_issues
+      WHERE issue_status_code NOT IN ('resolved', 'dismissed')
+      GROUP BY entity_type, project_id, operating_asset_id, company_id
+    )
+    SELECT
+      'projects'::text AS entity_type,
+      'Projects'::text AS label,
+      count(*)::int AS record_count,
+      count(*) FILTER (
+        WHERE p.review_status_code IN ('approved', 'export_ready')
+      )::int AS approved_or_export_ready_count,
+      count(*) FILTER (
+        WHERE p.review_status_code IN ('draft', 'validation')
+      )::int AS draft_or_validation_count,
+      count(*) FILTER (WHERE p.review_status_code = 'needs_update')::int
+        AS needs_update_count,
+      count(*) FILTER (
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM entity_sources es
+          WHERE es.project_id = p.project_id
+        )
+      )::int AS missing_source_count,
+      count(*) FILTER (
+        WHERE p.country IS NULL OR trim(p.country) = ''
+      )::int AS missing_country_count,
+      count(*) FILTER (
+        WHERE COALESCE(p.primary_use_type_code, '') IN ('', 'unknown')
+          OR COALESCE(p.lifecycle_phase_code, '') IN ('', 'unknown')
+      )::int AS missing_use_or_status_count,
+      count(*) FILTER (
+        WHERE p.potential_min_mwe IS NULL
+          AND p.potential_max_mwe IS NULL
+          AND p.electric_capacity_mwe IS NULL
+          AND p.thermal_capacity_mwth IS NULL
+          AND p.annual_heat_supply_gwhth IS NULL
+          AND p.annual_cooling_supply_gwhc IS NULL
+      )::int AS missing_capacity_count,
+      count(*) FILTER (
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM company_project_links cpl
+          WHERE cpl.project_id = p.project_id
+        )
+      )::int AS missing_company_link_count,
+      count(*) FILTER (
+        WHERE p.latitude IS NULL OR p.longitude IS NULL
+      )::int AS missing_coordinates_count,
+      COALESCE(sum(oi.open_issue_count), 0)::int AS open_issue_count,
+      COALESCE(sum(oi.critical_issue_count), 0)::int AS critical_issue_count,
+      COALESCE(max(p.updated_at), '1970-01-01'::timestamp) AS latest_update_at
+    FROM projects p
+    LEFT JOIN open_issues oi
+      ON oi.entity_type = 'project'
+      AND oi.project_id = p.project_id
+
+    UNION ALL
+
+    SELECT
+      'operating_assets'::text AS entity_type,
+      'Plants / Facilities'::text AS label,
+      count(*)::int AS record_count,
+      count(*) FILTER (
+        WHERE a.review_status_code IN ('approved', 'export_ready')
+      )::int AS approved_or_export_ready_count,
+      count(*) FILTER (
+        WHERE a.review_status_code IN ('draft', 'validation')
+      )::int AS draft_or_validation_count,
+      count(*) FILTER (WHERE a.review_status_code = 'needs_update')::int
+        AS needs_update_count,
+      count(*) FILTER (
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM entity_sources es
+          WHERE es.operating_asset_id = a.operating_asset_id
+        )
+      )::int AS missing_source_count,
+      count(*) FILTER (
+        WHERE a.country IS NULL OR trim(a.country) = ''
+      )::int AS missing_country_count,
+      count(*) FILTER (
+        WHERE COALESCE(a.primary_use_type_code, '') IN ('', 'unknown')
+          OR COALESCE(a.lifecycle_phase_code, '') IN ('', 'unknown')
+      )::int AS missing_use_or_status_count,
+      count(*) FILTER (
+        WHERE a.electric_capacity_mwe IS NULL
+          AND a.electric_capacity_running_mwe IS NULL
+          AND a.thermal_capacity_mwth IS NULL
+          AND a.installed_heat_pump_capacity_mwth IS NULL
+          AND a.annual_heat_supply_gwhth IS NULL
+          AND a.annual_cooling_supply_gwhc IS NULL
+      )::int AS missing_capacity_count,
+      count(*) FILTER (
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM company_operating_asset_links coal
+          WHERE coal.operating_asset_id = a.operating_asset_id
+        )
+      )::int AS missing_company_link_count,
+      count(*) FILTER (
+        WHERE a.latitude IS NULL OR a.longitude IS NULL
+      )::int AS missing_coordinates_count,
+      COALESCE(sum(oi.open_issue_count), 0)::int AS open_issue_count,
+      COALESCE(sum(oi.critical_issue_count), 0)::int AS critical_issue_count,
+      COALESCE(max(a.updated_at), '1970-01-01'::timestamp) AS latest_update_at
+    FROM operating_assets a
+    LEFT JOIN open_issues oi
+      ON oi.entity_type = 'operating_asset'
+      AND oi.operating_asset_id = a.operating_asset_id
+
+    UNION ALL
+
+    SELECT
+      'companies'::text AS entity_type,
+      'Companies'::text AS label,
+      count(*)::int AS record_count,
+      count(*) FILTER (
+        WHERE c.review_status_code IN ('approved', 'export_ready')
+      )::int AS approved_or_export_ready_count,
+      count(*) FILTER (
+        WHERE c.review_status_code IN ('draft', 'validation')
+      )::int AS draft_or_validation_count,
+      count(*) FILTER (WHERE c.review_status_code = 'needs_update')::int
+        AS needs_update_count,
+      count(*) FILTER (
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM entity_sources es
+          WHERE es.company_id = c.company_id
+        )
+      )::int AS missing_source_count,
+      count(*) FILTER (
+        WHERE c.headquarters_country IS NULL OR trim(c.headquarters_country) = ''
+      )::int AS missing_country_count,
+      count(*) FILTER (
+        WHERE COALESCE(c.company_type_primary_code, '') IN ('', 'unknown')
+      )::int AS missing_use_or_status_count,
+      0::int AS missing_capacity_count,
+      count(*) FILTER (
+        WHERE NOT EXISTS (
+          SELECT 1
+          FROM company_project_links cpl
+          WHERE cpl.company_id = c.company_id
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM company_operating_asset_links coal
+          WHERE coal.company_id = c.company_id
+        )
+        AND NOT EXISTS (
+          SELECT 1
+          FROM company_relationships cr
+          WHERE cr.company_id_from = c.company_id
+             OR cr.company_id_to = c.company_id
+        )
+      )::int AS missing_company_link_count,
+      0::int AS missing_coordinates_count,
+      COALESCE(sum(oi.open_issue_count), 0)::int AS open_issue_count,
+      COALESCE(sum(oi.critical_issue_count), 0)::int AS critical_issue_count,
+      COALESCE(max(c.updated_at), '1970-01-01'::timestamp) AS latest_update_at
+    FROM companies c
+    LEFT JOIN open_issues oi
+      ON oi.entity_type = 'company'
+      AND oi.company_id = c.company_id
+    ORDER BY entity_type
+  `);
+
+  return {
+    entities: rows.map((row) => ({
+      ...row,
+      record_count: toNumber(row.record_count),
+      approved_or_export_ready_count: toNumber(
+        row.approved_or_export_ready_count
+      ),
+      draft_or_validation_count: toNumber(row.draft_or_validation_count),
+      needs_update_count: toNumber(row.needs_update_count),
+      missing_source_count: toNumber(row.missing_source_count),
+      missing_country_count: toNumber(row.missing_country_count),
+      missing_use_or_status_count: toNumber(row.missing_use_or_status_count),
+      missing_capacity_count: toNumber(row.missing_capacity_count),
+      missing_company_link_count: toNumber(row.missing_company_link_count),
+      missing_coordinates_count: toNumber(row.missing_coordinates_count),
+      open_issue_count: toNumber(row.open_issue_count),
+      critical_issue_count: toNumber(row.critical_issue_count),
+      latest_update_at: normalizeTimestamp(row.latest_update_at),
+    })),
   };
 }
 
