@@ -217,6 +217,7 @@ function fieldMeta(
 function Field({
   label,
   children,
+  help,
   changed = false,
   required = false,
   important = false,
@@ -225,6 +226,7 @@ function Field({
 }: {
   label: string;
   children: React.ReactNode;
+  help?: string;
   changed?: boolean;
   required?: boolean;
   important?: boolean;
@@ -276,6 +278,11 @@ function Field({
           </span>
         ) : null}
       </span>
+      {help ? (
+        <span className="text-[11px] font-medium normal-case leading-4 tracking-normal text-gray-500">
+          {help}
+        </span>
+      ) : null}
       {children}
     </label>
   );
@@ -1213,6 +1220,9 @@ function AssetWorkflowBridge({
   const evidenceHref = assetHref ? `${assetHref}#asset-source-evidence` : null;
   const relationshipsHref = assetHref ? `${assetHref}#asset-company-links` : null;
   const linkedProjectHref = assetHref ? `${assetHref}#asset-workflow-actions` : null;
+  const sourcePreview = asset?.sources?.slice(0, 2) || [];
+  const sourceCount = asset?.source_count || 0;
+  const companyLinkCount = asset?.company_link_count || 0;
 
   return (
     <Section title="Evidence And Relationship Workflow">
@@ -1245,6 +1255,26 @@ function AssetWorkflowBridge({
               New Source
             </Link>
           </div>
+          {asset ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {sourceCount} linked evidence record{sourceCount === 1 ? "" : "s"}
+              </div>
+              {sourcePreview.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {sourcePreview.map((source) => (
+                    <li key={source.entity_source_id} className="truncate">
+                      {source.source_title || source.source_reference || source.source_url}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No evidence links yet.
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
@@ -1270,6 +1300,18 @@ function AssetWorkflowBridge({
               </span>
             )}
           </div>
+          {asset ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {companyLinkCount} structured company role
+                {companyLinkCount === 1 ? "" : "s"}
+              </div>
+              <div className="mt-1">
+                Use the detail workflow for owner, operator, supplier,
+                contractor, and offtaker links.
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
@@ -1294,6 +1336,18 @@ function AssetWorkflowBridge({
               </span>
             )}
           </div>
+          {asset ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {asset.promoted_from_project_id
+                  ? "Originating project linked"
+                  : "No originating project link yet"}
+              </div>
+              <div className="mt-1">
+                Plant / field group: {asset.project_group || "not set"}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
       {mode === "create" ? (
@@ -1984,7 +2038,8 @@ export function PostgresOperatingAssetForm({
             />
           </Field>
           <Field
-            label="Running / Current Electric Capacity MWe"
+            label="Active Operating Capacity MWe"
+            help="Use for current online/available electric capacity when it differs from installed capacity; note derating, outages, or uncertainty below."
             {...fieldMeta(changeState, "electric_capacity_running_mwe", {
               important: true,
               tone: "important",

@@ -1132,7 +1132,7 @@ export function OperatingAssetsPreviewTable({
               <th className={`w-[12%] ${headClass} font-semibold`}>Status</th>
               <th className={`w-[14%] ${headClass} font-semibold`}>Location</th>
               <th className={`w-[10%] ${headClass} font-semibold`}>Installed</th>
-              <th className={`w-[10%] ${headClass} font-semibold`}>Running</th>
+              <th className={`w-[10%] ${headClass} font-semibold`}>Active</th>
               <th className={`w-[10%] ${headClass} font-semibold`}>Review</th>
               <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>

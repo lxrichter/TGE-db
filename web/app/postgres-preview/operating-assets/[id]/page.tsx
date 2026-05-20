@@ -593,9 +593,9 @@ export default async function PostgresOperatingAssetDetailPage({
           note: "Installed capacity",
         },
         {
-          label: "Running Power",
+          label: "Active Operating Power",
           value: metric(asset.electric_capacity_running_mwe, "MWe"),
-          note: "Current/running capacity",
+          note: "Current online/available capacity",
         },
         {
           label: "Thermal",
