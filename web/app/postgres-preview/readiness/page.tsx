@@ -51,6 +51,10 @@ function missingPath(
   entityType: PostgresReplacementReadinessEntity["entity_type"],
   missing: string
 ) {
+  if (entityType === "companies" && missing === "company_link") {
+    return `${entityPath(entityType)}?missing=activity_link`;
+  }
+
   return `${entityPath(entityType)}?missing=${missing}`;
 }
 
