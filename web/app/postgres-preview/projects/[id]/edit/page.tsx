@@ -87,7 +87,9 @@ export default async function EditPostgresProjectPage({
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
                 Update the staging project record. Approved or export-ready
                 records edited through this path are moved back toward review
-                unless an editor keeps the approval status.
+                unless an editor keeps the approval status. Evidence, company
+                roles, and linked plant/facility workflows are visible in the
+                form but managed on the project detail page.
               </p>
             </div>
             {data.ok ? (

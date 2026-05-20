@@ -59,8 +59,9 @@ export default async function NewPostgresProjectPage() {
           </h1>
           <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
             Create a staging project draft in the future PostgreSQL foundation.
-            Source/evidence links and company roles remain separate workflow
-            steps.
+            Save is allowed for incomplete drafts; source/evidence, company
+            roles, and linked plant/facility workflows are shown below and
+            become active after the first save.
           </p>
         </div>
       </section>

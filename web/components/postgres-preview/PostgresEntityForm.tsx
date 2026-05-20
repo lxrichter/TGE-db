@@ -435,6 +435,18 @@ function issueTone(severity: FormReadinessIssue["severity"]) {
   return "border-blue-200 bg-blue-50 text-blue-800";
 }
 
+function issueMeaning(severity: FormReadinessIssue["severity"]) {
+  if (severity === "critical") {
+    return "Blocks submit for review, approval, and export-ready use. Draft saving remains allowed.";
+  }
+
+  if (severity === "important") {
+    return "Does not block draft saving. It should be resolved or explicitly accepted during review.";
+  }
+
+  return "Separate workflow item. Usually handled after saving on the detail page.";
+}
+
 function formatFieldLabel(fieldName: string) {
   return fieldName
     .replace(/_/g, " ")
@@ -577,7 +589,8 @@ function FormReadinessPanel({
           <h2 className="text-lg font-bold text-[#1f2937]">Form Readiness</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             Live guidance for this staging {entityLabel}. Drafts can still be
-            saved while critical and important gaps remain.
+            saved while critical and important gaps remain; review, approval,
+            and export-ready actions apply stricter checks.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -595,6 +608,21 @@ function FormReadinessPanel({
         </div>
       </div>
       <div className="space-y-4 px-5 py-5">
+        <div className="grid grid-cols-1 gap-3 text-xs leading-5 text-gray-600 lg:grid-cols-3">
+          <div className="border border-red-100 bg-red-50 px-3 py-3 text-red-800">
+            <span className="font-semibold">Critical</span>: blocks review,
+            approval, and export-ready use. Save draft remains allowed.
+          </div>
+          <div className="border border-amber-100 bg-amber-50 px-3 py-3 text-amber-900">
+            <span className="font-semibold">Important</span>: should be fixed
+            or accepted during review, but does not block draft saving.
+          </div>
+          <div className="border border-blue-100 bg-blue-50 px-3 py-3 text-blue-900">
+            <span className="font-semibold">Workflow</span>: handled through
+            linked source, relationship, or Research Ops workflows.
+          </div>
+        </div>
+
         {issueActionError ? (
           <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             {issueActionError}
@@ -683,6 +711,9 @@ function FormReadinessPanel({
                       <div className="mt-1 text-xs leading-5">
                         {issue.detail}
                       </div>
+                      <div className="mt-2 text-[11px] leading-5 opacity-80">
+                        {issueMeaning(issue.severity)}
+                      </div>
                     </div>
                     <div className="flex shrink-0 flex-wrap gap-2">
                       {fieldHref ? (
@@ -762,14 +793,22 @@ function getProjectReadinessIssues(
     });
   }
 
-  if (
-    isUnknownCode(form, "lifecycle_phase_code") ||
-    form.lifecycle_phase_code === "prospect_tbd"
-  ) {
+  if (isUnknownCode(form, "lifecycle_phase_code")) {
     issues.push({
       severity: "critical",
-      label: "Lifecycle needs classification",
-      detail: "Prospect / TBD can be saved, but should stay visible as a review gap.",
+      label: "Missing project phase",
+      detail: "A project phase is required before review, approval, or export-ready use.",
+      issueTypeCode: "missing_lifecycle_status",
+      linkedField: "lifecycle_phase_code",
+    });
+  }
+
+  if (form.lifecycle_phase_code === "prospect_tbd") {
+    issues.push({
+      severity: "important",
+      label: "Project phase is Prospect / TBD",
+      detail:
+        "Prospect / TBD is valid for early-stage records, but should remain visible for editor review and later classification.",
       issueTypeCode: "missing_lifecycle_status",
       linkedField: "lifecycle_phase_code",
     });
@@ -1029,8 +1068,9 @@ function FormActions({
   return (
     <div className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm leading-6 text-gray-600">
-        PostgreSQL staging write path. Source links, company relationships, and
-        promotion workflows stay separate.
+        Save writes a draft/staging record even when non-critical fields are
+        incomplete. Submit/review, approval, export-ready status, source links,
+        company relationships, and promotion workflows stay governed separately.
       </p>
       <div className="flex flex-wrap gap-2">
         <Link
@@ -1044,10 +1084,119 @@ function FormActions({
           disabled={saving}
           type="submit"
         >
-          {saving ? "Saving..." : "Save Staging Record"}
+          {saving ? "Saving..." : "Save Draft / Staging Record"}
         </button>
       </div>
     </div>
+  );
+}
+
+function ProjectWorkflowBridge({
+  mode,
+  project,
+}: {
+  mode: EntityFormMode;
+  project?: PostgresPreviewProjectDetail | null;
+}) {
+  const projectHref = project
+    ? `/postgres-preview/projects/${project.project_id}`
+    : null;
+  const evidenceHref = projectHref ? `${projectHref}#project-source-evidence` : null;
+  const relationshipsHref = projectHref
+    ? `${projectHref}#project-company-links`
+    : null;
+  const linkedAssetHref = projectHref ? `${projectHref}#project-promotion` : null;
+
+  return (
+    <Section title="Evidence And Relationship Workflow">
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Evidence / Source
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Source URL, source title, date, source type, linked field, extracted
+            value, claim text, and confidence note are managed as evidence links.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {evidenceHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={evidenceHref}
+              >
+                Add / Review Evidence
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add evidence
+              </span>
+            )}
+            <Link
+              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href="/sources/new"
+            >
+              New Source
+            </Link>
+          </div>
+        </div>
+
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Related Companies
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Developer, owner, operator, investor, offtaker, supplier, and other
+            company roles are structured relationship records, not free-text
+            project fields.
+          </p>
+          <div className="mt-3">
+            {relationshipsHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={relationshipsHref}
+              >
+                Add Company Roles
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add company roles
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Related Plant / Facility
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Linked plant/facility, promotion, expansion, and historical
+            project-to-asset relationships stay in the project detail workflow.
+          </p>
+          <div className="mt-3">
+            {linkedAssetHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={linkedAssetHref}
+              >
+                Review Linked Assets
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to link assets
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+      {mode === "create" ? (
+        <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
+          For new records, save the draft first. The saved detail page then
+          exposes evidence, company-role, Research Ops, and promotion workflows
+          against the new project ID.
+        </p>
+      ) : null}
+    </Section>
   );
 }
 
@@ -1250,6 +1399,8 @@ export function PostgresProjectForm({
         })}
       />
 
+      <ProjectWorkflowBridge mode={mode} project={project} />
+
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
@@ -1311,10 +1462,12 @@ export function PostgresProjectForm({
       <Section title="Workflow And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
-            label="Use Type"
+            label="Geothermal Use Category"
             {...fieldMeta(changeState, "primary_use_type_code", {
               required: true,
-              tone: "critical",
+              tone: isUnknownCode(form, "primary_use_type_code")
+                ? "critical"
+                : undefined,
             })}
           >
             <SelectInput
@@ -1325,10 +1478,14 @@ export function PostgresProjectForm({
             />
           </Field>
           <Field
-            label="Lifecycle Phase"
+            label="Project Phase"
             {...fieldMeta(changeState, "lifecycle_phase_code", {
               required: true,
-              tone: "critical",
+              tone: isUnknownCode(form, "lifecycle_phase_code")
+                ? "critical"
+                : form.lifecycle_phase_code === "prospect_tbd"
+                  ? "important"
+                  : undefined,
             })}
           >
             <SelectInput
@@ -1376,10 +1533,16 @@ export function PostgresProjectForm({
 
       <Section title="Capacity And Output">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <Field label="Potential Min MWe" {...fieldMeta(changeState, "potential_min_mwe")}>
+          <Field
+            label="Estimated Capacity Range Min MWe"
+            {...fieldMeta(changeState, "potential_min_mwe")}
+          >
             <TextInput form={form} name="potential_min_mwe" setField={setField} />
           </Field>
-          <Field label="Potential Max MWe" {...fieldMeta(changeState, "potential_max_mwe")}>
+          <Field
+            label="Estimated Capacity Range Max MWe"
+            {...fieldMeta(changeState, "potential_max_mwe")}
+          >
             <TextInput form={form} name="potential_max_mwe" setField={setField} />
           </Field>
           <Field
@@ -1452,7 +1615,10 @@ export function PostgresProjectForm({
           <Field label="Target COD Month" {...fieldMeta(changeState, "target_cod_month")}>
             <TextInput form={form} name="target_cod_month" setField={setField} />
           </Field>
-          <Field label="COD Raw" {...fieldMeta(changeState, "cod_raw")}>
+          <Field
+            label="COD Source Text / Original Wording"
+            {...fieldMeta(changeState, "cod_raw")}
+          >
             <TextInput form={form} name="cod_raw" setField={setField} />
           </Field>
           <Field label="Plant Technology" {...fieldMeta(changeState, "plant_technology")}>

@@ -262,6 +262,10 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company forms now render server-side
   approval/export-readiness blockers as structured issue lists when a save is
   rejected
+- PostgreSQL project forms now clarify critical/important/workflow meanings,
+  treat `Prospect / TBD` as an important review signal rather than a critical
+  blocker, use clearer project terminology, and show an evidence/company-role/
+  linked-asset workflow bridge directly on the form
 - Detail-page review buttons and Research Ops bulk status actions now surface
   the same approval/export-readiness blockers, keeping approval failures
   understandable outside the edit forms
