@@ -37,6 +37,18 @@ export type ExportReadinessIssue = {
   detail: string;
 };
 
+type ReviewChangeRow = {
+  key: string;
+  fieldName: string;
+  fieldLabel: string;
+  previousValue: string;
+  nextValue: string;
+  eventLabel: string;
+  actorLabel: string;
+  createdAt: string;
+  eventNote: string | null;
+};
+
 function EmptyValue() {
   return <span className="text-gray-400">-</span>;
 }
@@ -62,6 +74,15 @@ function formatAuditDate(value: string) {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC",
+  }).format(new Date(value));
+}
+
+function formatCompactAuditDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
     timeZone: "UTC",
   }).format(new Date(value));
 }
@@ -135,11 +156,162 @@ function auditChangeSummary(event: PostgresAuditEvent) {
   return remainingCount > 0 ? `${summary}; +${remainingCount} more` : summary;
 }
 
+function getReviewChangeRows(events: PostgresAuditEvent[]): ReviewChangeRow[] {
+  return events.flatMap((event) => {
+    const fields = asAuditRecord(event.changed_fields);
+
+    if (!fields) {
+      return [];
+    }
+
+    const eventLabel = formatAuditEventType(event.event_type);
+    const actorLabel = event.actor_name || event.actor_email || "System";
+
+    if (typeof fields.field_name === "string") {
+      return [
+        {
+          key: `${event.audit_event_id}-${fields.field_name}`,
+          fieldName: fields.field_name,
+          fieldLabel: formatAuditFieldLabel(fields.field_name),
+          previousValue: formatAuditValue(fields.previous_value),
+          nextValue: formatAuditValue(fields.next_value),
+          eventLabel,
+          actorLabel,
+          createdAt: event.created_at,
+          eventNote: event.event_note,
+        },
+      ];
+    }
+
+    return Object.entries(fields)
+      .filter(([, value]) => Array.isArray(value) && value.length >= 2)
+      .map(([fieldName, value]) => {
+        const [previousValue, nextValue] = value as unknown[];
+
+        return {
+          key: `${event.audit_event_id}-${fieldName}`,
+          fieldName,
+          fieldLabel: formatAuditFieldLabel(fieldName),
+          previousValue: formatAuditValue(previousValue),
+          nextValue: formatAuditValue(nextValue),
+          eventLabel,
+          actorLabel,
+          createdAt: event.created_at,
+          eventNote: event.event_note,
+        };
+      });
+  });
+}
+
 export function StatusBadge({ value }: { value: string | null }) {
   return (
     <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
       {value || "unknown"}
     </span>
+  );
+}
+
+export function PendingReviewChangesPanel({
+  events,
+  currentReviewStatus,
+  id,
+}: {
+  events: PostgresAuditEvent[];
+  currentReviewStatus: string;
+  id?: string;
+}) {
+  const rows = getReviewChangeRows(events);
+  const visibleRows = rows.slice(0, 12);
+  const hiddenCount = rows.length - visibleRows.length;
+  const needsReReview = currentReviewStatus === "needs_update";
+
+  return (
+    <section
+      id={id}
+      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+    >
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Changed Fields For Review
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Compact view of governed field changes from form edits and audited
+            AI-assisted applies. This is the reviewer-facing version of the
+            audit trail.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={currentReviewStatus} />
+          <StatusBadge value={`${formatCount(rows.length)} field changes`} />
+        </div>
+      </div>
+
+      <div className="space-y-4 px-5 py-5">
+        {needsReReview ? (
+          <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            This record is marked <span className="font-semibold">needs_update</span>.
+            Review the changed fields below before approving or marking it
+            export-ready again.
+          </div>
+        ) : null}
+
+        {rows.length === 0 ? (
+          <div className="border border-dashed border-gray-300 bg-[#fbfbfb] px-4 py-5 text-sm leading-6 text-gray-600">
+            No governed field changes have been recorded yet.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-[980px] table-fixed text-left text-sm">
+              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+                <tr>
+                  <th className="w-[18%] px-4 py-3 font-semibold">Field</th>
+                  <th className="w-[22%] px-4 py-3 font-semibold">Previous</th>
+                  <th className="w-[22%] px-4 py-3 font-semibold">Current</th>
+                  <th className="w-[16%] px-4 py-3 font-semibold">Source</th>
+                  <th className="w-[12%] px-4 py-3 font-semibold">Actor</th>
+                  <th className="w-[10%] px-4 py-3 font-semibold">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {visibleRows.map((row) => (
+                  <tr key={row.key} className="align-top">
+                    <td className="px-4 py-3 font-semibold text-[#1f2937]">
+                      {row.fieldLabel}
+                    </td>
+                    <td className="break-words px-4 py-3 text-gray-600">
+                      {row.previousValue}
+                    </td>
+                    <td className="break-words px-4 py-3 font-medium text-[#1f2937]">
+                      {row.nextValue}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {row.eventLabel}
+                      {row.eventNote ? (
+                        <div className="mt-1 line-clamp-2 text-xs text-gray-500">
+                          {row.eventNote}
+                        </div>
+                      ) : null}
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{row.actorLabel}</td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {formatCompactAuditDate(row.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {hiddenCount > 0 ? (
+              <div className="border-t border-gray-100 px-4 py-3 text-xs text-gray-500">
+                Showing 12 most recent field changes. The full audit trail below
+                contains {formatCount(hiddenCount)} additional change
+                {hiddenCount === 1 ? "" : "s"}.
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

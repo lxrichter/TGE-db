@@ -238,6 +238,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Detail-page audit trails now render governed form-update field names in a
   readable format, suppress unchanged review-status noise, and summarize long
   changed-field lists compactly
+- PostgreSQL project, plant/facility, and company detail pages now include a
+  compact changed-fields-for-review panel above the full audit trail, making
+  edited fields and `needs_update` re-review work easier for editors to scan
 - Research Ops recent activity now includes latest audit-event context where
   available, including form-update / audited-apply labels and changed-field
   counts

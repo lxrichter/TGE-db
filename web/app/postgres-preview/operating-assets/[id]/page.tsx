@@ -11,6 +11,7 @@ import {
   DetailWorkflowMap,
   ExportReadinessPanel,
   NotFoundNotice,
+  PendingReviewChangesPanel,
   RelatedTgeNewsPanel,
   StatusBadge,
   type ExportReadinessIssue,
@@ -752,6 +753,11 @@ export default async function PostgresOperatingAssetDetailPage({
             note: "Persistent Research Ops issues",
           },
           {
+            label: "Changes",
+            href: "#asset-review-changes",
+            note: "Changed fields that support review and reapproval",
+          },
+          {
             label: "Audit",
             href: "#asset-audit-trail",
             note: "Governed change history",
@@ -864,6 +870,12 @@ export default async function PostgresOperatingAssetDetailPage({
           issues={researchIssues}
         />
       </div>
+
+      <PendingReviewChangesPanel
+        currentReviewStatus={asset.review_status_code}
+        events={auditEvents}
+        id="asset-review-changes"
+      />
 
       <AuditTrailPanel events={auditEvents} id="asset-audit-trail" />
 

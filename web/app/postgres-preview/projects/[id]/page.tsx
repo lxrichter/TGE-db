@@ -11,6 +11,7 @@ import {
   DetailWorkflowMap,
   ExportReadinessPanel,
   NotFoundNotice,
+  PendingReviewChangesPanel,
   RelatedTgeNewsPanel,
   StatusBadge,
   type ExportReadinessIssue,
@@ -752,6 +753,11 @@ export default async function PostgresProjectDetailPage({
             note: "Persistent Research Ops issues",
           },
           {
+            label: "Changes",
+            href: "#project-review-changes",
+            note: "Changed fields that support review and reapproval",
+          },
+          {
             label: "Audit",
             href: "#project-audit-trail",
             note: "Governed change history",
@@ -875,6 +881,12 @@ export default async function PostgresProjectDetailPage({
           issues={researchIssues}
         />
       </div>
+
+      <PendingReviewChangesPanel
+        currentReviewStatus={project.review_status_code}
+        events={auditEvents}
+        id="project-review-changes"
+      />
 
       <AuditTrailPanel events={auditEvents} id="project-audit-trail" />
 
