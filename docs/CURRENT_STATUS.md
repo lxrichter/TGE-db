@@ -279,6 +279,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - `docs/HETZNER_DEPLOYMENT_GROUNDWORK.md` now records the intended Hetzner
   production direction for `internal.thinkgeoenergy.com`, including environment
   variables, migration/cutover sequence, reverse proxy shape, and backup needs
+- `docs/REPLACEMENT_READINESS_CHECKLIST.md` now separates readiness for
+  controlled internal data filling, replacement of the current internal
+  platform, and the longer-term intelligence-platform buildout
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
