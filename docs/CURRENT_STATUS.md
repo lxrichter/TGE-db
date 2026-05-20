@@ -238,6 +238,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Detail-page audit trails now render governed form-update field names in a
   readable format, suppress unchanged review-status noise, and summarize long
   changed-field lists compactly
+- Research Ops recent activity now includes latest audit-event context where
+  available, including form-update / audited-apply labels and changed-field
+  counts
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

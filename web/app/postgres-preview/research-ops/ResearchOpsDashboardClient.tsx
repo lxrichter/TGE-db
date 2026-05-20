@@ -578,6 +578,27 @@ function normalizeText(value: string | null | undefined) {
   return String(value || "").toLowerCase();
 }
 
+function formatActivityType(value: string | null | undefined) {
+  return String(value || "")
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function recentActivityLabel(record: ResearchOpsRecord) {
+  if (!("latest_activity_type" in record) || !record.latest_activity_type) {
+    return null;
+  }
+
+  const fieldCount =
+    record.latest_changed_field_count > 0
+      ? ` · ${formatCount(record.latest_changed_field_count)} field${
+          record.latest_changed_field_count === 1 ? "" : "s"
+        }`
+      : "";
+
+  return `${formatActivityType(record.latest_activity_type)}${fieldCount}`;
+}
+
 function recordMatchesSearch(record: ResearchOpsRecord, search: string) {
   if (!search) {
     return true;
@@ -592,6 +613,8 @@ function recordMatchesSearch(record: ResearchOpsRecord, search: string) {
     record.review_status_code,
     record.last_updated_by_name,
     "issue_label" in record ? record.issue_label : null,
+    "latest_activity_type" in record ? record.latest_activity_type : null,
+    "latest_activity_note" in record ? record.latest_activity_note : null,
   ]
     .map(normalizeText)
     .join(" ");
@@ -2113,6 +2136,7 @@ function EntityTable({
               const selected = key === selectedKey;
               const href = recordHref(item);
               const sourceHref = addSourceHref(item);
+              const activityLabel = recentActivityLabel(item);
 
               return (
                 <tr
@@ -2139,6 +2163,11 @@ function EntityTable({
                     {"issue_label" in item ? (
                       <div className="mt-2 text-xs font-medium text-gray-600">
                         {item.issue_label}
+                      </div>
+                    ) : null}
+                    {activityLabel ? (
+                      <div className="mt-2 text-xs font-medium text-sky-700">
+                        {activityLabel}
                       </div>
                     ) : null}
                   </td>
@@ -3302,6 +3331,9 @@ function ResearchActivitySummary({
       .map((item) => item.last_updated_by_name)
       .filter((name): name is string => Boolean(name))
   ).size;
+  const auditedChanges = recentEdits.filter((item) =>
+    Boolean(item.latest_activity_type)
+  ).length;
 
   const cards = [
     {
@@ -3325,6 +3357,11 @@ function ResearchActivitySummary({
       note: "Recent evidence activity",
     },
     {
+      label: "Audited Changes",
+      value: auditedChanges,
+      note: "Recent rows with audit events",
+    },
+    {
       label: "Researchers",
       value: touchedBy,
       note: "Named users in recent edits",
@@ -3332,7 +3369,7 @@ function ResearchActivitySummary({
   ];
 
   return (
-    <section className="grid grid-cols-2 gap-3 xl:grid-cols-5">
+    <section className="grid grid-cols-2 gap-3 xl:grid-cols-6">
       {cards.map((card) => (
         <div key={card.label} className="border border-gray-200 bg-white px-4 py-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">

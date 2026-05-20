@@ -497,6 +497,9 @@ export type PostgresResearchOpsRecentEdit = {
   lifecycle_phase_code: string | null;
   review_status_code: string | null;
   last_updated_by_name: string | null;
+  latest_activity_type: string | null;
+  latest_activity_note: string | null;
+  latest_changed_field_count: number;
   updated_at: string;
 };
 
@@ -702,6 +705,7 @@ type QueueItemRow = Omit<PostgresResearchOpsQueueItem, "updated_at"> & {
 
 type RecentEditRow = Omit<PostgresResearchOpsRecentEdit, "updated_at"> & {
   updated_at: string | Date;
+  latest_changed_field_count: number | bigint | string | null;
 };
 
 type FieldSuggestionSummaryRow = {
@@ -4223,6 +4227,9 @@ function toRecentEdit(row: RecentEditRow): PostgresResearchOpsRecentEdit {
     lifecycle_phase_code: row.lifecycle_phase_code,
     review_status_code: row.review_status_code,
     last_updated_by_name: row.last_updated_by_name,
+    latest_activity_type: row.latest_activity_type,
+    latest_activity_note: row.latest_activity_note,
+    latest_changed_field_count: toNumber(row.latest_changed_field_count),
     updated_at: normalizeTimestamp(row.updated_at),
   };
 }
@@ -4641,6 +4648,10 @@ export async function listPostgresResearchOpsRecentEdits(
       records.lifecycle_phase_code,
       records.review_status_code,
       updater.name AS last_updated_by_name,
+      latest_audit.event_type AS latest_activity_type,
+      latest_audit.event_note AS latest_activity_note,
+      COALESCE(latest_audit.changed_field_count, 0)::int
+        AS latest_changed_field_count,
       records.updated_at
     FROM (
       SELECT
@@ -4703,6 +4714,21 @@ export async function listPostgresResearchOpsRecentEdits(
     ) records
     LEFT JOIN app_users updater
       ON updater.user_id = records.last_updated_by_user_id
+    LEFT JOIN LATERAL (
+      SELECT
+        audit.event_type,
+        audit.event_note,
+        CASE
+          WHEN jsonb_typeof(audit.changed_fields) = 'object'
+            THEN jsonb_object_length(audit.changed_fields)
+          ELSE 0
+        END AS changed_field_count
+      FROM audit_events audit
+      WHERE audit.entity_type = records.entity_type
+        AND audit.entity_id = records.entity_id::uuid
+      ORDER BY audit.created_at DESC
+      LIMIT 1
+    ) latest_audit ON TRUE
     ORDER BY records.updated_at DESC NULLS LAST, records.name ASC
     LIMIT $1
     `,
