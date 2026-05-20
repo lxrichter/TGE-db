@@ -22,7 +22,7 @@ Current implemented functionality:
 - filtered CSV export
 - lightweight bulk status changes
 - article/entity match candidate visibility
-- future field-suggestion candidate schema for AI-assisted data filling
+- field-suggestion candidate review for AI-assisted data filling
 - recent edit table
 - operational status bar with click-through/filter behavior
 - My Work / Team Work section separated from generated queues
@@ -31,16 +31,18 @@ Current implemented functionality:
 - queue-level export-blocker labels
 - deep queue collapse/expand controls
 - recent activity summary cards
+- deep queue tables paginated at controlled row counts
+- AI field suggestion review table paginated at controlled row counts
+- queue rows deep-link into relevant record work sections on project,
+  plant/facility, company, and source detail pages
 
 Current limitations:
 
-- saved operational views are not yet persisted
 - field-level issues are not yet fully structured
 - mobile treatment is not yet optimized
 - recently approved, source-addition, and assignment activity are inferred from
   recent edits rather than true dedicated activity streams
-- deep queue tables are not yet paginated or virtualized, so larger queue
-  result sets will need table pagination before daily heavy use
+- saved operational views are presets only and not yet user/team persisted
 - stale-data logic exists only through `needs_update`; automatic age-based stale
   detection is future work
 
@@ -231,8 +233,9 @@ Open record detail for:
 - bulk approve, editor only
 - bulk reject candidate match
 - bulk confirm source/article match
-- bulk confirm AI-assisted field suggestion, later
-- bulk reject AI-assisted field suggestion, later
+- bulk confirm AI-assisted field suggestion
+- bulk reject AI-assisted field suggestion
+- bulk apply confirmed AI-assisted field suggestions where supported
 - bulk export selected/filtered
 - bulk change issue status
 - bulk add note
@@ -337,6 +340,16 @@ Slice 2:
 
 Status: first implementation complete; still needs user review.
 
+Slice 2B:
+
+- paginate generated queue tables
+- paginate Research Ops AI field suggestion review rows
+- deep-link queue rows into record/source work sections
+- preserve selected-row and bulk-review behavior while keeping visible rows
+  manageable
+
+Status: implemented.
+
 Slice 3:
 
 - add field-level issue persistence where needed
@@ -350,6 +363,9 @@ Slice 4:
 - add record-level suggested update panels
 - add confirm/reject/apply workflow
 - keep all AI-assisted changes human-reviewed before mutating real entity data
+
+Status: first implementation complete for controlled staging/local workflows;
+field coverage and production hardening remain future work.
 
 ## Future Direction
 
@@ -365,4 +381,4 @@ Future Research Ops should support:
 - inline editing
 - field-level validation
 - full audit/diff views
-- pagination or virtualization for long operational tables
+- virtualization for very large operational tables if pagination is not enough

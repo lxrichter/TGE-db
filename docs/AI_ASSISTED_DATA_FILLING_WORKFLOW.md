@@ -22,8 +22,15 @@ Current implemented functionality:
 - Research Ops shows field suggestion counts and review candidates
 - editors/admins can confirm, reject, or mark field suggestions as needing
   review
+- confirmed field suggestions can move through a narrow audited apply workflow
+  that updates only whitelisted empty project/plant fields and records audit
+  metadata
+- Research Ops and record/source detail field-suggestion panels paginate review
+  rows to keep AI-assisted review workloads manageable as candidate volumes grow
 - project, plant/facility, and company profiles show record-level field
   suggestions
+- source profiles show source-linked field suggestions beside lifecycle,
+  evidence-link, match-candidate, and article-fact review sections
 - project, plant/facility, and company profiles show open article/source match
   candidates when they exist
 
@@ -43,7 +50,9 @@ AI-generated or rule-generated suggestions must not directly overwrite:
 Instead, AI-assisted workflows should create reviewable candidates. A researcher
 or editor can then confirm, reject, or defer those candidates. In the current
 implementation, confirming a field suggestion updates only the suggestion
-status. It does not yet apply the suggested value to the entity record.
+status. Applying a confirmed suggestion is a separate audited step and is
+currently restricted to supported empty project/plant fields in local/staging
+workflows.
 
 ## Candidate Workflow
 
@@ -171,9 +180,12 @@ Field Suggestions panel:
 - confidence
 - reason
 - confirm/reject actions
+- apply action for confirmed suggestions where the field is supported and still
+  empty
 
-Confirmed suggestions should open a controlled edit/review flow rather than
-silently changing fields inline.
+Confirmed suggestions do not silently change fields inline. Applying them uses
+the controlled API/script path, records audit metadata, and leaves validation or
+export-ready status under editor control.
 
 The same profiles also show open article/source match candidates when matching
 has suggested related TGE articles for that record. Confirming those article
@@ -218,6 +230,8 @@ MVP groundwork:
 - field suggestion review API
 - Research Ops field suggestion review controls
 - record-level AI field suggestion panels
+- source-level AI field suggestion visibility
+- paginated Research Ops and detail-page field suggestion tables
 - record-level article match candidate review
 - local markdown article fact extraction prototype
 - local article fact review sample and audit workflow
@@ -241,8 +255,8 @@ MVP groundwork:
 
 Future:
 
-- local PostgreSQL execution from confirmed reviewed article fact candidates
-- record-level apply UI for confirmed field suggestions
+- broader field coverage for the controlled apply workflow
+- richer record-level apply confirmation UX for confirmed field suggestions
 - PDF/document ingestion
 - full-text semantic retrieval
 - AI extraction from document bodies

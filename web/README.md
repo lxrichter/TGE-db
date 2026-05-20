@@ -256,6 +256,12 @@ pages can also link existing sources directly with evidence metadata. File
 uploads, country/market evidence panels, and enforced export-readiness rules
 are proposed next steps, not completed production functionality.
 
+Source detail pages now act as governed evidence workspaces. They show source
+lifecycle state, what the source supports, linked evidence, article/entity match
+candidates, article fact candidates, AI field suggestions, credibility actions,
+and review metadata from one source profile. This is still staging workflow, not
+production evidence governance.
+
 TGE article/news integration is now implemented as a PostgreSQL staging
 foundation slice. Entity detail source panels can search the public
 ThinkGeoEnergy WordPress posts API, import or reuse a matching `tge_article`
@@ -343,6 +349,13 @@ stable. Persistent issues now map the logged-in internal user to PostgreSQL
 filtering. Promotion hardening, manual duplicate review, field-level issue
 automation, relationship history/timelines, and production exports remain
 separate next-step workflows.
+
+Research Ops and detail-page AI field suggestion tables now use paginated review
+rows so generated queues and AI-assisted data-filling candidates remain usable
+as volumes grow. Research Ops queue rows also deep-link into record work
+sections such as source/evidence, relationships, AI suggestions, and export
+readiness. AI-assisted changes remain human-reviewed; applying suggestions is a
+separate audited step and currently only targets supported empty fields.
 
 ## Known Issues
 

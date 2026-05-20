@@ -63,6 +63,13 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company detail pages now support
   direct linking of existing source/evidence records with confidence, linked
   field, extracted value, claim text, and evidence notes
+- PostgreSQL project, plant/facility, company, and source detail pages now use
+  a shared action-hub pattern that points researchers to source/evidence work,
+  relationship work, Research Ops issues, AI suggestions, export readiness, and
+  relevant edit/create actions without duplicating workflow logic
+- Research Ops generated queue rows now deep-link into the relevant detail-page
+  work sections, for example source/evidence, company relationships, identity
+  and classification, AI suggestions, and export-readiness review sections
 - PostgreSQL project, plant/facility, and company detail source panels now
   support searching/importing public ThinkGeoEnergy WordPress articles as
   `tge_article` sources and linking them to the current record
@@ -82,9 +89,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   links into the Sources review workflow
 - PostgreSQL project, plant/facility, and company detail pages now surface
   confirmed `tge_article` evidence links as Related TGE News / Evidence
-- field suggestion candidate schema has been added for future AI-assisted data
-  filling, but no AI extraction service, suggestion UI, or automatic apply
-  workflow exists yet
+- field suggestion candidate schema, review surfaces, and controlled apply
+  workflow have been added for AI-assisted data filling; suggestions remain
+  human-reviewed candidates and only whitelisted empty project/plant fields can
+  be applied through the audited local/staging workflow
 - local-only article fact extraction now includes a balanced manual-review CSV
   sample, a local review-audit command, and review guidance for tuning rules
   before any PostgreSQL import
@@ -126,6 +134,16 @@ foundation. Current implemented PostgreSQL staging areas include:
   controlled final step for local sandbox testing: confirmed suggestions can be
   applied only to whitelisted empty project/plant fields, with audit events and
   no automatic approval/export-ready status
+- `/postgres-preview/research-ops` now paginates deep queue tables and AI field
+  suggestion review rows to keep generated queues and review workloads usable as
+  candidate volumes grow
+- shared AI field suggestion panels on project, plant/facility, company, and
+  source detail pages now use paginated rows while preserving the two-step
+  confirm-then-apply governance model
+- `/sources/[id]` source detail pages now show source lifecycle state, what the
+  source supports, linked evidence, match candidates, article fact candidates,
+  AI suggestions, credibility actions, and review metadata as one governed
+  evidence workspace
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
@@ -213,8 +231,10 @@ Known current gaps and risks:
 - no committed sanitized fixture database exists yet
 - deployment process needs hardening and should be evaluated against Railway requirements
 - subscriber access is not yet a completed product layer
-- AI layer is not yet a stable implemented platform feature; current work only
-  prepares reviewed suggestion candidates and human-confirmation workflows
+- AI layer is not yet a stable production feature; current implementation
+  supports controlled local/staging candidate extraction, human confirmation,
+  reviewed field-suggestion candidates, and audited apply for a narrow set of
+  empty fields only
 
 ## Validation Snapshot
 
@@ -223,8 +243,8 @@ Last checked locally:
 - `railway run --service Postgres -- npm run dev`: app starts and PostgreSQL
   staging routes respond on `http://localhost:3000`
 - `/`: redirects to `/login`
-- targeted lint and `npm run build` passed for the PostgreSQL preview list-page
-  changes added on 2026-05-18
+- targeted lint and `npm run build` passed for the Research Ops/detail
+  field-suggestion pagination changes added on 2026-05-20
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.
