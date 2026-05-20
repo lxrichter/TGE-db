@@ -112,9 +112,18 @@ export function StatusBadge({ value }: { value: string | null }) {
   );
 }
 
-export function AuditTrailPanel({ events }: { events: PostgresAuditEvent[] }) {
+export function AuditTrailPanel({
+  events,
+  id,
+}: {
+  events: PostgresAuditEvent[];
+  id?: string;
+}) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id={id}
+      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+    >
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
@@ -230,12 +239,17 @@ export function StatGrid({ stats }: { stats: DetailStat[] }) {
 export function DetailSection({
   title,
   children,
+  id,
 }: {
   title: string;
   children: ReactNode;
+  id?: string;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id={id}
+      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+    >
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       </div>
@@ -256,17 +270,22 @@ export function ExportReadinessPanel({
   issues,
   sourceCount,
   credibleSourceCount,
+  id,
 }: {
   issues: ExportReadinessIssue[];
   sourceCount: number;
   credibleSourceCount: number;
+  id?: string;
 }) {
   const blockers = issues.filter((issue) => issue.severity === "blocker");
   const warnings = issues.filter((issue) => issue.severity === "warning");
   const ready = blockers.length === 0;
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id={id}
+      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+    >
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Export Readiness</h2>
@@ -424,10 +443,12 @@ export function RelatedTgeNewsPanel({
   sources,
   entityType,
   entityId,
+  id,
 }: {
   sources: PostgresEntitySourceLink[];
   entityType: string;
   entityId: string;
+  id?: string;
 }) {
   const articles = sources
     .filter((source) => source.source_type_code === "tge_article")
@@ -439,7 +460,10 @@ export function RelatedTgeNewsPanel({
     });
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id={id}
+      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+    >
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">

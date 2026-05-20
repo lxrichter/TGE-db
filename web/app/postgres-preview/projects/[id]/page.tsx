@@ -336,6 +336,206 @@ function ProjectGovernanceOverview({
   );
 }
 
+type ProjectActionTone = "blocker" | "warning" | "ready" | "neutral";
+
+type ProjectAction = {
+  label: string;
+  detail: string;
+  href: string;
+  tone: ProjectActionTone;
+  primary?: boolean;
+};
+
+const projectActionToneClasses: Record<ProjectActionTone, string> = {
+  blocker: "border-red-200 bg-red-50 text-red-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  ready: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+  neutral: "border-gray-200 bg-white text-gray-700",
+};
+
+function projectActionLinkClass(action: ProjectAction) {
+  const base =
+    "block border px-4 py-4 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
+
+  return `${base} ${projectActionToneClasses[action.tone]} ${
+    action.primary ? "ring-2 ring-[#8dc63f]/20" : ""
+  }`;
+}
+
+function ProjectActionHub({
+  project,
+  readinessIssues,
+  researchIssues,
+  openSourceMatchCount,
+  fieldSuggestionCandidates,
+  promotedAssetCount,
+  canEditRecord,
+  canPromoteRecord,
+}: {
+  project: PostgresPreviewProjectDetail;
+  readinessIssues: ExportReadinessIssue[];
+  researchIssues: PostgresResearchOpsIssue[];
+  openSourceMatchCount: number;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
+  promotedAssetCount: number;
+  canEditRecord: boolean;
+  canPromoteRecord: boolean;
+}) {
+  const blockers = readinessIssues.filter((issue) => issue.severity === "blocker");
+  const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
+  const openIssues = openResearchIssues(researchIssues);
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const actions: ProjectAction[] = [];
+
+  if (canEditRecord) {
+    actions.push({
+      label: "Edit Core Fields",
+      detail: "Update identity, location, lifecycle, use type, capacity, and notes.",
+      href: `/postgres-preview/projects/${project.project_id}/edit`,
+      tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
+      primary: blockers.length > 0,
+    });
+  }
+
+  actions.push({
+    label: project.sources.length === 0 ? "Add Evidence" : "Review Evidence",
+    detail:
+      project.sources.length === 0
+        ? "No source is linked yet. Add evidence before export-ready use."
+        : `${formatCount(project.sources.length)} linked source${
+            project.sources.length === 1 ? "" : "s"
+          }; review credibility and linked fields.`,
+    href: "#project-source-evidence",
+    tone: project.sources.length === 0 ? "blocker" : "ready",
+    primary: project.sources.length === 0,
+  });
+
+  if (openSourceMatchCount > 0) {
+    actions.push({
+      label: "Review Article Matches",
+      detail: `${formatCount(openSourceMatchCount)} source/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } can support related news and evidence links.`,
+      href: "#project-article-matches",
+      tone: "warning",
+      primary: project.sources.length === 0,
+    });
+  }
+
+  if (fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0) {
+    actions.push({
+      label: "Review AI Suggestions",
+      detail: `${formatCount(fieldSuggestionSummary.open)} open and ${formatCount(
+        fieldSuggestionSummary.applyReady
+      )} ready-to-apply field suggestion${
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady === 1
+          ? ""
+          : "s"
+      }.`,
+      href: "#project-ai-suggestions",
+      tone: "warning",
+    });
+  }
+
+  actions.push({
+    label: "Company Links",
+    detail:
+      "Review developer, owner, operator, supplier, investor, and other structured roles.",
+    href: "#project-company-links",
+    tone: "neutral",
+  });
+
+  actions.push({
+    label: promotedAssetCount > 0 ? "Promoted Assets" : "Promotion Review",
+    detail:
+      promotedAssetCount > 0
+        ? `${formatCount(promotedAssetCount)} linked plant/facility promotion${
+            promotedAssetCount === 1 ? "" : "s"
+          } recorded.`
+        : canPromoteRecord
+          ? "Use when a project has become an operating plant/facility or unit."
+          : "Promotion is editor/admin controlled.",
+    href: "#project-promotion",
+    tone: promotedAssetCount > 0 ? "ready" : "neutral",
+  });
+
+  if (openIssues.length > 0) {
+    actions.push({
+      label: "Research Issues",
+      detail: `${formatCount(openIssues.length)} open persistent issue${
+        openIssues.length === 1 ? "" : "s"
+      } assigned or tracked for this record.`,
+      href: "#project-research-issues",
+      tone: "warning",
+    });
+  }
+
+  actions.push({
+    label: "Export Readiness",
+    detail:
+      blockers.length > 0
+        ? `${formatCount(blockers.length)} blocker${
+            blockers.length === 1 ? "" : "s"
+          } and ${formatCount(warnings.length)} warning${
+            warnings.length === 1 ? "" : "s"
+          } detected.`
+        : warnings.length > 0
+          ? `${formatCount(warnings.length)} warning${
+              warnings.length === 1 ? "" : "s"
+            } left for editor judgment.`
+          : "No export-readiness blockers detected.",
+    href: "#project-export-readiness",
+    tone: blockers.length > 0 ? "blocker" : warnings.length > 0 ? "warning" : "ready",
+  });
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Record Workbench
+          </div>
+          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            Project Action Hub
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            Use this as the operational entry point for this project record:
+            fix critical fields, strengthen evidence, review AI suggestions,
+            manage relationships, and check promotion/export readiness.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={`${formatCount(blockers.length)} blockers`} />
+          <StatusBadge value={`${formatCount(warnings.length)} warnings`} />
+          <Link
+            href="/postgres-preview/research-ops"
+            className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            Research Ops
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
+        {actions.map((action) => (
+          <Link
+            key={`${action.label}-${action.href}`}
+            className={projectActionLinkClass(action)}
+            href={action.href}
+          >
+            <div className="text-sm font-bold text-[#1f2937]">
+              {action.label}
+            </div>
+            <div className="mt-2 text-xs leading-5 text-gray-600">
+              {action.detail}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function PostgresProjectDetailPage({
   params,
 }: {
@@ -388,6 +588,9 @@ export default async function PostgresProjectDetailPage({
   }
   const role = (session?.user as { role?: string | null } | undefined)?.role;
   const readinessIssues = getProjectReadinessIssues(project);
+  const canEditRecord = canEdit(role);
+  const canReviewRecord = canReview(role);
+  const canPromoteRecord = canPromoteProject(role);
 
   return (
     <DetailShell
@@ -453,6 +656,17 @@ export default async function PostgresProjectDetailPage({
         sources={project.sources}
       />
 
+      <ProjectActionHub
+        canEditRecord={canEditRecord}
+        canPromoteRecord={canPromoteRecord}
+        fieldSuggestionCandidates={fieldSuggestionCandidates}
+        openSourceMatchCount={openSourceMatchCount}
+        project={project}
+        promotedAssetCount={promotedAssets.length}
+        readinessIssues={readinessIssues}
+        researchIssues={researchIssues}
+      />
+
       <DetailSection title="Identity And Location">
         <DetailFieldGrid
           fields={[
@@ -498,7 +712,7 @@ export default async function PostgresProjectDetailPage({
       </DetailSection>
 
       <PostgresReviewStatusActions
-        canReviewStatus={canReview(role)}
+        canReviewStatus={canReviewRecord}
         currentStatus={project.review_status_code}
         entityId={project.project_id}
         entityType="project"
@@ -508,21 +722,26 @@ export default async function PostgresProjectDetailPage({
       <RelatedTgeNewsPanel
         entityType="project"
         entityId={project.project_id}
+        id="project-tge-news"
         sources={project.sources}
       />
 
       {sourceMatchCandidates.length > 0 ? (
-        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        <div id="project-article-matches" className="scroll-mt-6">
+          <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        </div>
       ) : null}
 
-      <PostgresFieldSuggestionsPanel
-        canReviewStatus={canReview(role)}
-        candidates={fieldSuggestionCandidates}
-      />
+      <div id="project-ai-suggestions" className="scroll-mt-6">
+        <PostgresFieldSuggestionsPanel
+          canReviewStatus={canReviewRecord}
+          candidates={fieldSuggestionCandidates}
+        />
+      </div>
 
-      <DetailSection title="Source Evidence">
+      <DetailSection id="project-source-evidence" title="Source Evidence">
         <PostgresSourceEvidencePanel
-          canManageSources={canEdit(role)}
+          canManageSources={canEditRecord}
           confidenceStatuses={sourceReferenceData.confidenceStatuses}
           entityType="project"
           entityId={project.project_id}
@@ -531,29 +750,36 @@ export default async function PostgresProjectDetailPage({
         />
       </DetailSection>
 
-      <ProjectCompanyLinksPanel
-        links={companyLinks}
-        projectId={project.project_id}
-        referenceData={relationshipReferenceData}
-      />
+      <div id="project-company-links" className="scroll-mt-6">
+        <ProjectCompanyLinksPanel
+          links={companyLinks}
+          projectId={project.project_id}
+          referenceData={relationshipReferenceData}
+        />
+      </div>
 
-      <PostgresProjectPromotionPanel
-        canPromote={canPromoteProject(role)}
-        projectId={project.project_id}
-        promotedAssets={promotedAssets}
-      />
+      <div id="project-promotion" className="scroll-mt-6">
+        <PostgresProjectPromotionPanel
+          canPromote={canPromoteRecord}
+          projectId={project.project_id}
+          promotedAssets={promotedAssets}
+        />
+      </div>
 
-      <PostgresResearchIssuesPanel
-        canManageIssues={canEdit(role)}
-        entityId={project.project_id}
-        entityType="project"
-        issueReferenceData={issueReferenceData}
-        issues={researchIssues}
-      />
+      <div id="project-research-issues" className="scroll-mt-6">
+        <PostgresResearchIssuesPanel
+          canManageIssues={canEditRecord}
+          entityId={project.project_id}
+          entityType="project"
+          issueReferenceData={issueReferenceData}
+          issues={researchIssues}
+        />
+      </div>
 
-      <AuditTrailPanel events={auditEvents} />
+      <AuditTrailPanel events={auditEvents} id="project-audit-trail" />
 
       <ExportReadinessPanel
+        id="project-export-readiness"
         issues={readinessIssues}
         sourceCount={project.sources.length}
         credibleSourceCount={
