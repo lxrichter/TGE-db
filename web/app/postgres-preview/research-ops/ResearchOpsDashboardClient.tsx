@@ -1927,6 +1927,60 @@ function EmptyQueue() {
   );
 }
 
+function PaginationControls({
+  page,
+  pageCount,
+  pageStart,
+  pageEnd,
+  total,
+  onPageChange,
+}: {
+  page: number;
+  pageCount: number;
+  pageStart: number;
+  pageEnd: number;
+  total: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (pageCount <= 1) {
+    return (
+      <div className="border-t border-gray-100 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Showing {formatCount(total)} record{total === 1 ? "" : "s"}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Showing {formatCount(pageStart)}-{formatCount(pageEnd)} of{" "}
+        {formatCount(total)}
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={page <= 1}
+          type="button"
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+        >
+          Previous
+        </button>
+        <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+          Page {formatCount(page)} / {formatCount(pageCount)}
+        </span>
+        <button
+          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={page >= pageCount}
+          type="button"
+          onClick={() => onPageChange(Math.min(pageCount, page + 1))}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function EntityTable({
   items,
   selectedKey,
@@ -1942,121 +1996,155 @@ function EntityTable({
   onToggleVisible: (records: ResearchOpsRecord[], checked: boolean) => void;
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
+  const pageSize = 10;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+  const clampedPage = Math.min(page, pageCount);
+  const pageStartIndex = (clampedPage - 1) * pageSize;
+  const pageItems = items.slice(pageStartIndex, pageStartIndex + pageSize);
+  const pageStart = items.length === 0 ? 0 : pageStartIndex + 1;
+  const pageEnd = Math.min(pageStartIndex + pageItems.length, items.length);
+  const allSelected = pageItems.every((item) =>
+    selectedBulkKeys.has(recordKey(item))
+  );
+
   if (items.length === 0) {
     return <EmptyQueue />;
   }
 
-  const allSelected = items.every((item) => selectedBulkKeys.has(recordKey(item)));
-
   return (
-    <div className="overflow-x-auto border-t border-gray-100">
-      <table className="min-w-[1260px] table-fixed text-left text-sm">
-        <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
-          <tr>
-            <th className="w-[4%] px-5 py-3 font-semibold">
-              <input
-                aria-label="Select visible records"
-                checked={allSelected}
-                className="h-4 w-4 accent-[#8dc63f]"
-                type="checkbox"
-                onChange={(event) => onToggleVisible(items, event.target.checked)}
-              />
-            </th>
-            <th className="w-[9%] px-5 py-3 font-semibold">Type</th>
-            <th className="w-[24%] px-5 py-3 font-semibold">Record</th>
-            <th className="w-[12%] px-5 py-3 font-semibold">Country</th>
-            <th className="w-[12%] px-5 py-3 font-semibold">Use / Type</th>
-            <th className="w-[12%] px-5 py-3 font-semibold">Status</th>
-            <th className="w-[11%] px-5 py-3 font-semibold">Review</th>
-            <th className="w-[12%] px-5 py-3 font-semibold">Updated By</th>
-            <th className="w-[10%] px-5 py-3 font-semibold">Updated</th>
-            <th className="w-[12%] px-5 py-3 font-semibold">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {items.map((item) => {
-            const key = recordKey(item);
-            const selected = key === selectedKey;
-            const href = recordHref(item);
-            const sourceHref = addSourceHref(item);
+    <>
+      <PaginationControls
+        page={clampedPage}
+        pageCount={pageCount}
+        pageEnd={pageEnd}
+        pageStart={pageStart}
+        total={items.length}
+        onPageChange={setPage}
+      />
+      <div className="overflow-x-auto border-t border-gray-100">
+        <table className="min-w-[1260px] table-fixed text-left text-sm">
+          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+            <tr>
+              <th className="w-[4%] px-5 py-3 font-semibold">
+                <input
+                  aria-label="Select visible records on this page"
+                  checked={allSelected}
+                  className="h-4 w-4 accent-[#8dc63f]"
+                  type="checkbox"
+                  onChange={(event) =>
+                    onToggleVisible(pageItems, event.target.checked)
+                  }
+                />
+              </th>
+              <th className="w-[9%] px-5 py-3 font-semibold">Type</th>
+              <th className="w-[24%] px-5 py-3 font-semibold">Record</th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Country</th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Use / Type</th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Status</th>
+              <th className="w-[11%] px-5 py-3 font-semibold">Review</th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Updated By</th>
+              <th className="w-[10%] px-5 py-3 font-semibold">Updated</th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {pageItems.map((item) => {
+              const key = recordKey(item);
+              const selected = key === selectedKey;
+              const href = recordHref(item);
+              const sourceHref = addSourceHref(item);
 
-            return (
-              <tr
-                key={key}
-                className={selected ? "align-top bg-[#f3f8ec]" : "align-top"}
-              >
-                <td className="px-5 py-4">
-                  <input
-                    aria-label={`Select ${item.name}`}
-                    checked={selectedBulkKeys.has(key)}
-                    className="h-4 w-4 accent-[#8dc63f]"
-                    type="checkbox"
-                    onChange={(event) => onToggleBulk(item, event.target.checked)}
-                  />
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {formatEntityType(item.entity_type)}
-                </td>
-                <td className="px-5 py-4">
-                  <div className="font-semibold text-[#1f2937]">{item.name}</div>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {item.legacy_id || "new-postgres-record"}
-                  </div>
-                  {"issue_label" in item ? (
-                    <div className="mt-2 text-xs font-medium text-gray-600">
-                      {item.issue_label}
+              return (
+                <tr
+                  key={key}
+                  className={selected ? "align-top bg-[#f3f8ec]" : "align-top"}
+                >
+                  <td className="px-5 py-4">
+                    <input
+                      aria-label={`Select ${item.name}`}
+                      checked={selectedBulkKeys.has(key)}
+                      className="h-4 w-4 accent-[#8dc63f]"
+                      type="checkbox"
+                      onChange={(event) => onToggleBulk(item, event.target.checked)}
+                    />
+                  </td>
+                  <td className="px-5 py-4 text-gray-700">
+                    {formatEntityType(item.entity_type)}
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="font-semibold text-[#1f2937]">{item.name}</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {item.legacy_id || "new-postgres-record"}
                     </div>
-                  ) : null}
-                </td>
-                <td className="px-5 py-4 text-gray-700">{item.country || "-"}</td>
-                <td className="px-5 py-4 text-gray-700">
-                  {item.primary_use_type_code || "-"}
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {item.lifecycle_phase_code || "-"}
-                </td>
-                <td className="px-5 py-4">
-                  <StatusBadge value={item.review_status_code} />
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {item.last_updated_by_name || "-"}
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {formatDate(item.updated_at)}
-                </td>
-                <td className="px-5 py-4">
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                      type="button"
-                      onClick={() => onSelect(item)}
-                    >
-                      Review
-                    </button>
-                    {sourceHref ? (
-                      <Link
+                    {"issue_label" in item ? (
+                      <div className="mt-2 text-xs font-medium text-gray-600">
+                        {item.issue_label}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className="px-5 py-4 text-gray-700">
+                    {item.country || "-"}
+                  </td>
+                  <td className="px-5 py-4 text-gray-700">
+                    {item.primary_use_type_code || "-"}
+                  </td>
+                  <td className="px-5 py-4 text-gray-700">
+                    {item.lifecycle_phase_code || "-"}
+                  </td>
+                  <td className="px-5 py-4">
+                    <StatusBadge value={item.review_status_code} />
+                  </td>
+                  <td className="px-5 py-4 text-gray-700">
+                    {item.last_updated_by_name || "-"}
+                  </td>
+                  <td className="px-5 py-4 text-gray-700">
+                    {formatDate(item.updated_at)}
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex flex-wrap gap-2">
+                      <button
                         className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                        href={sourceHref}
+                        type="button"
+                        onClick={() => onSelect(item)}
                       >
-                        Add Source
-                      </Link>
-                    ) : null}
-                    {href ? (
-                      <Link
-                        className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                        href={href}
-                      >
-                        Open
-                      </Link>
-                    ) : null}
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+                        Review
+                      </button>
+                      {sourceHref ? (
+                        <Link
+                          className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                          href={sourceHref}
+                        >
+                          Add Source
+                        </Link>
+                      ) : null}
+                      {href ? (
+                        <Link
+                          className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                          href={href}
+                        >
+                          Open
+                        </Link>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {pageCount > 1 ? (
+        <PaginationControls
+          page={clampedPage}
+          pageCount={pageCount}
+          pageEnd={pageEnd}
+          pageStart={pageStart}
+          total={items.length}
+          onPageChange={setPage}
+        />
+      ) : null}
+    </>
   );
 }
 
