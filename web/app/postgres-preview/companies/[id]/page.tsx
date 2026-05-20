@@ -30,6 +30,9 @@ import PostgresReviewStatusActions from "@/components/postgres-preview/PostgresR
 import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresResearchIssuesPanel";
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
+import PostgresRecordActionHub, {
+  type PostgresRecordAction,
+} from "@/components/postgres-preview/PostgresRecordActionHub";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import {
   getPostgresCompanyRelationshipReferenceData,
@@ -439,32 +442,6 @@ function CompanyGovernanceOverview({
   );
 }
 
-type CompanyActionTone = "blocker" | "warning" | "ready" | "neutral";
-
-type CompanyAction = {
-  label: string;
-  detail: string;
-  href: string;
-  tone: CompanyActionTone;
-  primary?: boolean;
-};
-
-const companyActionToneClasses: Record<CompanyActionTone, string> = {
-  blocker: "border-red-200 bg-red-50 text-red-800",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
-  ready: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  neutral: "border-gray-200 bg-white text-gray-700",
-};
-
-function companyActionLinkClass(action: CompanyAction) {
-  const base =
-    "block border px-4 py-4 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
-
-  return `${base} ${companyActionToneClasses[action.tone]} ${
-    action.primary ? "ring-2 ring-[#8dc63f]/20" : ""
-  }`;
-}
-
 function CompanyActionHub({
   company,
   readinessIssues,
@@ -492,7 +469,7 @@ function CompanyActionHub({
   const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
   const activityLinkCount =
     projectLinks.length + operatingAssetLinks.length + relationships.length;
-  const actions: CompanyAction[] = [];
+  const actions: PostgresRecordAction[] = [];
 
   if (canEditRecord) {
     actions.push({
@@ -600,50 +577,13 @@ function CompanyActionHub({
   });
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            Record Workbench
-          </div>
-          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
-            Company Action Hub
-          </h2>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
-            Use this as the operational entry point for this company record:
-            confirm classification, manage portfolios and ownership links,
-            strengthen evidence, review AI suggestions, and check export readiness.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <StatusBadge value={`${formatCount(blockers.length)} blockers`} />
-          <StatusBadge value={`${formatCount(warnings.length)} warnings`} />
-          <Link
-            href="/postgres-preview/research-ops"
-            className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-          >
-            Research Ops
-          </Link>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
-        {actions.map((action) => (
-          <Link
-            key={`${action.label}-${action.href}`}
-            className={companyActionLinkClass(action)}
-            href={action.href}
-          >
-            <div className="text-sm font-bold text-[#1f2937]">
-              {action.label}
-            </div>
-            <div className="mt-2 text-xs leading-5 text-gray-600">
-              {action.detail}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <PostgresRecordActionHub
+      actions={actions}
+      blockerCount={blockers.length}
+      description="Use this as the operational entry point for this company record: confirm classification, manage portfolios and ownership links, strengthen evidence, review AI suggestions, and check export readiness."
+      title="Company Action Hub"
+      warningCount={warnings.length}
+    />
   );
 }
 
