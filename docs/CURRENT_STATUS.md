@@ -273,6 +273,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Admin users now have a controlled-vocabulary management page for selected
   PostgreSQL reference tables, supporting label, description, sort order, active
   state, and new-term creation without delete/destructive actions
+- `docs/HETZNER_DEPLOYMENT_GROUNDWORK.md` now records the intended Hetzner
+  production direction for `internal.thinkgeoenergy.com`, including environment
+  variables, migration/cutover sequence, reverse proxy shape, and backup needs
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples
