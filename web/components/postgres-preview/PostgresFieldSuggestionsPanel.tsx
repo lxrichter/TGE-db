@@ -96,6 +96,60 @@ function fieldContext(candidate: PostgresFieldSuggestionCandidate) {
     : "Fills empty field";
 }
 
+function PaginationBar({
+  page,
+  pageCount,
+  pageStart,
+  pageEnd,
+  total,
+  onPageChange,
+}: {
+  page: number;
+  pageCount: number;
+  pageStart: number;
+  pageEnd: number;
+  total: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (pageCount <= 1) {
+    return (
+      <div className="border-b border-gray-100 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Showing {formatCount(total)} suggestion{total === 1 ? "" : "s"}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-3 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Showing {formatCount(pageStart)}-{formatCount(pageEnd)} of{" "}
+        {formatCount(total)} suggestions
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={page <= 1}
+          type="button"
+          onClick={() => onPageChange(Math.max(1, page - 1))}
+        >
+          Previous
+        </button>
+        <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+          Page {formatCount(page)} / {formatCount(pageCount)}
+        </span>
+        <button
+          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={page >= pageCount}
+          type="button"
+          onClick={() => onPageChange(Math.min(pageCount, page + 1))}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function PostgresFieldSuggestionsPanel({
   candidates,
   canReviewStatus,
@@ -106,6 +160,8 @@ export default function PostgresFieldSuggestionsPanel({
   showEntity?: boolean;
 }) {
   const router = useRouter();
+  const pageSize = 10;
+  const [page, setPage] = useState(1);
   const [busyCandidateId, setBusyCandidateId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const openCount = candidates.filter(
@@ -114,6 +170,12 @@ export default function PostgresFieldSuggestionsPanel({
         candidate.suggestion_status_code
       ) && !candidate.applied_at
   ).length;
+  const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
+  const clampedPage = Math.min(page, pageCount);
+  const pageStartIndex = (clampedPage - 1) * pageSize;
+  const pageItems = candidates.slice(pageStartIndex, pageStartIndex + pageSize);
+  const pageStart = candidates.length === 0 ? 0 : pageStartIndex + 1;
+  const pageEnd = Math.min(pageStartIndex + pageItems.length, candidates.length);
 
   async function submitAction(
     candidate: PostgresFieldSuggestionCandidate,
@@ -217,159 +279,179 @@ export default function PostgresFieldSuggestionsPanel({
           </div>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table
-            className={`table-fixed text-left text-sm ${
-              showEntity ? "min-w-[1120px]" : "min-w-[980px]"
-            }`}
-          >
-            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
-              <tr>
-                {showEntity ? (
-                  <th className="w-[18%] px-4 py-3 font-semibold">Record</th>
-                ) : null}
-                <th className="w-[13%] px-4 py-3 font-semibold">Field</th>
-                <th className="w-[15%] px-4 py-3 font-semibold">Current</th>
-                <th className="w-[17%] px-4 py-3 font-semibold">Suggested</th>
-                <th className="w-[17%] px-4 py-3 font-semibold">Evidence</th>
-                <th className="w-[9%] px-4 py-3 font-semibold">Confidence</th>
-                <th className="w-[9%] px-4 py-3 font-semibold">Status</th>
-                <th className="w-[12%] px-4 py-3 font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {candidates.map((candidate) => {
-                const href = sourceHref(candidate);
-                const targetHref = entityHref(candidate);
-                const isBusy =
-                  busyCandidateId === candidate.field_suggestion_candidate_id;
-                const isSuperseded =
-                  candidate.suggestion_status_code === "superseded";
-                const isApplied = Boolean(candidate.applied_at);
-                const isApplyReady =
-                  candidate.suggestion_status_code === "confirmed" &&
-                  !isApplied;
+        <>
+          <PaginationBar
+            page={clampedPage}
+            pageCount={pageCount}
+            pageEnd={pageEnd}
+            pageStart={pageStart}
+            total={candidates.length}
+            onPageChange={setPage}
+          />
+          <div className="overflow-x-auto">
+            <table
+              className={`table-fixed text-left text-sm ${
+                showEntity ? "min-w-[1120px]" : "min-w-[980px]"
+              }`}
+            >
+              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+                <tr>
+                  {showEntity ? (
+                    <th className="w-[18%] px-4 py-3 font-semibold">Record</th>
+                  ) : null}
+                  <th className="w-[13%] px-4 py-3 font-semibold">Field</th>
+                  <th className="w-[15%] px-4 py-3 font-semibold">Current</th>
+                  <th className="w-[17%] px-4 py-3 font-semibold">Suggested</th>
+                  <th className="w-[17%] px-4 py-3 font-semibold">Evidence</th>
+                  <th className="w-[9%] px-4 py-3 font-semibold">Confidence</th>
+                  <th className="w-[9%] px-4 py-3 font-semibold">Status</th>
+                  <th className="w-[12%] px-4 py-3 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {pageItems.map((candidate) => {
+                  const href = sourceHref(candidate);
+                  const targetHref = entityHref(candidate);
+                  const isBusy =
+                    busyCandidateId === candidate.field_suggestion_candidate_id;
+                  const isSuperseded =
+                    candidate.suggestion_status_code === "superseded";
+                  const isApplied = Boolean(candidate.applied_at);
+                  const isApplyReady =
+                    candidate.suggestion_status_code === "confirmed" &&
+                    !isApplied;
 
-                return (
-                  <tr
-                    key={candidate.field_suggestion_candidate_id}
-                    className="align-top"
-                  >
-                    {showEntity ? (
-                      <td className="px-4 py-3">
-                        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                          {entityTypeLabel(candidate.entity_type)}
-                        </div>
-                        <Link
-                          href={targetHref}
-                          className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                        >
-                          {candidate.entity_name}
-                        </Link>
-                        <div className="mt-1 text-xs text-gray-500">
-                          {candidate.country || "No country"}
+                  return (
+                    <tr
+                      key={candidate.field_suggestion_candidate_id}
+                      className="align-top"
+                    >
+                      {showEntity ? (
+                        <td className="px-4 py-3">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            {entityTypeLabel(candidate.entity_type)}
+                          </div>
+                          <Link
+                            href={targetHref}
+                            className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                          >
+                            {candidate.entity_name}
+                          </Link>
+                          <div className="mt-1 text-xs text-gray-500">
+                            {candidate.country || "No country"}
+                          </div>
+                        </td>
+                      ) : null}
+                      <td className="px-4 py-3 font-semibold text-[#1f2937]">
+                        {candidate.field_name}
+                        <div className="mt-1 text-xs font-normal text-gray-500">
+                          {formatDate(candidate.generated_at)}
                         </div>
                       </td>
-                    ) : null}
-                    <td className="px-4 py-3 font-semibold text-[#1f2937]">
-                      {candidate.field_name}
-                      <div className="mt-1 text-xs font-normal text-gray-500">
-                        {formatDate(candidate.generated_at)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {candidate.current_value || "-"}
-                      <div className="mt-2 text-xs font-semibold text-gray-500">
-                        {fieldContext(candidate)}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      <span className="font-semibold text-[#1f2937]">
-                        {candidate.suggested_value}
-                      </span>
-                      {candidate.suggestion_reason ? (
-                        <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
-                          {candidate.suggestion_reason}
+                      <td className="px-4 py-3 text-gray-700">
+                        {candidate.current_value || "-"}
+                        <div className="mt-2 text-xs font-semibold text-gray-500">
+                          {fieldContext(candidate)}
                         </div>
-                      ) : null}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {href ? (
-                        <Link
-                          href={href}
-                          className="line-clamp-2 font-semibold text-[#4f7f1f] hover:underline"
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        <span className="font-semibold text-[#1f2937]">
+                          {candidate.suggested_value}
+                        </span>
+                        {candidate.suggestion_reason ? (
+                          <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
+                            {candidate.suggestion_reason}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {href ? (
+                          <Link
+                            href={href}
+                            className="line-clamp-2 font-semibold text-[#4f7f1f] hover:underline"
+                          >
+                            {candidate.source_title ||
+                              candidate.source_reference ||
+                              "Open source"}
+                          </Link>
+                        ) : (
+                          <span className="text-gray-400">No source link</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {formatConfidence(candidate.confidence_score)}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        <span
+                          className={`inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${workflowTone(
+                            candidate
+                          )}`}
                         >
-                          {candidate.source_title ||
-                            candidate.source_reference ||
-                            "Open source"}
-                        </Link>
-                      ) : (
-                        <span className="text-gray-400">No source link</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {formatConfidence(candidate.confidence_score)}
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      <span
-                        className={`inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${workflowTone(
-                          candidate
-                        )}`}
-                      >
-                        {workflowLabel(candidate)}
-                      </span>
-                      {candidate.applied_at ? (
-                        <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
-                          Applied {formatDate(candidate.applied_at)}
+                          {workflowLabel(candidate)}
+                        </span>
+                        {candidate.applied_at ? (
+                          <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
+                            Applied {formatDate(candidate.applied_at)}
+                          </div>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={
+                              !canReviewStatus ||
+                              isBusy ||
+                              isSuperseded ||
+                              isApplied
+                            }
+                            onClick={() => submitAction(candidate, "confirm")}
+                            className="inline-flex h-8 items-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                          >
+                            Confirm
+                          </button>
+                          <button
+                            type="button"
+                            disabled={
+                              !canReviewStatus || isBusy || !isApplyReady
+                            }
+                            onClick={() => submitAction(candidate, "apply")}
+                            className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                          >
+                            Apply To DB
+                          </button>
+                          <button
+                            type="button"
+                            disabled={
+                              !canReviewStatus ||
+                              isBusy ||
+                              isSuperseded ||
+                              isApplied
+                            }
+                            onClick={() => submitAction(candidate, "reject")}
+                            className="inline-flex h-8 items-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                          >
+                            Reject
+                          </button>
                         </div>
-                      ) : null}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          disabled={
-                            !canReviewStatus ||
-                            isBusy ||
-                            isSuperseded ||
-                            isApplied
-                          }
-                          onClick={() => submitAction(candidate, "confirm")}
-                          className="inline-flex h-8 items-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          type="button"
-                          disabled={
-                            !canReviewStatus || isBusy || !isApplyReady
-                          }
-                          onClick={() => submitAction(candidate, "apply")}
-                          className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
-                        >
-                          Apply To DB
-                        </button>
-                        <button
-                          type="button"
-                          disabled={
-                            !canReviewStatus ||
-                            isBusy ||
-                            isSuperseded ||
-                            isApplied
-                          }
-                          onClick={() => submitAction(candidate, "reject")}
-                          className="inline-flex h-8 items-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {pageCount > 1 ? (
+            <PaginationBar
+              page={clampedPage}
+              pageCount={pageCount}
+              pageEnd={pageEnd}
+              pageStart={pageStart}
+              total={candidates.length}
+              onPageChange={setPage}
+            />
+          ) : null}
+        </>
       )}
 
       {!canReviewStatus ? (
