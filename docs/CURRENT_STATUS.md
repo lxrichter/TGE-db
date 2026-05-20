@@ -158,6 +158,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   local extraction taxonomy separates public funding/grants, private
   financing/investment raises, loans, contract awards, and license/lease-sale
   values instead of treating all money signals as one generic funding category
+- `/sources/facts` now supports fact-type training review with compact
+  definition cards when a single fact type is selected, and
+  `docs/ARTICLE_FACT_TYPE_TRAINING_LOOP.md` documents the local one-type sample
+  review cycle
 - local-only live SQLite migration inspection command `npm run sqlite:inspect`
   can profile a copied Hetzner SQLite backup read-only into ignored
   `source-data/` outputs without exporting raw row samples

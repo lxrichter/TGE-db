@@ -95,6 +95,9 @@ examples per fact type so rule quality can be judged more realistically.
 An Excel workbook is also generated for easier manual review. The CSV remains
 the canonical file used by the audit command.
 
+For one-fact-type training runs, use the repeatable workflow in
+`docs/ARTICLE_FACT_TYPE_TRAINING_LOOP.md`.
+
 Recommended review decisions:
 
 - `accept`

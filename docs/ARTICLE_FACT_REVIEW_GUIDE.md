@@ -6,6 +6,9 @@ Purpose: provide consistent manual-review rules for local article fact
 candidate samples before any PostgreSQL import, Research Ops queue, or
 AI-assisted field-suggestion workflow is enabled.
 
+For the faster one-fact-type training cycle, use
+`docs/ARTICLE_FACT_TYPE_TRAINING_LOOP.md`.
+
 ## Current Implemented Review Workflow
 
 Current workflow:
