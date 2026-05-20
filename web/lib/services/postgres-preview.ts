@@ -2443,8 +2443,10 @@ async function recordEntityFormAudit({
       entity_type: entityType,
       entity_id: entityId,
       event_type: "form_update",
-      previous_review_status_code: previousReviewStatus,
-      next_review_status_code: nextReviewStatus,
+      previous_review_status_code:
+        previousReviewStatus !== nextReviewStatus ? previousReviewStatus : null,
+      next_review_status_code:
+        previousReviewStatus !== nextReviewStatus ? nextReviewStatus : null,
       actor_user_id: isUuid(actorUserId) ? actorUserId : undefined,
       event_note:
         previousReviewStatus !== nextReviewStatus

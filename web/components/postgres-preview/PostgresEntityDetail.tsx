@@ -50,7 +50,9 @@ function renderValue(value: ReactNode) {
 }
 
 function formatAuditEventType(value: string) {
-  return value.replaceAll("_", " ");
+  return value
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function formatAuditDate(value: string) {
@@ -88,6 +90,17 @@ function formatAuditValue(value: unknown): string {
   return String(value);
 }
 
+function formatAuditFieldLabel(value: string) {
+  return value
+    .replaceAll("_", " ")
+    .replace(/\bmwe\b/gi, "MWe")
+    .replace(/\bmwth\b/gi, "MWth")
+    .replace(/\bgwh(e|th|c)?\b/gi, (match) => match.toUpperCase())
+    .replace(/\bcod\b/gi, "COD")
+    .replace(/\bhq\b/gi, "HQ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function auditChangeSummary(event: PostgresAuditEvent) {
   const fields = asAuditRecord(event.changed_fields);
 
@@ -96,26 +109,30 @@ function auditChangeSummary(event: PostgresAuditEvent) {
   }
 
   if (typeof fields.field_name === "string") {
-    return `${fields.field_name}: ${formatAuditValue(
+    return `${formatAuditFieldLabel(fields.field_name)}: ${formatAuditValue(
       fields.previous_value
     )} -> ${formatAuditValue(fields.next_value)}`;
   }
 
   if (Array.isArray(fields.review_status_code)) {
-    return `review_status_code: ${formatAuditValue(fields.review_status_code)}`;
+    return `Review Status: ${formatAuditValue(fields.review_status_code)}`;
   }
 
-  const entries = Object.entries(fields)
-    .filter(([, value]) => value !== null && value !== undefined && value !== "")
-    .slice(0, 3);
+  const entries = Object.entries(fields).filter(
+    ([, value]) => value !== null && value !== undefined && value !== ""
+  );
+  const visibleEntries = entries.slice(0, 3);
 
-  if (entries.length === 0) {
+  if (visibleEntries.length === 0) {
     return event.event_note || "-";
   }
 
-  return entries
-    .map(([key, value]) => `${key}: ${formatAuditValue(value)}`)
+  const summary = visibleEntries
+    .map(([key, value]) => `${formatAuditFieldLabel(key)}: ${formatAuditValue(value)}`)
     .join("; ");
+  const remainingCount = entries.length - visibleEntries.length;
+
+  return remainingCount > 0 ? `${summary}; +${remainingCount} more` : summary;
 }
 
 export function StatusBadge({ value }: { value: string | null }) {
@@ -172,7 +189,7 @@ export function AuditTrailPanel({
             <tbody className="divide-y divide-gray-100">
               {events.map((event) => (
                 <tr key={event.audit_event_id} className="align-top">
-                  <td className="px-4 py-3 font-semibold capitalize text-[#1f2937]">
+                  <td className="px-4 py-3 font-semibold text-[#1f2937]">
                     {formatAuditEventType(event.event_type)}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
