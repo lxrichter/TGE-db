@@ -8,7 +8,10 @@ import type {
   PostgresCompanyProjectLink,
   PostgresCompanyRelationship,
   PostgresCompanyRelationshipReferenceData,
+  PostgresEntitySourceLink,
 } from "@/lib/postgres-preview";
+import { formatCount } from "@/lib/format";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 type RoleLinkForm = {
   company_id: string;
@@ -291,6 +294,135 @@ function RoleBadge({ role }: { role: string | null }) {
   );
 }
 
+function relationshipEvidenceLinks(sources: PostgresEntitySourceLink[] = []) {
+  return sources.filter((source) => {
+    const evidenceType = source.evidence_type || "";
+    const linkedField = source.linked_field || "";
+
+    return (
+      evidenceType.includes("ownership") ||
+      evidenceType.includes("operator") ||
+      evidenceType.includes("entity") ||
+      evidenceType.includes("relationship") ||
+      linkedField.includes("owner") ||
+      linkedField.includes("operator") ||
+      linkedField.includes("company") ||
+      linkedField.includes("relationship")
+    );
+  });
+}
+
+function RelationshipSummaryTile({
+  label,
+  value,
+  note,
+  status,
+}: {
+  label: string;
+  value: string;
+  note: string;
+  status?: string;
+}) {
+  return (
+    <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          {label}
+        </div>
+        {status ? <PostgresStatusBadge value={status} /> : null}
+      </div>
+      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+        {value}
+      </div>
+      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+    </div>
+  );
+}
+
+function RelationshipSupportSummary({
+  activityLinkCount,
+  companyRelationshipCount = 0,
+  primaryOrCurrentCount,
+  sources = [],
+  scope,
+}: {
+  activityLinkCount: number;
+  companyRelationshipCount?: number;
+  primaryOrCurrentCount: number;
+  sources?: PostgresEntitySourceLink[];
+  scope: "project" | "asset" | "company";
+}) {
+  const relationshipEvidenceCount = relationshipEvidenceLinks(sources).length;
+  const credibleSourceCount = sources.filter(
+    (source) => source.credibility_status_code === "credible"
+  ).length;
+  const totalRelationshipCount = activityLinkCount + companyRelationshipCount;
+  const evidenceStatus =
+    totalRelationshipCount === 0
+      ? "draft"
+      : sources.length === 0
+        ? "needs_review"
+        : relationshipEvidenceCount > 0 || credibleSourceCount > 0
+          ? "credible"
+          : "needs_review";
+  const relationshipLabel =
+    scope === "company" ? "Activity Roles" : "Structured Roles";
+  const relationshipNote =
+    scope === "project"
+      ? "Developer, owner, operator, supplier, investor, or similar links."
+      : scope === "asset"
+        ? "Owner, operator, supplier, EPC, offtaker, or O&M links."
+        : "Project and plant/facility roles held by this company.";
+  const governanceNote =
+    scope === "company"
+      ? "Current ownership, group, JV, or shareholder relationships."
+      : "Primary roles or participation shares that need clear evidence.";
+
+  return (
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+      <RelationshipSummaryTile
+        label={relationshipLabel}
+        note={relationshipNote}
+        status={totalRelationshipCount > 0 ? "active" : "needs_review"}
+        value={formatCount(activityLinkCount)}
+      />
+      <RelationshipSummaryTile
+        label="Record Evidence"
+        note={`${formatCount(credibleSourceCount)} credible source${
+          credibleSourceCount === 1 ? "" : "s"
+        } on this record.`}
+        status={evidenceStatus}
+        value={formatCount(sources.length)}
+      />
+      <RelationshipSummaryTile
+        label="Relationship Signals"
+        note="Record-level source links tagged for ownership, operator, entity, or relationship evidence."
+        status={
+          totalRelationshipCount === 0
+            ? "draft"
+            : relationshipEvidenceCount > 0
+              ? "confirmed"
+              : "needs_review"
+        }
+        value={formatCount(relationshipEvidenceCount)}
+      />
+      <RelationshipSummaryTile
+        label={scope === "company" ? "Ownership / Group" : "Primary / Share"}
+        note={governanceNote}
+        status={
+          (scope === "company" ? companyRelationshipCount : primaryOrCurrentCount) >
+          0
+            ? "confirmed"
+            : "draft"
+        }
+        value={formatCount(
+          scope === "company" ? companyRelationshipCount : primaryOrCurrentCount
+        )}
+      />
+    </div>
+  );
+}
+
 function confirmStructuredRelationshipRemoval(description: string) {
   return window.confirm(
     `Remove ${description}? This removes the structured relationship from this record but does not delete the underlying project, plant/facility, or company.`
@@ -320,10 +452,12 @@ export function ProjectCompanyLinksPanel({
   projectId,
   links,
   referenceData,
+  sources,
 }: {
   projectId: string;
   links: PostgresCompanyProjectLink[];
   referenceData: PostgresCompanyRelationshipReferenceData;
+  sources?: PostgresEntitySourceLink[];
 }) {
   const router = useRouter();
   const [form, setForm] = useState<RoleLinkForm>(() =>
@@ -409,6 +543,15 @@ export function ProjectCompanyLinksPanel({
     >
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="project" />
+      <RelationshipSupportSummary
+        activityLinkCount={links.length}
+        primaryOrCurrentCount={
+          links.filter((link) => link.is_primary || link.ownership_share !== null)
+            .length
+        }
+        scope="project"
+        sources={sources}
+      />
       <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
         <Field label="Company" approvalSensitive required>
           <select
@@ -553,10 +696,12 @@ export function OperatingAssetCompanyLinksPanel({
   operatingAssetId,
   links,
   referenceData,
+  sources,
 }: {
   operatingAssetId: string;
   links: PostgresCompanyOperatingAssetLink[];
   referenceData: PostgresCompanyRelationshipReferenceData;
+  sources?: PostgresEntitySourceLink[];
 }) {
   const router = useRouter();
   const [form, setForm] = useState<RoleLinkForm>(() =>
@@ -648,6 +793,15 @@ export function OperatingAssetCompanyLinksPanel({
     >
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="asset" />
+      <RelationshipSupportSummary
+        activityLinkCount={links.length}
+        primaryOrCurrentCount={
+          links.filter((link) => link.is_primary || link.ownership_share !== null)
+            .length
+        }
+        scope="asset"
+        sources={sources}
+      />
       <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
         <Field label="Company" approvalSensitive required>
           <select
@@ -1191,12 +1345,14 @@ export function CompanyRelationshipPanel({
   operatingAssetLinks,
   relationships,
   referenceData,
+  sources,
 }: {
   companyId: string;
   projectLinks: PostgresCompanyProjectLink[];
   operatingAssetLinks: PostgresCompanyOperatingAssetLink[];
   relationships: PostgresCompanyRelationship[];
   referenceData: PostgresCompanyRelationshipReferenceData;
+  sources?: PostgresEntitySourceLink[];
 }) {
   const router = useRouter();
   const relatedCompanyOptions = useMemo(
@@ -1297,6 +1453,21 @@ export function CompanyRelationshipPanel({
       title="Relationships And Portfolios"
       description="Structured project, plant/facility, and company-relationship links for this PostgreSQL staging company."
     >
+      <RelationshipSupportSummary
+        activityLinkCount={projectLinks.length + operatingAssetLinks.length}
+        companyRelationshipCount={relationships.length}
+        primaryOrCurrentCount={
+          projectLinks.filter((link) => link.is_primary || link.ownership_share !== null)
+            .length +
+          operatingAssetLinks.filter(
+            (link) => link.is_primary || link.ownership_share !== null
+          ).length +
+          relationships.filter((relationship) => relationship.is_current).length
+        }
+        scope="company"
+        sources={sources}
+      />
+
       <div className="grid grid-cols-1 gap-6 2xl:grid-cols-2">
         <div className="space-y-3">
           <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500">

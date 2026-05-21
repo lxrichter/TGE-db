@@ -945,6 +945,7 @@ export default async function PostgresCompanyDetailPage({
           projectLinks={projectLinks}
           referenceData={relationshipReferenceData}
           relationships={relationships}
+          sources={company.sources}
         />
       </div>
 

@@ -870,6 +870,7 @@ export default async function PostgresOperatingAssetDetailPage({
           links={companyLinks}
           operatingAssetId={asset.operating_asset_id}
           referenceData={relationshipReferenceData}
+          sources={asset.sources}
         />
       </div>
 
