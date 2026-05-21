@@ -8,6 +8,7 @@ import type {
   PostgresCompanyProjectLink,
   PostgresCompanyRelationship,
   PostgresEntityFormReferenceData,
+  PostgresPromotedOperatingAsset,
   PostgresPreviewCompanyDetail,
   PostgresPreviewOperatingAssetDetail,
   PostgresPreviewProjectDetail,
@@ -36,6 +37,18 @@ type CompanyWorkflowPreview = {
   projectLinks: PostgresCompanyProjectLink[];
   operatingAssetLinks: PostgresCompanyOperatingAssetLink[];
   relationships: PostgresCompanyRelationship[];
+};
+type ProjectWorkflowPreview = {
+  companyLinks: PostgresCompanyProjectLink[];
+  promotedAssets: PostgresPromotedOperatingAsset[];
+};
+type AssetWorkflowPreview = {
+  companyLinks: PostgresCompanyOperatingAssetLink[];
+  originatingProject?: {
+    project_id: string;
+    project_name: string;
+    country: string | null;
+  } | null;
 };
 
 function toInputValue(value: string | number | null | undefined) {
@@ -1110,9 +1123,11 @@ function FormActions({
 function ProjectWorkflowBridge({
   mode,
   project,
+  relationshipPreview,
 }: {
   mode: EntityFormMode;
   project?: PostgresPreviewProjectDetail | null;
+  relationshipPreview?: ProjectWorkflowPreview;
 }) {
   const projectHref = project
     ? `/postgres-preview/projects/${project.project_id}`
@@ -1122,6 +1137,14 @@ function ProjectWorkflowBridge({
     ? `${projectHref}#project-company-links`
     : null;
   const linkedAssetHref = projectHref ? `${projectHref}#project-promotion` : null;
+  const sourcePreview = project?.sources?.slice(0, 2) || [];
+  const sourceCount = project?.source_count || 0;
+  const companyLinkCount =
+    relationshipPreview?.companyLinks.length ?? project?.company_link_count ?? 0;
+  const companyPreview = relationshipPreview?.companyLinks.slice(0, 3) || [];
+  const promotedAssetCount = relationshipPreview?.promotedAssets.length || 0;
+  const promotedAssetPreview =
+    relationshipPreview?.promotedAssets.slice(0, 3) || [];
 
   return (
     <Section title="Evidence And Relationship Workflow">
@@ -1154,6 +1177,28 @@ function ProjectWorkflowBridge({
               New Source
             </Link>
           </div>
+          {project ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {sourceCount} linked evidence record{sourceCount === 1 ? "" : "s"}
+              </div>
+              {sourcePreview.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {sourcePreview.map((source) => (
+                    <li key={source.entity_source_id} className="truncate">
+                      {source.source_title ||
+                        source.source_reference ||
+                        source.source_url}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No evidence links yet.
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
@@ -1179,6 +1224,38 @@ function ProjectWorkflowBridge({
               </span>
             )}
           </div>
+          {project ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {companyLinkCount} structured company role
+                {companyLinkCount === 1 ? "" : "s"}
+              </div>
+              {companyPreview.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {companyPreview.map((link) => (
+                    <li key={link.company_project_link_id}>
+                      <Link
+                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        href={`/postgres-preview/companies/${link.company_id}`}
+                      >
+                        {link.company_name}
+                      </Link>
+                      <div className="truncate text-gray-500">
+                        {link.role_label || link.role_code}
+                        {link.ownership_share !== null
+                          ? ` / ${link.ownership_share}%`
+                          : ""}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No company roles linked yet.
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
 
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
@@ -1203,6 +1280,36 @@ function ProjectWorkflowBridge({
               </span>
             )}
           </div>
+          {project ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {promotedAssetCount} linked plant/facility promotion
+                {promotedAssetCount === 1 ? "" : "s"}
+              </div>
+              {promotedAssetPreview.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {promotedAssetPreview.map((asset) => (
+                    <li key={asset.operating_asset_id}>
+                      <Link
+                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
+                      >
+                        {asset.asset_name}
+                      </Link>
+                      <div className="truncate text-gray-500">
+                        {asset.link_type}
+                        {asset.country ? ` / ${asset.country}` : ""}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No linked operating asset yet.
+                </div>
+              )}
+            </div>
+          ) : null}
         </div>
       </div>
       {mode === "create" ? (
@@ -1219,9 +1326,11 @@ function ProjectWorkflowBridge({
 function AssetWorkflowBridge({
   mode,
   asset,
+  relationshipPreview,
 }: {
   mode: EntityFormMode;
   asset?: PostgresPreviewOperatingAssetDetail | null;
+  relationshipPreview?: AssetWorkflowPreview;
 }) {
   const assetHref = asset
     ? `/postgres-preview/operating-assets/${asset.operating_asset_id}`
@@ -1231,7 +1340,10 @@ function AssetWorkflowBridge({
   const linkedProjectHref = assetHref ? `${assetHref}#asset-workflow-actions` : null;
   const sourcePreview = asset?.sources?.slice(0, 2) || [];
   const sourceCount = asset?.source_count || 0;
-  const companyLinkCount = asset?.company_link_count || 0;
+  const companyLinkCount =
+    relationshipPreview?.companyLinks.length ?? asset?.company_link_count ?? 0;
+  const companyPreview = relationshipPreview?.companyLinks.slice(0, 3) || [];
+  const originatingProject = relationshipPreview?.originatingProject;
 
   return (
     <Section title="Evidence And Relationship Workflow">
@@ -1315,10 +1427,30 @@ function AssetWorkflowBridge({
                 {companyLinkCount} structured company role
                 {companyLinkCount === 1 ? "" : "s"}
               </div>
-              <div className="mt-1">
-                Use the detail workflow for owner, operator, supplier,
-                contractor, and offtaker links.
-              </div>
+              {companyPreview.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {companyPreview.map((link) => (
+                    <li key={link.company_operating_asset_link_id}>
+                      <Link
+                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        href={`/postgres-preview/companies/${link.company_id}`}
+                      >
+                        {link.company_name}
+                      </Link>
+                      <div className="truncate text-gray-500">
+                        {link.role_label || link.role_code}
+                        {link.ownership_share !== null
+                          ? ` / ${link.ownership_share}%`
+                          : ""}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No owner/operator/company roles linked yet.
+                </div>
+              )}
             </div>
           ) : null}
         </div>
@@ -1348,10 +1480,18 @@ function AssetWorkflowBridge({
           {asset ? (
             <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
               <div className="font-semibold text-[#1f2937]">
-                {asset.promoted_from_project_id
+                {originatingProject || asset.promoted_from_project_id
                   ? "Originating project linked"
                   : "No originating project link yet"}
               </div>
+              {originatingProject ? (
+                <Link
+                  className="mt-1 block truncate font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  href={`/postgres-preview/projects/${originatingProject.project_id}`}
+                >
+                  {originatingProject.project_name}
+                </Link>
+              ) : null}
               <div className="mt-1">
                 Plant / field group: {asset.project_group || "not set"}
               </div>
@@ -1713,10 +1853,12 @@ export function PostgresProjectForm({
   mode,
   project,
   referenceData,
+  relationshipPreview,
 }: {
   mode: EntityFormMode;
   project?: PostgresPreviewProjectDetail | null;
   referenceData: PostgresEntityFormReferenceData;
+  relationshipPreview?: ProjectWorkflowPreview;
 }) {
   const router = useRouter();
   const [originalForm] = useState<EntityFormValues>(() =>
@@ -1796,7 +1938,11 @@ export function PostgresProjectForm({
         })}
       />
 
-      <ProjectWorkflowBridge mode={mode} project={project} />
+      <ProjectWorkflowBridge
+        mode={mode}
+        project={project}
+        relationshipPreview={relationshipPreview}
+      />
 
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -2047,10 +2193,12 @@ export function PostgresOperatingAssetForm({
   mode,
   asset,
   referenceData,
+  relationshipPreview,
 }: {
   mode: EntityFormMode;
   asset?: PostgresPreviewOperatingAssetDetail | null;
   referenceData: PostgresEntityFormReferenceData;
+  relationshipPreview?: AssetWorkflowPreview;
 }) {
   const router = useRouter();
   const [originalForm] = useState<EntityFormValues>(() =>
@@ -2137,7 +2285,11 @@ export function PostgresOperatingAssetForm({
         })}
       />
 
-      <AssetWorkflowBridge asset={asset} mode={mode} />
+      <AssetWorkflowBridge
+        asset={asset}
+        mode={mode}
+        relationshipPreview={relationshipPreview}
+      />
 
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

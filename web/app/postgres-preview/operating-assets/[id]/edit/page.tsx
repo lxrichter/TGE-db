@@ -6,7 +6,9 @@ import {
 import { PostgresOperatingAssetForm } from "@/components/postgres-preview/PostgresEntityForm";
 import {
   getPostgresEntityFormReferenceData,
+  getPostgresPreviewProjectById,
   getPostgresPreviewOperatingAssetById,
+  listPostgresOperatingAssetCompanyLinks,
 } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +20,12 @@ type FormData =
       asset: NonNullable<
         Awaited<ReturnType<typeof getPostgresPreviewOperatingAssetById>>
       >;
+      companyLinks: Awaited<ReturnType<typeof listPostgresOperatingAssetCompanyLinks>>;
+      originatingProject: {
+        project_id: string;
+        project_name: string;
+        country: string | null;
+      } | null;
     }
   | {
       ok: false;
@@ -26,16 +34,33 @@ type FormData =
 
 async function getFormData(operatingAssetId: string): Promise<FormData> {
   try {
-    const [referenceData, asset] = await Promise.all([
+    const [referenceData, asset, companyLinks] = await Promise.all([
       getPostgresEntityFormReferenceData(),
       getPostgresPreviewOperatingAssetById(operatingAssetId),
+      listPostgresOperatingAssetCompanyLinks(operatingAssetId),
     ]);
 
     if (!asset) {
       return { ok: false, error: "not_found" };
     }
 
-    return { ok: true, referenceData, asset };
+    const originatingProject = asset.promoted_from_project_id
+      ? await getPostgresPreviewProjectById(asset.promoted_from_project_id)
+      : null;
+
+    return {
+      ok: true,
+      referenceData,
+      asset,
+      companyLinks,
+      originatingProject: originatingProject
+        ? {
+            project_id: originatingProject.project_id,
+            project_name: originatingProject.project_name,
+            country: originatingProject.country,
+          }
+        : null,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -110,6 +135,10 @@ export default async function EditPostgresOperatingAssetPage({
         <PostgresOperatingAssetForm
           asset={data.asset}
           mode="edit"
+          relationshipPreview={{
+            companyLinks: data.companyLinks,
+            originatingProject: data.originatingProject,
+          }}
           referenceData={data.referenceData}
         />
       )}

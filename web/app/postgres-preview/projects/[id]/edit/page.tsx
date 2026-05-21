@@ -7,6 +7,8 @@ import { PostgresProjectForm } from "@/components/postgres-preview/PostgresEntit
 import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
+  listPostgresProjectCompanyLinks,
+  listPostgresPromotedOperatingAssets,
 } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,10 @@ type FormData =
       ok: true;
       referenceData: Awaited<ReturnType<typeof getPostgresEntityFormReferenceData>>;
       project: NonNullable<Awaited<ReturnType<typeof getPostgresPreviewProjectById>>>;
+      companyLinks: Awaited<ReturnType<typeof listPostgresProjectCompanyLinks>>;
+      promotedAssets: Awaited<
+        ReturnType<typeof listPostgresPromotedOperatingAssets>
+      >;
     }
   | {
       ok: false;
@@ -24,16 +30,18 @@ type FormData =
 
 async function getFormData(projectId: string): Promise<FormData> {
   try {
-    const [referenceData, project] = await Promise.all([
+    const [referenceData, project, companyLinks, promotedAssets] = await Promise.all([
       getPostgresEntityFormReferenceData(),
       getPostgresPreviewProjectById(projectId),
+      listPostgresProjectCompanyLinks(projectId),
+      listPostgresPromotedOperatingAssets(projectId),
     ]);
 
     if (!project) {
       return { ok: false, error: "not_found" };
     }
 
-    return { ok: true, referenceData, project };
+    return { ok: true, referenceData, project, companyLinks, promotedAssets };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -109,6 +117,10 @@ export default async function EditPostgresProjectPage({
         <PostgresProjectForm
           mode="edit"
           project={data.project}
+          relationshipPreview={{
+            companyLinks: data.companyLinks,
+            promotedAssets: data.promotedAssets,
+          }}
           referenceData={data.referenceData}
         />
       )}

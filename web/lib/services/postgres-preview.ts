@@ -5464,6 +5464,11 @@ export async function getPostgresPreviewProjectById(
         FROM entity_sources es
         WHERE es.project_id = p.project_id
       ) AS source_count,
+      (
+        SELECT COUNT(*)::int
+        FROM company_project_links cpl
+        WHERE cpl.project_id = p.project_id
+      ) AS company_link_count,
       p.created_at,
       p.updated_at
     FROM projects p
@@ -5545,6 +5550,11 @@ export async function getPostgresPreviewOperatingAssetById(
         FROM entity_sources es
         WHERE es.operating_asset_id = a.operating_asset_id
       ) AS source_count,
+      (
+        SELECT COUNT(*)::int
+        FROM company_operating_asset_links coal
+        WHERE coal.operating_asset_id = a.operating_asset_id
+      ) AS company_link_count,
       a.created_at,
       a.updated_at
     FROM operating_assets a
