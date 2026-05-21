@@ -1,9 +1,12 @@
 import {
+  activePreviewQuickView,
   parsePreviewListPage,
   parsePreviewListPageSize,
   parsePreviewTableDensity,
+  PostgresPreviewListContext,
   PostgresPreviewListFilters,
   previewQueryHref,
+  previewFilterOptionLabel,
   previewFilterOptions,
   PostgresPreviewQuickViews,
   ProjectsPreviewTable,
@@ -11,6 +14,7 @@ import {
   PostgresPreviewSetupNotice,
   type PreviewFilterOption,
   type PreviewQuickView,
+  type PreviewActiveFilter,
   type PreviewTableDensity,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
@@ -165,6 +169,91 @@ export default async function PostgresProjectsListPage({
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const data = await getProjectsListData(resolvedSearchParams);
   const exportFilters = getProjectFilters(resolvedSearchParams);
+  const exportHref = previewQueryHref("/api/postgres-preview/projects/export", {
+    search: exportFilters.search,
+    country: exportFilters.country,
+    review: exportFilters.reviewStatus,
+    use: exportFilters.useType,
+    status: exportFilters.status,
+    missing: exportFilters.missing,
+  });
+  const currentQuery = data.ok
+    ? {
+        search: data.filters.search,
+        country: data.filters.country,
+        review: data.filters.reviewStatus,
+        use: data.filters.useType,
+        status: data.filters.status,
+        missing: data.filters.missing,
+      }
+    : {};
+  const reviewOptions = data.ok
+    ? [
+        {
+          value: "draft_or_validation",
+          label: "Draft / Validation",
+        },
+        ...previewFilterOptions(data.facets.reviewStatuses),
+      ]
+    : [];
+  const useOptions = data.ok ? previewFilterOptions(data.facets.useTypes) : [];
+  const statusOptions = data.ok ? previewFilterOptions(data.facets.statuses) : [];
+  const countryOptions = data.ok ? previewFilterOptions(data.facets.countries) : [];
+  const activeFilters: PreviewActiveFilter[] = data.ok
+    ? [
+        data.filters.search
+          ? { label: "Search", value: data.filters.search }
+          : null,
+        data.filters.country
+          ? {
+              label: "Country",
+              value:
+                previewFilterOptionLabel(countryOptions, data.filters.country) ||
+                data.filters.country,
+            }
+          : null,
+        data.filters.reviewStatus
+          ? {
+              label: "Review",
+              value:
+                previewFilterOptionLabel(reviewOptions, data.filters.reviewStatus) ||
+                data.filters.reviewStatus,
+            }
+          : null,
+        data.filters.useType
+          ? {
+              label: "Use Type",
+              value:
+                previewFilterOptionLabel(useOptions, data.filters.useType) ||
+                data.filters.useType,
+            }
+          : null,
+        data.filters.status
+          ? {
+              label: "Lifecycle",
+              value:
+                previewFilterOptionLabel(statusOptions, data.filters.status) ||
+                data.filters.status,
+            }
+          : null,
+        data.filters.missing
+          ? {
+              label: "Missing Data",
+              value:
+                previewFilterOptionLabel(
+                  projectMissingOptions,
+                  data.filters.missing
+                ) || data.filters.missing,
+            }
+          : null,
+      ].filter((filter): filter is PreviewActiveFilter => Boolean(filter))
+    : [];
+  const activeView = data.ok
+    ? activePreviewQuickView({
+        currentQuery,
+        views: projectQuickViews,
+      })
+    : null;
 
   return (
     <main className="space-y-8">
@@ -175,14 +264,7 @@ export default async function PostgresProjectsListPage({
             label: "Back to Preview",
           },
           {
-            href: previewQueryHref("/api/postgres-preview/projects/export", {
-              search: exportFilters.search,
-              country: exportFilters.country,
-              review: exportFilters.reviewStatus,
-              use: exportFilters.useType,
-              status: exportFilters.status,
-              missing: exportFilters.missing,
-            }),
+            href: exportHref,
             label: "Export Filtered CSV",
           },
           {
@@ -202,14 +284,7 @@ export default async function PostgresProjectsListPage({
         <>
           <PostgresPreviewQuickViews
             basePath="/postgres-preview/projects"
-            currentQuery={{
-              search: data.filters.search,
-              country: data.filters.country,
-              review: data.filters.reviewStatus,
-              use: data.filters.useType,
-              status: data.filters.status,
-              missing: data.filters.missing,
-            }}
+            currentQuery={currentQuery}
             density={data.density}
             pageSize={data.pageSize}
             views={projectQuickViews}
@@ -225,34 +300,28 @@ export default async function PostgresProjectsListPage({
                 label: "Country",
                 value: data.filters.country,
                 placeholder: "All Countries",
-                options: previewFilterOptions(data.facets.countries),
+                options: countryOptions,
               },
               {
                 name: "review",
                 label: "Review",
                 value: data.filters.reviewStatus,
                 placeholder: "All Review States",
-                options: [
-                  {
-                    value: "draft_or_validation",
-                    label: "Draft / Validation",
-                  },
-                  ...previewFilterOptions(data.facets.reviewStatuses),
-                ],
+                options: reviewOptions,
               },
               {
                 name: "use",
                 label: "Use Type",
                 value: data.filters.useType,
                 placeholder: "All Use Types",
-                options: previewFilterOptions(data.facets.useTypes),
+                options: useOptions,
               },
               {
                 name: "status",
                 label: "Lifecycle",
                 value: data.filters.status,
                 placeholder: "All Lifecycle States",
-                options: previewFilterOptions(data.facets.statuses),
+                options: statusOptions,
               },
               {
                 name: "missing",
@@ -262,6 +331,16 @@ export default async function PostgresProjectsListPage({
                 options: projectMissingOptions,
               },
             ]}
+          />
+          <PostgresPreviewListContext
+            activeFilters={activeFilters}
+            activeViewLabel={activeView?.label || "Custom Project View"}
+            entityLabel="projects"
+            exportHref={exportHref}
+            page={data.page}
+            pageSize={data.pageSize}
+            shownCount={data.projects.length}
+            total={data.total}
           />
           <ProjectsPreviewTable
             pagination={{

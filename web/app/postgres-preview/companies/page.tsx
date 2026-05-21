@@ -1,14 +1,18 @@
 import {
+  activePreviewQuickView,
   CompaniesPreviewTable,
   parsePreviewListPage,
   parsePreviewListPageSize,
   parsePreviewTableDensity,
+  PostgresPreviewListContext,
   PostgresPreviewListFilters,
   PostgresPreviewListHeader,
   PostgresPreviewSetupNotice,
   PostgresPreviewQuickViews,
   previewQueryHref,
+  previewFilterOptionLabel,
   previewFilterOptions,
+  type PreviewActiveFilter,
   type PreviewFilterOption,
   type PreviewQuickView,
   type PreviewTableDensity,
@@ -166,6 +170,82 @@ export default async function PostgresCompaniesListPage({
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const data = await getCompaniesListData(resolvedSearchParams);
   const exportFilters = getCompanyFilters(resolvedSearchParams);
+  const exportHref = previewQueryHref("/api/postgres-preview/companies/export", {
+    search: exportFilters.search,
+    country: exportFilters.country,
+    review: exportFilters.reviewStatus,
+    companyType: exportFilters.companyType,
+    missing: exportFilters.missing,
+  });
+  const currentQuery = data.ok
+    ? {
+        search: data.filters.search,
+        country: data.filters.country,
+        review: data.filters.reviewStatus,
+        companyType: data.filters.companyType,
+        missing: data.filters.missing,
+      }
+    : {};
+  const reviewOptions = data.ok
+    ? [
+        {
+          value: "draft_or_validation",
+          label: "Draft / Validation",
+        },
+        ...previewFilterOptions(data.facets.reviewStatuses),
+      ]
+    : [];
+  const companyTypeOptions = data.ok
+    ? previewFilterOptions(data.facets.companyTypes)
+    : [];
+  const countryOptions = data.ok ? previewFilterOptions(data.facets.countries) : [];
+  const activeFilters: PreviewActiveFilter[] = data.ok
+    ? [
+        data.filters.search
+          ? { label: "Search", value: data.filters.search }
+          : null,
+        data.filters.country
+          ? {
+              label: "HQ Country",
+              value:
+                previewFilterOptionLabel(countryOptions, data.filters.country) ||
+                data.filters.country,
+            }
+          : null,
+        data.filters.reviewStatus
+          ? {
+              label: "Review",
+              value:
+                previewFilterOptionLabel(reviewOptions, data.filters.reviewStatus) ||
+                data.filters.reviewStatus,
+            }
+          : null,
+        data.filters.companyType
+          ? {
+              label: "Business Identity",
+              value:
+                previewFilterOptionLabel(
+                  companyTypeOptions,
+                  data.filters.companyType
+                ) || data.filters.companyType,
+            }
+          : null,
+        data.filters.missing
+          ? {
+              label: "Missing Data",
+              value:
+                previewFilterOptionLabel(companyMissingOptions, data.filters.missing) ||
+                data.filters.missing,
+            }
+          : null,
+      ].filter((filter): filter is PreviewActiveFilter => Boolean(filter))
+    : [];
+  const activeView = data.ok
+    ? activePreviewQuickView({
+        currentQuery,
+        views: companyQuickViews,
+      })
+    : null;
 
   return (
     <main className="space-y-8">
@@ -176,13 +256,7 @@ export default async function PostgresCompaniesListPage({
             label: "Back to Preview",
           },
           {
-            href: previewQueryHref("/api/postgres-preview/companies/export", {
-              search: exportFilters.search,
-              country: exportFilters.country,
-              review: exportFilters.reviewStatus,
-              companyType: exportFilters.companyType,
-              missing: exportFilters.missing,
-            }),
+            href: exportHref,
             label: "Export Filtered CSV",
           },
           {
@@ -202,13 +276,7 @@ export default async function PostgresCompaniesListPage({
         <>
           <PostgresPreviewQuickViews
             basePath="/postgres-preview/companies"
-            currentQuery={{
-              search: data.filters.search,
-              country: data.filters.country,
-              review: data.filters.reviewStatus,
-              companyType: data.filters.companyType,
-              missing: data.filters.missing,
-            }}
+            currentQuery={currentQuery}
             density={data.density}
             pageSize={data.pageSize}
             views={companyQuickViews}
@@ -224,27 +292,21 @@ export default async function PostgresCompaniesListPage({
                 label: "HQ Country",
                 value: data.filters.country,
                 placeholder: "All Countries",
-                options: previewFilterOptions(data.facets.countries),
+                options: countryOptions,
               },
               {
                 name: "review",
                 label: "Review",
                 value: data.filters.reviewStatus,
                 placeholder: "All Review States",
-                options: [
-                  {
-                    value: "draft_or_validation",
-                    label: "Draft / Validation",
-                  },
-                  ...previewFilterOptions(data.facets.reviewStatuses),
-                ],
+                options: reviewOptions,
               },
               {
                 name: "companyType",
                 label: "Business Identity",
                 value: data.filters.companyType,
                 placeholder: "All Business Identities",
-                options: previewFilterOptions(data.facets.companyTypes),
+                options: companyTypeOptions,
               },
               {
                 name: "missing",
@@ -254,6 +316,16 @@ export default async function PostgresCompaniesListPage({
                 options: companyMissingOptions,
               },
             ]}
+          />
+          <PostgresPreviewListContext
+            activeFilters={activeFilters}
+            activeViewLabel={activeView?.label || "Custom Company View"}
+            entityLabel="companies"
+            exportHref={exportHref}
+            page={data.page}
+            pageSize={data.pageSize}
+            shownCount={data.companies.length}
+            total={data.total}
           />
           <CompaniesPreviewTable
             companies={data.companies}

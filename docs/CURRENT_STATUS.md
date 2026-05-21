@@ -107,6 +107,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   to the same restrained TGE-compatible success, attention, danger, info, and
   neutral palette so older visible pages do not conflict with the new
   PostgreSQL staging surfaces
+- PostgreSQL project, plant/facility, and company list pages now include a
+  view-context strip showing the active operational view, active filters,
+  matched-record count, visible page range, and explicit filtered-export scope
 - field suggestion candidate schema, review surfaces, and controlled apply
   workflow have been added for AI-assisted data filling; suggestions remain
   human-reviewed candidates and only whitelisted empty project/plant fields can
