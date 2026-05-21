@@ -442,6 +442,8 @@ function FormWorkflowRail({
   sections,
   backHref,
   saving,
+  error,
+  message,
 }: {
   entityLabel: string;
   issues: FormReadinessIssue[];
@@ -449,6 +451,8 @@ function FormWorkflowRail({
   sections: string[];
   backHref: string;
   saving: boolean;
+  error?: string;
+  message?: string;
 }) {
   const criticalCount = issues.filter(
     (issue) => issue.severity === "critical"
@@ -528,6 +532,17 @@ function FormWorkflowRail({
               Cancel
             </Link>
           </div>
+          {error || message ? (
+            <div
+              className={`mt-3 border px-3 py-2 text-xs leading-5 ${
+                error
+                  ? "border-red-200 bg-red-50 text-red-800"
+                  : "border-green-200 bg-green-50 text-green-800"
+              }`}
+            >
+              {error || message}
+            </div>
+          ) : null}
         </div>
 
         <nav className="space-y-1">
@@ -2085,7 +2100,9 @@ export function PostgresProjectForm({
             backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
             entityLabel="Project"
+            error={error}
             issues={readinessIssues}
+            message={message}
             saving={saving}
             sections={formSections}
           />
@@ -2452,7 +2469,9 @@ export function PostgresOperatingAssetForm({
             backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
             entityLabel="Plant / facility"
+            error={error}
             issues={readinessIssues}
+            message={message}
             saving={saving}
             sections={formSections}
           />
@@ -2834,7 +2853,9 @@ export function PostgresCompanyForm({
             backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
             entityLabel="Company"
+            error={error}
             issues={readinessIssues}
+            message={message}
             saving={saving}
             sections={formSections}
           />
