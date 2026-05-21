@@ -6,6 +6,7 @@ import type {
   PostgresPreviewProject,
 } from "@/lib/postgres-preview";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 
 type HeaderAction = {
   href: string;
@@ -640,61 +641,69 @@ export function PostgresPreviewListContext({
   const end = total === 0 ? 0 : Math.min(start + shownCount - 1, total);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Current View
+    <>
+      <section className="border border-gray-200 bg-white">
+        <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Current View
+            </div>
+            <div className="mt-1 text-lg font-bold text-[#1f2937]">
+              {activeViewLabel}
+            </div>
+            <div className="mt-1 text-xs leading-5 text-gray-500">
+              {activeFilterSummaryLabel(activeFilters)}
+            </div>
           </div>
-          <div className="mt-1 text-lg font-bold text-[#1f2937]">
-            {activeViewLabel}
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Results
+            </div>
+            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+              {total === 0
+                ? `No matching ${entityLabel}`
+                : `Showing ${formatCount(start)}-${formatCount(
+                    end
+                  )} of ${formatCount(total)} matching ${entityLabel}`}
+            </div>
+            <div className="mt-1 text-xs leading-5 text-gray-500">
+              Page {formatCount(page)} · {formatCount(pageSize)} rows per page
+            </div>
           </div>
-          <div className="mt-1 text-xs leading-5 text-gray-500">
-            {activeFilterSummaryLabel(activeFilters)}
-          </div>
-        </div>
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Results
-          </div>
-          <div className="mt-1 text-sm font-semibold text-[#1f2937]">
-            {total === 0
-              ? `No matching ${entityLabel}`
-              : `Showing ${formatCount(start)}-${formatCount(end)} of ${formatCount(
-                  total
-                )} matching ${entityLabel}`}
-          </div>
-          <div className="mt-1 text-xs leading-5 text-gray-500">
-            Page {formatCount(page)} · {formatCount(pageSize)} rows per page
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 lg:items-end">
-          <Link
-            className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-            href={exportHref}
-          >
-            Export Current Filters
-          </Link>
-          <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
-            Export includes the current search and filter state, not just this
-            page of rows.
-          </div>
-        </div>
-      </div>
-      {activeFilters.length > 0 ? (
-        <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
-          {activeFilters.map((filter) => (
-            <span
-              key={`${filter.label}-${filter.value}`}
-              className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
+          <div className="flex flex-col gap-2 lg:items-end">
+            <Link
+              className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+              href={exportHref}
             >
-              <span className="text-gray-500">{filter.label}:</span>
-              <span className="ml-1">{filter.value}</span>
-            </span>
-          ))}
+              Export Current Filters
+            </Link>
+            <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
+              Export includes the current search and filter state, not just this
+              page of rows.
+            </div>
+          </div>
         </div>
-      ) : null}
-    </section>
+        {activeFilters.length > 0 ? (
+          <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
+            {activeFilters.map((filter) => (
+              <span
+                key={`${filter.label}-${filter.value}`}
+                className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
+              >
+                <span className="text-gray-500">{filter.label}:</span>
+                <span className="ml-1">{filter.value}</span>
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </section>
+      <PostgresStatusLegend
+        compact
+        description="Entity lists use the same status language as Research Ops: review badges describe validation state, phase badges describe development or operating progression, and issue badges describe what needs attention."
+        groups={["review", "lifecycle", "severity"]}
+        title={`${entityLabel} Status Meaning`}
+      />
+    </>
   );
 }
 

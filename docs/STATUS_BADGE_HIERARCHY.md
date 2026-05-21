@@ -69,3 +69,18 @@ what is approved, what needs attention, what blocks work, and where a record is
 in its development or review progression. Colors should stay restrained and
 compatible with the TGE green accent rather than turning the interface into a
 traffic-light dashboard.
+
+## Current UI Support
+
+The shared PostgreSQL badge legend is implemented in
+`web/components/postgres-preview/PostgresStatusLegend.tsx`.
+
+Current placement:
+
+- full Research Ops legend on `/postgres-preview/research-ops`
+- compact entity-list legend on PostgreSQL Projects, Plants / Facilities, and
+  Companies list context strips
+- compact source-governance legend on `/sources`
+
+The legend is intentionally informational only. It does not change validation,
+approval, export, or source-governance logic.

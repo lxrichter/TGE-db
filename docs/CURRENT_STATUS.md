@@ -100,6 +100,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   generic workflow states so badge colors carry consistent operational meaning
   across list, detail, source, governance, Research Ops, and record-workbench
   surfaces
+- PostgreSQL Research Ops, source lists, and project/plant/company list context
+  surfaces now include a reusable badge meaning legend so researchers can read
+  review state, development phase, issue severity, source credibility,
+  visibility, and AI/match confidence consistently
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

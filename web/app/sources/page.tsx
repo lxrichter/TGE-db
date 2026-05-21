@@ -19,6 +19,7 @@ import { formatCount } from "@/lib/format";
 import PostgresStatusBadge, {
   type PostgresStatusTone,
 } from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 
 export const dynamic = "force-dynamic";
 
@@ -362,55 +363,63 @@ function SourcesListContext({
   activeFilters: Array<{ label: string; value: string }>;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Current View
+    <>
+      <section className="border border-gray-200 bg-white">
+        <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Current View
+            </div>
+            <div className="mt-1 text-lg font-bold text-[#1f2937]">
+              {sourceViewLabel(activeFilters)}
+            </div>
+            <div className="mt-1 text-xs leading-5 text-gray-500">
+              {activeFilters.length === 0
+                ? "No active filters"
+                : `${formatCount(activeFilters.length)} active filter${
+                    activeFilters.length === 1 ? "" : "s"
+                  }`}
+            </div>
           </div>
-          <div className="mt-1 text-lg font-bold text-[#1f2937]">
-            {sourceViewLabel(activeFilters)}
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Results
+            </div>
+            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+              Showing {formatCount(shownCount)} of {formatCount(total)} matching
+              source records
+            </div>
+            <div className="mt-1 text-xs leading-5 text-gray-500">
+              Source table currently shows the first {formatCount(shownCount)} records.
+            </div>
           </div>
-          <div className="mt-1 text-xs leading-5 text-gray-500">
-            {activeFilters.length === 0
-              ? "No active filters"
-              : `${formatCount(activeFilters.length)} active filter${
-                  activeFilters.length === 1 ? "" : "s"
-                }`}
+          <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
+            Source export is not enabled yet. For now, exports remain available on
+            project, plant/facility, company, Research Ops, and candidate-review
+            workflows where explicit export routes exist.
           </div>
         </div>
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Results
+        {activeFilters.length > 0 ? (
+          <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
+            {activeFilters.map((filter) => (
+              <span
+                key={`${filter.label}-${filter.value}`}
+                className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
+              >
+                <span className="text-gray-500">{filter.label}:</span>
+                <span className="ml-1">{filter.value}</span>
+              </span>
+            ))}
           </div>
-          <div className="mt-1 text-sm font-semibold text-[#1f2937]">
-            Showing {formatCount(shownCount)} of {formatCount(total)} matching
-            source records
-          </div>
-          <div className="mt-1 text-xs leading-5 text-gray-500">
-            Source table currently shows the first {formatCount(shownCount)} records.
-          </div>
-        </div>
-        <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
-          Source export is not enabled yet. For now, exports remain available on
-          project, plant/facility, company, Research Ops, and candidate-review
-          workflows where explicit export routes exist.
-        </div>
-      </div>
-      {activeFilters.length > 0 ? (
-        <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
-          {activeFilters.map((filter) => (
-            <span
-              key={`${filter.label}-${filter.value}`}
-              className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
-            >
-              <span className="text-gray-500">{filter.label}:</span>
-              <span className="ml-1">{filter.value}</span>
-            </span>
-          ))}
-        </div>
-      ) : null}
-    </section>
+        ) : null}
+      </section>
+      <PostgresStatusLegend
+        compact
+        description="Sources use badges to separate source credibility, visibility restrictions, match confidence, and human review status."
+        groups={["source", "visibility", "confidence", "review"]}
+        title="Source Status Meaning"
+      />
+    </>
   );
 }
 

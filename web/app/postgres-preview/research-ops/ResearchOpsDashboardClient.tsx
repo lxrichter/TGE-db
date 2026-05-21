@@ -11,6 +11,7 @@ import PostgresReviewStatusActions, {
 import PostgresStatusBadge, {
   type PostgresStatusDomain,
 } from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 import {
   type PostgresResearchOpsDashboard,
   type PostgresFieldSuggestionCandidate,
@@ -4281,6 +4282,12 @@ export function ResearchOpsDashboardClient({
         backup for controlled review; the current live SQLite database remains
         on the server. Generated {formatDate(dashboard.generatedAt)}.
       </section>
+
+      <PostgresStatusLegend
+        description="Research Ops uses badge colors to separate data quality severity, human review state, project/asset phase, source credibility, and AI candidate confidence."
+        groups={["severity", "review", "lifecycle", "source", "confidence"]}
+        title="Research Ops Badge Meaning"
+      />
 
       <SelectedRecordPanel
         record={selectedRecord}
