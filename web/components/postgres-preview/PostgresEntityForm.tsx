@@ -420,6 +420,22 @@ function sectionAnchorId(title: string) {
     .replace(/^-|-$/g, "")}`;
 }
 
+function newSourceHref(
+  entityType?: "project" | "operating_asset" | "company",
+  entityId?: string
+) {
+  if (!entityType || !entityId) {
+    return "/sources/new";
+  }
+
+  const params = new URLSearchParams({
+    entityType,
+    entityId,
+  });
+
+  return `/sources/new?${params.toString()}`;
+}
+
 function FormBodyLayout({
   children,
   rail,
@@ -1358,6 +1374,7 @@ function ProjectWorkflowBridge({
     ? `/postgres-preview/projects/${project.project_id}`
     : null;
   const evidenceHref = projectHref ? `${projectHref}#project-source-evidence` : null;
+  const sourceCreateHref = newSourceHref("project", project?.project_id);
   const relationshipsHref = projectHref
     ? `${projectHref}#project-company-links`
     : null;
@@ -1428,7 +1445,7 @@ function ProjectWorkflowBridge({
             )}
             <Link
               className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href="/sources/new"
+              href={sourceCreateHref}
             >
               New Source
             </Link>
@@ -1592,6 +1609,10 @@ function AssetWorkflowBridge({
     ? `/postgres-preview/operating-assets/${asset.operating_asset_id}`
     : null;
   const evidenceHref = assetHref ? `${assetHref}#asset-source-evidence` : null;
+  const sourceCreateHref = newSourceHref(
+    "operating_asset",
+    asset?.operating_asset_id
+  );
   const relationshipsHref = assetHref ? `${assetHref}#asset-company-links` : null;
   const linkedProjectHref = assetHref ? `${assetHref}#asset-workflow-actions` : null;
   const sourcePreview = asset?.sources?.slice(0, 2) || [];
@@ -1658,7 +1679,7 @@ function AssetWorkflowBridge({
             )}
             <Link
               className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href="/sources/new"
+              href={sourceCreateHref}
             >
               New Source
             </Link>
@@ -1810,6 +1831,7 @@ function CompanyWorkflowBridge({
     ? `/postgres-preview/companies/${company.company_id}`
     : null;
   const evidenceHref = companyHref ? `${companyHref}#company-source-evidence` : null;
+  const sourceCreateHref = newSourceHref("company", company?.company_id);
   const relationshipsHref = companyHref ? `${companyHref}#company-relationships` : null;
   const sourcePreview = company?.sources?.slice(0, 2) || [];
   const sourceCount = company?.source_count || 0;
@@ -1897,7 +1919,7 @@ function CompanyWorkflowBridge({
             )}
             <Link
               className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href="/sources/new"
+              href={sourceCreateHref}
             >
               New Source
             </Link>

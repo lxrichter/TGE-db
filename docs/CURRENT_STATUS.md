@@ -288,6 +288,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   management, linked asset/origin workflows, and Research Ops follow-up
 - Create-mode workflow shortcuts are explicitly marked as after-save actions,
   reducing ambiguity before a new record has an ID and detail workspace
+- New Source shortcuts from saved project, plant/facility, and company forms now
+  pass the entity type and ID into source creation so the source can be linked
+  back to the current record after save
 - PostgreSQL project, plant/facility, and company forms now include a compact
   workflow summary rail with readiness counts, edited-field counts, and section
   jump links to reduce long-form scanning friction before the later design pass
