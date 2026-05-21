@@ -397,11 +397,121 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      className="scroll-mt-6 border border-gray-200 bg-white"
+      id={sectionAnchorId(title)}
+    >
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       </div>
       <div className="px-5 py-5">{children}</div>
+    </section>
+  );
+}
+
+function sectionAnchorId(title: string) {
+  return `form-section-${title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}`;
+}
+
+function FormBodyLayout({
+  children,
+  rail,
+}: {
+  children: React.ReactNode;
+  rail: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+      <div className="space-y-6">{children}</div>
+      <aside className="order-first xl:sticky xl:top-4 xl:order-last">{rail}</aside>
+    </div>
+  );
+}
+
+function FormWorkflowRail({
+  entityLabel,
+  issues,
+  changeState,
+  sections,
+}: {
+  entityLabel: string;
+  issues: FormReadinessIssue[];
+  changeState?: FormChangeState;
+  sections: string[];
+}) {
+  const criticalCount = issues.filter(
+    (issue) => issue.severity === "critical"
+  ).length;
+  const importantCount = issues.filter(
+    (issue) => issue.severity === "important"
+  ).length;
+  const workflowCount = issues.filter(
+    (issue) => issue.severity === "workflow"
+  ).length;
+  const changedCount = changeState?.changedFieldNames.length || 0;
+  const approvalChangedCount =
+    changeState?.approvalSensitiveChangedFieldNames.length || 0;
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-4 py-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          Workflow Summary
+        </p>
+        <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+          {entityLabel} edit guide
+        </h2>
+        <p className="mt-2 text-xs leading-5 text-gray-600">
+          Save drafts freely. Resolve critical blockers before review,
+          approval, export-ready use, or promotion workflows.
+        </p>
+      </div>
+      <div className="space-y-4 px-4 py-4">
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="border border-red-100 bg-red-50 px-3 py-2">
+            <div className="text-lg font-bold text-red-800">{criticalCount}</div>
+            <div className="font-semibold text-red-800">Critical</div>
+          </div>
+          <div className="border border-amber-100 bg-amber-50 px-3 py-2">
+            <div className="text-lg font-bold text-amber-800">{importantCount}</div>
+            <div className="font-semibold text-amber-800">Important</div>
+          </div>
+          <div className="border border-blue-100 bg-blue-50 px-3 py-2">
+            <div className="text-lg font-bold text-blue-800">{workflowCount}</div>
+            <div className="font-semibold text-blue-800">Workflow</div>
+          </div>
+          <div className="border border-gray-200 bg-[#fafafa] px-3 py-2">
+            <div className="text-lg font-bold text-[#1f2937]">{changedCount}</div>
+            <div className="font-semibold text-gray-700">Edited</div>
+          </div>
+        </div>
+
+        {approvalChangedCount > 0 ? (
+          <div className="border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
+            {approvalChangedCount} approval-sensitive field
+            {approvalChangedCount === 1 ? "" : "s"} edited. Approved records
+            should be re-reviewed before export-ready use.
+          </div>
+        ) : null}
+
+        <nav className="space-y-1">
+          <div className="text-xs font-bold uppercase tracking-wide text-gray-500">
+            Sections
+          </div>
+          {sections.map((section) => (
+            <a
+              className="block border border-transparent px-2 py-1.5 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+              href={`#${sectionAnchorId(section)}`}
+              key={section}
+            >
+              {section}
+            </a>
+          ))}
+        </nav>
+      </div>
     </section>
   );
 }
@@ -1919,10 +2029,33 @@ export function PostgresProjectForm({
     }
   }
 
+  const readinessIssues = getProjectReadinessIssues(form, {
+    sourceCount: project?.source_count,
+    companyLinkCount: project?.company_link_count,
+  });
+  const formSections = [
+    "Evidence And Relationship Workflow",
+    "Identity And Location",
+    "Workflow And Classification",
+    "Capacity And Output",
+    "Resource, Timeline, And Technology",
+    "Notes",
+  ];
+
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <FormNotice error={error} errorIssues={errorIssues} message={message} />
 
+      <FormBodyLayout
+        rail={
+          <FormWorkflowRail
+            changeState={mode === "edit" ? changeState : undefined}
+            entityLabel="Project"
+            issues={readinessIssues}
+            sections={formSections}
+          />
+        }
+      >
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
@@ -1932,10 +2065,7 @@ export function PostgresProjectForm({
             ? { entityType: "project", entityId: project.project_id }
             : undefined
         }
-        issues={getProjectReadinessIssues(form, {
-          sourceCount: project?.source_count,
-          companyLinkCount: project?.company_link_count,
-        })}
+        issues={readinessIssues}
       />
 
       <ProjectWorkflowBridge
@@ -2185,6 +2315,7 @@ export function PostgresProjectForm({
       </Section>
 
       <FormActions backHref={backHref} saving={saving} />
+      </FormBodyLayout>
     </form>
   );
 }
@@ -2263,10 +2394,33 @@ export function PostgresOperatingAssetForm({
     }
   }
 
+  const readinessIssues = getAssetReadinessIssues(form, {
+    sourceCount: asset?.source_count,
+    companyLinkCount: asset?.company_link_count,
+  });
+  const formSections = [
+    "Evidence And Relationship Workflow",
+    "Identity And Location",
+    "Workflow And Classification",
+    "Capacity And Output",
+    "Resource, Operation, And Technology",
+    "Notes",
+  ];
+
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <FormNotice error={error} errorIssues={errorIssues} message={message} />
 
+      <FormBodyLayout
+        rail={
+          <FormWorkflowRail
+            changeState={mode === "edit" ? changeState : undefined}
+            entityLabel="Plant / facility"
+            issues={readinessIssues}
+            sections={formSections}
+          />
+        }
+      >
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
@@ -2279,10 +2433,7 @@ export function PostgresOperatingAssetForm({
               }
             : undefined
         }
-        issues={getAssetReadinessIssues(form, {
-          sourceCount: asset?.source_count,
-          companyLinkCount: asset?.company_link_count,
-        })}
+        issues={readinessIssues}
       />
 
       <AssetWorkflowBridge
@@ -2547,6 +2698,7 @@ export function PostgresOperatingAssetForm({
       </Section>
 
       <FormActions backHref={backHref} saving={saving} />
+      </FormBodyLayout>
     </form>
   );
 }
@@ -2621,10 +2773,34 @@ export function PostgresCompanyForm({
     }
   }
 
+  const readinessIssues = getCompanyReadinessIssues(form, {
+    sourceCount: company?.source_count,
+    activityLinkCount:
+      (company?.project_link_count || 0) +
+      (company?.operating_asset_link_count || 0),
+  });
+  const formSections = [
+    "Evidence, Roles, And Company Structure Workflow",
+    "Identity And Classification",
+    "Location And Links",
+    "Geothermal Focus",
+    "Notes",
+  ];
+
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       <FormNotice error={error} errorIssues={errorIssues} message={message} />
 
+      <FormBodyLayout
+        rail={
+          <FormWorkflowRail
+            changeState={mode === "edit" ? changeState : undefined}
+            entityLabel="Company"
+            issues={readinessIssues}
+            sections={formSections}
+          />
+        }
+      >
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
@@ -2634,12 +2810,7 @@ export function PostgresCompanyForm({
             ? { entityType: "company", entityId: company.company_id }
             : undefined
         }
-        issues={getCompanyReadinessIssues(form, {
-          sourceCount: company?.source_count,
-          activityLinkCount:
-            (company?.project_link_count || 0) +
-            (company?.operating_asset_link_count || 0),
-        })}
+        issues={readinessIssues}
       />
 
       <CompanyWorkflowBridge
@@ -2823,6 +2994,7 @@ export function PostgresCompanyForm({
       </Section>
 
       <FormActions backHref={backHref} saving={saving} />
+      </FormBodyLayout>
     </form>
   );
 }

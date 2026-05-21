@@ -281,6 +281,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Project and plant/facility edit forms now receive saved relationship rows for
   company-role and promotion/originating-project previews, bringing the same
   inline relationship awareness to all three core entity forms
+- PostgreSQL project, plant/facility, and company forms now include a compact
+  workflow summary rail with readiness counts, edited-field counts, and section
+  jump links to reduce long-form scanning friction before the later design pass
 - Detail-page review buttons and Research Ops bulk status actions now surface
   the same approval/export-readiness blockers, keeping approval failures
   understandable outside the edit forms
