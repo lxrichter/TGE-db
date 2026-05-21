@@ -92,6 +92,32 @@ The `entity_sources` table now supports richer evidence-link metadata:
 Field-level claims are not yet fully implemented in the UI. The database
 structure now leaves room for that without forcing the MVP to become too heavy.
 
+## Relationship-Level Evidence
+
+The `relationship_sources` table now provides a separate foundation for
+source links on structured relationship rows:
+
+- `company_project_links`
+- `company_operating_asset_links`
+- `company_relationships`
+
+This is intentionally separate from `entity_sources`.
+
+Use `entity_sources` when a source supports the project, operating asset, or
+company record as a whole.
+
+Use `relationship_sources` when a source supports a specific relationship claim,
+for example:
+
+- Company X is developer of Project Y.
+- Company X is operator of Plant Y.
+- Company X owns 40% of Company Y.
+- Company X is part of a JV or consortium.
+
+The current UI has not yet fully wired relationship-source creation and review.
+The staging table prevents the evidence model from getting stuck at record-level
+links only.
+
 ## Application Layer
 
 Current source service:

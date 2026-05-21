@@ -265,6 +265,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   follow-up; missing relationship-evidence signals are labelled as evidence
   pending because individual relationship rows do not yet have their own source
   links
+- PostgreSQL now includes a migration-ready `relationship_sources` staging
+  table for source links on specific company-project roles,
+  company-plant/facility roles, and company-company relationships, keeping
+  row-level relationship evidence separate from record-level `entity_sources`
 - PostgreSQL edit forms now let researchers create persistent Research Ops
   issues directly from form readiness warnings and edited approval-sensitive
   fields, turning validation gaps into assigned operational follow-up items

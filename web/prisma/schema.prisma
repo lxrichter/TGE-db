@@ -19,6 +19,7 @@ model app_users {
   created_at                                                                                  DateTime                    @default(now()) @db.Timestamptz(6)
   updated_at                                                                                  DateTime                    @default(now()) @db.Timestamptz(6)
   audit_events                                                                                audit_events[]
+  relationship_sources                                                                        relationship_sources[]
   companies_companies_approved_by_user_idToapp_users                                          companies[]                 @relation("companies_approved_by_user_idToapp_users")
   companies_companies_created_by_user_idToapp_users                                           companies[]                 @relation("companies_created_by_user_idToapp_users")
   companies_companies_last_updated_by_user_idToapp_users                                      companies[]                 @relation("companies_last_updated_by_user_idToapp_users")
@@ -259,6 +260,7 @@ model company_operating_asset_links {
   companies                       companies         @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
   operating_assets                operating_assets  @relation(fields: [operating_asset_id], references: [operating_asset_id], onDelete: Cascade, onUpdate: NoAction)
   ref_company_roles               ref_company_roles @relation(fields: [role_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  relationship_sources            relationship_sources[]
 
   @@unique([company_id, operating_asset_id, role_code])
   @@index([operating_asset_id], map: "idx_company_asset_links_asset")
@@ -282,6 +284,7 @@ model company_project_links {
   companies                      companies         @relation(fields: [company_id], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
   projects                       projects          @relation(fields: [project_id], references: [project_id], onDelete: Cascade, onUpdate: NoAction)
   ref_company_roles              ref_company_roles @relation(fields: [role_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  relationship_sources           relationship_sources[]
 
   @@unique([company_id, project_id, role_code])
   @@index([company_id], map: "idx_company_project_links_company")
@@ -304,6 +307,7 @@ model company_relationships {
   companies_company_relationships_company_id_fromTocompanies companies                      @relation("company_relationships_company_id_fromTocompanies", fields: [company_id_from], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
   companies_company_relationships_company_id_toTocompanies   companies                      @relation("company_relationships_company_id_toTocompanies", fields: [company_id_to], references: [company_id], onDelete: Cascade, onUpdate: NoAction)
   ref_company_relationship_types                             ref_company_relationship_types @relation(fields: [relationship_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  relationship_sources                                       relationship_sources[]
 
   @@index([company_id_from], map: "idx_company_relationships_from")
   @@index([company_id_to], map: "idx_company_relationships_to")
@@ -367,6 +371,41 @@ model entity_sources {
   @@index([source_id], map: "idx_entity_sources_source")
   @@index([confidence_status_code], map: "idx_entity_sources_confidence")
   @@index([linked_field], map: "idx_entity_sources_linked_field")
+}
+
+/// Per-relationship evidence links for company roles and company-to-company relationships.
+/// This complements record-level entity_sources without replacing it.
+/// It lets a source support a specific project role, operating-asset role, or ownership/group relationship.
+model relationship_sources {
+  relationship_source_id           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  source_id                        String                         @db.Uuid
+  company_project_link_id          String?                        @db.Uuid
+  company_operating_asset_link_id  String?                        @db.Uuid
+  company_relationship_id          String?                        @db.Uuid
+  evidence_type                    String?
+  linked_field                     String?
+  claim_text                       String?
+  extracted_value                  String?
+  evidence_note                    String?
+  confidence_status_code           String                         @default("unknown")
+  is_primary_evidence              Boolean                        @default(false)
+  reviewed_by_user_id              String?                        @db.Uuid
+  reviewed_at                      DateTime?                      @db.Timestamptz(6)
+  created_at                       DateTime                       @default(now()) @db.Timestamptz(6)
+  updated_at                       DateTime                       @default(now()) @db.Timestamptz(6)
+  app_users                        app_users?                     @relation(fields: [reviewed_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  company_operating_asset_links    company_operating_asset_links? @relation(fields: [company_operating_asset_link_id], references: [company_operating_asset_link_id], onDelete: Cascade, onUpdate: NoAction)
+  company_project_links            company_project_links?         @relation(fields: [company_project_link_id], references: [company_project_link_id], onDelete: Cascade, onUpdate: NoAction)
+  company_relationships            company_relationships?         @relation(fields: [company_relationship_id], references: [company_relationship_id], onDelete: Cascade, onUpdate: NoAction)
+  ref_estimate_statuses            ref_estimate_statuses          @relation(fields: [confidence_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  sources                          sources                        @relation(fields: [source_id], references: [source_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([company_project_link_id], map: "idx_relationship_sources_project_link")
+  @@index([company_operating_asset_link_id], map: "idx_relationship_sources_asset_link")
+  @@index([company_relationship_id], map: "idx_relationship_sources_company_relationship")
+  @@index([source_id], map: "idx_relationship_sources_source")
+  @@index([confidence_status_code], map: "idx_relationship_sources_confidence")
+  @@index([linked_field], map: "idx_relationship_sources_linked_field")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -618,6 +657,7 @@ model ref_estimate_statuses {
   sort_order                                                                             Int                @default(0)
   is_active                                                                              Boolean            @default(true)
   entity_sources                                                                         entity_sources[]
+  relationship_sources                                                                   relationship_sources[]
   operating_assets_operating_assets_capacity_estimate_status_codeToref_estimate_statuses operating_assets[] @relation("operating_assets_capacity_estimate_status_codeToref_estimate_statuses")
   operating_assets_operating_assets_output_estimate_status_codeToref_estimate_statuses   operating_assets[] @relation("operating_assets_output_estimate_status_codeToref_estimate_statuses")
   projects_projects_capacity_estimate_status_codeToref_estimate_statuses                 projects[]         @relation("projects_capacity_estimate_status_codeToref_estimate_statuses")
@@ -757,6 +797,7 @@ model sources {
   metadata_json                                    Json                         @default("{}")
   last_synced_at                                   DateTime?                    @db.Timestamptz(6)
   entity_sources                                   entity_sources[]
+  relationship_sources                             relationship_sources[]
   research_ops_issues                              research_ops_issues[]
   app_users_sources_added_by_user_idToapp_users    app_users?                   @relation("sources_added_by_user_idToapp_users", fields: [added_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   ref_source_statuses                              ref_source_statuses          @relation(fields: [credibility_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)

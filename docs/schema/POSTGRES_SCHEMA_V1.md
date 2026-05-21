@@ -200,9 +200,23 @@ The MVP schema includes:
 
 - `sources`
 - `entity_sources`
+- `relationship_sources`
 - `source_evidence_note` fields on core entities
 
 This gives the platform basic evidence handling now, without requiring the full article/PDF source registry before MVP.
+
+`entity_sources` remains the record-level evidence table for projects,
+operating assets, and companies.
+
+`relationship_sources` is the staging foundation for row-level evidence on:
+
+- `company_project_links`
+- `company_operating_asset_links`
+- `company_relationships`
+
+This lets a source support a specific developer/operator/owner/supplier role or
+a specific ownership/group relationship without implying that the source
+supports the whole project, plant/facility, or company record.
 
 ## Open Implementation Questions
 
