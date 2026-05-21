@@ -103,6 +103,10 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals
+- legacy shared UI status badges and research-status badges have been aligned
+  to the same restrained TGE-compatible success, attention, danger, info, and
+  neutral palette so older visible pages do not conflict with the new
+  PostgreSQL staging surfaces
 - field suggestion candidate schema, review surfaces, and controlled apply
   workflow have been added for AI-assisted data filling; suggestions remain
   human-reviewed candidates and only whitelisted empty project/plant fields can

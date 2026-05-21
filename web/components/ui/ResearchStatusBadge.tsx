@@ -1,4 +1,4 @@
-import React from "react";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 export default function ResearchStatusBadge({
   value,
@@ -8,34 +8,25 @@ export default function ResearchStatusBadge({
   const raw = (value || "").trim();
   const normalized = raw.toLowerCase();
 
-  let classes =
-    "inline-flex min-h-[28px] items-center justify-center whitespace-nowrap px-3 py-1 text-[11px] font-semibold border border-transparent leading-none";
-
   if (!normalized || normalized === "na" || normalized === "n/a") {
-    classes += " border-slate-300 bg-slate-200 text-slate-700";
-    return <span className={classes}>NA</span>;
+    return <StatusBadge tone="neutralSoft">NA</StatusBadge>;
   }
 
   if (normalized.includes("done")) {
-    classes += " border-green-600 bg-green-600 text-white";
-    return <span className={classes}>Done</span>;
+    return <StatusBadge tone="success">Done</StatusBadge>;
   }
 
   if (normalized.includes("progress")) {
-    classes += " border-blue-500 bg-blue-500 text-white";
-    return <span className={classes}>In Progress</span>;
+    return <StatusBadge tone="info">In Progress</StatusBadge>;
   }
 
   if (normalized.includes("need")) {
-    classes += " border-rose-500 bg-rose-500 text-white";
-    return <span className={classes}>Need Info</span>;
+    return <StatusBadge tone="danger">Need Info</StatusBadge>;
   }
 
   if (normalized.includes("tbd")) {
-    classes += " border-slate-300 bg-slate-200 text-slate-700";
-    return <span className={classes}>tbd</span>;
+    return <StatusBadge tone="neutralSoft">tbd</StatusBadge>;
   }
 
-  classes += " border-slate-300 bg-slate-200 text-slate-700";
-  return <span className={classes}>{raw}</span>;
+  return <StatusBadge tone="neutralSoft">{raw}</StatusBadge>;
 }

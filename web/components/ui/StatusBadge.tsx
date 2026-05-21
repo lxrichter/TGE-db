@@ -11,16 +11,15 @@ export type StatusBadgeTone =
   | "neutralSoft";
 
 const toneClasses: Record<StatusBadgeTone, string> = {
-  neutral: "border-slate-300 bg-slate-200 text-slate-700",
-  success: "border-green-600 bg-green-600 text-white",
-  info: "border-blue-500 bg-blue-500 text-white",
-  warning: "border-amber-500 bg-amber-500 text-white",
-  danger: "border-rose-500 bg-rose-500 text-white",
+  neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+  success: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+  info: "border-blue-200 bg-blue-50 text-blue-800",
+  warning: "border-amber-200 bg-amber-50 text-amber-800",
+  danger: "border-red-200 bg-red-50 text-red-700",
 
-  // softer workflow badges, but a bit darker / clearer than before
-  successSoft: "border-green-300 bg-green-100 text-green-800",
-  warningSoft: "border-rose-300 bg-rose-100 text-rose-800",
-  neutralSoft: "border-slate-200 bg-slate-100 text-slate-600",
+  successSoft: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+  warningSoft: "border-amber-200 bg-amber-50 text-amber-800",
+  neutralSoft: "border-gray-200 bg-[#f7f7f7] text-gray-700",
 };
 
 type StatusBadgeProps = {
