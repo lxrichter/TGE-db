@@ -284,6 +284,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company forms now include a compact
   workflow summary rail with readiness counts, edited-field counts, and section
   jump links to reduce long-form scanning friction before the later design pass
+- The entity form workflow rail now includes sticky save/cancel actions, so
+  long project, plant/facility, and company edit forms can be saved without
+  scrolling back to the bottom
 - Core PostgreSQL entity form sections are now collapsible but open by default,
   giving researchers a lighter long-form workspace without hiding fields during
   normal data entry

@@ -440,11 +440,15 @@ function FormWorkflowRail({
   issues,
   changeState,
   sections,
+  backHref,
+  saving,
 }: {
   entityLabel: string;
   issues: FormReadinessIssue[];
   changeState?: FormChangeState;
   sections: string[];
+  backHref: string;
+  saving: boolean;
 }) {
   const criticalCount = issues.filter(
     (issue) => issue.severity === "critical"
@@ -500,6 +504,31 @@ function FormWorkflowRail({
             should be re-reviewed before export-ready use.
           </div>
         ) : null}
+
+        <div className="border-t border-gray-200 pt-4">
+          <div className="text-xs font-bold uppercase tracking-wide text-gray-500">
+            Actions
+          </div>
+          <p className="mt-1 text-xs leading-5 text-gray-600">
+            Same save action as the bottom form button; review and approval stay
+            separate.
+          </p>
+          <div className="mt-3 grid gap-2">
+            <button
+              className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={saving}
+              type="submit"
+            >
+              {saving ? "Saving..." : "Save Draft / Staging Record"}
+            </button>
+            <Link
+              className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href={backHref}
+            >
+              Cancel
+            </Link>
+          </div>
+        </div>
 
         <nav className="space-y-1">
           <div className="text-xs font-bold uppercase tracking-wide text-gray-500">
@@ -2053,9 +2082,11 @@ export function PostgresProjectForm({
       <FormBodyLayout
         rail={
           <FormWorkflowRail
+            backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
             entityLabel="Project"
             issues={readinessIssues}
+            saving={saving}
             sections={formSections}
           />
         }
@@ -2418,9 +2449,11 @@ export function PostgresOperatingAssetForm({
       <FormBodyLayout
         rail={
           <FormWorkflowRail
+            backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
             entityLabel="Plant / facility"
             issues={readinessIssues}
+            saving={saving}
             sections={formSections}
           />
         }
@@ -2798,9 +2831,11 @@ export function PostgresCompanyForm({
       <FormBodyLayout
         rail={
           <FormWorkflowRail
+            backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
             entityLabel="Company"
             issues={readinessIssues}
+            saving={saving}
             sections={formSections}
           />
         }
