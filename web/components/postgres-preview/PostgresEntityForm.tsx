@@ -1005,8 +1005,9 @@ function getCompanyReadinessIssues(
   if (isUnknownCode(form, "company_type_primary_code")) {
     issues.push({
       severity: "critical",
-      label: "Missing primary company type",
-      detail: "Primary category is required for company intelligence and filtering.",
+      label: "Missing primary business identity",
+      detail:
+        "Primary business identity is required for company intelligence and filtering.",
       issueTypeCode: "missing_use_type",
       linkedField: "company_type_primary_code",
     });
@@ -1440,9 +1441,10 @@ function CompanyWorkflowBridge({
             Roles On Projects / Assets
           </h3>
           <p className="mt-2 text-xs leading-5 text-gray-600">
-            A company category describes what the company is. Developer, owner,
-            operator, supplier, investor, and offtaker are structured roles on
-            specific projects or plants/facilities.
+            Primary business identity describes the company&apos;s dominant market
+            position. Developer, owner, operator, supplier, investor, and
+            offtaker remain structured roles on specific projects or
+            plants/facilities.
           </p>
           <div className="mt-3">
             {relationshipsHref ? (
@@ -1499,10 +1501,10 @@ function CompanyWorkflowBridge({
           {company ? (
             <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
               <div className="font-semibold text-[#1f2937]">
-                Current classification
+                Current identity
               </div>
               <div className="mt-1">
-                {company.company_type_primary_code || "No primary category"} /{" "}
+                {company.company_type_primary_code || "No primary identity"} /{" "}
                 {company.entity_type_code || "No record type"}
               </div>
             </div>
@@ -2459,8 +2461,8 @@ export function PostgresCompanyForm({
             />
           </Field>
           <Field
-            label="Primary Geothermal Company Category"
-            help="Describes the company's dominant strategic identity. Project and plant roles are managed separately."
+            label="Primary Business Identity"
+            help="Choose the dominant market identity for filtering and analysis. A company can still hold many project/plant roles separately."
             {...fieldMeta(changeState, "company_type_primary_code", {
               required: true,
               tone: "critical",

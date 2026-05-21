@@ -1227,7 +1227,7 @@ export function CompaniesPreviewTable({
             <tr>
               <th className={`w-[28%] ${headClass} font-semibold`}>Name</th>
               <th className={`w-[16%] ${headClass} font-semibold`}>
-                Category
+                Identity
               </th>
               <th className={`w-[14%] ${headClass} font-semibold`}>HQ</th>
               <th className={`w-[16%] ${headClass} font-semibold`}>Focus</th>

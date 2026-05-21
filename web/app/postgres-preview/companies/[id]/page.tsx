@@ -109,8 +109,8 @@ function getCompanyReadinessIssues(
   if (!company.company_type_primary_code) {
     issues.push({
       severity: "blocker",
-      label: "Missing primary company type",
-      detail: "Company category is required for export-ready filtering.",
+      label: "Missing primary business identity",
+      detail: "Primary business identity is required for export-ready filtering.",
     });
   }
 
@@ -486,11 +486,11 @@ function CompanyActionHub({
   }
 
   actions.push({
-    label: "Review Classification",
+    label: "Review Identity",
     detail:
       company.company_type_primary_code && company.headquarters_country
-        ? "Primary category and HQ country are present."
-        : "Confirm primary company type, status, HQ country, and website details.",
+        ? "Primary business identity and HQ country are present."
+        : "Confirm primary business identity, status, HQ country, and website details.",
     href: "#company-classification",
     tone:
       company.company_type_primary_code && company.headquarters_country
@@ -690,9 +690,9 @@ export default async function PostgresCompanyDetailPage({
           note: "Company location",
         },
         {
-          label: "Primary Category",
+          label: "Business Identity",
           value: company.company_type_primary_code || "-",
-          note: "Primary classification",
+          note: "Primary market position",
         },
         {
           label: "Sources",
