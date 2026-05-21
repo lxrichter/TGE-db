@@ -1361,6 +1361,165 @@ function AssetWorkflowBridge({
   );
 }
 
+function CompanyWorkflowBridge({
+  mode,
+  company,
+}: {
+  mode: EntityFormMode;
+  company?: PostgresPreviewCompanyDetail | null;
+}) {
+  const companyHref = company
+    ? `/postgres-preview/companies/${company.company_id}`
+    : null;
+  const evidenceHref = companyHref ? `${companyHref}#company-source-evidence` : null;
+  const relationshipsHref = companyHref ? `${companyHref}#company-relationships` : null;
+  const sourcePreview = company?.sources?.slice(0, 2) || [];
+  const sourceCount = company?.source_count || 0;
+  const projectRoleCount = company?.project_link_count || 0;
+  const assetRoleCount = company?.operating_asset_link_count || 0;
+  const activityRoleCount = projectRoleCount + assetRoleCount;
+
+  return (
+    <Section title="Evidence, Roles, And Company Structure Workflow">
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Evidence / Source
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Company website, reports, filings, TGE articles, stakeholder notes,
+            and ownership evidence are governed source links, not pasted into
+            category fields.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {evidenceHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={evidenceHref}
+              >
+                Add / Review Evidence
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add evidence
+              </span>
+            )}
+            <Link
+              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href="/sources/new"
+            >
+              New Source
+            </Link>
+          </div>
+          {company ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {sourceCount} linked evidence record{sourceCount === 1 ? "" : "s"}
+              </div>
+              {sourcePreview.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {sourcePreview.map((source) => (
+                    <li key={source.entity_source_id} className="truncate">
+                      {source.source_title ||
+                        source.source_reference ||
+                        source.source_url}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No evidence links yet.
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Roles On Projects / Assets
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            A company category describes what the company is. Developer, owner,
+            operator, supplier, investor, and offtaker are structured roles on
+            specific projects or plants/facilities.
+          </p>
+          <div className="mt-3">
+            {relationshipsHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={relationshipsHref}
+              >
+                Add Project / Asset Roles
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add roles
+              </span>
+            )}
+          </div>
+          {company ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                {activityRoleCount} structured activity role
+                {activityRoleCount === 1 ? "" : "s"}
+              </div>
+              <div className="mt-1">
+                {projectRoleCount} project role
+                {projectRoleCount === 1 ? "" : "s"} /{" "}
+                {assetRoleCount} plant/facility role
+                {assetRoleCount === 1 ? "" : "s"}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Group / Ownership Structure
+          </h3>
+          <p className="mt-2 text-xs leading-5 text-gray-600">
+            Parent, subsidiary, affiliate, JV, shareholder, acquisition, and SPV
+            relationships are managed as company-to-company relationship records.
+          </p>
+          <div className="mt-3">
+            {relationshipsHref ? (
+              <Link
+                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                href={relationshipsHref}
+              >
+                Review Company Structure
+              </Link>
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+                Save first to add relationships
+              </span>
+            )}
+          </div>
+          {company ? (
+            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
+              <div className="font-semibold text-[#1f2937]">
+                Current classification
+              </div>
+              <div className="mt-1">
+                {company.company_type_primary_code || "No primary category"} /{" "}
+                {company.entity_type_code || "No record type"}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+      {mode === "create" ? (
+        <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
+          For new records, save the company draft first. The saved detail page
+          then exposes evidence, project/asset roles, ownership, group, and JV
+          relationship workflows against the new company ID.
+        </p>
+      ) : null}
+    </Section>
+  );
+}
+
 function initialProjectValues(
   project?: PostgresPreviewProjectDetail | null
 ): EntityFormValues {
@@ -2252,6 +2411,8 @@ export function PostgresCompanyForm({
         })}
       />
 
+      <CompanyWorkflowBridge company={company} mode={mode} />
+
       <Section title="Identity And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
@@ -2283,7 +2444,8 @@ export function PostgresCompanyForm({
             />
           </Field>
           <Field
-            label="Entity Type"
+            label="Company Record Type"
+            help="Use for legal entity, company group, institution, SPV, association, or other record-level identity."
             {...fieldMeta(changeState, "entity_type_code", {
               important: true,
               tone: "important",
@@ -2297,7 +2459,8 @@ export function PostgresCompanyForm({
             />
           </Field>
           <Field
-            label="Primary Company Type"
+            label="Primary Geothermal Company Category"
+            help="Describes the company's dominant strategic identity. Project and plant roles are managed separately."
             {...fieldMeta(changeState, "company_type_primary_code", {
               required: true,
               tone: "critical",

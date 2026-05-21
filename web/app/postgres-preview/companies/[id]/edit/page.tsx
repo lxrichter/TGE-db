@@ -85,9 +85,10 @@ export default async function EditPostgresCompanyPage({
                 Edit Company
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Update the staging company profile. Structured roles, ownership
-                links, and source/evidence links stay in their own workflow
-                layers.
+                Update the staging company profile. Draft saves remain allowed
+                while source evidence, project/asset roles, ownership links,
+                and group relationships are completed through the saved detail
+                workflow.
               </p>
             </div>
             {data.ok ? (

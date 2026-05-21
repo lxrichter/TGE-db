@@ -241,9 +241,9 @@ export default async function PostgresCompaniesListPage({
               },
               {
                 name: "companyType",
-                label: "Company Type",
+                label: "Primary Category",
                 value: data.filters.companyType,
-                placeholder: "All Company Types",
+                placeholder: "All Primary Categories",
                 options: previewFilterOptions(data.facets.companyTypes),
               },
               {

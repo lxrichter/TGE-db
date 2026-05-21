@@ -690,7 +690,7 @@ export default async function PostgresCompanyDetailPage({
           note: "Company location",
         },
         {
-          label: "Company Type",
+          label: "Primary Category",
           value: company.company_type_primary_code || "-",
           note: "Primary classification",
         },
@@ -880,7 +880,7 @@ export default async function PostgresCompanyDetailPage({
             { label: "Legal Name", value: company.company_legal_name },
             { label: "Status", value: company.company_status },
             { label: "Ownership Type", value: company.ownership_type },
-            { label: "Entity Type", value: company.entity_type_code },
+            { label: "Company Record Type", value: company.entity_type_code },
             { label: "HQ City", value: company.headquarters_city },
             { label: "HQ Country", value: company.headquarters_country },
             { label: "Region", value: company.region },

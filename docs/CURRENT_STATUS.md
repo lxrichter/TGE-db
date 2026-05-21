@@ -272,6 +272,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - The plant/facility form now labels current online power as active operating
   capacity and shows inline saved-record snapshots for evidence links, company
   role counts, and originating project/group state
+- PostgreSQL company forms now clarify company record type vs primary geothermal
+  category vs project/asset roles, and show a workflow bridge for evidence,
+  activity roles, and group/ownership relationship follow-up
 - Detail-page review buttons and Research Ops bulk status actions now surface
   the same approval/export-readiness blockers, keeping approval failures
   understandable outside the edit forms

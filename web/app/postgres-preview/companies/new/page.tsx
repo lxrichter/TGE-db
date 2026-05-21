@@ -58,9 +58,9 @@ export default async function NewPostgresCompanyPage() {
             Add Company
           </h1>
           <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-            Create a staging company record. Company roles, ownership
-            structures, source links, and group relationships remain separate
-            workflow layers.
+            Create a staging company record. Draft saving is allowed while
+            source evidence, project/asset roles, ownership structures, and
+            group relationships are completed in the saved detail workflow.
           </p>
         </div>
       </section>
