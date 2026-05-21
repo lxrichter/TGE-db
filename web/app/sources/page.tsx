@@ -16,6 +16,9 @@ import {
   type ArticleFactCandidateSummary,
 } from "@/lib/services/article-facts";
 import { formatCount } from "@/lib/format";
+import PostgresStatusBadge, {
+  type PostgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -105,57 +108,6 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function StatusBadge({
-  label,
-  tone = "neutral",
-}: {
-  label: string | null;
-  tone?: "green" | "amber" | "red" | "neutral";
-}) {
-  const classes = {
-    green: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-    amber: "border-amber-200 bg-amber-50 text-amber-800",
-    red: "border-red-200 bg-red-50 text-red-700",
-    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-  };
-
-  return (
-    <span
-      className={`inline-flex min-h-[28px] items-center border px-2 text-xs font-semibold ${classes[tone]}`}
-    >
-      {label || "Unknown"}
-    </span>
-  );
-}
-
-function statusTone(status: string) {
-  if (status === "credible") {
-    return "green";
-  }
-
-  if (status === "needs_review" || status === "outdated") {
-    return "amber";
-  }
-
-  if (status === "weak" || status === "rejected") {
-    return "red";
-  }
-
-  return "neutral";
-}
-
-function visibilityTone(visibility: string) {
-  if (visibility === "public") {
-    return "green";
-  }
-
-  if (visibility === "client_confidential" || visibility === "not_for_publication") {
-    return "red";
-  }
-
-  return "amber";
-}
-
 function StatTile({
   label,
   value,
@@ -189,13 +141,15 @@ function OperationCard({
   value: string | number;
   note: string;
   href?: string;
-  tone?: "green" | "amber" | "red" | "neutral";
+  tone?: PostgresStatusTone;
 }) {
   const toneClasses = {
-    green: "border-[#b9d98b] bg-[#f8fcf2]",
-    amber: "border-amber-200 bg-amber-50",
-    red: "border-red-200 bg-red-50",
+    success: "border-[#b9d98b] bg-[#f8fcf2]",
+    attention: "border-amber-200 bg-amber-50",
+    danger: "border-red-200 bg-red-50",
+    info: "border-blue-200 bg-blue-50",
     neutral: "border-gray-200 bg-white",
+    muted: "border-gray-200 bg-gray-50",
   };
   const content = (
     <>
@@ -395,15 +349,20 @@ function SourcesTable({
                   {source.source_type_label || source.source_type_code}
                 </td>
                 <td className="px-5 py-4">
-                  <StatusBadge
+                  <PostgresStatusBadge
+                    domain="visibility"
                     label={source.visibility_label || source.visibility_code}
-                    tone={visibilityTone(source.visibility_code)}
+                    value={source.visibility_code}
                   />
                 </td>
                 <td className="px-5 py-4">
-                  <StatusBadge
-                    label={source.credibility_status_label || source.credibility_status_code}
-                    tone={statusTone(source.credibility_status_code)}
+                  <PostgresStatusBadge
+                    domain="source"
+                    label={
+                      source.credibility_status_label ||
+                      source.credibility_status_code
+                    }
+                    value={source.credibility_status_code}
                   />
                   {source.duplicate_source_flag ? (
                     <div className="mt-2 text-xs font-semibold text-red-700">
@@ -569,34 +528,34 @@ export default async function SourcesPage({
                 value={formatCount(data.summary.needsReview)}
                 note="Sources marked needs review"
                 href="/sources?status=needs_review"
-                tone={data.summary.needsReview > 0 ? "amber" : "green"}
+                tone={data.summary.needsReview > 0 ? "attention" : "success"}
               />
               <OperationCard
                 label="Unlinked Sources"
                 value={formatCount(data.summary.unlinkedSources)}
                 note="Need evidence links or archive-only classification"
                 href="/sources?linkState=unlinked"
-                tone={data.summary.unlinkedSources > 0 ? "amber" : "green"}
+                tone={data.summary.unlinkedSources > 0 ? "attention" : "success"}
               />
               <OperationCard
                 label="Match Review"
                 value={formatCount(data.matchSummary.open)}
                 note="Confirm matches to create evidence links"
                 href="/sources/matches"
-                tone={data.matchSummary.open > 0 ? "amber" : "green"}
+                tone={data.matchSummary.open > 0 ? "attention" : "success"}
               />
               <OperationCard
                 label="Fact Review"
                 value={formatCount(data.articleFactSummary.open)}
                 note="Confirm extracted facts before field suggestions"
                 href="/sources/facts"
-                tone={data.articleFactSummary.open > 0 ? "amber" : "green"}
+                tone={data.articleFactSummary.open > 0 ? "attention" : "success"}
               />
               <OperationCard
                 label="Restricted Sources"
                 value={formatCount(data.summary.restrictedVisibility)}
                 note="Internal or confidential visibility"
-                tone={data.summary.restrictedVisibility > 0 ? "amber" : "neutral"}
+                tone={data.summary.restrictedVisibility > 0 ? "attention" : "neutral"}
               />
             </div>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -611,21 +570,21 @@ export default async function SourcesPage({
                 value={formatCount(data.summary.weakOutdatedRejected)}
                 note="Sources not currently export-eligible"
                 href="/sources?quality=weak_outdated_rejected"
-                tone={data.summary.weakOutdatedRejected > 0 ? "red" : "green"}
+                tone={data.summary.weakOutdatedRejected > 0 ? "danger" : "success"}
               />
               <OperationCard
                 label="Duplicate Flags"
                 value={formatCount(data.summary.duplicateFlagged)}
                 note="Sources requiring duplicate review"
                 href="/sources?duplicate=1"
-                tone={data.summary.duplicateFlagged > 0 ? "red" : "green"}
+                tone={data.summary.duplicateFlagged > 0 ? "danger" : "success"}
               />
               <OperationCard
                 label="Confirmed Matches"
                 value={formatCount(data.matchSummary.confirmed)}
                 note="Article/entity links confirmed"
                 href="/sources/matches?status=confirmed"
-                tone="green"
+                tone="success"
               />
             </div>
           </section>

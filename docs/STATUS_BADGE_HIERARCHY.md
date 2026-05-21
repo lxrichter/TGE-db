@@ -39,10 +39,19 @@ Source credibility:
 - `outdated` -> attention
 - `rejected` -> danger
 
+Source visibility:
+
+- `public` -> success
+- `internal_only` -> info
+- `stakeholder_confirmation` / `ai_generated_needs_review` -> attention
+- `client_confidential` / `not_for_publication` -> danger
+
 Confidence / AI candidate review:
 
 - `high` / `confirmed` / `suggested_high_confidence` -> success
+- `verified` -> success
 - `medium` / `suggested_medium_confidence` -> attention
+- `reported` / `estimated` / `inferred` -> attention
 - `low` / `suggested_low_confidence` -> danger
 - `unknown` -> neutral
 

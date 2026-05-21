@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
 import type {
   SourceMatchCandidateAction,
@@ -26,33 +27,6 @@ function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
-function statusTone(status: string) {
-  if (status === "suggested_high_confidence" || status === "confirmed") {
-    return "green";
-  }
-
-  if (status === "suggested_medium_confidence" || status === "needs_review") {
-    return "amber";
-  }
-
-  if (status === "rejected") {
-    return "red";
-  }
-
-  return "neutral";
-}
-
-function badgeClass(tone: "green" | "amber" | "red" | "neutral") {
-  const classes = {
-    green: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-    amber: "border-amber-200 bg-amber-50 text-amber-800",
-    red: "border-red-200 bg-red-50 text-red-700",
-    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-  };
-
-  return `inline-flex min-h-[28px] items-center border px-2 text-xs font-semibold ${classes[tone]}`;
-}
-
 function StatusBadge({
   status,
   label,
@@ -61,9 +35,11 @@ function StatusBadge({
   label: string | null;
 }) {
   return (
-    <span className={badgeClass(statusTone(status))}>
-      {label || status.replaceAll("_", " ")}
-    </span>
+    <PostgresStatusBadge
+      domain="confidence"
+      label={label || undefined}
+      value={status}
+    />
   );
 }
 
@@ -474,27 +450,32 @@ export default function SourceMatchCandidatesClient({
                       </div>
                     ) : null}
                     <div className="mt-3 flex flex-wrap gap-1">
-                      <span
-                        className={`inline-flex border px-2 py-1 text-[11px] font-semibold ${
-                          isAmbiguous
-                            ? "border-amber-200 bg-amber-50 text-amber-800"
-                            : "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]"
+                      <PostgresStatusBadge
+                        label={`${candidate.source_open_candidate_count} open match${
+                          candidate.source_open_candidate_count === 1 ? "" : "es"
                         }`}
-                      >
-                        {candidate.source_open_candidate_count} open match
-                        {candidate.source_open_candidate_count === 1 ? "" : "es"}
-                      </span>
+                        tone={isAmbiguous ? "attention" : "success"}
+                        value={isAmbiguous ? "warning" : "ready"}
+                      />
                       {candidate.confirmed_article_fact_count > 0 ? (
-                        <span className="inline-flex border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[11px] font-semibold text-gray-700">
-                          {candidate.confirmed_article_fact_count} confirmed fact
-                          {candidate.confirmed_article_fact_count === 1 ? "" : "s"}
-                        </span>
+                        <PostgresStatusBadge
+                          label={`${candidate.confirmed_article_fact_count} confirmed fact${
+                            candidate.confirmed_article_fact_count === 1 ? "" : "s"
+                          }`}
+                          tone="success"
+                          value="confirmed"
+                        />
                       ) : null}
                       {candidate.suggestion_relevant_fact_count > 0 ? (
-                        <span className="inline-flex border border-[#b9d98b] bg-white px-2 py-1 text-[11px] font-semibold text-[#3f6f19]">
-                          {candidate.suggestion_relevant_fact_count} field-suggestion fact
-                          {candidate.suggestion_relevant_fact_count === 1 ? "" : "s"}
-                        </span>
+                        <PostgresStatusBadge
+                          label={`${candidate.suggestion_relevant_fact_count} field-suggestion fact${
+                            candidate.suggestion_relevant_fact_count === 1
+                              ? ""
+                              : "s"
+                          }`}
+                          tone="info"
+                          value="suggested"
+                        />
                       ) : null}
                     </div>
                   </td>
@@ -553,12 +534,12 @@ export default function SourceMatchCandidatesClient({
                     {candidate.review_flags.length > 0 ? (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {candidate.review_flags.map((flag) => (
-                          <span
+                          <PostgresStatusBadge
                             key={flag}
-                            className="inline-flex border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-800"
-                          >
-                            {formatReviewFlag(flag)}
-                          </span>
+                            label={formatReviewFlag(flag)}
+                            tone="attention"
+                            value="warning"
+                          />
                         ))}
                       </div>
                     ) : null}

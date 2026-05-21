@@ -11,6 +11,7 @@ export type PostgresStatusDomain =
   | "review"
   | "lifecycle"
   | "source"
+  | "visibility"
   | "confidence"
   | "severity";
 
@@ -50,11 +51,24 @@ const sourceStatusTones: Record<string, PostgresStatusTone> = {
   rejected: "danger",
 };
 
+const visibilityStatusTones: Record<string, PostgresStatusTone> = {
+  public: "success",
+  internal_only: "info",
+  stakeholder_confirmation: "attention",
+  ai_generated_needs_review: "attention",
+  client_confidential: "danger",
+  not_for_publication: "danger",
+};
+
 const confidenceStatusTones: Record<string, PostgresStatusTone> = {
   high: "success",
   medium: "attention",
   low: "danger",
   unknown: "neutral",
+  verified: "success",
+  reported: "attention",
+  estimated: "attention",
+  inferred: "attention",
   confirmed: "success",
   suggested_high_confidence: "success",
   suggested_medium_confidence: "attention",
@@ -86,6 +100,7 @@ const genericStatusTones: Record<string, PostgresStatusTone> = {
   rejected: "danger",
   resolved: "success",
   reviewed: "success",
+  suggested: "attention",
   superseded: "muted",
 };
 
@@ -129,6 +144,10 @@ export function postgresStatusTone(
     return sourceStatusTones[normalized] || "neutral";
   }
 
+  if (domain === "visibility") {
+    return visibilityStatusTones[normalized] || "neutral";
+  }
+
   if (domain === "confidence") {
     return confidenceStatusTones[normalized] || "neutral";
   }
@@ -140,6 +159,7 @@ export function postgresStatusTone(
   if (reviewStatusTones[normalized]) return reviewStatusTones[normalized];
   if (lifecycleStatusTones[normalized]) return lifecycleStatusTones[normalized];
   if (sourceStatusTones[normalized]) return sourceStatusTones[normalized];
+  if (visibilityStatusTones[normalized]) return visibilityStatusTones[normalized];
   if (confidenceStatusTones[normalized]) return confidenceStatusTones[normalized];
   if (severityTones[normalized]) return severityTones[normalized];
   if (genericStatusTones[normalized]) return genericStatusTones[normalized];

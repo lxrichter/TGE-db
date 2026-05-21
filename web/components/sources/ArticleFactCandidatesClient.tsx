@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
 import type {
   ArticleFactCandidateAction,
@@ -39,33 +40,6 @@ function formatCode(value: string | null) {
     .replace(/\bcod\b/gi, "COD");
 }
 
-function statusTone(status: string) {
-  if (status === "confirmed") {
-    return "green";
-  }
-
-  if (status === "suggested" || status === "needs_review") {
-    return "amber";
-  }
-
-  if (status === "rejected") {
-    return "red";
-  }
-
-  return "neutral";
-}
-
-function badgeClass(tone: "green" | "amber" | "red" | "neutral") {
-  const classes = {
-    green: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-    amber: "border-amber-200 bg-amber-50 text-amber-800",
-    red: "border-red-200 bg-red-50 text-red-700",
-    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-  };
-
-  return `inline-flex min-h-[28px] items-center border px-2 text-xs font-semibold ${classes[tone]}`;
-}
-
 function StatusBadge({
   status,
   label,
@@ -74,9 +48,10 @@ function StatusBadge({
   label: string | null;
 }) {
   return (
-    <span className={badgeClass(statusTone(status))}>
-      {label || formatCode(status)}
-    </span>
+    <PostgresStatusBadge
+      label={label || formatCode(status)}
+      value={status}
+    />
   );
 }
 

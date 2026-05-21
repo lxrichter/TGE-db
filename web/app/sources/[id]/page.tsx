@@ -4,6 +4,10 @@ import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/Postgre
 import PostgresRecordActionHub, {
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
+import PostgresStatusBadge, {
+  postgresStatusTone,
+  type PostgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 import ArticleFactCandidatesClient from "@/components/sources/ArticleFactCandidatesClient";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import SourceStatusActions from "@/components/sources/SourceStatusActions";
@@ -24,8 +28,6 @@ import {
 import { formatCount } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-type BadgeTone = "green" | "amber" | "red" | "neutral";
 
 type LifecycleState = "complete" | "attention" | "blocked" | "neutral";
 
@@ -83,44 +85,16 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function statusTone(status: string): BadgeTone {
-  if (status === "credible") {
-    return "green";
-  }
-
-  if (status === "needs_review" || status === "outdated") {
-    return "amber";
-  }
-
-  if (status === "weak" || status === "rejected") {
-    return "red";
-  }
-
-  return "neutral";
+function sourceStatusTone(status: string): PostgresStatusTone {
+  return postgresStatusTone(status, "source");
 }
 
-function visibilityTone(visibility: string): BadgeTone {
-  if (visibility === "public") {
-    return "green";
-  }
-
-  if (visibility === "client_confidential" || visibility === "not_for_publication") {
-    return "red";
-  }
-
-  return "amber";
+function visibilityStatusTone(visibility: string): PostgresStatusTone {
+  return postgresStatusTone(visibility, "visibility");
 }
 
-function confidenceTone(status: string): BadgeTone {
-  if (status === "verified") {
-    return "green";
-  }
-
-  if (status === "reported" || status === "estimated" || status === "inferred") {
-    return "amber";
-  }
-
-  return "neutral";
+function confidenceStatusTone(status: string): PostgresStatusTone {
+  return postgresStatusTone(status, "confidence");
 }
 
 function formatCode(value: string | null) {
@@ -154,41 +128,36 @@ function lifecycleStateLabel(state: LifecycleState) {
 
 function Badge({
   label,
+  value,
   tone = "neutral",
 }: {
   label: string | null;
-  tone?: BadgeTone;
+  value?: string | null;
+  tone?: PostgresStatusTone;
 }) {
-  const classes = {
-    green: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-    amber: "border-amber-200 bg-amber-50 text-amber-800",
-    red: "border-red-200 bg-red-50 text-red-700",
-    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-  };
-
   return (
-    <span
-      className={`inline-flex min-h-[28px] items-center border px-2 text-xs font-semibold ${classes[tone]}`}
-    >
-      {label || "Unknown"}
-    </span>
+    <PostgresStatusBadge
+      label={label || undefined}
+      tone={tone}
+      value={value || label || "unknown"}
+    />
   );
 }
 
 function LifecycleBadge({ state }: { state: LifecycleState }) {
-  const classes = {
-    complete: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-    attention: "border-amber-200 bg-amber-50 text-amber-800",
-    blocked: "border-red-200 bg-red-50 text-red-700",
-    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+  const tones: Record<LifecycleState, PostgresStatusTone> = {
+    complete: "success",
+    attention: "attention",
+    blocked: "danger",
+    neutral: "neutral",
   };
 
   return (
-    <span
-      className={`inline-flex min-h-[26px] items-center border px-2 text-[11px] font-semibold ${classes[state]}`}
-    >
-      {lifecycleStateLabel(state)}
-    </span>
+    <PostgresStatusBadge
+      label={lifecycleStateLabel(state)}
+      tone={tones[state]}
+      value={state}
+    />
   );
 }
 
@@ -221,13 +190,15 @@ function StatusTile({
   label: string;
   value: React.ReactNode;
   note: string;
-  tone?: BadgeTone;
+  tone?: PostgresStatusTone;
 }) {
   const accents = {
-    green: "border-l-[#8dc63f]",
-    amber: "border-l-amber-300",
-    red: "border-l-red-300",
+    success: "border-l-[#8dc63f]",
+    attention: "border-l-amber-300",
+    danger: "border-l-red-300",
+    info: "border-l-blue-300",
     neutral: "border-l-gray-300",
+    muted: "border-l-gray-200",
   };
 
   return (
@@ -389,13 +360,13 @@ function SourceSupportsPanel({
               label={`${formatCount(links.length)} confirmed link${
                 links.length === 1 ? "" : "s"
               }`}
-              tone={links.length > 0 ? "green" : "amber"}
+              tone={links.length > 0 ? "success" : "attention"}
             />
             <Badge
               label={`${formatCount(openMatchCount)} open match${
                 openMatchCount === 1 ? "" : "es"
               }`}
-              tone={openMatchCount > 0 ? "amber" : "neutral"}
+              tone={openMatchCount > 0 ? "attention" : "neutral"}
             />
           </div>
         </div>
@@ -468,7 +439,7 @@ function SourceSupportsPanel({
                 <Badge
                   key={status}
                   label={`${formatCode(status)} · ${formatCount(count)}`}
-                  tone={confidenceTone(status)}
+                  tone={confidenceStatusTone(status)}
                 />
               ))}
             </div>
@@ -653,7 +624,11 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                 ) : null}
               </td>
               <td className="px-4 py-3">
-                <Badge label={formatCode(link.confidence_status_code)} />
+                <Badge
+                  label={formatCode(link.confidence_status_code)}
+                  value={link.confidence_status_code}
+                  tone={confidenceStatusTone(link.confidence_status_code)}
+                />
                 {link.is_primary_evidence ? (
                   <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
                     Primary evidence
@@ -864,14 +839,16 @@ export default async function SourceDetailPage({
             <div className="flex flex-wrap gap-2">
               <Badge
                 label={source.visibility_label || source.visibility_code}
-                tone={visibilityTone(source.visibility_code)}
+                value={source.visibility_code}
+                tone={visibilityStatusTone(source.visibility_code)}
               />
               <Badge
                 label={
                   source.credibility_status_label ||
                   source.credibility_status_code
                 }
-                tone={statusTone(source.credibility_status_code)}
+                value={source.credibility_status_code}
+                tone={sourceStatusTone(source.credibility_status_code)}
               />
               <Link
                 href={`/sources/${source.source_id}/edit`}
@@ -917,7 +894,7 @@ export default async function SourceDetailPage({
             </span>
           }
           note="Current source review state"
-          tone={statusTone(source.credibility_status_code)}
+          tone={sourceStatusTone(source.credibility_status_code)}
         />
         <StatusTile
           label="Visibility"
@@ -927,31 +904,31 @@ export default async function SourceDetailPage({
             </span>
           }
           note="Controls future export/subscriber exposure"
-          tone={visibilityTone(source.visibility_code)}
+          tone={visibilityStatusTone(source.visibility_code)}
         />
         <StatusTile
           label="Evidence Links"
           value={formatCount(source.linked_entity_count)}
           note="Confirmed source-to-record relationships"
-          tone={source.linked_entity_count > 0 ? "green" : "amber"}
+          tone={source.linked_entity_count > 0 ? "success" : "attention"}
         />
         <StatusTile
           label="Open Matches"
           value={formatCount(openSourceMatchCount)}
           note="Article/entity candidates needing review"
-          tone={openSourceMatchCount > 0 ? "amber" : "neutral"}
+          tone={openSourceMatchCount > 0 ? "attention" : "neutral"}
         />
         <StatusTile
           label="Open Facts"
           value={formatCount(openArticleFactCount)}
           note="Extracted fact candidates not finalized"
-          tone={openArticleFactCount > 0 ? "amber" : "neutral"}
+          tone={openArticleFactCount > 0 ? "attention" : "neutral"}
         />
         <StatusTile
           label="AI Suggestions"
           value={formatCount(openFieldSuggestionCount)}
           note="Reviewable field suggestions"
-          tone={openFieldSuggestionCount > 0 ? "amber" : "neutral"}
+          tone={openFieldSuggestionCount > 0 ? "attention" : "neutral"}
         />
       </section>
 
