@@ -163,6 +163,10 @@ foundation. Current implemented PostgreSQL staging areas include:
 - `/postgres-preview/research-ops` now paginates deep queue tables and AI field
   suggestion review rows to keep generated queues and review workloads usable as
   candidate volumes grow
+- `/postgres-preview/research-ops` now clarifies active queue/filter context,
+  generated queue origin, filtered CSV export scope, selected-row bulk action
+  scope, and page-level table selection behavior so researchers can distinguish
+  review queues, exports, and bulk workflow changes more safely
 - shared AI field suggestion panels on project, plant/facility, company, and
   source detail pages now use paginated rows while preserving the two-step
   confirm-then-apply governance model

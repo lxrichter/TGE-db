@@ -39,6 +39,11 @@ type FieldSuggestionReviewAction =
   | "reject"
   | "needs_review"
   | "apply";
+type ActiveOperationalFilter = {
+  key: "queue" | "severity" | "entity" | "country" | "search" | "showEmpty";
+  label: string;
+  value: string;
+};
 type QueueGroupKey =
   | "missing_data"
   | "sources_evidence"
@@ -2111,6 +2116,12 @@ function EntityTable({
         total={items.length}
         onPageChange={setPage}
       />
+      <div className="border-t border-gray-100 bg-white px-5 py-3 text-xs leading-5 text-gray-500">
+        The page checkbox selects only the visible rows on this page. Use{" "}
+        <span className="font-semibold text-[#1f2937]">Select Filtered</span>{" "}
+        above when the whole filtered work set should be selected for bulk
+        review.
+      </div>
       <div className="overflow-x-auto border-t border-gray-100">
         <table className="min-w-[1260px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
@@ -2335,6 +2346,97 @@ function QueueCard({
   );
 }
 
+function ResearchOpsViewContext({
+  activeFilters,
+  filteredIssueRows,
+  filteredRecordCount,
+  selectedBulkCount,
+  canReviewStatus,
+  onRemoveFilter,
+}: {
+  activeFilters: ActiveOperationalFilter[];
+  filteredIssueRows: number;
+  filteredRecordCount: number;
+  selectedBulkCount: number;
+  canReviewStatus: boolean;
+  onRemoveFilter: (filterKey: ActiveOperationalFilter["key"]) => void;
+}) {
+  return (
+    <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 text-sm text-gray-600">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0">
+          <div className="font-semibold text-[#1f2937]">
+            Active Research Ops view
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {activeFilters.length > 0 ? (
+              activeFilters.map((filter) => (
+                <button
+                  className="inline-flex min-h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f]"
+                  key={filter.key}
+                  type="button"
+                  onClick={() => onRemoveFilter(filter.key)}
+                >
+                  <span className="text-gray-500">{filter.label}:</span>
+                  <span className="ml-1">{filter.value}</span>
+                  <span className="ml-2 text-gray-400">x</span>
+                </button>
+              ))
+            ) : (
+              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                All generated queues
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="grid min-w-0 grid-cols-1 gap-2 text-xs sm:grid-cols-3 xl:min-w-[540px]">
+          <div className="border border-gray-200 bg-white px-3 py-2">
+            <div className="font-semibold uppercase tracking-wide text-gray-500">
+              Queue Origin
+            </div>
+            <div className="mt-1 font-semibold text-[#1f2937]">
+              Generated staging queues
+            </div>
+            <p className="mt-1 leading-5 text-gray-500">
+              Calculated from current PostgreSQL staging data, separate from
+              persisted human-created issues.
+            </p>
+          </div>
+          <div className="border border-gray-200 bg-white px-3 py-2">
+            <div className="font-semibold uppercase tracking-wide text-gray-500">
+              Export Scope
+            </div>
+            <div className="mt-1 font-semibold text-[#1f2937]">
+              {canReviewStatus ? "Filtered queue rows" : "Editor/Admin only"}
+            </div>
+            <p className="mt-1 leading-5 text-gray-500">
+              CSV export contains generated queue rows matching these filters,
+              not Recent Activity rows.
+            </p>
+          </div>
+          <div className="border border-gray-200 bg-white px-3 py-2">
+            <div className="font-semibold uppercase tracking-wide text-gray-500">
+              Bulk Scope
+            </div>
+            <div className="mt-1 font-semibold text-[#1f2937]">
+              {formatCount(selectedBulkCount)} selected
+            </div>
+            <p className="mt-1 leading-5 text-gray-500">
+              Bulk status changes affect selected rows only. Filtered rows are
+              not changed until selected.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {formatCount(filteredIssueRows)} queue rows ·{" "}
+        {formatCount(filteredRecordCount)} unique records
+      </div>
+    </div>
+  );
+}
+
 function BulkActionsPanel({
   selectedRecords,
   reviewStatuses,
@@ -2464,7 +2566,7 @@ function BulkActionsPanel({
 
   return (
     <section
-      id="persistent-issues"
+      id="bulk-review-actions"
       className="scroll-mt-6 border border-gray-200 bg-white"
     >
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
@@ -2488,6 +2590,46 @@ function BulkActionsPanel({
       </div>
 
       <div className="space-y-4 px-5 py-5">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Selection Scope
+            </div>
+            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+              {formatCount(selectedRecords.length)} selected row
+              {selectedRecords.length === 1 ? "" : "s"}
+            </div>
+            <p className="mt-1 text-xs leading-5 text-gray-500">
+              Bulk actions affect selected rows only, not every row currently
+              visible in the filtered queue view.
+            </p>
+          </div>
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Active Target
+            </div>
+            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+              {activeTarget === "sources" ? "Sources" : "Database Records"}
+            </div>
+            <p className="mt-1 text-xs leading-5 text-gray-500">
+              Record statuses and source credibility states are handled
+              separately to avoid mixed workflow updates.
+            </p>
+          </div>
+          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Audit Boundary
+            </div>
+            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+              Review status only
+            </div>
+            <p className="mt-1 text-xs leading-5 text-gray-500">
+              This does not edit field values or create evidence links; those
+              remain record/source workflows.
+            </p>
+          </div>
+        </div>
+
         {error ? (
           <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             <div>{error}</div>
@@ -3061,7 +3203,10 @@ function PersistentIssues({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id="persistent-issues"
+      className="scroll-mt-6 border border-gray-200 bg-white"
+    >
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
@@ -3638,11 +3783,7 @@ export function ResearchOpsDashboardClient({
   }, [dashboard.queues]);
 
   const activeOperationalFilters = useMemo(() => {
-    const filters: Array<{
-      key: "queue" | "severity" | "entity" | "country" | "search" | "showEmpty";
-      label: string;
-      value: string;
-    }> = [];
+    const filters: ActiveOperationalFilter[] = [];
 
     if (queueFilter !== "all") {
       filters.push({
@@ -4121,44 +4262,14 @@ export function ResearchOpsDashboardClient({
             </div>
           </div>
 
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3 text-sm text-gray-600">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="min-w-0">
-                <div className="font-semibold text-[#1f2937]">
-                  Active Research Ops view
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {activeOperationalFilters.length > 0 ? (
-                    activeOperationalFilters.map((filter) => (
-                      <button
-                        className="inline-flex min-h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f]"
-                        key={filter.key}
-                        type="button"
-                        onClick={() => removeOperationalFilter(filter.key)}
-                      >
-                        <span className="text-gray-500">{filter.label}:</span>
-                        <span className="ml-1">{filter.value}</span>
-                        <span className="ml-2 text-gray-400">x</span>
-                      </button>
-                    ))
-                  ) : (
-                    <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      All generated queues
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                {formatCount(filteredIssueRows)} queue rows ·{" "}
-                {formatCount(filteredRecords.length)} unique records
-              </div>
-            </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
-              Queue origin: generated from PostgreSQL staging data. Use the
-              queue cards below for record-level review, or open the filtered
-              entity lists for table/export work.
-            </div>
-          </div>
+          <ResearchOpsViewContext
+            activeFilters={activeOperationalFilters}
+            canReviewStatus={canReviewStatus}
+            filteredIssueRows={filteredIssueRows}
+            filteredRecordCount={filteredRecords.length}
+            selectedBulkCount={selectedBulkRecords.length}
+            onRemoveFilter={removeOperationalFilter}
+          />
         </div>
       </section>
 
