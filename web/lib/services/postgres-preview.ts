@@ -537,6 +537,43 @@ export type PostgresCompanyRelationshipMutationInput = {
   notes?: string | null;
 };
 
+export type PostgresRelationshipSourceTargetType =
+  | "company_project_link"
+  | "company_operating_asset_link"
+  | "company_relationship";
+
+export type PostgresRelationshipSourceMutationInput = {
+  source_id: string;
+  target_type: PostgresRelationshipSourceTargetType;
+  target_id: string;
+  evidence_type?: string | null;
+  linked_field?: string | null;
+  claim_text?: string | null;
+  extracted_value?: string | null;
+  evidence_note?: string | null;
+  confidence_status_code: string;
+  is_primary_evidence?: boolean;
+  reviewedByUserId?: string | null;
+};
+
+export type PostgresRelationshipSource = {
+  relationship_source_id: string;
+  source_id: string;
+  target_type: PostgresRelationshipSourceTargetType;
+  target_id: string;
+  evidence_type: string | null;
+  linked_field: string | null;
+  claim_text: string | null;
+  extracted_value: string | null;
+  evidence_note: string | null;
+  confidence_status_code: string;
+  is_primary_evidence: boolean;
+  reviewed_by_user_id: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ResearchOpsQueueSeverity = "critical" | "important" | "workflow";
 
 export type ResearchOpsQueueKey =
@@ -1069,6 +1106,19 @@ type CompanyOperatingAssetLinkIdRow = {
 
 type CompanyRelationshipIdRow = {
   company_relationship_id: string;
+};
+
+type RelationshipSourceIdRow = {
+  relationship_source_id: string;
+};
+
+type RelationshipSourceRow = Omit<
+  PostgresRelationshipSource,
+  "reviewed_at" | "created_at" | "updated_at"
+> & {
+  reviewed_at: string | Date | null;
+  created_at: string | Date;
+  updated_at: string | Date;
 };
 
 const researchOpsQueueDefinitions: QueueDefinition[] = [
@@ -3114,6 +3164,10 @@ function cleanOptionalText(value: string | null | undefined) {
   return trimmed || null;
 }
 
+function cleanRequiredText(value: string | null | undefined, fallback: string) {
+  return cleanOptionalText(value) || fallback;
+}
+
 function isUuid(value: string | null | undefined) {
   return Boolean(
     value &&
@@ -3938,6 +3992,67 @@ function toCompanyRelationship(
   };
 }
 
+function getRelationshipSourceTargetColumn(
+  targetType: PostgresRelationshipSourceTargetType
+) {
+  switch (targetType) {
+    case "company_project_link":
+      return "company_project_link_id";
+    case "company_operating_asset_link":
+      return "company_operating_asset_link_id";
+    case "company_relationship":
+      return "company_relationship_id";
+  }
+}
+
+function getRelationshipSourceTargetTable(
+  targetType: PostgresRelationshipSourceTargetType
+) {
+  switch (targetType) {
+    case "company_project_link":
+      return "company_project_links";
+    case "company_operating_asset_link":
+      return "company_operating_asset_links";
+    case "company_relationship":
+      return "company_relationships";
+  }
+}
+
+function toRelationshipSource(
+  row: RelationshipSourceRow
+): PostgresRelationshipSource {
+  return {
+    ...row,
+    reviewed_at: row.reviewed_at ? normalizeTimestamp(row.reviewed_at) : null,
+    created_at: normalizeTimestamp(row.created_at),
+    updated_at: normalizeTimestamp(row.updated_at),
+  };
+}
+
+export async function postgresRelationshipSourceTargetExists(
+  targetType: PostgresRelationshipSourceTargetType,
+  targetId: string
+) {
+  if (!isUuid(targetId)) {
+    return false;
+  }
+
+  const targetTable = getRelationshipSourceTargetTable(targetType);
+  const targetColumn = getRelationshipSourceTargetColumn(targetType);
+  const rows = await getPrismaClient().$queryRawUnsafe<Array<{ exists: boolean }>>(
+    `
+    SELECT EXISTS (
+      SELECT 1
+      FROM ${targetTable}
+      WHERE ${targetColumn} = $1::uuid
+    ) AS exists
+    `,
+    targetId
+  );
+
+  return Boolean(rows[0]?.exists);
+}
+
 async function getPostgresCompanyProjectLinkById(
   companyProjectLinkId: string
 ): Promise<PostgresCompanyProjectLink | null> {
@@ -4454,6 +4569,136 @@ export async function createPostgresCompanyRelationship(
   }
 
   return relationship;
+}
+
+export async function createPostgresRelationshipSource(
+  input: PostgresRelationshipSourceMutationInput
+): Promise<PostgresRelationshipSource | null> {
+  const targetColumn = getRelationshipSourceTargetColumn(input.target_type);
+  const normalizedReviewerId = isUuid(input.reviewedByUserId)
+    ? input.reviewedByUserId
+    : null;
+
+  const rows = await getPrismaClient().$queryRawUnsafe<RelationshipSourceIdRow[]>(
+    `
+    WITH reviewer AS (
+      SELECT user_id
+      FROM app_users
+      WHERE user_id = $10::uuid
+      LIMIT 1
+    ),
+    existing AS (
+      SELECT relationship_source_id
+      FROM relationship_sources
+      WHERE source_id = $1::uuid
+        AND ${targetColumn} = $2::uuid
+      ORDER BY created_at ASC
+      LIMIT 1
+    ),
+    updated AS (
+      UPDATE relationship_sources rs
+      SET
+        evidence_type = $3,
+        linked_field = $4,
+        claim_text = $5,
+        extracted_value = $6,
+        evidence_note = $7,
+        confidence_status_code = $8,
+        is_primary_evidence = $9,
+        reviewed_by_user_id = CASE
+          WHEN $8 != 'unknown' THEN (SELECT user_id FROM reviewer)
+          ELSE NULL
+        END,
+        reviewed_at = CASE WHEN $8 != 'unknown' THEN now() ELSE NULL END,
+        updated_at = now()
+      WHERE rs.relationship_source_id = (
+        SELECT relationship_source_id FROM existing
+      )
+      RETURNING rs.relationship_source_id::text
+    ),
+    inserted AS (
+      INSERT INTO relationship_sources (
+        source_id,
+        ${targetColumn},
+        evidence_type,
+        linked_field,
+        claim_text,
+        extracted_value,
+        evidence_note,
+        confidence_status_code,
+        is_primary_evidence,
+        reviewed_by_user_id,
+        reviewed_at
+      )
+      SELECT
+        $1::uuid,
+        $2::uuid,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        CASE WHEN $8 != 'unknown' THEN (SELECT user_id FROM reviewer) ELSE NULL END,
+        CASE WHEN $8 != 'unknown' THEN now() ELSE NULL END
+      WHERE NOT EXISTS (SELECT 1 FROM existing)
+      RETURNING relationship_source_id::text
+    )
+    SELECT relationship_source_id FROM updated
+    UNION ALL
+    SELECT relationship_source_id FROM inserted
+    LIMIT 1
+    `,
+    input.source_id,
+    input.target_id,
+    cleanOptionalText(input.evidence_type),
+    cleanOptionalText(input.linked_field),
+    cleanOptionalText(input.claim_text),
+    cleanOptionalText(input.extracted_value),
+    cleanOptionalText(input.evidence_note),
+    cleanRequiredText(input.confidence_status_code, "unknown"),
+    Boolean(input.is_primary_evidence),
+    normalizedReviewerId
+  );
+
+  const relationshipSourceId = rows[0]?.relationship_source_id;
+
+  if (!relationshipSourceId) {
+    return null;
+  }
+
+  const relationshipSources = await getPrismaClient().$queryRawUnsafe<
+    RelationshipSourceRow[]
+  >(
+    `
+    SELECT
+      rs.relationship_source_id::text,
+      rs.source_id::text,
+      $2::text AS target_type,
+      rs.${targetColumn}::text AS target_id,
+      rs.evidence_type,
+      rs.linked_field,
+      rs.claim_text,
+      rs.extracted_value,
+      rs.evidence_note,
+      rs.confidence_status_code,
+      rs.is_primary_evidence,
+      rs.reviewed_by_user_id::text,
+      rs.reviewed_at,
+      rs.created_at,
+      rs.updated_at
+    FROM relationship_sources rs
+    WHERE rs.relationship_source_id = $1::uuid
+    LIMIT 1
+    `,
+    relationshipSourceId,
+    input.target_type
+  );
+
+  return relationshipSources[0]
+    ? toRelationshipSource(relationshipSources[0])
+    : null;
 }
 
 export async function deletePostgresCompanyProjectLink(

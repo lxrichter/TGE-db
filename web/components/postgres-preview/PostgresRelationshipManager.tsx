@@ -9,6 +9,7 @@ import type {
   PostgresCompanyRelationship,
   PostgresCompanyRelationshipReferenceData,
   PostgresEntitySourceLink,
+  PostgresRelationshipSourceTargetType,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
@@ -300,6 +301,125 @@ function RelationshipEvidenceBadge({ count }: { count: number }) {
       label={`${formatCount(count)} source${count === 1 ? "" : "s"}`}
       value={count > 0 ? "confirmed" : "evidence_pending"}
     />
+  );
+}
+
+function sourceOptionLabel(source: PostgresEntitySourceLink) {
+  return (
+    source.source_title ||
+    source.source_reference ||
+    source.source_url ||
+    source.source_id
+  );
+}
+
+function uniqueSourceOptions(sources: PostgresEntitySourceLink[] = []) {
+  const seen = new Set<string>();
+  return sources.filter((source) => {
+    if (seen.has(source.source_id)) {
+      return false;
+    }
+
+    seen.add(source.source_id);
+    return true;
+  });
+}
+
+function RelationshipEvidenceLinker({
+  evidenceType,
+  sources = [],
+  targetId,
+  targetType,
+}: {
+  evidenceType: string;
+  sources?: PostgresEntitySourceLink[];
+  targetId: string;
+  targetType: PostgresRelationshipSourceTargetType;
+}) {
+  const router = useRouter();
+  const sourceOptions = useMemo(() => uniqueSourceOptions(sources), [sources]);
+  const [sourceId, setSourceId] = useState(sourceOptions[0]?.source_id || "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const selectedSourceId = sourceId || sourceOptions[0]?.source_id || "";
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
+    if (!selectedSourceId) {
+      setError("Add record-level source evidence first.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/postgres-preview/relationship-sources", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source_id: selectedSourceId,
+          target_type: targetType,
+          target_id: targetId,
+          evidence_type: evidenceType,
+          confidence_status_code: "reported",
+        }),
+      });
+      const json = await safeJson(res);
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || "Failed to link evidence.");
+      }
+
+      setMessage("Evidence linked.");
+      router.refresh();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to link evidence.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (sourceOptions.length === 0) {
+    return (
+      <div className="mt-2 text-[11px] font-medium leading-4 text-amber-700">
+        Add record source first.
+      </div>
+    );
+  }
+
+  return (
+    <form className="mt-2 space-y-2" onSubmit={handleSubmit}>
+      <select
+        className="min-h-8 w-full border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+        value={selectedSourceId}
+        onChange={(event) => setSourceId(event.target.value)}
+      >
+        {sourceOptions.map((source) => (
+          <option key={source.source_id} value={source.source_id}>
+            {sourceOptionLabel(source)}
+          </option>
+        ))}
+      </select>
+      <button
+        className="min-h-8 w-full border border-[#8dc63f] bg-white px-2 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f1f8e8] disabled:cursor-not-allowed disabled:opacity-60"
+        disabled={saving || !selectedSourceId}
+        type="submit"
+      >
+        {saving ? "Linking..." : "Link Evidence"}
+      </button>
+      {error ? (
+        <div className="text-[11px] font-medium leading-4 text-red-700">{error}</div>
+      ) : null}
+      {message ? (
+        <div className="text-[11px] font-medium leading-4 text-[#3f6f19]">
+          {message}
+        </div>
+      ) : null}
+    </form>
   );
 }
 
@@ -674,6 +794,12 @@ export function ProjectCompanyLinksPanel({
                 </td>
                 <td className="px-4 py-3">
                   <RelationshipEvidenceBadge count={link.relationship_source_count} />
+                  <RelationshipEvidenceLinker
+                    evidenceType="project_company_role"
+                    sources={sources}
+                    targetId={link.company_project_link_id}
+                    targetType="company_project_link"
+                  />
                 </td>
                 <td className="px-4 py-3 text-gray-700">{link.notes || "-"}</td>
                 <td className="px-4 py-3">
@@ -932,6 +1058,12 @@ export function OperatingAssetCompanyLinksPanel({
                 </td>
                 <td className="px-4 py-3">
                   <RelationshipEvidenceBadge count={link.relationship_source_count} />
+                  <RelationshipEvidenceLinker
+                    evidenceType="asset_company_role"
+                    sources={sources}
+                    targetId={link.company_operating_asset_link_id}
+                    targetType="company_operating_asset_link"
+                  />
                 </td>
                 <td className="px-4 py-3 text-gray-700">{link.notes || "-"}</td>
                 <td className="px-4 py-3">
@@ -962,10 +1094,12 @@ function CompanyProjectPortfolio({
   companyId,
   links,
   referenceData,
+  sources,
 }: {
   companyId: string;
   links: PostgresCompanyProjectLink[];
   referenceData: PostgresCompanyRelationshipReferenceData;
+  sources?: PostgresEntitySourceLink[];
 }) {
   const router = useRouter();
   const [form, setForm] = useState<RoleLinkForm>(() =>
@@ -1123,6 +1257,12 @@ function CompanyProjectPortfolio({
                       count={link.relationship_source_count}
                     />
                   </div>
+                  <RelationshipEvidenceLinker
+                    evidenceType="project_company_role"
+                    sources={sources}
+                    targetId={link.company_project_link_id}
+                    targetType="company_project_link"
+                  />
                 </td>
                 <td className="w-[18%] px-4 py-3 text-gray-700">
                   {formatPercent(link.ownership_share)}
@@ -1156,10 +1296,12 @@ function CompanyAssetPortfolio({
   companyId,
   links,
   referenceData,
+  sources,
 }: {
   companyId: string;
   links: PostgresCompanyOperatingAssetLink[];
   referenceData: PostgresCompanyRelationshipReferenceData;
+  sources?: PostgresEntitySourceLink[];
 }) {
   const router = useRouter();
   const [form, setForm] = useState<RoleLinkForm>(() =>
@@ -1332,6 +1474,12 @@ function CompanyAssetPortfolio({
                       count={link.relationship_source_count}
                     />
                   </div>
+                  <RelationshipEvidenceLinker
+                    evidenceType="asset_company_role"
+                    sources={sources}
+                    targetId={link.company_operating_asset_link_id}
+                    targetType="company_operating_asset_link"
+                  />
                 </td>
                 <td className="w-[18%] px-4 py-3 text-gray-700">
                   {formatPercent(link.ownership_share)}
@@ -1516,6 +1664,7 @@ export function CompanyRelationshipPanel({
             companyId={companyId}
             links={projectLinks}
             referenceData={referenceData}
+            sources={sources}
           />
         </div>
         <div className="space-y-3">
@@ -1526,6 +1675,7 @@ export function CompanyRelationshipPanel({
             companyId={companyId}
             links={operatingAssetLinks}
             referenceData={referenceData}
+            sources={sources}
           />
         </div>
       </div>
@@ -1676,6 +1826,12 @@ export function CompanyRelationshipPanel({
                     <td className="px-4 py-3">
                       <RelationshipEvidenceBadge
                         count={relationship.relationship_source_count}
+                      />
+                      <RelationshipEvidenceLinker
+                        evidenceType="company_relationship"
+                        sources={sources}
+                        targetId={relationship.company_relationship_id}
+                        targetType="company_relationship"
                       />
                     </td>
                     <td className="px-4 py-3 text-gray-700">

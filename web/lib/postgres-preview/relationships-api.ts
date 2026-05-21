@@ -1,9 +1,13 @@
 import {
   getPostgresCompanyRelationshipReferenceData,
+  postgresRelationshipSourceTargetExists,
   type PostgresCompanyOperatingAssetLinkMutationInput,
   type PostgresCompanyProjectLinkMutationInput,
   type PostgresCompanyRelationshipMutationInput,
+  type PostgresRelationshipSourceMutationInput,
+  type PostgresRelationshipSourceTargetType,
 } from "@/lib/postgres-preview";
+import { getSourceFormReferenceData } from "@/lib/services/sources";
 
 type ParsedProjectLinkInput =
   | {
@@ -29,6 +33,16 @@ type ParsedCompanyRelationshipInput =
   | {
       ok: true;
       input: PostgresCompanyRelationshipMutationInput;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+type ParsedRelationshipSourceInput =
+  | {
+      ok: true;
+      input: PostgresRelationshipSourceMutationInput;
     }
   | {
       ok: false;
@@ -61,6 +75,16 @@ function cleanBoolean(value: unknown) {
 
 function codeSet(options: Array<{ code: string }>) {
   return new Set(options.map((option) => option.code));
+}
+
+function isRelationshipSourceTargetType(
+  value: string
+): value is PostgresRelationshipSourceTargetType {
+  return (
+    value === "company_project_link" ||
+    value === "company_operating_asset_link" ||
+    value === "company_relationship"
+  );
 }
 
 function parsePercent(value: unknown, label: string) {
@@ -252,6 +276,67 @@ export async function parseCompanyRelationshipMutationInput(
           ? true
           : cleanBoolean(inputBody.is_current),
       notes: cleanOptionalString(inputBody.notes),
+    },
+  };
+}
+
+export async function parseRelationshipSourceMutationInput(
+  body: unknown
+): Promise<ParsedRelationshipSourceInput> {
+  const inputBody = asRecord(body);
+
+  if (!inputBody) {
+    return { ok: false, error: "Invalid relationship-source payload." };
+  }
+
+  const sourceId = cleanString(inputBody.source_id);
+  const targetType = cleanString(inputBody.target_type);
+  const targetId = cleanString(inputBody.target_id);
+  const confidenceStatus =
+    cleanString(inputBody.confidence_status_code) || "reported";
+
+  if (!sourceId || !targetType || !targetId) {
+    return {
+      ok: false,
+      error: "Source, relationship type, and relationship ID are required.",
+    };
+  }
+
+  if (!isRelationshipSourceTargetType(targetType)) {
+    return { ok: false, error: "Invalid relationship evidence target type." };
+  }
+
+  const referenceData = await getSourceFormReferenceData();
+  const confidenceExists = referenceData.confidenceStatuses.some(
+    (status) => status.code === confidenceStatus
+  );
+
+  if (!confidenceExists) {
+    return { ok: false, error: "Invalid evidence confidence status." };
+  }
+
+  const targetExists = await postgresRelationshipSourceTargetExists(
+    targetType,
+    targetId
+  );
+
+  if (!targetExists) {
+    return { ok: false, error: "Selected relationship row was not found." };
+  }
+
+  return {
+    ok: true,
+    input: {
+      source_id: sourceId,
+      target_type: targetType,
+      target_id: targetId,
+      evidence_type: cleanOptionalString(inputBody.evidence_type),
+      linked_field: cleanOptionalString(inputBody.linked_field),
+      claim_text: cleanOptionalString(inputBody.claim_text),
+      extracted_value: cleanOptionalString(inputBody.extracted_value),
+      evidence_note: cleanOptionalString(inputBody.evidence_note),
+      confidence_status_code: confidenceStatus,
+      is_primary_evidence: cleanBoolean(inputBody.is_primary_evidence),
     },
   };
 }

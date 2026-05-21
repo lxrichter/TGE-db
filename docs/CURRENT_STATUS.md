@@ -491,6 +491,9 @@ Known current gaps and risks:
   supports controlled local/staging candidate extraction, human confirmation,
   reviewed field-suggestion candidates, and audited apply for a narrow set of
   empty fields only
+- relationship-level evidence now has a first narrow write path: project,
+  operating asset, and company relationship rows can link an existing
+  record-level source as relationship-specific evidence in PostgreSQL staging
 
 ## Validation Snapshot
 
@@ -499,8 +502,8 @@ Last checked locally:
 - `railway run --service Postgres -- npm run dev`: app starts and PostgreSQL
   staging routes respond on `http://localhost:3000`
 - `/`: redirects to `/login`
-- targeted lint and `npm run build` passed for the Research Ops/detail
-  field-suggestion pagination changes added on 2026-05-20
+- targeted lint and `npm run build` passed for the relationship-evidence
+  linking API/UI changes added on 2026-05-21
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.
