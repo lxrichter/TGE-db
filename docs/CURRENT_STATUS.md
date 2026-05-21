@@ -254,6 +254,11 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL company-role and company-relationship forms now label required,
   important, and approval-sensitive relationship fields, with inline governance
   notices to reinforce that structured links should be evidence-supported
+- PostgreSQL relationship managers now clarify the semantic split between
+  project/asset activity roles, company ownership/group links, participation
+  share percentages, supporting evidence, and contextual notes; project and
+  plant/facility role forms label percentages as project/asset share rather
+  than generic company ownership
 - PostgreSQL edit forms now let researchers create persistent Research Ops
   issues directly from form readiness warnings and edited approval-sensitive
   fields, turning validation gaps into assigned operational follow-up items

@@ -92,19 +92,72 @@ function RelationshipGovernanceNotice({
 }: {
   scope: "project" | "asset" | "company";
 }) {
-  const label =
+  const title =
     scope === "project"
-      ? "project company-role"
+      ? "Project Relationship Rules"
       : scope === "asset"
-        ? "plant/facility company-role"
-        : "company relationship";
+        ? "Plant / Facility Relationship Rules"
+        : "Company Relationship Rules";
+  const primaryLabel =
+    scope === "project"
+      ? "Structured Roles"
+      : scope === "asset"
+        ? "Structured Roles"
+        : "Ownership / Group Links";
+  const primaryText =
+    scope === "project"
+      ? "Developer, owner, operator, supplier, investor, and similar roles belong here as structured links."
+      : scope === "asset"
+        ? "Owner, operator, supplier, EPC, offtaker, and O&M roles belong here as structured links."
+        : "Parent, subsidiary, JV, consortium, acquisition, and shareholder links stay separate from activity roles.";
+  const shareLabel =
+    scope === "project"
+      ? "Project Share"
+      : scope === "asset"
+        ? "Asset Share"
+        : "Ownership Share";
+  const shareText =
+    scope === "company"
+      ? "Use ownership percentage for company-to-company or group relationships where it is known."
+      : "Use the percentage field only when the source supports a project or asset participation share.";
 
   return (
-    <div className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-800">
-      Structured {label} links feed analytics, Research Ops, profile pages, and
-      exports. They should be supported by source evidence, and adding or
-      removing a relationship does not delete the underlying project,
-      plant/facility, or company record.
+    <div className="border border-blue-200 bg-blue-50 px-4 py-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-sm">
+          <h4 className="text-xs font-bold uppercase tracking-wide text-blue-900">
+            {title}
+          </h4>
+          <p className="mt-1 text-sm leading-6 text-blue-800">
+            These links feed analytics, Research Ops, profile pages, and
+            exports. Removing one does not delete the underlying project,
+            plant/facility, or company record.
+          </p>
+        </div>
+        <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-3">
+          <div className="border border-blue-100 bg-white/70 px-3 py-2">
+            <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+              {primaryLabel}
+            </div>
+            <p className="mt-1 text-xs leading-5 text-blue-800">{primaryText}</p>
+          </div>
+          <div className="border border-blue-100 bg-white/70 px-3 py-2">
+            <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+              {shareLabel}
+            </div>
+            <p className="mt-1 text-xs leading-5 text-blue-800">{shareText}</p>
+          </div>
+          <div className="border border-blue-100 bg-white/70 px-3 py-2">
+            <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+              Evidence And Notes
+            </div>
+            <p className="mt-1 text-xs leading-5 text-blue-800">
+              Evidence should support important links. Notes explain uncertainty
+              or context, but do not replace structured relationship data.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -392,7 +445,7 @@ export function ProjectCompanyLinksPanel({
             }
           />
         </Field>
-        <Field label="Ownership %" approvalSensitive important>
+        <Field label="Project Share %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -438,7 +491,7 @@ export function ProjectCompanyLinksPanel({
             <tr>
               <th className="w-[28%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Role</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Ownership</th>
+              <th className="w-[16%] px-4 py-3 font-semibold">Share</th>
               <th className="w-[24%] px-4 py-3 font-semibold">Notes</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Action</th>
             </tr>
@@ -631,7 +684,7 @@ export function OperatingAssetCompanyLinksPanel({
             }
           />
         </Field>
-        <Field label="Ownership %" approvalSensitive important>
+        <Field label="Asset Share %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -677,7 +730,7 @@ export function OperatingAssetCompanyLinksPanel({
             <tr>
               <th className="w-[28%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Role</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Ownership</th>
+              <th className="w-[16%] px-4 py-3 font-semibold">Share</th>
               <th className="w-[24%] px-4 py-3 font-semibold">Notes</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Action</th>
             </tr>
@@ -861,7 +914,7 @@ function CompanyProjectPortfolio({
             }
           />
         </Field>
-        <Field label="Ownership %" approvalSensitive important>
+        <Field label="Project Share %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -1062,7 +1115,7 @@ function CompanyAssetPortfolio({
             }
           />
         </Field>
-        <Field label="Ownership %" approvalSensitive important>
+        <Field label="Asset Share %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
