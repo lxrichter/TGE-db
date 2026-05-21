@@ -2,7 +2,7 @@ import PostgresStatusBadge, {
   type PostgresStatusDomain,
 } from "@/components/postgres-preview/PostgresStatusBadge";
 
-type LegendGroupKey =
+export type PostgresStatusLegendGroupKey =
   | "review"
   | "lifecycle"
   | "severity"
@@ -18,7 +18,7 @@ type LegendItem = {
 };
 
 const legendGroups: Record<
-  LegendGroupKey,
+  PostgresStatusLegendGroupKey,
   {
     title: string;
     description: string;
@@ -116,7 +116,7 @@ export default function PostgresStatusLegend({
 }: {
   title?: string;
   description?: string;
-  groups?: LegendGroupKey[];
+  groups?: PostgresStatusLegendGroupKey[];
   compact?: boolean;
 }) {
   if (compact) {

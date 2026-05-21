@@ -670,6 +670,9 @@ export default async function PostgresCompanyDetailPage({
       subtitle="PostgreSQL staging company profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to PostgreSQL Preview"
+      statusLegendDescription="Company detail badges separate business identity, review state, relationship/evidence issue severity, source credibility, and AI/match confidence."
+      statusLegendGroups={["review", "severity", "source", "confidence"]}
+      statusLegendTitle="Company Status Meaning"
       badges={
         <>
           <Link

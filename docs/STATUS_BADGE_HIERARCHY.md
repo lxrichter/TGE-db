@@ -80,6 +80,10 @@ Current placement:
 - full Research Ops legend on `/postgres-preview/research-ops`
 - compact entity-list legend on PostgreSQL Projects, Plants / Facilities, and
   Companies list context strips
+- compact detail-page legend on PostgreSQL project, plant/facility, and company
+  record pages
+- shared severity badge language inside PostgreSQL entity create/edit form
+  readiness panels
 - compact source-governance legend on `/sources`
 
 The legend is intentionally informational only. It does not change validation,

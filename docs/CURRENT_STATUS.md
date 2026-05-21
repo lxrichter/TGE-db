@@ -104,6 +104,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   surfaces now include a reusable badge meaning legend so researchers can read
   review state, development phase, issue severity, source credibility,
   visibility, and AI/match confidence consistently
+- PostgreSQL project, plant/facility, and company detail pages now show compact
+  status meaning strips near the record header/stat area, and create/edit form
+  readiness panels now use the same shared severity badge language for critical,
+  important, and workflow guidance
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

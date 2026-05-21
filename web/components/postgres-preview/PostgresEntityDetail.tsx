@@ -8,6 +8,9 @@ import { formatCount } from "@/lib/format";
 import PostgresStatusBadge, {
   type PostgresStatusDomain,
 } from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusLegend, {
+  type PostgresStatusLegendGroupKey,
+} from "@/components/postgres-preview/PostgresStatusLegend";
 
 export type DetailField = {
   label: string;
@@ -963,6 +966,9 @@ export function DetailShell({
   backLabel,
   badges,
   stats,
+  statusLegendGroups = ["review", "lifecycle", "severity"],
+  statusLegendTitle = "Record Status Meaning",
+  statusLegendDescription = "Detail pages use the same badge language as Research Ops and the table views.",
   children,
 }: {
   eyebrow: string;
@@ -972,6 +978,9 @@ export function DetailShell({
   backLabel: string;
   badges: ReactNode;
   stats: DetailStat[];
+  statusLegendGroups?: PostgresStatusLegendGroupKey[];
+  statusLegendTitle?: string;
+  statusLegendDescription?: string;
   children: ReactNode;
 }) {
   return (
@@ -1002,6 +1011,12 @@ export function DetailShell({
       </section>
 
       <StatGrid stats={stats} />
+      <PostgresStatusLegend
+        compact
+        description={statusLegendDescription}
+        groups={statusLegendGroups}
+        title={statusLegendTitle}
+      />
       {children}
     </main>
   );

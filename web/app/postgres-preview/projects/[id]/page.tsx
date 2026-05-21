@@ -561,6 +561,9 @@ export default async function PostgresProjectDetailPage({
       subtitle="PostgreSQL staging project profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to PostgreSQL Preview"
+      statusLegendDescription="Project detail badges separate geothermal use category, development phase, review state, readiness severity, and source confidence."
+      statusLegendGroups={["review", "lifecycle", "severity", "source"]}
+      statusLegendTitle="Project Status Meaning"
       badges={
         <>
           <Link

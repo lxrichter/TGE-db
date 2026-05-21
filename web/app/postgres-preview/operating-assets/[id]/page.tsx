@@ -573,6 +573,9 @@ export default async function PostgresOperatingAssetDetailPage({
       subtitle="PostgreSQL staging operating asset profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to PostgreSQL Preview"
+      statusLegendDescription="Plant / facility detail badges separate operating or development phase, review state, readiness severity, and source confidence."
+      statusLegendGroups={["review", "lifecycle", "severity", "source"]}
+      statusLegendTitle="Plant / Facility Status Meaning"
       badges={
         <>
           <Link

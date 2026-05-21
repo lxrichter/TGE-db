@@ -13,6 +13,7 @@ import type {
   PostgresPreviewOperatingAssetDetail,
   PostgresPreviewProjectDetail,
 } from "@/lib/postgres-preview";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 type EntityFormMode = "create" | "edit";
 type EntityFormValues = Record<string, string>;
@@ -649,6 +650,23 @@ function issueMeaning(severity: FormReadinessIssue["severity"]) {
   return "Separate workflow item. Usually handled after saving on the detail page.";
 }
 
+function ReadinessMeaningCard({
+  severity,
+  label,
+  children,
+}: {
+  severity: FormReadinessIssue["severity"];
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
+      <PostgresStatusBadge domain="severity" label={label} value={severity} />
+      <p className="mt-2 text-xs leading-5 text-gray-600">{children}</p>
+    </div>
+  );
+}
+
 function formatFieldLabel(fieldName: string) {
   return fieldName
     .replace(/_/g, " ")
@@ -810,19 +828,19 @@ function FormReadinessPanel({
         </div>
       </div>
       <div className="space-y-4 px-5 py-5">
-        <div className="grid grid-cols-1 gap-3 text-xs leading-5 text-gray-600 lg:grid-cols-3">
-          <div className="border border-red-100 bg-red-50 px-3 py-3 text-red-800">
-            <span className="font-semibold">Critical</span>: blocks review,
-            approval, and export-ready use. Save draft remains allowed.
-          </div>
-          <div className="border border-amber-100 bg-amber-50 px-3 py-3 text-amber-900">
-            <span className="font-semibold">Important</span>: should be fixed
-            or accepted during review, but does not block draft saving.
-          </div>
-          <div className="border border-blue-100 bg-blue-50 px-3 py-3 text-blue-900">
-            <span className="font-semibold">Workflow</span>: handled through
-            linked source, relationship, or Research Ops workflows.
-          </div>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+          <ReadinessMeaningCard label="Critical" severity="critical">
+            Blocks review, approval, and export-ready use. Save draft remains
+            allowed.
+          </ReadinessMeaningCard>
+          <ReadinessMeaningCard label="Important" severity="important">
+            Should be fixed or accepted during review, but does not block draft
+            saving.
+          </ReadinessMeaningCard>
+          <ReadinessMeaningCard label="Workflow" severity="workflow">
+            Handled through linked source, relationship, or Research Ops
+            workflows.
+          </ReadinessMeaningCard>
         </div>
 
         {issueActionError ? (
