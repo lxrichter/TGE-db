@@ -2859,6 +2859,33 @@ export function PostgresCompanyForm({
       />
 
       <Section title="Identity And Classification">
+        <div className="mb-5 grid gap-3 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-950 lg:grid-cols-3">
+          <div>
+            <div className="font-bold uppercase tracking-wide">Record Type</div>
+            <p className="mt-1">
+              What kind of company record this is: legal entity, group, SPV,
+              institution, association, or similar.
+            </p>
+          </div>
+          <div>
+            <div className="font-bold uppercase tracking-wide">
+              Business Identity
+            </div>
+            <p className="mt-1">
+              The company&apos;s dominant geothermal market identity for
+              filtering and analytics.
+            </p>
+          </div>
+          <div>
+            <div className="font-bold uppercase tracking-wide">
+              Roles On Records
+            </div>
+            <p className="mt-1">
+              Developer, owner, operator, supplier, investor, and similar roles
+              belong on project/asset relationship links after save.
+            </p>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
             label="Company Name"

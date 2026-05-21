@@ -278,6 +278,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Company edit forms now pass through saved project-role, plant/facility-role,
   and company-relationship rows so the workflow bridge can show compact inline
   relationship previews before users jump into the full relationship manager
+- Company forms now include an inline semantic guide that separates record type,
+  primary business identity, and relationship-based roles for new researchers
 - Project and plant/facility edit forms now receive saved relationship rows for
   company-role and promotion/originating-project previews, bringing the same
   inline relationship awareness to all three core entity forms
