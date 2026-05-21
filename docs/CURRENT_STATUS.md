@@ -110,6 +110,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL project, plant/facility, and company list pages now include a
   view-context strip showing the active operational view, active filters,
   matched-record count, visible page range, and explicit filtered-export scope
+- Sources / Documents now includes a lighter view-context strip showing active
+  source filters, matched source-record counts, visible rows, and the current
+  no-dedicated-source-export limitation
 - field suggestion candidate schema, review surfaces, and controlled apply
   workflow have been added for AI-assisted data filling; suggestions remain
   human-reviewed candidates and only whitelisted empty project/plant fields can

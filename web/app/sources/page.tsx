@@ -285,6 +285,135 @@ function activeOperationalFilterLabels(filters: SourceSearchParams) {
   ].filter((label): label is string => Boolean(label));
 }
 
+function sourceOptionLabel(options: SourceReferenceOption[], value?: string) {
+  if (!value) {
+    return undefined;
+  }
+
+  return options.find((option) => option.code === value)?.label || value;
+}
+
+function activeSourceFilterLabels(
+  filters: SourceSearchParams,
+  referenceData: SourceReferenceData
+) {
+  return [
+    filters.search ? { label: "Search", value: filters.search } : null,
+    filters.sourceType
+      ? {
+          label: "Source Type",
+          value:
+            sourceOptionLabel(referenceData.sourceTypes, filters.sourceType) ||
+            filters.sourceType,
+        }
+      : null,
+    filters.visibility
+      ? {
+          label: "Visibility",
+          value:
+            sourceOptionLabel(referenceData.visibilityLevels, filters.visibility) ||
+            filters.visibility,
+        }
+      : null,
+    filters.status
+      ? {
+          label: "Status",
+          value:
+            sourceOptionLabel(referenceData.credibilityStatuses, filters.status) ||
+            filters.status,
+        }
+      : null,
+    filters.linkState === "unlinked"
+      ? { label: "Link State", value: "Unlinked sources" }
+      : null,
+    filters.linkState === "linked"
+      ? { label: "Link State", value: "Linked sources" }
+      : null,
+    filters.duplicate === "1"
+      ? { label: "Review Flags", value: "Duplicate flagged" }
+      : null,
+    filters.quality === "weak_outdated_rejected"
+      ? { label: "Quality", value: "Weak / outdated / rejected" }
+      : null,
+  ].filter((filter): filter is { label: string; value: string } =>
+    Boolean(filter)
+  );
+}
+
+function sourceViewLabel(activeFilters: Array<{ label: string; value: string }>) {
+  if (activeFilters.length === 0) {
+    return "All Source Records";
+  }
+
+  if (activeFilters.length === 1) {
+    return activeFilters[0].value;
+  }
+
+  return "Custom Source View";
+}
+
+function SourcesListContext({
+  shownCount,
+  total,
+  activeFilters,
+}: {
+  shownCount: number;
+  total: number;
+  activeFilters: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Current View
+          </div>
+          <div className="mt-1 text-lg font-bold text-[#1f2937]">
+            {sourceViewLabel(activeFilters)}
+          </div>
+          <div className="mt-1 text-xs leading-5 text-gray-500">
+            {activeFilters.length === 0
+              ? "No active filters"
+              : `${formatCount(activeFilters.length)} active filter${
+                  activeFilters.length === 1 ? "" : "s"
+                }`}
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Results
+          </div>
+          <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+            Showing {formatCount(shownCount)} of {formatCount(total)} matching
+            source records
+          </div>
+          <div className="mt-1 text-xs leading-5 text-gray-500">
+            Source table currently shows the first {formatCount(shownCount)} records.
+          </div>
+        </div>
+        <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
+          Source export is not enabled yet. For now, exports remain available on
+          project, plant/facility, company, Research Ops, and candidate-review
+          workflows where explicit export routes exist.
+        </div>
+      </div>
+      {activeFilters.length > 0 ? (
+        <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
+          {activeFilters.map((filter) => (
+            <span
+              key={`${filter.label}-${filter.value}`}
+              className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
+            >
+              <span className="text-gray-500">{filter.label}:</span>
+              <span className="ml-1">{filter.value}</span>
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function SetupNotice({ error }: { error: string }) {
   return (
     <section className="border border-amber-200 bg-amber-50 px-5 py-5">
@@ -418,6 +547,9 @@ export default async function SourcesPage({
   };
   const activeOperationalFilters = activeOperationalFilterLabels(filters);
   const data = await getSourcesData(filters);
+  const activeSourceFilters = data.ok
+    ? activeSourceFilterLabels(filters, data.referenceData)
+    : [];
 
   return (
     <main className="space-y-8">
@@ -666,6 +798,12 @@ export default async function SourcesPage({
               </div>
             ) : null}
           </section>
+
+          <SourcesListContext
+            activeFilters={activeSourceFilters}
+            shownCount={data.sources.length}
+            total={data.summary.total}
+          />
 
           <SourcesTable sources={data.sources} total={data.summary.total} />
         </>
