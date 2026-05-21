@@ -737,8 +737,11 @@ export default function PostgresSourceEvidencePanel({
                 <td className="px-4 py-3 text-gray-700">
                   {source.extracted_value || "-"}
                 </td>
-                <td className="px-4 py-3 text-gray-700">
-                  {source.confidence_status_code}
+                <td className="px-4 py-3">
+                  <StatusBadge
+                    domain="confidence"
+                    value={source.confidence_status_code}
+                  />
                   {source.is_primary_evidence ? (
                     <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
                       Primary

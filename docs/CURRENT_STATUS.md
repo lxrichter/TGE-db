@@ -108,6 +108,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   status meaning strips near the record header/stat area, and create/edit form
   readiness panels now use the same shared severity badge language for critical,
   important, and workflow guidance
+- PostgreSQL project, plant/facility, and company detail pages now include a
+  shared evidence workflow explainer that distinguishes authoritative Source
+  Evidence, filtered Related TGE News / Evidence, and human-reviewed AI
+  Suggestions; source evidence confidence values now use the shared confidence
+  badge hierarchy
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

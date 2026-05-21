@@ -9,6 +9,7 @@ import {
   DetailSection,
   DetailShell,
   DetailWorkflowMap,
+  EvidenceWorkflowContext,
   ExportReadinessPanel,
   NotFoundNotice,
   PendingReviewChangesPanel,
@@ -825,6 +826,12 @@ export default async function PostgresOperatingAssetDetailPage({
         entityId={asset.operating_asset_id}
         entityType="operating_asset"
         reviewStatuses={entityReferenceData.reviewStatuses}
+      />
+
+      <EvidenceWorkflowContext
+        aiSuggestionsHref="#asset-ai-suggestions"
+        sourceEvidenceHref="#asset-source-evidence"
+        tgeNewsHref="#asset-tge-news"
       />
 
       <RelatedTgeNewsPanel

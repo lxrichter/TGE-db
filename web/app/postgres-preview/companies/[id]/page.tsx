@@ -9,6 +9,7 @@ import {
   DetailSection,
   DetailShell,
   DetailWorkflowMap,
+  EvidenceWorkflowContext,
   ExportReadinessPanel,
   NotFoundNotice,
   PendingReviewChangesPanel,
@@ -946,6 +947,12 @@ export default async function PostgresCompanyDetailPage({
           relationships={relationships}
         />
       </div>
+
+      <EvidenceWorkflowContext
+        aiSuggestionsHref="#company-ai-suggestions"
+        sourceEvidenceHref="#company-source-evidence"
+        tgeNewsHref="#company-tge-news"
+      />
 
       <RelatedTgeNewsPanel
         entityType="company"

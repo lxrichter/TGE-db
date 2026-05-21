@@ -9,6 +9,7 @@ import {
   DetailSection,
   DetailShell,
   DetailWorkflowMap,
+  EvidenceWorkflowContext,
   ExportReadinessPanel,
   NotFoundNotice,
   PendingReviewChangesPanel,
@@ -826,6 +827,12 @@ export default async function PostgresProjectDetailPage({
         entityId={project.project_id}
         entityType="project"
         reviewStatuses={entityReferenceData.reviewStatuses}
+      />
+
+      <EvidenceWorkflowContext
+        aiSuggestionsHref="#project-ai-suggestions"
+        sourceEvidenceHref="#project-source-evidence"
+        tgeNewsHref="#project-tge-news"
       />
 
       <RelatedTgeNewsPanel

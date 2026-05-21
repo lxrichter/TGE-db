@@ -577,6 +577,79 @@ export function DetailWorkflowMap({
   );
 }
 
+export function EvidenceWorkflowContext({
+  sourceEvidenceHref,
+  tgeNewsHref,
+  aiSuggestionsHref,
+}: {
+  sourceEvidenceHref: string;
+  tgeNewsHref: string;
+  aiSuggestionsHref: string;
+}) {
+  const cards = [
+    {
+      label: "Source Evidence",
+      href: sourceEvidenceHref,
+      badge: "Authoritative",
+      note:
+        "Governed source links for all source types. This is the evidence workspace used for validation and export-readiness checks.",
+    },
+    {
+      label: "Related TGE News",
+      href: tgeNewsHref,
+      badge: "Article View",
+      note:
+        "Filtered view of confirmed ThinkGeoEnergy article links. Useful for context and related news, but it does not replace the full source table.",
+    },
+    {
+      label: "AI Suggestions",
+      href: aiSuggestionsHref,
+      badge: "Candidate Layer",
+      note:
+        "Extracted field suggestions remain human-reviewed candidates. Confirming accepts a suggestion; applying is the separate audited database write.",
+    },
+  ];
+
+  return (
+    <section className="border border-gray-200 bg-white px-5 py-5">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Evidence Workflow
+          </div>
+          <h2 className="mt-1 text-lg font-bold text-[#1f2937]">
+            Evidence, News, And AI Review
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            These sections are connected but not interchangeable. Source
+            Evidence is the governed record of proof; Related TGE News is a
+            filtered article view; AI Suggestions are review candidates that do
+            not update records until explicitly applied.
+          </p>
+        </div>
+        <StatusBadge value="human review required" />
+      </div>
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        {cards.map((card) => (
+          <Link
+            className="block border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f] hover:bg-[#f5faef]"
+            href={card.href}
+            key={card.label}
+          >
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="text-sm font-bold text-[#1f2937]">{card.label}</div>
+              <span className="inline-flex min-h-6 items-center border border-gray-200 bg-white px-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                {card.badge}
+              </span>
+            </div>
+            <p className="mt-2 text-xs leading-5 text-gray-600">{card.note}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function DetailSection({
   title,
   children,
