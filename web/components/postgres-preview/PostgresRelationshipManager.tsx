@@ -377,6 +377,12 @@ function RelationshipSupportSummary({
     scope === "company"
       ? "Current ownership, group, JV, or shareholder relationships."
       : "Primary roles or participation shares that need clear evidence.";
+  const relationshipEvidenceNote =
+    totalRelationshipCount === 0
+      ? "No relationship evidence needed until structured links are added."
+      : relationshipEvidenceCount > 0
+        ? "Record-level source links tagged for ownership, operator, entity, or relationship evidence."
+        : "No source links are tagged for relationship evidence yet; row-level evidence links are a future step.";
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
@@ -387,22 +393,22 @@ function RelationshipSupportSummary({
         value={formatCount(activityLinkCount)}
       />
       <RelationshipSummaryTile
-        label="Record Evidence"
+        label="Record Sources"
         note={`${formatCount(credibleSourceCount)} credible source${
           credibleSourceCount === 1 ? "" : "s"
-        } on this record.`}
+        } linked as general record evidence.`}
         status={evidenceStatus}
         value={formatCount(sources.length)}
       />
       <RelationshipSummaryTile
-        label="Relationship Signals"
-        note="Record-level source links tagged for ownership, operator, entity, or relationship evidence."
+        label="Relationship Evidence"
+        note={relationshipEvidenceNote}
         status={
           totalRelationshipCount === 0
             ? "draft"
             : relationshipEvidenceCount > 0
               ? "confirmed"
-              : "needs_review"
+              : "evidence_pending"
         }
         value={formatCount(relationshipEvidenceCount)}
       />

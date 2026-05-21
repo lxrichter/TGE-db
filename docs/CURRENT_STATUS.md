@@ -260,10 +260,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   plant/facility role forms label percentages as project/asset share rather
   than generic company ownership
 - Project, plant/facility, and company relationship managers now show compact
-  relationship-support summaries for structured activity roles, record-level
-  evidence, ownership/operator/entity evidence signals, and ownership/group or
-  primary/share follow-up; this is explicitly record-level evidence support
-  until individual relationship rows gain their own source links
+  relationship-support summaries for structured activity roles, general record
+  sources, relationship-evidence signals, and ownership/group or primary/share
+  follow-up; missing relationship-evidence signals are labelled as evidence
+  pending because individual relationship rows do not yet have their own source
+  links
 - PostgreSQL edit forms now let researchers create persistent Research Ops
   issues directly from form readiness warnings and edited approval-sensitive
   fields, turning validation gaps into assigned operational follow-up items

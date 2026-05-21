@@ -93,6 +93,7 @@ const genericStatusTones: Record<string, PostgresStatusTone> = {
   completed: "success",
   dismissed: "muted",
   done: "success",
+  evidence_pending: "attention",
   in_progress: "info",
   new: "info",
   open: "info",
