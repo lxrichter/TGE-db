@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
 import type {
+  PostgresCompanyOperatingAssetLink,
+  PostgresCompanyProjectLink,
+  PostgresCompanyRelationship,
   PostgresEntityFormReferenceData,
   PostgresPreviewCompanyDetail,
   PostgresPreviewOperatingAssetDetail,
@@ -28,6 +31,11 @@ type ReadinessRelationshipContext = {
   sourceCount?: number;
   companyLinkCount?: number;
   activityLinkCount?: number;
+};
+type CompanyWorkflowPreview = {
+  projectLinks: PostgresCompanyProjectLink[];
+  operatingAssetLinks: PostgresCompanyOperatingAssetLink[];
+  relationships: PostgresCompanyRelationship[];
 };
 
 function toInputValue(value: string | number | null | undefined) {
@@ -1365,9 +1373,11 @@ function AssetWorkflowBridge({
 function CompanyWorkflowBridge({
   mode,
   company,
+  relationshipPreview,
 }: {
   mode: EntityFormMode;
   company?: PostgresPreviewCompanyDetail | null;
+  relationshipPreview?: CompanyWorkflowPreview;
 }) {
   const companyHref = company
     ? `/postgres-preview/companies/${company.company_id}`
@@ -1376,9 +1386,29 @@ function CompanyWorkflowBridge({
   const relationshipsHref = companyHref ? `${companyHref}#company-relationships` : null;
   const sourcePreview = company?.sources?.slice(0, 2) || [];
   const sourceCount = company?.source_count || 0;
-  const projectRoleCount = company?.project_link_count || 0;
-  const assetRoleCount = company?.operating_asset_link_count || 0;
+  const projectRoleCount =
+    relationshipPreview?.projectLinks.length ?? company?.project_link_count ?? 0;
+  const assetRoleCount =
+    relationshipPreview?.operatingAssetLinks.length ??
+    company?.operating_asset_link_count ??
+    0;
+  const companyRelationshipCount = relationshipPreview?.relationships.length || 0;
   const activityRoleCount = projectRoleCount + assetRoleCount;
+  const activityPreview = [
+    ...(relationshipPreview?.projectLinks || []).map((link) => ({
+      href: `/postgres-preview/projects/${link.project_id}`,
+      name: link.project_name,
+      meta: `${link.role_label || link.role_code}${link.country ? ` / ${link.country}` : ""}`,
+      key: `project-${link.company_project_link_id}`,
+    })),
+    ...(relationshipPreview?.operatingAssetLinks || []).map((link) => ({
+      href: `/postgres-preview/operating-assets/${link.operating_asset_id}`,
+      name: link.asset_name,
+      meta: `${link.role_label || link.role_code}${link.country ? ` / ${link.country}` : ""}`,
+      key: `asset-${link.company_operating_asset_link_id}`,
+    })),
+  ].slice(0, 3);
+  const relationshipRows = relationshipPreview?.relationships.slice(0, 3) || [];
 
   return (
     <Section title="Evidence, Roles, And Company Structure Workflow">
@@ -1472,6 +1502,25 @@ function CompanyWorkflowBridge({
                 {assetRoleCount} plant/facility role
                 {assetRoleCount === 1 ? "" : "s"}
               </div>
+              {activityPreview.length > 0 ? (
+                <ul className="mt-2 space-y-1">
+                  {activityPreview.map((link) => (
+                    <li key={link.key}>
+                      <Link
+                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        href={link.href}
+                      >
+                        {link.name}
+                      </Link>
+                      <div className="truncate text-gray-500">{link.meta}</div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-2 text-gray-500">
+                  No project or plant/facility roles linked yet.
+                </div>
+              )}
             </div>
           ) : null}
         </div>
@@ -1507,6 +1556,32 @@ function CompanyWorkflowBridge({
                 {company.company_type_primary_code || "No primary identity"} /{" "}
                 {company.entity_type_code || "No record type"}
               </div>
+              <div className="mt-2 font-semibold text-[#1f2937]">
+                {companyRelationshipCount} company relationship
+                {companyRelationshipCount === 1 ? "" : "s"}
+              </div>
+              {relationshipRows.length > 0 ? (
+                <ul className="mt-1 space-y-1">
+                  {relationshipRows.map((relationship) => (
+                    <li
+                      key={relationship.company_relationship_id}
+                      className="truncate"
+                    >
+                      {relationship.company_name_from} /{" "}
+                      {relationship.company_name_to}
+                      <div className="text-gray-500">
+                        {relationship.relationship_type_label ||
+                          relationship.relationship_type_code}
+                        {relationship.is_current ? " / current" : ""}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="mt-1 text-gray-500">
+                  No ownership/group relationships linked yet.
+                </div>
+              )}
             </div>
           ) : null}
         </div>
@@ -2328,10 +2403,12 @@ export function PostgresCompanyForm({
   mode,
   company,
   referenceData,
+  relationshipPreview,
 }: {
   mode: EntityFormMode;
   company?: PostgresPreviewCompanyDetail | null;
   referenceData: PostgresEntityFormReferenceData;
+  relationshipPreview?: CompanyWorkflowPreview;
 }) {
   const router = useRouter();
   const [originalForm] = useState<EntityFormValues>(() =>
@@ -2413,7 +2490,11 @@ export function PostgresCompanyForm({
         })}
       />
 
-      <CompanyWorkflowBridge company={company} mode={mode} />
+      <CompanyWorkflowBridge
+        company={company}
+        mode={mode}
+        relationshipPreview={relationshipPreview}
+      />
 
       <Section title="Identity And Classification">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

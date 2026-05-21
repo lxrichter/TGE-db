@@ -275,6 +275,9 @@ foundation. Current implemented PostgreSQL staging areas include:
 - PostgreSQL company forms now clarify company record type vs primary geothermal
   business identity vs project/asset roles, and show a workflow bridge for evidence,
   activity roles, and group/ownership relationship follow-up
+- Company edit forms now pass through saved project-role, plant/facility-role,
+  and company-relationship rows so the workflow bridge can show compact inline
+  relationship previews before users jump into the full relationship manager
 - Detail-page review buttons and Research Ops bulk status actions now surface
   the same approval/export-readiness blockers, keeping approval failures
   understandable outside the edit forms

@@ -7,6 +7,9 @@ import { PostgresCompanyForm } from "@/components/postgres-preview/PostgresEntit
 import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewCompanyById,
+  listPostgresCompanyOperatingAssetLinks,
+  listPostgresCompanyProjectLinks,
+  listPostgresCompanyRelationships,
 } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +19,11 @@ type FormData =
       ok: true;
       referenceData: Awaited<ReturnType<typeof getPostgresEntityFormReferenceData>>;
       company: NonNullable<Awaited<ReturnType<typeof getPostgresPreviewCompanyById>>>;
+      projectLinks: Awaited<ReturnType<typeof listPostgresCompanyProjectLinks>>;
+      operatingAssetLinks: Awaited<
+        ReturnType<typeof listPostgresCompanyOperatingAssetLinks>
+      >;
+      relationships: Awaited<ReturnType<typeof listPostgresCompanyRelationships>>;
     }
   | {
       ok: false;
@@ -24,16 +32,32 @@ type FormData =
 
 async function getFormData(companyId: string): Promise<FormData> {
   try {
-    const [referenceData, company] = await Promise.all([
+    const [
+      referenceData,
+      company,
+      projectLinks,
+      operatingAssetLinks,
+      relationships,
+    ] = await Promise.all([
       getPostgresEntityFormReferenceData(),
       getPostgresPreviewCompanyById(companyId),
+      listPostgresCompanyProjectLinks(companyId),
+      listPostgresCompanyOperatingAssetLinks(companyId),
+      listPostgresCompanyRelationships(companyId),
     ]);
 
     if (!company) {
       return { ok: false, error: "not_found" };
     }
 
-    return { ok: true, referenceData, company };
+    return {
+      ok: true,
+      referenceData,
+      company,
+      projectLinks,
+      operatingAssetLinks,
+      relationships,
+    };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return { ok: false, error: message };
@@ -108,6 +132,11 @@ export default async function EditPostgresCompanyPage({
         <PostgresCompanyForm
           company={data.company}
           mode="edit"
+          relationshipPreview={{
+            projectLinks: data.projectLinks,
+            operatingAssetLinks: data.operatingAssetLinks,
+            relationships: data.relationships,
+          }}
           referenceData={data.referenceData}
         />
       )}
