@@ -397,15 +397,19 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section
-      className="scroll-mt-6 border border-gray-200 bg-white"
+    <details
+      className="group scroll-mt-6 border border-gray-200 bg-white"
       id={sectionAnchorId(title)}
+      open
     >
-      <div className="border-b border-gray-200 px-5 py-4">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 marker:hidden">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-      </div>
+        <span className="shrink-0 border border-gray-200 bg-[#fafafa] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+          Toggle
+        </span>
+      </summary>
       <div className="px-5 py-5">{children}</div>
-    </section>
+    </details>
   );
 }
 
