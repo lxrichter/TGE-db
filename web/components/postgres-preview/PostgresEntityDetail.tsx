@@ -818,11 +818,14 @@ export function RelatedTgeNewsPanel({
             Related TGE News / Evidence
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Confirmed ThinkGeoEnergy article links for this record. These are
-            stored as source/evidence links, not as a separate news relationship.
+            Article-focused view of confirmed ThinkGeoEnergy source links for
+            this record. These links are still governed evidence records; the
+            full source table below remains the authoritative evidence workspace
+            for all source types.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <StatusBadge value="TGE article view" />
           <StatusBadge value={`${formatCount(articles.length)} article links`} />
           <Link
             href="/sources/matches"

@@ -92,6 +92,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   links into the Sources review workflow
 - PostgreSQL project, plant/facility, and company detail pages now surface
   confirmed `tge_article` evidence links as Related TGE News / Evidence
+- Detail-page evidence copy now distinguishes Related TGE News / Evidence as
+  an article-filtered view from Source Evidence as the authoritative governed
+  evidence workspace for all source types
 - field suggestion candidate schema, review surfaces, and controlled apply
   workflow have been added for AI-assisted data filling; suggestions remain
   human-reviewed candidates and only whitelisted empty project/plant fields can

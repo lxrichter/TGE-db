@@ -363,9 +363,12 @@ export default function PostgresSourceEvidencePanel({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="max-w-3xl text-sm leading-6 text-gray-600">
-          Source/evidence links for this PostgreSQL staging record. Evidence
-          is reviewed separately from database field updates: source record,
-          credibility, fact type, field/value, then human-confirmed use.
+          Authoritative governed source/evidence table for this PostgreSQL
+          staging record. It covers all source types, including TGE articles;
+          the related-news section is a filtered article view of the same
+          evidence layer. Evidence is reviewed separately from database field
+          updates: source record, credibility, fact type, field/value, then
+          human-confirmed use.
         </p>
         <div className="flex flex-wrap gap-2">
           {canManageSources ? (
