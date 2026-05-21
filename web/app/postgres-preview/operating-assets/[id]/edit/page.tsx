@@ -121,8 +121,14 @@ export default async function EditPostgresOperatingAssetPage({
             {data.ok ? (
               <div className="flex flex-wrap gap-2">
                 <StatusBadge value={data.asset.primary_use_type_code} />
-                <StatusBadge value={data.asset.lifecycle_phase_code} />
-                <StatusBadge value={data.asset.review_status_code} />
+                <StatusBadge
+                  domain="lifecycle"
+                  value={data.asset.lifecycle_phase_code}
+                />
+                <StatusBadge
+                  domain="review"
+                  value={data.asset.review_status_code}
+                />
               </div>
             ) : null}
           </div>

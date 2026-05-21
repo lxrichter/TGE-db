@@ -15,6 +15,9 @@ import {
   SOURCE_FACT_TYPE_PRESETS,
   type SourceFactTypePreset,
 } from "@/lib/sourceFactTypePresets";
+import PostgresStatusBadge, {
+  type PostgresStatusDomain,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 type TgeArticleResult = {
   wordpress_id: number;
@@ -43,12 +46,14 @@ function sourceLabel(source: SourceListItem) {
   );
 }
 
-function StatusBadge({ value }: { value: string | null }) {
-  return (
-    <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
-      {value || "unknown"}
-    </span>
-  );
+function StatusBadge({
+  value,
+  domain = "generic",
+}: {
+  value: string | null;
+  domain?: PostgresStatusDomain;
+}) {
+  return <PostgresStatusBadge domain={domain} value={value} />;
 }
 
 function formatEvidenceCode(value: string | null) {
@@ -718,7 +723,10 @@ export default function PostgresSourceEvidencePanel({
                   {source.source_type_label || "-"}
                 </td>
                 <td className="px-4 py-3">
-                  <StatusBadge value={source.credibility_status_code} />
+                  <StatusBadge
+                    domain="source"
+                    value={source.credibility_status_code}
+                  />
                 </td>
                 <td className="px-4 py-3 text-gray-700">
                   {formatEvidenceCode(source.evidence_type)}

@@ -95,6 +95,11 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Detail-page evidence copy now distinguishes Related TGE News / Evidence as
   an article-filtered view from Source Evidence as the authoritative governed
   evidence workspace for all source types
+- PostgreSQL preview badges now use a shared status hierarchy for review states,
+  lifecycle phases, source credibility, AI/match confidence, issue severity, and
+  generic workflow states so badge colors carry consistent operational meaning
+  across list, detail, source, governance, Research Ops, and record-workbench
+  surfaces
 - field suggestion candidate schema, review surfaces, and controlled apply
   workflow have been added for AI-assisted data filling; suggestions remain
   human-reviewed candidates and only whitelisted empty project/plant fields can

@@ -570,8 +570,8 @@ export default async function PostgresProjectDetailPage({
             Edit
           </Link>
           <StatusBadge value={project.primary_use_type_code} />
-          <StatusBadge value={project.lifecycle_phase_code} />
-          <StatusBadge value={project.review_status_code} />
+          <StatusBadge domain="lifecycle" value={project.lifecycle_phase_code} />
+          <StatusBadge domain="review" value={project.review_status_code} />
         </>
       }
       stats={[

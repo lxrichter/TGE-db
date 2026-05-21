@@ -5,6 +5,9 @@ import type {
   PostgresEntitySourceLink,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
+import PostgresStatusBadge, {
+  type PostgresStatusDomain,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 export type DetailField = {
   label: string;
@@ -203,12 +206,16 @@ function getReviewChangeRows(events: PostgresAuditEvent[]): ReviewChangeRow[] {
   });
 }
 
-export function StatusBadge({ value }: { value: string | null }) {
-  return (
-    <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
-      {value || "unknown"}
-    </span>
-  );
+export function StatusBadge({
+  value,
+  domain,
+  label,
+}: {
+  value: string | null;
+  domain?: PostgresStatusDomain;
+  label?: string;
+}) {
+  return <PostgresStatusBadge domain={domain} label={label} value={value} />;
 }
 
 export function PendingReviewChangesPanel({
@@ -242,7 +249,7 @@ export function PendingReviewChangesPanel({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <StatusBadge value={currentReviewStatus} />
+          <StatusBadge domain="review" value={currentReviewStatus} />
           <StatusBadge value={`${formatCount(rows.length)} field changes`} />
         </div>
       </div>
@@ -729,7 +736,10 @@ export function SourceEvidenceTable({
                   {source.source_type_label || "-"}
                 </td>
                 <td className="px-4 py-3">
-                  <StatusBadge value={source.credibility_status_code} />
+                  <StatusBadge
+                    domain="source"
+                    value={source.credibility_status_code}
+                  />
                 </td>
                 <td className="px-4 py-3 text-gray-700">
                   {formatSourceLinkCode(source.evidence_type)}
@@ -872,8 +882,14 @@ export function RelatedTgeNewsPanel({
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">
-                    <StatusBadge value={article.credibility_status_code} />
-                    <StatusBadge value={article.confidence_status_code} />
+                    <StatusBadge
+                      domain="source"
+                      value={article.credibility_status_code}
+                    />
+                    <StatusBadge
+                      domain="confidence"
+                      value={article.confidence_status_code}
+                    />
                   </div>
                 </div>
 

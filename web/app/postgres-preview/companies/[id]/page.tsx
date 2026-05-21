@@ -680,7 +680,7 @@ export default async function PostgresCompanyDetailPage({
           </Link>
           <StatusBadge value={company.entity_type_code} />
           <StatusBadge value={company.company_type_primary_code} />
-          <StatusBadge value={company.review_status_code} />
+          <StatusBadge domain="review" value={company.review_status_code} />
         </>
       }
       stats={[

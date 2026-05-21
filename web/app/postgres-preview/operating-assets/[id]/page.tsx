@@ -582,8 +582,8 @@ export default async function PostgresOperatingAssetDetailPage({
             Edit
           </Link>
           <StatusBadge value={asset.primary_use_type_code} />
-          <StatusBadge value={asset.lifecycle_phase_code} />
-          <StatusBadge value={asset.review_status_code} />
+          <StatusBadge domain="lifecycle" value={asset.lifecycle_phase_code} />
+          <StatusBadge domain="review" value={asset.review_status_code} />
         </>
       }
       stats={[

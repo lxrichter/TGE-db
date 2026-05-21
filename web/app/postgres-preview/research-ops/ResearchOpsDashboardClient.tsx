@@ -8,6 +8,9 @@ import { formatCount } from "@/lib/format";
 import PostgresReviewStatusActions, {
   type PostgresStatusOption,
 } from "@/components/postgres-preview/PostgresReviewStatusActions";
+import PostgresStatusBadge, {
+  type PostgresStatusDomain,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 import {
   type PostgresResearchOpsDashboard,
   type PostgresFieldSuggestionCandidate,
@@ -392,18 +395,6 @@ function formatEntityType(value: EntityType) {
 
 function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
-}
-
-function severityClasses(severity: ResearchOpsQueueSeverity) {
-  if (severity === "critical") {
-    return "border-red-200 bg-red-50 text-red-800";
-  }
-
-  if (severity === "important") {
-    return "border-amber-200 bg-amber-50 text-amber-800";
-  }
-
-  return "border-blue-200 bg-blue-50 text-blue-800";
 }
 
 function recordKey(record: ResearchOpsRecord) {
@@ -1975,24 +1966,18 @@ function FieldSuggestionReviewPanel({
   );
 }
 
-function StatusBadge({ value }: { value: string | null }) {
-  return (
-    <span className="inline-flex h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
-      {value || "unknown"}
-    </span>
-  );
+function StatusBadge({
+  value,
+  domain = "generic",
+}: {
+  value: string | null;
+  domain?: PostgresStatusDomain;
+}) {
+  return <PostgresStatusBadge domain={domain} value={value} />;
 }
 
 function SeverityBadge({ severity }: { severity: ResearchOpsQueueSeverity }) {
-  return (
-    <span
-      className={`inline-flex h-7 items-center border px-2 text-xs font-semibold capitalize ${severityClasses(
-        severity
-      )}`}
-    >
-      {severity}
-    </span>
-  );
+  return <PostgresStatusBadge domain="severity" value={severity} />;
 }
 
 function FilterSelect({
@@ -2200,10 +2185,16 @@ function EntityTable({
                     {item.primary_use_type_code || "-"}
                   </td>
                   <td className="px-5 py-4 text-gray-700">
-                    {item.lifecycle_phase_code || "-"}
+                    <StatusBadge
+                      domain="lifecycle"
+                      value={item.lifecycle_phase_code}
+                    />
                   </td>
                   <td className="px-5 py-4">
-                    <StatusBadge value={item.review_status_code} />
+                    <StatusBadge
+                      domain="review"
+                      value={item.review_status_code}
+                    />
                   </td>
                   <td className="px-5 py-4 text-gray-700">
                     {item.last_updated_by_name || "-"}

@@ -6,6 +6,12 @@ import type {
   PostgresResearchOpsIssue,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
+import {
+  formatStatusLabel,
+  postgresStatusTone,
+  postgresStatusToneClass,
+  type PostgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 export type GovernanceTone = "green" | "amber" | "red" | "neutral";
 
@@ -28,39 +34,32 @@ export type GovernanceFieldSuggestionSummary = {
 };
 
 export function formatGovernanceCode(value: string | null | undefined) {
-  if (!value) {
-    return "-";
-  }
-
-  return value
-    .replaceAll("_", " ")
-    .replace(/\bmw\b/gi, "MW")
-    .replace(/\bmwe\b/gi, "MWe")
-    .replace(/\bmwth\b/gi, "MWth")
-    .replace(/\bcod\b/gi, "COD");
+  return value ? formatStatusLabel(value) : "-";
 }
 
 export function governanceToneClass(tone: GovernanceTone) {
-  const classes = {
-    green: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-    amber: "border-amber-200 bg-amber-50 text-amber-800",
-    red: "border-red-200 bg-red-50 text-red-700",
-    neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+  const classes: Record<GovernanceTone, PostgresStatusTone> = {
+    green: "success",
+    amber: "attention",
+    red: "danger",
+    neutral: "neutral",
   };
 
-  return classes[tone];
+  return postgresStatusToneClass(classes[tone]);
 }
 
 export function reviewStatusTone(status: string | null): GovernanceTone {
-  if (status === "approved" || status === "export_ready") {
+  const tone = postgresStatusTone(status, "review");
+
+  if (tone === "success") {
     return "green";
   }
 
-  if (status === "needs_update" || status === "validation") {
+  if (tone === "attention" || tone === "info") {
     return "amber";
   }
 
-  if (status === "archived") {
+  if (tone === "danger") {
     return "red";
   }
 
@@ -68,15 +67,17 @@ export function reviewStatusTone(status: string | null): GovernanceTone {
 }
 
 export function sourceCredibilityTone(status: string): GovernanceTone {
-  if (status === "credible") {
+  const tone = postgresStatusTone(status, "source");
+
+  if (tone === "success") {
     return "green";
   }
 
-  if (status === "weak" || status === "rejected") {
+  if (tone === "danger") {
     return "red";
   }
 
-  return "amber";
+  return tone === "attention" ? "amber" : "neutral";
 }
 
 export function signalTone({

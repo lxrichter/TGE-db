@@ -119,7 +119,10 @@ export default async function EditPostgresCompanyPage({
               <div className="flex flex-wrap gap-2">
                 <StatusBadge value={data.company.entity_type_code} />
                 <StatusBadge value={data.company.company_type_primary_code} />
-                <StatusBadge value={data.company.review_status_code} />
+                <StatusBadge
+                  domain="review"
+                  value={data.company.review_status_code}
+                />
               </div>
             ) : null}
           </div>

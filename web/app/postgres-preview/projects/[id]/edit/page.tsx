@@ -103,8 +103,14 @@ export default async function EditPostgresProjectPage({
             {data.ok ? (
               <div className="flex flex-wrap gap-2">
                 <StatusBadge value={data.project.primary_use_type_code} />
-                <StatusBadge value={data.project.lifecycle_phase_code} />
-                <StatusBadge value={data.project.review_status_code} />
+                <StatusBadge
+                  domain="lifecycle"
+                  value={data.project.lifecycle_phase_code}
+                />
+                <StatusBadge
+                  domain="review"
+                  value={data.project.review_status_code}
+                />
               </div>
             ) : null}
           </div>

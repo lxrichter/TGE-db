@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { StatusBadge } from "@/components/postgres-preview/PostgresEntityDetail";
+import PostgresStatusBadge, {
+  postgresStatusToneClass,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 import { formatCount } from "@/lib/format";
 
 export type PostgresRecordActionTone = "blocker" | "warning" | "ready" | "neutral";
@@ -13,10 +15,10 @@ export type PostgresRecordAction = {
 };
 
 const actionToneClasses: Record<PostgresRecordActionTone, string> = {
-  blocker: "border-red-200 bg-red-50 text-red-800",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
-  ready: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  neutral: "border-gray-200 bg-white text-gray-700",
+  blocker: postgresStatusToneClass("danger"),
+  warning: postgresStatusToneClass("attention"),
+  ready: postgresStatusToneClass("success"),
+  neutral: postgresStatusToneClass("neutral"),
 };
 
 function actionLinkClass(action: PostgresRecordAction) {
@@ -54,8 +56,16 @@ export default function PostgresRecordActionHub({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <StatusBadge value={`${formatCount(blockerCount)} blockers`} />
-          <StatusBadge value={`${formatCount(warningCount)} warnings`} />
+          <PostgresStatusBadge
+            label={`${formatCount(blockerCount)} blockers`}
+            tone={blockerCount > 0 ? "danger" : "success"}
+            value={blockerCount > 0 ? "blocker" : "ready"}
+          />
+          <PostgresStatusBadge
+            label={`${formatCount(warningCount)} warnings`}
+            tone={warningCount > 0 ? "attention" : "success"}
+            value={warningCount > 0 ? "warning" : "ready"}
+          />
           <Link
             href="/postgres-preview/research-ops"
             className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"

@@ -10,6 +10,7 @@ import {
   type PostgresPreviewSummary,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -74,11 +75,7 @@ function StatTile({
 }
 
 function StatusBadge({ value }: { value: string | null }) {
-  return (
-    <span className="inline-flex h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
-      {value || "unknown"}
-    </span>
-  );
+  return <PostgresStatusBadge domain="review" value={value} />;
 }
 
 function EmptyValue() {
@@ -154,8 +151,11 @@ function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
                 <td className="px-5 py-4 text-gray-700">
                   {project.primary_use_type_code}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {project.lifecycle_phase_code}
+                <td className="px-5 py-4">
+                  <PostgresStatusBadge
+                    domain="lifecycle"
+                    value={project.lifecycle_phase_code}
+                  />
                 </td>
                 <td className="px-5 py-4 text-gray-700">
                   {project.country || <EmptyValue />}
@@ -219,8 +219,11 @@ function OperatingAssetsTable({
                 <td className="px-5 py-4 text-gray-700">
                   {asset.primary_use_type_code}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {asset.lifecycle_phase_code}
+                <td className="px-5 py-4">
+                  <PostgresStatusBadge
+                    domain="lifecycle"
+                    value={asset.lifecycle_phase_code}
+                  />
                 </td>
                 <td className="px-5 py-4 text-gray-700">
                   {asset.country || <EmptyValue />}
