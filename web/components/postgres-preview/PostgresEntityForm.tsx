@@ -1278,6 +1278,68 @@ function FormActions({
   );
 }
 
+type WorkflowQuickAction = {
+  label: string;
+  description: string;
+  href: string | null;
+};
+
+function WorkflowQuickActions({
+  entityLabel,
+  mode,
+  actions,
+}: {
+  entityLabel: string;
+  mode: EntityFormMode;
+  actions: WorkflowQuickAction[];
+}) {
+  const saved = actions.some((action) => action.href);
+
+  return (
+    <div className="mb-4 border border-blue-100 bg-blue-50 px-4 py-4">
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-blue-950">
+            Post-save workflow actions
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-blue-900">
+            {saved
+              ? `Use these shortcuts to move this ${entityLabel.toLowerCase()} from draft editing into governed evidence, relationship, and review work.`
+              : `Save the ${entityLabel.toLowerCase()} draft first. The saved record then exposes governed evidence, relationship, and review workspaces.`}
+          </p>
+        </div>
+        {mode === "create" ? (
+          <span className="inline-flex min-h-7 items-center border border-blue-200 bg-white px-2 text-[11px] font-semibold uppercase tracking-wide text-blue-900">
+            Save first
+          </span>
+        ) : null}
+      </div>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        {actions.map((action) =>
+          action.href ? (
+            <Link
+              className="border border-blue-200 bg-white px-3 py-2 text-xs leading-5 text-blue-950 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href={action.href}
+              key={action.label}
+            >
+              <div className="font-bold">{action.label}</div>
+              <div className="mt-0.5 text-blue-800">{action.description}</div>
+            </Link>
+          ) : (
+            <div
+              className="border border-blue-100 bg-white/70 px-3 py-2 text-xs leading-5 text-blue-700 opacity-70"
+              key={action.label}
+            >
+              <div className="font-bold">{action.label}</div>
+              <div className="mt-0.5">{action.description}</div>
+            </div>
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ProjectWorkflowBridge({
   mode,
   project,
@@ -1306,6 +1368,37 @@ function ProjectWorkflowBridge({
 
   return (
     <Section title="Evidence And Relationship Workflow">
+      <WorkflowQuickActions
+        actions={[
+          {
+            label: "Record Detail",
+            description: "Review profile, audit, and readiness.",
+            href: projectHref,
+          },
+          {
+            label: "Evidence",
+            description: "Add source links and field evidence.",
+            href: evidenceHref,
+          },
+          {
+            label: "Company Roles",
+            description: "Link developers, owners, operators, suppliers.",
+            href: relationshipsHref,
+          },
+          {
+            label: "Linked Assets",
+            description: "Review promotion and plant/facility links.",
+            href: linkedAssetHref,
+          },
+          {
+            label: "Research Ops",
+            description: "Create or review operational follow-ups.",
+            href: projectHref ? "/postgres-preview/research-ops#persistent-issues" : null,
+          },
+        ]}
+        entityLabel="Project"
+        mode={mode}
+      />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
@@ -1505,6 +1598,37 @@ function AssetWorkflowBridge({
 
   return (
     <Section title="Evidence And Relationship Workflow">
+      <WorkflowQuickActions
+        actions={[
+          {
+            label: "Record Detail",
+            description: "Review profile, audit, and readiness.",
+            href: assetHref,
+          },
+          {
+            label: "Evidence",
+            description: "Add source links and field evidence.",
+            href: evidenceHref,
+          },
+          {
+            label: "Company Roles",
+            description: "Link owners, operators, suppliers, offtakers.",
+            href: relationshipsHref,
+          },
+          {
+            label: "Origin / Units",
+            description: "Review originating project and group logic.",
+            href: linkedProjectHref,
+          },
+          {
+            label: "Research Ops",
+            description: "Create or review operational follow-ups.",
+            href: assetHref ? "/postgres-preview/research-ops#persistent-issues" : null,
+          },
+        ]}
+        entityLabel="Plant / facility"
+        mode={mode}
+      />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
@@ -1710,6 +1834,39 @@ function CompanyWorkflowBridge({
 
   return (
     <Section title="Evidence, Roles, And Company Structure Workflow">
+      <WorkflowQuickActions
+        actions={[
+          {
+            label: "Record Detail",
+            description: "Review profile, audit, and readiness.",
+            href: companyHref,
+          },
+          {
+            label: "Evidence",
+            description: "Add source links and company evidence.",
+            href: evidenceHref,
+          },
+          {
+            label: "Activity Roles",
+            description: "Review project and plant/facility roles.",
+            href: relationshipsHref,
+          },
+          {
+            label: "Ownership",
+            description: "Review group and company relationships.",
+            href: relationshipsHref,
+          },
+          {
+            label: "Research Ops",
+            description: "Create or review operational follow-ups.",
+            href: companyHref
+              ? "/postgres-preview/research-ops#persistent-issues"
+              : null,
+          },
+        ]}
+        entityLabel="Company"
+        mode={mode}
+      />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
