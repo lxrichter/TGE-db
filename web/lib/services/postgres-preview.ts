@@ -466,6 +466,7 @@ export type PostgresCompanyProjectLink = {
   ownership_share: number | null;
   is_primary: boolean;
   notes: string | null;
+  relationship_source_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -486,6 +487,7 @@ export type PostgresCompanyOperatingAssetLink = {
   ownership_share: number | null;
   is_primary: boolean;
   notes: string | null;
+  relationship_source_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -501,6 +503,7 @@ export type PostgresCompanyRelationship = {
   ownership_percentage: number | null;
   is_current: boolean;
   notes: string | null;
+  relationship_source_count: number;
   created_at: string;
   updated_at: string;
 };
@@ -3956,6 +3959,11 @@ async function getPostgresCompanyProjectLinkById(
       cpl.ownership_share,
       cpl.is_primary,
       cpl.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_project_link_id = cpl.company_project_link_id
+      ) AS relationship_source_count,
       cpl.created_at,
       cpl.updated_at
     FROM company_project_links cpl
@@ -3997,6 +4005,11 @@ async function getPostgresCompanyOperatingAssetLinkById(
       coal.ownership_share,
       coal.is_primary,
       coal.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_operating_asset_link_id = coal.company_operating_asset_link_id
+      ) AS relationship_source_count,
       coal.created_at,
       coal.updated_at
     FROM company_operating_asset_links coal
@@ -4031,6 +4044,11 @@ async function getPostgresCompanyRelationshipById(
       cr.ownership_percentage,
       cr.is_current,
       cr.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_relationship_id = cr.company_relationship_id
+      ) AS relationship_source_count,
       cr.created_at,
       cr.updated_at
     FROM company_relationships cr
@@ -4070,6 +4088,11 @@ export async function listPostgresProjectCompanyLinks(
       cpl.ownership_share,
       cpl.is_primary,
       cpl.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_project_link_id = cpl.company_project_link_id
+      ) AS relationship_source_count,
       cpl.created_at,
       cpl.updated_at
     FROM company_project_links cpl
@@ -4109,6 +4132,11 @@ export async function listPostgresCompanyProjectLinks(
       cpl.ownership_share,
       cpl.is_primary,
       cpl.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_project_link_id = cpl.company_project_link_id
+      ) AS relationship_source_count,
       cpl.created_at,
       cpl.updated_at
     FROM company_project_links cpl
@@ -4150,6 +4178,11 @@ export async function listPostgresOperatingAssetCompanyLinks(
       coal.ownership_share,
       coal.is_primary,
       coal.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_operating_asset_link_id = coal.company_operating_asset_link_id
+      ) AS relationship_source_count,
       coal.created_at,
       coal.updated_at
     FROM company_operating_asset_links coal
@@ -4191,6 +4224,11 @@ export async function listPostgresCompanyOperatingAssetLinks(
       coal.ownership_share,
       coal.is_primary,
       coal.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_operating_asset_link_id = coal.company_operating_asset_link_id
+      ) AS relationship_source_count,
       coal.created_at,
       coal.updated_at
     FROM company_operating_asset_links coal
@@ -4225,6 +4263,11 @@ export async function listPostgresCompanyRelationships(
       cr.ownership_percentage,
       cr.is_current,
       cr.notes,
+      (
+        SELECT COUNT(*)::int
+        FROM relationship_sources rs
+        WHERE rs.company_relationship_id = cr.company_relationship_id
+      ) AS relationship_source_count,
       cr.created_at,
       cr.updated_at
     FROM company_relationships cr

@@ -269,6 +269,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   table for source links on specific company-project roles,
   company-plant/facility roles, and company-company relationships, keeping
   row-level relationship evidence separate from record-level `entity_sources`
+- PostgreSQL relationship managers now read `relationship_sources` counts for
+  company-project roles, company-plant/facility roles, and company-company
+  relationships, surfacing read-only per-row evidence counts and summary totals
+  before full relationship-source creation/review UI is added
 - PostgreSQL edit forms now let researchers create persistent Research Ops
   issues directly from form readiness warnings and edited approval-sensitive
   fields, turning validation gaps into assigned operational follow-up items

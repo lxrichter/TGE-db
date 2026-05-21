@@ -294,22 +294,13 @@ function RoleBadge({ role }: { role: string | null }) {
   );
 }
 
-function relationshipEvidenceLinks(sources: PostgresEntitySourceLink[] = []) {
-  return sources.filter((source) => {
-    const evidenceType = source.evidence_type || "";
-    const linkedField = source.linked_field || "";
-
-    return (
-      evidenceType.includes("ownership") ||
-      evidenceType.includes("operator") ||
-      evidenceType.includes("entity") ||
-      evidenceType.includes("relationship") ||
-      linkedField.includes("owner") ||
-      linkedField.includes("operator") ||
-      linkedField.includes("company") ||
-      linkedField.includes("relationship")
-    );
-  });
+function RelationshipEvidenceBadge({ count }: { count: number }) {
+  return (
+    <PostgresStatusBadge
+      label={`${formatCount(count)} source${count === 1 ? "" : "s"}`}
+      value={count > 0 ? "confirmed" : "evidence_pending"}
+    />
+  );
 }
 
 function RelationshipSummaryTile({
@@ -343,16 +334,17 @@ function RelationshipSupportSummary({
   activityLinkCount,
   companyRelationshipCount = 0,
   primaryOrCurrentCount,
+  relationshipEvidenceCount,
   sources = [],
   scope,
 }: {
   activityLinkCount: number;
   companyRelationshipCount?: number;
   primaryOrCurrentCount: number;
+  relationshipEvidenceCount: number;
   sources?: PostgresEntitySourceLink[];
   scope: "project" | "asset" | "company";
 }) {
-  const relationshipEvidenceCount = relationshipEvidenceLinks(sources).length;
   const credibleSourceCount = sources.filter(
     (source) => source.credibility_status_code === "credible"
   ).length;
@@ -381,8 +373,8 @@ function RelationshipSupportSummary({
     totalRelationshipCount === 0
       ? "No relationship evidence needed until structured links are added."
       : relationshipEvidenceCount > 0
-        ? "Record-level source links tagged for ownership, operator, entity, or relationship evidence."
-        : "No source links are tagged for relationship evidence yet; row-level evidence links are a future step.";
+        ? "Sources are linked to specific relationship rows."
+        : "No sources are linked to specific relationship rows yet.";
 
   return (
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
@@ -555,6 +547,10 @@ export function ProjectCompanyLinksPanel({
           links.filter((link) => link.is_primary || link.ownership_share !== null)
             .length
         }
+        relationshipEvidenceCount={links.reduce(
+          (count, link) => count + link.relationship_source_count,
+          0
+        )}
         scope="project"
         sources={sources}
       />
@@ -638,11 +634,12 @@ export function ProjectCompanyLinksPanel({
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[28%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Role</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Share</th>
-              <th className="w-[24%] px-4 py-3 font-semibold">Notes</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Action</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Share</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Evidence</th>
+              <th className="w-[22%] px-4 py-3 font-semibold">Notes</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -675,6 +672,9 @@ export function ProjectCompanyLinksPanel({
                 <td className="px-4 py-3 text-gray-700">
                   {formatPercent(link.ownership_share)}
                 </td>
+                <td className="px-4 py-3">
+                  <RelationshipEvidenceBadge count={link.relationship_source_count} />
+                </td>
                 <td className="px-4 py-3 text-gray-700">{link.notes || "-"}</td>
                 <td className="px-4 py-3">
                   <RemoveButton
@@ -686,7 +686,7 @@ export function ProjectCompanyLinksPanel({
             ))}
             {links.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
                   No structured company roles linked yet.
                 </td>
               </tr>
@@ -805,6 +805,10 @@ export function OperatingAssetCompanyLinksPanel({
           links.filter((link) => link.is_primary || link.ownership_share !== null)
             .length
         }
+        relationshipEvidenceCount={links.reduce(
+          (count, link) => count + link.relationship_source_count,
+          0
+        )}
         scope="asset"
         sources={sources}
       />
@@ -888,11 +892,12 @@ export function OperatingAssetCompanyLinksPanel({
         <table className="min-w-full table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[28%] px-4 py-3 font-semibold">Company</th>
+              <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Role</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Share</th>
-              <th className="w-[24%] px-4 py-3 font-semibold">Notes</th>
-              <th className="w-[16%] px-4 py-3 font-semibold">Action</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Share</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Evidence</th>
+              <th className="w-[22%] px-4 py-3 font-semibold">Notes</th>
+              <th className="w-[12%] px-4 py-3 font-semibold">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -925,6 +930,9 @@ export function OperatingAssetCompanyLinksPanel({
                 <td className="px-4 py-3 text-gray-700">
                   {formatPercent(link.ownership_share)}
                 </td>
+                <td className="px-4 py-3">
+                  <RelationshipEvidenceBadge count={link.relationship_source_count} />
+                </td>
                 <td className="px-4 py-3 text-gray-700">{link.notes || "-"}</td>
                 <td className="px-4 py-3">
                   <RemoveButton
@@ -938,7 +946,7 @@ export function OperatingAssetCompanyLinksPanel({
             ))}
             {links.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
                   No structured company roles linked yet.
                 </td>
               </tr>
@@ -1110,6 +1118,11 @@ function CompanyProjectPortfolio({
                 </td>
                 <td className="w-[22%] px-4 py-3">
                   <RoleBadge role={link.role_label || link.role_code} />
+                  <div className="mt-2">
+                    <RelationshipEvidenceBadge
+                      count={link.relationship_source_count}
+                    />
+                  </div>
                 </td>
                 <td className="w-[18%] px-4 py-3 text-gray-700">
                   {formatPercent(link.ownership_share)}
@@ -1314,6 +1327,11 @@ function CompanyAssetPortfolio({
                 </td>
                 <td className="w-[22%] px-4 py-3">
                   <RoleBadge role={link.role_label || link.role_code} />
+                  <div className="mt-2">
+                    <RelationshipEvidenceBadge
+                      count={link.relationship_source_count}
+                    />
+                  </div>
                 </td>
                 <td className="w-[18%] px-4 py-3 text-gray-700">
                   {formatPercent(link.ownership_share)}
@@ -1470,6 +1488,21 @@ export function CompanyRelationshipPanel({
           ).length +
           relationships.filter((relationship) => relationship.is_current).length
         }
+        relationshipEvidenceCount={
+          projectLinks.reduce(
+            (count, link) => count + link.relationship_source_count,
+            0
+          ) +
+          operatingAssetLinks.reduce(
+            (count, link) => count + link.relationship_source_count,
+            0
+          ) +
+          relationships.reduce(
+            (count, relationship) =>
+              count + relationship.relationship_source_count,
+            0
+          )
+        }
         scope="company"
         sources={sources}
       />
@@ -1598,12 +1631,13 @@ export function CompanyRelationshipPanel({
             <table className="min-w-full table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
-                  <th className="w-[26%] px-4 py-3 font-semibold">From</th>
-                  <th className="w-[26%] px-4 py-3 font-semibold">To</th>
-                  <th className="w-[16%] px-4 py-3 font-semibold">Type</th>
-                  <th className="w-[14%] px-4 py-3 font-semibold">Ownership</th>
-                  <th className="w-[10%] px-4 py-3 font-semibold">Current</th>
-                  <th className="w-[8%] px-4 py-3 font-semibold">Action</th>
+                  <th className="w-[23%] px-4 py-3 font-semibold">From</th>
+                  <th className="w-[23%] px-4 py-3 font-semibold">To</th>
+                  <th className="w-[15%] px-4 py-3 font-semibold">Type</th>
+                  <th className="w-[12%] px-4 py-3 font-semibold">Ownership</th>
+                  <th className="w-[12%] px-4 py-3 font-semibold">Evidence</th>
+                  <th className="w-[8%] px-4 py-3 font-semibold">Current</th>
+                  <th className="w-[7%] px-4 py-3 font-semibold">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -1639,6 +1673,11 @@ export function CompanyRelationshipPanel({
                     <td className="px-4 py-3 text-gray-700">
                       {formatPercent(relationship.ownership_percentage)}
                     </td>
+                    <td className="px-4 py-3">
+                      <RelationshipEvidenceBadge
+                        count={relationship.relationship_source_count}
+                      />
+                    </td>
                     <td className="px-4 py-3 text-gray-700">
                       {relationship.is_current ? "Yes" : "No"}
                     </td>
@@ -1655,7 +1694,7 @@ export function CompanyRelationshipPanel({
                 {relationships.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={7}
                       className="px-4 py-8 text-center text-sm text-gray-500"
                     >
                       No company relationships linked yet.
