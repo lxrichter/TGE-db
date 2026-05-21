@@ -286,6 +286,8 @@ foundation. Current implemented PostgreSQL staging areas include:
 - Core PostgreSQL entity forms now show a post-save workflow action strip that
   routes saved records into detail review, source/evidence work, relationship
   management, linked asset/origin workflows, and Research Ops follow-up
+- Create-mode workflow shortcuts are explicitly marked as after-save actions,
+  reducing ambiguity before a new record has an ID and detail workspace
 - PostgreSQL project, plant/facility, and company forms now include a compact
   workflow summary rail with readiness counts, edited-field counts, and section
   jump links to reduce long-form scanning friction before the later design pass

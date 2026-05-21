@@ -1330,7 +1330,12 @@ function WorkflowQuickActions({
               className="border border-blue-100 bg-white/70 px-3 py-2 text-xs leading-5 text-blue-700 opacity-70"
               key={action.label}
             >
-              <div className="font-bold">{action.label}</div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-bold">{action.label}</span>
+                <span className="border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
+                  After Save
+                </span>
+              </div>
               <div className="mt-0.5">{action.description}</div>
             </div>
           )
