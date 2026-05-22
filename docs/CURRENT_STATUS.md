@@ -130,6 +130,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   concise hierarchy markers for market snapshots, benchmark views, migration
   gates, and drilldown worklists so the intelligence/transition layer follows
   the same reading order without over-explaining already-clean analytical pages
+- PostgreSQL Countries / Markets now uses a compact country worklist table that
+  groups record counts, electric capacity, direct-use/thermal signals, review
+  coverage, source gaps, and drill-through links into fewer columns for better
+  scanability before the later visual design pass
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals

@@ -115,9 +115,8 @@ function CountryMarketsTable({
             Country / Market Summary
           </h2>
           <p className="mt-1 text-sm text-gray-600">
-            Aggregated from PostgreSQL staging projects, plants/facilities, and
-            companies. This is the first replacement-ready market layer, not
-            the final editorial country profile design.
+            Database-derived market rows. Click counts to open filtered
+            project, asset, or company worklists.
           </p>
         </div>
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -126,31 +125,22 @@ function CountryMarketsTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-[1180px] table-fixed text-left text-sm">
+        <table className="min-w-[980px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[17%] px-5 py-3 font-semibold">Country</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Projects</th>
-              <th className="w-[11%] px-5 py-3 font-semibold">
-                Plants / Facilities
+              <th className="w-[20%] px-5 py-3 font-semibold">Country</th>
+              <th className="w-[18%] px-5 py-3 font-semibold">Records</th>
+              <th className="w-[18%] px-5 py-3 font-semibold">Electric</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">
+                Direct Use / Thermal
               </th>
-              <th className="w-[9%] px-5 py-3 font-semibold">Companies</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">
-                Operating MWe
-              </th>
-              <th className="w-[12%] px-5 py-3 font-semibold">
-                Pipeline MWe
-              </th>
-              <th className="w-[11%] px-5 py-3 font-semibold">Thermal</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Direct Use</th>
-              <th className="w-[15%] px-5 py-3 font-semibold">
+              <th className="w-[16%] px-5 py-3 font-semibold">
                 Review Coverage
               </th>
               <th className="w-[10%] px-5 py-3 font-semibold">
                 Source Gaps
               </th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Updated</th>
-              <th className="w-[15%] px-5 py-3 font-semibold">Open</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">Open</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -168,69 +158,72 @@ function CountryMarketsTable({
                     )}{" "}
                     staged records
                   </div>
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                    href={countryQueryHref(
-                      "/postgres-preview/projects",
-                      country.country
-                    )}
-                  >
-                    {formatCount(country.project_count)}
-                  </Link>
                   <div className="mt-1 text-xs text-gray-500">
-                    {formatCount(country.active_project_count)} active
+                    Updated {formatDate(country.latest_update_at)}
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-700">
-                  <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                    href={countryQueryHref(
-                      "/postgres-preview/operating-assets",
-                      country.country
-                    )}
-                  >
-                    {formatCount(country.operating_asset_count)}
-                  </Link>
-                  <div className="mt-1 text-xs text-gray-500">
-                    {formatCount(country.operating_asset_active_count)} active
+                  <div className="grid gap-2 text-xs">
+                    <Link
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/projects",
+                        country.country
+                      )}
+                    >
+                      {formatCount(country.project_count)} projects
+                    </Link>
+                    <span className="text-gray-500">
+                      {formatCount(country.active_project_count)} active
+                    </span>
+                    <Link
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/operating-assets",
+                        country.country
+                      )}
+                    >
+                      {formatCount(country.operating_asset_count)} plants /
+                      facilities
+                    </Link>
+                    <span className="text-gray-500">
+                      {formatCount(country.operating_asset_active_count)} active
+                    </span>
+                    <Link
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/companies",
+                        country.country
+                      )}
+                    >
+                      {formatCount(country.company_count)} companies
+                    </Link>
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-700">
-                  <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                    href={countryQueryHref(
-                      "/postgres-preview/companies",
-                      country.country
-                    )}
-                  >
-                    {formatCount(country.company_count)}
-                  </Link>
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {formatMw(country.operating_installed_mwe)} MWe
-                  <div className="mt-1 text-xs text-gray-500">
-                    {formatMw(country.operating_running_mwe)} running
+                  <div className="font-semibold text-[#1f2937]">
+                    {formatMw(country.operating_installed_mwe)} MWe operating
+                  </div>
+                  <div className="mt-1 text-xs leading-5 text-gray-500">
+                    {formatMw(country.operating_running_mwe)} MWe running
+                    <br />
+                    {formatMw(country.project_pipeline_mwe)} MWe pipeline
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-700">
-                  {formatMw(country.project_pipeline_mwe)} MWe
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {formatMw(
-                    country.project_thermal_mwth +
-                      country.operating_thermal_mwth
-                  )}{" "}
-                  MWth
-                </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {formatCount(
-                    country.direct_use_project_count +
-                      country.direct_use_asset_count
-                  )}
-                  <div className="mt-1 text-xs text-gray-500">
-                    projects + assets
+                  <div className="font-semibold text-[#1f2937]">
+                    {formatCount(
+                      country.direct_use_project_count +
+                        country.direct_use_asset_count
+                    )}{" "}
+                    records
+                  </div>
+                  <div className="mt-1 text-xs leading-5 text-gray-500">
+                    {formatMw(
+                      country.project_thermal_mwth +
+                        country.operating_thermal_mwth
+                    )}{" "}
+                    MWth
                   </div>
                 </td>
                 <td className="px-5 py-4">
@@ -250,11 +243,8 @@ function CountryMarketsTable({
                     {formatCount(country.missing_source_count)}
                   </span>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  {formatDate(country.latest_update_at)}
-                </td>
                 <td className="px-5 py-4">
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid gap-1">
                     <Link
                       className="text-xs font-semibold text-[#4f7f1f] hover:underline"
                       href={countryQueryHref(
