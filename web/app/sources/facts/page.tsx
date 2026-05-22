@@ -383,6 +383,38 @@ export default async function ArticleFactCandidatesPage({
           : null,
       ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
     : [];
+  const factNextActions = [
+    filters.sourceId
+      ? {
+          label: "Current Source",
+          title: "Back to source profile",
+          description:
+            "Return to the filtered source record, credibility state, and linked evidence context.",
+          href: `/sources/${filters.sourceId}`,
+        }
+      : {
+          label: "Source Context",
+          title: "Open Evidence Backbone",
+          description:
+            "Review source records, credibility state, and linked evidence coverage.",
+          href: "/sources",
+        },
+    {
+      label: "Entity Linking",
+      title: "Review article matches",
+      description: "Check whether extracted facts have a reviewed article-to-entity path.",
+      href: filters.sourceId
+        ? `/sources/matches?sourceId=${filters.sourceId}`
+        : "/sources/matches",
+    },
+    {
+      label: "Operations",
+      title: "Open fact queue",
+      description:
+        "Return to Research Ops for fact review and field-suggestion governance.",
+      href: "/postgres-preview/research-ops#article-fact-review",
+    },
+  ];
 
   return (
     <main className="space-y-6 sm:space-y-8">
@@ -428,26 +460,7 @@ export default async function ArticleFactCandidatesPage({
 
       <NextActionStrip
         description="From article fact review, the next step should be source context, entity lookup, or Research Ops governance before any field suggestion is applied."
-        actions={[
-          {
-            label: "Source Context",
-            title: "Open Evidence Backbone",
-            description: "Review source records, credibility state, and linked evidence coverage.",
-            href: "/sources",
-          },
-          {
-            label: "Entity Linking",
-            title: "Review article matches",
-            description: "Check whether extracted facts have a reviewed article-to-entity path.",
-            href: "/sources/matches",
-          },
-          {
-            label: "Operations",
-            title: "Open fact queue",
-            description: "Return to Research Ops for fact review and field-suggestion governance.",
-            href: "/postgres-preview/research-ops#article-fact-review",
-          },
-        ]}
+        actions={factNextActions}
       />
 
       {!data.ok ? (

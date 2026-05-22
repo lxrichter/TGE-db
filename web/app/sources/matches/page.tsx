@@ -256,6 +256,38 @@ export default async function SourceMatchCandidatesPage({
           : null,
       ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
     : [];
+  const matchNextActions = [
+    filters.sourceId
+      ? {
+          label: "Current Source",
+          title: "Back to source profile",
+          description:
+            "Return to the filtered source record, credibility state, and linked evidence context.",
+          href: `/sources/${filters.sourceId}`,
+        }
+      : {
+          label: "Source Context",
+          title: "Open Evidence Backbone",
+          description:
+            "Review source records, credibility state, and existing evidence links.",
+          href: "/sources",
+        },
+    {
+      label: "Fact Candidates",
+      title: "Review extracted facts",
+      description:
+        "Move from article/entity matches into compact extracted fact review.",
+      href: filters.sourceId
+        ? `/sources/facts?sourceId=${filters.sourceId}`
+        : "/sources/facts",
+    },
+    {
+      label: "Operations",
+      title: "Open match queue",
+      description: "Return to Research Ops for article match workload visibility.",
+      href: "/postgres-preview/research-ops#article-match-review",
+    },
+  ];
 
   return (
     <main className="space-y-6 sm:space-y-8">
@@ -295,26 +327,7 @@ export default async function SourceMatchCandidatesPage({
 
       <NextActionStrip
         description="From article match review, the next step should be checking the source record, confirming entity links, or returning the workload to Research Ops."
-        actions={[
-          {
-            label: "Source Context",
-            title: "Open Evidence Backbone",
-            description: "Review source records, credibility state, and existing evidence links.",
-            href: "/sources",
-          },
-          {
-            label: "Fact Candidates",
-            title: "Review extracted facts",
-            description: "Move from article/entity matches into compact extracted fact review.",
-            href: "/sources/facts",
-          },
-          {
-            label: "Operations",
-            title: "Open match queue",
-            description: "Return to Research Ops for article match workload visibility.",
-            href: "/postgres-preview/research-ops#article-match-review",
-          },
-        ]}
+        actions={matchNextActions}
       />
 
       {!data.ok ? (
