@@ -4,6 +4,7 @@ import {
   StatusBadge,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresCompanyForm } from "@/components/postgres-preview/PostgresEntityForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewCompanyById,
@@ -128,6 +129,33 @@ export default async function EditPostgresCompanyPage({
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="While editing a company, keep the saved profile, source creation, and operational review queue close so classification edits stay tied to relationship and evidence governance."
+        actions={[
+          {
+            label: "Company Profile",
+            title: "Back to company record",
+            description:
+              "Return to readiness, evidence, portfolio roles, relationships, and export checks.",
+            href: `/postgres-preview/companies/${id}`,
+          },
+          {
+            label: "Evidence",
+            title: "Add source evidence",
+            description:
+              "Create a source record with this company preselected as the linked target.",
+            href: `/sources/new?entityType=company&entityId=${id}`,
+          },
+          {
+            label: "Operations",
+            title: "Open Research Ops",
+            description:
+              "Review missing data, validation, source gaps, and persistent issues.",
+            href: "/postgres-preview/research-ops",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

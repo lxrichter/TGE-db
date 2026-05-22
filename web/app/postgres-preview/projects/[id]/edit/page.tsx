@@ -4,6 +4,7 @@ import {
   StatusBadge,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresProjectForm } from "@/components/postgres-preview/PostgresEntityForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
@@ -116,6 +117,33 @@ export default async function EditPostgresProjectPage({
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="While editing a project, keep the saved record, source creation, and operational review queue close so draft edits do not lose workflow context."
+        actions={[
+          {
+            label: "Project Profile",
+            title: "Back to project record",
+            description:
+              "Return to readiness, evidence, company roles, promotion, and export checks.",
+            href: `/postgres-preview/projects/${id}`,
+          },
+          {
+            label: "Evidence",
+            title: "Add source evidence",
+            description:
+              "Create a source record with this project preselected as the linked target.",
+            href: `/sources/new?entityType=project&entityId=${id}`,
+          },
+          {
+            label: "Operations",
+            title: "Open Research Ops",
+            description:
+              "Review missing data, validation, source gaps, and persistent issues.",
+            href: "/postgres-preview/research-ops",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

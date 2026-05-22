@@ -4,6 +4,7 @@ import {
   StatusBadge,
 } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresOperatingAssetForm } from "@/components/postgres-preview/PostgresEntityForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import {
   getPostgresEntityFormReferenceData,
   getPostgresPreviewProjectById,
@@ -134,6 +135,33 @@ export default async function EditPostgresOperatingAssetPage({
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="While editing a plant/facility, keep the saved asset, source creation, and operational review queue close so operating data edits stay tied to evidence governance."
+        actions={[
+          {
+            label: "Asset Profile",
+            title: "Back to plant / facility",
+            description:
+              "Return to readiness, evidence, company roles, originating project, and export checks.",
+            href: `/postgres-preview/operating-assets/${id}`,
+          },
+          {
+            label: "Evidence",
+            title: "Add source evidence",
+            description:
+              "Create a source record with this plant/facility preselected as the linked target.",
+            href: `/sources/new?entityType=operating_asset&entityId=${id}`,
+          },
+          {
+            label: "Operations",
+            title: "Open Research Ops",
+            description:
+              "Review missing data, validation, source gaps, and persistent issues.",
+            href: "/postgres-preview/research-ops",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />
