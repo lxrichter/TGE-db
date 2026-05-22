@@ -449,6 +449,80 @@ function BucketOverview({
   );
 }
 
+function RecentIntelligenceSignals() {
+  const signals = [
+    {
+      category: "Project announcement",
+      title: "New project or expansion signals",
+      detail: "Future feed from TGE articles and confirmed project/source links.",
+      href: "/sources/matches",
+    },
+    {
+      category: "Drilling / construction",
+      title: "Field activity and construction progress",
+      detail: "Future feed for drilling campaigns, construction starts, and status changes.",
+      href: "/postgres-preview/projects?review=needs_update",
+    },
+    {
+      category: "Financing / funding",
+      title: "Capital raises, grants, and public funding",
+      detail: "Future feed from article fact candidates and source-backed financing signals.",
+      href: "/sources/facts",
+    },
+    {
+      category: "Policy / tender",
+      title: "Policy, tenders, incentives, and market support",
+      detail: "Future feed connected to Countries / Markets and related news.",
+      href: "/postgres-preview/countries",
+    },
+    {
+      category: "Plant activity",
+      title: "Commissioning, shutdowns, and operating changes",
+      detail: "Future feed for operating asset updates, source evidence, and review queues.",
+      href: "/postgres-preview/operating-assets",
+    },
+  ];
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Recent Intelligence Signals
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            Compact placeholder for future source-backed market pulse items.
+          </p>
+        </div>
+        <Link
+          href="/sources"
+          className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+        >
+          Evidence Backbone
+        </Link>
+      </div>
+
+      <div className="grid gap-3 px-5 py-5 xl:grid-cols-5">
+        {signals.map((signal) => (
+          <Link
+            key={signal.category}
+            href={signal.href}
+            className="border border-gray-200 bg-[#f7f7f7] px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+          >
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-[#4f7f1f]">
+              {signal.category}
+            </div>
+            <h3 className="mt-2 text-sm font-bold leading-5 text-[#1f2937]">
+              {signal.title}
+            </h3>
+            <p className="mt-2 text-xs leading-5 text-gray-600">{signal.detail}</p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function OperationalPulse({
   staging,
   legacy,
@@ -614,6 +688,7 @@ export default async function HomePage() {
           { href: "#market-snapshot", label: "Snapshot", note: "KPIs" },
           { href: "#intelligence-layers", label: "Layers", note: "Views" },
           { href: "#market-signals", label: "Signals", note: "Markets" },
+          { href: "#recent-intelligence", label: "Recent", note: "Pulse" },
           { href: "#operational-pulse", label: "Pulse", note: "Readiness" },
         ]}
       />
@@ -748,6 +823,17 @@ export default async function HomePage() {
           </section>
         </section>
       ) : null}
+
+      <section id="recent-intelligence" className="space-y-4 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Intelligence"
+          title="Recent Intelligence Signals"
+          description="A controlled shell for the future market pulse feed from TGE articles, source records, and confirmed evidence."
+          tone="workflow"
+        />
+
+        <RecentIntelligenceSignals />
+      </section>
 
       <section id="operational-pulse" className="space-y-4 scroll-mt-24">
         <DetailPriorityMarker
