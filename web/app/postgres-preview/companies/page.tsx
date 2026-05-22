@@ -272,24 +272,25 @@ export default async function PostgresCompaniesListPage({
       />
 
       <NextActionStrip
-        description="From company intelligence, the next step should be source cleanup, activity relationship work, or controlled classification review."
+        title="Primary Work Paths"
+        description="Use these routes for the three most common company-list workflows: evidence, relationships, and classification."
         actions={[
           {
-            label: "Evidence Work",
+            label: "Evidence",
             title: "Companies missing sources",
-            description: "Focus on company records that need source evidence before profile use or export.",
+            description: "Open records that need source evidence before profile use or export.",
             href: "/postgres-preview/companies?missing=source",
           },
           {
-            label: "Relationship Work",
+            label: "Relationships",
             title: "Companies missing activity links",
-            description: "Find companies not yet connected to project or plant roles.",
+            description: "Link companies to project and plant roles.",
             href: "/postgres-preview/companies?missing=activity_link",
           },
           {
             label: "Classification",
             title: "Companies missing identity",
-            description: "Review records that still need a controlled primary business identity.",
+            description: "Review records that need a controlled primary business identity.",
             href: "/postgres-preview/companies?missing=primary_type",
           },
         ]}

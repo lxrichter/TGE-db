@@ -280,24 +280,25 @@ export default async function PostgresProjectsListPage({
       />
 
       <NextActionStrip
-        description="From the project pipeline, the next step should be evidence cleanup, company relationship work, or validation review before records move toward export readiness."
+        title="Primary Work Paths"
+        description="Use these routes for the three most common project-list workflows: evidence, relationships, and review."
         actions={[
           {
-            label: "Evidence Work",
+            label: "Evidence",
             title: "Projects missing sources",
-            description: "Focus on project records that need source evidence before review or export.",
+            description: "Open records that need source evidence before review or export.",
             href: "/postgres-preview/projects?missing=source",
           },
           {
-            label: "Relationship Work",
+            label: "Relationships",
             title: "Projects missing companies",
-            description: "Route records into structured developer, owner, operator, or stakeholder linking.",
+            description: "Add structured developer, owner, operator, or stakeholder links.",
             href: "/postgres-preview/projects?missing=company_link",
           },
           {
-            label: "Review Queue",
+            label: "Review",
             title: "Projects in validation",
-            description: "Open project records that are ready for researcher/editor review work.",
+            description: "Open records waiting for researcher or editor review.",
             href: "/postgres-preview/projects?review=validation",
           },
         ]}

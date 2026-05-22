@@ -289,24 +289,25 @@ export default async function PostgresOperatingAssetsListPage({
       />
 
       <NextActionStrip
-        description="From Plants, the next step should be evidence cleanup, operator/owner relationship work, or operating readiness review."
+        title="Primary Work Paths"
+        description="Use these routes for the three most common plant-list workflows: evidence, relationships, and operating readiness."
         actions={[
           {
-            label: "Evidence Work",
+            label: "Evidence",
             title: "Plants missing sources",
-            description: "Focus on plant records that need confirmed source evidence.",
+            description: "Open records that need confirmed source evidence.",
             href: "/postgres-preview/operating-assets?missing=source",
           },
           {
-            label: "Relationship Work",
+            label: "Relationships",
             title: "Plants missing companies",
-            description: "Route records into structured owner, operator, supplier, or offtaker linking.",
+            description: "Add structured owner, operator, supplier, or offtaker links.",
             href: "/postgres-preview/operating-assets?missing=company_link",
           },
           {
-            label: "Readiness Cleanup",
+            label: "Readiness",
             title: "Plants missing COD",
-            description: "Inspect commissioned plants where COD or original commissioning wording needs review.",
+            description: "Review COD and original commissioning wording gaps.",
             href: "/postgres-preview/operating-assets?missing=cod",
           },
         ]}
