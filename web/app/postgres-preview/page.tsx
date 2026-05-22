@@ -67,7 +67,7 @@ function StatTile({
       <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
         {label}
       </div>
-      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937] sm:text-3xl">
         {value}
       </div>
       <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
@@ -109,7 +109,7 @@ function SectionHeader({
   count: number;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+    <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
         {formatCount(count)} records
@@ -131,7 +131,7 @@ function WorkAreaCard({
 }) {
   return (
     <Link
-      className="border border-gray-200 bg-white px-5 py-5 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      className="border border-gray-200 bg-white px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8] sm:px-5 sm:py-5"
       href={href}
     >
       <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -157,7 +157,7 @@ function RecordPreview({
 }) {
   return (
     <details className="border border-gray-200 bg-white">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 marker:hidden">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-4 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
           <div className="text-sm font-bold text-[#1f2937]">{title}</div>
           <div className="mt-1 text-xs text-gray-500">
@@ -178,7 +178,7 @@ function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
     <section className="bg-white">
       <SectionHeader title="Projects" count={projects.length} />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[860px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[30%] px-5 py-3 font-semibold">Name</th>
@@ -246,7 +246,7 @@ function OperatingAssetsTable({
     <section className="bg-white">
       <SectionHeader title="Operating Assets" count={operatingAssets.length} />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[860px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[30%] px-5 py-3 font-semibold">Name</th>
@@ -310,7 +310,7 @@ function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) 
     <section className="bg-white">
       <SectionHeader title="Companies" count={companies.length} />
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[760px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[34%] px-5 py-3 font-semibold">Name</th>
@@ -378,32 +378,32 @@ export default async function PostgresPreviewPage() {
   const data = await getPreviewData();
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             PostgreSQL Staging
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
                 Future Platform Preview
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
                 Staging view of the new Railway PostgreSQL schema using the
                 transformed Hetzner SQLite backup plus PostgreSQL-native preview
                 records.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-10 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
                 href="/postgres-preview/research-ops"
               >
                 Open Research Ops
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
                 href="/postgres-preview/readiness"
               >
                 Replacement Readiness
@@ -424,7 +424,7 @@ export default async function PostgresPreviewPage() {
             tone="core"
           />
 
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
             <StatTile
               label="Projects"
               value={formatCount(data.summary.projectCount)}

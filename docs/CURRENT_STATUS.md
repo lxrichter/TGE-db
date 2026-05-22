@@ -143,6 +143,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   work-area cards for entity/intelligence/governance routes, quick-add cards,
   and expandable sample record tables instead of one large button-and-table
   index
+- PostgreSQL Preview, Countries / Markets, and Replacement Readiness received a
+  first responsive hardening pass: mobile actions now stack full-width, hero
+  spacing/type scale down, KPI cards become one-column before tablet width, and
+  expandable sample tables keep stable horizontal scroll widths instead of
+  squeezing dense columns
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals

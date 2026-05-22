@@ -120,7 +120,9 @@ function StatTile({
       <div className="text-[11px] font-semibold uppercase tracking-wide opacity-70">
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold leading-none">{value}</div>
+      <div className="mt-2 text-xl font-bold leading-none sm:text-2xl">
+        {value}
+      </div>
       <div className="mt-2 text-xs leading-5 opacity-80">{note}</div>
     </div>
   );
@@ -413,33 +415,33 @@ export default async function PostgresReadinessPage() {
   const reviewCoverage = share(totals.approved, totals.records);
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             PostgreSQL Staging
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
                 Replacement Readiness
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
                 Live operational signals for deciding when the PostgreSQL
                 platform is ready to replace the current internal SQLite site.
                 This is a cutover-planning view, not the final executive
                 dashboard.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
                 href="/postgres-preview"
               >
                 Back to Preview
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
                 href="/postgres-preview/research-ops"
               >
                 Research Ops
@@ -460,7 +462,7 @@ export default async function PostgresReadinessPage() {
             tone="core"
           />
 
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
             <StatTile
               label="Staged Records"
               note="Projects, plants/facilities, and companies"
