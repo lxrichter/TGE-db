@@ -3,6 +3,7 @@ import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandida
 import SourceReviewFilterChips, {
   type SourceReviewFilterChip,
 } from "@/components/sources/SourceReviewFilterChips";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { formatCount } from "@/lib/format";
 import {
   countSourceMatchCandidates,
@@ -256,6 +257,13 @@ export default async function SourceMatchCandidatesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Level 1"
+            title="Immediate Match Review"
+            description="Start here: candidate volume, open review load, high-confidence matches, flags, and confirmed/rejected outcomes."
+            tone="core"
+          />
+
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-7">
             <StatTile
               label="Candidates"
@@ -293,6 +301,13 @@ export default async function SourceMatchCandidatesPage({
               note="Dismissed candidates"
             />
           </section>
+
+          <DetailPriorityMarker
+            label="Level 2"
+            title="Filtered Match Workbench"
+            description="Filter article-to-record candidates before reviewing. Confirmed matches create governed evidence links; rejected matches stay out of entity records."
+            tone="workflow"
+          />
 
           <section className="border border-gray-200 bg-white px-5 py-5">
             <form
@@ -380,6 +395,13 @@ export default async function SourceMatchCandidatesPage({
               emptyLabel="All article match candidates"
             />
           </section>
+
+          <DetailPriorityMarker
+            label="Level 3"
+            title="Candidate Review Rows"
+            description="Use the detailed rows for bulk confirmation, rejection, and careful review of ambiguous archive-to-entity links."
+            tone="governance"
+          />
 
           <SourceMatchCandidatesClient candidates={data.candidates} />
 

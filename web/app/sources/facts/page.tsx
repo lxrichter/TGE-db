@@ -4,6 +4,7 @@ import ArticleFactCandidatesClient from "@/components/sources/ArticleFactCandida
 import SourceReviewFilterChips, {
   type SourceReviewFilterChip,
 } from "@/components/sources/SourceReviewFilterChips";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { getArticleFactTypeDefinition } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
@@ -387,6 +388,13 @@ export default async function ArticleFactCandidatesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Level 1"
+            title="Immediate Fact Review"
+            description="Start here: extraction candidate volume, open review load, confirmed/rejected decisions, entity signals, and source-record coverage."
+            tone="core"
+          />
+
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-8">
             <StatTile
               label="Candidates"
@@ -429,6 +437,13 @@ export default async function ArticleFactCandidatesPage({
               note="Linked to source row"
             />
           </section>
+
+          <DetailPriorityMarker
+            label="Level 2"
+            title="Fact-Type Training And Filtering"
+            description="Filter to a fact type, review the definition, then accept or reject candidates so extraction rules can be tuned before larger archive batches."
+            tone="workflow"
+          />
 
           <section className="border border-gray-200 bg-white px-5 py-5">
             <form
@@ -490,6 +505,13 @@ export default async function ArticleFactCandidatesPage({
           </section>
 
           <FactTypeTrainingCard factType={filters.factType} />
+
+          <DetailPriorityMarker
+            label="Level 3"
+            title="Candidate Review Rows"
+            description="Detailed fact candidates remain review signals. They do not update source links or entity fields unless later confirmed through the governed workflow."
+            tone="governance"
+          />
 
           <ArticleFactCandidatesClient
             candidates={data.candidates}

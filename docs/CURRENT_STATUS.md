@@ -122,6 +122,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   shared hierarchy markers for immediate operational focus, stable core record
   data, workflow support, and governance/advanced review so dense detail pages
   are easier to scan before the later visual design pass
+- Research Ops and Sources / Documents surfaces now use the same core/workflow/
+  governance hierarchy language across the source list, source detail, article
+  match review, article fact review, and Research Ops dashboard, keeping
+  evidence governance and queue work visually separated before the design pass
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

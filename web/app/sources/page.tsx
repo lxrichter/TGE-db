@@ -20,6 +20,7 @@ import PostgresStatusBadge, {
   type PostgresStatusTone,
 } from "@/components/postgres-preview/PostgresStatusBadge";
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 
 export const dynamic = "force-dynamic";
 
@@ -607,6 +608,13 @@ export default async function SourcesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Level 1"
+            title="Immediate Evidence Governance"
+            description="Start here: source governance flow, source coverage, credibility status, and the highest-priority evidence review queues."
+            tone="core"
+          />
+
           <WorkflowStrip />
 
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
@@ -651,6 +659,13 @@ export default async function SourcesPage({
               note="Extracted fact candidates"
             />
           </section>
+
+          <DetailPriorityMarker
+            label="Level 2"
+            title="Source Workflow Support"
+            description="Use these operational queues to review credibility, link sources to records, confirm article matches, and triage extracted fact candidates."
+            tone="workflow"
+          />
 
           <section className="space-y-3">
             <div>
@@ -729,6 +744,13 @@ export default async function SourcesPage({
               />
             </div>
           </section>
+
+          <DetailPriorityMarker
+            label="Level 3"
+            title="Source Records And Advanced Filtering"
+            description="The source table and filters are the detailed evidence workbench. Use them after the governance and queue-level priorities are clear."
+            tone="governance"
+          />
 
           <section className="border border-gray-200 bg-white px-5 py-5">
             <form className="flex flex-col gap-4 xl:flex-row xl:items-end" action="/sources">

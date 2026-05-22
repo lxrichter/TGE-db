@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import PostgresRecordActionHub, {
   type PostgresRecordAction,
@@ -861,6 +862,13 @@ export default async function SourceDetailPage({
         </div>
       </section>
 
+      <DetailPriorityMarker
+        label="Level 1"
+        title="Immediate Source Governance"
+        description="Start here: source credibility, visibility, evidence-link count, open match/fact candidates, and AI suggestion workload."
+        tone="core"
+      />
+
       <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
         <WorkflowStep
           step="1"
@@ -948,6 +956,13 @@ export default async function SourceDetailPage({
         <SourceLifecyclePanel steps={sourceLifecycleSteps} />
       </section>
 
+      <DetailPriorityMarker
+        label="Core Source Record"
+        title="Stable Source Metadata"
+        description="Source type, reference, publication/access dates, summary, excerpt, notes, and attachment metadata describe the evidence object itself."
+        tone="core"
+      />
+
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <DetailField
           label="Source Type"
@@ -1024,6 +1039,13 @@ export default async function SourceDetailPage({
         </div>
       </Section>
 
+      <DetailPriorityMarker
+        label="Level 2"
+        title="Evidence Links And Review Candidates"
+        description="Linked evidence, article matches, extracted facts, and AI suggestions support entity records but remain governed review layers."
+        tone="workflow"
+      />
+
       <Section id="source-linked-evidence" title="Linked Evidence">
         <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
           <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
@@ -1062,13 +1084,20 @@ export default async function SourceDetailPage({
         />
       </div>
 
-      <div id="source-ai-suggestions" className="scroll-mt-6">
-        <PostgresFieldSuggestionsPanel
-          canReviewStatus={canReviewSource}
-          candidates={fieldSuggestionCandidates}
-          showEntity
-        />
-      </div>
+      <PostgresFieldSuggestionsPanel
+        id="source-ai-suggestions"
+        canReviewStatus={canReviewSource}
+        candidates={fieldSuggestionCandidates}
+        collapseWhenIdle
+        showEntity
+      />
+
+      <DetailPriorityMarker
+        label="Level 3"
+        title="Source Review Controls And Metadata"
+        description="Credibility actions and review metadata are governance controls. They stay available without crowding the source evidence itself."
+        tone="governance"
+      />
 
       {canReviewSource ? (
         <div id="source-credibility-actions" className="scroll-mt-6">
