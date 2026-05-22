@@ -65,24 +65,44 @@ function BucketTable({
   title,
   description,
   buckets,
+  defaultOpen = true,
 }: {
   title: string;
   description: string;
   buckets: PostgresPreviewAnalysisBucket[];
+  defaultOpen?: boolean;
 }) {
   const maxElectric = Math.max(
     1,
     ...buckets.map((bucket) => bucket.electric_capacity_mwe)
   );
+  const recordCount = buckets.reduce((sum, bucket) => sum + bucket.record_count, 0);
+  const electricCapacity = buckets.reduce(
+    (sum, bucket) => sum + bucket.electric_capacity_mwe,
+    0
+  );
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-sm leading-6 text-gray-600">{description}</p>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">{description}</p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
+          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            {formatCount(recordCount)} records
+          </span>
+          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            {formatMw(electricCapacity)} MWe
+          </span>
+          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            {defaultOpen ? "Open" : "Expand"}
+          </span>
+        </div>
+      </summary>
+      <div className="overflow-x-auto border-t border-gray-200">
+        <table className="min-w-[820px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[34%] px-5 py-3 font-semibold">Segment</th>
@@ -126,7 +146,7 @@ function BucketTable({
           </tbody>
         </table>
       </div>
-    </section>
+    </details>
   );
 }
 
@@ -246,6 +266,7 @@ export default async function PostgresAnalysisPreviewPage() {
 
           <BucketTable
             buckets={summary.useTypeBreakdown}
+            defaultOpen={false}
             description="Combined project and operating asset distribution by geothermal use type."
             title="Use-Type Distribution"
           />
@@ -257,18 +278,28 @@ export default async function PostgresAnalysisPreviewPage() {
             tone="governance"
           />
 
-          <section className="border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 px-5 py-4">
-              <h2 className="text-lg font-bold text-[#1f2937]">
-                Top Countries
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-gray-600">
-                Highest combined operating plus pipeline MWe from the
-                PostgreSQL country/market aggregation.
-              </p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full table-fixed text-left text-sm">
+          <details className="border border-gray-200 bg-white">
+            <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-[#1f2937]">
+                  Top Countries
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-gray-600">
+                  Highest combined operating plus pipeline MWe from the
+                  PostgreSQL country/market aggregation.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
+                <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                  {formatCount(summary.topCountries.length)} countries
+                </span>
+                <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+                  Expand
+                </span>
+              </div>
+            </summary>
+            <div className="overflow-x-auto border-t border-gray-200">
+              <table className="min-w-[820px] table-fixed text-left text-sm">
                 <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                   <tr>
                     <th className="w-[28%] px-5 py-3 font-semibold">Country</th>
@@ -316,7 +347,7 @@ export default async function PostgresAnalysisPreviewPage() {
                 </tbody>
               </table>
             </div>
-          </section>
+          </details>
         </>
       )}
     </main>

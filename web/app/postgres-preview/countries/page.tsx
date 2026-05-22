@@ -107,9 +107,14 @@ function CountryMarketsTable({
 }: {
   countries: PostgresCountryMarketSummary[];
 }) {
+  const sourceGapCount = countries.reduce(
+    (sum, country) => sum + country.missing_source_count,
+    0
+  );
+
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
+    <details className="border border-gray-200 bg-white">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
             Country / Market Summary
@@ -119,12 +124,26 @@ function CountryMarketsTable({
             project, asset, or company worklists.
           </p>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          {formatCount(countries.length)} countries
-        </span>
-      </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
+          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            {formatCount(countries.length)} countries
+          </span>
+          <span
+            className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
+              sourceGapCount > 0
+                ? "border-amber-200 bg-amber-50 text-amber-800"
+                : "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]"
+            }`}
+          >
+            {formatCount(sourceGapCount)} source gaps
+          </span>
+          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            Expand
+          </span>
+        </div>
+      </summary>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto border-t border-gray-200">
         <table className="min-w-[980px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
@@ -279,7 +298,7 @@ function CountryMarketsTable({
           </tbody>
         </table>
       </div>
-    </section>
+    </details>
   );
 }
 

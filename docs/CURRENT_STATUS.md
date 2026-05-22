@@ -175,6 +175,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   attention-aware disclosure pattern, staying compact when no human-created
   issues are open while expanding automatically when issue work, creation, or
   status feedback is active
+- PostgreSQL Countries / Markets, Analysis, and Replacement Readiness now use
+  the same progressive-disclosure pattern for dense worklists and drilldowns:
+  KPI snapshots remain visible, while country tables, secondary analytical
+  buckets, top-country drilldowns, and entity readiness worklists expand from
+  compact summary headers
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals
