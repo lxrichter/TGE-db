@@ -37,7 +37,25 @@ async function getCountriesData(): Promise<CountriesData> {
 }
 
 function countryQueryHref(path: string, country: string) {
-  return `${path}?country=${encodeURIComponent(country)}`;
+  const params = new URLSearchParams({ country });
+
+  return `${path}?${params.toString()}`;
+}
+
+function countryWorklistHref(
+  path: string,
+  country: string,
+  query?: Record<string, string | undefined>
+) {
+  const params = new URLSearchParams({ country });
+
+  Object.entries(query || {}).forEach(([key, value]) => {
+    if (value) {
+      params.set(key, value);
+    }
+  });
+
+  return `${path}?${params.toString()}`;
 }
 
 function formatDate(value: string | null | undefined) {
@@ -116,6 +134,212 @@ function MobileMarketField({
         {label}
       </div>
       <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
+function CountryWorklistLinks({
+  country,
+  missing,
+}: {
+  country: string;
+  missing?: string;
+}) {
+  const query = missing ? { missing } : undefined;
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-3 text-xs">
+      <Link
+        className="font-semibold text-[#4f7f1f] hover:underline"
+        href={countryWorklistHref("/postgres-preview/projects", country, query)}
+      >
+        Projects
+      </Link>
+      <Link
+        className="font-semibold text-[#4f7f1f] hover:underline"
+        href={countryWorklistHref(
+          "/postgres-preview/operating-assets",
+          country,
+          query
+        )}
+      >
+        Assets
+      </Link>
+      <Link
+        className="font-semibold text-[#4f7f1f] hover:underline"
+        href={countryWorklistHref("/postgres-preview/companies", country, query)}
+      >
+        Companies
+      </Link>
+    </div>
+  );
+}
+
+function sortCountriesByMetric(
+  countries: PostgresCountryMarketSummary[],
+  metric: (country: PostgresCountryMarketSummary) => number
+) {
+  return [...countries]
+    .filter((country) => metric(country) > 0)
+    .sort((left, right) => metric(right) - metric(left))
+    .slice(0, 5);
+}
+
+function sortCountriesByUpdate(countries: PostgresCountryMarketSummary[]) {
+  return [...countries]
+    .filter(
+      (country) =>
+        country.latest_update_at && !country.latest_update_at.startsWith("1970")
+    )
+    .sort(
+      (left, right) =>
+        new Date(right.latest_update_at).getTime() -
+        new Date(left.latest_update_at).getTime()
+    )
+    .slice(0, 5);
+}
+
+function CountryQueueCard({
+  title,
+  description,
+  countries,
+  metric,
+  missing,
+  emptyLabel,
+}: {
+  title: string;
+  description: string;
+  countries: PostgresCountryMarketSummary[];
+  metric: (country: PostgresCountryMarketSummary) => {
+    value: string;
+    note: string;
+  };
+  missing?: string;
+  emptyLabel: string;
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 px-4 py-3">
+        <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
+        <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
+      </div>
+      <div className="divide-y divide-gray-100">
+        {countries.length > 0 ? (
+          countries.map((country) => {
+            const item = metric(country);
+
+            return (
+              <div key={country.country} className="px-4 py-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-semibold text-[#1f2937]">
+                      {country.country}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {item.note}
+                    </div>
+                  </div>
+                  <span className="inline-flex min-h-7 shrink-0 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+                    {item.value}
+                  </span>
+                </div>
+                <CountryWorklistLinks country={country.country} missing={missing} />
+              </div>
+            );
+          })
+        ) : (
+          <div className="px-4 py-6 text-sm text-gray-500">{emptyLabel}</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function CountryOperationsLayer({
+  countries,
+}: {
+  countries: PostgresCountryMarketSummary[];
+}) {
+  const sourceGapMarkets = sortCountriesByMetric(
+    countries,
+    (country) => country.missing_source_count
+  );
+  const pipelineMarkets = sortCountriesByMetric(
+    countries,
+    (country) => country.project_pipeline_mwe
+  );
+  const operatingMarkets = sortCountriesByMetric(
+    countries,
+    (country) => country.operating_installed_mwe
+  );
+  const directUseMarkets = sortCountriesByMetric(
+    countries,
+    (country) =>
+      country.direct_use_project_count + country.direct_use_asset_count
+  );
+  const recentMarkets = sortCountriesByUpdate(countries);
+
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+      <CountryQueueCard
+        title="Source Gap Markets"
+        description="Country-scoped records that need evidence before export-ready use."
+        countries={sourceGapMarkets}
+        missing="source"
+        emptyLabel="No country-level source gaps in the current summary."
+        metric={(country) => ({
+          value: formatCount(country.missing_source_count),
+          note: "records without confirmed evidence links",
+        })}
+      />
+      <CountryQueueCard
+        title="Pipeline Markets"
+        description="Largest project pipeline markets for market-page and analysis review."
+        countries={pipelineMarkets}
+        emptyLabel="No pipeline capacity values in the current country summary."
+        metric={(country) => ({
+          value: `${formatMw(country.project_pipeline_mwe)} MWe`,
+          note: `${formatCount(country.active_project_count)} active project records`,
+        })}
+      />
+      <CountryQueueCard
+        title="Operating Markets"
+        description="Largest operating markets by staged installed electric capacity."
+        countries={operatingMarkets}
+        emptyLabel="No operating electric capacity values in the current country summary."
+        metric={(country) => ({
+          value: `${formatMw(country.operating_installed_mwe)} MWe`,
+          note: `${formatCount(country.operating_asset_active_count)} active asset records`,
+        })}
+      />
+      <CountryQueueCard
+        title="Direct-Use Markets"
+        description="Markets with direct-use projects or facilities visible in staging."
+        countries={directUseMarkets}
+        emptyLabel="No direct-use country records in the current summary."
+        metric={(country) => ({
+          value: formatCount(
+            country.direct_use_project_count + country.direct_use_asset_count
+          ),
+          note: `${formatMw(
+            country.project_thermal_mwth + country.operating_thermal_mwth
+          )} MWth staged`,
+        })}
+      />
+      <CountryQueueCard
+        title="Recently Updated Markets"
+        description="Country pages likely to show recent staging or evidence activity."
+        countries={recentMarkets}
+        emptyLabel="No recent country update metadata available."
+        metric={(country) => ({
+          value: formatDate(country.latest_update_at),
+          note: `${formatCount(
+            country.project_count +
+              country.operating_asset_count +
+              country.company_count
+          )} staged records`,
+        })}
+      />
     </div>
   );
 }
@@ -557,6 +781,15 @@ export default async function PostgresCountryMarketsPage() {
 
           <DetailPriorityMarker
             label="Workflow"
+            title="Market Operations"
+            description="Country-scoped queues for source gaps, market priority, direct-use coverage, and recent activity."
+            tone="workflow"
+          />
+
+          <CountryOperationsLayer countries={countries} />
+
+          <DetailPriorityMarker
+            label="Workbench"
             title="Country Worklist"
             description="Comparison, validation coverage, drill-through."
             tone="workflow"
