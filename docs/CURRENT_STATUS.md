@@ -497,6 +497,9 @@ Known current gaps and risks:
 - relationship workflow sections now use a first progressive-disclosure pass:
   governance guidance and row-level evidence linking are collapsed until needed
   to reduce visual load during normal editing
+- entity detail workflow mode contract has been added to define Core,
+  Research, Review, and Full display modes before additional workflow layers
+  are added to project, operating asset, and company pages
 
 ## Validation Snapshot
 
@@ -507,6 +510,8 @@ Last checked locally:
 - `/`: redirects to `/login`
 - targeted lint and `npm run build` passed for the relationship workflow
   progressive-disclosure pass added on 2026-05-22
+- documentation-only entity detail workflow mode contract added on 2026-05-22;
+  no build rerun was required for that documentation pass
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.

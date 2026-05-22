@@ -188,6 +188,7 @@ Page contract:
 
 - [Research Ops Page Contract](page-contracts/RESEARCH_OPS_PAGE_CONTRACT.md)
 - [Sources / Documents Page Contract](page-contracts/SOURCES_DOCUMENTS_PAGE_CONTRACT.md)
+- [Entity Detail Workflow Modes](page-contracts/ENTITY_DETAIL_WORKFLOW_MODES.md)
 
 Review focus:
 

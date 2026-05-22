@@ -74,6 +74,9 @@ Current implemented foundation:
   companies are available for staging review
 - page review protocol added to guide detailed page-by-page decisions before
   replacing the SQLite prototype routes
+- entity detail workflow mode contract added to guide progressive disclosure
+  across PostgreSQL project, operating asset, and company pages before adding
+  more workflow layers
 - functional page/module blueprint covering:
   - Research Ops
   - Sources / Documents
@@ -185,12 +188,15 @@ Deliverables:
 
 Immediate next actions:
 
-1. expand the persistent Research Ops task/issue model into manual duplicate
+1. add a top-of-page next required action strip and progressive-disclosure
+   display rules to PostgreSQL project, operating asset, and company detail
+   pages
+2. expand the persistent Research Ops task/issue model into manual duplicate
    review and field-level human issue persistence
-2. keep tightening permissions around PostgreSQL write-enabled routes
-3. decide when PostgreSQL entity edit pages should replace or sit beside the
+3. keep tightening permissions around PostgreSQL write-enabled routes
+4. decide when PostgreSQL entity edit pages should replace or sit beside the
    current SQLite prototype edit flows
-4. harden the promotion scaffold with operating-asset readiness checks,
+5. harden the promotion scaffold with operating-asset readiness checks,
    review-state transition rules, and unit/expansion handling
 
 Do before:
