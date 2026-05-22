@@ -39,6 +39,7 @@ import PostgresRecordActionHub, {
   PostgresNextRequiredActionStrip,
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import {
   getPostgresCompanyRelationshipReferenceData,
@@ -846,180 +847,208 @@ export default async function PostgresCompanyDetailPage({
     >
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
-      <DetailPriorityMarker
-        label="Core"
-        title="Operational Focus"
-        description="Classification, readiness, next action."
-        tone="core"
-      />
-
-      <DetailWorkflowMap
-        description="Use this sequence to scan the company record: confirm classification, strengthen evidence, check activity and ownership relationships, handle AI/review work, then decide whether the record is export-ready."
-        steps={[
-          {
-            label: "Identity",
-            href: "#company-classification",
-            status: identityComplete ? "complete" : "attention",
-            note: identityComplete
-              ? "Company name and primary category are present."
-              : "Confirm company name, legal identity, status, and primary category.",
-            meta: company.headquarters_country || "No HQ country",
-          },
-          {
-            label: "Evidence",
-            href: "#company-source-evidence",
-            status:
-              credibleSourceCount > 0
-                ? "complete"
-                : company.sources.length > 0 || openSourceMatchCount > 0
-                  ? "attention"
-                  : "blocked",
-            note:
-              credibleSourceCount > 0
-                ? "At least one credible source is linked."
-                : "Add or review source evidence before export-ready use.",
-            meta: `${formatCount(credibleSourceCount)}/${formatCount(
-              company.sources.length
-            )} credible sources`,
-          },
-          {
-            label: "Relationships",
-            href: "#company-relationships",
-            status: activityLinkCount > 0 ? "complete" : "attention",
-            note:
-              activityLinkCount > 0
-                ? "Structured project, asset, or company relationships are linked."
-                : "Add project roles, plant/facility roles, ownership, group, or JV links.",
-            meta: `${formatCount(activityLinkCount)} relationship${
-              activityLinkCount === 1 ? "" : "s"
-            }`,
-          },
-          {
-            label: "AI / Review",
-            href: "#company-ai-suggestions",
-            status:
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0 ||
-              openIssueCount > 0
-                ? "attention"
-                : fieldSuggestionSummary.applied > 0
-                  ? "complete"
-                  : "neutral",
-            note:
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
-                ? "Review field suggestions before applying any database writes."
-                : "Check Research Ops issues and AI suggestions when present.",
-            meta: `${formatCount(openIssueCount)} issue${
-              openIssueCount === 1 ? "" : "s"
-            } · ${formatCount(
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
-            )} AI pending`,
-          },
-          {
-            label: "Export",
-            href: "#company-export-readiness",
-            status:
-              readinessBlockers.length > 0
-                ? "blocked"
-                : readinessWarnings.length > 0
-                  ? "attention"
-                  : "complete",
-            note:
-              readinessBlockers.length > 0
-                ? "Resolve blockers before export-ready use."
-                : "Review warnings before marking this company export-ready.",
-            meta: `${formatCount(readinessBlockers.length)} blocker${
-              readinessBlockers.length === 1 ? "" : "s"
-            }`,
-          },
-        ]}
-      />
-
-      <CompanyGovernanceOverview
-        auditEvents={auditEvents}
-        company={company}
-        fieldSuggestionCandidates={fieldSuggestionCandidates}
-        openSourceMatchCount={openSourceMatchCount}
-        operatingAssetLinks={operatingAssetLinks}
-        projectLinks={projectLinks}
-        readinessIssues={readinessIssues}
-        relationships={relationships}
-        researchIssues={researchIssues}
-        sources={company.sources}
-      />
-
-      <CompanyActionHub
-        canEditRecord={canEditRecord}
-        company={company}
-        fieldSuggestionCandidates={fieldSuggestionCandidates}
-        openSourceMatchCount={openSourceMatchCount}
-        operatingAssetLinks={operatingAssetLinks}
-        projectLinks={projectLinks}
-        readinessIssues={readinessIssues}
-        relationships={relationships}
-        researchIssues={researchIssues}
-      />
-
-      <DetailPriorityMarker
-        label="Core Record"
-        title="Company Data"
-        description="Identity, classification, market focus, website, activity context."
-        tone="core"
-      />
-
-      <DetailAnchorNav
+      <PostgresSectionJumpNav
         items={[
           {
-            label: "Classification",
-            href: "#company-classification",
-            note: "Identity, legal name, category, status, and HQ fields",
+            href: "#company-focus",
+            label: "Focus",
+            note: "Readiness",
           },
           {
-            label: "Market Focus",
-            href: "#company-market-focus",
-            note: "Geothermal focus, technology focus, and market scope",
+            href: "#company-record-data",
+            label: "Record Data",
+            note: "Fields",
           },
           {
-            label: "Relationships",
-            href: "#company-relationships",
-            note: "Project, plant/facility, ownership, group, and JV links",
+            href: "#company-workflow",
+            label: "Workflow",
+            note: "Relationships",
           },
           {
-            label: "TGE News",
-            href: "#company-tge-news",
-            note: "Confirmed ThinkGeoEnergy article evidence",
-          },
-          {
-            label: "AI Suggestions",
-            href: "#company-ai-suggestions",
-            note: "Human-reviewed field suggestions from source extraction",
-          },
-          {
-            label: "Evidence",
-            href: "#company-source-evidence",
-            note: "Source/evidence links and linked field claims",
-          },
-          {
-            label: "Issues",
-            href: "#company-research-issues",
-            note: "Persistent Research Ops issues",
-          },
-          {
-            label: "Changes",
-            href: "#company-review-changes",
-            note: "Changed fields that support review and reapproval",
-          },
-          {
-            label: "Audit",
-            href: "#company-audit-trail",
-            note: "Governed change history",
-          },
-          {
-            label: "Export",
-            href: "#company-export-readiness",
-            note: "Preview export-readiness checks",
+            href: "#company-governance",
+            label: "Governance",
+            note: "Export",
           },
         ]}
       />
+
+      <section id="company-focus" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core"
+          title="Operational Focus"
+          description="Classification, readiness, next action."
+          tone="core"
+        />
+
+        <DetailWorkflowMap
+          description="Use this sequence to scan the company record: confirm classification, strengthen evidence, check activity and ownership relationships, handle AI/review work, then decide whether the record is export-ready."
+          steps={[
+            {
+              label: "Identity",
+              href: "#company-classification",
+              status: identityComplete ? "complete" : "attention",
+              note: identityComplete
+                ? "Company name and primary category are present."
+                : "Confirm company name, legal identity, status, and primary category.",
+              meta: company.headquarters_country || "No HQ country",
+            },
+            {
+              label: "Evidence",
+              href: "#company-source-evidence",
+              status:
+                credibleSourceCount > 0
+                  ? "complete"
+                  : company.sources.length > 0 || openSourceMatchCount > 0
+                    ? "attention"
+                    : "blocked",
+              note:
+                credibleSourceCount > 0
+                  ? "At least one credible source is linked."
+                  : "Add or review source evidence before export-ready use.",
+              meta: `${formatCount(credibleSourceCount)}/${formatCount(
+                company.sources.length
+              )} credible sources`,
+            },
+            {
+              label: "Relationships",
+              href: "#company-relationships",
+              status: activityLinkCount > 0 ? "complete" : "attention",
+              note:
+                activityLinkCount > 0
+                  ? "Structured project, asset, or company relationships are linked."
+                  : "Add project roles, plant/facility roles, ownership, group, or JV links.",
+              meta: `${formatCount(activityLinkCount)} relationship${
+                activityLinkCount === 1 ? "" : "s"
+              }`,
+            },
+            {
+              label: "AI / Review",
+              href: "#company-ai-suggestions",
+              status:
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady >
+                  0 || openIssueCount > 0
+                  ? "attention"
+                  : fieldSuggestionSummary.applied > 0
+                    ? "complete"
+                    : "neutral",
+              note:
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
+                  ? "Review field suggestions before applying any database writes."
+                  : "Check Research Ops issues and AI suggestions when present.",
+              meta: `${formatCount(openIssueCount)} issue${
+                openIssueCount === 1 ? "" : "s"
+              } · ${formatCount(
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+              )} AI pending`,
+            },
+            {
+              label: "Export",
+              href: "#company-export-readiness",
+              status:
+                readinessBlockers.length > 0
+                  ? "blocked"
+                  : readinessWarnings.length > 0
+                    ? "attention"
+                    : "complete",
+              note:
+                readinessBlockers.length > 0
+                  ? "Resolve blockers before export-ready use."
+                  : "Review warnings before marking this company export-ready.",
+              meta: `${formatCount(readinessBlockers.length)} blocker${
+                readinessBlockers.length === 1 ? "" : "s"
+              }`,
+            },
+          ]}
+        />
+
+        <CompanyGovernanceOverview
+          auditEvents={auditEvents}
+          company={company}
+          fieldSuggestionCandidates={fieldSuggestionCandidates}
+          openSourceMatchCount={openSourceMatchCount}
+          operatingAssetLinks={operatingAssetLinks}
+          projectLinks={projectLinks}
+          readinessIssues={readinessIssues}
+          relationships={relationships}
+          researchIssues={researchIssues}
+          sources={company.sources}
+        />
+
+        <CompanyActionHub
+          canEditRecord={canEditRecord}
+          company={company}
+          fieldSuggestionCandidates={fieldSuggestionCandidates}
+          openSourceMatchCount={openSourceMatchCount}
+          operatingAssetLinks={operatingAssetLinks}
+          projectLinks={projectLinks}
+          readinessIssues={readinessIssues}
+          relationships={relationships}
+          researchIssues={researchIssues}
+        />
+      </section>
+
+      <section id="company-record-data" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core Record"
+          title="Company Data"
+          description="Identity, classification, market focus, website, activity context."
+          tone="core"
+        />
+
+        <DetailAnchorNav
+          items={[
+            {
+              label: "Classification",
+              href: "#company-classification",
+              note: "Identity, legal name, category, status, and HQ fields",
+            },
+            {
+              label: "Market Focus",
+              href: "#company-market-focus",
+              note: "Geothermal focus, technology focus, and market scope",
+            },
+            {
+              label: "Relationships",
+              href: "#company-relationships",
+              note: "Project, plant/facility, ownership, group, and JV links",
+            },
+            {
+              label: "TGE News",
+              href: "#company-tge-news",
+              note: "Confirmed ThinkGeoEnergy article evidence",
+            },
+            {
+              label: "AI Suggestions",
+              href: "#company-ai-suggestions",
+              note: "Human-reviewed field suggestions from source extraction",
+            },
+            {
+              label: "Evidence",
+              href: "#company-source-evidence",
+              note: "Source/evidence links and linked field claims",
+            },
+            {
+              label: "Issues",
+              href: "#company-research-issues",
+              note: "Persistent Research Ops issues",
+            },
+            {
+              label: "Changes",
+              href: "#company-review-changes",
+              note: "Changed fields that support review and reapproval",
+            },
+            {
+              label: "Audit",
+              href: "#company-audit-trail",
+              note: "Governed change history",
+            },
+            {
+              label: "Export",
+              href: "#company-export-readiness",
+              note: "Preview export-readiness checks",
+            },
+          ]}
+        />
 
       <DetailSection id="company-classification" title="Identity And Classification">
         <DetailFieldGrid
@@ -1074,13 +1103,15 @@ export default async function PostgresCompanyDetailPage({
           ]}
         />
       </DetailSection>
+      </section>
 
-      <DetailPriorityMarker
-        label="Workflow"
-        title="Workflow Support"
-        description="Relationships, evidence, news, AI, issues."
-        tone="workflow"
-      />
+      <section id="company-workflow" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Workflow"
+          title="Workflow Support"
+          description="Relationships, evidence, news, AI, issues."
+          tone="workflow"
+        />
 
       <PostgresReviewStatusActions
         canReviewStatus={canReviewRecord}
@@ -1147,13 +1178,15 @@ export default async function PostgresCompanyDetailPage({
           issues={researchIssues}
         />
       </div>
+      </section>
 
-      <DetailPriorityMarker
-        label="Governance"
-        title="Review Controls"
-        description="Changed fields, audit, export readiness, notes."
-        tone="governance"
-      />
+      <section id="company-governance" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Governance"
+          title="Review Controls"
+          description="Changed fields, audit, export readiness, notes."
+          tone="governance"
+        />
 
       <PendingReviewChangesPanel
         currentReviewStatus={company.review_status_code}
@@ -1175,6 +1208,7 @@ export default async function PostgresCompanyDetailPage({
           {company.notes || "No notes added."}
         </p>
       </DetailSection>
+      </section>
     </DetailShell>
   );
 }

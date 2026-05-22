@@ -40,6 +40,7 @@ import PostgresRecordActionHub, {
   PostgresNextRequiredActionStrip,
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import type {
   PostgresAuditEvent,
@@ -744,181 +745,209 @@ export default async function PostgresProjectDetailPage({
     >
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
-      <DetailPriorityMarker
-        label="Core"
-        title="Operational Focus"
-        description="Readiness and next action."
-        tone="core"
-      />
-
-      <DetailWorkflowMap
-        description="Use this sequence to scan the project record: confirm identity, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
-        steps={[
-          {
-            label: "Identity",
-            href: "#project-identity-location",
-            status: identityComplete ? "complete" : "attention",
-            note: identityComplete
-              ? "Core project identity, country, lifecycle, and use type are present."
-              : "Confirm project name, country, lifecycle phase, and use type.",
-            meta: project.country || "No country",
-          },
-          {
-            label: "Evidence",
-            href: "#project-source-evidence",
-            status:
-              credibleSourceCount > 0
-                ? "complete"
-                : project.sources.length > 0 || openSourceMatchCount > 0
-                  ? "attention"
-                  : "blocked",
-            note:
-              credibleSourceCount > 0
-                ? "At least one credible source is linked."
-                : "Add or review source evidence before export-ready use.",
-            meta: `${formatCount(credibleSourceCount)}/${formatCount(
-              project.sources.length
-            )} credible sources`,
-          },
-          {
-            label: "Companies",
-            href: "#project-company-links",
-            status: companyLinks.length > 0 ? "complete" : "attention",
-            note:
-              companyLinks.length > 0
-                ? "Structured company roles are linked."
-                : "Add developer, owner, operator, supplier, or investor roles.",
-            meta: `${formatCount(companyLinks.length)} relationship${
-              companyLinks.length === 1 ? "" : "s"
-            }`,
-          },
-          {
-            label: "AI / Review",
-            href: "#project-ai-suggestions",
-            status:
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0 ||
-              openIssueCount > 0
-                ? "attention"
-                : fieldSuggestionSummary.applied > 0
-                  ? "complete"
-                  : "neutral",
-            note:
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
-                ? "Review field suggestions before applying any database writes."
-                : "Check Research Ops issues and AI suggestions when present.",
-            meta: `${formatCount(openIssueCount)} issue${
-              openIssueCount === 1 ? "" : "s"
-            } · ${formatCount(
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
-            )} AI pending`,
-          },
-          {
-            label: "Export",
-            href: "#project-export-readiness",
-            status:
-              readinessBlockers.length > 0
-                ? "blocked"
-                : readinessWarnings.length > 0
-                  ? "attention"
-                  : "complete",
-            note:
-              readinessBlockers.length > 0
-                ? "Resolve blockers before export-ready use."
-                : "Review warnings before marking this project export-ready.",
-            meta: `${formatCount(readinessBlockers.length)} blocker${
-              readinessBlockers.length === 1 ? "" : "s"
-            }`,
-          },
-        ]}
-      />
-
-      <ProjectGovernanceOverview
-        auditEvents={auditEvents}
-        fieldSuggestionCandidates={fieldSuggestionCandidates}
-        openSourceMatchCount={openSourceMatchCount}
-        project={project}
-        readinessIssues={readinessIssues}
-        researchIssues={researchIssues}
-        sources={project.sources}
-      />
-
-      <ProjectActionHub
-        canEditRecord={canEditRecord}
-        canPromoteRecord={canPromoteRecord}
-        fieldSuggestionCandidates={fieldSuggestionCandidates}
-        openSourceMatchCount={openSourceMatchCount}
-        project={project}
-        promotedAssetCount={promotedAssets.length}
-        readinessIssues={readinessIssues}
-        researchIssues={researchIssues}
-      />
-
-      <DetailPriorityMarker
-        label="Core Record"
-        title="Project Data"
-        description="Identity, location, capacity, resource, timeline, technology."
-        tone="core"
-      />
-
-      <DetailAnchorNav
+      <PostgresSectionJumpNav
         items={[
           {
-            label: "Identity",
-            href: "#project-identity-location",
-            note: "Core identity, location, and research status fields",
+            href: "#project-focus",
+            label: "Focus",
+            note: "Readiness",
           },
           {
-            label: "Resource / Timeline",
-            href: "#project-resource-timeline",
-            note: "Resource, capacity, technology, and COD timing fields",
+            href: "#project-record-data",
+            label: "Record Data",
+            note: "Fields",
           },
           {
-            label: "TGE News",
-            href: "#project-tge-news",
-            note: "Confirmed ThinkGeoEnergy article evidence",
+            href: "#project-workflow",
+            label: "Workflow",
+            note: "Evidence",
           },
           {
-            label: "AI Suggestions",
-            href: "#project-ai-suggestions",
-            note: "Human-reviewed field suggestions from source extraction",
-          },
-          {
-            label: "Evidence",
-            href: "#project-source-evidence",
-            note: "Source/evidence links and linked field claims",
-          },
-          {
-            label: "Companies",
-            href: "#project-company-links",
-            note: "Developer, owner, operator, supplier, and investor roles",
-          },
-          {
-            label: "Promotion",
-            href: "#project-promotion",
-            note: "Project to plant/facility promotion workflow",
-          },
-          {
-            label: "Issues",
-            href: "#project-research-issues",
-            note: "Persistent Research Ops issues",
-          },
-          {
-            label: "Changes",
-            href: "#project-review-changes",
-            note: "Changed fields that support review and reapproval",
-          },
-          {
-            label: "Audit",
-            href: "#project-audit-trail",
-            note: "Governed change history",
-          },
-          {
-            label: "Export",
-            href: "#project-export-readiness",
-            note: "Preview export-readiness checks",
+            href: "#project-governance",
+            label: "Governance",
+            note: "Export",
           },
         ]}
       />
+
+      <section id="project-focus" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core"
+          title="Operational Focus"
+          description="Readiness and next action."
+          tone="core"
+        />
+
+        <DetailWorkflowMap
+          description="Use this sequence to scan the project record: confirm identity, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
+          steps={[
+            {
+              label: "Identity",
+              href: "#project-identity-location",
+              status: identityComplete ? "complete" : "attention",
+              note: identityComplete
+                ? "Core project identity, country, lifecycle, and use type are present."
+                : "Confirm project name, country, lifecycle phase, and use type.",
+              meta: project.country || "No country",
+            },
+            {
+              label: "Evidence",
+              href: "#project-source-evidence",
+              status:
+                credibleSourceCount > 0
+                  ? "complete"
+                  : project.sources.length > 0 || openSourceMatchCount > 0
+                    ? "attention"
+                    : "blocked",
+              note:
+                credibleSourceCount > 0
+                  ? "At least one credible source is linked."
+                  : "Add or review source evidence before export-ready use.",
+              meta: `${formatCount(credibleSourceCount)}/${formatCount(
+                project.sources.length
+              )} credible sources`,
+            },
+            {
+              label: "Companies",
+              href: "#project-company-links",
+              status: companyLinks.length > 0 ? "complete" : "attention",
+              note:
+                companyLinks.length > 0
+                  ? "Structured company roles are linked."
+                  : "Add developer, owner, operator, supplier, or investor roles.",
+              meta: `${formatCount(companyLinks.length)} relationship${
+                companyLinks.length === 1 ? "" : "s"
+              }`,
+            },
+            {
+              label: "AI / Review",
+              href: "#project-ai-suggestions",
+              status:
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady >
+                  0 || openIssueCount > 0
+                  ? "attention"
+                  : fieldSuggestionSummary.applied > 0
+                    ? "complete"
+                    : "neutral",
+              note:
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
+                  ? "Review field suggestions before applying any database writes."
+                  : "Check Research Ops issues and AI suggestions when present.",
+              meta: `${formatCount(openIssueCount)} issue${
+                openIssueCount === 1 ? "" : "s"
+              } · ${formatCount(
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+              )} AI pending`,
+            },
+            {
+              label: "Export",
+              href: "#project-export-readiness",
+              status:
+                readinessBlockers.length > 0
+                  ? "blocked"
+                  : readinessWarnings.length > 0
+                    ? "attention"
+                    : "complete",
+              note:
+                readinessBlockers.length > 0
+                  ? "Resolve blockers before export-ready use."
+                  : "Review warnings before marking this project export-ready.",
+              meta: `${formatCount(readinessBlockers.length)} blocker${
+                readinessBlockers.length === 1 ? "" : "s"
+              }`,
+            },
+          ]}
+        />
+
+        <ProjectGovernanceOverview
+          auditEvents={auditEvents}
+          fieldSuggestionCandidates={fieldSuggestionCandidates}
+          openSourceMatchCount={openSourceMatchCount}
+          project={project}
+          readinessIssues={readinessIssues}
+          researchIssues={researchIssues}
+          sources={project.sources}
+        />
+
+        <ProjectActionHub
+          canEditRecord={canEditRecord}
+          canPromoteRecord={canPromoteRecord}
+          fieldSuggestionCandidates={fieldSuggestionCandidates}
+          openSourceMatchCount={openSourceMatchCount}
+          project={project}
+          promotedAssetCount={promotedAssets.length}
+          readinessIssues={readinessIssues}
+          researchIssues={researchIssues}
+        />
+      </section>
+
+      <section id="project-record-data" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core Record"
+          title="Project Data"
+          description="Identity, location, capacity, resource, timeline, technology."
+          tone="core"
+        />
+
+        <DetailAnchorNav
+          items={[
+            {
+              label: "Identity",
+              href: "#project-identity-location",
+              note: "Core identity, location, and research status fields",
+            },
+            {
+              label: "Resource / Timeline",
+              href: "#project-resource-timeline",
+              note: "Resource, capacity, technology, and COD timing fields",
+            },
+            {
+              label: "TGE News",
+              href: "#project-tge-news",
+              note: "Confirmed ThinkGeoEnergy article evidence",
+            },
+            {
+              label: "AI Suggestions",
+              href: "#project-ai-suggestions",
+              note: "Human-reviewed field suggestions from source extraction",
+            },
+            {
+              label: "Evidence",
+              href: "#project-source-evidence",
+              note: "Source/evidence links and linked field claims",
+            },
+            {
+              label: "Companies",
+              href: "#project-company-links",
+              note: "Developer, owner, operator, supplier, and investor roles",
+            },
+            {
+              label: "Promotion",
+              href: "#project-promotion",
+              note: "Project to plant/facility promotion workflow",
+            },
+            {
+              label: "Issues",
+              href: "#project-research-issues",
+              note: "Persistent Research Ops issues",
+            },
+            {
+              label: "Changes",
+              href: "#project-review-changes",
+              note: "Changed fields that support review and reapproval",
+            },
+            {
+              label: "Audit",
+              href: "#project-audit-trail",
+              note: "Governed change history",
+            },
+            {
+              label: "Export",
+              href: "#project-export-readiness",
+              note: "Preview export-readiness checks",
+            },
+          ]}
+        />
 
       <DetailSection id="project-identity-location" title="Identity And Location">
         <DetailFieldGrid
@@ -966,13 +995,15 @@ export default async function PostgresProjectDetailPage({
           ]}
         />
       </DetailSection>
+      </section>
 
-      <DetailPriorityMarker
-        label="Workflow"
-        title="Workflow Support"
-        description="Evidence, news, relationships, AI, promotion, issues."
-        tone="workflow"
-      />
+      <section id="project-workflow" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Workflow"
+          title="Workflow Support"
+          description="Evidence, news, relationships, AI, promotion, issues."
+          tone="workflow"
+        />
 
       <PostgresReviewStatusActions
         canReviewStatus={canReviewRecord}
@@ -1045,13 +1076,15 @@ export default async function PostgresProjectDetailPage({
           issues={researchIssues}
         />
       </div>
+      </section>
 
-      <DetailPriorityMarker
-        label="Governance"
-        title="Review Controls"
-        description="Changed fields, audit, export readiness, notes."
-        tone="governance"
-      />
+      <section id="project-governance" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Governance"
+          title="Review Controls"
+          description="Changed fields, audit, export readiness, notes."
+          tone="governance"
+        />
 
       <PendingReviewChangesPanel
         currentReviewStatus={project.review_status_code}
@@ -1073,6 +1106,7 @@ export default async function PostgresProjectDetailPage({
           {project.notes || "No notes added."}
         </p>
       </DetailSection>
+      </section>
     </DetailShell>
   );
 }

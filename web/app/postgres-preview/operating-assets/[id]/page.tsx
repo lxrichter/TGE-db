@@ -39,6 +39,7 @@ import PostgresRecordActionHub, {
   PostgresNextRequiredActionStrip,
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
 import {
   getPostgresCompanyRelationshipReferenceData,
@@ -767,177 +768,205 @@ export default async function PostgresOperatingAssetDetailPage({
     >
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
-      <DetailPriorityMarker
-        label="Core"
-        title="Operational Focus"
-        description="Operating state, readiness, next action."
-        tone="core"
-      />
-
-      <DetailWorkflowMap
-        description="Use this sequence to scan the plant/facility record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
-        steps={[
+      <PostgresSectionJumpNav
+        items={[
           {
-            label: "Identity",
-            href: "#asset-identity-location",
-            status: identityComplete ? "complete" : "attention",
-            note: identityComplete
-              ? "Core plant/facility identity, country, status, and use type are present."
-              : "Confirm asset name, country, operating status, and use type.",
-            meta: asset.country || "No country",
+            href: "#asset-focus",
+            label: "Focus",
+            note: "Readiness",
           },
           {
-            label: "Evidence",
-            href: "#asset-source-evidence",
-            status:
-              credibleSourceCount > 0
-                ? "complete"
-                : asset.sources.length > 0 || openSourceMatchCount > 0
-                  ? "attention"
-                  : "blocked",
-            note:
-              credibleSourceCount > 0
-                ? "At least one credible source is linked."
-                : "Add or review source evidence before export-ready use.",
-            meta: `${formatCount(credibleSourceCount)}/${formatCount(
-              asset.sources.length
-            )} credible sources`,
+            href: "#asset-record-data",
+            label: "Record Data",
+            note: "Fields",
           },
           {
-            label: "Companies",
-            href: "#asset-company-links",
-            status: companyLinks.length > 0 ? "complete" : "attention",
-            note:
-              companyLinks.length > 0
-                ? "Structured owner, operator, supplier, or contractor roles are linked."
-                : "Add owner, operator, supplier, EPC, or other asset roles.",
-            meta: `${formatCount(companyLinks.length)} relationship${
-              companyLinks.length === 1 ? "" : "s"
-            }`,
+            href: "#asset-workflow",
+            label: "Workflow",
+            note: "Evidence",
           },
           {
-            label: "AI / Review",
-            href: "#asset-ai-suggestions",
-            status:
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0 ||
-              openIssueCount > 0
-                ? "attention"
-                : fieldSuggestionSummary.applied > 0
-                  ? "complete"
-                  : "neutral",
-            note:
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
-                ? "Review field suggestions before applying any database writes."
-                : "Check Research Ops issues and AI suggestions when present.",
-            meta: `${formatCount(openIssueCount)} issue${
-              openIssueCount === 1 ? "" : "s"
-            } · ${formatCount(
-              fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
-            )} AI pending`,
-          },
-          {
-            label: "Export",
-            href: "#asset-export-readiness",
-            status:
-              readinessBlockers.length > 0
-                ? "blocked"
-                : readinessWarnings.length > 0
-                  ? "attention"
-                  : "complete",
-            note:
-              readinessBlockers.length > 0
-                ? "Resolve blockers before export-ready use."
-                : "Review warnings before marking this asset export-ready.",
-            meta: `${formatCount(readinessBlockers.length)} blocker${
-              readinessBlockers.length === 1 ? "" : "s"
-            }`,
+            href: "#asset-governance",
+            label: "Governance",
+            note: "Export",
           },
         ]}
       />
 
-      <AssetGovernanceOverview
-        asset={asset}
-        auditEvents={auditEvents}
-        fieldSuggestionCandidates={fieldSuggestionCandidates}
-        openSourceMatchCount={openSourceMatchCount}
-        readinessIssues={readinessIssues}
-        researchIssues={researchIssues}
-        sources={asset.sources}
-      />
+      <section id="asset-focus" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core"
+          title="Operational Focus"
+          description="Operating state, readiness, next action."
+          tone="core"
+        />
 
-      <div id="asset-workflow-actions" className="scroll-mt-6">
-        <AssetActionHub
+        <DetailWorkflowMap
+          description="Use this sequence to scan the plant/facility record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
+          steps={[
+            {
+              label: "Identity",
+              href: "#asset-identity-location",
+              status: identityComplete ? "complete" : "attention",
+              note: identityComplete
+                ? "Core plant/facility identity, country, status, and use type are present."
+                : "Confirm asset name, country, operating status, and use type.",
+              meta: asset.country || "No country",
+            },
+            {
+              label: "Evidence",
+              href: "#asset-source-evidence",
+              status:
+                credibleSourceCount > 0
+                  ? "complete"
+                  : asset.sources.length > 0 || openSourceMatchCount > 0
+                    ? "attention"
+                    : "blocked",
+              note:
+                credibleSourceCount > 0
+                  ? "At least one credible source is linked."
+                  : "Add or review source evidence before export-ready use.",
+              meta: `${formatCount(credibleSourceCount)}/${formatCount(
+                asset.sources.length
+              )} credible sources`,
+            },
+            {
+              label: "Companies",
+              href: "#asset-company-links",
+              status: companyLinks.length > 0 ? "complete" : "attention",
+              note:
+                companyLinks.length > 0
+                  ? "Structured owner, operator, supplier, or contractor roles are linked."
+                  : "Add owner, operator, supplier, EPC, or other asset roles.",
+              meta: `${formatCount(companyLinks.length)} relationship${
+                companyLinks.length === 1 ? "" : "s"
+              }`,
+            },
+            {
+              label: "AI / Review",
+              href: "#asset-ai-suggestions",
+              status:
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady >
+                  0 || openIssueCount > 0
+                  ? "attention"
+                  : fieldSuggestionSummary.applied > 0
+                    ? "complete"
+                    : "neutral",
+              note:
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0
+                  ? "Review field suggestions before applying any database writes."
+                  : "Check Research Ops issues and AI suggestions when present.",
+              meta: `${formatCount(openIssueCount)} issue${
+                openIssueCount === 1 ? "" : "s"
+              } · ${formatCount(
+                fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+              )} AI pending`,
+            },
+            {
+              label: "Export",
+              href: "#asset-export-readiness",
+              status:
+                readinessBlockers.length > 0
+                  ? "blocked"
+                  : readinessWarnings.length > 0
+                    ? "attention"
+                    : "complete",
+              note:
+                readinessBlockers.length > 0
+                  ? "Resolve blockers before export-ready use."
+                  : "Review warnings before marking this asset export-ready.",
+              meta: `${formatCount(readinessBlockers.length)} blocker${
+                readinessBlockers.length === 1 ? "" : "s"
+              }`,
+            },
+          ]}
+        />
+
+        <AssetGovernanceOverview
           asset={asset}
-          canEditRecord={canEditRecord}
-          companyLinkCount={companyLinks.length}
+          auditEvents={auditEvents}
           fieldSuggestionCandidates={fieldSuggestionCandidates}
           openSourceMatchCount={openSourceMatchCount}
           readinessIssues={readinessIssues}
           researchIssues={researchIssues}
+          sources={asset.sources}
         />
-      </div>
 
-      <DetailPriorityMarker
-        label="Core Record"
-        title="Asset Data"
-        description="Identity, location, status, capacity, resource, technology, COD."
-        tone="core"
-      />
+        <div id="asset-workflow-actions" className="scroll-mt-6">
+          <AssetActionHub
+            asset={asset}
+            canEditRecord={canEditRecord}
+            companyLinkCount={companyLinks.length}
+            fieldSuggestionCandidates={fieldSuggestionCandidates}
+            openSourceMatchCount={openSourceMatchCount}
+            readinessIssues={readinessIssues}
+            researchIssues={researchIssues}
+          />
+        </div>
+      </section>
 
-      <DetailAnchorNav
-        items={[
-          {
-            label: "Identity",
-            href: "#asset-identity-location",
-            note: "Core identity, location, and research status fields",
-          },
-          {
-            label: "Operation",
-            href: "#asset-operating-data",
-            note: "Operating status, capacity, technology, and COD fields",
-          },
-          {
-            label: "TGE News",
-            href: "#asset-tge-news",
-            note: "Confirmed ThinkGeoEnergy article evidence",
-          },
-          {
-            label: "AI Suggestions",
-            href: "#asset-ai-suggestions",
-            note: "Human-reviewed field suggestions from source extraction",
-          },
-          {
-            label: "Evidence",
-            href: "#asset-source-evidence",
-            note: "Source/evidence links and linked field claims",
-          },
-          {
-            label: "Companies",
-            href: "#asset-company-links",
-            note: "Owner, operator, supplier, EPC, and other asset roles",
-          },
-          {
-            label: "Issues",
-            href: "#asset-research-issues",
-            note: "Persistent Research Ops issues",
-          },
-          {
-            label: "Changes",
-            href: "#asset-review-changes",
-            note: "Changed fields that support review and reapproval",
-          },
-          {
-            label: "Audit",
-            href: "#asset-audit-trail",
-            note: "Governed change history",
-          },
-          {
-            label: "Export",
-            href: "#asset-export-readiness",
-            note: "Preview export-readiness checks",
-          },
-        ]}
-      />
+      <section id="asset-record-data" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core Record"
+          title="Asset Data"
+          description="Identity, location, status, capacity, resource, technology, COD."
+          tone="core"
+        />
+
+        <DetailAnchorNav
+          items={[
+            {
+              label: "Identity",
+              href: "#asset-identity-location",
+              note: "Core identity, location, and research status fields",
+            },
+            {
+              label: "Operation",
+              href: "#asset-operating-data",
+              note: "Operating status, capacity, technology, and COD fields",
+            },
+            {
+              label: "TGE News",
+              href: "#asset-tge-news",
+              note: "Confirmed ThinkGeoEnergy article evidence",
+            },
+            {
+              label: "AI Suggestions",
+              href: "#asset-ai-suggestions",
+              note: "Human-reviewed field suggestions from source extraction",
+            },
+            {
+              label: "Evidence",
+              href: "#asset-source-evidence",
+              note: "Source/evidence links and linked field claims",
+            },
+            {
+              label: "Companies",
+              href: "#asset-company-links",
+              note: "Owner, operator, supplier, EPC, and other asset roles",
+            },
+            {
+              label: "Issues",
+              href: "#asset-research-issues",
+              note: "Persistent Research Ops issues",
+            },
+            {
+              label: "Changes",
+              href: "#asset-review-changes",
+              note: "Changed fields that support review and reapproval",
+            },
+            {
+              label: "Audit",
+              href: "#asset-audit-trail",
+              note: "Governed change history",
+            },
+            {
+              label: "Export",
+              href: "#asset-export-readiness",
+              note: "Preview export-readiness checks",
+            },
+          ]}
+        />
 
       <DetailSection id="asset-identity-location" title="Identity And Location">
         <DetailFieldGrid
@@ -982,13 +1011,15 @@ export default async function PostgresOperatingAssetDetailPage({
           ]}
         />
       </DetailSection>
+      </section>
 
-      <DetailPriorityMarker
-        label="Workflow"
-        title="Workflow Support"
-        description="Evidence, news, relationships, AI, issues."
-        tone="workflow"
-      />
+      <section id="asset-workflow" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Workflow"
+          title="Workflow Support"
+          description="Evidence, news, relationships, AI, issues."
+          tone="workflow"
+        />
 
       <PostgresReviewStatusActions
         canReviewStatus={canReviewRecord}
@@ -1053,13 +1084,15 @@ export default async function PostgresOperatingAssetDetailPage({
           issues={researchIssues}
         />
       </div>
+      </section>
 
-      <DetailPriorityMarker
-        label="Governance"
-        title="Review Controls"
-        description="Changed fields, audit, export readiness, notes."
-        tone="governance"
-      />
+      <section id="asset-governance" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Governance"
+          title="Review Controls"
+          description="Changed fields, audit, export readiness, notes."
+          tone="governance"
+        />
 
       <PendingReviewChangesPanel
         currentReviewStatus={asset.review_status_code}
@@ -1081,6 +1114,7 @@ export default async function PostgresOperatingAssetDetailPage({
           {asset.notes || "No notes added."}
         </p>
       </DetailSection>
+      </section>
     </DetailShell>
   );
 }
