@@ -476,6 +476,7 @@ function CompanyActionHub({
   const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
   const activityLinkCount =
     projectLinks.length + operatingAssetLinks.length + relationships.length;
+  const addSourceHref = `/sources/new?entityType=company&entityId=${company.company_id}`;
   const actions: PostgresRecordAction[] = [];
 
   if (canEditRecord) {
@@ -518,11 +519,11 @@ function CompanyActionHub({
     label: company.sources.length === 0 ? "Add Evidence" : "Review Evidence",
     detail:
       company.sources.length === 0
-        ? "No source is linked yet. Add evidence before export-ready use."
+        ? "Open source creation with this company preselected as the linked target."
         : `${formatCount(company.sources.length)} linked source${
             company.sources.length === 1 ? "" : "s"
           }; review credibility and relationship claims.`,
-    href: "#company-source-evidence",
+    href: company.sources.length === 0 ? addSourceHref : "#company-source-evidence",
     tone: company.sources.length === 0 ? "blocker" : "ready",
     primary: company.sources.length === 0,
   });
@@ -622,8 +623,8 @@ function getCompanyNextRequiredAction({
     return {
       label: "Add source evidence",
       detail:
-        "This company has no linked source yet. Add evidence before review or export-ready use.",
-      href: "#company-source-evidence",
+        "This company has no linked source yet. Open source creation with this company preselected.",
+      href: `/sources/new?entityType=company&entityId=${company.company_id}`,
       tone: "blocker",
     };
   }

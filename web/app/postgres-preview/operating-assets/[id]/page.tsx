@@ -373,6 +373,7 @@ function AssetActionHub({
   const openIssues = openResearchIssues(researchIssues);
   const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
   const hasCod = Boolean(asset.cod_year || asset.cod_raw);
+  const addSourceHref = `/sources/new?entityType=operating_asset&entityId=${asset.operating_asset_id}`;
   const actions: PostgresRecordAction[] = [];
 
   if (canEditRecord) {
@@ -400,11 +401,11 @@ function AssetActionHub({
     label: asset.sources.length === 0 ? "Add Evidence" : "Review Evidence",
     detail:
       asset.sources.length === 0
-        ? "No source is linked yet. Add evidence before export-ready use."
+        ? "Open source creation with this plant/facility preselected as the linked target."
         : `${formatCount(asset.sources.length)} linked source${
             asset.sources.length === 1 ? "" : "s"
           }; review credibility and operating claims.`,
-    href: "#asset-source-evidence",
+    href: asset.sources.length === 0 ? addSourceHref : "#asset-source-evidence",
     tone: asset.sources.length === 0 ? "blocker" : "ready",
     primary: asset.sources.length === 0,
   });
@@ -531,8 +532,8 @@ function getAssetNextRequiredAction({
     return {
       label: "Add source evidence",
       detail:
-        "This plant/facility has no linked source yet. Add evidence before review or export-ready use.",
-      href: "#asset-source-evidence",
+        "This plant/facility has no linked source yet. Open source creation with this asset preselected.",
+      href: `/sources/new?entityType=operating_asset&entityId=${asset.operating_asset_id}`,
       tone: "blocker",
     };
   }

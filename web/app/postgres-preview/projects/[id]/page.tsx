@@ -369,6 +369,7 @@ function ProjectActionHub({
   const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
   const openIssues = openResearchIssues(researchIssues);
   const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const addSourceHref = `/sources/new?entityType=project&entityId=${project.project_id}`;
   const actions: PostgresRecordAction[] = [];
 
   if (canEditRecord) {
@@ -385,11 +386,11 @@ function ProjectActionHub({
     label: project.sources.length === 0 ? "Add Evidence" : "Review Evidence",
     detail:
       project.sources.length === 0
-        ? "No source is linked yet. Add evidence before export-ready use."
+        ? "Open source creation with this project preselected as the linked target."
         : `${formatCount(project.sources.length)} linked source${
             project.sources.length === 1 ? "" : "s"
           }; review credibility and linked fields.`,
-    href: "#project-source-evidence",
+    href: project.sources.length === 0 ? addSourceHref : "#project-source-evidence",
     tone: project.sources.length === 0 ? "blocker" : "ready",
     primary: project.sources.length === 0,
   });
@@ -515,8 +516,9 @@ function getProjectNextRequiredAction({
   if (project.sources.length === 0) {
     return {
       label: "Add source evidence",
-      detail: "This project has no linked source yet. Add evidence before review or export-ready use.",
-      href: "#project-source-evidence",
+      detail:
+        "This project has no linked source yet. Open source creation with this project preselected.",
+      href: `/sources/new?entityType=project&entityId=${project.project_id}`,
       tone: "blocker",
     };
   }
