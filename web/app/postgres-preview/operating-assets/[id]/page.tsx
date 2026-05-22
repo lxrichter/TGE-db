@@ -6,6 +6,7 @@ import {
   AuditTrailPanel,
   DetailAnchorNav,
   DetailFieldGrid,
+  DetailPriorityMarker,
   DetailSection,
   DetailShell,
   DetailWorkflowMap,
@@ -766,6 +767,13 @@ export default async function PostgresOperatingAssetDetailPage({
     >
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
+      <DetailPriorityMarker
+        label="Level 1"
+        title="Immediate Operational Focus"
+        description="Start here: current operating state, next required action, and the shortest path to making this plant/facility usable for review."
+        tone="core"
+      />
+
       <DetailWorkflowMap
         description="Use this sequence to scan the plant/facility record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
         steps={[
@@ -869,6 +877,13 @@ export default async function PostgresOperatingAssetDetailPage({
         />
       </div>
 
+      <DetailPriorityMarker
+        label="Core Record"
+        title="Stable Operating Asset Data"
+        description="Core identity, location, operating status, capacity, resource, technology, and COD fields. This is the primary asset content researchers should understand first."
+        tone="core"
+      />
+
       <DetailAnchorNav
         items={[
           {
@@ -968,6 +983,13 @@ export default async function PostgresOperatingAssetDetailPage({
         />
       </DetailSection>
 
+      <DetailPriorityMarker
+        label="Level 2"
+        title="Workflow Support"
+        description="Source evidence, related news, relationship links, AI candidates, and Research Ops issues support the record without replacing the core operating data."
+        tone="workflow"
+      />
+
       <PostgresReviewStatusActions
         canReviewStatus={canReviewRecord}
         currentStatus={asset.review_status_code}
@@ -1031,6 +1053,13 @@ export default async function PostgresOperatingAssetDetailPage({
           issues={researchIssues}
         />
       </div>
+
+      <DetailPriorityMarker
+        label="Level 3"
+        title="Governance And Advanced Review"
+        description="Changed fields, audit history, export readiness, and notes are reviewer/governance layers. They stay available without dominating normal data review."
+        tone="governance"
+      />
 
       <PendingReviewChangesPanel
         currentReviewStatus={asset.review_status_code}

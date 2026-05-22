@@ -118,6 +118,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   and company records now collapse when there is no active review/apply work so
   advanced AI governance does not visually compete with core editing, evidence,
   and relationship workflows
+- PostgreSQL project, plant/facility, and company detail pages now include
+  shared hierarchy markers for immediate operational focus, stable core record
+  data, workflow support, and governance/advanced review so dense detail pages
+  are easier to scan before the later visual design pass
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

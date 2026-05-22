@@ -43,6 +43,8 @@ export type ExportReadinessIssue = {
   detail: string;
 };
 
+type DetailPriorityTone = "core" | "workflow" | "governance";
+
 type ReviewChangeRow = {
   key: string;
   fieldName: string;
@@ -653,6 +655,81 @@ export function EvidenceWorkflowContext({
             <p className="mt-1 text-xs leading-5 text-gray-600">{card.note}</p>
           </Link>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function priorityToneClasses(tone: DetailPriorityTone) {
+  if (tone === "core") {
+    return {
+      border: "border-[#8dc63f]",
+      eyebrow: "text-[#4f7f1f]",
+      badge: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+    };
+  }
+
+  if (tone === "workflow") {
+    return {
+      border: "border-blue-300",
+      eyebrow: "text-blue-700",
+      badge: "border-blue-200 bg-blue-50 text-blue-700",
+    };
+  }
+
+  return {
+    border: "border-gray-300",
+    eyebrow: "text-gray-600",
+    badge: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+  };
+}
+
+function priorityToneLabel(tone: DetailPriorityTone) {
+  if (tone === "core") {
+    return "Core";
+  }
+
+  if (tone === "workflow") {
+    return "Workflow";
+  }
+
+  return "Governance";
+}
+
+export function DetailPriorityMarker({
+  title,
+  description,
+  label,
+  tone,
+}: {
+  title: string;
+  description: string;
+  label: string;
+  tone: DetailPriorityTone;
+}) {
+  const classes = priorityToneClasses(tone);
+
+  return (
+    <section
+      className={`border-l-4 ${classes.border} bg-white px-5 py-3 shadow-[inset_0_-1px_0_#e5e7eb,inset_0_1px_0_#e5e7eb]`}
+    >
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div
+            className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${classes.eyebrow}`}
+          >
+            {label}
+          </div>
+          <h2 className="mt-1 text-base font-bold text-[#1f2937]">{title}</h2>
+          <p className="mt-1 max-w-4xl text-sm leading-6 text-gray-600">
+            {description}
+          </p>
+        </div>
+        <span
+          className={`inline-flex h-7 shrink-0 items-center border px-2 text-[11px] font-semibold uppercase tracking-wide ${classes.badge}`}
+        >
+          {priorityToneLabel(tone)}
+        </span>
       </div>
     </section>
   );

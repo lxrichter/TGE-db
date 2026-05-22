@@ -6,6 +6,7 @@ import {
   AuditTrailPanel,
   DetailAnchorNav,
   DetailFieldGrid,
+  DetailPriorityMarker,
   DetailSection,
   DetailShell,
   DetailWorkflowMap,
@@ -743,6 +744,13 @@ export default async function PostgresProjectDetailPage({
     >
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
+      <DetailPriorityMarker
+        label="Level 1"
+        title="Immediate Operational Focus"
+        description="Start here: current readiness, next required action, and the shortest path to making this project usable for review."
+        tone="core"
+      />
+
       <DetailWorkflowMap
         description="Use this sequence to scan the project record: confirm identity, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
         steps={[
@@ -843,6 +851,13 @@ export default async function PostgresProjectDetailPage({
         promotedAssetCount={promotedAssets.length}
         readinessIssues={readinessIssues}
         researchIssues={researchIssues}
+      />
+
+      <DetailPriorityMarker
+        label="Core Record"
+        title="Stable Project Data"
+        description="Core identity, location, capacity, resource, timeline, and technology fields. This is the primary project content researchers should understand first."
+        tone="core"
       />
 
       <DetailAnchorNav
@@ -952,6 +967,13 @@ export default async function PostgresProjectDetailPage({
         />
       </DetailSection>
 
+      <DetailPriorityMarker
+        label="Level 2"
+        title="Workflow Support"
+        description="Source evidence, related news, relationship links, AI candidates, promotion, and Research Ops issues support the record without replacing the core data."
+        tone="workflow"
+      />
+
       <PostgresReviewStatusActions
         canReviewStatus={canReviewRecord}
         currentStatus={project.review_status_code}
@@ -1023,6 +1045,13 @@ export default async function PostgresProjectDetailPage({
           issues={researchIssues}
         />
       </div>
+
+      <DetailPriorityMarker
+        label="Level 3"
+        title="Governance And Advanced Review"
+        description="Changed fields, audit history, export readiness, and notes are reviewer/governance layers. They stay available without dominating normal data review."
+        tone="governance"
+      />
 
       <PendingReviewChangesPanel
         currentReviewStatus={project.review_status_code}

@@ -6,6 +6,7 @@ import {
   AuditTrailPanel,
   DetailAnchorNav,
   DetailFieldGrid,
+  DetailPriorityMarker,
   DetailSection,
   DetailShell,
   DetailWorkflowMap,
@@ -845,6 +846,13 @@ export default async function PostgresCompanyDetailPage({
     >
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
+      <DetailPriorityMarker
+        label="Level 1"
+        title="Immediate Operational Focus"
+        description="Start here: current classification, next required action, and the shortest path to making this company usable for review."
+        tone="core"
+      />
+
       <DetailWorkflowMap
         description="Use this sequence to scan the company record: confirm classification, strengthen evidence, check activity and ownership relationships, handle AI/review work, then decide whether the record is export-ready."
         steps={[
@@ -949,6 +957,13 @@ export default async function PostgresCompanyDetailPage({
         readinessIssues={readinessIssues}
         relationships={relationships}
         researchIssues={researchIssues}
+      />
+
+      <DetailPriorityMarker
+        label="Core Record"
+        title="Stable Company Data"
+        description="Core identity, classification, market focus, website, and activity context. This is the primary company content researchers should understand first."
+        tone="core"
       />
 
       <DetailAnchorNav
@@ -1060,6 +1075,13 @@ export default async function PostgresCompanyDetailPage({
         />
       </DetailSection>
 
+      <DetailPriorityMarker
+        label="Level 2"
+        title="Workflow Support"
+        description="Relationship links, source evidence, related news, AI candidates, and Research Ops issues support the record without replacing the core company data."
+        tone="workflow"
+      />
+
       <PostgresReviewStatusActions
         canReviewStatus={canReviewRecord}
         currentStatus={company.review_status_code}
@@ -1125,6 +1147,13 @@ export default async function PostgresCompanyDetailPage({
           issues={researchIssues}
         />
       </div>
+
+      <DetailPriorityMarker
+        label="Level 3"
+        title="Governance And Advanced Review"
+        description="Changed fields, audit history, export readiness, and notes are reviewer/governance layers. They stay available without dominating normal data review."
+        tone="governance"
+      />
 
       <PendingReviewChangesPanel
         currentReviewStatus={company.review_status_code}
