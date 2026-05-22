@@ -3,12 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import type { ReactNode } from "react";
 import { canAccessAdmin, type UserRole } from "@/lib/auth/roles";
 import GlobalCommandPalette from "@/components/search/GlobalCommandPalette";
-
-function NavDivider() {
-  return <div className="h-5 w-px bg-white/20" />;
-}
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -42,6 +39,29 @@ function NavItem({
         <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#8dc63f]" />
       ) : null}
     </Link>
+  );
+}
+
+function NavGroup({
+  label,
+  children,
+  isFirst = false,
+}: {
+  label: string;
+  children: ReactNode;
+  isFirst?: boolean;
+}) {
+  return (
+    <div
+      className={`flex shrink-0 flex-col gap-1 ${
+        isFirst ? "" : "border-l border-white/15 pl-4"
+      }`}
+    >
+      <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">
+        {label}
+      </div>
+      <div className="flex items-center gap-4">{children}</div>
+    </div>
   );
 }
 
@@ -129,65 +149,70 @@ export default function AppHeaderShell({
 
             <div className="min-w-0">
               <div className="truncate text-[15px] font-semibold leading-tight text-white">
-                Internal Database Platform
+                Geothermal Intelligence Platform
               </div>
               <div className="mt-1 truncate text-[13px] text-white/60">
-                ThinkGeoEnergy – Market Intelligence System
+                ThinkGeoEnergy - Research, evidence, markets, and governance
               </div>
             </div>
           </div>
 
-          <nav className="flex min-w-0 items-center gap-4 overflow-x-auto text-sm">
-            <NavItem href="/" label="Dashboard" pathname={pathname} />
-            <NavItem href="/postgres-preview" label="Command" pathname={pathname} />
-            <NavItem
-              href="/postgres-preview/research-ops"
-              label="Research Ops"
-              pathname={pathname}
-            />
-            <NavDivider />
+          <nav className="flex min-w-0 items-end gap-4 overflow-x-auto text-sm">
+            <NavGroup isFirst label="Intelligence / Research">
+              <NavItem href="/" label="Dashboard" pathname={pathname} />
+              <NavItem
+                href="/postgres-preview/countries"
+                label="Markets"
+                pathname={pathname}
+              />
+              <NavItem
+                href="/postgres-preview/analysis"
+                label="Analysis"
+                pathname={pathname}
+              />
+              <NavItem href="/postgres-preview/map" label="Map" pathname={pathname} />
+              <NavItem
+                href="/postgres-preview/projects"
+                label="Projects"
+                pathname={pathname}
+              />
+              <NavItem
+                href="/postgres-preview/operating-assets"
+                label="Plants / Facilities"
+                pathname={pathname}
+              />
+              <NavItem
+                href="/postgres-preview/companies"
+                label="Companies"
+                pathname={pathname}
+              />
+            </NavGroup>
 
-            <NavItem
-              href="/postgres-preview/projects"
-              label="Projects"
-              pathname={pathname}
-            />
-            <NavItem
-              href="/postgres-preview/operating-assets"
-              label="Plants / Facilities"
-              pathname={pathname}
-            />
-            <NavItem
-              href="/postgres-preview/companies"
-              label="Companies"
-              pathname={pathname}
-            />
-            <NavItem href="/sources" label="Sources" pathname={pathname} />
+            <NavGroup label="Research Operations">
+              <NavItem
+                href="/postgres-preview/research-ops"
+                label="Research Ops"
+                pathname={pathname}
+              />
+              <NavItem href="/sources" label="Sources" pathname={pathname} />
+            </NavGroup>
 
-            <NavDivider />
-            <NavItem
-              href="/postgres-preview/countries"
-              label="Markets"
-              pathname={pathname}
-            />
-            <NavItem href="/postgres-preview/map" label="Map" pathname={pathname} />
-            <NavItem
-              href="/postgres-preview/analysis"
-              label="Analysis"
-              pathname={pathname}
-            />
-
-            {showAdmin ? (
-              <>
-                <NavDivider />
+            <NavGroup label="Platform / Admin">
+              <NavItem href="/postgres-preview" label="Command" pathname={pathname} />
+              <NavItem
+                href="/postgres-preview/readiness"
+                label="Readiness"
+                pathname={pathname}
+              />
+              {showAdmin ? (
                 <NavItem
                   href="/admin"
                   label="Admin"
                   pathname={pathname}
                   prefetch={false}
                 />
-              </>
-            ) : null}
+              ) : null}
+            </NavGroup>
           </nav>
         </div>
       </header>

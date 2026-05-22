@@ -22,71 +22,93 @@ type SearchPageData =
 
 const commandShortcuts = [
   {
+    group: "Intelligence / Research",
     label: "Open Dashboard",
     href: "/",
     note: "Executive geothermal intelligence overview.",
   },
   {
-    label: "Open Command Center",
-    href: "/postgres-preview",
-    note: "Operational navigation across PostgreSQL staging modules.",
-  },
-  {
-    label: "Open Research Ops",
-    href: "/postgres-preview/research-ops",
-    note: "Queues, assignments, validation, missing data, and review actions.",
-  },
-  {
+    group: "Intelligence / Research",
     label: "Open Countries / Markets",
     href: "/postgres-preview/countries",
     note: "Market intelligence, country worklists, and source-gap signals.",
   },
   {
+    group: "Intelligence / Research",
     label: "Open Analysis",
     href: "/postgres-preview/analysis",
     note: "Cross-database benchmarking and geothermal intelligence analysis.",
   },
   {
+    group: "Intelligence / Research",
     label: "Open Map",
     href: "/postgres-preview/map",
     note: "Spatial intelligence for coordinate-confirmed projects and assets.",
   },
   {
+    group: "Platform / Admin",
+    label: "Open Command Center",
+    href: "/postgres-preview",
+    note: "Operational navigation across PostgreSQL staging modules.",
+  },
+  {
+    group: "Research Operations",
+    label: "Open Research Ops",
+    href: "/postgres-preview/research-ops",
+    note: "Queues, assignments, validation, missing data, and review actions.",
+  },
+  {
+    group: "Research Operations",
     label: "Add Project",
     href: "/postgres-preview/projects/new",
     note: "Create a new development pipeline record.",
   },
   {
+    group: "Research Operations",
     label: "Add Plant / Facility",
     href: "/postgres-preview/operating-assets/new",
     note: "Create a commissioned operating asset, unit, or direct-use facility.",
   },
   {
+    group: "Research Operations",
     label: "Add Company",
     href: "/postgres-preview/companies/new",
     note: "Create a legal entity, group, supplier, investor, or operator record.",
   },
   {
+    group: "Research Operations",
     label: "Review Article Matches",
     href: "/sources/matches",
     note: "Confirm or reject article-to-entity match candidates.",
   },
   {
+    group: "Research Operations",
     label: "Review Article Facts",
     href: "/sources/facts",
     note: "Train and review compact extracted article fact candidates.",
   },
   {
+    group: "Research Operations",
     label: "Manage Sources",
     href: "/sources",
     note: "Search source records and evidence-governance status.",
   },
   {
+    group: "Platform / Admin",
     label: "Admin Vocabularies",
     href: "/admin/vocabularies",
     note: "Govern controlled reference terms and active taxonomy labels.",
   },
 ];
+
+const commandShortcutGroups = [
+  "Intelligence / Research",
+  "Research Operations",
+  "Platform / Admin",
+].map((group) => ({
+  group,
+  shortcuts: commandShortcuts.filter((shortcut) => shortcut.group === group),
+}));
 
 function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   if (value === "operating_asset") {
@@ -246,20 +268,29 @@ export default async function GlobalSearchPage({
               workflows.
             </p>
           </div>
-          <div className="grid gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
-            {commandShortcuts.map((shortcut) => (
-              <Link
-                key={shortcut.href}
-                href={shortcut.href}
-                className="block border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f]"
-              >
-                <div className="text-sm font-bold text-[#1f2937]">
-                  {shortcut.label}
+          <div className="space-y-6 px-5 py-5">
+            {commandShortcutGroups.map((group) => (
+              <div key={group.group}>
+                <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+                  {group.group}
                 </div>
-                <p className="mt-2 text-xs leading-5 text-gray-600">
-                  {shortcut.note}
-                </p>
-              </Link>
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  {group.shortcuts.map((shortcut) => (
+                    <Link
+                      key={shortcut.href}
+                      href={shortcut.href}
+                      className="block border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f]"
+                    >
+                      <div className="text-sm font-bold text-[#1f2937]">
+                        {shortcut.label}
+                      </div>
+                      <p className="mt-2 text-xs leading-5 text-gray-600">
+                        {shortcut.note}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </section>

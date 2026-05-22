@@ -10,9 +10,15 @@ import {
 } from "react";
 import type { GlobalSearchResult } from "@/lib/services/global-search";
 
+type CommandGroup =
+  | "Intelligence / Research"
+  | "Research Operations"
+  | "Platform / Admin";
+
 type CommandItem = {
   type: "command";
   key: string;
+  group: CommandGroup;
   label: string;
   note: string;
   href: string;
@@ -30,27 +36,39 @@ const baseCommands: CommandItem[] = [
   {
     type: "command",
     key: "dashboard",
+    group: "Intelligence / Research",
     label: "Open Dashboard",
     note: "Executive geothermal intelligence overview.",
     href: "/",
   },
   {
     type: "command",
-    key: "command-center",
-    label: "Open Command Center",
-    note: "Operational navigation across PostgreSQL staging modules.",
-    href: "/postgres-preview",
+    key: "markets",
+    group: "Intelligence / Research",
+    label: "Open Countries / Markets",
+    note: "Market intelligence, country worklists, and source-gap signals.",
+    href: "/postgres-preview/countries",
   },
   {
     type: "command",
-    key: "research-ops",
-    label: "Open Research Ops",
-    note: "Queues, missing data, assignments, validation, and review actions.",
-    href: "/postgres-preview/research-ops",
+    key: "analysis",
+    group: "Intelligence / Research",
+    label: "Open Analysis",
+    note: "Cross-database benchmarking and geothermal intelligence analysis.",
+    href: "/postgres-preview/analysis",
+  },
+  {
+    type: "command",
+    key: "map",
+    group: "Intelligence / Research",
+    label: "Open Map",
+    note: "Spatial intelligence for coordinate-confirmed projects and assets.",
+    href: "/postgres-preview/map",
   },
   {
     type: "command",
     key: "projects",
+    group: "Intelligence / Research",
     label: "Open Projects",
     note: "Review and edit development pipeline records.",
     href: "/postgres-preview/projects",
@@ -58,6 +76,7 @@ const baseCommands: CommandItem[] = [
   {
     type: "command",
     key: "operating-assets",
+    group: "Intelligence / Research",
     label: "Open Plants / Facilities",
     note: "Review operating assets, units, direct-use facilities, and capacity.",
     href: "/postgres-preview/operating-assets",
@@ -65,69 +84,31 @@ const baseCommands: CommandItem[] = [
   {
     type: "command",
     key: "companies",
+    group: "Intelligence / Research",
     label: "Open Companies",
     note: "Review company profiles, roles, ownership, and evidence.",
     href: "/postgres-preview/companies",
   },
   {
     type: "command",
-    key: "markets",
-    label: "Open Countries / Markets",
-    note: "Market intelligence, country worklists, and source-gap signals.",
-    href: "/postgres-preview/countries",
-  },
-  {
-    type: "command",
-    key: "map",
-    label: "Open Map",
-    note: "Spatial intelligence for coordinate-confirmed projects and assets.",
-    href: "/postgres-preview/map",
-  },
-  {
-    type: "command",
-    key: "analysis",
-    label: "Open Analysis",
-    note: "Cross-database benchmarking and geothermal intelligence analysis.",
-    href: "/postgres-preview/analysis",
-  },
-  {
-    type: "command",
-    key: "add-project",
-    label: "Add Project",
-    note: "Create a project pipeline record.",
-    href: "/postgres-preview/projects/new",
-  },
-  {
-    type: "command",
-    key: "add-asset",
-    label: "Add Plant / Facility",
-    note: "Create an operating asset, unit, or direct-use facility.",
-    href: "/postgres-preview/operating-assets/new",
-  },
-  {
-    type: "command",
-    key: "add-company",
-    label: "Add Company",
-    note: "Create a company, group, supplier, operator, or investor record.",
-    href: "/postgres-preview/companies/new",
+    key: "research-ops",
+    group: "Research Operations",
+    label: "Open Research Ops",
+    note: "Queues, missing data, assignments, validation, and review actions.",
+    href: "/postgres-preview/research-ops",
   },
   {
     type: "command",
     key: "sources",
+    group: "Research Operations",
     label: "Open Sources / Documents",
     note: "Manage governed source/evidence records.",
     href: "/sources",
   },
   {
     type: "command",
-    key: "readiness",
-    label: "Open Replacement Readiness",
-    note: "Cutover signals, data quality gates, and migration readiness.",
-    href: "/postgres-preview/readiness",
-  },
-  {
-    type: "command",
     key: "article-matches",
+    group: "Research Operations",
     label: "Review Article Matches",
     note: "Confirm or reject article-to-entity candidates.",
     href: "/sources/matches",
@@ -135,9 +116,50 @@ const baseCommands: CommandItem[] = [
   {
     type: "command",
     key: "article-facts",
+    group: "Research Operations",
     label: "Review Article Facts",
     note: "Train and review compact extracted article fact candidates.",
     href: "/sources/facts",
+  },
+  {
+    type: "command",
+    key: "add-project",
+    group: "Research Operations",
+    label: "Add Project",
+    note: "Create a project pipeline record.",
+    href: "/postgres-preview/projects/new",
+  },
+  {
+    type: "command",
+    key: "add-asset",
+    group: "Research Operations",
+    label: "Add Plant / Facility",
+    note: "Create an operating asset, unit, or direct-use facility.",
+    href: "/postgres-preview/operating-assets/new",
+  },
+  {
+    type: "command",
+    key: "add-company",
+    group: "Research Operations",
+    label: "Add Company",
+    note: "Create a company, group, supplier, operator, or investor record.",
+    href: "/postgres-preview/companies/new",
+  },
+  {
+    type: "command",
+    key: "command-center",
+    group: "Platform / Admin",
+    label: "Open Command Center",
+    note: "Operational navigation across PostgreSQL staging modules.",
+    href: "/postgres-preview",
+  },
+  {
+    type: "command",
+    key: "readiness",
+    group: "Platform / Admin",
+    label: "Open Replacement Readiness",
+    note: "Cutover signals, data quality gates, and migration readiness.",
+    href: "/postgres-preview/readiness",
   },
 ];
 
@@ -145,6 +167,7 @@ const adminCommands: CommandItem[] = [
   {
     type: "command",
     key: "admin",
+    group: "Platform / Admin",
     label: "Open Admin",
     note: "Govern users, permissions, and platform controls.",
     href: "/admin",
@@ -152,6 +175,7 @@ const adminCommands: CommandItem[] = [
   {
     type: "command",
     key: "admin-vocabularies",
+    group: "Platform / Admin",
     label: "Manage Vocabularies",
     note: "Edit controlled taxonomy labels, ordering, and active terms.",
     href: "/admin/vocabularies",
@@ -189,7 +213,9 @@ function itemMatchesQuery(item: CommandItem, query: string) {
     return true;
   }
 
-  return `${item.label} ${item.note}`.toLowerCase().includes(normalized);
+  return `${item.group} ${item.label} ${item.note}`
+    .toLowerCase()
+    .includes(normalized);
 }
 
 async function readJson(res: Response) {
@@ -425,7 +451,7 @@ export default function GlobalCommandPalette({
                                 {item.label}
                               </div>
                               <span className="border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[11px] font-semibold text-gray-600">
-                                Command
+                                {item.group}
                               </span>
                             </div>
                             <div className="mt-1 text-xs leading-5 text-gray-600">
