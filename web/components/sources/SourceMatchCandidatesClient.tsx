@@ -131,6 +131,7 @@ export default function SourceMatchCandidatesClient({
   const [collapsedSourceKeys, setCollapsedSourceKeys] = useState<Set<string>>(
     () => new Set()
   );
+  const [compactRows, setCompactRows] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
@@ -170,6 +171,14 @@ export default function SourceMatchCandidatesClient({
     candidateIds.length > 0 &&
     candidateIds.every((candidateId) => selected.has(candidateId));
   const selectedCleanCount = selectedCandidates.filter(isCleanHighConfidence).length;
+  const cellClassName = compactRows ? "px-4 py-3" : "px-4 py-4";
+  const groupHeaderClassName = compactRows ? "px-4 py-2.5" : "px-4 py-3";
+  const sourceReferenceClassName = compactRows
+    ? "mt-1 line-clamp-1 break-all text-xs text-gray-500"
+    : "mt-1 line-clamp-2 break-all text-xs text-gray-500";
+  const signalClassName = compactRows
+    ? "line-clamp-3 text-xs leading-5 text-gray-600"
+    : "text-xs leading-5 text-gray-600";
   const sourceGroups = useMemo(() => {
     const groups = new Map<
       string,
@@ -370,6 +379,13 @@ export default function SourceMatchCandidatesClient({
           </div>
           <button
             type="button"
+            onClick={() => setCompactRows((current) => !current)}
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            {compactRows ? "Detailed Rows" : "Compact Rows"}
+          </button>
+          <button
+            type="button"
             disabled={isPending || cleanHighConfidenceIds.length === 0}
             onClick={selectCleanVisible}
             className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
@@ -501,7 +517,7 @@ export default function SourceMatchCandidatesClient({
                     key={`${group.sourceKey}-header`}
                     className="bg-[#fbfcfa] align-top"
                   >
-                    <td className="px-4 py-3" colSpan={7}>
+                    <td className={groupHeaderClassName} colSpan={7}>
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                           <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -520,7 +536,13 @@ export default function SourceMatchCandidatesClient({
                               group.sourceUrl ||
                               "No source reference"}
                           </div>
-                          <div className="mt-2 flex flex-wrap gap-2">
+                          <div
+                            className={
+                              compactRows
+                                ? "mt-2 flex flex-wrap gap-1.5"
+                                : "mt-2 flex flex-wrap gap-2"
+                            }
+                          >
                             <PostgresStatusBadge
                               label={`${formatCount(group.candidates.length)} visible candidate${
                                 group.candidates.length === 1 ? "" : "s"
@@ -580,12 +602,12 @@ export default function SourceMatchCandidatesClient({
                         const isClosed = isClosedCandidate(candidate);
                         const isAmbiguous = hasSourceAmbiguity(candidate);
 
-                        return (
-                          <tr
-                            key={candidate.match_candidate_id}
-                            className="align-top"
-                          >
-                            <td className="px-4 py-4">
+                      return (
+                        <tr
+                          key={candidate.match_candidate_id}
+                          className="align-top"
+                        >
+                            <td className={cellClassName}>
                               <input
                                 aria-label={`Select ${candidate.entity_label}`}
                                 disabled={isClosed}
@@ -598,7 +620,7 @@ export default function SourceMatchCandidatesClient({
                                 type="checkbox"
                               />
                             </td>
-                            <td className="px-4 py-4">
+                            <td className={cellClassName}>
                               <Link
                                 className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                                 href={`/sources/${candidate.source_id}`}
@@ -607,12 +629,18 @@ export default function SourceMatchCandidatesClient({
                                   candidate.source_reference ||
                                   "Untitled source"}
                               </Link>
-                              <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                              <div className={sourceReferenceClassName}>
                                 {candidate.source_reference ||
                                   candidate.source_url ||
                                   "No source reference"}
                               </div>
-                              <div className="mt-2 text-xs text-gray-500">
+                              <div
+                                className={
+                                  compactRows
+                                    ? "mt-1 text-xs text-gray-500"
+                                    : "mt-2 text-xs text-gray-500"
+                                }
+                              >
                                 {candidate.source_published_date
                                   ? formatDate(candidate.source_published_date)
                                   : candidate.source_country ||
@@ -623,7 +651,13 @@ export default function SourceMatchCandidatesClient({
                                   Source country: {candidate.source_country}
                                 </div>
                               ) : null}
-                              <div className="mt-3 flex flex-wrap gap-1">
+                              <div
+                                className={
+                                  compactRows
+                                    ? "mt-2 flex flex-wrap gap-1"
+                                    : "mt-3 flex flex-wrap gap-1"
+                                }
+                              >
                                 <PostgresStatusBadge
                                   label={`${candidate.source_open_candidate_count} open match${
                                     candidate.source_open_candidate_count === 1
@@ -659,7 +693,7 @@ export default function SourceMatchCandidatesClient({
                                 ) : null}
                               </div>
                             </td>
-                            <td className="px-4 py-4">
+                            <td className={cellClassName}>
                               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 {entityTypeLabel(candidate.entity_type)}
                               </div>
@@ -700,7 +734,7 @@ export default function SourceMatchCandidatesClient({
                                 </div>
                               ) : null}
                             </td>
-                            <td className="px-4 py-4">
+                            <td className={cellClassName}>
                               <div className="text-xl font-bold text-[#1f2937]">
                                 {formatConfidence(candidate.confidence_score)}
                               </div>
@@ -710,8 +744,10 @@ export default function SourceMatchCandidatesClient({
                                   : "Candidate only"}
                               </div>
                             </td>
-                            <td className="px-4 py-4 text-xs leading-5 text-gray-600">
-                              <div>{candidate.match_reason || "-"}</div>
+                            <td className={cellClassName}>
+                              <div className={signalClassName}>
+                                {candidate.match_reason || "-"}
+                              </div>
                               {candidate.article_country_candidates.length > 0 ? (
                                 <div className="mt-2 text-gray-500">
                                   Article countries:{" "}
@@ -731,7 +767,13 @@ export default function SourceMatchCandidatesClient({
                                 </div>
                               ) : null}
                               {isAmbiguous ? (
-                                <div className="mt-2 border border-amber-200 bg-amber-50 px-2 py-2 text-[11px] font-medium leading-4 text-amber-900">
+                                <div
+                                  className={
+                                    compactRows
+                                      ? "mt-2 line-clamp-2 border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] font-medium leading-4 text-amber-900"
+                                      : "mt-2 border border-amber-200 bg-amber-50 px-2 py-2 text-[11px] font-medium leading-4 text-amber-900"
+                                  }
+                                >
                                   This source has{" "}
                                   {candidate.source_open_candidate_count} open
                                   match candidates. Confirm only the record(s)
@@ -739,7 +781,7 @@ export default function SourceMatchCandidatesClient({
                                 </div>
                               ) : null}
                             </td>
-                            <td className="px-4 py-4">
+                            <td className={cellClassName}>
                               <StatusBadge
                                 status={candidate.match_status_code}
                                 label={candidate.match_status_label}
@@ -750,7 +792,7 @@ export default function SourceMatchCandidatesClient({
                                 </div>
                               ) : null}
                             </td>
-                            <td className="px-4 py-4 text-gray-700">
+                            <td className={`${cellClassName} text-gray-700`}>
                               {formatDate(candidate.generated_at)}
                               <div className="mt-1 text-xs text-gray-500">
                                 {candidate.generated_by}

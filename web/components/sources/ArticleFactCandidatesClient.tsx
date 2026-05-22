@@ -102,6 +102,7 @@ export default function ArticleFactCandidatesClient({
   const pageSize = 25;
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [compactRows, setCompactRows] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
@@ -121,6 +122,16 @@ export default function ArticleFactCandidatesClient({
   const allSelected =
     selectableIds.length > 0 &&
     selectableIds.every((candidateId) => selected.has(candidateId));
+  const cellClassName = compactRows ? "px-4 py-3" : "px-4 py-4";
+  const mutedLineClassName = compactRows
+    ? "mt-1 line-clamp-1 break-all text-xs text-gray-500"
+    : "mt-1 line-clamp-2 break-all text-xs text-gray-500";
+  const reasonClassName = compactRows
+    ? "mt-2 line-clamp-2 text-xs leading-5 text-gray-500"
+    : "mt-2 text-xs leading-5 text-gray-500";
+  const evidenceClassName = compactRows
+    ? "line-clamp-3 text-xs leading-5 text-gray-600"
+    : "text-xs leading-5 text-gray-600";
 
   function toggleCandidate(candidateId: string) {
     setSelected((current) => {
@@ -216,6 +227,13 @@ export default function ArticleFactCandidatesClient({
           </span>
           <button
             type="button"
+            onClick={() => setCompactRows((current) => !current)}
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            {compactRows ? "Detailed Rows" : "Compact Rows"}
+          </button>
+          <button
+            type="button"
             disabled={isPending || !canReview || selected.size === 0}
             onClick={() => runAction("confirm")}
             className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
@@ -296,7 +314,7 @@ export default function ArticleFactCandidatesClient({
 
               return (
                 <tr key={candidate.article_fact_candidate_id} className="align-top">
-                  <td className="px-4 py-4">
+                  <td className={cellClassName}>
                     <input
                       aria-label={`Select ${candidate.fact_key}`}
                       disabled={candidate.fact_status_code === "superseded"}
@@ -307,7 +325,7 @@ export default function ArticleFactCandidatesClient({
                       type="checkbox"
                     />
                   </td>
-                  <td className="px-4 py-4">
+                  <td className={cellClassName}>
                     {href ? (
                       <Link
                         href={href}
@@ -320,16 +338,22 @@ export default function ArticleFactCandidatesClient({
                         {sourceLabel}
                       </div>
                     )}
-                    <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                    <div className={mutedLineClassName}>
                       {candidate.source_reference}
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div
+                      className={
+                        compactRows
+                          ? "mt-1 text-xs text-gray-500"
+                          : "mt-2 text-xs text-gray-500"
+                      }
+                    >
                       {candidate.published_date
                         ? formatDate(candidate.published_date)
                         : "No publication date"}
                     </div>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className={cellClassName}>
                     <div className="font-semibold text-[#1f2937]">
                       {formatCode(candidate.fact_type_code)}
                     </div>
@@ -342,25 +366,27 @@ export default function ArticleFactCandidatesClient({
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-4">
+                  <td className={cellClassName}>
                     <div className="font-semibold text-[#1f2937]">
                       {valuePreview(candidate)}
                     </div>
                     {candidate.fact_reason ? (
-                      <div className="mt-2 text-xs leading-5 text-gray-500">
+                      <div className={reasonClassName}>
                         {candidate.fact_reason}
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-4 text-xs leading-5 text-gray-600">
-                    {candidate.evidence_snippet || "-"}
+                  <td className={cellClassName}>
+                    <div className={evidenceClassName}>
+                      {candidate.evidence_snippet || "-"}
+                    </div>
                     {candidate.review_note ? (
                       <div className="mt-2 border-l-2 border-gray-200 pl-2 text-gray-500">
                         Review note: {candidate.review_note}
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-4">
+                  <td className={cellClassName}>
                     <div className="text-xl font-bold text-[#1f2937]">
                       {formatConfidence(candidate.confidence_score)}
                     </div>
@@ -368,7 +394,7 @@ export default function ArticleFactCandidatesClient({
                       {candidate.review_sample_bucket || candidate.extraction_method}
                     </div>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className={cellClassName}>
                     <StatusBadge
                       status={candidate.fact_status_code}
                       label={candidate.fact_status_label}
@@ -379,7 +405,7 @@ export default function ArticleFactCandidatesClient({
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-4 py-4 text-gray-700">
+                  <td className={`${cellClassName} text-gray-700`}>
                     {candidate.reviewed_at
                       ? formatDate(candidate.reviewed_at)
                       : formatDate(candidate.generated_at)}
