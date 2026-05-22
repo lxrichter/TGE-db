@@ -5,6 +5,7 @@ import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectio
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import { formatCount, formatMw } from "@/lib/format";
 import { listPostgresPreviewMapGroups } from "@/lib/postgres-preview";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -161,6 +162,30 @@ export default async function PostgresPreviewMapPage() {
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From the map, users should either open the spatial record, clean missing coordinates, or interpret the market pattern."
+        actions={[
+          {
+            label: "Spatial Intelligence",
+            title: "Use marker popups",
+            description: "Open project and plant/facility records directly from coordinate-confirmed marker groups.",
+            href: "#map-view",
+          },
+          {
+            label: "Operational Queue",
+            title: "Fix missing coordinates",
+            description: "Route records without usable coordinates back through Research Ops cleanup.",
+            href: "#map-workflow",
+          },
+          {
+            label: "Market Context",
+            title: "Open country signals",
+            description: "Move from spatial clusters into country and regional market intelligence.",
+            href: "/postgres-preview/countries",
+          },
+        ]}
+      />
 
       <PostgresSectionJumpNav
         items={[

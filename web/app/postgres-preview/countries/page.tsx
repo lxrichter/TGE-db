@@ -8,6 +8,7 @@ import { formatCount, formatMw } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -740,6 +741,30 @@ export default async function PostgresCountryMarketsPage() {
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From a market view, the next step should be a country drilldown, a filtered entity worklist, or evidence cleanup for source gaps."
+        actions={[
+          {
+            label: "Intelligence Drilldown",
+            title: "Review country worklists",
+            description: "Open the country table and drill into projects, assets, and companies by market.",
+            href: "#country-worklist",
+          },
+          {
+            label: "Operational Queue",
+            title: "Resolve source-gap markets",
+            description: "Focus on markets where missing source evidence weakens export readiness.",
+            href: "#market-operations",
+          },
+          {
+            label: "Analysis",
+            title: "Compare country signals",
+            description: "Move into benchmark views for lifecycle, operating status, and market comparison.",
+            href: "/postgres-preview/analysis#country-drilldown",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <PostgresPreviewSetupNotice error={data.error} />

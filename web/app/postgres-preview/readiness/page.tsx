@@ -10,6 +10,7 @@ import { formatCount } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -586,6 +587,30 @@ export default async function PostgresReadinessPage() {
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From readiness, the next step should be resolving blockers, checking migration gates, or returning to the operational command layer."
+        actions={[
+          {
+            label: "Resolve Blockers",
+            title: "Open Research Ops",
+            description: "Work through critical issues, export blockers, and human-created follow-ups.",
+            href: "/postgres-preview/research-ops",
+          },
+          {
+            label: "Cutover Gates",
+            title: "Review migration gates",
+            description: "Check import, transform, validation, and replacement readiness signals.",
+            href: "#migration-gates",
+          },
+          {
+            label: "Platform Navigation",
+            title: "Return to Command Center",
+            description: "Use the command layer to route into staging modules and acceptance checks.",
+            href: "/postgres-preview",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <PostgresPreviewSetupNotice error={data.error} />

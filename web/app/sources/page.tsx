@@ -23,6 +23,7 @@ import PostgresStatusBadge, {
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -737,6 +738,30 @@ export default async function SourcesPage({
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From the evidence layer, the next step should be source review, article/entity matching, or fact-candidate triage before records are changed."
+        actions={[
+          {
+            label: "Evidence Review",
+            title: "Review source records",
+            description: "Check credibility, visibility, source type, and linked evidence coverage.",
+            href: "#source-triage",
+          },
+          {
+            label: "Entity Matching",
+            title: "Review article matches",
+            description: "Confirm or reject article-to-entity match candidates before evidence links are created.",
+            href: "/sources/matches",
+          },
+          {
+            label: "AI Review",
+            title: "Review article facts",
+            description: "Triage extracted fact candidates before field suggestions or audited application.",
+            href: "/sources/facts",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

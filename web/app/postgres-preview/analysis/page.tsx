@@ -12,6 +12,7 @@ import {
   PostgresPreviewSetupNotice,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -262,6 +263,30 @@ export default async function PostgresAnalysisPreviewPage() {
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From analysis, the next step should be a market drilldown, a filtered worklist, or a spatial view of the pattern."
+        actions={[
+          {
+            label: "Market Drilldown",
+            title: "Open Countries / Markets",
+            description: "Move from benchmark signals into country-level market intelligence and worklists.",
+            href: "/postgres-preview/countries",
+          },
+          {
+            label: "Filtered Work",
+            title: "Open project pipeline",
+            description: "Use lifecycle and capacity patterns to inspect the underlying project records.",
+            href: "/postgres-preview/projects",
+          },
+          {
+            label: "Spatial Pattern",
+            title: "Open Map",
+            description: "View coordinate-confirmed project and operating asset groups spatially.",
+            href: "/postgres-preview/map",
+          },
+        ]}
+      />
 
       {!data.ok || !summary || !totals ? (
         <PostgresPreviewSetupNotice error={data.ok ? "No data" : data.error} />
