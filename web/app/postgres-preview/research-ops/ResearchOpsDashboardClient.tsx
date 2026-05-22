@@ -15,6 +15,7 @@ import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLe
 import PostgresHierarchyMarker, {
   type PostgresHierarchyTone,
 } from "@/components/postgres-preview/PostgresHierarchyMarker";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import {
   type PostgresResearchOpsDashboard,
   type PostgresFieldSuggestionCandidate,
@@ -4104,122 +4105,158 @@ export function ResearchOpsDashboardClient({
 
   return (
     <>
-      <WorkflowTierMarker
-        eyebrow="Core"
-        title="Operational Triage"
-        description="Critical issues, backlog, assignments, source gaps, blockers."
-        tone="core"
-      />
-
-      <OperationalStatusBar
-        metrics={[
+      <PostgresSectionJumpNav
+        items={[
           {
-            label: "Critical",
-            value: dashboard.totals.criticalIssues,
-            note: "Highest-priority data quality issues",
-            tone: "critical",
-            onClick: () => applyOperationalView({ severity: "critical" }),
+            href: "#ops-triage",
+            label: "Triage",
+            note: "Status",
           },
           {
-            label: "Validation Backlog",
-            value: queueCounts.get("needs_approval") || 0,
-            note: "Draft or validation records",
-            tone: "workflow",
-            onClick: () => applyOperationalView({ queue: "needs_approval" }),
+            href: "#work-review",
+            label: "Work Queues",
+            note: "Review",
           },
           {
-            label: "Assigned To Me",
-            value: myAssignedIssueCount,
-            note: "Persistent human-created issues",
-            tone: "neutral",
-            onClick: () => scrollToPageSection("my-work"),
+            href: "#deep-workbench",
+            label: "Workbench",
+            note: "Filters",
           },
           {
-            label: "Source Gaps",
-            value: sourceGapCount,
-            note: "Missing, weak, or unreviewed evidence",
-            tone: "important",
-            onClick: () => applyOperationalView({ queue: "needs_source" }),
+            href: "#research-activity",
+            label: "Activity",
+            note: "Recent",
           },
           {
-            label: "Duplicate Warnings",
-            value: queueCounts.get("suspected_duplicates") || 0,
-            note: "Potential duplicate records",
-            tone: "important",
-            onClick: () => applyOperationalView({ queue: "suspected_duplicates" }),
-          },
-          {
-            label: "Export Blockers",
-            value: exportBlockerCount,
-            note: "Critical queues before export-ready use",
-            tone: "critical",
-            onClick: () => applyOperationalView({ severity: "critical" }),
-          },
-          {
-            label: "AI Suggestions",
-            value: fieldSuggestionSummary.open,
-            note: "Field suggestions awaiting review",
-            tone: "workflow",
-            onClick: () => scrollToPageSection("field-suggestion-review"),
-          },
-          {
-            label: "Article Facts",
-            value: articleFactSummary.total,
-            note: "Reviewed extraction candidates",
-            tone: "workflow",
-            onClick: () => scrollToPageSection("article-fact-review"),
+            href: "#queue-rows",
+            label: "Queue Rows",
+            note: "Tables",
           },
         ]}
       />
 
-      <ExportBlockerPanel
-        queues={dashboard.queues}
-        onSelectQueue={(queue) => applyOperationalView({ queue })}
-      />
+      <section id="ops-triage" className="space-y-4 scroll-mt-24">
+        <WorkflowTierMarker
+          eyebrow="Core"
+          title="Operational Triage"
+          description="Critical issues, backlog, assignments, source gaps, blockers."
+          tone="core"
+        />
 
-      <WorkflowTierMarker
-        eyebrow="Workflow"
-        title="Work And Review Queues"
-        description="Assignments, article review, AI candidates, saved views, system queues."
-        tone="workflow"
-      />
+        <OperationalStatusBar
+          metrics={[
+            {
+              label: "Critical",
+              value: dashboard.totals.criticalIssues,
+              note: "Highest-priority data quality issues",
+              tone: "critical",
+              onClick: () => applyOperationalView({ severity: "critical" }),
+            },
+            {
+              label: "Validation Backlog",
+              value: queueCounts.get("needs_approval") || 0,
+              note: "Draft or validation records",
+              tone: "workflow",
+              onClick: () => applyOperationalView({ queue: "needs_approval" }),
+            },
+            {
+              label: "Assigned To Me",
+              value: myAssignedIssueCount,
+              note: "Persistent human-created issues",
+              tone: "neutral",
+              onClick: () => scrollToPageSection("my-work"),
+            },
+            {
+              label: "Source Gaps",
+              value: sourceGapCount,
+              note: "Missing, weak, or unreviewed evidence",
+              tone: "important",
+              onClick: () => applyOperationalView({ queue: "needs_source" }),
+            },
+            {
+              label: "Duplicate Warnings",
+              value: queueCounts.get("suspected_duplicates") || 0,
+              note: "Potential duplicate records",
+              tone: "important",
+              onClick: () =>
+                applyOperationalView({ queue: "suspected_duplicates" }),
+            },
+            {
+              label: "Export Blockers",
+              value: exportBlockerCount,
+              note: "Critical queues before export-ready use",
+              tone: "critical",
+              onClick: () => applyOperationalView({ severity: "critical" }),
+            },
+            {
+              label: "AI Suggestions",
+              value: fieldSuggestionSummary.open,
+              note: "Field suggestions awaiting review",
+              tone: "workflow",
+              onClick: () => scrollToPageSection("field-suggestion-review"),
+            },
+            {
+              label: "Article Facts",
+              value: articleFactSummary.total,
+              note: "Reviewed extraction candidates",
+              tone: "workflow",
+              onClick: () => scrollToPageSection("article-fact-review"),
+            },
+          ]}
+        />
 
-      <MyWorkPanel
-        currentUser={currentUser}
-        issues={dashboard.persistentIssues}
-      />
+        <ExportBlockerPanel
+          queues={dashboard.queues}
+          onSelectQueue={(queue) => applyOperationalView({ queue })}
+        />
+      </section>
 
-      <PersistentIssues
-        issues={dashboard.persistentIssues}
-        currentUser={currentUser}
-        issueReferenceData={issueReferenceData}
-      />
+      <section id="work-review" className="space-y-5 scroll-mt-24">
+        <WorkflowTierMarker
+          eyebrow="Workflow"
+          title="Work And Review Queues"
+          description="Assignments, article review, AI candidates, saved views, system queues."
+          tone="workflow"
+        />
 
-      <ArticleMatchReviewPanel summary={sourceMatchSummary} />
+        <MyWorkPanel
+          currentUser={currentUser}
+          issues={dashboard.persistentIssues}
+        />
 
-      <ArticleFactReviewPanel summary={articleFactSummary} />
+        <PersistentIssues
+          issues={dashboard.persistentIssues}
+          currentUser={currentUser}
+          issueReferenceData={issueReferenceData}
+        />
 
-      <FieldSuggestionReviewPanel
-        canReviewStatus={canReviewStatus}
-        candidates={fieldSuggestionCandidates}
-        summary={fieldSuggestionSummary}
-      />
+        <ArticleMatchReviewPanel summary={sourceMatchSummary} />
 
-      <QuickOperationalViews onApplyView={applyOperationalView} />
+        <ArticleFactReviewPanel summary={articleFactSummary} />
 
-      <SystemQueueGroups
-        groups={queueGroups}
-        onSelectQueue={(queue) => applyOperationalView({ queue })}
-      />
+        <FieldSuggestionReviewPanel
+          canReviewStatus={canReviewStatus}
+          candidates={fieldSuggestionCandidates}
+          summary={fieldSuggestionSummary}
+        />
 
-      <DisclosurePanel
-        id="deep-table"
-        description="Filters, selected records, bulk actions, exports, activity, and queue scope. It opens automatically when a queue or operational view is selected."
-        eyebrow="Governance"
-        onOpenChange={setDeepWorkbenchOpen}
-        open={deepWorkbenchOpen || activeOperationalFilters.length > 0}
-        title="Deep Workbench"
-      >
+        <QuickOperationalViews onApplyView={applyOperationalView} />
+
+        <SystemQueueGroups
+          groups={queueGroups}
+          onSelectQueue={(queue) => applyOperationalView({ queue })}
+        />
+      </section>
+
+      <section id="deep-workbench" className="space-y-5 scroll-mt-24">
+        <DisclosurePanel
+          id="deep-table"
+          description="Filters, selected records, bulk actions, exports, activity, and queue scope. It opens automatically when a queue or operational view is selected."
+          eyebrow="Governance"
+          onOpenChange={setDeepWorkbenchOpen}
+          open={deepWorkbenchOpen || activeOperationalFilters.length > 0}
+          title="Deep Workbench"
+        >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1fr)_repeat(4,minmax(150px,190px))] xl:items-end">
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -4357,48 +4394,50 @@ export function ResearchOpsDashboardClient({
             onRemoveFilter={removeOperationalFilter}
           />
         </div>
-      </DisclosurePanel>
+        </DisclosurePanel>
 
-      <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
+        <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
         <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
         PostgreSQL staging queues now support quick review-status changes for
         projects, plants/facilities, companies, and source credibility records.
         Railway PostgreSQL staging uses a transformed copied Hetzner SQLite
         backup for controlled review; the current live SQLite database remains
         on the server. Generated {formatDate(dashboard.generatedAt)}.
+        </section>
+
+        <PostgresStatusLegend
+          description="Research Ops uses badge colors to separate data quality severity, human review state, project/asset phase, source credibility, and AI candidate confidence."
+          groups={["severity", "review", "lifecycle", "source", "confidence"]}
+          title="Research Ops Badge Meaning"
+        />
+
+        <SelectedRecordPanel
+          record={selectedRecord}
+          reviewStatuses={reviewStatuses}
+          sourceStatuses={sourceStatuses}
+          canReviewStatus={canReviewStatus}
+          issueReferenceData={issueReferenceData}
+          onClear={() => setSelectedRecord(null)}
+          onStatusChanged={handleStatusChanged}
+        />
+
+        <BulkActionsPanel
+          canReviewStatus={canReviewStatus}
+          reviewStatuses={reviewStatuses}
+          selectedRecords={selectedBulkRecords}
+          sourceStatuses={sourceStatuses}
+          onClearSelection={() => setSelectedBulkKeys(new Set())}
+          onRecordsChanged={handleBulkStatusChanged}
+        />
       </section>
 
-      <PostgresStatusLegend
-        description="Research Ops uses badge colors to separate data quality severity, human review state, project/asset phase, source credibility, and AI candidate confidence."
-        groups={["severity", "review", "lifecycle", "source", "confidence"]}
-        title="Research Ops Badge Meaning"
-      />
-
-      <SelectedRecordPanel
-        record={selectedRecord}
-        reviewStatuses={reviewStatuses}
-        sourceStatuses={sourceStatuses}
-        canReviewStatus={canReviewStatus}
-        issueReferenceData={issueReferenceData}
-        onClear={() => setSelectedRecord(null)}
-        onStatusChanged={handleStatusChanged}
-      />
-
-      <BulkActionsPanel
-        canReviewStatus={canReviewStatus}
-        reviewStatuses={reviewStatuses}
-        selectedRecords={selectedBulkRecords}
-        sourceStatuses={sourceStatuses}
-        onClearSelection={() => setSelectedBulkKeys(new Set())}
-        onRecordsChanged={handleBulkStatusChanged}
-      />
-
-      <DisclosurePanel
-        defaultOpen={false}
-        description="Recently edited PostgreSQL staging records and summary indicators for source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
-        eyebrow="Research Activity"
-        title="Recent Activity"
-      >
+      <section id="research-activity" className="scroll-mt-24">
+        <DisclosurePanel
+          defaultOpen={false}
+          description="Recently edited PostgreSQL staging records and summary indicators for source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
+          eyebrow="Research Activity"
+          title="Recent Activity"
+        >
         <div className="space-y-5">
           <ResearchActivitySummary recentEdits={filteredRecentEdits} />
 
@@ -4411,15 +4450,17 @@ export function ResearchOpsDashboardClient({
             selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
           />
         </div>
-      </DisclosurePanel>
+        </DisclosurePanel>
+      </section>
 
-      <SectionIntro
-        eyebrow="Deep Table View"
-        title="Filtered System Queue Rows"
-        description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
-      />
+      <section id="queue-rows" className="space-y-5 scroll-mt-24">
+        <SectionIntro
+          eyebrow="Deep Table View"
+          title="Filtered System Queue Rows"
+          description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
+        />
 
-      <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 md:flex-row md:items-center md:justify-between">
+        <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 md:flex-row md:items-center md:justify-between">
         <div className="text-sm leading-6 text-gray-600">
           {formatCount(filteredQueues.length)} queue
           {filteredQueues.length === 1 ? "" : "s"} visible. Collapse queues to
@@ -4441,23 +4482,24 @@ export function ResearchOpsDashboardClient({
             Expand All
           </button>
         </div>
-      </section>
+        </section>
 
-      <div className="space-y-5">
-        {filteredQueues.map((queue) => (
-          <QueueCard
-            key={queue.key}
-            queue={queue}
-            collapsed={collapsedQueueKeys.has(queue.key)}
-            onSelect={setSelectedRecord}
-            onToggleCollapsed={() => toggleQueueCollapsed(queue.key)}
-            onToggleBulk={toggleBulkRecord}
-            onToggleVisible={toggleBulkRecords}
-            selectedBulkKeys={selectedBulkKeys}
-            selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
-          />
-        ))}
-      </div>
+        <div className="space-y-5">
+          {filteredQueues.map((queue) => (
+            <QueueCard
+              key={queue.key}
+              queue={queue}
+              collapsed={collapsedQueueKeys.has(queue.key)}
+              onSelect={setSelectedRecord}
+              onToggleCollapsed={() => toggleQueueCollapsed(queue.key)}
+              onToggleBulk={toggleBulkRecord}
+              onToggleVisible={toggleBulkRecords}
+              selectedBulkKeys={selectedBulkKeys}
+              selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
+            />
+          ))}
+        </div>
+      </section>
     </>
   );
 }
