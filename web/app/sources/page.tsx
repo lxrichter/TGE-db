@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   getSourceMatchCandidateSummary,
   getSourceOperationalSummary,
@@ -481,6 +482,23 @@ function SetupNotice({ error }: { error: string }) {
   );
 }
 
+function SourceMobileField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
 function SourcesTable({
   sources,
   total,
@@ -497,7 +515,74 @@ function SourcesTable({
         </span>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {sources.map((source) => (
+          <article key={source.source_id} className="px-4 py-4 sm:px-5">
+            <Link
+              href={`/sources/${source.source_id}`}
+              className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+            >
+              {source.title ||
+                source.url ||
+                source.source_reference ||
+                "Untitled source"}
+            </Link>
+            <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+              {source.url || source.source_reference || "No URL or reference added"}
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <SourceMobileField label="Type">
+                {source.source_type_label || source.source_type_code}
+              </SourceMobileField>
+              <SourceMobileField label="Visibility">
+                <PostgresStatusBadge
+                  domain="visibility"
+                  label={source.visibility_label || source.visibility_code}
+                  value={source.visibility_code}
+                />
+              </SourceMobileField>
+              <SourceMobileField label="Status">
+                <PostgresStatusBadge
+                  domain="source"
+                  label={
+                    source.credibility_status_label ||
+                    source.credibility_status_code
+                  }
+                  value={source.credibility_status_code}
+                />
+                {source.duplicate_source_flag ? (
+                  <div className="mt-2 text-xs font-semibold text-red-700">
+                    Duplicate flag
+                  </div>
+                ) : null}
+              </SourceMobileField>
+              <SourceMobileField label="Country">
+                {source.country || "-"}
+              </SourceMobileField>
+              <SourceMobileField label="Links">
+                {formatCount(source.linked_entity_count)}
+              </SourceMobileField>
+              <SourceMobileField label="Updated">
+                {formatDate(source.updated_at)}
+                <div className="mt-1 text-xs text-gray-500">
+                  by {source.reviewed_by_name || source.added_by_name || "unknown"}
+                </div>
+              </SourceMobileField>
+            </div>
+          </article>
+        ))}
+
+        {sources.length === 0 ? (
+          <div className="px-5 py-10 text-center text-sm text-gray-500">
+            No source records match the current filters. The PostgreSQL source
+            model and reference data are in place; source entry is the next
+            implementation slice.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1080px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
