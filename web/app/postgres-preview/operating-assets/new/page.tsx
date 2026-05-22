@@ -69,20 +69,20 @@ export default async function NewPostgresOperatingAssetPage() {
       </section>
 
       <NextActionStrip
-        description="Create the plant draft first, then return to plant worklists, evidence governance, or Research Ops for source and validation follow-up."
+        title="After Save"
+        description="Save the draft first, then continue through the plant worklist, evidence backbone, or Research Ops."
         actions={[
           {
-            label: "Plant Worklist",
+            label: "Worklist",
             title: "Open Plants",
             description:
               "Return to plant filters, missing-data queues, and exportable lists.",
             href: "/postgres-preview/operating-assets",
           },
           {
-            label: "Evidence Backbone",
+            label: "Evidence",
             title: "Open Sources",
-            description:
-              "Manage source records, article matches, and evidence governance.",
+            description: "Review source records, article matches, and evidence links.",
             href: "/sources",
           },
           {

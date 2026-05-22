@@ -68,20 +68,20 @@ export default async function NewPostgresProjectPage() {
       </section>
 
       <NextActionStrip
-        description="Create the project draft first, then return to pipeline worklists, evidence governance, or Research Ops for source and validation follow-up."
+        title="After Save"
+        description="Save the draft first, then continue through the project worklist, evidence backbone, or Research Ops."
         actions={[
           {
-            label: "Project Worklist",
+            label: "Worklist",
             title: "Open Projects",
             description:
-              "Return to project pipeline filters, missing-data queues, and exportable lists.",
+              "Return to project filters, missing-data queues, and exportable lists.",
             href: "/postgres-preview/projects",
           },
           {
-            label: "Evidence Backbone",
+            label: "Evidence",
             title: "Open Sources",
-            description:
-              "Manage source records, article matches, and evidence governance.",
+            description: "Review source records, article matches, and evidence links.",
             href: "/sources",
           },
           {

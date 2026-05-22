@@ -119,10 +119,11 @@ export default async function EditPostgresProjectPage({
       </section>
 
       <NextActionStrip
-        description="While editing a project, keep the saved record, source creation, and operational review queue close so draft edits do not lose workflow context."
+        title="Editing Context"
+        description="Keep the saved profile, source creation, and Research Ops queue close while editing."
         actions={[
           {
-            label: "Project Profile",
+            label: "Profile",
             title: "Back to project record",
             description:
               "Return to readiness, evidence, company roles, promotion, and export checks.",

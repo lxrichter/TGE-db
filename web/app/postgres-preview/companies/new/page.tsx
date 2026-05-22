@@ -60,27 +60,27 @@ export default async function NewPostgresCompanyPage() {
           </h1>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
             Create a staging company record. Draft saving is allowed while
-            source evidence, project/asset roles, ownership structures, and
+            source evidence, project/plant roles, ownership structures, and
             group relationships are completed in the saved detail workflow.
           </p>
         </div>
       </section>
 
       <NextActionStrip
-        description="Create the company draft first, then return to company worklists, evidence governance, or Research Ops for source and relationship follow-up."
+        title="After Save"
+        description="Save the draft first, then continue through the company worklist, evidence backbone, or Research Ops."
         actions={[
           {
-            label: "Company Worklist",
+            label: "Worklist",
             title: "Open Companies",
             description:
               "Return to company filters, missing-data queues, and exportable lists.",
             href: "/postgres-preview/companies",
           },
           {
-            label: "Evidence Backbone",
+            label: "Evidence",
             title: "Open Sources",
-            description:
-              "Manage source records, article matches, and evidence governance.",
+            description: "Review source records, article matches, and evidence links.",
             href: "/sources",
           },
           {

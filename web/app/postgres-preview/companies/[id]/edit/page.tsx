@@ -131,10 +131,11 @@ export default async function EditPostgresCompanyPage({
       </section>
 
       <NextActionStrip
-        description="While editing a company, keep the saved profile, source creation, and operational review queue close so classification edits stay tied to relationship and evidence governance."
+        title="Editing Context"
+        description="Keep the saved profile, source creation, and Research Ops queue close while editing."
         actions={[
           {
-            label: "Company Profile",
+            label: "Profile",
             title: "Back to company record",
             description:
               "Return to readiness, evidence, portfolio roles, relationships, and export checks.",

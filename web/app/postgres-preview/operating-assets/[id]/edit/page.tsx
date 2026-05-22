@@ -137,10 +137,11 @@ export default async function EditPostgresOperatingAssetPage({
       </section>
 
       <NextActionStrip
-        description="While editing a plant, keep the saved record, source creation, and operational review queue close so operating data edits stay tied to evidence governance."
+        title="Editing Context"
+        description="Keep the saved profile, source creation, and Research Ops queue close while editing."
         actions={[
           {
-            label: "Plant Profile",
+            label: "Profile",
             title: "Back to plant",
             description:
               "Return to readiness, evidence, company roles, originating project, and export checks.",
