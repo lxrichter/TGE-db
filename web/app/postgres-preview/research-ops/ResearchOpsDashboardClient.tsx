@@ -2144,6 +2144,7 @@ function PaginationControls({
 
 function EntityTable({
   items,
+  compactRows = false,
   selectedKey,
   selectedBulkKeys,
   onToggleBulk,
@@ -2151,6 +2152,7 @@ function EntityTable({
   onSelect,
 }: {
   items: ResearchOpsRecord[];
+  compactRows?: boolean;
   selectedKey: string | null;
   selectedBulkKeys: Set<string>;
   onToggleBulk: (record: ResearchOpsRecord, checked: boolean) => void;
@@ -2168,6 +2170,20 @@ function EntityTable({
   const allSelected = pageItems.every((item) =>
     selectedBulkKeys.has(recordKey(item))
   );
+  const headCellClass = compactRows ? "px-4 py-2" : "px-5 py-3";
+  const cellClass = compactRows ? "px-4 py-2.5" : "px-5 py-4";
+  const supportingTextClass = compactRows
+    ? "mt-1 line-clamp-1 text-xs text-gray-500"
+    : "mt-1 text-xs text-gray-500";
+  const issueTextClass = compactRows
+    ? "mt-1 line-clamp-1 text-xs font-medium text-gray-600"
+    : "mt-2 text-xs font-medium text-gray-600";
+  const activityTextClass = compactRows
+    ? "mt-1 line-clamp-1 text-xs font-medium text-sky-700"
+    : "mt-2 text-xs font-medium text-sky-700";
+  const actionButtonClass = compactRows
+    ? "inline-flex h-7 items-center border px-2 text-[11px] font-semibold"
+    : "inline-flex h-8 items-center border px-3 text-xs font-semibold";
 
   if (items.length === 0) {
     return <EmptyQueue />;
@@ -2193,7 +2209,7 @@ function EntityTable({
         <table className="min-w-[1260px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[4%] px-5 py-3 font-semibold">
+              <th className={`w-[4%] ${headCellClass} font-semibold`}>
                 <input
                   aria-label="Select visible records on this page"
                   checked={allSelected}
@@ -2204,15 +2220,31 @@ function EntityTable({
                   }
                 />
               </th>
-              <th className="w-[9%] px-5 py-3 font-semibold">Type</th>
-              <th className="w-[24%] px-5 py-3 font-semibold">Record</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Country</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Use / Type</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Status</th>
-              <th className="w-[11%] px-5 py-3 font-semibold">Review</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Updated By</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Updated</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Actions</th>
+              <th className={`w-[9%] ${headCellClass} font-semibold`}>Type</th>
+              <th className={`w-[24%] ${headCellClass} font-semibold`}>
+                Record
+              </th>
+              <th className={`w-[12%] ${headCellClass} font-semibold`}>
+                Country
+              </th>
+              <th className={`w-[12%] ${headCellClass} font-semibold`}>
+                Use / Type
+              </th>
+              <th className={`w-[12%] ${headCellClass} font-semibold`}>
+                Status
+              </th>
+              <th className={`w-[11%] ${headCellClass} font-semibold`}>
+                Review
+              </th>
+              <th className={`w-[12%] ${headCellClass} font-semibold`}>
+                Updated By
+              </th>
+              <th className={`w-[10%] ${headCellClass} font-semibold`}>
+                Updated
+              </th>
+              <th className={`w-[12%] ${headCellClass} font-semibold`}>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -2228,7 +2260,7 @@ function EntityTable({
                   key={key}
                   className={selected ? "align-top bg-[#f3f8ec]" : "align-top"}
                 >
-                  <td className="px-5 py-4">
+                  <td className={cellClass}>
                     <input
                       aria-label={`Select ${item.name}`}
                       checked={selectedBulkKeys.has(key)}
@@ -2237,53 +2269,53 @@ function EntityTable({
                       onChange={(event) => onToggleBulk(item, event.target.checked)}
                     />
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={`${cellClass} text-gray-700`}>
                     {formatEntityType(item.entity_type)}
                   </td>
-                  <td className="px-5 py-4">
+                  <td className={cellClass}>
                     <div className="font-semibold text-[#1f2937]">{item.name}</div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={supportingTextClass}>
                       {item.legacy_id || "new-postgres-record"}
                     </div>
                     {"issue_label" in item ? (
-                      <div className="mt-2 text-xs font-medium text-gray-600">
+                      <div className={issueTextClass}>
                         {item.issue_label}
                       </div>
                     ) : null}
                     {activityLabel ? (
-                      <div className="mt-2 text-xs font-medium text-sky-700">
+                      <div className={activityTextClass}>
                         {activityLabel}
                       </div>
                     ) : null}
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={`${cellClass} text-gray-700`}>
                     {item.country || "-"}
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={`${cellClass} text-gray-700`}>
                     {item.primary_use_type_code || "-"}
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={`${cellClass} text-gray-700`}>
                     <StatusBadge
                       domain="lifecycle"
                       value={item.lifecycle_phase_code}
                     />
                   </td>
-                  <td className="px-5 py-4">
+                  <td className={cellClass}>
                     <StatusBadge
                       domain="review"
                       value={item.review_status_code}
                     />
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={`${cellClass} text-gray-700`}>
                     {item.last_updated_by_name || "-"}
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={`${cellClass} text-gray-700`}>
                     {formatDate(item.updated_at)}
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-wrap gap-2">
+                  <td className={cellClass}>
+                    <div className={compactRows ? "flex flex-wrap gap-1" : "flex flex-wrap gap-2"}>
                       <button
-                        className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                        className={`${actionButtonClass} border-[#8dc63f] bg-white text-[#4f7f1f] hover:bg-[#f3f8ec]`}
                         type="button"
                         onClick={() => onSelect(item)}
                       >
@@ -2291,7 +2323,7 @@ function EntityTable({
                       </button>
                       {sourceHref ? (
                         <Link
-                          className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                          className={`${actionButtonClass} border-[#8dc63f] bg-white text-[#4f7f1f] hover:bg-[#f3f8ec]`}
                           href={sourceHref}
                         >
                           Add Source
@@ -2299,7 +2331,7 @@ function EntityTable({
                       ) : null}
                       {href ? (
                         <Link
-                          className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                          className={`${actionButtonClass} border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]`}
                           href={href}
                         >
                           Open
@@ -2330,6 +2362,7 @@ function EntityTable({
 function QueueCard({
   queue,
   collapsed,
+  compactRows,
   selectedKey,
   selectedBulkKeys,
   onToggleCollapsed,
@@ -2339,6 +2372,7 @@ function QueueCard({
 }: {
   queue: PostgresResearchOpsQueue;
   collapsed: boolean;
+  compactRows: boolean;
   selectedKey: string | null;
   selectedBulkKeys: Set<string>;
   onToggleCollapsed: () => void;
@@ -2401,6 +2435,7 @@ function QueueCard({
         </div>
       ) : (
         <EntityTable
+          compactRows={compactRows}
           items={queue.items}
           onSelect={onSelect}
           onToggleBulk={onToggleBulk}
@@ -3702,6 +3737,7 @@ export function ResearchOpsDashboardClient({
     Set<ResearchOpsQueueKey>
   >(() => new Set());
   const [deepWorkbenchOpen, setDeepWorkbenchOpen] = useState(false);
+  const [queueRowsCompact, setQueueRowsCompact] = useState(true);
 
   const normalizedSearch = search.trim().toLowerCase();
 
@@ -4470,6 +4506,13 @@ export function ResearchOpsDashboardClient({
           <button
             className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
             type="button"
+            onClick={() => setQueueRowsCompact((current) => !current)}
+          >
+            {queueRowsCompact ? "Detailed Rows" : "Compact Rows"}
+          </button>
+          <button
+            className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            type="button"
             onClick={collapseAllQueues}
           >
             Collapse All
@@ -4490,6 +4533,7 @@ export function ResearchOpsDashboardClient({
               key={queue.key}
               queue={queue}
               collapsed={collapsedQueueKeys.has(queue.key)}
+              compactRows={queueRowsCompact}
               onSelect={setSelectedRecord}
               onToggleCollapsed={() => toggleQueueCollapsed(queue.key)}
               onToggleBulk={toggleBulkRecord}

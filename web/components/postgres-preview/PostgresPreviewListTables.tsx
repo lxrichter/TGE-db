@@ -199,25 +199,33 @@ function appendPersistentIssueBadges(
 function IssueBadges({
   issues,
   pagination,
+  compact = false,
 }: {
   issues: RowIssue[];
   pagination?: PreviewTablePagination;
+  compact?: boolean;
 }) {
   if (issues.length === 0) {
     return (
-      <span className="inline-flex h-7 items-center border border-emerald-200 bg-emerald-50 px-2 text-xs font-semibold text-emerald-700">
+      <span
+        className={`inline-flex items-center border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 ${
+          compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
+        }`}
+      >
         No key gaps
       </span>
     );
   }
 
-  const visibleIssues = issues.slice(0, 4);
+  const visibleIssues = issues.slice(0, compact ? 2 : 4);
   const remainingCount = issues.length - visibleIssues.length;
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className={compact ? "flex flex-wrap gap-1" : "flex flex-wrap gap-1.5"}>
       {visibleIssues.map((issue) => {
-        const className = `inline-flex h-7 items-center border px-2 text-xs font-semibold ${rowIssueToneClass[issue.tone]}`;
+        const className = `inline-flex items-center border font-semibold ${
+          compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
+        } ${rowIssueToneClass[issue.tone]}`;
 
         if (pagination && issue.missingFilter) {
           return (
@@ -246,7 +254,11 @@ function IssueBadges({
         );
       })}
       {remainingCount > 0 ? (
-        <span className="inline-flex h-7 items-center border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-500">
+        <span
+          className={`inline-flex items-center border border-gray-200 bg-white font-semibold text-gray-500 ${
+            compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
+          }`}
+        >
           +{formatCount(remainingCount)}
         </span>
       ) : null}
@@ -1487,6 +1499,7 @@ export function CompaniesPreviewTable({
   const density = pagination?.density ?? "comfortable";
   const cellClass = tableCellClass(density);
   const headClass = tableHeadClass(density);
+  const compact = density === "compact";
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -1570,13 +1583,19 @@ export function CompaniesPreviewTable({
                     {company.headquarters_country || <EmptyValue />}
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    {company.geothermal_focus || <EmptyValue />}
+                    <div className={compact ? "line-clamp-1" : undefined}>
+                      {company.geothermal_focus || <EmptyValue />}
+                    </div>
                   </td>
                   <td className={cellClass}>
                     <StatusBadge value={company.review_status_code} />
                   </td>
                   <td className={cellClass}>
-                    <IssueBadges issues={issues} pagination={pagination} />
+                    <IssueBadges
+                      compact={compact}
+                      issues={issues}
+                      pagination={pagination}
+                    />
                   </td>
                 </tr>
               );
