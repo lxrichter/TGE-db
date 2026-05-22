@@ -171,6 +171,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   export-readiness checks use collapsed/attention-aware panels so core record
   data, source evidence, relationships, and urgent blockers remain easier to
   scan before the later visual design phase
+- Record-level persistent Research Ops issues now follow the same
+  attention-aware disclosure pattern, staying compact when no human-created
+  issues are open while expanding automatically when issue work, creation, or
+  status feedback is active
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals

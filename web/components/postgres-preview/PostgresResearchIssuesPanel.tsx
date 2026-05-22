@@ -229,9 +229,11 @@ export default function PostgresResearchIssuesPanel({
     });
   }
 
+  const startsOpen = issues.length > 0 || showCreate || Boolean(error || message);
+
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+    <details className="border border-gray-200 bg-white" open={startsOpen}>
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
             Research Ops Issues
@@ -241,26 +243,46 @@ export default function PostgresResearchIssuesPanel({
             record. Generated missing-data queues remain visible in Research Ops.
           </p>
         </div>
-        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:w-auto md:flex md:flex-wrap">
-          {canManageIssues ? (
-            <button
-              className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-              type="button"
-              onClick={() => setShowCreate((current) => !current)}
-            >
-              {showCreate ? "Close" : "Add Issue"}
-            </button>
-          ) : null}
-          <Link
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-            href="/postgres-preview/research-ops"
-          >
-            Open Research Ops
-          </Link>
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap md:justify-end">
+          <span className="inline-flex h-9 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+            {issues.length} open issue{issues.length === 1 ? "" : "s"}
+          </span>
+          <span className="inline-flex h-9 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700">
+            {startsOpen ? "Open" : "Expand"}
+          </span>
         </div>
-      </div>
+      </summary>
 
-      <div className="space-y-5 px-5 py-5">
+      <div className="space-y-5 border-t border-gray-200 px-5 py-5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs leading-5 text-gray-500">
+            Persistent issues are human/team-created follow-ups. Generated queues
+            remain managed from Research Ops.
+          </p>
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+            <Link
+              className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              href="/postgres-preview/research-ops"
+            >
+              Open Research Ops
+            </Link>
+            {canManageIssues ? (
+              <button
+                className="h-9 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+                type="button"
+                onClick={() => setShowCreate((current) => !current)}
+              >
+                {showCreate ? "Close" : "Add Issue"}
+              </button>
+            ) : null}
+          </div>
+        </div>
+        {canManageIssues ? null : (
+          <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
+            Issue creation requires editor/admin permissions.
+          </div>
+        )}
+
         {error ? (
           <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             {error}
@@ -531,6 +553,6 @@ export default function PostgresResearchIssuesPanel({
           </div>
         )}
       </div>
-    </section>
+    </details>
   );
 }
