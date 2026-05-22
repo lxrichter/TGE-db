@@ -285,6 +285,34 @@ function SetupNotice({ error }: { error: string }) {
   );
 }
 
+function FilterDisclosure({
+  defaultOpen,
+  children,
+}: {
+  defaultOpen: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Fact Review Filters
+          </h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+            Scope extracted fact candidates by status, fact type, field, or
+            search term before review.
+          </p>
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          Expand / collapse
+        </span>
+      </summary>
+      <div className="border-t border-gray-200 px-5 py-5">{children}</div>
+    </details>
+  );
+}
+
 export default async function ArticleFactCandidatesPage({
   searchParams,
 }: {
@@ -445,7 +473,7 @@ export default async function ArticleFactCandidatesPage({
             tone="workflow"
           />
 
-          <section className="border border-gray-200 bg-white px-5 py-5">
+          <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
             <form
               className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
               action="/sources/facts"
@@ -502,7 +530,7 @@ export default async function ArticleFactCandidatesPage({
               resetHref="/sources/facts"
               emptyLabel="All article fact candidates"
             />
-          </section>
+          </FilterDisclosure>
 
           <FactTypeTrainingCard factType={filters.factType} />
 

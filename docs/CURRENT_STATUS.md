@@ -580,6 +580,11 @@ Known current gaps and risks:
 - first entity hierarchy tuning pass renamed prototype-style workflow labels
   and collapsed changed-fields/audit trail governance sections by default so
   advanced review material no longer competes with core editing
+- Sources / Documents now follows the same progressive-disclosure pattern:
+  evidence operations open when there is active review work, detailed source
+  filters open only when filters are active, source detail metadata/audit
+  sections are collapsed by default, and source match/fact review tables remain
+  visible as the primary work surface
 
 ## Validation Snapshot
 
@@ -596,6 +601,8 @@ Last checked locally:
   strip added on 2026-05-22
 - targeted lint and `npm run build` passed for the entity hierarchy tuning pass
   added on 2026-05-22
+- targeted lint and `npm run build` passed for the Sources / Documents
+  progressive-disclosure pass added on 2026-05-22
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.

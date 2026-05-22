@@ -321,15 +321,53 @@ function TextArea({
 
 function Section({
   title,
+  description,
+  collapsible = false,
+  defaultOpen = true,
   children,
 }: {
   title: string;
+  description?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  if (collapsible) {
+    return (
+      <section className="border border-gray-200 bg-white">
+        <button
+          className="flex w-full flex-col gap-2 border-b border-gray-200 px-5 py-4 text-left sm:flex-row sm:items-start sm:justify-between"
+          type="button"
+          onClick={() => setIsOpen((current) => !current)}
+        >
+          <div>
+            <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+            {description ? (
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            {isOpen ? "Collapse" : "Expand"}
+          </span>
+        </button>
+        {isOpen ? <div className="px-5 py-5">{children}</div> : null}
+      </section>
+    );
+  }
+
   return (
     <section className="border border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+        {description ? (
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+            {description}
+          </p>
+        ) : null}
       </div>
       <div className="px-5 py-5">{children}</div>
     </section>
@@ -1329,7 +1367,17 @@ export default function SourceForm({
           </div>
         </Section>
 
-        <Section title="Summary And Notes">
+        <Section
+          title="Summary And Notes"
+          description="Research summary, relevant excerpt, internal notes, and attachment references."
+          collapsible
+          defaultOpen={
+            changeState.changedFields.has("extracted_summary") ||
+            changeState.changedFields.has("relevant_excerpt") ||
+            changeState.changedFields.has("notes") ||
+            changeState.changedFields.has("attachment_url")
+          }
+        >
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Field
               label="Extracted Summary"

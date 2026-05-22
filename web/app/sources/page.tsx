@@ -430,6 +430,40 @@ function SourcesListContext({
   );
 }
 
+function DisclosureSection({
+  label,
+  title,
+  description,
+  defaultOpen,
+  children,
+}: {
+  label: string;
+  title: string;
+  description: string;
+  defaultOpen: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            {label}
+          </div>
+          <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+            {description}
+          </p>
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          Expand / collapse
+        </span>
+      </summary>
+      <div className="border-t border-gray-200 px-5 py-5">{children}</div>
+    </details>
+  );
+}
+
 function SetupNotice({ error }: { error: string }) {
   return (
     <section className="border border-amber-200 bg-amber-50 px-5 py-5">
@@ -566,6 +600,14 @@ export default async function SourcesPage({
   const activeSourceFilters = data.ok
     ? activeSourceFilterLabels(filters, data.referenceData)
     : [];
+  const openEvidenceWorkCount = data.ok
+    ? data.summary.needsReview +
+      data.summary.unlinkedSources +
+      data.summary.weakOutdatedRejected +
+      data.summary.duplicateFlagged +
+      data.matchSummary.open +
+      data.articleFactSummary.open
+    : 0;
 
   return (
     <main className="space-y-6 sm:space-y-8">
@@ -673,83 +715,90 @@ export default async function SourcesPage({
             tone="workflow"
           />
 
-          <section className="space-y-3">
-            <div>
-              <h2 className="text-lg font-bold text-[#1f2937]">
-                Evidence Operations
-              </h2>
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
-                Source governance should stay separate from article/entity
-                match review. Confirmed matches become real evidence links;
-                suggestions remain reviewable operational work.
-              </p>
+          <DisclosureSection
+            defaultOpen={openEvidenceWorkCount > 0}
+            description="Source governance stays separate from article/entity match review. Confirmed matches become real evidence links; suggestions remain reviewable operational work."
+            label="Workflow"
+            title="Evidence Operations"
+          >
+            <div className="space-y-3">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <OperationCard
+                  label="Source Review"
+                  value={formatCount(data.summary.needsReview)}
+                  note="Sources marked needs review"
+                  href="/sources?status=needs_review"
+                  tone={data.summary.needsReview > 0 ? "attention" : "success"}
+                />
+                <OperationCard
+                  label="Unlinked Sources"
+                  value={formatCount(data.summary.unlinkedSources)}
+                  note="Need evidence links or archive-only classification"
+                  href="/sources?linkState=unlinked"
+                  tone={
+                    data.summary.unlinkedSources > 0 ? "attention" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Match Review"
+                  value={formatCount(data.matchSummary.open)}
+                  note="Confirm matches to create evidence links"
+                  href="/sources/matches"
+                  tone={data.matchSummary.open > 0 ? "attention" : "success"}
+                />
+                <OperationCard
+                  label="Fact Review"
+                  value={formatCount(data.articleFactSummary.open)}
+                  note="Confirm extracted facts before field suggestions"
+                  href="/sources/facts"
+                  tone={
+                    data.articleFactSummary.open > 0 ? "attention" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Restricted Sources"
+                  value={formatCount(data.summary.restrictedVisibility)}
+                  note="Internal or confidential visibility"
+                  tone={
+                    data.summary.restrictedVisibility > 0
+                      ? "attention"
+                      : "neutral"
+                  }
+                />
+              </div>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                <OperationCard
+                  label="Article Archive"
+                  value={formatCount(data.summary.tgeArticles)}
+                  note="TGE article metadata records"
+                  href="/sources?sourceType=tge_article"
+                />
+                <OperationCard
+                  label="Weak / Outdated / Rejected"
+                  value={formatCount(data.summary.weakOutdatedRejected)}
+                  note="Sources not currently export-eligible"
+                  href="/sources?quality=weak_outdated_rejected"
+                  tone={
+                    data.summary.weakOutdatedRejected > 0 ? "danger" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Duplicate Flags"
+                  value={formatCount(data.summary.duplicateFlagged)}
+                  note="Sources requiring duplicate review"
+                  href="/sources?duplicate=1"
+                  tone={data.summary.duplicateFlagged > 0 ? "danger" : "success"}
+                />
+                <OperationCard
+                  label="Confirmed Matches"
+                  value={formatCount(data.matchSummary.confirmed)}
+                  note="Article/entity links confirmed"
+                  href="/sources/matches?status=confirmed"
+                  tone="success"
+                />
+              </div>
             </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-              <OperationCard
-                label="Source Review"
-                value={formatCount(data.summary.needsReview)}
-                note="Sources marked needs review"
-                href="/sources?status=needs_review"
-                tone={data.summary.needsReview > 0 ? "attention" : "success"}
-              />
-              <OperationCard
-                label="Unlinked Sources"
-                value={formatCount(data.summary.unlinkedSources)}
-                note="Need evidence links or archive-only classification"
-                href="/sources?linkState=unlinked"
-                tone={data.summary.unlinkedSources > 0 ? "attention" : "success"}
-              />
-              <OperationCard
-                label="Match Review"
-                value={formatCount(data.matchSummary.open)}
-                note="Confirm matches to create evidence links"
-                href="/sources/matches"
-                tone={data.matchSummary.open > 0 ? "attention" : "success"}
-              />
-              <OperationCard
-                label="Fact Review"
-                value={formatCount(data.articleFactSummary.open)}
-                note="Confirm extracted facts before field suggestions"
-                href="/sources/facts"
-                tone={data.articleFactSummary.open > 0 ? "attention" : "success"}
-              />
-              <OperationCard
-                label="Restricted Sources"
-                value={formatCount(data.summary.restrictedVisibility)}
-                note="Internal or confidential visibility"
-                tone={data.summary.restrictedVisibility > 0 ? "attention" : "neutral"}
-              />
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              <OperationCard
-                label="Article Archive"
-                value={formatCount(data.summary.tgeArticles)}
-                note="TGE article metadata records"
-                href="/sources?sourceType=tge_article"
-              />
-              <OperationCard
-                label="Weak / Outdated / Rejected"
-                value={formatCount(data.summary.weakOutdatedRejected)}
-                note="Sources not currently export-eligible"
-                href="/sources?quality=weak_outdated_rejected"
-                tone={data.summary.weakOutdatedRejected > 0 ? "danger" : "success"}
-              />
-              <OperationCard
-                label="Duplicate Flags"
-                value={formatCount(data.summary.duplicateFlagged)}
-                note="Sources requiring duplicate review"
-                href="/sources?duplicate=1"
-                tone={data.summary.duplicateFlagged > 0 ? "danger" : "success"}
-              />
-              <OperationCard
-                label="Confirmed Matches"
-                value={formatCount(data.matchSummary.confirmed)}
-                note="Article/entity links confirmed"
-                href="/sources/matches?status=confirmed"
-                tone="success"
-              />
-            </div>
-          </section>
+          </DisclosureSection>
 
           <DetailPriorityMarker
             label="Governance"
@@ -758,7 +807,14 @@ export default async function SourcesPage({
             tone="governance"
           />
 
-          <section className="border border-gray-200 bg-white px-5 py-5">
+          <DisclosureSection
+            defaultOpen={
+              activeSourceFilters.length > 0 || activeOperationalFilters.length > 0
+            }
+            description="Use detailed filters when narrowing the source table for source review, evidence gaps, or archive cleanup."
+            label="Workbench"
+            title="Detailed Source Filters"
+          >
             <form
               className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
               action="/sources"
@@ -837,7 +893,7 @@ export default async function SourcesPage({
                 </Link>
               </div>
             ) : null}
-          </section>
+          </DisclosureSection>
 
           <SourcesListContext
             activeFilters={activeSourceFilters}

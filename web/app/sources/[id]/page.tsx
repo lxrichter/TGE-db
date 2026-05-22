@@ -260,15 +260,28 @@ function StatusTile({
 }
 
 function SourceLifecyclePanel({ steps }: { steps: LifecycleStep[] }) {
+  const activeStepCount = steps.filter(
+    (step) => step.state === "attention" || step.state === "blocked"
+  ).length;
+
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">Source Lifecycle</h2>
-        <p className="mt-2 text-sm leading-6 text-gray-600">
-          Current operational state from imported source record through reviewed
-          evidence and controlled AI-assisted updates.
-        </p>
-      </div>
+    <details className="border border-gray-200 bg-white" open={activeStepCount > 0}>
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-[#1f2937]">Source Lifecycle</h2>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              Current operational state from imported source record through
+              reviewed evidence and controlled AI-assisted updates.
+            </p>
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            {activeStepCount > 0
+              ? `${formatCount(activeStepCount)} active`
+              : "Expand"}
+          </span>
+        </div>
+      </summary>
       <div className="divide-y divide-gray-100">
         {steps.map((step, index) => (
           <div
@@ -286,7 +299,7 @@ function SourceLifecyclePanel({ steps }: { steps: LifecycleStep[] }) {
           </div>
         ))}
       </div>
-    </section>
+    </details>
   );
 }
 
@@ -310,16 +323,52 @@ function DetailField({
 function Section({
   id,
   title,
+  description,
+  collapsible = false,
+  defaultOpen = true,
   children,
 }: {
   id?: string;
   title: string;
+  description?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
+  const className = id
+    ? "scroll-mt-6 border border-gray-200 bg-white"
+    : "border border-gray-200 bg-white";
+
+  if (collapsible) {
+    return (
+      <details id={id} className={className} open={defaultOpen}>
+        <summary className="flex cursor-pointer list-none flex-col gap-2 border-b border-gray-200 px-5 py-4 marker:hidden sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+            {description ? (
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+                {description}
+              </p>
+            ) : null}
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            Expand / collapse
+          </span>
+        </summary>
+        <div className="px-5 py-5">{children}</div>
+      </details>
+    );
+  }
+
   return (
-    <section id={id} className={id ? "scroll-mt-6 border border-gray-200 bg-white" : "border border-gray-200 bg-white"}>
+    <section id={id} className={className}>
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+        {description ? (
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+            {description}
+          </p>
+        ) : null}
       </div>
       <div className="px-5 py-5">{children}</div>
     </section>
@@ -998,7 +1047,13 @@ export default async function SourceDetailPage({
         />
       </section>
 
-      <Section id="source-reference" title="Reference">
+      <Section
+        id="source-reference"
+        title="Reference"
+        description="URL, citation, publisher, language, and source access details."
+        collapsible
+        defaultOpen={false}
+      >
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <DetailField
             label="URL"
@@ -1029,7 +1084,13 @@ export default async function SourceDetailPage({
         </div>
       </Section>
 
-      <Section id="source-summary-notes" title="Summary And Notes">
+      <Section
+        id="source-summary-notes"
+        title="Summary And Notes"
+        description="Research notes, relevant excerpts, extracted summary, and attachments."
+        collapsible
+        defaultOpen={false}
+      >
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <DetailField
             label="Extracted Summary"
@@ -1067,7 +1128,15 @@ export default async function SourceDetailPage({
         tone="workflow"
       />
 
-      <Section id="source-linked-evidence" title="Linked Evidence">
+      <Section
+        id="source-linked-evidence"
+        title="Linked Evidence"
+        description={`${formatCount(source.links.length)} confirmed evidence link${
+          source.links.length === 1 ? "" : "s"
+        }. Open for full relationship detail, linked fields, claims, and confidence labels.`}
+        collapsible
+        defaultOpen={false}
+      >
         <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
           <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
             <div className="font-semibold text-[#1f2937]">Evidence link</div>
@@ -1129,7 +1198,13 @@ export default async function SourceDetailPage({
         </div>
       ) : null}
 
-      <Section id="source-review-metadata" title="Review Metadata">
+      <Section
+        id="source-review-metadata"
+        title="Review Metadata"
+        description="Audit metadata for source creation, review ownership, and last update."
+        collapsible
+        defaultOpen={false}
+      >
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
           <DetailField label="Added By" value={source.added_by_name || "Unknown"} />
           <DetailField label="Reviewed By" value={source.reviewed_by_name || "-"} />
