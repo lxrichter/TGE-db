@@ -284,7 +284,7 @@ export function GovernanceEvidenceSnapshot({
             {description}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
           <GovernanceBadge
             label={`${formatCount(credibleSources.length)}/${formatCount(
               sources.length
@@ -392,7 +392,7 @@ export function GovernanceEvidenceSnapshot({
           <div className="mt-4 border-t border-gray-200 pt-4">
             <Link
               href="/sources/matches"
-              className="inline-flex h-9 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-9 w-full items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
             >
               Review Article Matches
             </Link>

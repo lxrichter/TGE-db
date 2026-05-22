@@ -57,7 +57,7 @@ export function PostgresNextRequiredActionStrip({
         </div>
         <Link
           href={action.href}
-          className="inline-flex min-h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          className="inline-flex min-h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
         >
           Open
         </Link>
@@ -91,7 +91,7 @@ export default function PostgresRecordActionHub({
             {description}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
           <PostgresStatusBadge
             label={`${formatCount(blockerCount)} blockers`}
             tone={blockerCount > 0 ? "danger" : "success"}
@@ -104,14 +104,14 @@ export default function PostgresRecordActionHub({
           />
           <Link
             href="/postgres-preview/research-ops"
-            className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
           >
             Research Ops
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 xl:grid-cols-4">
         {actions.map((action) => (
           <Link
             key={`${action.label}-${action.href}`}

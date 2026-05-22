@@ -241,7 +241,7 @@ export default function PostgresResearchIssuesPanel({
             record. Generated missing-data queues remain visible in Research Ops.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 md:w-auto md:flex md:flex-wrap">
           {canManageIssues ? (
             <button
               className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
@@ -273,7 +273,7 @@ export default function PostgresResearchIssuesPanel({
         ) : null}
 
         {issues.length > 0 ? (
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Open Issues
@@ -358,8 +358,8 @@ export default function PostgresResearchIssuesPanel({
               </label>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="inline-flex h-9 items-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <label className="inline-flex h-9 items-center justify-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 sm:justify-start">
                 <input
                   checked={assignToSelf}
                   className="h-4 w-4 accent-[#8dc63f]"
@@ -369,7 +369,7 @@ export default function PostgresResearchIssuesPanel({
                 Assign to me
               </label>
               <button
-                className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-10 w-full border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 disabled={saving || !issueTypeCode || !title.trim()}
                 type="button"
                 onClick={createIssue}
@@ -472,7 +472,7 @@ export default function PostgresResearchIssuesPanel({
                       </td>
                       <td className="px-4 py-3">
                         {canManageIssues ? (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="grid grid-cols-1 gap-2">
                             <button
                               className="h-8 border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
                               disabled={

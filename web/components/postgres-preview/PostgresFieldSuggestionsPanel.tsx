@@ -125,9 +125,9 @@ function PaginationBar({
         Showing {formatCount(pageStart)}-{formatCount(pageEnd)} of{" "}
         {formatCount(total)} suggestions
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <button
-          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page <= 1}
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
@@ -138,7 +138,7 @@ function PaginationBar({
           Page {formatCount(page)} / {formatCount(pageCount)}
         </span>
         <button
-          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page >= pageCount}
           type="button"
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}
@@ -392,7 +392,7 @@ export default function PostgresFieldSuggestionsPanel({
                         ) : null}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="grid grid-cols-1 gap-2">
                           <button
                             type="button"
                             disabled={
@@ -402,7 +402,7 @@ export default function PostgresFieldSuggestionsPanel({
                               isApplied
                             }
                             onClick={() => submitAction(candidate, "confirm")}
-                            className="inline-flex h-8 items-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 items-center justify-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                           >
                             Confirm
                           </button>
@@ -412,7 +412,7 @@ export default function PostgresFieldSuggestionsPanel({
                               !canReviewStatus || isBusy || !isApplyReady
                             }
                             onClick={() => submitAction(candidate, "apply")}
-                            className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                           >
                             Apply To DB
                           </button>
@@ -425,7 +425,7 @@ export default function PostgresFieldSuggestionsPanel({
                               isApplied
                             }
                             onClick={() => submitAction(candidate, "reject")}
-                            className="inline-flex h-8 items-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
                           >
                             Reject
                           </button>
@@ -479,7 +479,7 @@ export default function PostgresFieldSuggestionsPanel({
               applied history, rejected candidates, or future extraction output.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
             <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
               {formatCount(candidates.length)} total
             </span>
@@ -513,7 +513,7 @@ export default function PostgresFieldSuggestionsPanel({
             only updates supported empty fields.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
           <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
             {formatCount(openCount)} open
           </span>

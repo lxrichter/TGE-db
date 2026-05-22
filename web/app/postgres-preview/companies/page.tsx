@@ -248,7 +248,7 @@ export default async function PostgresCompaniesListPage({
     : null;
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <PostgresPreviewListHeader
         actions={[
           {

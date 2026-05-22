@@ -375,7 +375,7 @@ export default function PostgresSourceEvidencePanel({
           updates: source record, credibility, fact type, field/value, then
           human-confirmed use.
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
           {canManageSources ? (
             <button
               className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-60"
@@ -410,7 +410,7 @@ export default function PostgresSourceEvidencePanel({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <EvidenceSummaryTile
           label="Linked"
           value={formatCount(sources.length)}
@@ -477,7 +477,7 @@ export default function PostgresSourceEvidencePanel({
                   <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                     {group.label}
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-2">
+                  <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:flex lg:flex-wrap">
                     {group.presets.map((preset) => {
                       const selected = evidenceType === preset.evidenceType;
 
@@ -540,7 +540,7 @@ export default function PostgresSourceEvidencePanel({
                 ))}
               </select>
             </label>
-            <label className="flex min-h-10 items-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
+            <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 lg:justify-start">
               <input
                 checked={isPrimaryEvidence}
                 className="h-4 w-4 accent-[#8dc63f]"
@@ -601,7 +601,7 @@ export default function PostgresSourceEvidencePanel({
               />
             </label>
             <button
-              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 w-full self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
               disabled={saving || !sourceId}
               type="button"
               onClick={linkExistingSource}
@@ -631,7 +631,7 @@ export default function PostgresSourceEvidencePanel({
               />
             </label>
             <button
-              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 w-full self-end border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
               disabled={articleSearching}
               type="button"
               onClick={searchTgeArticles}
@@ -669,7 +669,7 @@ export default function PostgresSourceEvidencePanel({
                     ) : null}
                   </div>
                   <button
-                    className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-9 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
                     disabled={articleImportingId === article.wordpress_id}
                     type="button"
                     onClick={() => importTgeArticle(article)}
@@ -690,7 +690,7 @@ export default function PostgresSourceEvidencePanel({
       ) : null}
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1280px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[26%] px-4 py-3 font-semibold">Source</th>
@@ -751,7 +751,7 @@ export default function PostgresSourceEvidencePanel({
                 <td className="px-4 py-3">
                   <Link
                     href={`/sources/${source.source_id}/edit`}
-                    className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                   >
                     Edit
                   </Link>

@@ -542,7 +542,7 @@ function RelationshipSupportSummary({
         : "No sources are linked to specific relationship rows yet.";
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <RelationshipSummaryTile
         label={relationshipLabel}
         note={relationshipNote}
@@ -719,7 +719,10 @@ export function ProjectCompanyLinksPanel({
         scope="project"
         sources={sources}
       />
-      <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
+      <form
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5"
+        onSubmit={handleSubmit}
+      >
         <Field label="Company" approvalSensitive required>
           <select
             className={inputClass()}
@@ -771,7 +774,7 @@ export function ProjectCompanyLinksPanel({
         >
           {saving ? "Saving..." : "Add Role"}
         </button>
-        <label className="flex min-h-10 items-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
+        <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 xl:justify-start">
           <input
             checked={form.is_primary}
             className="h-4 w-4 accent-[#8dc63f]"
@@ -796,7 +799,7 @@ export function ProjectCompanyLinksPanel({
       </form>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1120px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
@@ -983,7 +986,10 @@ export function OperatingAssetCompanyLinksPanel({
         scope="asset"
         sources={sources}
       />
-      <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
+      <form
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5"
+        onSubmit={handleSubmit}
+      >
         <Field label="Company" approvalSensitive required>
           <select
             className={inputClass()}
@@ -1035,7 +1041,7 @@ export function OperatingAssetCompanyLinksPanel({
         >
           {saving ? "Saving..." : "Add Role"}
         </button>
-        <label className="flex min-h-10 items-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
+        <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 xl:justify-start">
           <input
             checked={form.is_primary}
             className="h-4 w-4 accent-[#8dc63f]"
@@ -1060,7 +1066,7 @@ export function OperatingAssetCompanyLinksPanel({
       </form>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1120px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
@@ -1227,7 +1233,10 @@ function CompanyProjectPortfolio({
     <div className="space-y-4">
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="project" />
-      <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
+      <form
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5"
+        onSubmit={handleSubmit}
+      >
         <Field label="Project" approvalSensitive required>
           <select
             className={inputClass()}
@@ -1280,7 +1289,7 @@ function CompanyProjectPortfolio({
       </form>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1120px] table-fixed text-left text-sm">
           <tbody className="divide-y divide-gray-100">
             {links.map((link) => (
               <tr key={link.company_project_link_id} className="align-top">
@@ -1438,7 +1447,10 @@ function CompanyAssetPortfolio({
     <div className="space-y-4">
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="asset" />
-      <form className="grid grid-cols-1 gap-4 xl:grid-cols-5" onSubmit={handleSubmit}>
+      <form
+        className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5"
+        onSubmit={handleSubmit}
+      >
         <Field label="Plant / Facility" approvalSensitive required>
           <select
             className={inputClass()}
@@ -1494,7 +1506,7 @@ function CompanyAssetPortfolio({
       </form>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1120px] table-fixed text-left text-sm">
           <tbody className="divide-y divide-gray-100">
             {links.map((link) => (
               <tr
@@ -1733,7 +1745,7 @@ export function CompanyRelationshipPanel({
           <Notice error={error} message={message} />
           <RelationshipGovernanceNotice scope="company" />
           <form
-            className="grid grid-cols-1 gap-4 xl:grid-cols-5"
+            className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5"
             onSubmit={handleSubmit}
           >
             <Field label="Related Company" approvalSensitive required>
@@ -1788,7 +1800,7 @@ export function CompanyRelationshipPanel({
                 }
               />
             </Field>
-            <label className="flex min-h-10 items-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
+            <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 xl:justify-start">
               <input
                 checked={form.is_current}
                 className="h-4 w-4 accent-[#8dc63f]"
@@ -1823,7 +1835,7 @@ export function CompanyRelationshipPanel({
           </form>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full table-fixed text-left text-sm">
+            <table className="min-w-[1180px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="w-[23%] px-4 py-3 font-semibold">From</th>

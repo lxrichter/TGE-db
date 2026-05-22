@@ -156,6 +156,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   matching responsive hardening pass: source filters, candidate review actions,
   pagination controls, status chips, and dense review tables now stack or scroll
   predictably before the later design phase
+- PostgreSQL project, plant/facility, and company list/detail workflow surfaces
+  received the same responsive hardening pass: list filters, quick views,
+  pagination controls, action hubs, relationship forms, evidence panels, review
+  actions, and dense governance tables now stack or scroll more predictably on
+  mobile while keeping desktop tables available for operational work
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals

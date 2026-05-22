@@ -253,7 +253,7 @@ export function PendingReviewChangesPanel({
             audit trail.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <StatusBadge domain="review" value={currentReviewStatus} />
           <StatusBadge value={`${formatCount(rows.length)} field changes`} />
           <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
@@ -352,7 +352,7 @@ export function AuditTrailPanel({
             status changes and audited AI-assisted field applications.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <StatusBadge value={`${formatCount(events.length)} events`} />
           <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
             Expand
@@ -443,7 +443,7 @@ export function DetailFieldGrid({ fields }: { fields: DetailField[] }) {
 
 export function StatGrid({ stats }: { stats: DetailStat[] }) {
   return (
-    <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+    <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
       {stats.map((stat) => (
         <div key={stat.label} className="border border-gray-200 bg-white px-4 py-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -475,12 +475,12 @@ export function DetailAnchorNav({
           </div>
           <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
         </div>
-        <div className="flex max-w-5xl flex-wrap gap-2">
+        <div className="grid w-full max-w-5xl grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:w-auto md:flex-wrap md:justify-end">
           {items.map((item) => (
             <Link
               key={`${item.href}-${item.label}`}
               href={item.href}
-              className="inline-flex min-h-9 items-center border border-gray-200 bg-[#fbfbfb] px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+              className="inline-flex min-h-9 items-center justify-center border border-gray-200 bg-[#fbfbfb] px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
               title={item.note}
             >
               {item.label}
@@ -548,7 +548,7 @@ export function DetailWorkflowMap({
         <StatusBadge value={`${formatCount(steps.length)} steps`} />
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-5">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {steps.map((step, index) => {
           const tone = workflowStepTone(step.status);
 
@@ -717,7 +717,7 @@ export function ExportReadinessPanel({
             does not yet enforce production exports.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <StatusBadge value={ready ? "ready" : "not_ready"} />
           <StatusBadge value={`${credibleSourceCount}/${sourceCount} credible sources`} />
         </div>
@@ -781,14 +781,14 @@ export function SourceEvidenceTable({
         </p>
         <Link
           href={`/sources/new?entityType=${entityType}&entityId=${entityId}`}
-          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] md:w-auto"
         >
           Add Source
         </Link>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1280px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[26%] px-4 py-3 font-semibold">Source</th>
@@ -846,7 +846,7 @@ export function SourceEvidenceTable({
                 <td className="px-4 py-3">
                   <Link
                     href={`/sources/${source.source_id}/edit`}
-                    className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                   >
                     Edit
                   </Link>
@@ -919,7 +919,7 @@ export function RelatedTgeNewsPanel({
             for all source types.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:w-auto lg:flex lg:flex-wrap">
           <StatusBadge value="TGE article view" />
           <StatusBadge value={`${formatCount(articles.length)} article links`} />
           <Link
@@ -1009,24 +1009,24 @@ export function RelatedTgeNewsPanel({
                   </div>
                 ) : null}
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                   {article.source_url ? (
                     <Link
                       href={article.source_url}
                       target="_blank"
-                      className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                     >
                       Open Article
                     </Link>
                   ) : null}
                   <Link
                     href={`/sources/${article.source_id}`}
-                    className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                   >
                     Source Record
                   </Link>
                   {article.is_primary_evidence ? (
-                    <span className="inline-flex h-8 items-center border border-[#b9d98b] bg-[#f1f8e8] px-3 text-xs font-semibold text-[#3f6f19]">
+                    <span className="inline-flex h-8 items-center justify-center border border-[#b9d98b] bg-[#f1f8e8] px-3 text-xs font-semibold text-[#3f6f19]">
                       Primary Evidence
                     </span>
                   ) : null}
@@ -1066,9 +1066,9 @@ export function DetailShell({
   children: ReactNode;
 }) {
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <Link
             href={backHref}
             className="text-sm font-semibold text-[#4f7f1f] hover:underline"
@@ -1080,14 +1080,16 @@ export function DetailShell({
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
                 {eyebrow}
               </p>
-              <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
                 {title}
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
                 {subtitle}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">{badges}</div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
+              {badges}
+            </div>
           </div>
         </div>
       </section>

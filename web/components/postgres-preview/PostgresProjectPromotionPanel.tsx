@@ -91,7 +91,7 @@ export default function PostgresProjectPromotionPanel({
             project. Sources and company-role links are copied when available.
           </p>
         </div>
-        <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+        <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
           {promotedAssets.length} linked asset{promotedAssets.length === 1 ? "" : "s"}
         </span>
       </div>
@@ -110,7 +110,7 @@ export default function PostgresProjectPromotionPanel({
 
         {promotedAssets.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full table-fixed text-left text-sm">
+            <table className="min-w-[920px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="w-[34%] px-4 py-3 font-semibold">Asset</th>
@@ -142,7 +142,7 @@ export default function PostgresProjectPromotionPanel({
                     </td>
                     <td className="px-4 py-3">
                       <Link
-                        className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                        className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                         href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
                       >
                         Open
@@ -171,7 +171,7 @@ export default function PostgresProjectPromotionPanel({
               />
             </label>
             <button
-              className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 w-full border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               disabled={saving}
               type="button"
               onClick={promoteProject}

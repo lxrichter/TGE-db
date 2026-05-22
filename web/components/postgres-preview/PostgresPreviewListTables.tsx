@@ -672,19 +672,19 @@ export function PostgresPreviewListContext({
           </div>
           <div className="flex flex-col gap-2 lg:items-end">
             <Link
-              className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+              className="inline-flex h-10 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
               href={exportHref}
             >
               Export Current Filters
             </Link>
-            <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
+            <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
               Export includes the current search and filter state, not just this
               page of rows.
             </div>
           </div>
         </div>
         {activeFilters.length > 0 ? (
-          <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
+          <div className="flex flex-col gap-2 border-t border-gray-200 px-5 py-3 sm:flex-row sm:flex-wrap">
             {activeFilters.map((filter) => (
               <span
                 key={`${filter.label}-${filter.value}`}
@@ -732,7 +732,7 @@ export function PostgresPreviewQuickViews({
           pattern later.
         </p>
       </div>
-      <div className="grid gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 xl:grid-cols-4">
         {views.map((view) => {
           const active = isQuickViewActive({
             currentQuery,
@@ -831,7 +831,7 @@ export function PostgresPreviewListFilters({
     <section className="border border-gray-200 bg-white">
       <form
         action={basePath}
-        className="grid gap-4 px-5 py-5 lg:grid-cols-[minmax(220px,1.4fr)_repeat(4,minmax(150px,1fr))_auto]"
+        className="grid grid-cols-1 gap-4 px-5 py-5 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.4fr)_repeat(5,minmax(145px,1fr))_auto]"
       >
         {pageSize !== DEFAULT_PREVIEW_PAGE_SIZE ? (
           <input name="pageSize" type="hidden" value={pageSize} />
@@ -869,7 +869,7 @@ export function PostgresPreviewListFilters({
             </select>
           </label>
         ))}
-        <div className="flex items-end gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:items-end">
           <button
             className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
             type="submit"
@@ -887,7 +887,7 @@ export function PostgresPreviewListFilters({
       <div className="border-t border-gray-200 px-5 py-3">
         {activeCount > 0 ? (
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <span className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 {formatCount(activeCount)} active filter
                 {activeCount === 1 ? "" : "s"}
@@ -896,7 +896,7 @@ export function PostgresPreviewListFilters({
                 <Link
                   key={filter.key}
                   href={filter.href}
-                  className="inline-flex min-h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f]"
+                  className="inline-flex min-h-8 items-center justify-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f] sm:justify-start"
                 >
                   <span className="text-gray-500">{filter.label}:</span>
                   <span className="ml-1">{filter.value}</span>
@@ -905,7 +905,7 @@ export function PostgresPreviewListFilters({
               ))}
             </div>
             <Link
-              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-8 w-full items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] lg:w-auto"
               href={filterStateHref({
                 basePath,
                 pageSize,
@@ -958,7 +958,7 @@ function PaginationControls({
   return (
     <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 text-sm text-gray-600 lg:flex-row lg:items-center lg:justify-between">
       <div>{rangeLabel(pagination, count)}</div>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
         <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
           Density
         </span>
@@ -967,7 +967,7 @@ function PaginationControls({
             density: "comfortable",
             page: 1,
           })}
-          className={`inline-flex h-9 items-center border px-3 text-xs font-semibold ${
+          className={`inline-flex h-9 items-center justify-center border px-3 text-xs font-semibold ${
             pagination.density === "comfortable"
               ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
               : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -977,7 +977,7 @@ function PaginationControls({
         </Link>
         <Link
           href={previewTableHref(pagination, { density: "compact", page: 1 })}
-          className={`inline-flex h-9 items-center border px-3 text-xs font-semibold ${
+          className={`inline-flex h-9 items-center justify-center border px-3 text-xs font-semibold ${
             pagination.density === "compact"
               ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
               : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -992,7 +992,7 @@ function PaginationControls({
           <Link
             key={pageSize}
             href={previewTableHref(pagination, { pageSize, page: 1 })}
-            className={`inline-flex h-9 items-center border px-3 text-xs font-semibold ${
+            className={`inline-flex h-9 items-center justify-center border px-3 text-xs font-semibold ${
               pagination.pageSize === pageSize
                 ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
                 : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -1006,7 +1006,7 @@ function PaginationControls({
             page: Math.max(pagination.page - 1, 1),
           })}
           aria-disabled={isFirstPage}
-          className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
+          className={`inline-flex h-9 items-center justify-center border px-3 text-sm font-semibold ${
             isFirstPage
               ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
               : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -1020,7 +1020,7 @@ function PaginationControls({
         <Link
           href={previewTableHref(pagination, { page: pagination.page + 1 })}
           aria-disabled={isLastPage}
-          className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
+          className={`inline-flex h-9 items-center justify-center border px-3 text-sm font-semibold ${
             isLastPage
               ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
               : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -1099,20 +1099,20 @@ export function PostgresPreviewListHeader({
 }) {
   return (
     <section className="border border-gray-200 bg-white">
-      <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
         <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
           {eyebrow}
         </p>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+            <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
               {title}
             </h1>
-            <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
               {description}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
             {actions.map((action) => {
               const isPrimary = action.variant === "primary";
 
