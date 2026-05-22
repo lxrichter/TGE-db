@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PostgresCompanyForm } from "@/components/postgres-preview/PostgresEntityForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -64,6 +65,33 @@ export default async function NewPostgresCompanyPage() {
           </p>
         </div>
       </section>
+
+      <NextActionStrip
+        description="Create the company draft first, then return to company worklists, evidence governance, or Research Ops for source and relationship follow-up."
+        actions={[
+          {
+            label: "Company Worklist",
+            title: "Open Companies",
+            description:
+              "Return to company filters, missing-data queues, and exportable lists.",
+            href: "/postgres-preview/companies",
+          },
+          {
+            label: "Evidence Backbone",
+            title: "Open Sources",
+            description:
+              "Manage source records, article matches, and evidence governance.",
+            href: "/sources",
+          },
+          {
+            label: "Operations",
+            title: "Open Research Ops",
+            description:
+              "Review source gaps, validation queues, missing data, and assignments.",
+            href: "/postgres-preview/research-ops",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

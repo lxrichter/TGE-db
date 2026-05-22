@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PostgresProjectForm } from "@/components/postgres-preview/PostgresEntityForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -65,6 +66,33 @@ export default async function NewPostgresProjectPage() {
           </p>
         </div>
       </section>
+
+      <NextActionStrip
+        description="Create the project draft first, then return to pipeline worklists, evidence governance, or Research Ops for source and validation follow-up."
+        actions={[
+          {
+            label: "Project Worklist",
+            title: "Open Projects",
+            description:
+              "Return to project pipeline filters, missing-data queues, and exportable lists.",
+            href: "/postgres-preview/projects",
+          },
+          {
+            label: "Evidence Backbone",
+            title: "Open Sources",
+            description:
+              "Manage source records, article matches, and evidence governance.",
+            href: "/sources",
+          },
+          {
+            label: "Operations",
+            title: "Open Research Ops",
+            description:
+              "Review source gaps, validation queues, missing data, and assignments.",
+            href: "/postgres-preview/research-ops",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

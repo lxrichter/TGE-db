@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PostgresOperatingAssetForm } from "@/components/postgres-preview/PostgresEntityForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
@@ -66,6 +67,33 @@ export default async function NewPostgresOperatingAssetPage() {
           </p>
         </div>
       </section>
+
+      <NextActionStrip
+        description="Create the plant/facility draft first, then return to operating asset worklists, evidence governance, or Research Ops for source and validation follow-up."
+        actions={[
+          {
+            label: "Asset Worklist",
+            title: "Open Plants / Facilities",
+            description:
+              "Return to operating asset filters, missing-data queues, and exportable lists.",
+            href: "/postgres-preview/operating-assets",
+          },
+          {
+            label: "Evidence Backbone",
+            title: "Open Sources",
+            description:
+              "Manage source records, article matches, and evidence governance.",
+            href: "/sources",
+          },
+          {
+            label: "Operations",
+            title: "Open Research Ops",
+            description:
+              "Review source gaps, validation queues, missing data, and assignments.",
+            href: "/postgres-preview/research-ops",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />
