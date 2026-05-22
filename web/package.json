@@ -9,6 +9,7 @@
     "lint": "eslint",
     "postinstall": "prisma generate --schema prisma/schema.prisma",
     "postgres:smoke": "node scripts/postgres-smoke-test.mjs",
+    "postgres:countries:backfill": "node scripts/postgres-country-reference-backfill.mjs",
     "postgres:seed:staging": "node scripts/seed-postgres-staging.mjs",
     "sqlite:inspect": "node scripts/live-sqlite-inspect.mjs",
     "live-sqlite:stage": "node scripts/live-sqlite-import-staging.mjs",
