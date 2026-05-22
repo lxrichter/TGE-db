@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
+import type { ReactNode } from "react";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import PostgresRecordActionHub, {
@@ -658,28 +659,31 @@ function SourceActionHub({
   );
 }
 
+function LinkedEntityMobileField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
 function LinkedEntityTable({ links }: { links: SourceLink[] }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-[1080px] table-fixed text-left text-sm">
-        <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
-          <tr>
-            <th className="w-[14%] px-4 py-3 font-semibold">Entity</th>
-            <th className="w-[24%] px-4 py-3 font-semibold">Record</th>
-            <th className="w-[11%] px-4 py-3 font-semibold">Country</th>
-            <th className="w-[14%] px-4 py-3 font-semibold">Evidence</th>
-            <th className="w-[18%] px-4 py-3 font-semibold">Claim / Value</th>
-            <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
-            <th className="w-[9%] px-4 py-3 font-semibold">Updated</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {links.map((link) => (
-            <tr key={link.entity_source_id} className="align-top">
-              <td className="px-4 py-3 text-gray-700">
-                {entityTypeLabel(link.entity_type)}
-              </td>
-              <td className="px-4 py-3">
+    <>
+      <div className="divide-y divide-gray-100 border border-gray-200 lg:hidden">
+        {links.map((link) => (
+          <article key={link.entity_source_id} className="px-4 py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <Link
                   className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                   href={entityHref(link)}
@@ -689,9 +693,22 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                 <div className="mt-1 text-xs text-gray-500">
                   {link.legacy_id || link.entity_id}
                 </div>
-              </td>
-              <td className="px-4 py-3 text-gray-700">{link.country || "-"}</td>
-              <td className="px-4 py-3 text-gray-700">
+              </div>
+              <Badge
+                label={formatCode(link.confidence_status_code)}
+                value={link.confidence_status_code}
+                tone={confidenceStatusTone(link.confidence_status_code)}
+              />
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <LinkedEntityMobileField label="Entity">
+                {entityTypeLabel(link.entity_type)}
+              </LinkedEntityMobileField>
+              <LinkedEntityMobileField label="Country">
+                {link.country || "-"}
+              </LinkedEntityMobileField>
+              <LinkedEntityMobileField label="Evidence">
                 <div className="font-medium text-[#1f2937]">
                   {formatCode(link.evidence_type)}
                 </div>
@@ -700,8 +717,8 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                     {link.evidence_note}
                   </div>
                 ) : null}
-              </td>
-              <td className="px-4 py-3 text-gray-700">
+              </LinkedEntityMobileField>
+              <LinkedEntityMobileField label="Claim / Value">
                 <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                   {formatCode(link.linked_field)}
                 </div>
@@ -715,8 +732,8 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                     {link.claim_text}
                   </div>
                 ) : null}
-              </td>
-              <td className="px-4 py-3">
+              </LinkedEntityMobileField>
+              <LinkedEntityMobileField label="Confidence">
                 <Badge
                   label={formatCode(link.confidence_status_code)}
                   value={link.confidence_status_code}
@@ -727,24 +744,108 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                     Primary evidence
                   </div>
                 ) : null}
-              </td>
-              <td className="px-4 py-3 text-gray-700">
+              </LinkedEntityMobileField>
+              <LinkedEntityMobileField label="Updated">
                 {formatDateTime(link.updated_at)}
-              </td>
-            </tr>
-          ))}
+              </LinkedEntityMobileField>
+            </div>
+          </article>
+        ))}
 
-          {links.length === 0 ? (
+        {links.length === 0 ? (
+          <div className="px-4 py-8 text-center text-sm text-gray-500">
+            This source is not linked to project, plant/facility, or company
+            records yet.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
+        <table className="min-w-[1080px] table-fixed text-left text-sm">
+          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                This source is not linked to project, plant/facility, or company
-                records yet.
-              </td>
+              <th className="w-[14%] px-4 py-3 font-semibold">Entity</th>
+              <th className="w-[24%] px-4 py-3 font-semibold">Record</th>
+              <th className="w-[11%] px-4 py-3 font-semibold">Country</th>
+              <th className="w-[14%] px-4 py-3 font-semibold">Evidence</th>
+              <th className="w-[18%] px-4 py-3 font-semibold">Claim / Value</th>
+              <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
+              <th className="w-[9%] px-4 py-3 font-semibold">Updated</th>
             </tr>
-          ) : null}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {links.map((link) => (
+              <tr key={link.entity_source_id} className="align-top">
+                <td className="px-4 py-3 text-gray-700">
+                  {entityTypeLabel(link.entity_type)}
+                </td>
+                <td className="px-4 py-3">
+                  <Link
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    href={entityHref(link)}
+                  >
+                    {link.entity_name || "Unnamed record"}
+                  </Link>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {link.legacy_id || link.entity_id}
+                  </div>
+                </td>
+                <td className="px-4 py-3 text-gray-700">{link.country || "-"}</td>
+                <td className="px-4 py-3 text-gray-700">
+                  <div className="font-medium text-[#1f2937]">
+                    {formatCode(link.evidence_type)}
+                  </div>
+                  {link.evidence_note ? (
+                    <div className="mt-2 text-xs leading-5 text-gray-500">
+                      {link.evidence_note}
+                    </div>
+                  ) : null}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {formatCode(link.linked_field)}
+                  </div>
+                  {link.extracted_value ? (
+                    <div className="mt-1 font-semibold text-[#1f2937]">
+                      {link.extracted_value}
+                    </div>
+                  ) : null}
+                  {link.claim_text ? (
+                    <div className="mt-2 text-xs leading-5 text-gray-500">
+                      {link.claim_text}
+                    </div>
+                  ) : null}
+                </td>
+                <td className="px-4 py-3">
+                  <Badge
+                    label={formatCode(link.confidence_status_code)}
+                    value={link.confidence_status_code}
+                    tone={confidenceStatusTone(link.confidence_status_code)}
+                  />
+                  {link.is_primary_evidence ? (
+                    <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                      Primary evidence
+                    </div>
+                  ) : null}
+                </td>
+                <td className="px-4 py-3 text-gray-700">
+                  {formatDateTime(link.updated_at)}
+                </td>
+              </tr>
+            ))}
+
+            {links.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                  This source is not linked to project, plant/facility, or
+                  company records yet.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 

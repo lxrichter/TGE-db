@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
 import type {
@@ -89,6 +89,23 @@ function valuePreview(candidate: ArticleFactCandidateItem) {
   }
 
   return `${value} ${unit}`;
+}
+
+function MobileFactField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
 }
 
 export default function ArticleFactCandidatesClient({
@@ -283,7 +300,126 @@ export default function ArticleFactCandidatesClient({
         onPageChange={setPage}
       />
 
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {pageItems.map((candidate) => {
+          const href = sourceHref(candidate);
+          const sourceLabel =
+            candidate.source_title ||
+            candidate.article_title ||
+            candidate.source_reference;
+          const isDisabled = candidate.fact_status_code === "superseded";
+
+          return (
+            <article
+              key={candidate.article_fact_candidate_id}
+              className="px-4 py-4 sm:px-5"
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  aria-label={`Select ${candidate.fact_key}`}
+                  className="mt-1"
+                  disabled={isDisabled}
+                  checked={selected.has(candidate.article_fact_candidate_id)}
+                  onChange={() =>
+                    toggleCandidate(candidate.article_fact_candidate_id)
+                  }
+                  type="checkbox"
+                />
+                <div className="min-w-0 flex-1">
+                  {href ? (
+                    <Link
+                      href={href}
+                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    >
+                      {sourceLabel}
+                    </Link>
+                  ) : (
+                    <div className="font-semibold text-[#1f2937]">
+                      {sourceLabel}
+                    </div>
+                  )}
+                  <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                    {candidate.source_reference}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <StatusBadge
+                      status={candidate.fact_status_code}
+                      label={candidate.fact_status_label}
+                    />
+                    <PostgresStatusBadge
+                      domain="confidence"
+                      label={formatConfidence(candidate.confidence_score)}
+                      value={
+                        candidate.confidence_score >= 0.8
+                          ? "high"
+                          : candidate.confidence_score >= 0.55
+                            ? "medium"
+                            : "low"
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <MobileFactField label="Fact Type / Field">
+                  <div className="font-semibold text-[#1f2937]">
+                    {formatCode(candidate.fact_type_code)}
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    Field: {formatCode(candidate.field_name)}
+                  </div>
+                  {candidate.entity_label ? (
+                    <div className="mt-1 text-xs text-gray-500">
+                      Entity signal: {candidate.entity_label}
+                    </div>
+                  ) : null}
+                </MobileFactField>
+                <MobileFactField label="Candidate Value">
+                  <div className="font-semibold text-[#1f2937]">
+                    {valuePreview(candidate)}
+                  </div>
+                  {candidate.fact_reason ? (
+                    <div className="mt-2 line-clamp-3 text-xs leading-5 text-gray-500">
+                      {candidate.fact_reason}
+                    </div>
+                  ) : null}
+                </MobileFactField>
+                <MobileFactField label="Evidence">
+                  <div className="line-clamp-4 text-xs leading-5 text-gray-600">
+                    {candidate.evidence_snippet || "-"}
+                  </div>
+                  {candidate.review_note ? (
+                    <div className="mt-2 border-l-2 border-gray-200 pl-2 text-xs text-gray-500">
+                      Review note: {candidate.review_note}
+                    </div>
+                  ) : null}
+                </MobileFactField>
+                <MobileFactField label="Reviewed">
+                  {candidate.reviewed_at
+                    ? formatDate(candidate.reviewed_at)
+                    : formatDate(candidate.generated_at)}
+                  <div className="mt-1 text-xs text-gray-500">
+                    {candidate.reviewed_by_name || "candidate"}
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {candidate.review_sample_bucket ||
+                      candidate.extraction_method}
+                  </div>
+                </MobileFactField>
+              </div>
+            </article>
+          );
+        })}
+
+        {candidates.length === 0 ? (
+          <div className="px-5 py-10 text-center text-sm text-gray-500">
+            No article fact candidates fit the current filters.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1320px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
