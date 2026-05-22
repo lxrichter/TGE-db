@@ -403,9 +403,9 @@ function Section({
       id={sectionAnchorId(title)}
       open
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 marker:hidden">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 border-b border-gray-200 px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <span className="shrink-0 border border-gray-200 bg-[#fafafa] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+        <span className="w-full shrink-0 border border-gray-200 bg-[#fafafa] px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-gray-600 sm:w-auto">
           Toggle
         </span>
       </summary>
@@ -813,7 +813,7 @@ function FormReadinessPanel({
             and export-ready actions apply stricter checks.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-3 md:flex md:flex-wrap md:justify-end">
           <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
             {criticalCount} critical
           </span>
@@ -935,10 +935,10 @@ function FormReadinessPanel({
                         {issueMeaning(issue.severity)}
                       </div>
                     </div>
-                    <div className="flex shrink-0 flex-wrap gap-2">
+                    <div className="grid shrink-0 grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                       {fieldHref ? (
                         <a
-                          className="inline-flex h-8 items-center border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white"
+                          className="inline-flex h-8 items-center justify-center border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white"
                           href={fieldHref}
                         >
                           Go To Field
@@ -1293,7 +1293,7 @@ function FormActions({
         incomplete. Submit/review, approval, export-ready status, source links,
         company relationships, and promotion workflows stay governed separately.
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-2 sm:flex sm:flex-wrap">
         <Link
           className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
           href={backHref}
@@ -1343,12 +1343,12 @@ function WorkflowQuickActions({
           </p>
         </div>
         {mode === "create" ? (
-          <span className="inline-flex min-h-7 items-center border border-blue-200 bg-white px-2 text-[11px] font-semibold uppercase tracking-wide text-blue-900">
+          <span className="inline-flex min-h-7 items-center justify-center border border-blue-200 bg-white px-2 text-[11px] font-semibold uppercase tracking-wide text-blue-900">
             Save first
           </span>
         ) : null}
       </div>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
         {actions.map((action) =>
           action.href ? (
             <Link
@@ -1439,7 +1439,7 @@ function ProjectWorkflowBridge({
         entityLabel="Project"
         mode={mode}
       />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
             Evidence / Source
@@ -1448,21 +1448,21 @@ function ProjectWorkflowBridge({
             Source URL, source title, date, source type, linked field, extracted
             value, claim text, and confidence note are managed as evidence links.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             {evidenceHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={evidenceHref}
               >
                 Add / Review Evidence
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add evidence
               </span>
             )}
             <Link
-              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
               href={sourceCreateHref}
             >
               New Source
@@ -1504,13 +1504,13 @@ function ProjectWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={relationshipsHref}
               >
                 Add Company Roles
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add company roles
               </span>
             )}
@@ -1560,13 +1560,13 @@ function ProjectWorkflowBridge({
           <div className="mt-3">
             {linkedAssetHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={linkedAssetHref}
               >
                 Review Linked Assets
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to link assets
               </span>
             )}
@@ -1673,7 +1673,7 @@ function AssetWorkflowBridge({
         entityLabel="Plant / facility"
         mode={mode}
       />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
             Evidence / Source
@@ -1682,21 +1682,21 @@ function AssetWorkflowBridge({
             Source URL, source title, date, source type, linked field, extracted
             value, claim text, and confidence note are managed as evidence links.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             {evidenceHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={evidenceHref}
               >
                 Add / Review Evidence
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add evidence
               </span>
             )}
             <Link
-              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
               href={sourceCreateHref}
             >
               New Source
@@ -1736,13 +1736,13 @@ function AssetWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={relationshipsHref}
               >
                 Add Company Roles
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add company roles
               </span>
             )}
@@ -1792,13 +1792,13 @@ function AssetWorkflowBridge({
           <div className="mt-3">
             {linkedProjectHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={linkedProjectHref}
               >
                 Review Asset Workflow
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to link projects or units
               </span>
             )}
@@ -1912,7 +1912,7 @@ function CompanyWorkflowBridge({
         entityLabel="Company"
         mode={mode}
       />
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
             Evidence / Source
@@ -1922,21 +1922,21 @@ function CompanyWorkflowBridge({
             and ownership evidence are governed source links, not pasted into
             category fields.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             {evidenceHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={evidenceHref}
               >
                 Add / Review Evidence
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add evidence
               </span>
             )}
             <Link
-              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
               href={sourceCreateHref}
             >
               New Source
@@ -1979,13 +1979,13 @@ function CompanyWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={relationshipsHref}
               >
                 Add Project / Asset Roles
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add roles
               </span>
             )}
@@ -2036,13 +2036,13 @@ function CompanyWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={relationshipsHref}
               >
                 Review Company Structure
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
                 Save first to add relationships
               </span>
             )}
@@ -3082,7 +3082,7 @@ export function PostgresCompanyForm({
       />
 
       <Section title="Identity And Classification">
-        <div className="mb-5 grid gap-3 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-950 lg:grid-cols-3">
+        <div className="mb-5 grid grid-cols-1 gap-3 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-950 xl:grid-cols-3">
           <div>
             <div className="font-bold uppercase tracking-wide">Record Type</div>
             <p className="mt-1">

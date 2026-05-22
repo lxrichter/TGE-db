@@ -42,9 +42,9 @@ export default async function NewPostgresProjectPage() {
   const data = await getFormData();
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <Link
             href="/postgres-preview"
             className="text-sm font-semibold text-[#4f7f1f] hover:underline"
@@ -54,10 +54,10 @@ export default async function NewPostgresProjectPage() {
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             PostgreSQL Staging
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
             Add Project
           </h1>
-          <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+          <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
             Create a staging project draft in the future PostgreSQL foundation.
             Save is allowed for incomplete drafts; source/evidence, company
             roles, and linked plant/facility workflows are shown below and

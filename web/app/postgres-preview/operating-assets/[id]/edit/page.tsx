@@ -94,9 +94,9 @@ export default async function EditPostgresOperatingAssetPage({
   }
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <Link
             href={`/postgres-preview/operating-assets/${id}`}
             className="text-sm font-semibold text-[#4f7f1f] hover:underline"
@@ -108,10 +108,10 @@ export default async function EditPostgresOperatingAssetPage({
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
                 Edit Plant / Facility
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
                 Update the staging operating asset record. Draft saves remain
                 allowed while source evidence, owner/operator roles, and
                 originating project or unit relationships are completed through
@@ -119,7 +119,7 @@ export default async function EditPostgresOperatingAssetPage({
               </p>
             </div>
             {data.ok ? (
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
                 <StatusBadge value={data.asset.primary_use_type_code} />
                 <StatusBadge
                   domain="lifecycle"

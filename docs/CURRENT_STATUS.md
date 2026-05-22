@@ -161,6 +161,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   pagination controls, action hubs, relationship forms, evidence panels, review
   actions, and dense governance tables now stack or scroll more predictably on
   mobile while keeping desktop tables available for operational work
+- PostgreSQL project, plant/facility, and company create/edit forms received a
+  matching responsive hardening pass: form headers, readiness controls,
+  workflow shortcut cards, post-save relationship/evidence bridges, and bottom
+  save actions now stack more cleanly on mobile and avoid cramped three-column
+  layouts on tablet-sized screens
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals
