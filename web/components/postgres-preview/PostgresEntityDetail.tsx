@@ -775,6 +775,23 @@ function formatSourceLinkCode(value: string | null) {
     .replace(/\bcod\b/gi, "COD");
 }
 
+function SourceEvidenceMobileField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
 export function SourceEvidenceTable({
   sources,
   entityType,
@@ -798,7 +815,78 @@ export function SourceEvidenceTable({
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 border border-gray-200 lg:hidden">
+        {sources.map((source) => (
+          <article key={source.entity_source_id} className="px-4 py-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <Link
+                  href={`/sources/${source.source_id}`}
+                  className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                >
+                  {source.source_title ||
+                    source.source_reference ||
+                    "Untitled source"}
+                </Link>
+                <div className="mt-1 break-words text-xs text-gray-500">
+                  {source.source_reference || source.source_id}
+                </div>
+              </div>
+              <Link
+                href={`/sources/${source.source_id}/edit`}
+                className="inline-flex h-8 shrink-0 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              >
+                Edit
+              </Link>
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <SourceEvidenceMobileField label="Type">
+                {source.source_type_label || "-"}
+              </SourceEvidenceMobileField>
+              <SourceEvidenceMobileField label="Credibility">
+                <StatusBadge
+                  domain="source"
+                  value={source.credibility_status_code}
+                />
+              </SourceEvidenceMobileField>
+              <SourceEvidenceMobileField label="Fact Type">
+                {formatSourceLinkCode(source.evidence_type)}
+              </SourceEvidenceMobileField>
+              <SourceEvidenceMobileField label="Field / Value">
+                {formatSourceLinkCode(source.linked_field)}
+                <div className="mt-1 text-xs text-gray-500">
+                  {source.extracted_value || "-"}
+                </div>
+              </SourceEvidenceMobileField>
+              <SourceEvidenceMobileField label="Confidence">
+                {source.confidence_status_code ? (
+                  <StatusBadge
+                    domain="confidence"
+                    value={source.confidence_status_code}
+                  />
+                ) : (
+                  "-"
+                )}
+                {source.is_primary_evidence ? (
+                  <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                    Primary evidence
+                  </div>
+                ) : null}
+              </SourceEvidenceMobileField>
+            </div>
+          </article>
+        ))}
+
+        {sources.length === 0 ? (
+          <div className="px-4 py-8 text-center text-sm text-gray-500">
+            No source links yet. Add one before this record can become
+            export-ready.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1280px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
