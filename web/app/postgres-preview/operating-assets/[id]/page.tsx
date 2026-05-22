@@ -35,6 +35,7 @@ import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresR
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import PostgresRecordActionHub, {
+  PostgresNextRequiredActionStrip,
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
@@ -494,6 +495,142 @@ function AssetActionHub({
   );
 }
 
+function getAssetNextRequiredAction({
+  asset,
+  readinessIssues,
+  companyLinkCount,
+  openIssueCount,
+  openSourceMatchCount,
+  fieldSuggestionCandidates,
+  canEditRecord,
+}: {
+  asset: PostgresPreviewOperatingAssetDetail;
+  readinessIssues: ExportReadinessIssue[];
+  companyLinkCount: number;
+  openIssueCount: number;
+  openSourceMatchCount: number;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
+  canEditRecord: boolean;
+}): PostgresRecordAction {
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const identityComplete = Boolean(
+    asset.asset_name &&
+      asset.country &&
+      asset.lifecycle_phase_code &&
+      asset.lifecycle_phase_code !== "unknown" &&
+      asset.primary_use_type_code &&
+      asset.primary_use_type_code !== "unknown"
+  );
+  const hasCod = Boolean(asset.cod_year || asset.cod_raw);
+  const blockers = readinessIssues.filter((issue) => issue.severity === "blocker");
+  const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
+
+  if (asset.sources.length === 0) {
+    return {
+      label: "Add source evidence",
+      detail:
+        "This plant/facility has no linked source yet. Add evidence before review or export-ready use.",
+      href: "#asset-source-evidence",
+      tone: "blocker",
+    };
+  }
+
+  if (!identityComplete) {
+    return {
+      label: "Complete asset identity",
+      detail:
+        "Confirm country, operating status, and geothermal use category before deeper review.",
+      href: canEditRecord
+        ? `/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`
+        : "#asset-identity-location",
+      tone: "warning",
+    };
+  }
+
+  if (!hasAssetCapacity(asset) || !hasCod) {
+    return {
+      label: "Confirm COD and capacity",
+      detail:
+        "Check commissioning/COD wording and installed, running, thermal, or output values.",
+      href: canEditRecord
+        ? `/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`
+        : "#asset-operating-data",
+      tone: "warning",
+    };
+  }
+
+  if (companyLinkCount === 0) {
+    return {
+      label: "Add company role",
+      detail:
+        "Add at least one structured owner, operator, supplier, EPC, offtaker, or related role.",
+      href: "#asset-company-links",
+      tone: "warning",
+    };
+  }
+
+  if (openSourceMatchCount > 0) {
+    return {
+      label: "Review article matches",
+      detail: `${formatCount(openSourceMatchCount)} source/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } can strengthen related news and evidence coverage.`,
+      href: "#asset-article-matches",
+      tone: "warning",
+    };
+  }
+
+  if (fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0) {
+    return {
+      label: "Review AI suggestions",
+      detail: `${formatCount(
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+      )} field suggestion${
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady === 1
+          ? ""
+          : "s"
+      } need human review before any database write.`,
+      href: "#asset-ai-suggestions",
+      tone: "warning",
+    };
+  }
+
+  if (openIssueCount > 0) {
+    return {
+      label: "Resolve research issue",
+      detail: `${formatCount(openIssueCount)} persistent Research Ops issue${
+        openIssueCount === 1 ? "" : "s"
+      } remain open for this plant/facility.`,
+      href: "#asset-research-issues",
+      tone: "warning",
+    };
+  }
+
+  if (blockers.length > 0 || warnings.length > 0) {
+    return {
+      label: blockers.length > 0 ? "Review export blockers" : "Review export warnings",
+      detail:
+        blockers.length > 0
+          ? `${formatCount(blockers.length)} export blocker${
+              blockers.length === 1 ? "" : "s"
+            } remain.`
+          : `${formatCount(warnings.length)} export warning${
+              warnings.length === 1 ? "" : "s"
+            } remain for editor judgment.`,
+      href: "#asset-export-readiness",
+      tone: blockers.length > 0 ? "blocker" : "warning",
+    };
+  }
+
+  return {
+    label: "Ready for editor review",
+    detail:
+      "Core identity, operating data, source evidence, company roles, and export-readiness checks are clear on this staging record.",
+    href: "#asset-export-readiness",
+    tone: "ready",
+  };
+}
+
 export default async function PostgresOperatingAssetDetailPage({
   params,
 }: {
@@ -566,6 +703,15 @@ export default async function PostgresOperatingAssetDetailPage({
       asset.primary_use_type_code &&
       asset.primary_use_type_code !== "unknown"
   );
+  const nextRequiredAction = getAssetNextRequiredAction({
+    asset,
+    canEditRecord,
+    companyLinkCount: companyLinks.length,
+    fieldSuggestionCandidates,
+    openIssueCount,
+    openSourceMatchCount,
+    readinessIssues,
+  });
 
   return (
     <DetailShell
@@ -618,6 +764,8 @@ export default async function PostgresOperatingAssetDetailPage({
         },
       ]}
     >
+      <PostgresNextRequiredActionStrip action={nextRequiredAction} />
+
       <DetailWorkflowMap
         description="Use this sequence to scan the plant/facility record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
         steps={[

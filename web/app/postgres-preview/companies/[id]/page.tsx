@@ -35,6 +35,7 @@ import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresR
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import PostgresRecordActionHub, {
+  PostgresNextRequiredActionStrip,
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
@@ -591,6 +592,124 @@ function CompanyActionHub({
   );
 }
 
+function getCompanyNextRequiredAction({
+  company,
+  readinessIssues,
+  activityLinkCount,
+  openIssueCount,
+  openSourceMatchCount,
+  fieldSuggestionCandidates,
+  canEditRecord,
+}: {
+  company: PostgresPreviewCompanyDetail;
+  readinessIssues: ExportReadinessIssue[];
+  activityLinkCount: number;
+  openIssueCount: number;
+  openSourceMatchCount: number;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
+  canEditRecord: boolean;
+}): PostgresRecordAction {
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const identityComplete = Boolean(
+    company.company_name && company.company_type_primary_code
+  );
+  const blockers = readinessIssues.filter((issue) => issue.severity === "blocker");
+  const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
+
+  if (company.sources.length === 0) {
+    return {
+      label: "Add source evidence",
+      detail:
+        "This company has no linked source yet. Add evidence before review or export-ready use.",
+      href: "#company-source-evidence",
+      tone: "blocker",
+    };
+  }
+
+  if (!identityComplete || !company.headquarters_country || !company.website_url) {
+    return {
+      label: "Complete company identity",
+      detail:
+        "Confirm primary business identity, HQ country, website, and status before deeper review.",
+      href: canEditRecord
+        ? `/postgres-preview/companies/${company.company_id}/edit`
+        : "#company-classification",
+      tone: "warning",
+    };
+  }
+
+  if (activityLinkCount === 0) {
+    return {
+      label: "Add relationship or portfolio link",
+      detail:
+        "Add project roles, plant/facility roles, ownership, group, JV, or other structured relationships.",
+      href: "#company-relationships",
+      tone: "warning",
+    };
+  }
+
+  if (openSourceMatchCount > 0) {
+    return {
+      label: "Review article matches",
+      detail: `${formatCount(openSourceMatchCount)} source/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } can strengthen related news and evidence coverage.`,
+      href: "#company-article-matches",
+      tone: "warning",
+    };
+  }
+
+  if (fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0) {
+    return {
+      label: "Review AI suggestions",
+      detail: `${formatCount(
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+      )} field suggestion${
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady === 1
+          ? ""
+          : "s"
+      } need human review before any database write.`,
+      href: "#company-ai-suggestions",
+      tone: "warning",
+    };
+  }
+
+  if (openIssueCount > 0) {
+    return {
+      label: "Resolve research issue",
+      detail: `${formatCount(openIssueCount)} persistent Research Ops issue${
+        openIssueCount === 1 ? "" : "s"
+      } remain open for this company.`,
+      href: "#company-research-issues",
+      tone: "warning",
+    };
+  }
+
+  if (blockers.length > 0 || warnings.length > 0) {
+    return {
+      label: blockers.length > 0 ? "Review export blockers" : "Review export warnings",
+      detail:
+        blockers.length > 0
+          ? `${formatCount(blockers.length)} export blocker${
+              blockers.length === 1 ? "" : "s"
+            } remain.`
+          : `${formatCount(warnings.length)} export warning${
+              warnings.length === 1 ? "" : "s"
+            } remain for editor judgment.`,
+      href: "#company-export-readiness",
+      tone: blockers.length > 0 ? "blocker" : "warning",
+    };
+  }
+
+  return {
+    label: "Ready for editor review",
+    detail:
+      "Core identity, source evidence, relationship links, and export-readiness checks are clear on this staging record.",
+    href: "#company-export-readiness",
+    tone: "ready",
+  };
+}
+
 export default async function PostgresCompanyDetailPage({
   params,
 }: {
@@ -663,6 +782,15 @@ export default async function PostgresCompanyDetailPage({
   const identityComplete = Boolean(
     company.company_name && company.company_type_primary_code
   );
+  const nextRequiredAction = getCompanyNextRequiredAction({
+    activityLinkCount,
+    canEditRecord,
+    company,
+    fieldSuggestionCandidates,
+    openIssueCount,
+    openSourceMatchCount,
+    readinessIssues,
+  });
 
   return (
     <DetailShell
@@ -715,6 +843,8 @@ export default async function PostgresCompanyDetailPage({
         },
       ]}
     >
+      <PostgresNextRequiredActionStrip action={nextRequiredAction} />
+
       <DetailWorkflowMap
         description="Use this sequence to scan the company record: confirm classification, strengthen evidence, check activity and ownership relationships, handle AI/review work, then decide whether the record is export-ready."
         steps={[

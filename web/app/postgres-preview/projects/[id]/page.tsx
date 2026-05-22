@@ -36,6 +36,7 @@ import PostgresResearchIssuesPanel from "@/components/postgres-preview/PostgresR
 import PostgresSourceEvidencePanel from "@/components/postgres-preview/PostgresSourceEvidencePanel";
 import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/PostgresFieldSuggestionsPanel";
 import PostgresRecordActionHub, {
+  PostgresNextRequiredActionStrip,
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
 import SourceMatchCandidatesClient from "@/components/sources/SourceMatchCandidatesClient";
@@ -480,6 +481,125 @@ function ProjectActionHub({
   );
 }
 
+function getProjectNextRequiredAction({
+  project,
+  readinessIssues,
+  companyLinkCount,
+  openIssueCount,
+  openSourceMatchCount,
+  fieldSuggestionCandidates,
+  canEditRecord,
+}: {
+  project: PostgresPreviewProjectDetail;
+  readinessIssues: ExportReadinessIssue[];
+  companyLinkCount: number;
+  openIssueCount: number;
+  openSourceMatchCount: number;
+  fieldSuggestionCandidates: PostgresFieldSuggestionCandidate[];
+  canEditRecord: boolean;
+}): PostgresRecordAction {
+  const fieldSuggestionSummary = fieldSuggestionCounts(fieldSuggestionCandidates);
+  const identityComplete = Boolean(
+    project.project_name &&
+      project.country &&
+      project.lifecycle_phase_code &&
+      project.lifecycle_phase_code !== "unknown" &&
+      project.primary_use_type_code &&
+      project.primary_use_type_code !== "unknown"
+  );
+  const blockers = readinessIssues.filter((issue) => issue.severity === "blocker");
+  const warnings = readinessIssues.filter((issue) => issue.severity === "warning");
+
+  if (project.sources.length === 0) {
+    return {
+      label: "Add source evidence",
+      detail: "This project has no linked source yet. Add evidence before review or export-ready use.",
+      href: "#project-source-evidence",
+      tone: "blocker",
+    };
+  }
+
+  if (!identityComplete) {
+    return {
+      label: "Complete project identity",
+      detail: "Confirm country, project phase, and geothermal use category before deeper review.",
+      href: canEditRecord
+        ? `/postgres-preview/projects/${project.project_id}/edit`
+        : "#project-identity-location",
+      tone: "warning",
+    };
+  }
+
+  if (companyLinkCount === 0) {
+    return {
+      label: "Add company role",
+      detail: "Add at least one structured developer, owner, operator, supplier, investor, or related role.",
+      href: "#project-company-links",
+      tone: "warning",
+    };
+  }
+
+  if (openSourceMatchCount > 0) {
+    return {
+      label: "Review article matches",
+      detail: `${formatCount(openSourceMatchCount)} source/entity match candidate${
+        openSourceMatchCount === 1 ? "" : "s"
+      } can strengthen related news and evidence coverage.`,
+      href: "#project-article-matches",
+      tone: "warning",
+    };
+  }
+
+  if (fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady > 0) {
+    return {
+      label: "Review AI suggestions",
+      detail: `${formatCount(
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady
+      )} field suggestion${
+        fieldSuggestionSummary.open + fieldSuggestionSummary.applyReady === 1
+          ? ""
+          : "s"
+      } need human review before any database write.`,
+      href: "#project-ai-suggestions",
+      tone: "warning",
+    };
+  }
+
+  if (openIssueCount > 0) {
+    return {
+      label: "Resolve research issue",
+      detail: `${formatCount(openIssueCount)} persistent Research Ops issue${
+        openIssueCount === 1 ? "" : "s"
+      } remain open for this project.`,
+      href: "#project-research-issues",
+      tone: "warning",
+    };
+  }
+
+  if (blockers.length > 0 || warnings.length > 0) {
+    return {
+      label: blockers.length > 0 ? "Review export blockers" : "Review export warnings",
+      detail:
+        blockers.length > 0
+          ? `${formatCount(blockers.length)} export blocker${
+              blockers.length === 1 ? "" : "s"
+            } remain.`
+          : `${formatCount(warnings.length)} export warning${
+              warnings.length === 1 ? "" : "s"
+            } remain for editor judgment.`,
+      href: "#project-export-readiness",
+      tone: blockers.length > 0 ? "blocker" : "warning",
+    };
+  }
+
+  return {
+    label: "Ready for editor review",
+    detail: "Core identity, source evidence, company roles, and export-readiness checks are clear on this staging record.",
+    href: "#project-export-readiness",
+    tone: "ready",
+  };
+}
+
 export default async function PostgresProjectDetailPage({
   params,
 }: {
@@ -554,6 +674,15 @@ export default async function PostgresProjectDetailPage({
       project.primary_use_type_code &&
       project.primary_use_type_code !== "unknown"
   );
+  const nextRequiredAction = getProjectNextRequiredAction({
+    canEditRecord,
+    companyLinkCount: companyLinks.length,
+    fieldSuggestionCandidates,
+    openIssueCount,
+    openSourceMatchCount,
+    project,
+    readinessIssues,
+  });
 
   return (
     <DetailShell
@@ -612,6 +741,8 @@ export default async function PostgresProjectDetailPage({
         },
       ]}
     >
+      <PostgresNextRequiredActionStrip action={nextRequiredAction} />
+
       <DetailWorkflowMap
         description="Use this sequence to scan the project record: confirm identity, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
         steps={[

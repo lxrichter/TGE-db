@@ -30,6 +30,42 @@ function actionLinkClass(action: PostgresRecordAction) {
   }`;
 }
 
+export function PostgresNextRequiredActionStrip({
+  action,
+  modeLabel = "Research mode",
+}: {
+  action: PostgresRecordAction;
+  modeLabel?: string;
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="grid gap-4 px-5 py-4 lg:grid-cols-[220px_minmax(0,1fr)_auto] lg:items-center">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            Next Required Action
+          </div>
+          <div className="mt-1 text-sm font-bold text-[#1f2937]">{modeLabel}</div>
+        </div>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <PostgresStatusBadge value={action.tone} />
+            <h2 className="text-base font-bold text-[#1f2937]">{action.label}</h2>
+          </div>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            {action.detail}
+          </p>
+        </div>
+        <Link
+          href={action.href}
+          className="inline-flex min-h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+        >
+          Open
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 export default function PostgresRecordActionHub({
   title,
   description,

@@ -500,6 +500,9 @@ Known current gaps and risks:
 - entity detail workflow mode contract has been added to define Core,
   Research, Review, and Full display modes before additional workflow layers
   are added to project, operating asset, and company pages
+- PostgreSQL project, operating asset, and company detail pages now show a
+  compact next required action strip before the fuller workflow map, giving
+  users one prioritized action without hiding the deeper workbench
 
 ## Validation Snapshot
 
@@ -512,6 +515,8 @@ Last checked locally:
   progressive-disclosure pass added on 2026-05-22
 - documentation-only entity detail workflow mode contract added on 2026-05-22;
   no build rerun was required for that documentation pass
+- targeted lint and `npm run build` passed for the entity next-required-action
+  strip added on 2026-05-22
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.
