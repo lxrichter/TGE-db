@@ -4,6 +4,7 @@ import SourceReviewFilterChips, {
   type SourceReviewFilterChip,
 } from "@/components/sources/SourceReviewFilterChips";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import { formatCount } from "@/lib/format";
 import {
   countSourceMatchCandidates,
@@ -283,155 +284,180 @@ export default async function SourceMatchCandidatesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Match Triage"
-            description="Open load, confidence, flags, outcomes."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              {
+                href: "#match-triage",
+                label: "Triage",
+                note: "Load",
+              },
+              {
+                href: "#match-filters",
+                label: "Filters",
+                note: "Scope",
+              },
+              {
+                href: "#match-review",
+                label: "Review",
+                note: "Candidates",
+              },
+            ]}
           />
 
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-            <StatTile
-              label="Candidates"
-              value={formatCount(data.summary.total)}
-              note="All generated matches"
+          <section id="match-triage" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Match Triage"
+              description="Open load, confidence, flags, outcomes."
+              tone="core"
             />
-            <StatTile
-              label="Open"
-              value={formatCount(data.summary.open)}
-              note="Needs review or suggested"
-            />
-            <StatTile
-              label="High"
-              value={formatCount(data.summary.highConfidence)}
-              note="Suggested high confidence"
-            />
-            <StatTile
-              label="Medium"
-              value={formatCount(data.summary.mediumConfidence)}
-              note="Suggested medium confidence"
-            />
-            <StatTile
-              label="Flags"
-              value={formatCount(data.summary.flaggedForReview)}
-              note="Needs careful review"
-            />
-            <StatTile
-              label="Confirmed"
-              value={formatCount(data.summary.confirmed)}
-              note="Evidence links created"
-            />
-            <StatTile
-              label="Rejected"
-              value={formatCount(data.summary.rejected)}
-              note="Dismissed candidates"
-            />
+
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+              <StatTile
+                label="Candidates"
+                value={formatCount(data.summary.total)}
+                note="All generated matches"
+              />
+              <StatTile
+                label="Open"
+                value={formatCount(data.summary.open)}
+                note="Needs review or suggested"
+              />
+              <StatTile
+                label="High"
+                value={formatCount(data.summary.highConfidence)}
+                note="Suggested high confidence"
+              />
+              <StatTile
+                label="Medium"
+                value={formatCount(data.summary.mediumConfidence)}
+                note="Suggested medium confidence"
+              />
+              <StatTile
+                label="Flags"
+                value={formatCount(data.summary.flaggedForReview)}
+                note="Needs careful review"
+              />
+              <StatTile
+                label="Confirmed"
+                value={formatCount(data.summary.confirmed)}
+                note="Evidence links created"
+              />
+              <StatTile
+                label="Rejected"
+                value={formatCount(data.summary.rejected)}
+                note="Dismissed candidates"
+              />
+            </section>
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Match Filters"
-            description="Scope article-to-record candidates before review."
-            tone="workflow"
-          />
-
-          <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
-            <form
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
-              action="/sources/matches"
-            >
-              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Search
-                <input
-                  name="search"
-                  defaultValue={filters.search || ""}
-                  placeholder="Article, entity, alias, reason..."
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
-                />
-              </label>
-
-              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Match Status
-                <select
-                  name="status"
-                  defaultValue={filters.status || ""}
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
-                >
-                  <option value="">All statuses</option>
-                  {data.statuses.map((status) => (
-                    <option key={status.code} value={status.code}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Entity Type
-                <select
-                  name="entityType"
-                  defaultValue={filters.entityType || ""}
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
-                >
-                  <option value="">All entity types</option>
-                  {entityTypeOptions.map((option) => (
-                    <option key={option.code} value={option.code}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Review Flags
-                <select
-                  name="flagged"
-                  defaultValue={filters.flagged || ""}
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
-                >
-                  <option value="">All candidates</option>
-                  <option value="1">Flagged only</option>
-                </select>
-              </label>
-
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:flex">
-                <button
-                  type="submit"
-                  className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
-                >
-                  Apply
-                </button>
-                <Link
-                  href="/sources/matches?flagged=1"
-                  className="inline-flex h-10 items-center justify-center border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 hover:bg-amber-100"
-                >
-                  Flagged
-                </Link>
-                <Link
-                  href="/sources/matches"
-                  className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                >
-                  Reset
-                </Link>
-              </div>
-            </form>
-            <SourceReviewFilterChips
-              chips={activeFilterChips}
-              resetHref="/sources/matches"
-              emptyLabel="All article match candidates"
+          <section id="match-filters" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Match Filters"
+              description="Scope article-to-record candidates before review."
+              tone="workflow"
             />
-          </FilterDisclosure>
 
-          <DetailPriorityMarker
-            label="Governance"
-            title="Candidate Review Rows"
-            description="Bulk confirm, reject, or inspect ambiguous links."
-            tone="governance"
-          />
+            <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
+              <form
+                className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
+                action="/sources/matches"
+              >
+                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Search
+                  <input
+                    name="search"
+                    defaultValue={filters.search || ""}
+                    placeholder="Article, entity, alias, reason..."
+                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  />
+                </label>
 
-          <SourceMatchCandidatesClient candidates={data.candidates} />
+                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Match Status
+                  <select
+                    name="status"
+                    defaultValue={filters.status || ""}
+                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  >
+                    <option value="">All statuses</option>
+                    {data.statuses.map((status) => (
+                      <option key={status.code} value={status.code}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
 
-          <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Entity Type
+                  <select
+                    name="entityType"
+                    defaultValue={filters.entityType || ""}
+                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  >
+                    <option value="">All entity types</option>
+                    {entityTypeOptions.map((option) => (
+                      <option key={option.code} value={option.code}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Review Flags
+                  <select
+                    name="flagged"
+                    defaultValue={filters.flagged || ""}
+                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  >
+                    <option value="">All candidates</option>
+                    <option value="1">Flagged only</option>
+                  </select>
+                </label>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:flex">
+                  <button
+                    type="submit"
+                    className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+                  >
+                    Apply
+                  </button>
+                  <Link
+                    href="/sources/matches?flagged=1"
+                    className="inline-flex h-10 items-center justify-center border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+                  >
+                    Flagged
+                  </Link>
+                  <Link
+                    href="/sources/matches"
+                    className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  >
+                    Reset
+                  </Link>
+                </div>
+              </form>
+              <SourceReviewFilterChips
+                chips={activeFilterChips}
+                resetHref="/sources/matches"
+                emptyLabel="All article match candidates"
+              />
+            </FilterDisclosure>
+          </section>
+
+          <section id="match-review" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Candidate Review Rows"
+              description="Bulk confirm, reject, or inspect ambiguous links."
+              tone="governance"
+            />
+
+            <SourceMatchCandidatesClient candidates={data.candidates} />
+
+            <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
             <div>
               Showing{" "}
               <span className="font-semibold text-[#1f2937]">
@@ -471,6 +497,7 @@ export default async function SourceMatchCandidatesPage({
                 Next
               </Link>
             </div>
+          </section>
           </section>
         </>
       )}

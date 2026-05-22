@@ -5,6 +5,7 @@ import SourceReviewFilterChips, {
   type SourceReviewFilterChip,
 } from "@/components/sources/SourceReviewFilterChips";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import { getArticleFactTypeDefinition } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
@@ -416,170 +417,194 @@ export default async function ArticleFactCandidatesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Fact Triage"
-            description="Open load, decisions, entity signals, source coverage."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              {
+                href: "#fact-triage",
+                label: "Triage",
+                note: "Load",
+              },
+              {
+                href: "#fact-training",
+                label: "Training",
+                note: "Fact Types",
+              },
+              {
+                href: "#fact-review",
+                label: "Review",
+                note: "Candidates",
+              },
+            ]}
           />
 
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-            <StatTile
-              label="Candidates"
-              value={formatCount(data.summary.total)}
-              note="All extracted facts"
+          <section id="fact-triage" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Fact Triage"
+              description="Open load, decisions, entity signals, source coverage."
+              tone="core"
             />
-            <StatTile
-              label="Open"
-              value={formatCount(data.summary.open)}
-              note="Suggested or needs review"
-            />
-            <StatTile
-              label="Suggested"
-              value={formatCount(data.summary.suggested)}
-              note="Machine/rule candidates"
-            />
-            <StatTile
-              label="Needs Review"
-              value={formatCount(data.summary.needsReview)}
-              note="Deferred for review"
-            />
-            <StatTile
-              label="Confirmed"
-              value={formatCount(data.summary.confirmed)}
-              note="Human accepted"
-            />
-            <StatTile
-              label="Rejected"
-              value={formatCount(data.summary.rejected)}
-              note="Human rejected"
-            />
-            <StatTile
-              label="Entity Signals"
-              value={formatCount(data.summary.withEntitySignal)}
-              note="Has entity label"
-            />
-            <StatTile
-              label="Source Records"
-              value={formatCount(data.summary.withSourceRecord)}
-              note="Linked to source row"
-            />
+
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+              <StatTile
+                label="Candidates"
+                value={formatCount(data.summary.total)}
+                note="All extracted facts"
+              />
+              <StatTile
+                label="Open"
+                value={formatCount(data.summary.open)}
+                note="Suggested or needs review"
+              />
+              <StatTile
+                label="Suggested"
+                value={formatCount(data.summary.suggested)}
+                note="Machine/rule candidates"
+              />
+              <StatTile
+                label="Needs Review"
+                value={formatCount(data.summary.needsReview)}
+                note="Deferred for review"
+              />
+              <StatTile
+                label="Confirmed"
+                value={formatCount(data.summary.confirmed)}
+                note="Human accepted"
+              />
+              <StatTile
+                label="Rejected"
+                value={formatCount(data.summary.rejected)}
+                note="Human rejected"
+              />
+              <StatTile
+                label="Entity Signals"
+                value={formatCount(data.summary.withEntitySignal)}
+                note="Has entity label"
+              />
+              <StatTile
+                label="Source Records"
+                value={formatCount(data.summary.withSourceRecord)}
+                note="Linked to source row"
+              />
+            </section>
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Fact-Type Training"
-            description="Filter, review definitions, accept/reject candidates."
-            tone="workflow"
-          />
+          <section id="fact-training" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Fact-Type Training"
+              description="Filter, review definitions, accept/reject candidates."
+              tone="workflow"
+            />
 
-          <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
-            <form
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
-              action="/sources/facts"
-            >
-              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Search
-                <input
-                  name="search"
-                  defaultValue={filters.search || ""}
-                  placeholder="Article, reference, value, field, reason..."
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+            <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
+              <form
+                className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
+                action="/sources/facts"
+              >
+                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Search
+                  <input
+                    name="search"
+                    defaultValue={filters.search || ""}
+                    placeholder="Article, reference, value, field, reason..."
+                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  />
+                </label>
+
+                <SelectFilter
+                  label="Status"
+                  name="status"
+                  value={filters.status}
+                  options={data.statuses}
+                  allLabel="All statuses"
                 />
-              </label>
+                <SelectFilter
+                  label="Fact Type"
+                  name="factType"
+                  value={filters.factType}
+                  options={data.factTypes}
+                  allLabel="All fact types"
+                />
+                <SelectFilter
+                  label="Field"
+                  name="fieldName"
+                  value={filters.fieldName}
+                  options={data.fieldNames}
+                  allLabel="All fields"
+                />
 
-              <SelectFilter
-                label="Status"
-                name="status"
-                value={filters.status}
-                options={data.statuses}
-                allLabel="All statuses"
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
+                  <button
+                    type="submit"
+                    className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+                  >
+                    Apply
+                  </button>
+                  <Link
+                    href="/sources/facts"
+                    className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  >
+                    Reset
+                  </Link>
+                </div>
+              </form>
+              <SourceReviewFilterChips
+                chips={activeFilterChips}
+                resetHref="/sources/facts"
+                emptyLabel="All article fact candidates"
               />
-              <SelectFilter
-                label="Fact Type"
-                name="factType"
-                value={filters.factType}
-                options={data.factTypes}
-                allLabel="All fact types"
-              />
-              <SelectFilter
-                label="Field"
-                name="fieldName"
-                value={filters.fieldName}
-                options={data.fieldNames}
-                allLabel="All fields"
-              />
+            </FilterDisclosure>
 
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
-                <button
-                  type="submit"
-                  className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
-                >
-                  Apply
-                </button>
+            <FactTypeTrainingCard factType={filters.factType} />
+          </section>
+
+          <section id="fact-review" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Candidate Review Rows"
+              description="Review signals only; no automatic entity updates."
+              tone="governance"
+            />
+
+            <ArticleFactCandidatesClient
+              candidates={data.candidates}
+              canReview={data.canReview}
+            />
+
+            <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+              <div>
+                Showing {formatCount(data.candidates.length)} of{" "}
+                {formatCount(data.filteredCount)} matching candidates.
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                 <Link
-                  href="/sources/facts"
-                  className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  href={articleFactHref(filters, Math.max(data.page - 1, 1))}
+                  aria-disabled={data.page <= 1}
+                  className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
+                    data.page <= 1
+                      ? "pointer-events-none border-gray-200 text-gray-300"
+                      : "border-gray-300 text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  }`}
                 >
-                  Reset
+                  Previous
+                </Link>
+                <span className="inline-flex h-9 items-center border border-gray-200 px-3 text-sm font-semibold text-gray-500">
+                  Page {formatCount(data.page)}
+                </span>
+                <Link
+                  href={articleFactHref(filters, data.page + 1)}
+                  aria-disabled={data.page * data.pageSize >= data.filteredCount}
+                  className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
+                    data.page * data.pageSize >= data.filteredCount
+                      ? "pointer-events-none border-gray-200 text-gray-300"
+                      : "border-gray-300 text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  }`}
+                >
+                  Next
                 </Link>
               </div>
-            </form>
-            <SourceReviewFilterChips
-              chips={activeFilterChips}
-              resetHref="/sources/facts"
-              emptyLabel="All article fact candidates"
-            />
-          </FilterDisclosure>
-
-          <FactTypeTrainingCard factType={filters.factType} />
-
-          <DetailPriorityMarker
-            label="Governance"
-            title="Candidate Review Rows"
-            description="Review signals only; no automatic entity updates."
-            tone="governance"
-          />
-
-          <ArticleFactCandidatesClient
-            candidates={data.candidates}
-            canReview={data.canReview}
-          />
-
-          <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
-            <div>
-              Showing {formatCount(data.candidates.length)} of{" "}
-              {formatCount(data.filteredCount)} matching candidates.
-            </div>
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-              <Link
-                href={articleFactHref(filters, Math.max(data.page - 1, 1))}
-                aria-disabled={data.page <= 1}
-                className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
-                  data.page <= 1
-                    ? "pointer-events-none border-gray-200 text-gray-300"
-                    : "border-gray-300 text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                }`}
-              >
-                Previous
-              </Link>
-              <span className="inline-flex h-9 items-center border border-gray-200 px-3 text-sm font-semibold text-gray-500">
-                Page {formatCount(data.page)}
-              </span>
-              <Link
-                href={articleFactHref(filters, data.page + 1)}
-                aria-disabled={
-                  data.page * data.pageSize >= data.filteredCount
-                }
-                className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
-                  data.page * data.pageSize >= data.filteredCount
-                    ? "pointer-events-none border-gray-200 text-gray-300"
-                    : "border-gray-300 text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                }`}
-              >
-                Next
-              </Link>
-            </div>
+            </section>
           </section>
         </>
       )}

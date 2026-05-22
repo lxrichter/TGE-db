@@ -22,6 +22,7 @@ import PostgresStatusBadge, {
 } from "@/components/postgres-preview/PostgresStatusBadge";
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 
 export const dynamic = "force-dynamic";
 
@@ -741,252 +742,281 @@ export default async function SourcesPage({
         <SetupNotice error={data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Evidence Triage"
-            description="Coverage, credibility, source gaps, review queues."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              {
+                href: "#source-triage",
+                label: "Triage",
+                note: "Coverage",
+              },
+              {
+                href: "#source-queues",
+                label: "Queues",
+                note: "Evidence Work",
+              },
+              {
+                href: "#source-workbench",
+                label: "Workbench",
+                note: "Records",
+              },
+            ]}
           />
 
-          <WorkflowStrip />
+          <section id="source-triage" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Evidence Triage"
+              description="Coverage, credibility, source gaps, review queues."
+              tone="core"
+            />
 
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-            <StatTile
-              label="Total Sources"
-              value={formatCount(data.summary.total)}
-              note="Records matching filters"
-            />
-            <StatTile
-              label="Credible"
-              value={formatCount(data.summary.credible)}
-              note="Reviewed source records"
-            />
-            <StatTile
-              label="TGE Articles"
-              value={formatCount(data.summary.tgeArticles)}
-              note="Historical article metadata"
-            />
-            <StatTile
-              label="Needs Review"
-              value={formatCount(data.summary.needsReview)}
-              note="Credibility work queue"
-            />
-            <StatTile
-              label="Unlinked Sources"
-              value={formatCount(data.summary.unlinkedSources)}
-              note="No confirmed entity links"
-            />
-            <StatTile
-              label="Linked Evidence"
-              value={formatCount(data.summary.linkedEvidence)}
-              note="Project/asset/company links"
-            />
-            <StatTile
-              label="Open Matches"
-              value={formatCount(data.matchSummary.open)}
-              note="Article/entity candidates"
-            />
-            <StatTile
-              label="Open Facts"
-              value={formatCount(data.articleFactSummary.open)}
-              note="Extracted fact candidates"
-            />
+            <WorkflowStrip />
+
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+              <StatTile
+                label="Total Sources"
+                value={formatCount(data.summary.total)}
+                note="Records matching filters"
+              />
+              <StatTile
+                label="Credible"
+                value={formatCount(data.summary.credible)}
+                note="Reviewed source records"
+              />
+              <StatTile
+                label="TGE Articles"
+                value={formatCount(data.summary.tgeArticles)}
+                note="Historical article metadata"
+              />
+              <StatTile
+                label="Needs Review"
+                value={formatCount(data.summary.needsReview)}
+                note="Credibility work queue"
+              />
+              <StatTile
+                label="Unlinked Sources"
+                value={formatCount(data.summary.unlinkedSources)}
+                note="No confirmed entity links"
+              />
+              <StatTile
+                label="Linked Evidence"
+                value={formatCount(data.summary.linkedEvidence)}
+                note="Project/asset/company links"
+              />
+              <StatTile
+                label="Open Matches"
+                value={formatCount(data.matchSummary.open)}
+                note="Article/entity candidates"
+              />
+              <StatTile
+                label="Open Facts"
+                value={formatCount(data.articleFactSummary.open)}
+                note="Extracted fact candidates"
+              />
+            </section>
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Evidence Queues"
-            description="Review credibility, links, article matches, extracted facts."
-            tone="workflow"
-          />
+          <section id="source-queues" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Evidence Queues"
+              description="Review credibility, links, article matches, extracted facts."
+              tone="workflow"
+            />
 
-          <DisclosureSection
-            defaultOpen={openEvidenceWorkCount > 0}
-            description="Source governance stays separate from article/entity match review. Confirmed matches become real evidence links; suggestions remain reviewable operational work."
-            label="Workflow"
-            title="Evidence Operations"
-          >
-            <div className="space-y-3">
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                <OperationCard
-                  label="Source Review"
-                  value={formatCount(data.summary.needsReview)}
-                  note="Sources marked needs review"
-                  href="/sources?status=needs_review"
-                  tone={data.summary.needsReview > 0 ? "attention" : "success"}
-                />
-                <OperationCard
-                  label="Unlinked Sources"
-                  value={formatCount(data.summary.unlinkedSources)}
-                  note="Need evidence links or archive-only classification"
-                  href="/sources?linkState=unlinked"
-                  tone={
-                    data.summary.unlinkedSources > 0 ? "attention" : "success"
-                  }
-                />
-                <OperationCard
-                  label="Match Review"
-                  value={formatCount(data.matchSummary.open)}
-                  note="Confirm matches to create evidence links"
-                  href="/sources/matches"
-                  tone={data.matchSummary.open > 0 ? "attention" : "success"}
-                />
-                <OperationCard
-                  label="Fact Review"
-                  value={formatCount(data.articleFactSummary.open)}
-                  note="Confirm extracted facts before field suggestions"
-                  href="/sources/facts"
-                  tone={
-                    data.articleFactSummary.open > 0 ? "attention" : "success"
-                  }
-                />
-                <OperationCard
-                  label="Restricted Sources"
-                  value={formatCount(data.summary.restrictedVisibility)}
-                  note="Internal or confidential visibility"
-                  tone={
-                    data.summary.restrictedVisibility > 0
-                      ? "attention"
-                      : "neutral"
-                  }
-                />
-              </div>
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <OperationCard
-                  label="Article Archive"
-                  value={formatCount(data.summary.tgeArticles)}
-                  note="TGE article metadata records"
-                  href="/sources?sourceType=tge_article"
-                />
-                <OperationCard
-                  label="Weak / Outdated / Rejected"
-                  value={formatCount(data.summary.weakOutdatedRejected)}
-                  note="Sources not currently export-eligible"
-                  href="/sources?quality=weak_outdated_rejected"
-                  tone={
-                    data.summary.weakOutdatedRejected > 0 ? "danger" : "success"
-                  }
-                />
-                <OperationCard
-                  label="Duplicate Flags"
-                  value={formatCount(data.summary.duplicateFlagged)}
-                  note="Sources requiring duplicate review"
-                  href="/sources?duplicate=1"
-                  tone={data.summary.duplicateFlagged > 0 ? "danger" : "success"}
-                />
-                <OperationCard
-                  label="Confirmed Matches"
-                  value={formatCount(data.matchSummary.confirmed)}
-                  note="Article/entity links confirmed"
-                  href="/sources/matches?status=confirmed"
-                  tone="success"
-                />
-              </div>
-            </div>
-          </DisclosureSection>
-
-          <DetailPriorityMarker
-            label="Governance"
-            title="Source Workbench"
-            description="Detailed filters and source records."
-            tone="governance"
-          />
-
-          <DisclosureSection
-            defaultOpen={
-              activeSourceFilters.length > 0 || activeOperationalFilters.length > 0
-            }
-            description="Use detailed filters when narrowing the source table for source review, evidence gaps, or archive cleanup."
-            label="Workbench"
-            title="Detailed Source Filters"
-          >
-            <form
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
-              action="/sources"
+            <DisclosureSection
+              defaultOpen={openEvidenceWorkCount > 0}
+              description="Source governance stays separate from article/entity match review. Confirmed matches become real evidence links; suggestions remain reviewable operational work."
+              label="Workflow"
+              title="Evidence Operations"
             >
-              {filters.linkState ? (
-                <input type="hidden" name="linkState" value={filters.linkState} />
-              ) : null}
-              {filters.duplicate ? (
-                <input type="hidden" name="duplicate" value={filters.duplicate} />
-              ) : null}
-              {filters.quality ? (
-                <input type="hidden" name="quality" value={filters.quality} />
-              ) : null}
-              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Search
-                <input
-                  name="search"
-                  defaultValue={filters.search || ""}
-                  placeholder="Title, URL, publisher, country..."
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+              <div className="space-y-3">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                  <OperationCard
+                    label="Source Review"
+                    value={formatCount(data.summary.needsReview)}
+                    note="Sources marked needs review"
+                    href="/sources?status=needs_review"
+                    tone={data.summary.needsReview > 0 ? "attention" : "success"}
+                  />
+                  <OperationCard
+                    label="Unlinked Sources"
+                    value={formatCount(data.summary.unlinkedSources)}
+                    note="Need evidence links or archive-only classification"
+                    href="/sources?linkState=unlinked"
+                    tone={
+                      data.summary.unlinkedSources > 0 ? "attention" : "success"
+                    }
+                  />
+                  <OperationCard
+                    label="Match Review"
+                    value={formatCount(data.matchSummary.open)}
+                    note="Confirm matches to create evidence links"
+                    href="/sources/matches"
+                    tone={data.matchSummary.open > 0 ? "attention" : "success"}
+                  />
+                  <OperationCard
+                    label="Fact Review"
+                    value={formatCount(data.articleFactSummary.open)}
+                    note="Confirm extracted facts before field suggestions"
+                    href="/sources/facts"
+                    tone={
+                      data.articleFactSummary.open > 0 ? "attention" : "success"
+                    }
+                  />
+                  <OperationCard
+                    label="Restricted Sources"
+                    value={formatCount(data.summary.restrictedVisibility)}
+                    note="Internal or confidential visibility"
+                    tone={
+                      data.summary.restrictedVisibility > 0
+                        ? "attention"
+                        : "neutral"
+                    }
+                  />
+                </div>
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <OperationCard
+                    label="Article Archive"
+                    value={formatCount(data.summary.tgeArticles)}
+                    note="TGE article metadata records"
+                    href="/sources?sourceType=tge_article"
+                  />
+                  <OperationCard
+                    label="Weak / Outdated / Rejected"
+                    value={formatCount(data.summary.weakOutdatedRejected)}
+                    note="Sources not currently export-eligible"
+                    href="/sources?quality=weak_outdated_rejected"
+                    tone={
+                      data.summary.weakOutdatedRejected > 0 ? "danger" : "success"
+                    }
+                  />
+                  <OperationCard
+                    label="Duplicate Flags"
+                    value={formatCount(data.summary.duplicateFlagged)}
+                    note="Sources requiring duplicate review"
+                    href="/sources?duplicate=1"
+                    tone={
+                      data.summary.duplicateFlagged > 0 ? "danger" : "success"
+                    }
+                  />
+                  <OperationCard
+                    label="Confirmed Matches"
+                    value={formatCount(data.matchSummary.confirmed)}
+                    note="Article/entity links confirmed"
+                    href="/sources/matches?status=confirmed"
+                    tone="success"
+                  />
+                </div>
+              </div>
+            </DisclosureSection>
+          </section>
+
+          <section id="source-workbench" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Source Workbench"
+              description="Detailed filters and source records."
+              tone="governance"
+            />
+
+            <DisclosureSection
+              defaultOpen={
+                activeSourceFilters.length > 0 ||
+                activeOperationalFilters.length > 0
+              }
+              description="Use detailed filters when narrowing the source table for source review, evidence gaps, or archive cleanup."
+              label="Workbench"
+              title="Detailed Source Filters"
+            >
+              <form
+                className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
+                action="/sources"
+              >
+                {filters.linkState ? (
+                  <input type="hidden" name="linkState" value={filters.linkState} />
+                ) : null}
+                {filters.duplicate ? (
+                  <input type="hidden" name="duplicate" value={filters.duplicate} />
+                ) : null}
+                {filters.quality ? (
+                  <input type="hidden" name="quality" value={filters.quality} />
+                ) : null}
+                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Search
+                  <input
+                    name="search"
+                    defaultValue={filters.search || ""}
+                    placeholder="Title, URL, publisher, country..."
+                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  />
+                </label>
+
+                <SelectFilter
+                  label="Source Type"
+                  name="sourceType"
+                  value={filters.sourceType}
+                  options={data.referenceData.sourceTypes}
+                  allLabel="All source types"
                 />
-              </label>
+                <SelectFilter
+                  label="Visibility"
+                  name="visibility"
+                  value={filters.visibility}
+                  options={data.referenceData.visibilityLevels}
+                  allLabel="All visibility levels"
+                />
+                <SelectFilter
+                  label="Status"
+                  name="status"
+                  value={filters.status}
+                  options={data.referenceData.credibilityStatuses}
+                  allLabel="All statuses"
+                />
 
-              <SelectFilter
-                label="Source Type"
-                name="sourceType"
-                value={filters.sourceType}
-                options={data.referenceData.sourceTypes}
-                allLabel="All source types"
-              />
-              <SelectFilter
-                label="Visibility"
-                name="visibility"
-                value={filters.visibility}
-                options={data.referenceData.visibilityLevels}
-                allLabel="All visibility levels"
-              />
-              <SelectFilter
-                label="Status"
-                name="status"
-                value={filters.status}
-                options={data.referenceData.credibilityStatuses}
-                allLabel="All statuses"
-              />
-
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
-                <button
-                  type="submit"
-                  className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
-                >
-                  Apply
-                </button>
-                <Link
-                  href="/sources"
-                  className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                >
-                  Reset
-                </Link>
-              </div>
-            </form>
-            {activeOperationalFilters.length > 0 ? (
-              <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap">
-                {activeOperationalFilters.map((label) => (
-                  <span
-                    key={label}
-                    className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800"
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
+                  <button
+                    type="submit"
+                    className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
                   >
-                    {label}
-                  </span>
-                ))}
-                <Link
-                  href="/sources"
-                  className="inline-flex min-h-[28px] items-center border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                >
-                  Clear operational filters
-                </Link>
-              </div>
-            ) : null}
-          </DisclosureSection>
+                    Apply
+                  </button>
+                  <Link
+                    href="/sources"
+                    className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  >
+                    Reset
+                  </Link>
+                </div>
+              </form>
+              {activeOperationalFilters.length > 0 ? (
+                <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap">
+                  {activeOperationalFilters.map((label) => (
+                    <span
+                      key={label}
+                      className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                  <Link
+                    href="/sources"
+                    className="inline-flex min-h-[28px] items-center border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  >
+                    Clear operational filters
+                  </Link>
+                </div>
+              ) : null}
+            </DisclosureSection>
 
-          <SourcesListContext
-            activeFilters={activeSourceFilters}
-            shownCount={data.sources.length}
-            total={data.summary.total}
-          />
+            <SourcesListContext
+              activeFilters={activeSourceFilters}
+              shownCount={data.sources.length}
+              total={data.summary.total}
+            />
 
-          <SourcesTable sources={data.sources} total={data.summary.total} />
+            <SourcesTable sources={data.sources} total={data.summary.total} />
+          </section>
         </>
       )}
     </main>
