@@ -22,9 +22,34 @@ type SearchPageData =
 
 const commandShortcuts = [
   {
+    label: "Open Dashboard",
+    href: "/",
+    note: "Executive geothermal intelligence overview.",
+  },
+  {
+    label: "Open Command Center",
+    href: "/postgres-preview",
+    note: "Operational navigation across PostgreSQL staging modules.",
+  },
+  {
     label: "Open Research Ops",
     href: "/postgres-preview/research-ops",
     note: "Queues, assignments, validation, missing data, and review actions.",
+  },
+  {
+    label: "Open Countries / Markets",
+    href: "/postgres-preview/countries",
+    note: "Market intelligence, country worklists, and source-gap signals.",
+  },
+  {
+    label: "Open Analysis",
+    href: "/postgres-preview/analysis",
+    note: "Cross-database benchmarking and geothermal intelligence analysis.",
+  },
+  {
+    label: "Open Map",
+    href: "/postgres-preview/map",
+    note: "Spatial intelligence for coordinate-confirmed projects and assets.",
   },
   {
     label: "Add Project",

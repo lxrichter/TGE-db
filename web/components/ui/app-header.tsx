@@ -12,6 +12,7 @@ function NavDivider() {
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
+  if (href === "/postgres-preview") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -136,19 +137,45 @@ export default function AppHeaderShell({
             </div>
           </div>
 
-          <nav className="flex items-center gap-5 text-sm">
+          <nav className="flex min-w-0 items-center gap-4 overflow-x-auto text-sm">
             <NavItem href="/" label="Dashboard" pathname={pathname} />
+            <NavItem href="/postgres-preview" label="Command" pathname={pathname} />
+            <NavItem
+              href="/postgres-preview/research-ops"
+              label="Research Ops"
+              pathname={pathname}
+            />
             <NavDivider />
 
-            <NavItem href="/plants" label="Plants" pathname={pathname} />
-            <NavItem href="/projects" label="Projects" pathname={pathname} />
-            <NavItem href="/companies" label="Companies" pathname={pathname} />
+            <NavItem
+              href="/postgres-preview/projects"
+              label="Projects"
+              pathname={pathname}
+            />
+            <NavItem
+              href="/postgres-preview/operating-assets"
+              label="Plants / Facilities"
+              pathname={pathname}
+            />
+            <NavItem
+              href="/postgres-preview/companies"
+              label="Companies"
+              pathname={pathname}
+            />
             <NavItem href="/sources" label="Sources" pathname={pathname} />
 
             <NavDivider />
-            <NavItem href="/map" label="Map" pathname={pathname} />
-            <NavItem href="/analysis" label="Analysis" pathname={pathname} />
-            <NavItem href="/markets" label="Markets" pathname={pathname} />
+            <NavItem
+              href="/postgres-preview/countries"
+              label="Markets"
+              pathname={pathname}
+            />
+            <NavItem href="/postgres-preview/map" label="Map" pathname={pathname} />
+            <NavItem
+              href="/postgres-preview/analysis"
+              label="Analysis"
+              pathname={pathname}
+            />
 
             {showAdmin ? (
               <>
