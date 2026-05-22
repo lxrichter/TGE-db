@@ -27,7 +27,7 @@ const legendGroups: Record<
 > = {
   review: {
     title: "Review Workflow",
-    description: "Human validation state for database records.",
+    description: "Human validation state. Green means usable, amber means review needed, blue means active workflow, gray means draft/inactive.",
     items: [
       { value: "draft", note: "Can be incomplete", domain: "review" },
       { value: "validation", note: "Ready for review work", domain: "review" },
@@ -39,7 +39,7 @@ const legendGroups: Record<
   },
   lifecycle: {
     title: "Development Phase",
-    description: "Project or asset progression, not data quality.",
+    description: "Project or asset progression. These badges describe market/lifecycle state, not evidence quality.",
     items: [
       {
         value: "prospect_tbd",
@@ -72,7 +72,7 @@ const legendGroups: Record<
   },
   severity: {
     title: "Issue Severity",
-    description: "Operational priority for research and validation queues.",
+    description: "Operational priority. Red blocks review/export, amber needs quality work, blue is workflow routing, gray is advisory.",
     items: [
       { value: "critical", note: "Blocks review/export readiness", domain: "severity" },
       { value: "important", note: "Should be resolved for quality", domain: "severity" },
@@ -82,7 +82,7 @@ const legendGroups: Record<
   },
   source: {
     title: "Source Credibility",
-    description: "Evidence quality status for source records.",
+    description: "Evidence quality. Green is trusted evidence, amber needs caution/review, red is not usable.",
     items: [
       { value: "credible", note: "Usable as trusted evidence", domain: "source" },
       { value: "needs_review", note: "Awaiting source review", domain: "source" },
@@ -93,7 +93,7 @@ const legendGroups: Record<
   },
   visibility: {
     title: "Visibility",
-    description: "Controls whether information is public, internal, or restricted.",
+    description: "Publication and access scope. Restricted/confidential states should never leak into normal exports.",
     items: [
       { value: "public", note: "Public source or output-safe", domain: "visibility" },
       { value: "internal_only", note: "Internal research use", domain: "visibility" },
@@ -111,7 +111,7 @@ const legendGroups: Record<
   },
   confidence: {
     title: "AI / Match Confidence",
-    description: "Candidate strength before or during human review.",
+    description: "Candidate strength and write state. Confirmation accepts a suggestion; apply is the audited database write.",
     items: [
       { value: "high", note: "Strong candidate", domain: "confidence" },
       { value: "medium", note: "Review carefully", domain: "confidence" },
@@ -125,7 +125,7 @@ const legendGroups: Record<
 
 export default function PostgresStatusLegend({
   title = "Badge Meaning",
-  description = "Badge colors use the same operational hierarchy across PostgreSQL staging views.",
+  description = "Badge colors use one shared operational language: green = usable or complete, blue = active workflow, amber = needs attention, red = blocker/rejected/restricted, gray = draft/historical/advisory.",
   groups = ["review", "severity", "lifecycle"],
   compact = false,
 }: {

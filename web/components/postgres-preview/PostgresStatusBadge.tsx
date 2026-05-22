@@ -34,21 +34,26 @@ const toneClasses: Record<PostgresStatusTone, string> = {
 };
 
 const reviewStatusTones: Record<string, PostgresStatusTone> = {
-  draft: "neutral",
+  draft: "muted",
   needs_review: "attention",
   validation: "info",
+  ready_for_validation: "info",
   approved: "success",
   export_ready: "success",
   needs_update: "attention",
+  returned_for_review: "attention",
   archived: "muted",
+  rejected: "danger",
 };
 
 const lifecycleStatusTones: Record<string, PostgresStatusTone> = {
-  prospect_tbd: "neutral",
+  prospect_tbd: "muted",
+  prospect: "muted",
   exploration: "info",
   pre_feasibility: "info",
   feasibility: "info",
   construction: "attention",
+  under_construction: "attention",
   operating: "success",
   partially_operating: "attention",
   temporarily_offline: "attention",
@@ -63,9 +68,10 @@ const lifecycleStatusTones: Record<string, PostgresStatusTone> = {
 const sourceStatusTones: Record<string, PostgresStatusTone> = {
   credible: "success",
   needs_review: "attention",
-  weak: "danger",
+  weak: "attention",
   outdated: "attention",
   rejected: "danger",
+  archived: "muted",
 };
 
 const visibilityStatusTones: Record<string, PostgresStatusTone> = {
@@ -92,9 +98,14 @@ const confidenceStatusTones: Record<string, PostgresStatusTone> = {
   apply_ready: "attention",
   ready_to_apply: "attention",
   applied_to_record: "success",
+  applied: "success",
+  rejected: "danger",
+  superseded: "muted",
+  needs_review: "attention",
   suggested_high_confidence: "success",
   suggested_medium_confidence: "attention",
   suggested_low_confidence: "danger",
+  suggested_needs_review: "attention",
 };
 
 const severityTones: Record<string, PostgresStatusTone> = {
@@ -103,8 +114,12 @@ const severityTones: Record<string, PostgresStatusTone> = {
   error: "danger",
   important: "attention",
   warning: "attention",
+  export_blocker: "danger",
+  blocks_export: "danger",
   workflow: "info",
+  review_workflow: "info",
   useful: "neutral",
+  advisory: "neutral",
 };
 
 const genericStatusTones: Record<string, PostgresStatusTone> = {
@@ -127,6 +142,44 @@ const genericStatusTones: Record<string, PostgresStatusTone> = {
   review: "attention",
   suggested: "attention",
   superseded: "muted",
+  blocked: "danger",
+  blocker: "danger",
+  warning: "attention",
+  ready: "success",
+  not_ready: "danger",
+};
+
+const statusLabelOverrides: Record<string, string> = {
+  ai_generated_needs_review: "AI Generated - Needs Review",
+  applied_to_record: "Applied To Record",
+  apply_ready: "Ready To Apply",
+  blocks_export: "Blocks Export",
+  client_confidential: "Client Confidential",
+  confirmed_not_written: "Confirmed - Not Written",
+  export_blocker: "Export Blocker",
+  export_ready: "Export Ready",
+  internal_only: "Internal Only",
+  needs_review: "Needs Review",
+  needs_update: "Needs Update",
+  not_for_publication: "Not For Publication",
+  not_ready: "Not Ready",
+  open_review: "Open Review",
+  partially_operating: "Partially Operating",
+  pre_feasibility: "Pre-Feasibility",
+  prospect_tbd: "Prospect / TBD",
+  ready_for_validation: "Ready For Validation",
+  ready_to_apply: "Ready To Apply",
+  retired_decommissioned: "Retired / Decommissioned",
+  returned_for_review: "Returned For Review",
+  review_workflow: "Review Workflow",
+  stakeholder_confirmation: "Stakeholder Confirmation",
+  suggested_high_confidence: "Suggested - High Confidence",
+  suggested_low_confidence: "Suggested - Low Confidence",
+  suggested_medium_confidence: "Suggested - Medium Confidence",
+  suggested_needs_review: "Suggested - Needs Review",
+  temporarily_offline: "Temporarily Offline",
+  under_construction: "Under Construction",
+  under_refurbishment: "Under Refurbishment",
 };
 
 function normalizeStatus(value: string | null | undefined) {
@@ -138,6 +191,12 @@ export function formatStatusLabel(value: string | null | undefined) {
 
   if (!normalized) {
     return "Unknown";
+  }
+
+  const normalizedKey = normalizeStatus(normalized);
+
+  if (statusLabelOverrides[normalizedKey]) {
+    return statusLabelOverrides[normalizedKey];
   }
 
   return normalized
@@ -196,6 +255,13 @@ export function postgresStatusTone(
 
 export function postgresStatusToneClass(tone: PostgresStatusTone) {
   return toneClasses[tone];
+}
+
+export function postgresStatusClassForValue(
+  value: string | null | undefined,
+  domain: PostgresStatusDomain = "generic"
+) {
+  return postgresStatusToneClass(postgresStatusTone(value, domain));
 }
 
 export default function PostgresStatusBadge({

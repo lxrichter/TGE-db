@@ -8,6 +8,10 @@ import type {
   PostgresResearchOpsIssueEntityType,
   PostgresResearchOpsIssueReferenceData,
 } from "@/lib/postgres-preview";
+import {
+  postgresStatusTone,
+  postgresStatusToneClass,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 function formatDate(value: string | null) {
   if (!value) {
@@ -19,15 +23,7 @@ function formatDate(value: string | null) {
 }
 
 function severityClass(severity: string) {
-  if (severity === "critical") {
-    return "border-red-200 bg-red-50 text-red-800";
-  }
-
-  if (severity === "workflow") {
-    return "border-blue-200 bg-blue-50 text-blue-800";
-  }
-
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return postgresStatusToneClass(postgresStatusTone(severity, "severity"));
 }
 
 function formatLinkedField(value: string | null) {

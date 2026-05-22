@@ -8,6 +8,7 @@ import type {
   PostgresFieldSuggestionCandidate,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
+import { postgresStatusClassForValue } from "@/components/postgres-preview/PostgresStatusBadge";
 
 function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
@@ -76,18 +77,18 @@ function workflowLabel(candidate: PostgresFieldSuggestionCandidate) {
 
 function workflowTone(candidate: PostgresFieldSuggestionCandidate) {
   if (candidate.applied_at) {
-    return "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]";
+    return postgresStatusClassForValue("applied_to_record", "confidence");
   }
 
   if (candidate.suggestion_status_code === "confirmed") {
-    return "border-blue-200 bg-blue-50 text-blue-700";
+    return postgresStatusClassForValue("confirmed_not_written", "confidence");
   }
 
   if (candidate.suggestion_status_code === "rejected") {
-    return "border-red-200 bg-red-50 text-red-700";
+    return postgresStatusClassForValue("rejected", "confidence");
   }
 
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return postgresStatusClassForValue("open_review", "confidence");
 }
 
 function fieldContext(candidate: PostgresFieldSuggestionCandidate) {

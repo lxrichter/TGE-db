@@ -13,7 +13,9 @@ import type {
   PostgresPreviewOperatingAssetDetail,
   PostgresPreviewProjectDetail,
 } from "@/lib/postgres-preview";
-import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusBadge, {
+  postgresStatusToneClass,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 type EntityFormMode = "create" | "edit";
 type EntityFormValues = Record<string, string>;
@@ -628,14 +630,14 @@ function hasAnyValue(form: EntityFormValues, names: string[]) {
 
 function issueTone(severity: FormReadinessIssue["severity"]) {
   if (severity === "critical") {
-    return "border-red-200 bg-red-50 text-red-700";
+    return postgresStatusToneClass("danger");
   }
 
   if (severity === "important") {
-    return "border-amber-200 bg-amber-50 text-amber-800";
+    return postgresStatusToneClass("attention");
   }
 
-  return "border-blue-200 bg-blue-50 text-blue-800";
+  return postgresStatusToneClass("info");
 }
 
 function issueMeaning(severity: FormReadinessIssue["severity"]) {

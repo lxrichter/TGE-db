@@ -6,6 +6,7 @@ import type {
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
 import PostgresStatusBadge, {
+  postgresStatusToneClass,
   type PostgresStatusDomain,
 } from "@/components/postgres-preview/PostgresStatusBadge";
 import PostgresStatusLegend, {
@@ -688,10 +689,10 @@ export function DetailSection({
 
 function issueTone(severity: ExportReadinessIssue["severity"]) {
   if (severity === "blocker") {
-    return "border-red-200 bg-red-50 text-red-700";
+    return postgresStatusToneClass("danger");
   }
 
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return postgresStatusToneClass("attention");
 }
 
 export function ExportReadinessPanel({
