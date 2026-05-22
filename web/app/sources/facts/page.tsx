@@ -389,9 +389,9 @@ export default async function ArticleFactCandidatesPage({
       ) : (
         <>
           <DetailPriorityMarker
-            label="Level 1"
-            title="Immediate Fact Review"
-            description="Start here: extraction candidate volume, open review load, confirmed/rejected decisions, entity signals, and source-record coverage."
+            label="Core"
+            title="Fact Triage"
+            description="Open load, decisions, entity signals, source coverage."
             tone="core"
           />
 
@@ -439,9 +439,9 @@ export default async function ArticleFactCandidatesPage({
           </section>
 
           <DetailPriorityMarker
-            label="Level 2"
-            title="Fact-Type Training And Filtering"
-            description="Filter to a fact type, review the definition, then accept or reject candidates so extraction rules can be tuned before larger archive batches."
+            label="Workflow"
+            title="Fact-Type Training"
+            description="Filter, review definitions, accept/reject candidates."
             tone="workflow"
           />
 
@@ -507,9 +507,9 @@ export default async function ArticleFactCandidatesPage({
           <FactTypeTrainingCard factType={filters.factType} />
 
           <DetailPriorityMarker
-            label="Level 3"
+            label="Governance"
             title="Candidate Review Rows"
-            description="Detailed fact candidates remain review signals. They do not update source links or entity fields unless later confirmed through the governed workflow."
+            description="Review signals only; no automatic entity updates."
             tone="governance"
           />
 

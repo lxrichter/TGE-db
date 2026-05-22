@@ -464,9 +464,9 @@ export default async function PostgresReadinessPage() {
       ) : (
         <>
           <DetailPriorityMarker
-            label="Level 1"
-            title="Cutover Readiness Snapshot"
-            description="Start with staged record coverage, source gaps, open issues, critical issues, and records needing re-review."
+            label="Core"
+            title="Readiness Snapshot"
+            description="Coverage, gaps, issues, re-review load."
             tone="core"
           />
 
@@ -509,9 +509,9 @@ export default async function PostgresReadinessPage() {
           </section>
 
           <DetailPriorityMarker
-            label="Level 2"
-            title="Migration And Gate Review"
-            description="Migration rehearsal status and replacement gates show what must be repeated, accepted, or completed before internal cutover."
+            label="Workflow"
+            title="Migration Gates"
+            description="Rehearsal status and cutover gates."
             tone="workflow"
           />
 
@@ -538,9 +538,9 @@ export default async function PostgresReadinessPage() {
           </section>
 
           <DetailPriorityMarker
-            label="Level 3"
-            title="Entity-Level Cutover Worklist"
-            description="Detailed readiness rows show which entity areas still carry source, core-field, link, issue, or re-review risk."
+            label="Governance"
+            title="Cutover Worklist"
+            description="Entity-level risk and follow-up."
             tone="governance"
           />
 

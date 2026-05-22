@@ -258,9 +258,9 @@ export default async function SourceMatchCandidatesPage({
       ) : (
         <>
           <DetailPriorityMarker
-            label="Level 1"
-            title="Immediate Match Review"
-            description="Start here: candidate volume, open review load, high-confidence matches, flags, and confirmed/rejected outcomes."
+            label="Core"
+            title="Match Triage"
+            description="Open load, confidence, flags, outcomes."
             tone="core"
           />
 
@@ -303,9 +303,9 @@ export default async function SourceMatchCandidatesPage({
           </section>
 
           <DetailPriorityMarker
-            label="Level 2"
-            title="Filtered Match Workbench"
-            description="Filter article-to-record candidates before reviewing. Confirmed matches create governed evidence links; rejected matches stay out of entity records."
+            label="Workflow"
+            title="Match Filters"
+            description="Scope article-to-record candidates before review."
             tone="workflow"
           />
 
@@ -397,9 +397,9 @@ export default async function SourceMatchCandidatesPage({
           </section>
 
           <DetailPriorityMarker
-            label="Level 3"
+            label="Governance"
             title="Candidate Review Rows"
-            description="Use the detailed rows for bulk confirmation, rejection, and careful review of ambiguous archive-to-entity links."
+            description="Bulk confirm, reject, or inspect ambiguous links."
             tone="governance"
           />
 

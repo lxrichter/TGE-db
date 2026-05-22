@@ -609,9 +609,9 @@ export default async function SourcesPage({
       ) : (
         <>
           <DetailPriorityMarker
-            label="Level 1"
-            title="Immediate Evidence Governance"
-            description="Start here: source governance flow, source coverage, credibility status, and the highest-priority evidence review queues."
+            label="Core"
+            title="Evidence Triage"
+            description="Coverage, credibility, source gaps, review queues."
             tone="core"
           />
 
@@ -661,9 +661,9 @@ export default async function SourcesPage({
           </section>
 
           <DetailPriorityMarker
-            label="Level 2"
-            title="Source Workflow Support"
-            description="Use these operational queues to review credibility, link sources to records, confirm article matches, and triage extracted fact candidates."
+            label="Workflow"
+            title="Evidence Queues"
+            description="Review credibility, links, article matches, extracted facts."
             tone="workflow"
           />
 
@@ -746,9 +746,9 @@ export default async function SourcesPage({
           </section>
 
           <DetailPriorityMarker
-            label="Level 3"
-            title="Source Records And Advanced Filtering"
-            description="The source table and filters are the detailed evidence workbench. Use them after the governance and queue-level priorities are clear."
+            label="Governance"
+            title="Source Workbench"
+            description="Detailed filters and source records."
             tone="governance"
           />
 

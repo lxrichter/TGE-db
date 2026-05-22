@@ -12,6 +12,9 @@ import PostgresStatusBadge, {
   type PostgresStatusDomain,
 } from "@/components/postgres-preview/PostgresStatusBadge";
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
+import PostgresHierarchyMarker, {
+  type PostgresHierarchyTone,
+} from "@/components/postgres-preview/PostgresHierarchyMarker";
 import {
   type PostgresResearchOpsDashboard,
   type PostgresFieldSuggestionCandidate,
@@ -692,52 +695,15 @@ function WorkflowTierMarker({
   eyebrow: string;
   title: string;
   description: string;
-  tone: "core" | "workflow" | "governance";
+  tone: PostgresHierarchyTone;
 }) {
-  const toneClasses = {
-    core: {
-      border: "border-[#8dc63f]",
-      eyebrow: "text-[#4f7f1f]",
-      badge: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-      label: "Core",
-    },
-    workflow: {
-      border: "border-blue-300",
-      eyebrow: "text-blue-700",
-      badge: "border-blue-200 bg-blue-50 text-blue-700",
-      label: "Workflow",
-    },
-    governance: {
-      border: "border-gray-300",
-      eyebrow: "text-gray-600",
-      badge: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-      label: "Governance",
-    },
-  }[tone];
-
   return (
-    <section
-      className={`border-l-4 ${toneClasses.border} bg-white px-5 py-3 shadow-[inset_0_-1px_0_#e5e7eb,inset_0_1px_0_#e5e7eb]`}
-    >
-      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-        <div>
-          <div
-            className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${toneClasses.eyebrow}`}
-          >
-            {eyebrow}
-          </div>
-          <h2 className="mt-1 text-base font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-1 max-w-4xl text-sm leading-6 text-gray-600">
-            {description}
-          </p>
-        </div>
-        <span
-          className={`inline-flex h-7 shrink-0 items-center border px-2 text-[11px] font-semibold uppercase tracking-wide ${toneClasses.badge}`}
-        >
-          {toneClasses.label}
-        </span>
-      </div>
-    </section>
+    <PostgresHierarchyMarker
+      description={description}
+      label={eyebrow}
+      title={title}
+      tone={tone}
+    />
   );
 }
 
@@ -4096,9 +4062,9 @@ export function ResearchOpsDashboardClient({
   return (
     <>
       <WorkflowTierMarker
-        eyebrow="Level 1"
-        title="Immediate Operational Triage"
-        description="Start here: critical issues, validation backlog, assigned work, source gaps, duplicate warnings, export blockers, and AI/article review workload."
+        eyebrow="Core"
+        title="Operational Triage"
+        description="Critical issues, backlog, assignments, source gaps, blockers."
         tone="core"
       />
 
@@ -4169,9 +4135,9 @@ export function ResearchOpsDashboardClient({
       />
 
       <WorkflowTierMarker
-        eyebrow="Level 2"
-        title="Human Work And Review Queues"
-        description="Persistent assignments, article review, AI candidates, saved operational views, and generated queue groups are the active workflow layer."
+        eyebrow="Workflow"
+        title="Work And Review Queues"
+        description="Assignments, article review, AI candidates, saved views, system queues."
         tone="workflow"
       />
 
@@ -4204,9 +4170,9 @@ export function ResearchOpsDashboardClient({
       />
 
       <WorkflowTierMarker
-        eyebrow="Level 3"
-        title="Deep Workbench And Governance Context"
-        description="Use the detailed filters, selected-record actions, bulk actions, recent activity, queue tables, CSV export, and badge legend after the operational priority is clear."
+        eyebrow="Governance"
+        title="Deep Workbench"
+        description="Filters, selected records, bulk actions, exports, activity, legends."
         tone="governance"
       />
 

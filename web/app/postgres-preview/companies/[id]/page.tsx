@@ -847,9 +847,9 @@ export default async function PostgresCompanyDetailPage({
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
       <DetailPriorityMarker
-        label="Level 1"
-        title="Immediate Operational Focus"
-        description="Start here: current classification, next required action, and the shortest path to making this company usable for review."
+        label="Core"
+        title="Operational Focus"
+        description="Classification, readiness, next action."
         tone="core"
       />
 
@@ -961,8 +961,8 @@ export default async function PostgresCompanyDetailPage({
 
       <DetailPriorityMarker
         label="Core Record"
-        title="Stable Company Data"
-        description="Core identity, classification, market focus, website, and activity context. This is the primary company content researchers should understand first."
+        title="Company Data"
+        description="Identity, classification, market focus, website, activity context."
         tone="core"
       />
 
@@ -1076,9 +1076,9 @@ export default async function PostgresCompanyDetailPage({
       </DetailSection>
 
       <DetailPriorityMarker
-        label="Level 2"
+        label="Workflow"
         title="Workflow Support"
-        description="Relationship links, source evidence, related news, AI candidates, and Research Ops issues support the record without replacing the core company data."
+        description="Relationships, evidence, news, AI, issues."
         tone="workflow"
       />
 
@@ -1149,9 +1149,9 @@ export default async function PostgresCompanyDetailPage({
       </div>
 
       <DetailPriorityMarker
-        label="Level 3"
-        title="Governance And Advanced Review"
-        description="Changed fields, audit history, export readiness, and notes are reviewer/governance layers. They stay available without dominating normal data review."
+        label="Governance"
+        title="Review Controls"
+        description="Changed fields, audit, export readiness, notes."
         tone="governance"
       />
 

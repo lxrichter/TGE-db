@@ -130,6 +130,9 @@ foundation. Current implemented PostgreSQL staging areas include:
   concise hierarchy markers for market snapshots, benchmark views, migration
   gates, and drilldown worklists so the intelligence/transition layer follows
   the same reading order without over-explaining already-clean analytical pages
+- The hierarchy marker pattern is now centralized as a shared compact component
+  and page copy has been shortened from explanatory scaffolding toward quick
+  core/workflow/governance orientation signals
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

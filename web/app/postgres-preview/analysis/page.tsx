@@ -195,9 +195,9 @@ export default async function PostgresAnalysisPreviewPage() {
       ) : (
         <>
           <DetailPriorityMarker
-            label="Level 1"
-            title="Analytical Snapshot"
-            description="High-level record counts and capacity signals before drilling into lifecycle, status, use type, and country comparisons."
+            label="Core"
+            title="Analysis Snapshot"
+            description="Record counts and capacity signals."
             tone="core"
           />
 
@@ -225,9 +225,9 @@ export default async function PostgresAnalysisPreviewPage() {
           </section>
 
           <DetailPriorityMarker
-            label="Level 2"
-            title="Structured Benchmark Views"
-            description="Predefined analysis tables keep the BI layer clean, comparable, and ready for future charts and saved analytical filters."
+            label="Workflow"
+            title="Benchmark Views"
+            description="Lifecycle, status, use type, country comparison."
             tone="workflow"
           />
 
@@ -251,9 +251,9 @@ export default async function PostgresAnalysisPreviewPage() {
           />
 
           <DetailPriorityMarker
-            label="Level 3"
+            label="Governance"
             title="Country Drilldown"
-            description="Top-country rows connect the analytical layer back to filtered project worklists and market review."
+            description="Connect analysis back to filtered worklists."
             tone="governance"
           />
 

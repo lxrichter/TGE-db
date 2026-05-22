@@ -768,9 +768,9 @@ export default async function PostgresOperatingAssetDetailPage({
       <PostgresNextRequiredActionStrip action={nextRequiredAction} />
 
       <DetailPriorityMarker
-        label="Level 1"
-        title="Immediate Operational Focus"
-        description="Start here: current operating state, next required action, and the shortest path to making this plant/facility usable for review."
+        label="Core"
+        title="Operational Focus"
+        description="Operating state, readiness, next action."
         tone="core"
       />
 
@@ -879,8 +879,8 @@ export default async function PostgresOperatingAssetDetailPage({
 
       <DetailPriorityMarker
         label="Core Record"
-        title="Stable Operating Asset Data"
-        description="Core identity, location, operating status, capacity, resource, technology, and COD fields. This is the primary asset content researchers should understand first."
+        title="Asset Data"
+        description="Identity, location, status, capacity, resource, technology, COD."
         tone="core"
       />
 
@@ -984,9 +984,9 @@ export default async function PostgresOperatingAssetDetailPage({
       </DetailSection>
 
       <DetailPriorityMarker
-        label="Level 2"
+        label="Workflow"
         title="Workflow Support"
-        description="Source evidence, related news, relationship links, AI candidates, and Research Ops issues support the record without replacing the core operating data."
+        description="Evidence, news, relationships, AI, issues."
         tone="workflow"
       />
 
@@ -1055,9 +1055,9 @@ export default async function PostgresOperatingAssetDetailPage({
       </div>
 
       <DetailPriorityMarker
-        label="Level 3"
-        title="Governance And Advanced Review"
-        description="Changed fields, audit history, export readiness, and notes are reviewer/governance layers. They stay available without dominating normal data review."
+        label="Governance"
+        title="Review Controls"
+        description="Changed fields, audit, export readiness, notes."
         tone="governance"
       />
 

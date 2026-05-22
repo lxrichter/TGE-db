@@ -863,9 +863,9 @@ export default async function SourceDetailPage({
       </section>
 
       <DetailPriorityMarker
-        label="Level 1"
-        title="Immediate Source Governance"
-        description="Start here: source credibility, visibility, evidence-link count, open match/fact candidates, and AI suggestion workload."
+        label="Core"
+        title="Source Triage"
+        description="Credibility, visibility, links, open review work."
         tone="core"
       />
 
@@ -957,9 +957,9 @@ export default async function SourceDetailPage({
       </section>
 
       <DetailPriorityMarker
-        label="Core Source Record"
-        title="Stable Source Metadata"
-        description="Source type, reference, publication/access dates, summary, excerpt, notes, and attachment metadata describe the evidence object itself."
+        label="Core Record"
+        title="Source Metadata"
+        description="Reference, dates, summary, excerpt, notes, attachments."
         tone="core"
       />
 
@@ -1040,9 +1040,9 @@ export default async function SourceDetailPage({
       </Section>
 
       <DetailPriorityMarker
-        label="Level 2"
-        title="Evidence Links And Review Candidates"
-        description="Linked evidence, article matches, extracted facts, and AI suggestions support entity records but remain governed review layers."
+        label="Workflow"
+        title="Evidence Work"
+        description="Evidence links, article matches, facts, AI suggestions."
         tone="workflow"
       />
 
@@ -1093,9 +1093,9 @@ export default async function SourceDetailPage({
       />
 
       <DetailPriorityMarker
-        label="Level 3"
-        title="Source Review Controls And Metadata"
-        description="Credibility actions and review metadata are governance controls. They stay available without crowding the source evidence itself."
+        label="Governance"
+        title="Review Controls"
+        description="Credibility actions and review metadata."
         tone="governance"
       />
 

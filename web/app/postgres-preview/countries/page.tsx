@@ -356,9 +356,9 @@ export default async function PostgresCountryMarketsPage() {
       ) : (
         <>
           <DetailPriorityMarker
-            label="Level 1"
+            label="Core"
             title="Market Snapshot"
-            description="Top-level country coverage, operating capacity, pipeline capacity, direct-use activity, and source gaps."
+            description="Coverage, capacity, direct use, source gaps."
             tone="core"
           />
 
@@ -391,9 +391,9 @@ export default async function PostgresCountryMarketsPage() {
           </section>
 
           <DetailPriorityMarker
-            label="Level 2"
-            title="Country Intelligence Worklist"
-            description="Use the table for country comparison, validation coverage, market worklists, and drill-through into projects, assets, and companies."
+            label="Workflow"
+            title="Country Worklist"
+            description="Comparison, validation coverage, drill-through."
             tone="workflow"
           />
 
