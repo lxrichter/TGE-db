@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   listPostgresCountryMarketSummaries,
   type PostgresCountryMarketSummary,
@@ -102,6 +103,23 @@ function CoverageBar({
   );
 }
 
+function MobileMarketField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
 function CountryMarketsTable({
   countries,
 }: {
@@ -143,7 +161,145 @@ function CountryMarketsTable({
         </div>
       </summary>
 
-      <div className="overflow-x-auto border-t border-gray-200">
+      <div className="divide-y divide-gray-100 border-t border-gray-200 lg:hidden">
+        {countries.map((country) => (
+          <article key={country.country} className="px-4 py-4 sm:px-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="font-semibold text-[#1f2937]">
+                  {country.country}
+                </div>
+                <div className="mt-1 text-xs text-gray-500">
+                  {formatCount(
+                    country.project_count +
+                      country.operating_asset_count +
+                      country.company_count
+                  )}{" "}
+                  staged records
+                </div>
+                <div className="mt-1 text-xs text-gray-500">
+                  Updated {formatDate(country.latest_update_at)}
+                </div>
+              </div>
+              <span
+                className={`inline-flex h-7 w-fit items-center border px-2 text-xs font-semibold ${
+                  country.missing_source_count > 0
+                    ? "border-amber-200 bg-amber-50 text-amber-700"
+                    : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                }`}
+              >
+                {formatCount(country.missing_source_count)} source gaps
+              </span>
+            </div>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <MobileMarketField label="Records">
+                <div className="grid gap-1 text-xs">
+                  <Link
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/projects",
+                      country.country
+                    )}
+                  >
+                    {formatCount(country.project_count)} projects
+                  </Link>
+                  <span className="text-gray-500">
+                    {formatCount(country.active_project_count)} active
+                  </span>
+                  <Link
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/operating-assets",
+                      country.country
+                    )}
+                  >
+                    {formatCount(country.operating_asset_count)} plants /
+                    facilities
+                  </Link>
+                  <span className="text-gray-500">
+                    {formatCount(country.operating_asset_active_count)} active
+                  </span>
+                  <Link
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/companies",
+                      country.country
+                    )}
+                  >
+                    {formatCount(country.company_count)} companies
+                  </Link>
+                </div>
+              </MobileMarketField>
+              <MobileMarketField label="Electric">
+                <div className="font-semibold text-[#1f2937]">
+                  {formatMw(country.operating_installed_mwe)} MWe operating
+                </div>
+                <div className="mt-1 text-xs leading-5 text-gray-500">
+                  {formatMw(country.operating_running_mwe)} MWe running
+                  <br />
+                  {formatMw(country.project_pipeline_mwe)} MWe pipeline
+                </div>
+              </MobileMarketField>
+              <MobileMarketField label="Direct Use / Thermal">
+                <div className="font-semibold text-[#1f2937]">
+                  {formatCount(
+                    country.direct_use_project_count +
+                      country.direct_use_asset_count
+                  )}{" "}
+                  records
+                </div>
+                <div className="mt-1 text-xs leading-5 text-gray-500">
+                  {formatMw(
+                    country.project_thermal_mwth +
+                      country.operating_thermal_mwth
+                  )}{" "}
+                  MWth
+                </div>
+              </MobileMarketField>
+              <MobileMarketField label="Review Coverage">
+                <CoverageBar
+                  approved={country.approved_record_count}
+                  draft={country.draft_record_count}
+                />
+              </MobileMarketField>
+              <MobileMarketField label="Open">
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/projects",
+                      country.country
+                    )}
+                  >
+                    Projects
+                  </Link>
+                  <Link
+                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/operating-assets",
+                      country.country
+                    )}
+                  >
+                    Assets
+                  </Link>
+                  <Link
+                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/companies",
+                      country.country
+                    )}
+                  >
+                    Companies
+                  </Link>
+                </div>
+              </MobileMarketField>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto border-t border-gray-200 lg:block">
         <table className="min-w-[980px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>

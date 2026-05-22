@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatCount, formatMw } from "@/lib/format";
 import type {
   PostgresPreviewCompany,
@@ -250,6 +251,48 @@ function IssueBadges({
         </span>
       ) : null}
     </div>
+  );
+}
+
+function MobileField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
+function MobileEntityCard({
+  href,
+  name,
+  meta,
+  children,
+}: {
+  href: string;
+  name: string;
+  meta: string;
+  children: ReactNode;
+}) {
+  return (
+    <article className="px-4 py-4 sm:px-5">
+      <Link
+        href={href}
+        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+      >
+        {name}
+      </Link>
+      <div className="mt-1 text-xs text-gray-500">{meta}</div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">{children}</div>
+    </article>
   );
 }
 
@@ -1158,7 +1201,55 @@ export function ProjectsPreviewTable({
         total={total}
         pagination={pagination}
       />
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {projects.map((project) => {
+          const issues = projectRowIssues(project);
+
+          return (
+            <MobileEntityCard
+              key={project.project_id}
+              href={`/postgres-preview/projects/${project.project_id}`}
+              name={project.project_name}
+              meta={project.legacy_project_id || "new-postgres-record"}
+            >
+              <MobileField label="Country / Region">
+                {project.country || <EmptyValue />}
+                <div className="mt-1 text-xs text-gray-500">
+                  {project.region || <EmptyValue />}
+                </div>
+              </MobileField>
+              <MobileField label="Phase">
+                <PostgresStatusBadge
+                  domain="lifecycle"
+                  value={project.lifecycle_phase_code}
+                />
+              </MobileField>
+              <MobileField label="Power / Thermal">
+                <MetricValue
+                  value={project.electric_capacity_mwe}
+                  suffix="MWe"
+                />
+                <div className="mt-1 text-xs text-gray-500">
+                  <MetricValue
+                    value={project.thermal_capacity_mwth}
+                    suffix="MWth"
+                  />
+                </div>
+              </MobileField>
+              <MobileField label="Review">
+                <StatusBadge value={project.review_status_code} />
+              </MobileField>
+              <MobileField label="Issues">
+                <IssueBadges issues={issues} pagination={pagination} />
+              </MobileField>
+              <MobileField label="Use">
+                {project.primary_use_type_code || <EmptyValue />}
+              </MobileField>
+            </MobileEntityCard>
+          );
+        })}
+      </div>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1180px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
@@ -1256,7 +1347,55 @@ export function OperatingAssetsPreviewTable({
         total={total}
         pagination={pagination}
       />
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {operatingAssets.map((asset) => {
+          const issues = operatingAssetRowIssues(asset);
+
+          return (
+            <MobileEntityCard
+              key={asset.operating_asset_id}
+              href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
+              name={asset.asset_name}
+              meta={asset.legacy_plant_id || "new-postgres-record"}
+            >
+              <MobileField label="Country / Region">
+                {asset.country || <EmptyValue />}
+                <div className="mt-1 text-xs text-gray-500">
+                  {asset.region || <EmptyValue />}
+                </div>
+              </MobileField>
+              <MobileField label="Status">
+                <PostgresStatusBadge
+                  domain="lifecycle"
+                  value={asset.lifecycle_phase_code}
+                />
+              </MobileField>
+              <MobileField label="Installed / Active">
+                <MetricValue
+                  value={asset.electric_capacity_mwe}
+                  suffix="MWe"
+                />
+                <div className="mt-1 text-xs text-gray-500">
+                  <MetricValue
+                    value={asset.electric_capacity_running_mwe}
+                    suffix="MWe"
+                  />
+                </div>
+              </MobileField>
+              <MobileField label="Review">
+                <StatusBadge value={asset.review_status_code} />
+              </MobileField>
+              <MobileField label="Issues">
+                <IssueBadges issues={issues} pagination={pagination} />
+              </MobileField>
+              <MobileField label="Use">
+                {asset.primary_use_type_code || <EmptyValue />}
+              </MobileField>
+            </MobileEntityCard>
+          );
+        })}
+      </div>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1180px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
@@ -1357,7 +1496,40 @@ export function CompaniesPreviewTable({
         total={total}
         pagination={pagination}
       />
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {companies.map((company) => {
+          const issues = companyRowIssues(company);
+
+          return (
+            <MobileEntityCard
+              key={company.company_id}
+              href={`/postgres-preview/companies/${company.company_id}`}
+              name={company.company_name}
+              meta={company.legacy_company_id || "new-postgres-record"}
+            >
+              <MobileField label="Primary Identity">
+                {company.company_type_primary_code || <EmptyValue />}
+                <div className="mt-1 text-xs text-gray-500">
+                  {company.entity_type_code || <EmptyValue />}
+                </div>
+              </MobileField>
+              <MobileField label="HQ">
+                {company.headquarters_country || <EmptyValue />}
+              </MobileField>
+              <MobileField label="Activity Focus">
+                {company.geothermal_focus || <EmptyValue />}
+              </MobileField>
+              <MobileField label="Review">
+                <StatusBadge value={company.review_status_code} />
+              </MobileField>
+              <MobileField label="Issues">
+                <IssueBadges issues={issues} pagination={pagination} />
+              </MobileField>
+            </MobileEntityCard>
+          );
+        })}
+      </div>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1040px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
