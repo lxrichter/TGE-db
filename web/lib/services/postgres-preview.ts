@@ -6095,7 +6095,10 @@ export async function listPostgresResearchOpsRecentEdits(
         audit.event_note,
         CASE
           WHEN jsonb_typeof(audit.changed_fields) = 'object'
-            THEN jsonb_object_length(audit.changed_fields)
+            THEN (
+              SELECT count(*)::int
+              FROM jsonb_object_keys(audit.changed_fields)
+            )
           ELSE 0
         END AS changed_field_count
       FROM audit_events audit
