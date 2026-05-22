@@ -15,6 +15,15 @@ export type PostgresStatusDomain =
   | "confidence"
   | "severity";
 
+/**
+ * Shared badge tone language:
+ * success = usable, reviewed, operating, or completed
+ * info = active workflow or active development state
+ * attention = needs human review, transition, or watch item
+ * danger = blocker, rejected, cancelled, or not export-safe
+ * neutral = contextual/default state
+ * muted = historical, inactive, superseded, or archived
+ */
 const toneClasses: Record<PostgresStatusTone, string> = {
   success: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
   attention: "border-amber-200 bg-amber-50 text-amber-800",
@@ -26,6 +35,7 @@ const toneClasses: Record<PostgresStatusTone, string> = {
 
 const reviewStatusTones: Record<string, PostgresStatusTone> = {
   draft: "neutral",
+  needs_review: "attention",
   validation: "info",
   approved: "success",
   export_ready: "success",
@@ -40,7 +50,14 @@ const lifecycleStatusTones: Record<string, PostgresStatusTone> = {
   feasibility: "info",
   construction: "attention",
   operating: "success",
+  partially_operating: "attention",
+  temporarily_offline: "attention",
+  retired_decommissioned: "muted",
+  retired: "muted",
+  decommissioned: "muted",
+  under_refurbishment: "attention",
   cancelled: "danger",
+  unknown: "neutral",
 };
 
 const sourceStatusTones: Record<string, PostgresStatusTone> = {
@@ -70,6 +87,11 @@ const confidenceStatusTones: Record<string, PostgresStatusTone> = {
   estimated: "attention",
   inferred: "attention",
   confirmed: "success",
+  open_review: "info",
+  confirmed_not_written: "info",
+  apply_ready: "attention",
+  ready_to_apply: "attention",
+  applied_to_record: "success",
   suggested_high_confidence: "success",
   suggested_medium_confidence: "attention",
   suggested_low_confidence: "danger",
@@ -91,6 +113,7 @@ const genericStatusTones: Record<string, PostgresStatusTone> = {
   clean: "success",
   complete: "success",
   completed: "success",
+  confirmed: "success",
   dismissed: "muted",
   done: "success",
   evidence_pending: "attention",
@@ -101,6 +124,7 @@ const genericStatusTones: Record<string, PostgresStatusTone> = {
   rejected: "danger",
   resolved: "success",
   reviewed: "success",
+  review: "attention",
   suggested: "attention",
   superseded: "muted",
 };

@@ -590,6 +590,10 @@ Known current gaps and risks:
   operational views are collapsed by default, the deep workbench opens when
   an operational queue/view is selected, and recent activity is tucked behind
   its own disclosure panel
+- Shared PostgreSQL staging badges now document and apply a common tone
+  hierarchy across review states, lifecycle/operating states, source
+  credibility, visibility, AI/match confidence, severity, and audited
+  apply-status language
 
 ## Validation Snapshot
 
@@ -610,6 +614,8 @@ Last checked locally:
   progressive-disclosure pass added on 2026-05-22
 - targeted lint and `npm run build` passed for the Research Ops secondary
   workflow disclosure pass added on 2026-05-22
+- targeted lint and `npm run build` passed for the shared badge/status
+  hierarchy pass added on 2026-05-22
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.

@@ -31,6 +31,7 @@ const legendGroups: Record<
     items: [
       { value: "draft", note: "Can be incomplete", domain: "review" },
       { value: "validation", note: "Ready for review work", domain: "review" },
+      { value: "needs_review", note: "Requires human review", domain: "review" },
       { value: "needs_update", note: "Approved record changed or stale", domain: "review" },
       { value: "approved", note: "Internally validated", domain: "review" },
       { value: "export_ready", note: "Suitable for formal outputs", domain: "review" },
@@ -54,6 +55,18 @@ const legendGroups: Record<
       },
       { value: "construction", note: "Advanced, still not operating", domain: "lifecycle" },
       { value: "operating", note: "Commissioned asset state", domain: "lifecycle" },
+      {
+        value: "temporarily_offline",
+        label: "Temporarily Offline",
+        note: "Known operating asset issue",
+        domain: "lifecycle",
+      },
+      {
+        value: "retired_decommissioned",
+        label: "Retired / Decommissioned",
+        note: "Historical or inactive asset",
+        domain: "lifecycle",
+      },
       { value: "cancelled", note: "Historical or discontinued", domain: "lifecycle" },
     ],
   },
@@ -104,6 +117,8 @@ const legendGroups: Record<
       { value: "medium", note: "Review carefully", domain: "confidence" },
       { value: "low", note: "Weak or ambiguous", domain: "confidence" },
       { value: "confirmed", note: "Human accepted", domain: "confidence" },
+      { value: "apply_ready", label: "Ready To Apply", note: "Confirmed but not written", domain: "confidence" },
+      { value: "applied_to_record", label: "Applied To Record", note: "Audited database update", domain: "confidence" },
     ],
   },
 };
