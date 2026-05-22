@@ -107,6 +107,14 @@ const baseCommands: CommandItem[] = [
   },
   {
     type: "command",
+    key: "add-source",
+    group: "Research Operations",
+    label: "Add Source",
+    note: "Create a governed source/evidence record.",
+    href: "/sources/new",
+  },
+  {
+    type: "command",
     key: "article-matches",
     group: "Research Operations",
     label: "Review Article Matches",
@@ -120,6 +128,14 @@ const baseCommands: CommandItem[] = [
     label: "Review Article Facts",
     note: "Train and review compact extracted article fact candidates.",
     href: "/sources/facts",
+  },
+  {
+    type: "command",
+    key: "field-suggestions",
+    group: "Research Operations",
+    label: "Review Field Suggestions",
+    note: "Open human-confirmed AI field suggestions in Research Ops.",
+    href: "/postgres-preview/research-ops#field-suggestion-review",
   },
   {
     type: "command",

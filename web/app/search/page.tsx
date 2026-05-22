@@ -94,6 +94,18 @@ const commandShortcuts = [
     note: "Search source records and evidence-governance status.",
   },
   {
+    group: "Research Operations",
+    label: "Add Source",
+    href: "/sources/new",
+    note: "Create a governed source/evidence record.",
+  },
+  {
+    group: "Research Operations",
+    label: "Review Field Suggestions",
+    href: "/postgres-preview/research-ops#field-suggestion-review",
+    note: "Open human-confirmed AI field suggestions in Research Ops.",
+  },
+  {
     group: "Platform / Admin",
     label: "Admin Vocabularies",
     href: "/admin/vocabularies",
