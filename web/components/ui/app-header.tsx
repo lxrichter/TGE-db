@@ -195,6 +195,8 @@ export default function AppHeaderShell({
                 pathname={pathname}
               />
               <NavItem href="/sources" label="Sources" pathname={pathname} />
+              <NavItem href="/sources/matches" label="Matches" pathname={pathname} />
+              <NavItem href="/sources/facts" label="Facts" pathname={pathname} />
             </NavGroup>
 
             <NavGroup label="Platform / Admin">
