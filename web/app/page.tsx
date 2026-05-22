@@ -180,7 +180,43 @@ function isDirectUseBucket(bucket: PostgresPreviewAnalysisBucket) {
 
 function isHybridOrMineralBucket(bucket: PostgresPreviewAnalysisBucket) {
   const value = bucket.bucket_code.toLowerCase();
-  return value.includes("hybrid") || value.includes("mineral") || value.includes("lithium");
+  return (
+    value.includes("hybrid") ||
+    value.includes("mineral") ||
+    value.includes("lithium")
+  );
+}
+
+type ExecutiveKpiTone =
+  | "neutral"
+  | "operating"
+  | "pipeline"
+  | "market"
+  | "ecosystem"
+  | "direct-use"
+  | "governance"
+  | "evidence";
+
+function getExecutiveKpiToneClass(tone: ExecutiveKpiTone) {
+  switch (tone) {
+    case "operating":
+      return "border-l-[#3f8f2f] bg-[#fbfdf8]";
+    case "pipeline":
+      return "border-l-[#2f6f9f] bg-[#f8fbfd]";
+    case "market":
+      return "border-l-[#b58900] bg-[#fffdf5]";
+    case "ecosystem":
+      return "border-l-[#5b6b7f] bg-[#fafafa]";
+    case "direct-use":
+      return "border-l-[#8a6f2a] bg-[#fffdf6]";
+    case "governance":
+      return "border-l-[#b45309] bg-[#fffaf4]";
+    case "evidence":
+      return "border-l-[#4f7f1f] bg-[#fbfdf8]";
+    case "neutral":
+    default:
+      return "border-l-gray-200 bg-white";
+  }
 }
 
 function ExecutiveKpi({
@@ -188,20 +224,32 @@ function ExecutiveKpi({
   value,
   note,
   href,
+  tone = "neutral",
+  prominence = "standard",
 }: {
   label: string;
   value: string;
   note: string;
   href?: string;
+  tone?: ExecutiveKpiTone;
+  prominence?: "standard" | "executive";
 }) {
+  const toneClass = getExecutiveKpiToneClass(tone);
+  const frameClass =
+    prominence === "executive"
+      ? `border border-l-4 border-gray-200 ${toneClass} px-5 py-5 sm:px-6 sm:py-6`
+      : `border border-l-4 border-gray-200 ${toneClass} px-4 py-4`;
+  const valueClass =
+    prominence === "executive"
+      ? "mt-4 text-4xl font-bold leading-none text-[#1f2937] sm:text-[2.6rem]"
+      : "mt-3 text-3xl font-bold leading-none text-[#1f2937]";
+
   const content = (
     <>
       <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
         {label}
       </div>
-      <div className="mt-3 text-3xl font-bold leading-none text-[#1f2937]">
-        {value}
-      </div>
+      <div className={valueClass}>{value}</div>
       <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
     </>
   );
@@ -210,14 +258,14 @@ function ExecutiveKpi({
     return (
       <Link
         href={href}
-        className="border border-gray-200 bg-white px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+        className={`${frameClass} transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]`}
       >
         {content}
       </Link>
     );
   }
 
-  return <div className="border border-gray-200 bg-white px-4 py-4">{content}</div>;
+  return <div className={frameClass}>{content}</div>;
 }
 
 function IntelligenceCard({
@@ -273,7 +321,7 @@ function MarketSignalTable({
         </div>
         <Link
           href="/postgres-preview/countries"
-          className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]"
+          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:bg-[#f3f8ec]"
         >
           Open Markets
         </Link>
@@ -333,7 +381,15 @@ function MarketSignalTable({
                   {formatCount(country.active_project_count)}
                 </td>
                 <td className="px-5 py-4 text-gray-700">
-                  {formatCount(country.missing_source_count)} source gaps
+                  <div>{formatCount(country.missing_source_count)} source gaps</div>
+                  <Link
+                    className="mt-2 inline-flex text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
+                    href={`/postgres-preview/countries?country=${encodeURIComponent(
+                      country.country
+                    )}`}
+                  >
+                    Open Market
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -575,30 +631,40 @@ export default async function HomePage() {
             href="/postgres-preview/operating-assets"
             label="Operating Assets"
             note="Plants / facilities in staging scope"
+            prominence="executive"
+            tone="operating"
             value={formatCount(operatingRecords)}
           />
           <ExecutiveKpi
             href="/postgres-preview/analysis"
             label="Operating MWe"
             note="Installed operating capacity signal"
+            prominence="executive"
+            tone="operating"
             value={`${formatMw(operatingMwe)} MWe`}
           />
           <ExecutiveKpi
             href="/postgres-preview/projects"
             label="Pipeline MWe"
             note="Development pipeline capacity signal"
+            prominence="executive"
+            tone="pipeline"
             value={`${formatMw(pipelineMwe)} MWe`}
           />
           <ExecutiveKpi
             href="/postgres-preview/countries"
             label="Markets"
             note={staging.ok ? "Top market records loaded" : "Legacy countries covered"}
+            prominence="executive"
+            tone="market"
             value={formatCount(countriesCovered)}
           />
           <ExecutiveKpi
             href="/postgres-preview/companies"
             label="Companies"
             note="Tracked ecosystem participants"
+            prominence="executive"
+            tone="ecosystem"
             value={formatCount(companiesTracked)}
           />
           <ExecutiveKpi
@@ -609,6 +675,8 @@ export default async function HomePage() {
                 ? `${formatMw(directUseThermal)} MWth signal`
                 : "PostgreSQL signal pending"
             }
+            prominence="executive"
+            tone="direct-use"
             value={staging.ok ? formatCount(directUseRecords) : "-"}
           />
         </section>
