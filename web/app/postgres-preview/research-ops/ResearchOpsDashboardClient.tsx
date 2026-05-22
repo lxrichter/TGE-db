@@ -726,7 +726,7 @@ function OperationalStatusBar({
   };
 
   return (
-    <section className="grid grid-cols-2 gap-3 xl:grid-cols-8">
+    <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
       {metrics.map((metric) => {
         const content = (
           <>
@@ -746,7 +746,7 @@ function OperationalStatusBar({
           return (
             <button
               key={metric.label}
-              className={`min-h-[120px] border px-4 py-4 text-left hover:border-[#8dc63f] hover:bg-[#f3f8ec] ${toneClasses[metric.tone]}`}
+              className={`min-h-[112px] border px-4 py-4 text-left hover:border-[#8dc63f] hover:bg-[#f3f8ec] ${toneClasses[metric.tone]}`}
               type="button"
               onClick={metric.onClick}
             >
@@ -758,7 +758,7 @@ function OperationalStatusBar({
         return (
           <div
             key={metric.label}
-            className={`min-h-[120px] border px-4 py-4 ${toneClasses[metric.tone]}`}
+            className={`min-h-[112px] border px-4 py-4 ${toneClasses[metric.tone]}`}
           >
             {content}
           </div>
@@ -797,7 +797,7 @@ function MyWorkPanel({
             objects are introduced.
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="grid w-full grid-cols-1 gap-2 text-center sm:grid-cols-3 lg:w-auto">
           <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
             <div className="text-2xl font-bold text-[#1f2937]">
               {formatCount(assignedToMe.length)}
@@ -825,16 +825,16 @@ function MyWorkPanel({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3">
+      <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-3 sm:flex-row sm:flex-wrap sm:items-center">
         <button
-          className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          className="h-9 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
           type="button"
           onClick={() => scrollToPageSection("persistent-issues")}
         >
           Review Persistent Issues
         </button>
         <button
-          className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          className="h-9 w-full border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
           type="button"
           onClick={() => scrollToPageSection("system-queue-groups")}
         >
@@ -878,7 +878,7 @@ function MyWorkPanel({
                 </div>
                 {href ? (
                   <Link
-                    className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className="inline-flex h-9 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
                     href={href}
                   >
                     Open Record
@@ -959,7 +959,7 @@ function QuickOperationalViews({
           user/team saved views should come after the workflow stabilizes.
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {views.map((item) => (
           <button
             key={item.label}
@@ -989,11 +989,11 @@ function QueueTargetLinks({ targets }: { targets: QueueListTarget[] }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
       {targets.map((target) => (
         <Link
           key={`${target.href}-${target.label}`}
-          className="inline-flex min-h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          className="inline-flex min-h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:justify-start"
           href={target.href}
           title={target.note}
         >
@@ -1032,7 +1032,7 @@ function ExportBlockerPanel({
             Operational CSV exports remain internal working exports.
           </p>
         </div>
-        <div className="border border-red-200 bg-white px-4 py-3 text-right">
+        <div className="w-full border border-red-200 bg-white px-4 py-3 text-left sm:w-auto sm:text-right">
           <div className="text-3xl font-bold leading-none text-[#1f2937]">
             {formatCount(total)}
           </div>
@@ -1042,7 +1042,7 @@ function ExportBlockerPanel({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 lg:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 xl:grid-cols-5">
         {blockerQueues.map((queue) => (
           <div key={queue.key} className="border border-red-200 bg-white px-4 py-4">
             <div className="flex items-start justify-between gap-3">
@@ -1060,7 +1060,7 @@ function ExportBlockerPanel({
             </div>
             <div className="mt-4 flex flex-col gap-2">
               <button
-                className="inline-flex h-8 items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+                className="inline-flex h-8 w-full items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
                 type="button"
                 onClick={() => onSelectQueue(queue.key)}
               >
@@ -1113,7 +1113,7 @@ function SystemQueueGroups({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 px-5 py-5 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 px-5 py-5 md:grid-cols-2 xl:grid-cols-5">
         {groups.map((group) => (
           <div key={group.key} className="border border-gray-200 bg-[#fbfbfb]">
             <div className="border-b border-gray-200 px-4 py-4">
@@ -1237,14 +1237,14 @@ function ArticleMatchReviewPanel({
           </p>
         </div>
         <Link
-          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
           href="/sources/matches"
         >
           Review Matches
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-7">
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {matchLinks.map((item) => (
           <Link
             key={item.label}
@@ -1334,14 +1334,14 @@ function ArticleFactReviewPanel({
           </p>
         </div>
         <Link
-          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
           href="/sources/facts"
         >
           Review Facts
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {factLinks.map((item) => (
           <Link
             key={item.label}
@@ -1705,7 +1705,7 @@ function FieldSuggestionReviewPanel({
             workflow.
           </p>
         </div>
-        <span className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800">
+        <span className="inline-flex min-h-[28px] self-start border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
           Human confirmation required
         </span>
       </div>
@@ -1736,7 +1736,7 @@ function FieldSuggestionReviewPanel({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 px-5 py-5 lg:grid-cols-4 xl:grid-cols-8">
+      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         {cards.map((card) => (
           <div key={card.label} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -1765,7 +1765,7 @@ function FieldSuggestionReviewPanel({
               suggestion for later application. It does NOT update the database
               record. Apply To Database is the audited write step.
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap">
               <button
                 type="button"
                 disabled={
@@ -1774,7 +1774,7 @@ function FieldSuggestionReviewPanel({
                   Boolean(busyAction)
                 }
                 onClick={selectHighConfidenceCandidates}
-                className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 Select high confidence
               </button>
@@ -1786,7 +1786,7 @@ function FieldSuggestionReviewPanel({
                   Boolean(busyAction)
                 }
                 onClick={selectApplyReadyCandidates}
-                className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 Select apply-ready
               </button>
@@ -1794,7 +1794,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("confirm")}
-                className="inline-flex h-8 items-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {busyAction === "confirm" ? "Confirming..." : "Confirm selected"}
               </button>
@@ -1802,7 +1802,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("apply")}
-                className="inline-flex h-8 items-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {busyAction === "apply" ? "Applying..." : "Apply To Database"}
               </button>
@@ -1810,7 +1810,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("needs_review")}
-                className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {busyAction === "needs_review" ? "Updating..." : "Needs review"}
               </button>
@@ -1818,7 +1818,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("reject")}
-                className="inline-flex h-8 items-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
               >
                 {busyAction === "reject" ? "Rejecting..." : "Reject selected"}
               </button>
@@ -2075,9 +2075,9 @@ function PaginationControls({
         Showing {formatCount(pageStart)}-{formatCount(pageEnd)} of{" "}
         {formatCount(total)}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <button
-          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page <= 1}
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
@@ -2088,7 +2088,7 @@ function PaginationControls({
           Page {formatCount(page)} / {formatCount(pageCount)}
         </span>
         <button
-          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page >= pageCount}
           type="button"
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}
@@ -2333,7 +2333,7 @@ function QueueCard({
             <QueueTargetLinks targets={targets} />
           </div>
         </div>
-        <div className="flex items-start gap-3 md:justify-end">
+        <div className="flex w-full items-start justify-between gap-3 md:w-auto md:justify-end">
           <div className="text-left md:text-right">
             <div className="text-2xl font-bold leading-none text-[#1f2937]">
               {formatCount(queue.items.length)}
@@ -2606,7 +2606,7 @@ function BulkActionsPanel({
           </p>
         </div>
         <button
-          className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          className="h-9 w-full border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
           type="button"
           onClick={onClearSelection}
         >
@@ -2706,9 +2706,9 @@ function BulkActionsPanel({
           </label>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <button
-            className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 w-full border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={saving || !statusCode || targetRecords.length === 0}
             type="button"
             onClick={applyBulkStatus}
@@ -2971,7 +2971,7 @@ function SelectedRecordPanel({
               {record.entity_id}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
             <button
               className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
               type="button"
@@ -3254,7 +3254,7 @@ function PersistentIssues({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
               Filtered Open
@@ -3342,16 +3342,16 @@ function PersistentIssues({
               </option>
             ))}
           </FilterSelect>
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
             <button
-              className="h-10 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="h-10 w-full border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
               type="button"
               onClick={clearPersistentIssueFilters}
             >
               Clear Issue Filters
             </button>
             <button
-              className="h-10 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-10 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               disabled={visibleIssues.length === 0}
               type="button"
               onClick={exportVisibleIssues}
@@ -3567,7 +3567,7 @@ function ResearchActivitySummary({
   ];
 
   return (
-    <section className="grid grid-cols-2 gap-3 xl:grid-cols-6">
+    <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {cards.map((card) => (
         <div key={card.label} className="border border-gray-200 bg-white px-4 py-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -4181,7 +4181,7 @@ export function ResearchOpsDashboardClient({
         className="scroll-mt-6 border border-gray-200 bg-white px-5 py-5"
       >
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1fr)_repeat(4,minmax(150px,190px))] xl:items-end">
             <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
               Search
               <input
@@ -4239,7 +4239,7 @@ export function ResearchOpsDashboardClient({
           </div>
 
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <button
                 className={
                   queueFilter === "all"
@@ -4267,8 +4267,8 @@ export function ResearchOpsDashboardClient({
               ))}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <label className="inline-flex h-9 items-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
+              <label className="inline-flex h-9 items-center justify-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 sm:justify-start">
                 <input
                   checked={showEmptyQueues}
                   className="h-4 w-4 accent-[#8dc63f]"
@@ -4376,13 +4376,13 @@ export function ResearchOpsDashboardClient({
         description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
       />
 
-      <section className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-5 py-4">
+      <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 md:flex-row md:items-center md:justify-between">
         <div className="text-sm leading-6 text-gray-600">
           {formatCount(filteredQueues.length)} queue
           {filteredQueues.length === 1 ? "" : "s"} visible. Collapse queues to
           keep the workbench manageable while preserving the active filter state.
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:flex-wrap">
           <button
             className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
             type="button"

@@ -148,6 +148,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   spacing/type scale down, KPI cards become one-column before tablet width, and
   expandable sample tables keep stable horizontal scroll widths instead of
   squeezing dense columns
+- PostgreSQL Research Ops received the same first responsive hardening pass:
+  operational KPI cards, saved views, article/AI review summaries, persistent
+  issue filters, bulk actions, and queue controls now stack cleanly on mobile
+  while preserving dense horizontal tables for desktop workbench use
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals
