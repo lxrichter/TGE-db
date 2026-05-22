@@ -194,6 +194,7 @@ model companies {
   group_reporting_weight                                                 Decimal                         @default(1.0) @db.Decimal(5, 4)
   consolidation_method                                                   String?
   headquarters_city                                                      String?
+  headquarters_country_id                                                String?                         @db.Uuid
   headquarters_country                                                   String?
   region                                                                 String?
   wb_region                                                              String?
@@ -217,6 +218,7 @@ model companies {
   created_at                                                             DateTime                        @default(now()) @db.Timestamptz(6)
   updated_at                                                             DateTime                        @default(now()) @db.Timestamptz(6)
   app_users_companies_approved_by_user_idToapp_users                     app_users?                      @relation("companies_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  countries_reference                                                    countries_reference?            @relation(fields: [headquarters_country_id], references: [country_id], onDelete: SetNull, onUpdate: NoAction)
   ref_company_primary_types                                              ref_company_primary_types?      @relation(fields: [company_type_primary_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   app_users_companies_created_by_user_idToapp_users                      app_users?                      @relation("companies_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   ref_company_entity_types                                               ref_company_entity_types?       @relation(fields: [entity_type_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
@@ -237,11 +239,29 @@ model companies {
 
   @@index([company_name_clean], map: "idx_companies_clean")
   @@index([headquarters_country], map: "idx_companies_country")
+  @@index([headquarters_country_id], map: "idx_companies_headquarters_country_id")
   @@index([legacy_company_id], map: "idx_companies_legacy")
   @@index([company_name], map: "idx_companies_name")
   @@index([parent_company_id], map: "idx_companies_parent")
   @@index([company_type_primary_code], map: "idx_companies_primary_type")
   @@index([review_status_code], map: "idx_companies_review_status")
+}
+
+model countries_reference {
+  country_id       String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  country_name     String             @unique
+  iso3             String             @unique @db.Char(3)
+  wb_region        String
+  tge_region       String
+  is_active        Boolean            @default(true)
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  companies        companies[]
+  operating_assets operating_assets[]
+  projects         projects[]
+
+  @@index([tge_region], map: "idx_countries_reference_tge_region")
+  @@index([wb_region], map: "idx_countries_reference_wb_region")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -420,6 +440,7 @@ model operating_assets {
   primary_use_type_code                                                                       String                          @default("unknown")
   lifecycle_phase_code                                                                        String                          @default("operating")
   location_text                                                                               String?
+  country_id                                                                                  String?                         @db.Uuid
   country                                                                                     String?
   region                                                                                      String?
   wb_region                                                                                   String?
@@ -480,6 +501,7 @@ model operating_assets {
   company_operating_asset_links                                                               company_operating_asset_links[]
   entity_sources                                                                              entity_sources[]
   app_users_operating_assets_approved_by_user_idToapp_users                                   app_users?                      @relation("operating_assets_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  countries_reference                                                                         countries_reference?            @relation(fields: [country_id], references: [country_id], onDelete: SetNull, onUpdate: NoAction)
   ref_estimate_statuses_operating_assets_capacity_estimate_status_codeToref_estimate_statuses ref_estimate_statuses           @relation("operating_assets_capacity_estimate_status_codeToref_estimate_statuses", fields: [capacity_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   app_users_operating_assets_created_by_user_idToapp_users                                    app_users?                      @relation("operating_assets_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   app_users_operating_assets_last_updated_by_user_idToapp_users                               app_users?                      @relation("operating_assets_last_updated_by_user_idToapp_users", fields: [last_updated_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
@@ -493,6 +515,7 @@ model operating_assets {
 
   @@index([asset_name_clean], map: "idx_operating_assets_clean")
   @@index([country], map: "idx_operating_assets_country")
+  @@index([country_id], map: "idx_operating_assets_country_id")
   @@index([legacy_plant_id], map: "idx_operating_assets_legacy")
   @@index([asset_name], map: "idx_operating_assets_name")
   @@index([lifecycle_phase_code], map: "idx_operating_assets_phase")
@@ -526,6 +549,7 @@ model projects {
   primary_use_type_code                                                               String                          @default("unknown")
   lifecycle_phase_code                                                                String                          @default("prospect_tbd")
   location_text                                                                       String?
+  country_id                                                                          String?                         @db.Uuid
   country                                                                             String?
   region                                                                              String?
   wb_region                                                                           String?
@@ -586,6 +610,7 @@ model projects {
   project_operating_asset_links                                                       project_operating_asset_links[]
   research_ops_issues                                                                 research_ops_issues[]
   app_users_projects_approved_by_user_idToapp_users                                   app_users?                      @relation("projects_approved_by_user_idToapp_users", fields: [approved_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  countries_reference                                                                 countries_reference?            @relation(fields: [country_id], references: [country_id], onDelete: SetNull, onUpdate: NoAction)
   ref_estimate_statuses_projects_capacity_estimate_status_codeToref_estimate_statuses ref_estimate_statuses           @relation("projects_capacity_estimate_status_codeToref_estimate_statuses", fields: [capacity_estimate_status_code], references: [code], onDelete: NoAction, onUpdate: NoAction)
   app_users_projects_created_by_user_idToapp_users                                    app_users?                      @relation("projects_created_by_user_idToapp_users", fields: [created_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   app_users_projects_last_updated_by_user_idToapp_users                               app_users?                      @relation("projects_last_updated_by_user_idToapp_users", fields: [last_updated_by_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
@@ -596,6 +621,7 @@ model projects {
 
   @@index([project_name_clean], map: "idx_projects_clean")
   @@index([country], map: "idx_projects_country")
+  @@index([country_id], map: "idx_projects_country_id")
   @@index([legacy_project_id], map: "idx_projects_legacy")
   @@index([project_name], map: "idx_projects_name")
   @@index([lifecycle_phase_code], map: "idx_projects_phase")

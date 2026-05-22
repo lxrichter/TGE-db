@@ -4,6 +4,7 @@ import { getPrismaClient } from "@/lib/db/prisma";
 import {
   getPostgresEntityFormReferenceData,
   type PostgresCompanyMutationInput,
+  type PostgresEntityFormReferenceData,
   type PostgresOperatingAssetMutationInput,
   type PostgresProjectMutationInput,
 } from "@/lib/postgres-preview";
@@ -276,6 +277,99 @@ function hasCode(codes: Set<string>, value: string | null) {
   return Boolean(value && codes.has(value));
 }
 
+function normalizeCountryLookupValue(value: string) {
+  const normalized = value
+    .trim()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+
+  if (normalized === "turkey") {
+    return "turkiye";
+  }
+
+  return normalized;
+}
+
+function resolveCountryReference({
+  countryId,
+  countryName,
+  region,
+  wbRegion,
+  countries,
+}: {
+  countryId: string | null;
+  countryName: string | null;
+  region: string | null;
+  wbRegion: string | null;
+  countries: PostgresEntityFormReferenceData["countries"];
+}):
+  | {
+      ok: true;
+      country_id: string | null;
+      country: string | null;
+      region: string | null;
+      wb_region: string | null;
+    }
+  | { ok: false; error: string } {
+  const cleanedCountryId = cleanString(countryId);
+
+  if (cleanedCountryId) {
+    const match = countries.find(
+      (country) => country.country_id === cleanedCountryId
+    );
+
+    if (!match) {
+      return { ok: false, error: "Invalid country reference." };
+    }
+
+    return {
+      ok: true,
+      country_id: match.country_id,
+      country: match.country_name,
+      region: match.tge_region,
+      wb_region: match.wb_region,
+    };
+  }
+
+  const cleanedCountryName = cleanOptionalString(countryName);
+
+  if (!cleanedCountryName) {
+    return {
+      ok: true,
+      country_id: null,
+      country: null,
+      region: null,
+      wb_region: null,
+    };
+  }
+
+  const countryKey = normalizeCountryLookupValue(cleanedCountryName);
+  const match = countries.find(
+    (country) =>
+      normalizeCountryLookupValue(country.country_name) === countryKey ||
+      country.iso3.toLowerCase() === cleanedCountryName.toLowerCase()
+  );
+
+  if (match) {
+    return {
+      ok: true,
+      country_id: match.country_id,
+      country: match.country_name,
+      region: match.tge_region,
+      wb_region: match.wb_region,
+    };
+  }
+
+  return {
+    ok: true,
+    country_id: null,
+    country: cleanedCountryName,
+    region: cleanOptionalString(region),
+    wb_region: cleanOptionalString(wbRegion),
+  };
+}
+
 export async function parseProjectMutationInput(
   body: unknown,
   canSetReviewStatus: boolean
@@ -328,6 +422,18 @@ export async function parseProjectMutationInput(
 
   if (!reviewStatus) {
     return { ok: false, error: "Invalid review status." };
+  }
+
+  const geography = resolveCountryReference({
+    countryId: cleanString(inputBody.country_id),
+    countryName: cleanString(inputBody.country),
+    region: cleanString(inputBody.region),
+    wbRegion: cleanString(inputBody.wb_region),
+    countries: referenceData.countries,
+  });
+
+  if (!geography.ok) {
+    return geography;
   }
 
   const numericFields = {
@@ -384,9 +490,10 @@ export async function parseProjectMutationInput(
       primary_use_type_code: useType,
       lifecycle_phase_code: lifecycle,
       location_text: cleanOptionalString(inputBody.location_text),
-      country: cleanOptionalString(inputBody.country),
-      region: cleanOptionalString(inputBody.region),
-      wb_region: cleanOptionalString(inputBody.wb_region),
+      country_id: geography.country_id,
+      country: geography.country,
+      region: geography.region,
+      wb_region: geography.wb_region,
       latitude: numberValue(numericFields.latitude),
       longitude: numberValue(numericFields.longitude),
       resource_type: cleanOptionalString(inputBody.resource_type),
@@ -469,6 +576,18 @@ export async function parseOperatingAssetMutationInput(
     return { ok: false, error: "Invalid review status." };
   }
 
+  const geography = resolveCountryReference({
+    countryId: cleanString(inputBody.country_id),
+    countryName: cleanString(inputBody.country),
+    region: cleanString(inputBody.region),
+    wbRegion: cleanString(inputBody.wb_region),
+    countries: referenceData.countries,
+  });
+
+  if (!geography.ok) {
+    return geography;
+  }
+
   const numericFields = {
     latitude: readNumber(inputBody, "latitude", "Latitude"),
     longitude: readNumber(inputBody, "longitude", "Longitude"),
@@ -524,9 +643,10 @@ export async function parseOperatingAssetMutationInput(
       primary_use_type_code: useType,
       lifecycle_phase_code: lifecycle,
       location_text: cleanOptionalString(inputBody.location_text),
-      country: cleanOptionalString(inputBody.country),
-      region: cleanOptionalString(inputBody.region),
-      wb_region: cleanOptionalString(inputBody.wb_region),
+      country_id: geography.country_id,
+      country: geography.country,
+      region: geography.region,
+      wb_region: geography.wb_region,
       latitude: numberValue(numericFields.latitude),
       longitude: numberValue(numericFields.longitude),
       resource_type: cleanOptionalString(inputBody.resource_type),
@@ -599,6 +719,18 @@ export async function parseCompanyMutationInput(
     return { ok: false, error: "Invalid review status." };
   }
 
+  const geography = resolveCountryReference({
+    countryId: cleanString(inputBody.headquarters_country_id),
+    countryName: cleanString(inputBody.headquarters_country),
+    region: cleanString(inputBody.region),
+    wbRegion: cleanString(inputBody.wb_region),
+    countries: referenceData.countries,
+  });
+
+  if (!geography.ok) {
+    return geography;
+  }
+
   return {
     ok: true,
     input: {
@@ -612,9 +744,10 @@ export async function parseCompanyMutationInput(
       ownership_type: cleanOptionalString(inputBody.ownership_type),
       company_status: cleanOptionalString(inputBody.company_status),
       headquarters_city: cleanOptionalString(inputBody.headquarters_city),
-      headquarters_country: cleanOptionalString(inputBody.headquarters_country),
-      region: cleanOptionalString(inputBody.region),
-      wb_region: cleanOptionalString(inputBody.wb_region),
+      headquarters_country_id: geography.country_id,
+      headquarters_country: geography.country,
+      region: geography.region,
+      wb_region: geography.wb_region,
       geothermal_focus: cleanOptionalString(inputBody.geothermal_focus),
       technology_focus: cleanOptionalString(inputBody.technology_focus),
       service_scope_summary: cleanOptionalString(inputBody.service_scope_summary),

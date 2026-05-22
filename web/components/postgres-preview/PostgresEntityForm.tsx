@@ -7,6 +7,7 @@ import type {
   PostgresCompanyOperatingAssetLink,
   PostgresCompanyProjectLink,
   PostgresCompanyRelationship,
+  PostgresCountryReference,
   PostgresEntityFormReferenceData,
   PostgresPromotedOperatingAsset,
   PostgresPreviewCompanyDetail,
@@ -387,6 +388,134 @@ function SelectInput({
         </option>
       ))}
     </select>
+  );
+}
+
+function normalizeCountryOptionValue(value: string) {
+  const normalized = value
+    .trim()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+
+  if (normalized === "turkey") {
+    return "turkiye";
+  }
+
+  return normalized;
+}
+
+function findSelectedCountry({
+  countries,
+  countryId,
+  countryName,
+}: {
+  countries: PostgresCountryReference[];
+  countryId?: string;
+  countryName?: string;
+}) {
+  if (countryId) {
+    const match = countries.find((country) => country.country_id === countryId);
+
+    if (match) {
+      return match;
+    }
+  }
+
+  if (!countryName) {
+    return null;
+  }
+
+  const countryKey = normalizeCountryOptionValue(countryName);
+  return (
+    countries.find(
+      (country) =>
+        normalizeCountryOptionValue(country.country_name) === countryKey ||
+        country.iso3.toLowerCase() === countryName.trim().toLowerCase()
+    ) || null
+  );
+}
+
+function CountryReferenceSelect({
+  countryIdName,
+  countryName,
+  form,
+  referenceData,
+  setField,
+}: {
+  countryIdName: string;
+  countryName: string;
+  form: EntityFormValues;
+  referenceData: PostgresEntityFormReferenceData;
+  setField: (name: string, value: string) => void;
+}) {
+  const selectedCountry = findSelectedCountry({
+    countries: referenceData.countries,
+    countryId: form[countryIdName],
+    countryName: form[countryName],
+  });
+  const hasUnmatchedCountryText = Boolean(form[countryName] && !selectedCountry);
+
+  function handleCountryChange(countryId: string) {
+    const country = referenceData.countries.find(
+      (option) => option.country_id === countryId
+    );
+
+    if (!country) {
+      setField(countryIdName, "");
+      setField(countryName, "");
+      setField("region", "");
+      setField("wb_region", "");
+      return;
+    }
+
+    setField(countryIdName, country.country_id);
+    setField(countryName, country.country_name);
+    setField("region", country.tge_region);
+    setField("wb_region", country.wb_region);
+  }
+
+  return (
+    <>
+      <select
+        className={inputClass()}
+        id={`field-${countryIdName}`}
+        name={countryIdName}
+        value={selectedCountry?.country_id || ""}
+        onChange={(event) => handleCountryChange(event.target.value)}
+      >
+        <option value="">
+          {hasUnmatchedCountryText
+            ? `Unmatched: ${form[countryName]}`
+            : "Select country"}
+        </option>
+        {referenceData.countries.map((country) => (
+          <option key={country.country_id} value={country.country_id}>
+            {country.country_name} ({country.iso3})
+          </option>
+        ))}
+      </select>
+      {hasUnmatchedCountryText ? (
+        <span className="text-[11px] leading-4 text-amber-700">
+          This legacy country text is not yet linked to the canonical country
+          reference. Selecting a country will auto-fill ISO3, TGE region, and
+          World Bank region.
+        </span>
+      ) : selectedCountry ? (
+        <span className="text-[11px] leading-4 text-gray-500">
+          ISO3 {selectedCountry.iso3} · regions are derived from the country
+          reference.
+        </span>
+      ) : null}
+    </>
+  );
+}
+
+function DerivedGeographyField({ value }: { value?: string }) {
+  return (
+    <div className="min-h-10 border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">
+      {value || "Auto-filled after country selection"}
+    </div>
   );
 }
 
@@ -2106,6 +2235,7 @@ function initialProjectValues(
     primary_use_type_code: project?.primary_use_type_code || "unknown",
     lifecycle_phase_code: project?.lifecycle_phase_code || "prospect_tbd",
     location_text: project?.location_text || "",
+    country_id: project?.country_id || "",
     country: project?.country || "",
     region: project?.region || "",
     wb_region: project?.wb_region || "",
@@ -2148,6 +2278,7 @@ function initialOperatingAssetValues(
     primary_use_type_code: asset?.primary_use_type_code || "unknown",
     lifecycle_phase_code: asset?.lifecycle_phase_code || "operating",
     location_text: asset?.location_text || "",
+    country_id: asset?.country_id || "",
     country: asset?.country || "",
     region: asset?.region || "",
     wb_region: asset?.wb_region || "",
@@ -2196,6 +2327,7 @@ function initialCompanyValues(
     ownership_type: company?.ownership_type || "",
     company_status: company?.company_status || "active",
     headquarters_city: company?.headquarters_city || "",
+    headquarters_country_id: company?.headquarters_country_id || "",
     headquarters_country: company?.headquarters_country || "",
     region: company?.region || "",
     wb_region: company?.wb_region || "",
@@ -2349,18 +2481,33 @@ export function PostgresProjectForm({
           </Field>
           <Field
             label="Country"
+            help="Select from the canonical country reference. TGE and World Bank regions are derived automatically."
             {...fieldMeta(changeState, "country", {
               required: true,
               tone: "critical",
             })}
           >
-            <TextInput form={form} name="country" setField={setField} />
+            <CountryReferenceSelect
+              countryIdName="country_id"
+              countryName="country"
+              form={form}
+              referenceData={referenceData}
+              setField={setField}
+            />
           </Field>
-          <Field label="Region" {...fieldMeta(changeState, "region")}>
-            <TextInput form={form} name="region" setField={setField} />
+          <Field
+            label="TGE Region"
+            help="Derived from selected country; not manually edited."
+            {...fieldMeta(changeState, "region")}
+          >
+            <DerivedGeographyField value={form.region} />
           </Field>
-          <Field label="World Bank Region" {...fieldMeta(changeState, "wb_region")}>
-            <TextInput form={form} name="wb_region" setField={setField} />
+          <Field
+            label="World Bank Region"
+            help="Derived from selected country; kept for donor and external benchmarking views."
+            {...fieldMeta(changeState, "wb_region")}
+          >
+            <DerivedGeographyField value={form.wb_region} />
           </Field>
           <Field label="Location Text" {...fieldMeta(changeState, "location_text")}>
             <TextInput form={form} name="location_text" setField={setField} />
@@ -2716,18 +2863,33 @@ export function PostgresOperatingAssetForm({
           </Field>
           <Field
             label="Country"
+            help="Select from the canonical country reference. TGE and World Bank regions are derived automatically."
             {...fieldMeta(changeState, "country", {
               required: true,
               tone: "critical",
             })}
           >
-            <TextInput form={form} name="country" setField={setField} />
+            <CountryReferenceSelect
+              countryIdName="country_id"
+              countryName="country"
+              form={form}
+              referenceData={referenceData}
+              setField={setField}
+            />
           </Field>
-          <Field label="Region" {...fieldMeta(changeState, "region")}>
-            <TextInput form={form} name="region" setField={setField} />
+          <Field
+            label="TGE Region"
+            help="Derived from selected country; not manually edited."
+            {...fieldMeta(changeState, "region")}
+          >
+            <DerivedGeographyField value={form.region} />
           </Field>
-          <Field label="World Bank Region" {...fieldMeta(changeState, "wb_region")}>
-            <TextInput form={form} name="wb_region" setField={setField} />
+          <Field
+            label="World Bank Region"
+            help="Derived from selected country; kept for donor and external benchmarking views."
+            {...fieldMeta(changeState, "wb_region")}
+          >
+            <DerivedGeographyField value={form.wb_region} />
           </Field>
           <Field label="Location Text" {...fieldMeta(changeState, "location_text")}>
             <TextInput form={form} name="location_text" setField={setField} />
@@ -3199,22 +3361,33 @@ export function PostgresCompanyForm({
           </Field>
           <Field
             label="HQ Country"
+            help="Select from the canonical country reference. TGE and World Bank regions are derived automatically."
             {...fieldMeta(changeState, "headquarters_country", {
               important: true,
               tone: "important",
             })}
           >
-            <TextInput
+            <CountryReferenceSelect
+              countryIdName="headquarters_country_id"
+              countryName="headquarters_country"
               form={form}
-              name="headquarters_country"
+              referenceData={referenceData}
               setField={setField}
             />
           </Field>
-          <Field label="Region" {...fieldMeta(changeState, "region")}>
-            <TextInput form={form} name="region" setField={setField} />
+          <Field
+            label="TGE Region"
+            help="Derived from selected HQ country; not manually edited."
+            {...fieldMeta(changeState, "region")}
+          >
+            <DerivedGeographyField value={form.region} />
           </Field>
-          <Field label="World Bank Region" {...fieldMeta(changeState, "wb_region")}>
-            <TextInput form={form} name="wb_region" setField={setField} />
+          <Field
+            label="World Bank Region"
+            help="Derived from selected HQ country; kept for donor and external benchmarking views."
+            {...fieldMeta(changeState, "wb_region")}
+          >
+            <DerivedGeographyField value={form.wb_region} />
           </Field>
           <Field
             label="Website"

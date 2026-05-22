@@ -229,6 +229,7 @@ export type PostgresEntitySourceLink = {
 export type PostgresPreviewProjectDetail = PostgresPreviewProject & {
   project_group: string | null;
   location_text: string | null;
+  country_id: string | null;
   wb_region: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -256,6 +257,7 @@ export type PostgresPreviewProjectDetail = PostgresPreviewProject & {
 export type PostgresPreviewOperatingAssetDetail = PostgresPreviewOperatingAsset & {
   project_group: string | null;
   location_text: string | null;
+  country_id: string | null;
   wb_region: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -289,6 +291,7 @@ export type PostgresPreviewCompanyDetail = PostgresPreviewCompany & {
   ownership_type: string | null;
   company_status: string | null;
   headquarters_city: string | null;
+  headquarters_country_id: string | null;
   region: string | null;
   wb_region: string | null;
   technology_focus: string | null;
@@ -308,6 +311,15 @@ export type PostgresReferenceOption = {
   is_active: boolean;
 };
 
+export type PostgresCountryReference = {
+  country_id: string;
+  country_name: string;
+  iso3: string;
+  wb_region: string;
+  tge_region: string;
+  is_active: boolean;
+};
+
 export type PostgresEntityFormReferenceData = {
   useTypes: PostgresReferenceOption[];
   lifecyclePhases: Array<
@@ -323,6 +335,7 @@ export type PostgresEntityFormReferenceData = {
   estimateStatuses: PostgresReferenceOption[];
   companyEntityTypes: PostgresReferenceOption[];
   companyPrimaryTypes: PostgresReferenceOption[];
+  countries: PostgresCountryReference[];
 };
 
 export type PostgresProjectMutationInput = {
@@ -331,6 +344,7 @@ export type PostgresProjectMutationInput = {
   primary_use_type_code: string;
   lifecycle_phase_code: string;
   location_text?: string | null;
+  country_id?: string | null;
   country?: string | null;
   region?: string | null;
   wb_region?: string | null;
@@ -364,6 +378,7 @@ export type PostgresOperatingAssetMutationInput = {
   primary_use_type_code: string;
   lifecycle_phase_code: string;
   location_text?: string | null;
+  country_id?: string | null;
   country?: string | null;
   region?: string | null;
   wb_region?: string | null;
@@ -404,6 +419,7 @@ export type PostgresCompanyMutationInput = {
   ownership_type?: string | null;
   company_status?: string | null;
   headquarters_city?: string | null;
+  headquarters_country_id?: string | null;
   headquarters_country?: string | null;
   region?: string | null;
   wb_region?: string | null;
@@ -3646,6 +3662,51 @@ const companyMutationFieldNames = [
   "notes",
 ];
 
+async function setProjectCountryReference(
+  projectId: string,
+  countryId?: string | null
+) {
+  await getPrismaClient().$executeRawUnsafe(
+    `
+    UPDATE projects
+    SET country_id = $2::uuid
+    WHERE project_id = $1::uuid
+    `,
+    projectId,
+    countryId || null
+  );
+}
+
+async function setOperatingAssetCountryReference(
+  operatingAssetId: string,
+  countryId?: string | null
+) {
+  await getPrismaClient().$executeRawUnsafe(
+    `
+    UPDATE operating_assets
+    SET country_id = $2::uuid
+    WHERE operating_asset_id = $1::uuid
+    `,
+    operatingAssetId,
+    countryId || null
+  );
+}
+
+async function setCompanyHeadquartersCountryReference(
+  companyId: string,
+  countryId?: string | null
+) {
+  await getPrismaClient().$executeRawUnsafe(
+    `
+    UPDATE companies
+    SET headquarters_country_id = $2::uuid
+    WHERE company_id = $1::uuid
+    `,
+    companyId,
+    countryId || null
+  );
+}
+
 function getReviewEntityConfig(entityType: PostgresReviewEntityType) {
   if (entityType === "project") {
     return {
@@ -3835,6 +3896,7 @@ export async function getPostgresEntityFormReferenceData(): Promise<PostgresEnti
     estimateStatuses,
     companyEntityTypes,
     companyPrimaryTypes,
+    countries,
   ] = await Promise.all([
     prisma.ref_geothermal_use_types.findMany({
       select: { code: true, label: true, sort_order: true, is_active: true },
@@ -3878,6 +3940,20 @@ export async function getPostgresEntityFormReferenceData(): Promise<PostgresEnti
       where: { is_active: true },
       orderBy: [{ sort_order: "asc" }, { label: "asc" }],
     }),
+    prisma.$queryRawUnsafe<PostgresCountryReference[]>(
+      `
+      SELECT
+        country_id::text,
+        country_name,
+        iso3,
+        wb_region,
+        tge_region,
+        is_active
+      FROM countries_reference
+      WHERE is_active = TRUE
+      ORDER BY country_name ASC
+      `
+    ),
   ]);
 
   return {
@@ -3887,6 +3963,7 @@ export async function getPostgresEntityFormReferenceData(): Promise<PostgresEnti
     estimateStatuses,
     companyEntityTypes,
     companyPrimaryTypes,
+    countries,
   };
 }
 
@@ -5010,6 +5087,18 @@ export async function promotePostgresProjectToOperatingAsset({
     return null;
   }
 
+  await prisma.$executeRawUnsafe(
+    `
+    UPDATE operating_assets a
+    SET country_id = p.country_id
+    FROM projects p
+    WHERE a.operating_asset_id = $1::uuid
+      AND p.project_id = $2::uuid
+    `,
+    result.operatingAssetId,
+    projectId
+  );
+
   const operatingAsset = await getPostgresPreviewOperatingAssetById(
     result.operatingAssetId
   );
@@ -5076,6 +5165,8 @@ export async function createPostgresPreviewProject(
     },
     select: { project_id: true },
   });
+
+  await setProjectCountryReference(project.project_id, input.country_id);
 
   const detail = await getPostgresPreviewProjectById(project.project_id);
 
@@ -5197,6 +5288,8 @@ export async function updatePostgresPreviewProject(
     },
   });
 
+  await setProjectCountryReference(projectId, input.country_id);
+
   await recordEntityFormAudit({
     entityType: "project",
     entityId: projectId,
@@ -5261,6 +5354,11 @@ export async function createPostgresPreviewOperatingAsset(
     },
     select: { operating_asset_id: true },
   });
+
+  await setOperatingAssetCountryReference(
+    asset.operating_asset_id,
+    input.country_id
+  );
 
   const detail = await getPostgresPreviewOperatingAssetById(
     asset.operating_asset_id
@@ -5391,6 +5489,11 @@ export async function updatePostgresPreviewOperatingAsset(
     },
   });
 
+  await setOperatingAssetCountryReference(
+    operatingAssetId,
+    input.country_id
+  );
+
   await recordEntityFormAudit({
     entityType: "operating_asset",
     entityId: operatingAssetId,
@@ -5443,6 +5546,11 @@ export async function createPostgresPreviewCompany(
     },
     select: { company_id: true },
   });
+
+  await setCompanyHeadquartersCountryReference(
+    company.company_id,
+    input.headquarters_country_id
+  );
 
   const detail = await getPostgresPreviewCompanyById(company.company_id);
 
@@ -5543,6 +5651,11 @@ export async function updatePostgresPreviewCompany(
       ...getPreservedReviewTimestampFields(reviewStatus, existing),
     },
   });
+
+  await setCompanyHeadquartersCountryReference(
+    companyId,
+    input.headquarters_country_id
+  );
 
   await recordEntityFormAudit({
     entityType: "company",
@@ -5722,6 +5835,7 @@ export async function getPostgresPreviewProjectById(
       p.primary_use_type_code,
       p.lifecycle_phase_code,
       p.location_text,
+      p.country_id::text,
       p.country,
       p.region,
       p.wb_region,
@@ -5805,6 +5919,7 @@ export async function getPostgresPreviewOperatingAssetById(
       a.primary_use_type_code,
       a.lifecycle_phase_code,
       a.location_text,
+      a.country_id::text,
       a.country,
       a.region,
       a.wb_region,
@@ -5902,6 +6017,7 @@ export async function getPostgresPreviewCompanyById(
       c.ownership_type,
       c.company_status,
       c.headquarters_city,
+      c.headquarters_country_id::text,
       c.headquarters_country,
       c.region,
       c.wb_region,
