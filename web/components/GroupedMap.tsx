@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { LayerGroup, Map as LeafletMap, TileLayer } from "leaflet";
 import { normalizePhaseName } from "@/components/ui/PhaseBadge";
 
@@ -25,6 +31,25 @@ type MapApiResponse = {
 };
 
 type ViewMode = "map" | "satellite";
+
+function MapFilterGroup({
+  title,
+  children,
+  defaultOpen = true,
+}: {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details className="border-t border-gray-200 pt-2" open={defaultOpen}>
+      <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-wide text-gray-500 marker:hidden">
+        {title}
+      </summary>
+      <div className="mt-2">{children}</div>
+    </details>
+  );
+}
 
 function markerColor(type: "plant" | "project") {
   return type === "project" ? "#E8A56C" : "#64A542";
@@ -441,80 +466,83 @@ export default function GroupedMap({
             </h2>
           </div>
 
-          <div className="space-y-4 px-4 py-4">
-            <div className="space-y-2 text-sm">
-              <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-3 py-2">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={showPlants}
-                    onChange={(e) => setShowPlants(e.target.checked)}
-                  />
-                  <span>Power Plants / Groups</span>
-                </div>
-                <span className="font-semibold text-[#64A542]">
-                  {data.plants.length}
-                </span>
-              </label>
+          <div className="space-y-2.5 px-3 py-3">
+            <MapFilterGroup title="Layers">
+              <div className="space-y-1.5 text-sm">
+                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-3 py-1.5">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={showPlants}
+                      onChange={(e) => setShowPlants(e.target.checked)}
+                    />
+                    <span>Plants / Groups</span>
+                  </div>
+                  <span className="font-semibold text-[#64A542]">
+                    {data.plants.length}
+                  </span>
+                </label>
 
-              <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-3 py-2">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={showProjects}
-                    onChange={(e) => setShowProjects(e.target.checked)}
-                  />
-                  <span>Power Projects / Groups</span>
-                </div>
-                <span className="font-semibold text-[#E8A56C]">
-                  {data.projects.length}
-                </span>
-              </label>
-            </div>
-
-            <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Country
-              </label>
-              <select
-                value={countryFilter}
-                onChange={(e) => setCountryFilter(e.target.value)}
-                className="mt-1 w-full border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
-              >
-                {countryOptions.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Region
-              </label>
-              <select
-                value={regionFilter}
-                onChange={(e) => setRegionFilter(e.target.value)}
-                className="mt-1 w-full border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
-              >
-                {regionOptions.map((region) => (
-                  <option key={region} value={region}>
-                    {region}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Map View
+                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-3 py-1.5">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={showProjects}
+                      onChange={(e) => setShowProjects(e.target.checked)}
+                    />
+                    <span>Projects / Groups</span>
+                  </div>
+                  <span className="font-semibold text-[#E8A56C]">
+                    {data.projects.length}
+                  </span>
+                </label>
               </div>
-              <div className="mt-2 flex gap-2">
+            </MapFilterGroup>
+
+            <MapFilterGroup title="Geography">
+              <div className="space-y-2">
+                <label className="block">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    Country
+                  </span>
+                  <select
+                    value={countryFilter}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    className="mt-1 w-full border border-gray-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
+                  >
+                    {countryOptions.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    Region
+                  </span>
+                  <select
+                    value={regionFilter}
+                    onChange={(e) => setRegionFilter(e.target.value)}
+                    className="mt-1 w-full border border-gray-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
+                  >
+                    {regionOptions.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </MapFilterGroup>
+
+            <MapFilterGroup title="Basemap">
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setViewMode("map")}
-                  className={`border px-3 py-2 text-xs font-semibold ${
+                  className={`border px-3 py-1.5 text-xs font-semibold ${
                     viewMode === "map"
                       ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
                       : "border-gray-300 bg-white text-gray-700"
@@ -526,7 +554,7 @@ export default function GroupedMap({
                 <button
                   type="button"
                   onClick={() => setViewMode("satellite")}
-                  className={`border px-3 py-2 text-xs font-semibold ${
+                  className={`border px-3 py-1.5 text-xs font-semibold ${
                     viewMode === "satellite"
                       ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
                       : "border-gray-300 bg-white text-gray-700"
@@ -535,34 +563,31 @@ export default function GroupedMap({
                   Satellite
                 </button>
               </div>
-            </div>
+            </MapFilterGroup>
 
-            <div className="border-t border-gray-200 pt-3 text-xs text-gray-600">
-              <p>
-                One marker per <strong>Plant Group</strong> or{" "}
-                <strong>Project Group</strong>.
-              </p>
-              <p className="mt-2">
-                Coordinates use the average location of grouped records.
-              </p>
-            </div>
-
-            <div className="border-t border-gray-200 pt-3 text-xs text-gray-600">
-              <div className="flex items-center gap-2">
-                <span
-                  className="inline-block h-3 w-3"
-                  style={{ backgroundColor: "#64A542" }}
-                />
-                <span>Plants</span>
+            <MapFilterGroup defaultOpen={false} title="Map Notes">
+              <div className="space-y-2 text-xs text-gray-600">
+                <p>
+                  One marker per <strong>Plant Group</strong> or{" "}
+                  <strong>Project Group</strong>. Coordinates use average group
+                  locations.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block h-3 w-3"
+                    style={{ backgroundColor: "#64A542" }}
+                  />
+                  <span>Plants</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block h-3 w-3"
+                    style={{ backgroundColor: "#E8A56C" }}
+                  />
+                  <span>Projects</span>
+                </div>
               </div>
-              <div className="mt-2 flex items-center gap-2">
-                <span
-                  className="inline-block h-3 w-3"
-                  style={{ backgroundColor: "#E8A56C" }}
-                />
-                <span>Projects</span>
-              </div>
-            </div>
+            </MapFilterGroup>
           </div>
         </div>
       </div>

@@ -117,9 +117,8 @@ export default async function PostgresPreviewMapPage() {
                 PostgreSQL Map Preview
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Coordinate-confirmed project and plant/facility groups from the
-                PostgreSQL staging model. Records without coordinates remain in
-                Research Ops missing-coordinate queues.
+                Coordinate-confirmed project and plant/facility groups. Records
+                without coordinates stay in Research Ops queues.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -175,7 +174,7 @@ export default async function PostgresPreviewMapPage() {
         <DetailPriorityMarker
           label="Core"
           title="Coordinate-Confirmed Map Readiness"
-          description="Only records with usable coordinates appear on this map. Missing-coordinate work stays in Research Ops."
+          description="Only records with usable coordinates appear here."
           tone="core"
         />
 
@@ -183,27 +182,27 @@ export default async function PostgresPreviewMapPage() {
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
             <MapStatCard
               label="Plant Groups"
-              note="Mapped operating asset groups"
+              note="Operating asset groups"
               value={formatCount(summary.plantGroupCount)}
             />
             <MapStatCard
               label="Project Groups"
-              note="Mapped development groups"
+              note="Development groups"
               value={formatCount(summary.projectGroupCount)}
             />
             <MapStatCard
               label="Mapped Records"
-              note="Records represented by grouped markers"
+              note="Represented by markers"
               value={formatCount(summary.mappedRecordCount)}
             />
             <MapStatCard
               label="Mapped MWe"
-              note="Capacity in mapped project/asset groups"
+              note="Mapped group capacity"
               value={`${formatMw(summary.mappedCapacityMwe)} MWe`}
             />
             <MapStatCard
               label="Potential Min"
-              note="Mapped project potential where available"
+              note="Project potential"
               value={`${formatMw(summary.mappedPotentialMinMwe)} MWe`}
             />
             <MapStatCard
@@ -229,7 +228,7 @@ export default async function PostgresPreviewMapPage() {
         <DetailPriorityMarker
           label="Workflow"
           title="Spatial Review Workflow"
-          description="The map is a navigation and intelligence layer. Coordinate cleanup and export-readiness decisions remain governed workflows."
+          description="Map navigation connects back to governed coordinate cleanup."
           tone="workflow"
         />
         <section className="grid gap-3 md:grid-cols-3">
@@ -241,14 +240,14 @@ export default async function PostgresPreviewMapPage() {
             tone="attention"
           />
           <MapWorkflowCard
-            description="Filter the mapped project worklist and export the current queue for geographic cleanup."
+            description="Filter projects missing coordinates."
             href="/postgres-preview/projects?missing=coordinates"
             label="Projects"
             title="Project Coordinate Queue"
             tone="info"
           />
           <MapWorkflowCard
-            description="Filter operating plants/facilities missing coordinates or needing location review."
+            description="Filter assets missing coordinates."
             href="/postgres-preview/operating-assets?missing=coordinates"
             label="Assets"
             title="Asset Coordinate Queue"
@@ -261,7 +260,7 @@ export default async function PostgresPreviewMapPage() {
         <DetailPriorityMarker
           label="Spatial View"
           title="Map Navigation"
-          description="Grouped project and operating asset markers. Use filters inside the map for country, region, layer, and basemap view."
+          description="Grouped markers with layer, geography, and basemap controls."
           tone="core"
         />
         <GroupedMap
