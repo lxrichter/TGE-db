@@ -11,6 +11,7 @@ import {
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
@@ -142,6 +143,36 @@ function WorkAreaCard({
       <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
         Open
       </div>
+    </Link>
+  );
+}
+
+function EntryPathCard({
+  step,
+  title,
+  description,
+  href,
+}: {
+  step: string;
+  title: string;
+  description: string;
+  href: string;
+}) {
+  return (
+    <Link
+      className="group border border-gray-200 bg-white px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      href={href}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="inline-flex h-8 w-8 items-center justify-center border border-[#8dc63f] bg-[#f3f8ec] text-xs font-bold text-[#4f7f1f]">
+          {step}
+        </span>
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 group-hover:text-[#4f7f1f]">
+          Open
+        </span>
+      </div>
+      <div className="mt-4 text-base font-bold text-[#1f2937]">{title}</div>
+      <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
     </Link>
   );
 }
@@ -387,12 +418,13 @@ export default async function PostgresPreviewPage() {
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
-                Future Platform Preview
+                PostgreSQL Staging Command Center
               </h1>
               <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
-                Staging view of the new Railway PostgreSQL schema using the
-                transformed Hetzner SQLite backup plus PostgreSQL-native preview
-                records.
+                Operational front door for the PostgreSQL replacement platform:
+                route into Research Ops, governed evidence review, entity
+                worklists, market intelligence, map navigation, and cutover
+                readiness.
               </p>
             </div>
             <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
@@ -417,139 +449,228 @@ export default async function PostgresPreviewPage() {
         <SetupNotice error={data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Staging Snapshot"
-            description="Entity counts, use components, relationship links."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              { href: "#staging-snapshot", label: "Snapshot", note: "Counts" },
+              { href: "#entry-path", label: "Entry Path", note: "Where to start" },
+              { href: "#work-areas", label: "Work Areas", note: "Modules" },
+              { href: "#evidence-review", label: "Evidence", note: "Sources / AI" },
+              { href: "#create-inspect", label: "Create", note: "Drafts" },
+              { href: "#preview-rows", label: "Preview Rows", note: "Samples" },
+            ]}
           />
 
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-            <StatTile
-              label="Projects"
-              value={formatCount(data.summary.projectCount)}
-              note="Development records"
+          <section id="staging-snapshot" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Staging Snapshot"
+              description="Entity counts, use components, relationship links."
+              tone="core"
             />
-            <StatTile
-              label="Assets"
-              value={formatCount(data.summary.operatingAssetCount)}
-              note="Plants and facilities"
-            />
-            <StatTile
-              label="Companies"
-              value={formatCount(data.summary.companyCount)}
-              note="Company profiles"
-            />
-            <StatTile
-              label="Use Components"
-              value={formatCount(data.summary.directUseComponentCount)}
-              note="Hybrid/direct-use tags"
-            />
-            <StatTile
-              label="Project Links"
-              value={formatCount(data.summary.companyProjectLinkCount)}
-              note="Company roles"
-            />
-            <StatTile
-              label="Asset Links"
-              value={formatCount(data.summary.companyAssetLinkCount)}
-              note="Company roles"
-            />
+
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+              <StatTile
+                label="Projects"
+                value={formatCount(data.summary.projectCount)}
+                note="Development records"
+              />
+              <StatTile
+                label="Assets"
+                value={formatCount(data.summary.operatingAssetCount)}
+                note="Plants and facilities"
+              />
+              <StatTile
+                label="Companies"
+                value={formatCount(data.summary.companyCount)}
+                note="Company profiles"
+              />
+              <StatTile
+                label="Use Components"
+                value={formatCount(data.summary.directUseComponentCount)}
+                note="Hybrid/direct-use tags"
+              />
+              <StatTile
+                label="Project Links"
+                value={formatCount(data.summary.companyProjectLinkCount)}
+                note="Company roles"
+              />
+              <StatTile
+                label="Asset Links"
+                value={formatCount(data.summary.companyAssetLinkCount)}
+                note="Company roles"
+              />
+            </section>
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Work Areas"
-            description="Daily operations, entity worklists, intelligence views."
-            tone="workflow"
-          />
+          <section id="entry-path" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Operational Entry Path"
+              description="Start from the layer that matches the work in front of you."
+              tone="workflow"
+            />
 
-          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <WorkAreaCard
-              description="Queue-driven validation, source gaps, missing data, assignments, AI review, and export-blocking issues."
-              href="/postgres-preview/research-ops"
-              label="Operations"
-              title="Research Ops"
+            <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              <EntryPathCard
+                description="Find assignments, blockers, source gaps, AI review queues, and export issues."
+                href="/postgres-preview/research-ops"
+                step="01"
+                title="See What Needs Work"
+              />
+              <EntryPathCard
+                description="Review sources, article matches, and fact candidates before they become evidence."
+                href="/sources"
+                step="02"
+                title="Govern Evidence"
+              />
+              <EntryPathCard
+                description="Open projects, plants/facilities, or companies to fix fields and relationships."
+                href="/postgres-preview/projects"
+                step="03"
+                title="Edit Entity Records"
+              />
+              <EntryPathCard
+                description="Use countries, map, and analysis to interpret market and spatial patterns."
+                href="/postgres-preview/analysis"
+                step="04"
+                title="Interpret Intelligence"
+              />
+              <EntryPathCard
+                description="Check unresolved blockers before replacing the current database platform."
+                href="/postgres-preview/readiness"
+                step="05"
+                title="Check Cutover"
+              />
+            </section>
+          </section>
+
+          <section id="work-areas" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Work Areas"
+              description="Daily operations, entity worklists, intelligence views."
+              tone="workflow"
             />
-            <WorkAreaCard
-              description="Create, edit, filter, export, and review development pipeline records."
-              href="/postgres-preview/projects"
-              label="Entity Worklist"
-              title="Projects"
-            />
-            <WorkAreaCard
-              description="Review plants, facilities, operating status, capacity, company roles, and source evidence."
-              href="/postgres-preview/operating-assets"
-              label="Entity Worklist"
-              title="Plants / Facilities"
-            />
-            <WorkAreaCard
-              description="Review company profiles, business identity, relationships, ownership, roles, and evidence."
-              href="/postgres-preview/companies"
-              label="Entity Worklist"
-              title="Companies"
-            />
-            <WorkAreaCard
-              description="Country aggregation, market worklists, validation coverage, and source-gap signals."
-              href="/postgres-preview/countries"
-              label="Market Layer"
-              title="Countries / Markets"
-            />
-            <WorkAreaCard
-              description="Spatial view for projects and operating assets with map-based navigation."
-              href="/postgres-preview/map"
-              label="Spatial View"
-              title="Map"
-            />
-            <WorkAreaCard
-              description="Cross-database analytical snapshot for capacity, lifecycle, use type, and country comparison."
-              href="/postgres-preview/analysis"
-              label="Intelligence View"
-              title="Analysis"
-            />
-            <WorkAreaCard
-              description="Cutover signals for migration rehearsal, data quality, unresolved gaps, and replacement readiness."
-              href="/postgres-preview/readiness"
+
+            <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <WorkAreaCard
+                description="Queue-driven validation, source gaps, missing data, assignments, AI review, and export-blocking issues."
+                href="/postgres-preview/research-ops"
+                label="Operations"
+                title="Research Ops"
+              />
+              <WorkAreaCard
+                description="Create, edit, filter, export, and review development pipeline records."
+                href="/postgres-preview/projects"
+                label="Entity Worklist"
+                title="Projects"
+              />
+              <WorkAreaCard
+                description="Review plants, facilities, operating status, capacity, company roles, and source evidence."
+                href="/postgres-preview/operating-assets"
+                label="Entity Worklist"
+                title="Plants / Facilities"
+              />
+              <WorkAreaCard
+                description="Review company profiles, business identity, relationships, ownership, roles, and evidence."
+                href="/postgres-preview/companies"
+                label="Entity Worklist"
+                title="Companies"
+              />
+              <WorkAreaCard
+                description="Country aggregation, market worklists, validation coverage, and source-gap signals."
+                href="/postgres-preview/countries"
+                label="Market Layer"
+                title="Countries / Markets"
+              />
+              <WorkAreaCard
+                description="Spatial view for projects and operating assets with map-based navigation."
+                href="/postgres-preview/map"
+                label="Spatial View"
+                title="Map"
+              />
+              <WorkAreaCard
+                description="Cross-database analytical snapshot for capacity, lifecycle, use type, and country comparison."
+                href="/postgres-preview/analysis"
+                label="Intelligence View"
+                title="Analysis"
+              />
+              <WorkAreaCard
+                description="Cutover signals for migration rehearsal, data quality, unresolved gaps, and replacement readiness."
+                href="/postgres-preview/readiness"
+                label="Governance"
+                title="Replacement Readiness"
+              />
+            </section>
+          </section>
+
+          <section id="evidence-review" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
               label="Governance"
-              title="Replacement Readiness"
+              title="Evidence And AI Review"
+              description="Sources, article/entity matching, and fact extraction remain governed review layers."
+              tone="governance"
             />
+
+            <section className="grid gap-3 md:grid-cols-3">
+              <WorkAreaCard
+                description="Manage source records, credibility states, visibility, evidence links, and source review queues."
+                href="/sources"
+                label="Evidence Backbone"
+                title="Sources / Documents"
+              />
+              <WorkAreaCard
+                description="Review article-to-entity match candidates before creating governed evidence links."
+                href="/sources/matches"
+                label="Review Queue"
+                title="Article Match Review"
+              />
+              <WorkAreaCard
+                description="Review extracted article fact candidates before field suggestions or audited application."
+                href="/sources/facts"
+                label="Review Queue"
+                title="Article Fact Review"
+              />
+            </section>
           </section>
 
-          <DetailPriorityMarker
-            label="Governance"
-            title="Create And Inspect"
-            description="Quick creation plus expandable record samples."
-            tone="governance"
-          />
+          <section id="create-inspect" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Create And Inspect"
+              description="Quick creation plus expandable record samples."
+              tone="governance"
+            />
 
-          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <WorkAreaCard
-              description="Start a draft pipeline/development record with readiness checks and evidence workflow."
-              href="/postgres-preview/projects/new"
-              label="Quick Add"
-              title="New Project"
-            />
-            <WorkAreaCard
-              description="Start a draft operating asset, plant, facility, unit, or direct-use record."
-              href="/postgres-preview/operating-assets/new"
-              label="Quick Add"
-              title="New Plant / Facility"
-            />
-            <WorkAreaCard
-              description="Start a draft company profile with business identity, roles, and relationship workflows."
-              href="/postgres-preview/companies/new"
-              label="Quick Add"
-              title="New Company"
-            />
-            <WorkAreaCard
-              description="Step through the replacement workflow acceptance path before internal cutover."
-              href="/postgres-preview/pilot"
-              label="Acceptance"
-              title="Pilot Workflow"
-            />
+            <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <WorkAreaCard
+                description="Start a draft pipeline/development record with readiness checks and evidence workflow."
+                href="/postgres-preview/projects/new"
+                label="Quick Add"
+                title="New Project"
+              />
+              <WorkAreaCard
+                description="Start a draft operating asset, plant, facility, unit, or direct-use record."
+                href="/postgres-preview/operating-assets/new"
+                label="Quick Add"
+                title="New Plant / Facility"
+              />
+              <WorkAreaCard
+                description="Start a draft company profile with business identity, roles, and relationship workflows."
+                href="/postgres-preview/companies/new"
+                label="Quick Add"
+                title="New Company"
+              />
+              <WorkAreaCard
+                description="Step through the replacement workflow acceptance path before internal cutover."
+                href="/postgres-preview/pilot"
+                label="Acceptance"
+                title="Pilot Workflow"
+              />
+            </section>
           </section>
 
-          <section className="space-y-3">
+          <section id="preview-rows" className="space-y-3 scroll-mt-24">
             <RecordPreview title="Project Preview Rows" count={data.projects.length}>
               <ProjectsTable projects={data.projects} />
             </RecordPreview>
