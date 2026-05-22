@@ -111,8 +111,10 @@ function getTileConfig(viewMode: ViewMode) {
 
 export default function GroupedMap({
   apiPath = "/api/map",
+  detailPathMode = "legacy",
 }: {
   apiPath?: string;
+  detailPathMode?: "legacy" | "postgres-preview";
 }) {
   const [data, setData] = useState<MapApiResponse>({ plants: [], projects: [] });
   const [showPlants, setShowPlants] = useState(true);
@@ -326,9 +328,13 @@ export default function GroupedMap({
         });
 
         const link =
-          item.type === "plant"
-            ? `/plants/${item.representative_id}`
-            : `/projects/${item.representative_id}`;
+          detailPathMode === "postgres-preview"
+            ? item.type === "plant"
+              ? `/postgres-preview/operating-assets/${item.representative_id}`
+              : `/postgres-preview/projects/${item.representative_id}`
+            : item.type === "plant"
+              ? `/plants/${item.representative_id}`
+              : `/projects/${item.representative_id}`;
 
         const phaseLabel = normalizePopupPhase(item.phase || null, item.type);
 
@@ -412,7 +418,7 @@ export default function GroupedMap({
     return () => {
       cancelled = true;
     };
-  }, [viewMode, visibleMarkers]);
+  }, [detailPathMode, viewMode, visibleMarkers]);
 
   useEffect(() => {
     return () => {
@@ -425,10 +431,10 @@ export default function GroupedMap({
 
   return (
     <div className="relative border border-gray-200 bg-white">
-      <div ref={mapRef} className="h-[720px] w-full" />
+      <div ref={mapRef} className="h-[560px] w-full sm:h-[720px]" />
 
       <div className="pointer-events-none absolute inset-0 z-[1000]">
-        <div className="pointer-events-auto absolute left-6 top-6 w-[300px] border border-gray-200 bg-white shadow-xl">
+        <div className="pointer-events-auto absolute left-4 right-4 top-4 border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:w-[300px]">
           <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
             <h2 className="text-sm font-bold uppercase tracking-wide text-[#1f2937]">
               Map Filters
