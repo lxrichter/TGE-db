@@ -122,16 +122,17 @@ export default async function NewSourcePage({
       </section>
 
       <NextActionStrip
+        title={initialLinkTarget ? "Creation Context" : "After Save"}
         description={
           initialLinkTarget
-            ? "This source creation flow was opened from a record. Keep the target record, evidence backbone, and review queues close while adding source evidence."
-            : "Create the source record first, then return to evidence governance, entity matching, or fact review when the source is ready for review."
+            ? "This source was opened from a record. Keep the linked target, source registry, and review work nearby."
+            : "Create the source record first, then continue through source review, matching, or fact triage."
         }
         actions={
           initialLinkTarget
             ? [
                 {
-                  label: "Linked Target",
+                  label: "Target",
                   title: `Back to ${targetTypeLabel(
                     initialLinkTarget.entity_type
                   )}`,
@@ -140,15 +141,15 @@ export default async function NewSourcePage({
                   href: targetHref(initialLinkTarget),
                 },
                 {
-                  label: "Evidence Backbone",
+                  label: "Sources",
                   title: "Open Sources",
                   description:
                     "Review source records, credibility states, and linked evidence coverage.",
                   href: "/sources",
                 },
                 {
-                  label: "Review Work",
-                  title: "Article matches",
+                  label: "Matches",
+                  title: "Review article matches",
                   description:
                     "Review article-to-entity candidates before evidence links are confirmed.",
                   href: "/sources/matches",
@@ -156,21 +157,21 @@ export default async function NewSourcePage({
               ]
             : [
                 {
-                  label: "Evidence Backbone",
+                  label: "Sources",
                   title: "Open Sources",
                   description:
                     "Return to the governed source registry and source operations.",
                   href: "/sources",
                 },
                 {
-                  label: "Entity Matching",
+                  label: "Matches",
                   title: "Review article matches",
                   description:
                     "Confirm or reject article-to-record match candidates.",
                   href: "/sources/matches",
                 },
                 {
-                  label: "Fact Review",
+                  label: "Facts",
                   title: "Review article facts",
                   description:
                     "Triage extracted fact candidates before field suggestions or audited apply.",

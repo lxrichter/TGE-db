@@ -386,21 +386,21 @@ export default async function ArticleFactCandidatesPage({
   const factNextActions = [
     filters.sourceId
       ? {
-          label: "Current Source",
+          label: "Source",
           title: "Back to source profile",
           description:
             "Return to the filtered source record, credibility state, and linked evidence context.",
           href: `/sources/${filters.sourceId}`,
         }
       : {
-          label: "Source Context",
+          label: "Sources",
           title: "Open Evidence Backbone",
           description:
             "Review source records, credibility state, and linked evidence coverage.",
           href: "/sources",
         },
     {
-      label: "Entity Linking",
+      label: "Matches",
       title: "Review article matches",
       description: "Check whether extracted facts have a reviewed article-to-entity path.",
       href: filters.sourceId
@@ -459,7 +459,8 @@ export default async function ArticleFactCandidatesPage({
       </section>
 
       <NextActionStrip
-        description="From article fact review, the next step should be source context, entity lookup, or Research Ops governance before any field suggestion is applied."
+        title="Review Context"
+        description="Use these routes to keep fact review tied to source context, entity matching, and Research Ops."
         actions={factNextActions}
       />
 

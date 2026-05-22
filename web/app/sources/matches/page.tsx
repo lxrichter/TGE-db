@@ -259,21 +259,21 @@ export default async function SourceMatchCandidatesPage({
   const matchNextActions = [
     filters.sourceId
       ? {
-          label: "Current Source",
+          label: "Source",
           title: "Back to source profile",
           description:
             "Return to the filtered source record, credibility state, and linked evidence context.",
           href: `/sources/${filters.sourceId}`,
         }
       : {
-          label: "Source Context",
+          label: "Sources",
           title: "Open Evidence Backbone",
           description:
             "Review source records, credibility state, and existing evidence links.",
           href: "/sources",
         },
     {
-      label: "Fact Candidates",
+      label: "Facts",
       title: "Review extracted facts",
       description:
         "Move from article/entity matches into compact extracted fact review.",
@@ -326,7 +326,8 @@ export default async function SourceMatchCandidatesPage({
       </section>
 
       <NextActionStrip
-        description="From article match review, the next step should be checking the source record, confirming entity links, or returning the workload to Research Ops."
+        title="Review Context"
+        description="Use these routes to keep match review tied to source context, fact triage, and Research Ops."
         actions={matchNextActions}
       />
 
