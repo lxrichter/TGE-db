@@ -33,9 +33,9 @@ export default function ReviewTablePagination({
         {formatCount(total)} {noun}
         {total === 1 ? "" : "s"}
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <button
-          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page <= 1}
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
@@ -46,7 +46,7 @@ export default function ReviewTablePagination({
           Page {formatCount(page)} / {formatCount(pageCount)}
         </span>
         <button
-          className="h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page >= pageCount}
           type="button"
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}

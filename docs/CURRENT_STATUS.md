@@ -152,6 +152,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   operational KPI cards, saved views, article/AI review summaries, persistent
   issue filters, bulk actions, and queue controls now stack cleanly on mobile
   while preserving dense horizontal tables for desktop workbench use
+- Sources / Documents, article match review, and article fact review received a
+  matching responsive hardening pass: source filters, candidate review actions,
+  pagination controls, status chips, and dense review tables now stack or scroll
+  predictably before the later design phase
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals

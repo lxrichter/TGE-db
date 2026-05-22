@@ -264,7 +264,7 @@ function SelectFilter({
   allLabel: string;
 }) {
   return (
-    <label className="flex min-w-[200px] flex-1 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <label className="flex min-w-0 flex-1 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
       {label}
       <select
         name={name}
@@ -400,14 +400,14 @@ function SourcesListContext({
               Source table currently shows the first {formatCount(shownCount)} records.
             </div>
           </div>
-          <div className="max-w-xs text-xs leading-5 text-gray-500 lg:text-right">
+          <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
             Source export is not enabled yet. For now, exports remain available on
             project, plant/facility, company, Research Ops, and candidate-review
             workflows where explicit export routes exist.
           </div>
         </div>
         {activeFilters.length > 0 ? (
-          <div className="flex flex-wrap gap-2 border-t border-gray-200 px-5 py-3">
+          <div className="flex flex-col gap-2 border-t border-gray-200 px-5 py-3 sm:flex-row sm:flex-wrap">
             {activeFilters.map((filter) => (
               <span
                 key={`${filter.label}-${filter.value}`}
@@ -456,7 +456,7 @@ function SourcesTable({
 }) {
   return (
     <section className="border border-gray-200 bg-white">
-      <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+      <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-bold text-[#1f2937]">Source Records</h2>
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Showing {formatCount(sources.length)} of {formatCount(total)} matching
@@ -464,7 +464,7 @@ function SourcesTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1080px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[28%] px-5 py-3 font-semibold">Source</th>
@@ -568,25 +568,25 @@ export default async function SourcesPage({
     : [];
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             Sources / Documents
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
                 Evidence Backbone
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
                 PostgreSQL-backed source records, evidence links, source
                 credibility, and visibility controls. This page is the first
                 read-only working surface for validation and future AI-ready
                 source management.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href="/sources/facts"
@@ -623,7 +623,7 @@ export default async function SourcesPage({
 
           <WorkflowStrip />
 
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-7">
+          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
             <StatTile
               label="Total Sources"
               value={formatCount(data.summary.total)}
@@ -759,7 +759,10 @@ export default async function SourcesPage({
           />
 
           <section className="border border-gray-200 bg-white px-5 py-5">
-            <form className="flex flex-col gap-4 xl:flex-row xl:items-end" action="/sources">
+            <form
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
+              action="/sources"
+            >
               {filters.linkState ? (
                 <input type="hidden" name="linkState" value={filters.linkState} />
               ) : null}
@@ -769,7 +772,7 @@ export default async function SourcesPage({
               {filters.quality ? (
                 <input type="hidden" name="quality" value={filters.quality} />
               ) : null}
-              <label className="flex min-w-[260px] flex-[1.5] flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Search
                 <input
                   name="search"
@@ -801,7 +804,7 @@ export default async function SourcesPage({
                 allLabel="All statuses"
               />
 
-              <div className="flex gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
                 <button
                   type="submit"
                   className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
@@ -817,7 +820,7 @@ export default async function SourcesPage({
               </div>
             </form>
             {activeOperationalFilters.length > 0 ? (
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 pt-4">
+              <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap">
                 {activeOperationalFilters.map((label) => (
                   <span
                     key={label}

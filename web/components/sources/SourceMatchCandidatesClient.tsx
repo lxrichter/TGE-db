@@ -276,15 +276,15 @@ export default function SourceMatchCandidatesClient({
 
   return (
     <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Article Match Candidates</h2>
           <p className="mt-1 text-sm text-gray-500">
             Review generated article/entity matches before creating evidence links.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="mr-1 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
+          <div className="border border-gray-200 bg-[#f7f7f7] px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 sm:col-span-2 xl:mr-1 xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:text-right">
             <div>{selected.size} selected</div>
             {selected.size > 0 ? (
               <div className="mt-1 normal-case tracking-normal text-gray-400">
@@ -392,7 +392,7 @@ export default function SourceMatchCandidatesClient({
       />
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1280px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[44px] px-4 py-3 font-semibold">

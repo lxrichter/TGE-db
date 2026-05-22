@@ -199,7 +199,7 @@ export default function ArticleFactCandidatesClient({
 
   return (
     <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
             Article Fact Candidates
@@ -210,8 +210,8 @@ export default function ArticleFactCandidatesClient({
             evidence links.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
+          <span className="inline-flex h-9 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:col-span-2 xl:border-0 xl:bg-transparent xl:px-0">
             {selected.size} selected
           </span>
           <button
@@ -266,7 +266,7 @@ export default function ArticleFactCandidatesClient({
       />
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed text-left text-sm">
+        <table className="min-w-[1320px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[44px] px-4 py-3 font-semibold">
