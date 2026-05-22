@@ -1098,12 +1098,12 @@ export default async function PostgresCompanyDetailPage({
         </div>
       ) : null}
 
-      <div id="company-ai-suggestions" className="scroll-mt-6">
-        <PostgresFieldSuggestionsPanel
-          canReviewStatus={canReviewRecord}
-          candidates={fieldSuggestionCandidates}
-        />
-      </div>
+      <PostgresFieldSuggestionsPanel
+        id="company-ai-suggestions"
+        canReviewStatus={canReviewRecord}
+        candidates={fieldSuggestionCandidates}
+        collapseWhenIdle
+      />
 
       <DetailSection id="company-source-evidence" title="Source Evidence">
         <PostgresSourceEvidencePanel

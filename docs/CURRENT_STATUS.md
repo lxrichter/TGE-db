@@ -113,6 +113,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   Evidence, filtered Related TGE News / Evidence, and human-reviewed AI
   Suggestions; source evidence confidence values now use the shared confidence
   badge hierarchy
+- The shared detail-page evidence explainer has been tightened into a lighter
+  orientation layer, and AI field suggestion panels on project, plant/facility,
+  and company records now collapse when there is no active review/apply work so
+  advanced AI governance does not visually compete with core editing, evidence,
+  and relationship workflows
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

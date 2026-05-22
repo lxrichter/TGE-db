@@ -153,10 +153,14 @@ function PaginationBar({
 export default function PostgresFieldSuggestionsPanel({
   candidates,
   canReviewStatus,
+  collapseWhenIdle = false,
+  id,
   showEntity = false,
 }: {
   candidates: PostgresFieldSuggestionCandidate[];
   canReviewStatus: boolean;
+  collapseWhenIdle?: boolean;
+  id?: string;
   showEntity?: boolean;
 }) {
   const router = useRouter();
@@ -169,6 +173,14 @@ export default function PostgresFieldSuggestionsPanel({
       !["confirmed", "rejected", "superseded"].includes(
         candidate.suggestion_status_code
       ) && !candidate.applied_at
+  ).length;
+  const applyReadyCount = candidates.filter(
+    (candidate) =>
+      candidate.suggestion_status_code === "confirmed" && !candidate.applied_at
+  ).length;
+  const activeReviewCount = openCount + applyReadyCount;
+  const appliedCount = candidates.filter((candidate) =>
+    Boolean(candidate.applied_at)
   ).length;
   const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
   const clampedPage = Math.min(page, pageCount);
@@ -246,33 +258,8 @@ export default function PostgresFieldSuggestionsPanel({
     }
   }
 
-  return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
-            AI Field Suggestions
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Reviewable field candidates for this record. Confirming a suggestion
-            marks it as accepted but does NOT update the database record.
-            Applying confirmed suggestions is a separate audited write step and
-            only updates supported empty fields.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
-            {formatCount(openCount)} open
-          </span>
-          <Link
-            href="/postgres-preview/research-ops#field-suggestion-review"
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-          >
-            Open Research Ops
-          </Link>
-        </div>
-      </div>
-
+  const content = (
+    <>
       {message ? (
         <div className="border-b border-gray-100 px-5 py-3 text-xs leading-5 text-gray-600">
           {message}
@@ -468,6 +455,82 @@ export default function PostgresFieldSuggestionsPanel({
           Review actions require editor/admin permissions.
         </div>
       ) : null}
+    </>
+  );
+
+  if (collapseWhenIdle && activeReviewCount === 0) {
+    return (
+      <details
+        id={id}
+        className={`border border-gray-200 bg-white ${
+          id ? "scroll-mt-6" : ""
+        }`}
+      >
+        <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+              Advanced Review Layer
+            </div>
+            <h2 className="mt-1 text-lg font-bold text-[#1f2937]">
+              AI Field Suggestions
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+              No active AI review work is waiting on this record. Expand for
+              applied history, rejected candidates, or future extraction output.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+              {formatCount(candidates.length)} total
+            </span>
+            <span className="inline-flex h-8 items-center border border-[#b9d98b] bg-[#f1f8e8] px-3 text-xs font-semibold text-[#3f6f19]">
+              {formatCount(appliedCount)} applied
+            </span>
+            <span className="inline-flex h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600">
+              Expand
+            </span>
+          </div>
+        </summary>
+        <div className="border-t border-gray-200">{content}</div>
+      </details>
+    );
+  }
+
+  return (
+    <section
+      id={id}
+      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+    >
+      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            AI Field Suggestions
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Reviewable field candidates for this record. Confirming a suggestion
+            marks it as accepted but does NOT update the database record.
+            Applying confirmed suggestions is a separate audited write step and
+            only updates supported empty fields.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+            {formatCount(openCount)} open
+          </span>
+          {applyReadyCount > 0 ? (
+            <span className="inline-flex h-9 items-center border border-[#8dc63f] bg-[#f1f8e8] px-3 text-xs font-semibold text-[#3f6f19]">
+              {formatCount(applyReadyCount)} ready to apply
+            </span>
+          ) : null}
+          <Link
+            href="/postgres-preview/research-ops#field-suggestion-review"
+            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            Open Research Ops
+          </Link>
+        </div>
+      </div>
+      {content}
     </section>
   );
 }

@@ -979,12 +979,12 @@ export default async function PostgresProjectDetailPage({
         </div>
       ) : null}
 
-      <div id="project-ai-suggestions" className="scroll-mt-6">
-        <PostgresFieldSuggestionsPanel
-          canReviewStatus={canReviewRecord}
-          candidates={fieldSuggestionCandidates}
-        />
-      </div>
+      <PostgresFieldSuggestionsPanel
+        id="project-ai-suggestions"
+        canReviewStatus={canReviewRecord}
+        candidates={fieldSuggestionCandidates}
+        collapseWhenIdle
+      />
 
       <DetailSection id="project-source-evidence" title="Source Evidence">
         <PostgresSourceEvidencePanel

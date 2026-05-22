@@ -995,12 +995,12 @@ export default async function PostgresOperatingAssetDetailPage({
         </div>
       ) : null}
 
-      <div id="asset-ai-suggestions" className="scroll-mt-6">
-        <PostgresFieldSuggestionsPanel
-          canReviewStatus={canReviewRecord}
-          candidates={fieldSuggestionCandidates}
-        />
-      </div>
+      <PostgresFieldSuggestionsPanel
+        id="asset-ai-suggestions"
+        canReviewStatus={canReviewRecord}
+        candidates={fieldSuggestionCandidates}
+        collapseWhenIdle
+      />
 
       <DetailSection id="asset-source-evidence" title="Source Evidence">
         <PostgresSourceEvidencePanel
