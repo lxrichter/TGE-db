@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SourceForm from "@/components/sources/SourceForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import { getSourceFormReferenceData } from "@/lib/services/sources";
 import type { SourceLink } from "@/lib/services/sources";
 
@@ -42,6 +43,29 @@ function SetupNotice({ error }: { error: string }) {
       <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
     </section>
   );
+}
+
+function targetHref(target: {
+  entity_type: SourceLink["entity_type"];
+  entity_id: string;
+}) {
+  if (target.entity_type === "project") {
+    return `/postgres-preview/projects/${target.entity_id}`;
+  }
+
+  if (target.entity_type === "operating_asset") {
+    return `/postgres-preview/operating-assets/${target.entity_id}`;
+  }
+
+  return `/postgres-preview/companies/${target.entity_id}`;
+}
+
+function targetTypeLabel(value: SourceLink["entity_type"]) {
+  if (value === "operating_asset") {
+    return "plant / facility";
+  }
+
+  return value;
 }
 
 export default async function NewSourcePage({
@@ -96,6 +120,65 @@ export default async function NewSourcePage({
           </p>
         </div>
       </section>
+
+      <NextActionStrip
+        description={
+          initialLinkTarget
+            ? "This source creation flow was opened from a record. Keep the target record, evidence backbone, and review queues close while adding source evidence."
+            : "Create the source record first, then return to evidence governance, entity matching, or fact review when the source is ready for review."
+        }
+        actions={
+          initialLinkTarget
+            ? [
+                {
+                  label: "Linked Target",
+                  title: `Back to ${targetTypeLabel(
+                    initialLinkTarget.entity_type
+                  )}`,
+                  description:
+                    "Return to the record that requested this source evidence.",
+                  href: targetHref(initialLinkTarget),
+                },
+                {
+                  label: "Evidence Backbone",
+                  title: "Open Sources",
+                  description:
+                    "Review source records, credibility states, and linked evidence coverage.",
+                  href: "/sources",
+                },
+                {
+                  label: "Review Work",
+                  title: "Article matches",
+                  description:
+                    "Review article-to-entity candidates before evidence links are confirmed.",
+                  href: "/sources/matches",
+                },
+              ]
+            : [
+                {
+                  label: "Evidence Backbone",
+                  title: "Open Sources",
+                  description:
+                    "Return to the governed source registry and source operations.",
+                  href: "/sources",
+                },
+                {
+                  label: "Entity Matching",
+                  title: "Review article matches",
+                  description:
+                    "Confirm or reject article-to-record match candidates.",
+                  href: "/sources/matches",
+                },
+                {
+                  label: "Fact Review",
+                  title: "Review article facts",
+                  description:
+                    "Triage extracted fact candidates before field suggestions or audited apply.",
+                  href: "/sources/facts",
+                },
+              ]
+        }
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />
