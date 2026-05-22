@@ -10,6 +10,7 @@ import {
   type PostgresPreviewSummary,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
@@ -117,9 +118,64 @@ function SectionHeader({
   );
 }
 
+function WorkAreaCard({
+  title,
+  description,
+  href,
+  label,
+}: {
+  title: string;
+  description: string;
+  href: string;
+  label: string;
+}) {
+  return (
+    <Link
+      className="border border-gray-200 bg-white px-5 py-5 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      href={href}
+    >
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-2 text-lg font-bold text-[#1f2937]">{title}</div>
+      <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
+      <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        Open
+      </div>
+    </Link>
+  );
+}
+
+function RecordPreview({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <details className="border border-gray-200 bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 marker:hidden">
+        <div>
+          <div className="text-sm font-bold text-[#1f2937]">{title}</div>
+          <div className="mt-1 text-xs text-gray-500">
+            {formatCount(count)} preview records
+          </div>
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          Expand
+        </span>
+      </summary>
+      <div className="border-t border-gray-200">{children}</div>
+    </details>
+  );
+}
+
 function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className="bg-white">
       <SectionHeader title="Projects" count={projects.length} />
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
@@ -187,7 +243,7 @@ function OperatingAssetsTable({
   operatingAssets: PostgresPreviewOperatingAsset[];
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className="bg-white">
       <SectionHeader title="Operating Assets" count={operatingAssets.length} />
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
@@ -251,7 +307,7 @@ function OperatingAssetsTable({
 
 function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className="bg-white">
       <SectionHeader title="Companies" count={companies.length} />
       <div className="overflow-x-auto">
         <table className="min-w-full table-fixed text-left text-sm">
@@ -341,76 +397,16 @@ export default async function PostgresPreviewPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href="/postgres-preview/research-ops"
               >
                 Open Research Ops
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/projects"
-              >
-                All Projects
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/operating-assets"
-              >
-                All Plants / Facilities
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/companies"
-              >
-                All Companies
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/countries"
-              >
-                Countries / Markets
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/map"
-              >
-                Map Preview
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/analysis"
-              >
-                Analysis Preview
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href="/postgres-preview/readiness"
               >
                 Replacement Readiness
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/pilot"
-              >
-                Pilot Workflow
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                href="/postgres-preview/projects/new"
-              >
-                New Project
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                href="/postgres-preview/operating-assets/new"
-              >
-                New Plant / Facility
-              </Link>
-              <Link
-                className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                href="/postgres-preview/companies/new"
-              >
-                New Company
               </Link>
             </div>
           </div>
@@ -421,6 +417,13 @@ export default async function PostgresPreviewPage() {
         <SetupNotice error={data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Core"
+            title="Staging Snapshot"
+            description="Entity counts, use components, relationship links."
+            tone="core"
+          />
+
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
             <StatTile
               label="Projects"
@@ -454,9 +457,112 @@ export default async function PostgresPreviewPage() {
             />
           </section>
 
-          <ProjectsTable projects={data.projects} />
-          <OperatingAssetsTable operatingAssets={data.operatingAssets} />
-          <CompaniesTable companies={data.companies} />
+          <DetailPriorityMarker
+            label="Workflow"
+            title="Work Areas"
+            description="Daily operations, entity worklists, intelligence views."
+            tone="workflow"
+          />
+
+          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <WorkAreaCard
+              description="Queue-driven validation, source gaps, missing data, assignments, AI review, and export-blocking issues."
+              href="/postgres-preview/research-ops"
+              label="Operations"
+              title="Research Ops"
+            />
+            <WorkAreaCard
+              description="Create, edit, filter, export, and review development pipeline records."
+              href="/postgres-preview/projects"
+              label="Entity Worklist"
+              title="Projects"
+            />
+            <WorkAreaCard
+              description="Review plants, facilities, operating status, capacity, company roles, and source evidence."
+              href="/postgres-preview/operating-assets"
+              label="Entity Worklist"
+              title="Plants / Facilities"
+            />
+            <WorkAreaCard
+              description="Review company profiles, business identity, relationships, ownership, roles, and evidence."
+              href="/postgres-preview/companies"
+              label="Entity Worklist"
+              title="Companies"
+            />
+            <WorkAreaCard
+              description="Country aggregation, market worklists, validation coverage, and source-gap signals."
+              href="/postgres-preview/countries"
+              label="Market Layer"
+              title="Countries / Markets"
+            />
+            <WorkAreaCard
+              description="Spatial view for projects and operating assets with map-based navigation."
+              href="/postgres-preview/map"
+              label="Spatial View"
+              title="Map"
+            />
+            <WorkAreaCard
+              description="Cross-database analytical snapshot for capacity, lifecycle, use type, and country comparison."
+              href="/postgres-preview/analysis"
+              label="Intelligence View"
+              title="Analysis"
+            />
+            <WorkAreaCard
+              description="Cutover signals for migration rehearsal, data quality, unresolved gaps, and replacement readiness."
+              href="/postgres-preview/readiness"
+              label="Governance"
+              title="Replacement Readiness"
+            />
+          </section>
+
+          <DetailPriorityMarker
+            label="Governance"
+            title="Create And Inspect"
+            description="Quick creation plus expandable record samples."
+            tone="governance"
+          />
+
+          <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <WorkAreaCard
+              description="Start a draft pipeline/development record with readiness checks and evidence workflow."
+              href="/postgres-preview/projects/new"
+              label="Quick Add"
+              title="New Project"
+            />
+            <WorkAreaCard
+              description="Start a draft operating asset, plant, facility, unit, or direct-use record."
+              href="/postgres-preview/operating-assets/new"
+              label="Quick Add"
+              title="New Plant / Facility"
+            />
+            <WorkAreaCard
+              description="Start a draft company profile with business identity, roles, and relationship workflows."
+              href="/postgres-preview/companies/new"
+              label="Quick Add"
+              title="New Company"
+            />
+            <WorkAreaCard
+              description="Step through the replacement workflow acceptance path before internal cutover."
+              href="/postgres-preview/pilot"
+              label="Acceptance"
+              title="Pilot Workflow"
+            />
+          </section>
+
+          <section className="space-y-3">
+            <RecordPreview title="Project Preview Rows" count={data.projects.length}>
+              <ProjectsTable projects={data.projects} />
+            </RecordPreview>
+            <RecordPreview
+              title="Plant / Facility Preview Rows"
+              count={data.operatingAssets.length}
+            >
+              <OperatingAssetsTable operatingAssets={data.operatingAssets} />
+            </RecordPreview>
+            <RecordPreview title="Company Preview Rows" count={data.companies.length}>
+              <CompaniesTable companies={data.companies} />
+            </RecordPreview>
+          </section>
         </>
       )}
     </main>

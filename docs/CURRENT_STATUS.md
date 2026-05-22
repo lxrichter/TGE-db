@@ -138,6 +138,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   table, grouping review coverage, evidence/core gaps, relationship gaps,
   issues, and entity worklist links into fewer columns so migration risk is
   visible without reading a full audit report first
+- PostgreSQL Preview landing page now follows the same compact hierarchy as the
+  other staging surfaces, with primary Research Ops/readiness actions,
+  work-area cards for entity/intelligence/governance routes, quick-add cards,
+  and expandable sample record tables instead of one large button-and-table
+  index
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals
