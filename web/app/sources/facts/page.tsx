@@ -27,6 +27,7 @@ export const dynamic = "force-dynamic";
 
 type ArticleFactSearchParams = {
   search?: string;
+  sourceId?: string;
   status?: string;
   factType?: string;
   fieldName?: string;
@@ -71,6 +72,7 @@ function articleFactHref(filters: ArticleFactSearchParams, nextPage: number) {
   const params = new URLSearchParams();
 
   if (filters.search) params.set("search", filters.search);
+  if (filters.sourceId) params.set("sourceId", filters.sourceId);
   if (filters.status) params.set("status", filters.status);
   if (filters.factType) params.set("factType", filters.factType);
   if (filters.fieldName) params.set("fieldName", filters.fieldName);
@@ -98,6 +100,7 @@ async function getArticleFactData(
       limit: pageSize,
       offset,
       search: params.search,
+      sourceId: params.sourceId,
       status: params.status,
       factType: params.factType,
       fieldName: params.fieldName,
@@ -323,6 +326,7 @@ export default async function ArticleFactCandidatesPage({
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const filters = {
     search: cleanParam(resolvedSearchParams.search),
+    sourceId: cleanParam(resolvedSearchParams.sourceId),
     status: cleanParam(resolvedSearchParams.status),
     factType: cleanParam(resolvedSearchParams.factType),
     fieldName: cleanParam(resolvedSearchParams.fieldName),
@@ -337,6 +341,14 @@ export default async function ArticleFactCandidatesPage({
               label: "Search",
               value: filters.search,
               href: articleFactFilterHref(filters, { search: undefined }),
+            }
+          : null,
+        filters.sourceId
+          ? {
+              key: "sourceId",
+              label: "Source",
+              value: "Current source",
+              href: articleFactFilterHref(filters, { sourceId: undefined }),
             }
           : null,
         filters.status
@@ -527,6 +539,9 @@ export default async function ArticleFactCandidatesPage({
                 className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
                 action="/sources/facts"
               >
+                {filters.sourceId ? (
+                  <input type="hidden" name="sourceId" value={filters.sourceId} />
+                ) : null}
                 <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Search
                   <input

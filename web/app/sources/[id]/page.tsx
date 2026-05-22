@@ -621,7 +621,7 @@ function SourceActionHub({
       detail: `${formatCount(openSourceMatchCount)} article/entity match candidate${
         openSourceMatchCount === 1 ? "" : "s"
       } waiting for review.`,
-      href: "#source-match-candidates",
+      href: `/sources/matches?sourceId=${source.source_id}`,
       tone: "warning",
     });
   }
@@ -632,7 +632,7 @@ function SourceActionHub({
       detail: `${formatCount(openArticleFactCount)} fact candidate${
         openArticleFactCount === 1 ? "" : "s"
       } waiting for human review.`,
-      href: "#source-fact-candidates",
+      href: `/sources/facts?sourceId=${source.source_id}`,
       tone: "warning",
     });
   }

@@ -21,6 +21,7 @@ export const dynamic = "force-dynamic";
 
 type SourceMatchSearchParams = {
   search?: string;
+  sourceId?: string;
   status?: string;
   entityType?: string;
   flagged?: string;
@@ -71,6 +72,7 @@ function sourceMatchHref(
   const params = new URLSearchParams();
 
   if (filters.search) params.set("search", filters.search);
+  if (filters.sourceId) params.set("sourceId", filters.sourceId);
   if (filters.status) params.set("status", filters.status);
   if (filters.entityType) params.set("entityType", filters.entityType);
   if (filters.flagged) params.set("flagged", filters.flagged);
@@ -97,6 +99,7 @@ async function getSourceMatchData(
       limit: pageSize,
       offset,
       search: params.search,
+      sourceId: params.sourceId,
       status: params.status,
       entityType: params.entityType,
       flagged: params.flagged === "1",
@@ -197,6 +200,7 @@ export default async function SourceMatchCandidatesPage({
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const filters = {
     search: cleanParam(resolvedSearchParams.search),
+    sourceId: cleanParam(resolvedSearchParams.sourceId),
     status: cleanParam(resolvedSearchParams.status),
     entityType: cleanParam(resolvedSearchParams.entityType),
     flagged: cleanParam(resolvedSearchParams.flagged),
@@ -211,6 +215,14 @@ export default async function SourceMatchCandidatesPage({
               label: "Search",
               value: filters.search,
               href: sourceMatchFilterHref(filters, { search: undefined }),
+            }
+          : null,
+        filters.sourceId
+          ? {
+              key: "sourceId",
+              label: "Source",
+              value: "Current source",
+              href: sourceMatchFilterHref(filters, { sourceId: undefined }),
             }
           : null,
         filters.status
@@ -389,6 +401,9 @@ export default async function SourceMatchCandidatesPage({
                 className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[minmax(260px,1.5fr)_repeat(3,minmax(170px,1fr))_auto] xl:items-end"
                 action="/sources/matches"
               >
+                {filters.sourceId ? (
+                  <input type="hidden" name="sourceId" value={filters.sourceId} />
+                ) : null}
                 <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Search
                   <input
