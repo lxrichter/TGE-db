@@ -91,7 +91,7 @@ export default async function EditPostgresOperatingAssetPage({
   const data = await getFormData(id);
 
   if (!data.ok && data.error === "not_found") {
-    return <NotFoundNotice label="Operating asset" backHref="/postgres-preview" />;
+    return <NotFoundNotice label="Plant" backHref="/postgres-preview" />;
   }
 
   return (

@@ -1269,7 +1269,7 @@ function getCompanyReadinessIssues(
   if ((relationships.activityLinkCount || 0) === 0) {
     issues.push({
       severity: "workflow",
-      label: "Project or asset role links needed",
+      label: "Project or plant role links needed",
       detail: "Company portfolios and ownership links are managed on the detail page.",
       issueTypeCode: "missing_company_link",
       linkedField: "company_roles",
@@ -2089,7 +2089,7 @@ function CompanyWorkflowBridge({
       {mode === "create" ? (
         <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
           For new records, save the company draft first. The saved detail page
-          then exposes evidence, project/asset roles, ownership, group, and JV
+          then exposes evidence, project/plant roles, ownership, group, and JV
           relationship workflows against the new company ID.
         </p>
       ) : null}
@@ -3105,7 +3105,7 @@ export function PostgresCompanyForm({
             </div>
             <p className="mt-1">
               Developer, owner, operator, supplier, investor, and similar roles
-              belong on project/asset relationship links after save.
+              belong on project/plant relationship links after save.
             </p>
           </div>
         </div>

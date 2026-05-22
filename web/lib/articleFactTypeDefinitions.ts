@@ -41,7 +41,7 @@ export const ARTICLE_FACT_TYPE_DEFINITIONS: ArticleFactTypeDefinition[] = [
     reject: [
       "article publication year, conference year, or company history year",
       "policy, funding, or tender years that do not indicate operation timing",
-      "generic future years without a clear project/asset timing claim",
+      "generic future years without a clear project/plant timing claim",
     ],
   },
   {

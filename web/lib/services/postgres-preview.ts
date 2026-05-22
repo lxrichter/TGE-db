@@ -1236,7 +1236,7 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
     key: "missing_country",
     title: "Missing Country",
     severity: "critical",
-    description: "Project and operating asset records missing a country.",
+    description: "Project and plant records missing a country.",
     sql: `
       SELECT
         'missing_country'::text AS queue_key,
@@ -1275,7 +1275,7 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
     key: "missing_lifecycle",
     title: "Missing Lifecycle / Status",
     severity: "critical",
-    description: "Project and asset records still using unknown lifecycle placeholders.",
+    description: "Project and plant records still using unknown lifecycle placeholders.",
     sql: `
       SELECT
         'missing_lifecycle'::text AS queue_key,
@@ -1316,7 +1316,7 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
     key: "missing_use_type",
     title: "Missing Use Type / Category",
     severity: "critical",
-    description: "Project and asset records without power/direct-use/hybrid classification.",
+    description: "Project and plant records without power/direct-use/hybrid classification.",
     sql: `
       SELECT
         'missing_use_type'::text AS queue_key,
@@ -1357,7 +1357,7 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
     key: "missing_company_link",
     title: "Missing Company Link",
     severity: "important",
-    description: "Project and asset records without structured company-role links.",
+    description: "Project and plant records without structured company-role links.",
     sql: `
       SELECT
         'missing_company_link'::text AS queue_key,
@@ -1402,7 +1402,7 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
     key: "missing_coordinates",
     title: "Missing Coordinates",
     severity: "important",
-    description: "Project and asset records that cannot be mapped yet.",
+    description: "Project and plant records that cannot be mapped yet.",
     sql: `
       SELECT
         'missing_coordinates'::text AS queue_key,
@@ -1441,7 +1441,7 @@ const researchOpsQueueDefinitions: QueueDefinition[] = [
     key: "missing_capacity",
     title: "Missing Capacity / Output",
     severity: "important",
-    description: "Project and asset records without any structured capacity or output value.",
+    description: "Project and plant records without any structured capacity or output value.",
     sql: `
       SELECT
         'missing_capacity'::text AS queue_key,
@@ -1844,7 +1844,7 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
 
     SELECT
       'operating_assets'::text AS entity_type,
-      'Plants / Facilities'::text AS label,
+      'Plants'::text AS label,
       count(*)::int AS record_count,
       count(*) FILTER (
         WHERE a.review_status_code IN ('approved', 'export_ready')
@@ -3252,7 +3252,7 @@ function approvalReadinessIssues({
     }
   } else if (entityType === "operating_asset") {
     if (!approvalHasText(data, "asset_name")) {
-      issues.push("plant / facility name is missing");
+      issues.push("plant name is missing");
     }
 
     if (!approvalHasText(data, "country")) {
@@ -5015,7 +5015,7 @@ export async function promotePostgresProjectToOperatingAsset({
   );
 
   if (!operatingAsset) {
-    throw new Error("Promoted operating asset could not be reloaded.");
+    throw new Error("Promoted plant could not be reloaded.");
   }
 
   return {
@@ -5267,7 +5267,7 @@ export async function createPostgresPreviewOperatingAsset(
   );
 
   if (!detail) {
-    throw new Error("Created operating asset could not be reloaded.");
+    throw new Error("Created plant could not be reloaded.");
   }
 
   return detail;

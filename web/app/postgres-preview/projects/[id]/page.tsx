@@ -431,7 +431,7 @@ function ProjectActionHub({
   });
 
   actions.push({
-    label: promotedAssetCount > 0 ? "Promoted Assets" : "Promotion Review",
+    label: promotedAssetCount > 0 ? "Promoted Plants" : "Promotion Review",
     detail:
       promotedAssetCount > 0
         ? `${formatCount(promotedAssetCount)} linked plant promotion${

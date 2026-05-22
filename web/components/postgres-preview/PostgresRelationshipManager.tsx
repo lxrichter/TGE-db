@@ -1025,7 +1025,7 @@ export function OperatingAssetCompanyLinksPanel({
             }
           />
         </Field>
-        <Field label="Asset Share %" approvalSensitive important>
+        <Field label="Plant Share %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -1487,7 +1487,7 @@ function CompanyAssetPortfolio({
             }
           />
         </Field>
-        <Field label="Asset Share %" approvalSensitive important>
+        <Field label="Plant Share %" approvalSensitive important>
           <input
             className={inputClass()}
             value={form.ownership_share}
@@ -1501,7 +1501,7 @@ function CompanyAssetPortfolio({
           disabled={saving}
           type="submit"
         >
-          {saving ? "Saving..." : "Add Asset Role"}
+          {saving ? "Saving..." : "Add Plant Role"}
         </button>
       </form>
 

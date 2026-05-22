@@ -111,7 +111,7 @@ export default async function EditPostgresCompanyPage({
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
                 Update the staging company profile. Draft saves remain allowed
-                while source evidence, project/asset roles, ownership links,
+                while source evidence, project/plant roles, ownership links,
                 and group relationships are completed through the saved detail
                 workflow.
               </p>

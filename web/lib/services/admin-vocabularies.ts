@@ -68,7 +68,7 @@ const VOCABULARY_GROUPS: VocabularyGroupConfig[] = [
     key: "lifecycle_phases",
     table: "ref_lifecycle_phases",
     title: "Lifecycle / Operating Statuses",
-    description: "Shared status vocabulary for projects and operating assets.",
+    description: "Shared status vocabulary for projects and plants.",
     metadataColumns: [{ column: "is_operating", label: "Operating" }],
   },
   {
@@ -100,7 +100,7 @@ const VOCABULARY_GROUPS: VocabularyGroupConfig[] = [
     key: "company_roles",
     table: "ref_company_roles",
     title: "Company Relationship Roles",
-    description: "Structured roles companies play on projects and operating assets.",
+    description: "Structured roles companies play on projects and plants.",
     hasDescription: true,
     metadataColumns: [{ column: "role_group", label: "Role Group" }],
   },

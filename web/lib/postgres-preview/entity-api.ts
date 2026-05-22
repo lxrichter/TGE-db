@@ -422,7 +422,7 @@ export async function parseOperatingAssetMutationInput(
   const inputBody = asRecord(body);
 
   if (!inputBody) {
-    return { ok: false, error: "Invalid operating asset payload." };
+    return { ok: false, error: "Invalid plant payload." };
   }
 
   const referenceData = await getPostgresEntityFormReferenceData();
@@ -434,7 +434,7 @@ export async function parseOperatingAssetMutationInput(
   const assetName = cleanString(inputBody.asset_name);
 
   if (!assetName) {
-    return { ok: false, error: "Plant / Facility name is required." };
+    return { ok: false, error: "Plant name is required." };
   }
 
   const useType = cleanString(inputBody.primary_use_type_code) || "unknown";

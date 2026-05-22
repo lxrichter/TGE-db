@@ -62,7 +62,7 @@ function targetHref(target: {
 
 function targetTypeLabel(value: SourceLink["entity_type"]) {
   if (value === "operating_asset") {
-    return "plant / facility";
+    return "plant";
   }
 
   return value;

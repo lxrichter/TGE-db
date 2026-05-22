@@ -4333,7 +4333,7 @@ export function ResearchOpsDashboardClient({
             >
               <option value="all">All record types</option>
               <option value="project">Projects</option>
-              <option value="operating_asset">Assets</option>
+              <option value="operating_asset">Plants</option>
               <option value="company">Companies</option>
               <option value="source">Sources</option>
             </FilterSelect>
@@ -4442,7 +4442,7 @@ export function ResearchOpsDashboardClient({
         </section>
 
         <PostgresStatusLegend
-          description="Research Ops uses badge colors to separate data quality severity, human review state, project/asset phase, source credibility, and AI candidate confidence."
+          description="Research Ops uses badge colors to separate data quality severity, human review state, project/plant status, source credibility, and AI candidate confidence."
           groups={["severity", "review", "lifecycle", "source", "confidence"]}
           title="Research Ops Badge Meaning"
         />

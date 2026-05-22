@@ -67,7 +67,7 @@ const pilotSteps: PilotStep[] = [
     checks: [
       "Primary company type is clear and controlled.",
       "Company relationships and activity links are easy to find.",
-      "Missing project/asset link warnings are actionable.",
+      "Missing project/plant link warnings are actionable.",
       "Company records appear correctly in search and country summaries.",
     ],
     links: [

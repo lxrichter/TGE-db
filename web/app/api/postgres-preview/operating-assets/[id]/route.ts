@@ -20,7 +20,7 @@ export async function GET(
 
     if (!operatingAsset) {
       return NextResponse.json(
-        { success: false, error: "Operating asset not found." },
+        { success: false, error: "Plant not found." },
         { status: 404 }
       );
     }
@@ -31,7 +31,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to load PostgreSQL preview operating asset.",
+        error: "Failed to load PostgreSQL preview plant.",
       },
       { status: 500 }
     );
@@ -80,7 +80,7 @@ export async function PATCH(
 
     if (!operatingAsset) {
       return NextResponse.json(
-        { success: false, error: "Operating asset not found." },
+        { success: false, error: "Plant not found." },
         { status: 404 }
       );
     }
@@ -98,7 +98,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to update PostgreSQL preview operating asset.",
+        error: "Failed to update PostgreSQL preview plant.",
       },
       { status: 500 }
     );

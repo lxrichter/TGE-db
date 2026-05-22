@@ -108,8 +108,8 @@ export async function GET(request: NextRequest) {
       {
         error:
           error instanceof Error
-            ? `Failed to export PostgreSQL operating assets: ${error.message}`
-            : "Failed to export PostgreSQL operating assets",
+            ? `Failed to export PostgreSQL plants: ${error.message}`
+            : "Failed to export PostgreSQL plants",
       },
       { status: 500 }
     );

@@ -19,7 +19,7 @@ export async function GET() {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to load PostgreSQL preview operating assets.",
+        error: "Failed to load PostgreSQL preview plants.",
       },
       { status: 500 }
     );
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to create PostgreSQL preview operating asset.",
+        error: "Failed to create PostgreSQL preview plant.",
       },
       { status: 500 }
     );
