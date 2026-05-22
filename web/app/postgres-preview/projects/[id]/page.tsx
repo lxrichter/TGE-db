@@ -336,9 +336,9 @@ function ProjectGovernanceOverview({
       </div>
 
       <GovernanceLifecyclePanel
-        description="Operational position of this project record across identity, evidence, validation, and AI-assisted review."
+        description="Operational readiness of this project record across identity, evidence, validation, and AI-assisted review."
         steps={lifecycleSteps}
-        title="Project Workflow State"
+        title="Project Readiness"
       />
     </section>
   );
@@ -475,7 +475,7 @@ function ProjectActionHub({
       actions={actions}
       blockerCount={blockers.length}
       description="Use this as the operational entry point for this project record: fix critical fields, strengthen evidence, review AI suggestions, manage relationships, and check promotion/export readiness."
-      title="Project Action Hub"
+      title="Project Actions"
       warningCount={warnings.length}
     />
   );

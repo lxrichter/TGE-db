@@ -236,11 +236,12 @@ export function PendingReviewChangesPanel({
   const needsReReview = currentReviewStatus === "needs_update";
 
   return (
-    <section
+    <details
       id={id}
       className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+      open={needsReReview}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 border-b border-gray-200 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
             Changed Fields For Review
@@ -254,8 +255,11 @@ export function PendingReviewChangesPanel({
         <div className="flex flex-wrap gap-2">
           <StatusBadge domain="review" value={currentReviewStatus} />
           <StatusBadge value={`${formatCount(rows.length)} field changes`} />
+          <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            {needsReReview ? "Open" : "Expand"}
+          </span>
         </div>
-      </div>
+      </summary>
 
       <div className="space-y-4 px-5 py-5">
         {needsReReview ? (
@@ -321,7 +325,7 @@ export function PendingReviewChangesPanel({
           </div>
         )}
       </div>
-    </section>
+    </details>
   );
 }
 
@@ -333,11 +337,11 @@ export function AuditTrailPanel({
   id?: string;
 }) {
   return (
-    <section
+    <details
       id={id}
       className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 border-b border-gray-200 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
             Activity / Audit Trail
@@ -347,8 +351,13 @@ export function AuditTrailPanel({
             status changes and audited AI-assisted field applications.
           </p>
         </div>
-        <StatusBadge value={`${formatCount(events.length)} events`} />
-      </div>
+        <div className="flex flex-wrap gap-2">
+          <StatusBadge value={`${formatCount(events.length)} events`} />
+          <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            Expand
+          </span>
+        </div>
+      </summary>
 
       {events.length === 0 ? (
         <div className="px-5 py-5">
@@ -410,7 +419,7 @@ export function AuditTrailPanel({
           </table>
         </div>
       )}
-    </section>
+    </details>
   );
 }
 

@@ -439,9 +439,9 @@ function CompanyGovernanceOverview({
       </div>
 
       <GovernanceLifecyclePanel
-        description="Operational position of this company record across classification, activity links, evidence, validation, and AI-assisted review."
+        description="Operational readiness of this company record across classification, activity links, evidence, validation, and AI-assisted review."
         steps={lifecycleSteps}
-        title="Company Workflow State"
+        title="Company Readiness"
       />
     </section>
   );
@@ -586,7 +586,7 @@ function CompanyActionHub({
       actions={actions}
       blockerCount={blockers.length}
       description="Use this as the operational entry point for this company record: confirm classification, manage portfolios and ownership links, strengthen evidence, review AI suggestions, and check export readiness."
-      title="Company Action Hub"
+      title="Company Actions"
       warningCount={warnings.length}
     />
   );

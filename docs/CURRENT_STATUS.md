@@ -503,6 +503,9 @@ Known current gaps and risks:
 - PostgreSQL project, operating asset, and company detail pages now show a
   compact next required action strip before the fuller workflow map, giving
   users one prioritized action without hiding the deeper workbench
+- first entity hierarchy tuning pass renamed prototype-style workflow labels
+  and collapsed changed-fields/audit trail governance sections by default so
+  advanced review material no longer competes with core editing
 
 ## Validation Snapshot
 
@@ -517,6 +520,8 @@ Last checked locally:
   no build rerun was required for that documentation pass
 - targeted lint and `npm run build` passed for the entity next-required-action
   strip added on 2026-05-22
+- targeted lint and `npm run build` passed for the entity hierarchy tuning pass
+  added on 2026-05-22
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.

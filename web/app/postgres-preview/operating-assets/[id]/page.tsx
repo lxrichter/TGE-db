@@ -341,9 +341,9 @@ function AssetGovernanceOverview({
       </div>
 
       <GovernanceLifecyclePanel
-        description="Operational position of this plant/facility across identity, operating status, evidence, validation, and AI-assisted review."
+        description="Operational readiness of this plant/facility across identity, operating status, evidence, validation, and AI-assisted review."
         steps={lifecycleSteps}
-        title="Asset Workflow State"
+        title="Facility Readiness"
       />
     </section>
   );
@@ -489,7 +489,7 @@ function AssetActionHub({
       actions={actions}
       blockerCount={blockers.length}
       description="Use this as the operational entry point for this plant/facility: confirm operating data, strengthen evidence, review AI suggestions, manage company roles, and check export readiness."
-      title="Plant / Facility Action Hub"
+      title="Operational Actions"
       warningCount={warnings.length}
     />
   );

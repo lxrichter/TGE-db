@@ -84,7 +84,7 @@ export default function PostgresRecordActionHub({
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            Record Workbench
+            Operational Focus
           </div>
           <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{title}</h2>
           <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
