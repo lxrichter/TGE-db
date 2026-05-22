@@ -13,9 +13,7 @@ import type {
   PostgresPreviewOperatingAssetDetail,
   PostgresPreviewProjectDetail,
 } from "@/lib/postgres-preview";
-import PostgresStatusBadge, {
-  postgresStatusToneClass,
-} from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 type EntityFormMode = "create" | "edit";
 type EntityFormValues = Record<string, string>;
@@ -502,17 +500,17 @@ function FormWorkflowRail({
       </div>
       <div className="space-y-4 px-4 py-4">
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="border border-red-100 bg-red-50 px-3 py-2">
+          <div className="border border-red-100 bg-white px-3 py-2">
             <div className="text-lg font-bold text-red-800">{criticalCount}</div>
-            <div className="font-semibold text-red-800">Critical</div>
+            <div className="font-semibold text-gray-700">Critical</div>
           </div>
-          <div className="border border-amber-100 bg-amber-50 px-3 py-2">
+          <div className="border border-amber-100 bg-white px-3 py-2">
             <div className="text-lg font-bold text-amber-800">{importantCount}</div>
-            <div className="font-semibold text-amber-800">Important</div>
+            <div className="font-semibold text-gray-700">Important</div>
           </div>
-          <div className="border border-blue-100 bg-blue-50 px-3 py-2">
+          <div className="border border-blue-100 bg-white px-3 py-2">
             <div className="text-lg font-bold text-blue-800">{workflowCount}</div>
-            <div className="font-semibold text-blue-800">Workflow</div>
+            <div className="font-semibold text-gray-700">Workflow</div>
           </div>
           <div className="border border-gray-200 bg-[#fafafa] px-3 py-2">
             <div className="text-lg font-bold text-[#1f2937]">{changedCount}</div>
@@ -630,14 +628,14 @@ function hasAnyValue(form: EntityFormValues, names: string[]) {
 
 function issueTone(severity: FormReadinessIssue["severity"]) {
   if (severity === "critical") {
-    return postgresStatusToneClass("danger");
+    return "border-red-200 bg-white text-red-800";
   }
 
   if (severity === "important") {
-    return postgresStatusToneClass("attention");
+    return "border-amber-200 bg-white text-amber-900";
   }
 
-  return postgresStatusToneClass("info");
+  return "border-blue-200 bg-white text-blue-900";
 }
 
 function issueMeaning(severity: FormReadinessIssue["severity"]) {
@@ -662,7 +660,7 @@ function ReadinessMeaningCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
+    <div className="border border-gray-200 bg-white px-3 py-2.5">
       <PostgresStatusBadge domain="severity" label={label} value={severity} />
       <p className="mt-2 text-xs leading-5 text-gray-600">{children}</p>
     </div>
@@ -829,8 +827,8 @@ function FormReadinessPanel({
           ) : null}
         </div>
       </div>
-      <div className="space-y-4 px-5 py-5">
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="space-y-3 px-4 py-4 sm:px-5">
+        <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-3">
           <ReadinessMeaningCard label="Critical" severity="critical">
             Blocks review, approval, and export-ready use. Save draft remains
             allowed.
@@ -915,14 +913,14 @@ function FormReadinessPanel({
             are still checked in their separate workflows.
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
             {issues.map((issue) => {
               const fieldHref = issueFieldHref(issue);
 
               return (
                 <div
                   key={`${issue.severity}-${issue.label}`}
-                  className={`border px-4 py-3 ${issueTone(issue.severity)}`}
+                  className={`border px-3 py-3 ${issueTone(issue.severity)}`}
                 >
                   <div className="text-xs font-semibold uppercase tracking-wide">
                     {issue.severity}
