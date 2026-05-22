@@ -5,6 +5,7 @@ import SourceReviewFilterChips, {
 } from "@/components/sources/SourceReviewFilterChips";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import { formatCount } from "@/lib/format";
 import {
   countSourceMatchCandidates,
@@ -279,6 +280,30 @@ export default async function SourceMatchCandidatesPage({
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From article match review, the next step should be checking the source record, confirming entity links, or returning the workload to Research Ops."
+        actions={[
+          {
+            label: "Source Context",
+            title: "Open Evidence Backbone",
+            description: "Review source records, credibility state, and existing evidence links.",
+            href: "/sources",
+          },
+          {
+            label: "Fact Candidates",
+            title: "Review extracted facts",
+            description: "Move from article/entity matches into compact extracted fact review.",
+            href: "/sources/facts",
+          },
+          {
+            label: "Operations",
+            title: "Open match queue",
+            description: "Return to Research Ops for article match workload visibility.",
+            href: "/postgres-preview/research-ops#article-match-review",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

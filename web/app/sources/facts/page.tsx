@@ -6,6 +6,7 @@ import SourceReviewFilterChips, {
 } from "@/components/sources/SourceReviewFilterChips";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import { getArticleFactTypeDefinition } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
@@ -412,6 +413,30 @@ export default async function ArticleFactCandidatesPage({
           </div>
         </div>
       </section>
+
+      <NextActionStrip
+        description="From article fact review, the next step should be source context, entity lookup, or Research Ops governance before any field suggestion is applied."
+        actions={[
+          {
+            label: "Source Context",
+            title: "Open Evidence Backbone",
+            description: "Review source records, credibility state, and linked evidence coverage.",
+            href: "/sources",
+          },
+          {
+            label: "Entity Linking",
+            title: "Review article matches",
+            description: "Check whether extracted facts have a reviewed article-to-entity path.",
+            href: "/sources/matches",
+          },
+          {
+            label: "Operations",
+            title: "Open fact queue",
+            description: "Return to Research Ops for fact review and field-suggestion governance.",
+            href: "/postgres-preview/research-ops#article-fact-review",
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

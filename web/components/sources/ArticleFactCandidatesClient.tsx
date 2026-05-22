@@ -63,6 +63,15 @@ function sourceHref(candidate: ArticleFactCandidateItem) {
   return null;
 }
 
+function entitySearchHref(candidate: ArticleFactCandidateItem) {
+  if (!candidate.entity_label?.trim()) {
+    return null;
+  }
+
+  const params = new URLSearchParams({ q: candidate.entity_label.trim() });
+  return `/search?${params.toString()}`;
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -303,6 +312,7 @@ export default function ArticleFactCandidatesClient({
       <div className="divide-y divide-gray-100 lg:hidden">
         {pageItems.map((candidate) => {
           const href = sourceHref(candidate);
+          const entityHref = entitySearchHref(candidate);
           const sourceLabel =
             candidate.source_title ||
             candidate.article_title ||
@@ -371,7 +381,17 @@ export default function ArticleFactCandidatesClient({
                   </div>
                   {candidate.entity_label ? (
                     <div className="mt-1 text-xs text-gray-500">
-                      Entity signal: {candidate.entity_label}
+                      Entity signal:{" "}
+                      {entityHref ? (
+                        <Link
+                          href={entityHref}
+                          className="font-semibold text-[#4f7f1f] hover:underline"
+                        >
+                          {candidate.entity_label}
+                        </Link>
+                      ) : (
+                        candidate.entity_label
+                      )}
                     </div>
                   ) : null}
                 </MobileFactField>
@@ -443,6 +463,7 @@ export default function ArticleFactCandidatesClient({
           <tbody className="divide-y divide-gray-100">
             {pageItems.map((candidate) => {
               const href = sourceHref(candidate);
+              const entityHref = entitySearchHref(candidate);
               const sourceLabel =
                 candidate.source_title ||
                 candidate.article_title ||
@@ -498,7 +519,17 @@ export default function ArticleFactCandidatesClient({
                     </div>
                     {candidate.entity_label ? (
                       <div className="mt-2 text-xs text-gray-500">
-                        Entity signal: {candidate.entity_label}
+                        Entity signal:{" "}
+                        {entityHref ? (
+                          <Link
+                            href={entityHref}
+                            className="font-semibold text-[#4f7f1f] hover:underline"
+                          >
+                            {candidate.entity_label}
+                          </Link>
+                        ) : (
+                          candidate.entity_label
+                        )}
                       </div>
                     ) : null}
                   </td>
