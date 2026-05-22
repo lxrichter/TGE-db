@@ -108,12 +108,12 @@ export default async function NewSourcePage({
                   {initialLinkTarget.label}
                 </span>{" "}
                 after save. The evidence link remains governed separately from
-                the project, plant/facility, or company fields.
+                the project, plant, or company fields.
               </>
             ) : (
               <>
                 Add a PostgreSQL source/evidence record. Source linking to
-                projects, plants/facilities, and companies is available after
+                projects, plants, and companies is available after
                 the source has been created.
               </>
             )}

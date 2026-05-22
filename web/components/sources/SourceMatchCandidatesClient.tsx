@@ -107,7 +107,7 @@ function entityHref(candidate: SourceMatchCandidateItem) {
 
 function entityTypeLabel(value: string) {
   if (value === "operating_asset") {
-    return "Plant / Facility";
+    return "Plant";
   }
 
   if (value === "project") {
@@ -342,7 +342,7 @@ export default function SourceMatchCandidatesClient({
     if (
       action === "confirm" &&
       !window.confirm(
-        `Confirm ${selectedIds.length} article match candidate(s) and create or reuse evidence link(s)? This links sources to records but does not update project, plant/facility, or company fields.`
+        `Confirm ${selectedIds.length} article match candidate(s) and create or reuse evidence link(s)? This links sources to records but does not update project, plant, or company fields.`
       )
     ) {
       return;
@@ -459,7 +459,7 @@ export default function SourceMatchCandidatesClient({
           <div className="font-semibold text-[#1f2937]">Confirm means evidence link</div>
           <p className="mt-1 leading-5">
             Confirmation links the TGE article to the record. It does not update
-            project, plant/facility, or company fields.
+            project, plant, or company fields.
           </p>
         </div>
         <div>

@@ -434,11 +434,11 @@ function ProjectActionHub({
     label: promotedAssetCount > 0 ? "Promoted Assets" : "Promotion Review",
     detail:
       promotedAssetCount > 0
-        ? `${formatCount(promotedAssetCount)} linked plant/facility promotion${
+        ? `${formatCount(promotedAssetCount)} linked plant promotion${
             promotedAssetCount === 1 ? "" : "s"
           } recorded.`
         : canPromoteRecord
-          ? "Use when a project has become an operating plant/facility or unit."
+          ? "Use when a project has become an operating plant or unit."
           : "Promotion is editor/admin controlled.",
     href: "#project-promotion",
     tone: promotedAssetCount > 0 ? "ready" : "neutral",
@@ -926,7 +926,7 @@ export default async function PostgresProjectDetailPage({
             {
               label: "Promotion",
               href: "#project-promotion",
-              note: "Project to plant/facility promotion workflow",
+              note: "Project to plant promotion workflow",
             },
             {
               label: "Issues",

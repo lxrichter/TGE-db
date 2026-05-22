@@ -97,7 +97,7 @@ export default async function EditPostgresProjectPage({
                 Update the staging project record. Approved or export-ready
                 records edited through this path are moved back toward review
                 unless an editor keeps the approval status. Evidence, company
-                roles, and linked plant/facility workflows are visible in the
+                roles, and linked plant workflows are visible in the
                 form but managed on the project detail page.
               </p>
             </div>

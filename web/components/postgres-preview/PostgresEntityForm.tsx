@@ -1099,8 +1099,8 @@ function getAssetReadinessIssues(
   if (!hasValue(form, "asset_name")) {
     issues.push({
       severity: "critical",
-      label: "Missing plant / facility name",
-      detail: "An operating asset needs a stable name before review.",
+      label: "Missing plant name",
+      detail: "A plant record needs a stable name before review.",
       issueTypeCode: "research_note",
       linkedField: "asset_name",
     });
@@ -1428,8 +1428,8 @@ function ProjectWorkflowBridge({
             href: relationshipsHref,
           },
           {
-            label: "Linked Assets",
-            description: "Review promotion and plant/facility links.",
+            label: "Linked Plants",
+            description: "Review promotion and plant links.",
             href: linkedAssetHref,
           },
           {
@@ -1553,11 +1553,11 @@ function ProjectWorkflowBridge({
 
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
-            Related Plant / Facility
+            Related Plant
           </h3>
           <p className="mt-2 text-xs leading-5 text-gray-600">
-            Linked plant/facility, promotion, expansion, and historical
-            project-to-asset relationships stay in the project detail workflow.
+            Linked plant, promotion, expansion, and historical
+            project-to-plant relationships stay in the project detail workflow.
           </p>
           <div className="mt-3">
             {linkedAssetHref ? (
@@ -1565,18 +1565,18 @@ function ProjectWorkflowBridge({
                 className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={linkedAssetHref}
               >
-                Review Linked Assets
+                Review Linked Plants
               </Link>
             ) : (
               <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
-                Save first to link assets
+                Save first to link plants
               </span>
             )}
           </div>
           {project ? (
             <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
               <div className="font-semibold text-[#1f2937]">
-                {promotedAssetCount} linked plant/facility promotion
+                {promotedAssetCount} linked plant promotion
                 {promotedAssetCount === 1 ? "" : "s"}
               </div>
               {promotedAssetPreview.length > 0 ? (
@@ -1598,7 +1598,7 @@ function ProjectWorkflowBridge({
                 </ul>
               ) : (
                 <div className="mt-1 text-gray-500">
-                  No linked operating asset yet.
+                  No linked plant yet.
                 </div>
               )}
             </div>
@@ -1831,7 +1831,7 @@ function AssetWorkflowBridge({
         <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
           For new records, save the draft first. The saved detail page then
           exposes evidence, owner/operator, Research Ops, and linked-project or
-          unit workflows against the new plant/facility ID.
+          unit workflows against the new plant ID.
         </p>
       ) : null}
     </Section>
@@ -1895,7 +1895,7 @@ function CompanyWorkflowBridge({
           },
           {
             label: "Activity Roles",
-            description: "Review project and plant/facility roles.",
+            description: "Review project and plant roles.",
             href: relationshipsHref,
           },
           {
@@ -1970,13 +1970,13 @@ function CompanyWorkflowBridge({
 
         <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
           <h3 className="text-sm font-bold text-[#1f2937]">
-            Roles On Projects / Assets
+            Roles On Projects / Plants
           </h3>
           <p className="mt-2 text-xs leading-5 text-gray-600">
             Primary business identity describes the company&apos;s dominant market
             position. Developer, owner, operator, supplier, investor, and
             offtaker remain structured roles on specific projects or
-            plants/facilities.
+            plants.
           </p>
           <div className="mt-3">
             {relationshipsHref ? (
@@ -1984,7 +1984,7 @@ function CompanyWorkflowBridge({
                 className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={relationshipsHref}
               >
-                Add Project / Asset Roles
+                Add Project / Plant Roles
               </Link>
             ) : (
               <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
@@ -2001,7 +2001,7 @@ function CompanyWorkflowBridge({
               <div className="mt-1">
                 {projectRoleCount} project role
                 {projectRoleCount === 1 ? "" : "s"} /{" "}
-                {assetRoleCount} plant/facility role
+                {assetRoleCount} plant role
                 {assetRoleCount === 1 ? "" : "s"}
               </div>
               {activityPreview.length > 0 ? (
@@ -2020,7 +2020,7 @@ function CompanyWorkflowBridge({
                 </ul>
               ) : (
                 <div className="mt-2 text-gray-500">
-                  No project or plant/facility roles linked yet.
+                  No project or plant roles linked yet.
                 </div>
               )}
             </div>
@@ -2633,17 +2633,17 @@ export function PostgresOperatingAssetForm({
 
       if (!res.ok || !json?.success) {
         setErrorIssues(getApiIssues(json));
-        throw new Error(getApiError(json, "Failed to save plant / facility."));
+        throw new Error(getApiError(json, "Failed to save plant."));
       }
 
-      setMessage("Plant / Facility saved.");
+      setMessage("Plant saved.");
       router.push(
         `/postgres-preview/operating-assets/${json.operatingAsset.operating_asset_id}`
       );
       router.refresh();
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Failed to save plant / facility."
+        error instanceof Error ? error.message : "Failed to save plant."
       );
     } finally {
       setSaving(false);
@@ -2672,7 +2672,7 @@ export function PostgresOperatingAssetForm({
           <FormWorkflowRail
             backHref={backHref}
             changeState={mode === "edit" ? changeState : undefined}
-            entityLabel="Plant / facility"
+            entityLabel="Plant"
             error={error}
             issues={readinessIssues}
             message={message}
@@ -2684,7 +2684,7 @@ export function PostgresOperatingAssetForm({
       <FormReadinessPanel
         changeState={mode === "edit" ? changeState : undefined}
         currentReviewStatus={originalForm.review_status_code}
-        entityLabel="plant / facility"
+        entityLabel="plant"
         issueContext={
           mode === "edit" && asset?.operating_asset_id
             ? {
@@ -2705,7 +2705,7 @@ export function PostgresOperatingAssetForm({
       <Section title="Identity And Location">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Field
-            label="Plant / Facility Name"
+            label="Plant Name"
             {...fieldMeta(changeState, "asset_name", {
               required: true,
               tone: "critical",

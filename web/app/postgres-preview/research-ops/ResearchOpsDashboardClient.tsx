@@ -135,7 +135,7 @@ const queueListTargetConfig: Partial<
       note: "Project records missing evidence",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "source" },
       note: "Operating records missing evidence",
@@ -171,7 +171,7 @@ const queueListTargetConfig: Partial<
       note: "Projects without country",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "country" },
       note: "Assets without country",
@@ -185,7 +185,7 @@ const queueListTargetConfig: Partial<
       note: "Projects without lifecycle",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "status" },
       note: "Assets without status",
@@ -199,7 +199,7 @@ const queueListTargetConfig: Partial<
       note: "Projects without use type",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "use_type" },
       note: "Assets without use type",
@@ -213,7 +213,7 @@ const queueListTargetConfig: Partial<
       note: "Projects without company links",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "company_link" },
       note: "Assets without company links",
@@ -227,7 +227,7 @@ const queueListTargetConfig: Partial<
       note: "Projects missing map coordinates",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "coordinates" },
       note: "Assets missing map coordinates",
@@ -241,7 +241,7 @@ const queueListTargetConfig: Partial<
       note: "Projects without capacity/output",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "capacity" },
       note: "Assets without capacity/output",
@@ -255,7 +255,7 @@ const queueListTargetConfig: Partial<
       note: "Draft or validation projects",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { review: "draft_or_validation" },
       note: "Draft or validation assets",
@@ -275,7 +275,7 @@ const queueListTargetConfig: Partial<
       note: "Projects requiring re-check",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { review: "needs_update" },
       note: "Assets requiring re-check",
@@ -295,7 +295,7 @@ const queueListTargetConfig: Partial<
       note: "Direct-use project list",
     },
     {
-      label: "Plants / Facilities",
+      label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { use: "direct_use" },
       note: "Direct-use asset list",
@@ -1742,7 +1742,7 @@ function FieldSuggestionReviewPanel({
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             AI-assisted extraction should create review candidates first. These
-            suggestions do not update project, plant/facility, or company fields
+            suggestions do not update project, plant, or company fields
             until a researcher/editor confirms them through a controlled apply
             workflow.
           </p>
@@ -2678,7 +2678,7 @@ function BulkActionsPanel({
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
             Apply a workflow status to selected PostgreSQL staging rows. Sources
-            use source credibility states; projects, plants/facilities, and
+            use source credibility states; projects, plants, and
             companies use review states.
           </p>
         </div>
@@ -4435,7 +4435,7 @@ export function ResearchOpsDashboardClient({
         <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
         <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
         PostgreSQL staging queues now support quick review-status changes for
-        projects, plants/facilities, companies, and source credibility records.
+        projects, plants, companies, and source credibility records.
         Railway PostgreSQL staging uses a transformed copied Hetzner SQLite
         backup for controlled review; the current live SQLite database remains
         on the server. Generated {formatDate(dashboard.generatedAt)}.
@@ -4493,7 +4493,7 @@ export function ResearchOpsDashboardClient({
         <SectionIntro
           eyebrow="Deep Table View"
           title="Filtered System Queue Rows"
-          description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant/facility, company, or source record."
+          description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant, company, or source record."
         />
 
         <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 md:flex-row md:items-center md:justify-between">

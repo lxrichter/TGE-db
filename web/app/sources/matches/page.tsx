@@ -45,7 +45,7 @@ type SourceMatchData =
 
 const entityTypeOptions = [
   { code: "project", label: "Projects" },
-  { code: "operating_asset", label: "Plants / Facilities" },
+  { code: "operating_asset", label: "Plants" },
   { code: "company", label: "Companies" },
   { code: "country_market", label: "Countries / Markets" },
 ];

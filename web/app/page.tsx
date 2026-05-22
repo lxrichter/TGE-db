@@ -478,7 +478,7 @@ function RecentIntelligenceSignals() {
     {
       category: "Plant activity",
       title: "Commissioning, shutdowns, and operating changes",
-      detail: "Future feed for operating asset updates, source evidence, and review queues.",
+      detail: "Future feed for plant updates, source evidence, and review queues.",
       href: "/postgres-preview/operating-assets",
     },
   ];
@@ -704,8 +704,8 @@ export default async function HomePage() {
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-6">
           <ExecutiveKpi
             href="/postgres-preview/operating-assets"
-            label="Operating Assets"
-            note="Plants / facilities in staging scope"
+            label="Plants"
+            note="Plant records in staging scope"
             prominence="executive"
             tone="operating"
             value={formatCount(operatingRecords)}
@@ -774,7 +774,7 @@ export default async function HomePage() {
             title="Countries / Markets"
           />
           <IntelligenceCard
-            description="Spatial view of coordinate-confirmed projects and operating assets, with Research Ops handling missing coordinates."
+            description="Spatial view of coordinate-confirmed projects and plants, with Research Ops handling missing coordinates."
             href="/postgres-preview/map"
             label="Spatial Intelligence"
             meta="Map"

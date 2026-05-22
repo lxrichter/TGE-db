@@ -41,7 +41,7 @@ function entityHref(candidate: PostgresFieldSuggestionCandidate) {
 
 function entityTypeLabel(value: string) {
   if (value === "operating_asset") {
-    return "Plant / Facility";
+    return "Plant";
   }
 
   if (value === "project") {

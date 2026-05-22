@@ -65,9 +65,9 @@ const commandShortcuts = [
   },
   {
     group: "Research Operations",
-    label: "Add Plant / Facility",
+    label: "Add Plant",
     href: "/postgres-preview/operating-assets/new",
-    note: "Create a commissioned operating asset, unit, or direct-use facility.",
+    note: "Create a commissioned plant, unit, or direct-use plant record.",
   },
   {
     group: "Research Operations",
@@ -124,7 +124,7 @@ const commandShortcutGroups = [
 
 function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   if (value === "operating_asset") {
-    return "Plant / Facility";
+    return "Plant";
   }
 
   if (value === "country") {
@@ -177,7 +177,7 @@ function SearchForm({ query }: { query: string }) {
         className="h-11 border border-gray-300 bg-white px-4 text-sm font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
         defaultValue={query}
         name="q"
-        placeholder="Search projects, plants/facilities, companies, sources, countries..."
+        placeholder="Search projects, plants, companies, sources, countries..."
         type="search"
       />
       <button
@@ -251,7 +251,7 @@ export default async function GlobalSearchPage({
           </h1>
           <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
             Fast internal lookup across PostgreSQL staging projects,
-            plants/facilities, companies, sources, and country signals. This is
+            plants, companies, sources, and country signals. This is
             the first simple step toward command-palette and semantic search.
           </p>
           <div className="mt-6 max-w-4xl">

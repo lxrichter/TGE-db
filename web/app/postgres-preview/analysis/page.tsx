@@ -282,7 +282,7 @@ export default async function PostgresAnalysisPreviewPage() {
           {
             label: "Spatial Pattern",
             title: "Open Map",
-            description: "View coordinate-confirmed project and operating asset groups spatially.",
+            description: "View coordinate-confirmed project and plant groups spatially.",
             href: "/postgres-preview/map",
           },
         ]}
@@ -328,7 +328,7 @@ export default async function PostgresAnalysisPreviewPage() {
               />
               <StatTile
                 label="Asset Records"
-                note="PostgreSQL staging operating asset records"
+                note="PostgreSQL staging plant records"
                 value={formatCount(totals.assetRecords)}
               />
               <StatTile
@@ -360,15 +360,15 @@ export default async function PostgresAnalysisPreviewPage() {
               />
               <BucketTable
                 buckets={summary.operatingAssetStatus}
-                description="Plant/facility records grouped by operating status or lifecycle-style asset state."
-                title="Plants / Facilities Status"
+                description="Plant records grouped by operating status or lifecycle-style plant state."
+                title="Plant Status"
               />
             </div>
 
             <BucketTable
               buckets={summary.useTypeBreakdown}
               defaultOpen={false}
-              description="Combined project and operating asset distribution by geothermal use type."
+              description="Combined project and plant distribution by geothermal use type."
               title="Use-Type Distribution"
             />
           </section>

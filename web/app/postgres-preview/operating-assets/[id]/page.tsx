@@ -104,8 +104,7 @@ function getAssetReadinessIssues(
     issues.push({
       severity: "blocker",
       label: "Review status not approved",
-      detail:
-        "Exports should use approved or export-ready plant/facility records.",
+      detail: "Exports should use approved or export-ready plant records.",
     });
   }
 
@@ -127,7 +126,7 @@ function getAssetReadinessIssues(
     issues.push({
       severity: "blocker",
       label: "Missing country",
-      detail: "Country is a critical asset field for exports and analytics.",
+      detail: "Country is a critical plant field for exports and analytics.",
     });
   }
 
@@ -159,7 +158,7 @@ function getAssetReadinessIssues(
     issues.push({
       severity: "warning",
       label: "Missing coordinates",
-      detail: "This asset cannot appear on coordinate-confirmed map layers.",
+      detail: "This plant cannot appear on coordinate-confirmed map layers.",
     });
   }
 
@@ -201,10 +200,10 @@ function AssetGovernanceOverview({
   );
   const lifecycleSteps = [
     {
-      title: "Asset identity",
+      title: "Plant identity",
       state: identityComplete ? "complete" : "attention",
       note: identityComplete
-        ? "Core plant/facility identity, country, status, and use type are present."
+        ? "Core plant identity, country, status, and use type are present."
         : "Core identity fields need attention before export-ready use.",
     },
     {
@@ -257,7 +256,7 @@ function AssetGovernanceOverview({
           ? "AI field suggestions are waiting for human review or apply."
           : fieldSuggestionSummary.applied > 0
             ? "At least one AI suggestion has been applied with audit."
-            : "No AI field suggestion workflow is active for this asset.",
+            : "No AI field suggestion workflow is active for this plant.",
     },
   ] satisfies GovernanceLifecycleStep[];
 
@@ -335,15 +334,15 @@ function AssetGovernanceOverview({
         </section>
 
         <GovernanceEvidenceSnapshot
-          description="Confirmed source links supporting this plant/facility. Source credibility and evidence confidence stay separate from asset field updates."
-          emptyMessage="This plant/facility cannot be treated as export-ready until at least one source is linked and reviewed."
+          description="Confirmed source links supporting this plant. Source credibility and evidence confidence stay separate from plant field updates."
+          emptyMessage="This plant cannot be treated as export-ready until at least one source is linked and reviewed."
           openSourceMatchCount={openSourceMatchCount}
           sources={sources}
         />
       </div>
 
       <GovernanceLifecyclePanel
-        description="Operational readiness of this plant/facility across identity, operating status, evidence, validation, and AI-assisted review."
+        description="Operational readiness of this plant across identity, operating status, evidence, validation, and AI-assisted review."
         steps={lifecycleSteps}
         title="Facility Readiness"
       />
@@ -388,10 +387,10 @@ function AssetActionHub({
   }
 
   actions.push({
-    label: "Review COD / Capacity",
-    detail:
+      label: "Review COD / Capacity",
+      detail:
       hasAssetCapacity(asset) && hasCod
-        ? "Capacity/output and COD fields are present for this plant/facility."
+        ? "Capacity/output and COD fields are present for this plant."
         : "Confirm COD, installed/running capacity, thermal output, or explain gaps.",
     href: "#asset-operating-data",
     tone: hasAssetCapacity(asset) && hasCod ? "ready" : "warning",
@@ -401,7 +400,7 @@ function AssetActionHub({
     label: asset.sources.length === 0 ? "Add Evidence" : "Review Evidence",
     detail:
       asset.sources.length === 0
-        ? "Open source creation with this plant/facility preselected as the linked target."
+        ? "Open source creation with this plant preselected as the linked target."
         : `${formatCount(asset.sources.length)} linked source${
             asset.sources.length === 1 ? "" : "s"
           }; review credibility and operating claims.`,
@@ -443,8 +442,8 @@ function AssetActionHub({
       companyLinkCount > 0
         ? `${formatCount(companyLinkCount)} structured company role${
             companyLinkCount === 1 ? "" : "s"
-          } linked to this plant/facility.`
-        : "Review owner, operator, supplier, EPC, offtaker, and other asset roles.",
+          } linked to this plant.`
+        : "Review owner, operator, supplier, EPC, offtaker, and other plant roles.",
     href: "#asset-company-links",
     tone: companyLinkCount > 0 ? "ready" : "neutral",
   });
@@ -452,7 +451,7 @@ function AssetActionHub({
   if (asset.promoted_from_project_id) {
     actions.push({
       label: "Originating Project",
-      detail: "Open the source project that promoted into this operating asset.",
+      detail: "Open the source project that promoted into this plant.",
       href: `/postgres-preview/projects/${asset.promoted_from_project_id}`,
       tone: "ready",
     });
@@ -491,7 +490,7 @@ function AssetActionHub({
     <PostgresRecordActionHub
       actions={actions}
       blockerCount={blockers.length}
-      description="Use this as the operational entry point for this plant/facility: confirm operating data, strengthen evidence, review AI suggestions, manage company roles, and check export readiness."
+      description="Use this as the operational entry point for this plant: confirm operating data, strengthen evidence, review AI suggestions, manage company roles, and check export readiness."
       title="Operational Actions"
       warningCount={warnings.length}
     />
@@ -532,7 +531,7 @@ function getAssetNextRequiredAction({
     return {
       label: "Add source evidence",
       detail:
-        "This plant/facility has no linked source yet. Open source creation with this asset preselected.",
+        "This plant has no linked source yet. Open source creation with this plant preselected.",
       href: `/sources/new?entityType=operating_asset&entityId=${asset.operating_asset_id}`,
       tone: "blocker",
     };
@@ -540,7 +539,7 @@ function getAssetNextRequiredAction({
 
   if (!identityComplete) {
     return {
-      label: "Complete asset identity",
+      label: "Complete plant identity",
       detail:
         "Confirm country, operating status, and geothermal use category before deeper review.",
       href: canEditRecord
@@ -603,7 +602,7 @@ function getAssetNextRequiredAction({
       label: "Resolve research issue",
       detail: `${formatCount(openIssueCount)} persistent Research Ops issue${
         openIssueCount === 1 ? "" : "s"
-      } remain open for this plant/facility.`,
+      } remain open for this plant.`,
       href: "#asset-research-issues",
       tone: "warning",
     };
@@ -681,7 +680,7 @@ export default async function PostgresOperatingAssetDetailPage({
     ]);
 
   if (!asset) {
-    return <NotFoundNotice label="Operating asset" backHref="/postgres-preview" />;
+    return <NotFoundNotice label="Plant" backHref="/postgres-preview" />;
   }
   const role = (session?.user as { role?: string | null } | undefined)?.role;
   const readinessIssues = getAssetReadinessIssues(asset);
@@ -718,14 +717,14 @@ export default async function PostgresOperatingAssetDetailPage({
 
   return (
     <DetailShell
-      eyebrow="PostgreSQL Plant / Facility"
+      eyebrow="PostgreSQL Plant"
       title={asset.asset_name}
-      subtitle="PostgreSQL staging operating asset profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="PostgreSQL staging plant profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to PostgreSQL Preview"
-      statusLegendDescription="Plant / facility detail badges separate operating or development phase, review state, readiness severity, and source confidence."
+      statusLegendDescription="Plant detail badges separate operating or development phase, review state, readiness severity, and source confidence."
       statusLegendGroups={["review", "lifecycle", "severity", "source"]}
-      statusLegendTitle="Plant / Facility Status Meaning"
+      statusLegendTitle="Plant Status Meaning"
       badges={
         <>
           <Link
@@ -803,15 +802,15 @@ export default async function PostgresOperatingAssetDetailPage({
         />
 
         <DetailWorkflowMap
-          description="Use this sequence to scan the plant/facility record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
+          description="Use this sequence to scan the plant record: confirm identity and operating data, strengthen evidence, check company roles, handle AI/review work, then decide whether the record is export-ready."
           steps={[
             {
               label: "Identity",
               href: "#asset-identity-location",
               status: identityComplete ? "complete" : "attention",
               note: identityComplete
-                ? "Core plant/facility identity, country, status, and use type are present."
-                : "Confirm asset name, country, operating status, and use type.",
+                ? "Core plant identity, country, status, and use type are present."
+                : "Confirm plant name, country, operating status, and use type.",
               meta: asset.country || "No country",
             },
             {
@@ -838,7 +837,7 @@ export default async function PostgresOperatingAssetDetailPage({
               note:
                 companyLinks.length > 0
                   ? "Structured owner, operator, supplier, or contractor roles are linked."
-                  : "Add owner, operator, supplier, EPC, or other asset roles.",
+                  : "Add owner, operator, supplier, EPC, or other plant roles.",
               meta: `${formatCount(companyLinks.length)} relationship${
                 companyLinks.length === 1 ? "" : "s"
               }`,
@@ -875,7 +874,7 @@ export default async function PostgresOperatingAssetDetailPage({
               note:
                 readinessBlockers.length > 0
                   ? "Resolve blockers before export-ready use."
-                  : "Review warnings before marking this asset export-ready.",
+                  : "Review warnings before marking this plant export-ready.",
               meta: `${formatCount(readinessBlockers.length)} blocker${
                 readinessBlockers.length === 1 ? "" : "s"
               }`,
@@ -909,7 +908,7 @@ export default async function PostgresOperatingAssetDetailPage({
       <section id="asset-record-data" className="space-y-5 scroll-mt-24">
         <DetailPriorityMarker
           label="Core Record"
-          title="Asset Data"
+          title="Plant Data"
           description="Identity, location, status, capacity, resource, technology, COD."
           tone="core"
         />
@@ -944,7 +943,7 @@ export default async function PostgresOperatingAssetDetailPage({
             {
               label: "Companies",
               href: "#asset-company-links",
-              note: "Owner, operator, supplier, EPC, and other asset roles",
+              note: "Owner, operator, supplier, EPC, and other plant roles",
             },
             {
               label: "Issues",

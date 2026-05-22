@@ -93,7 +93,7 @@ function actionLabel(option: PostgresStatusOption) {
 
 function entityLabel(entityType: ReviewEntityType) {
   if (entityType === "operating_asset") {
-    return "plant/facility";
+    return "plant";
   }
 
   return entityType;

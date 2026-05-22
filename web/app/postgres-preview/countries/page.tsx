@@ -165,7 +165,7 @@ function CountryWorklistLinks({
           query
         )}
       >
-        Assets
+        Plants
       </Link>
       <Link
         className="font-semibold text-[#4f7f1f] hover:underline"
@@ -311,7 +311,7 @@ function CountryOperationsLayer({
         emptyLabel="No operating electric capacity values in the current country summary."
         metric={(country) => ({
           value: `${formatMw(country.operating_installed_mwe)} MWe`,
-          note: `${formatCount(country.operating_asset_active_count)} active asset records`,
+          note: `${formatCount(country.operating_asset_active_count)} active plant records`,
         })}
       />
       <CountryQueueCard
@@ -365,7 +365,7 @@ function CountryMarketsTable({
           </h2>
           <p className="mt-1 text-sm text-gray-600">
             Database-derived market rows. Click counts to open filtered
-            project, asset, or company worklists.
+            project, plant, or company worklists.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
@@ -507,7 +507,7 @@ function CountryMarketsTable({
                       country.country
                     )}
                   >
-                    Assets
+                    Plants
                   </Link>
                   <Link
                     className="text-xs font-semibold text-[#4f7f1f] hover:underline"
@@ -662,7 +662,7 @@ function CountryMarketsTable({
                         country.country
                       )}
                     >
-                      Assets
+                      Plants
                     </Link>
                     <Link
                       className="text-xs font-semibold text-[#4f7f1f] hover:underline"
@@ -748,7 +748,7 @@ export default async function PostgresCountryMarketsPage() {
           {
             label: "Intelligence Drilldown",
             title: "Review country worklists",
-            description: "Open the country table and drill into projects, assets, and companies by market.",
+            description: "Open the country table and drill into projects, plants, and companies by market.",
             href: "#country-worklist",
           },
           {
@@ -801,12 +801,12 @@ export default async function PostgresCountryMarketsPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <StatTile
                 label="Countries"
-                note="With staged project, asset, or company records"
+                note="With staged project, plant, or company records"
                 value={formatCount(countries.length)}
               />
               <StatTile
                 label="Operating"
-                note="Installed electric capacity in staged assets"
+                note="Installed electric capacity in staged plants"
                 value={`${formatMw(totals.operatingMwe)} MWe`}
               />
               <StatTile

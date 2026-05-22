@@ -205,7 +205,7 @@ function WorkflowStrip() {
     {
       step: "3",
       label: "Evidence Link",
-      note: "Confirmed link to project, plant/facility, company, or market.",
+      note: "Confirmed link to project, plant, company, or market.",
     },
     {
       step: "4",
@@ -405,7 +405,7 @@ function SourcesListContext({
           </div>
           <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
             Source export is not enabled yet. For now, exports remain available on
-            project, plant/facility, company, Research Ops, and candidate-review
+            project, plant, company, Research Ops, and candidate-review
             workflows where explicit export routes exist.
           </div>
         </div>

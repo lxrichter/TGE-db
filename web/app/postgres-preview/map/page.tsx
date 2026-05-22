@@ -118,7 +118,7 @@ export default async function PostgresPreviewMapPage() {
                 PostgreSQL Map Preview
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Coordinate-confirmed project and plant/facility groups. Records
+                Coordinate-confirmed project and plant groups. Records
                 without coordinates stay in Research Ops queues.
               </p>
             </div>
@@ -152,7 +152,7 @@ export default async function PostgresPreviewMapPage() {
             <span>
               <span className="font-medium text-[#1f2937]">Layers</span>
               <span className="mx-2 text-gray-300">|</span>
-              Projects and Plants / Facilities
+              Projects and Plants
             </span>
             <span>
               <span className="font-medium text-[#1f2937]">Missing Coordinates</span>
@@ -169,7 +169,7 @@ export default async function PostgresPreviewMapPage() {
           {
             label: "Spatial Intelligence",
             title: "Use marker popups",
-            description: "Open project and plant/facility records directly from coordinate-confirmed marker groups.",
+            description: "Open project and plant records directly from coordinate-confirmed marker groups.",
             href: "#map-view",
           },
           {
@@ -207,7 +207,7 @@ export default async function PostgresPreviewMapPage() {
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
             <MapStatCard
               label="Plant Groups"
-              note="Operating asset groups"
+              note="Operating plant groups"
               value={formatCount(summary.plantGroupCount)}
             />
             <MapStatCard
@@ -258,7 +258,7 @@ export default async function PostgresPreviewMapPage() {
         />
         <section className="grid gap-3 md:grid-cols-3">
           <MapWorkflowCard
-            description="Review projects and assets that cannot appear on coordinate-confirmed map layers yet."
+            description="Review projects and plants that cannot appear on coordinate-confirmed map layers yet."
             href="/postgres-preview/research-ops?queue=missing_coordinates"
             label="Action"
             title="Missing Coordinates"
@@ -272,10 +272,10 @@ export default async function PostgresPreviewMapPage() {
             tone="info"
           />
           <MapWorkflowCard
-            description="Filter assets missing coordinates."
+            description="Filter plants missing coordinates."
             href="/postgres-preview/operating-assets?missing=coordinates"
-            label="Assets"
-            title="Asset Coordinate Queue"
+            label="Plants"
+            title="Plant Coordinate Queue"
             tone="info"
           />
         </section>

@@ -63,8 +63,8 @@ export default function PostgresProjectPromotionPanel({
         json.promotion?.operatingAsset?.operating_asset_id || "";
       setMessage(
         created
-          ? "Operating asset created from project."
-          : "An operating asset already exists for this project."
+          ? "Plant record created from project."
+          : "A plant record already exists for this project."
       );
       setPromotionNote("");
       router.refresh();
@@ -84,15 +84,15 @@ export default function PostgresProjectPromotionPanel({
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
-            Promotion To Plant / Facility
+            Promotion To Plant
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Create a non-destructive PostgreSQL staging operating asset from this
+            Create a non-destructive PostgreSQL staging plant record from this
             project. Sources and company-role links are copied when available.
           </p>
         </div>
         <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
-          {promotedAssets.length} linked asset{promotedAssets.length === 1 ? "" : "s"}
+          {promotedAssets.length} linked plant{promotedAssets.length === 1 ? "" : "s"}
         </span>
       </div>
 
@@ -113,7 +113,7 @@ export default function PostgresProjectPromotionPanel({
             <table className="min-w-[920px] table-fixed text-left text-sm">
               <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                 <tr>
-                  <th className="w-[34%] px-4 py-3 font-semibold">Asset</th>
+                  <th className="w-[34%] px-4 py-3 font-semibold">Plant</th>
                   <th className="w-[18%] px-4 py-3 font-semibold">Country</th>
                   <th className="w-[18%] px-4 py-3 font-semibold">Review</th>
                   <th className="w-[18%] px-4 py-3 font-semibold">Linked</th>
@@ -155,7 +155,7 @@ export default function PostgresProjectPromotionPanel({
           </div>
         ) : (
           <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-            No promoted operating asset is linked yet.
+            No promoted plant is linked yet.
           </div>
         )}
 
@@ -165,7 +165,7 @@ export default function PostgresProjectPromotionPanel({
               Promotion Note
               <textarea
                 className="mt-1 min-h-[82px] w-full resize-y border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
-                placeholder="Optional context, e.g. commissioned after source review, copied as first operating asset draft"
+                placeholder="Optional context, e.g. commissioned after source review, copied as first plant draft"
                 value={promotionNote}
                 onChange={(event) => setPromotionNote(event.target.value)}
               />
@@ -176,7 +176,7 @@ export default function PostgresProjectPromotionPanel({
               type="button"
               onClick={promoteProject}
             >
-              {saving ? "Promoting..." : "Promote To Plant / Facility"}
+              {saving ? "Promoting..." : "Promote To Plant"}
             </button>
           </div>
         ) : (

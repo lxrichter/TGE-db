@@ -73,7 +73,7 @@ function SetupNotice({ error }: { error: string }) {
     <section className="border border-amber-200 bg-amber-50 px-5 py-5">
       <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
-        Plant / Facility editing writes to Railway PostgreSQL staging. Run the
+        Plant editing writes to Railway PostgreSQL staging. Run the
         app through Railway variables or set `DATABASE_PUBLIC_URL` /
         `DATABASE_URL` locally.
       </p>
@@ -102,7 +102,7 @@ export default async function EditPostgresOperatingAssetPage({
             href={`/postgres-preview/operating-assets/${id}`}
             className="text-sm font-semibold text-[#4f7f1f] hover:underline"
           >
-            Back to Plant / Facility
+            Back to Plant
           </Link>
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             PostgreSQL Staging
@@ -110,10 +110,10 @@ export default async function EditPostgresOperatingAssetPage({
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
-                Edit Plant / Facility
+                Edit Plant
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-                Update the staging operating asset record. Draft saves remain
+                Update the staging plant record. Draft saves remain
                 allowed while source evidence, owner/operator roles, and
                 originating project or unit relationships are completed through
                 the saved detail workflow.
@@ -137,11 +137,11 @@ export default async function EditPostgresOperatingAssetPage({
       </section>
 
       <NextActionStrip
-        description="While editing a plant/facility, keep the saved asset, source creation, and operational review queue close so operating data edits stay tied to evidence governance."
+        description="While editing a plant, keep the saved record, source creation, and operational review queue close so operating data edits stay tied to evidence governance."
         actions={[
           {
-            label: "Asset Profile",
-            title: "Back to plant / facility",
+            label: "Plant Profile",
+            title: "Back to plant",
             description:
               "Return to readiness, evidence, company roles, originating project, and export checks.",
             href: `/postgres-preview/operating-assets/${id}`,
@@ -150,7 +150,7 @@ export default async function EditPostgresOperatingAssetPage({
             label: "Evidence",
             title: "Add source evidence",
             description:
-              "Create a source record with this plant/facility preselected as the linked target.",
+              "Create a source record with this plant preselected as the linked target.",
             href: `/sources/new?entityType=operating_asset&entityId=${id}`,
           },
           {

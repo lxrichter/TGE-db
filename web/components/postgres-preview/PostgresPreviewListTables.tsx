@@ -1356,7 +1356,7 @@ export function OperatingAssetsPreviewTable({
   return (
     <section className="border border-gray-200 bg-white">
       <SectionHeader
-        title="Plants / Facilities"
+        title="Plants"
         count={operatingAssets.length}
         total={total}
         pagination={pagination}

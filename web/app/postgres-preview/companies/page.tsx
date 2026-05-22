@@ -61,7 +61,7 @@ const companyMissingOptions: PreviewFilterOption[] = [
   { value: "website", label: "Missing Website" },
   { value: "primary_type", label: "Missing Primary Type" },
   { value: "source", label: "Missing Source" },
-  { value: "activity_link", label: "Missing Project / Asset Link" },
+  { value: "activity_link", label: "Missing Project / Plant Link" },
   { value: "research_issue", label: "Open Research Ops Issues" },
 ];
 
@@ -78,7 +78,7 @@ const companyQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Missing Activity Link",
-    description: "Companies not yet linked to projects or assets.",
+    description: "Companies not yet linked to projects or plants.",
     query: { missing: "activity_link" },
   },
   {
@@ -283,7 +283,7 @@ export default async function PostgresCompaniesListPage({
           {
             label: "Relationship Work",
             title: "Companies missing activity links",
-            description: "Find companies not yet connected to project or plant/facility roles.",
+            description: "Find companies not yet connected to project or plant roles.",
             href: "/postgres-preview/companies?missing=activity_link",
           },
           {

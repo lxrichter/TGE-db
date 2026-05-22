@@ -435,7 +435,7 @@ if (researchStatusFilter !== "All Research Status") {
               </h1>
               <p className="mt-4 max-w-4xl text-lg leading-8 text-gray-600">
                 Internal overview of geothermal power plants with linked detail pages,
-                operating asset data, technical and commercial fields, research status,
+                plant operating data, technical and commercial fields, research status,
                 review workflow, and future edit/import workflows.
               </p>
             </div>

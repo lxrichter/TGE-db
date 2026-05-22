@@ -39,7 +39,7 @@ const legendGroups: Record<
   },
   lifecycle: {
     title: "Development Phase",
-    description: "Project or asset progression. These badges describe market/lifecycle state, not evidence quality.",
+    description: "Project or plant progression. These badges describe market/lifecycle state, not evidence quality.",
     items: [
       {
         value: "prospect_tbd",
@@ -54,17 +54,17 @@ const legendGroups: Record<
         domain: "lifecycle",
       },
       { value: "construction", note: "Advanced, still not operating", domain: "lifecycle" },
-      { value: "operating", note: "Commissioned asset state", domain: "lifecycle" },
+      { value: "operating", note: "Commissioned plant state", domain: "lifecycle" },
       {
         value: "temporarily_offline",
         label: "Temporarily Offline",
-        note: "Known operating asset issue",
+        note: "Known plant operating issue",
         domain: "lifecycle",
       },
       {
         value: "retired_decommissioned",
         label: "Retired / Decommissioned",
-        note: "Historical or inactive asset",
+        note: "Historical or inactive plant",
         domain: "lifecycle",
       },
       { value: "cancelled", note: "Historical or discontinued", domain: "lifecycle" },

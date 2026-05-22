@@ -30,7 +30,7 @@ function SetupNotice({ error }: { error: string }) {
     <section className="border border-amber-200 bg-amber-50 px-5 py-5">
       <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
-        Plant / Facility creation writes to Railway PostgreSQL staging. Run the
+        Plant creation writes to Railway PostgreSQL staging. Run the
         app through Railway variables or set `DATABASE_PUBLIC_URL` /
         `DATABASE_URL` locally.
       </p>
@@ -56,11 +56,11 @@ export default async function NewPostgresOperatingAssetPage() {
             PostgreSQL Staging
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
-            Add Plant / Facility
+            Add Plant
           </h1>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-            Create a staging operating asset for power plants, direct-use
-            facilities, hybrid assets, or historically relevant retired units.
+            Create a staging plant record for power plants, direct-use
+            plants, hybrid records, or historically relevant retired units.
             Draft saving is allowed while evidence, owner/operator roles, and
             linked project or unit relationships are completed in the saved
             detail workflow.
@@ -69,13 +69,13 @@ export default async function NewPostgresOperatingAssetPage() {
       </section>
 
       <NextActionStrip
-        description="Create the plant/facility draft first, then return to operating asset worklists, evidence governance, or Research Ops for source and validation follow-up."
+        description="Create the plant draft first, then return to plant worklists, evidence governance, or Research Ops for source and validation follow-up."
         actions={[
           {
-            label: "Asset Worklist",
-            title: "Open Plants / Facilities",
+            label: "Plant Worklist",
+            title: "Open Plants",
             description:
-              "Return to operating asset filters, missing-data queues, and exportable lists.",
+              "Return to plant filters, missing-data queues, and exportable lists.",
             href: "/postgres-preview/operating-assets",
           },
           {

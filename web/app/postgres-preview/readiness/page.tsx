@@ -647,7 +647,7 @@ export default async function PostgresReadinessPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
               <StatTile
                 label="Staged Records"
-                note="Projects, plants/facilities, and companies"
+                note="Projects, plants, and companies"
                 value={formatCount(totals.records)}
               />
               <StatTile

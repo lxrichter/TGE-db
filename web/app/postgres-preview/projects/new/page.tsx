@@ -61,7 +61,7 @@ export default async function NewPostgresProjectPage() {
           <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
             Create a staging project draft in the future PostgreSQL foundation.
             Save is allowed for incomplete drafts; source/evidence, company
-            roles, and linked plant/facility workflows are shown below and
+            roles, and linked plant workflows are shown below and
             become active after the first save.
           </p>
         </div>

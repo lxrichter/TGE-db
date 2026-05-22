@@ -275,7 +275,7 @@ function OperatingAssetsTable({
 }) {
   return (
     <section className="bg-white">
-      <SectionHeader title="Operating Assets" count={operatingAssets.length} />
+      <SectionHeader title="Plants" count={operatingAssets.length} />
       <div className="overflow-x-auto">
         <table className="min-w-[860px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
@@ -475,9 +475,9 @@ export default async function PostgresPreviewPage() {
                 note="Development records"
               />
               <StatTile
-                label="Assets"
+                label="Plants"
                 value={formatCount(data.summary.operatingAssetCount)}
-                note="Plants and facilities"
+                note="Plant records"
               />
               <StatTile
                 label="Companies"
@@ -495,7 +495,7 @@ export default async function PostgresPreviewPage() {
                 note="Company roles"
               />
               <StatTile
-                label="Asset Links"
+                label="Plant Links"
                 value={formatCount(data.summary.companyAssetLinkCount)}
                 note="Company roles"
               />
@@ -524,7 +524,7 @@ export default async function PostgresPreviewPage() {
                 title="Govern Evidence"
               />
               <EntryPathCard
-                description="Open projects, plants/facilities, or companies to fix fields and relationships."
+                description="Open projects, plants, or companies to fix fields and relationships."
                 href="/postgres-preview/projects"
                 step="03"
                 title="Edit Entity Records"
@@ -566,10 +566,10 @@ export default async function PostgresPreviewPage() {
                 title="Projects"
               />
               <WorkAreaCard
-                description="Review plants, facilities, operating status, capacity, company roles, and source evidence."
+                description="Review plants, operating status, capacity, company roles, and source evidence."
                 href="/postgres-preview/operating-assets"
                 label="Entity Worklist"
-                title="Plants / Facilities"
+                title="Plants"
               />
               <WorkAreaCard
                 description="Review company profiles, business identity, relationships, ownership, roles, and evidence."
@@ -584,7 +584,7 @@ export default async function PostgresPreviewPage() {
                 title="Countries / Markets"
               />
               <WorkAreaCard
-                description="Spatial view for projects and operating assets with map-based navigation."
+                description="Spatial view for projects and plants with map-based navigation."
                 href="/postgres-preview/map"
                 label="Spatial View"
                 title="Map"
@@ -650,10 +650,10 @@ export default async function PostgresPreviewPage() {
                 title="New Project"
               />
               <WorkAreaCard
-                description="Start a draft operating asset, plant, facility, unit, or direct-use record."
+                description="Start a draft plant, unit, or direct-use record."
                 href="/postgres-preview/operating-assets/new"
                 label="Quick Add"
-                title="New Plant / Facility"
+                title="New Plant"
               />
               <WorkAreaCard
                 description="Start a draft company profile with business identity, roles, and relationship workflows."
@@ -675,7 +675,7 @@ export default async function PostgresPreviewPage() {
               <ProjectsTable projects={data.projects} />
             </RecordPreview>
             <RecordPreview
-              title="Plant / Facility Preview Rows"
+              title="Plant Preview Rows"
               count={data.operatingAssets.length}
             >
               <OperatingAssetsTable operatingAssets={data.operatingAssets} />

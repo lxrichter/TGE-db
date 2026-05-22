@@ -36,8 +36,8 @@ const pilotSteps: PilotStep[] = [
   },
   {
     number: "02",
-    title: "Create Or Edit A Plant / Facility",
-    goal: "Confirm operating assets can handle power plants, direct-use facilities, and missing-data workflows.",
+    title: "Create Or Edit A Plant",
+    goal: "Confirm plant records can handle power plants, direct-use plants, and missing-data workflows.",
     checks: [
       "Operating status and use type are understandable.",
       "Capacity/output fields are clear for electric and thermal records.",
@@ -46,16 +46,16 @@ const pilotSteps: PilotStep[] = [
     ],
     links: [
       {
-        label: "New Plant / Facility",
+        label: "New Plant",
         href: "/postgres-preview/operating-assets/new",
         primary: true,
       },
       {
-        label: "Plants / Facilities Worklist",
+        label: "Plants Worklist",
         href: "/postgres-preview/operating-assets",
       },
       {
-        label: "Assets Missing Coordinates",
+        label: "Plants Missing Coordinates",
         href: "/postgres-preview/operating-assets?missing=coordinates",
       },
     ],
@@ -239,7 +239,7 @@ export default function PostgresPilotWorkflowPage() {
             <span>
               <span className="font-medium text-[#1f2937]">Goal</span>
               <span className="mx-2 text-gray-300">|</span>
-              Complete one realistic project, asset, and company workflow
+              Complete one realistic project, plant, and company workflow
             </span>
             <span>
               <span className="font-medium text-[#1f2937]">Output</span>

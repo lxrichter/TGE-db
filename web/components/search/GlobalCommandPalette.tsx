@@ -62,7 +62,7 @@ const baseCommands: CommandItem[] = [
     key: "map",
     group: "Intelligence / Research",
     label: "Open Map",
-    note: "Spatial intelligence for coordinate-confirmed projects and assets.",
+    note: "Spatial intelligence for coordinate-confirmed projects and plants.",
     href: "/postgres-preview/map",
   },
   {
@@ -77,8 +77,8 @@ const baseCommands: CommandItem[] = [
     type: "command",
     key: "operating-assets",
     group: "Intelligence / Research",
-    label: "Open Plants / Facilities",
-    note: "Review operating assets, units, direct-use facilities, and capacity.",
+    label: "Open Plants",
+    note: "Review plants, units, direct-use records, and capacity.",
     href: "/postgres-preview/operating-assets",
   },
   {
@@ -149,8 +149,8 @@ const baseCommands: CommandItem[] = [
     type: "command",
     key: "add-asset",
     group: "Research Operations",
-    label: "Add Plant / Facility",
-    note: "Create an operating asset, unit, or direct-use facility.",
+    label: "Add Plant",
+    note: "Create a plant, unit, or direct-use record.",
     href: "/postgres-preview/operating-assets/new",
   },
   {
@@ -200,7 +200,7 @@ const adminCommands: CommandItem[] = [
 
 function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   if (value === "operating_asset") {
-    return "Plant / Facility";
+    return "Plant";
   }
 
   if (value === "country") {

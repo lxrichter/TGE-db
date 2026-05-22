@@ -214,7 +214,7 @@ function SourceGovernanceDetails() {
         <WorkflowStep
           step="3"
           title="Evidence Link"
-          note="Confirmed links connect this source to projects, plants/facilities, or companies."
+          note="Confirmed links connect this source to projects, plants, or companies."
         />
         <WorkflowStep
           step="4"
@@ -391,7 +391,7 @@ function entityHref(link: SourceLink) {
 
 function entityTypeLabel(value: SourceLink["entity_type"]) {
   if (value === "operating_asset") {
-    return "Plant / Facility";
+    return "Plant";
   }
 
   if (value === "project") {
@@ -420,7 +420,7 @@ function SourceSupportsPanel({
     },
     {
       code: "operating_asset",
-      label: "Plants / Facilities",
+      label: "Plants",
       links: links.filter((link) => link.entity_type === "operating_asset"),
     },
     {
@@ -474,7 +474,7 @@ function SourceSupportsPanel({
             </div>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
               This source exists as a governed source record, but it does not yet
-              support a specific project, plant/facility, or company. Review
+              support a specific project, plant, or company. Review
               article match candidates or add an evidence link before using it
               in export-ready records.
             </p>
@@ -601,7 +601,7 @@ function SourceActionHub({
         source.linked_entity_count > 0
           ? `${formatCount(source.linked_entity_count)} confirmed evidence link${
               source.linked_entity_count === 1 ? "" : "s"
-            } across projects, plants/facilities, or companies.`
+            } across projects, plants, or companies.`
           : "No confirmed evidence links yet. Review matches or link this source.",
       href: "#source-supports",
       tone: source.linked_entity_count > 0 ? "ready" : "warning",
@@ -754,7 +754,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
 
         {links.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-gray-500">
-            This source is not linked to project, plant/facility, or company
+            This source is not linked to project, plant, or company
             records yet.
           </div>
         ) : null}
@@ -837,7 +837,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
             {links.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                  This source is not linked to project, plant/facility, or
+                  This source is not linked to project, plant, or
                   company records yet.
                 </td>
               </tr>

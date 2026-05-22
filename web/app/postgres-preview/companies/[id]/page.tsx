@@ -163,7 +163,7 @@ function CompanyActivitySnapshot({
       key: link.company_operating_asset_link_id,
       label: link.asset_name,
       href: `/postgres-preview/operating-assets/${link.operating_asset_id}`,
-      type: "Plant / Facility",
+      type: "Plant",
       role: link.role_label || link.role_code,
       country: link.country,
       updated_at: link.updated_at,
@@ -178,7 +178,7 @@ function CompanyActivitySnapshot({
         <h2 className="text-lg font-bold text-[#1f2937]">Activity Footprint</h2>
         <p className="mt-2 text-sm leading-6 text-gray-600">
           Structured links showing where this company appears in projects,
-          plants/facilities, and company relationships.
+          plants, and company relationships.
         </p>
       </div>
       <div className="grid gap-4 px-5 py-5 xl:grid-cols-[1fr_280px]">
@@ -197,7 +197,7 @@ function CompanyActivitySnapshot({
           </div>
           <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-              Plants / Facilities
+              Plants
             </div>
             <div className="mt-2 text-2xl font-bold text-[#1f2937]">
               {formatCount(operatingAssetLinks.length)}
@@ -243,7 +243,7 @@ function CompanyActivitySnapshot({
             ))}
             {recentLinks.length === 0 ? (
               <div className="py-3 text-sm text-gray-500">
-                No project or plant/facility links yet.
+                No project or plant links yet.
               </div>
             ) : null}
           </div>
@@ -301,8 +301,8 @@ function CompanyGovernanceOverview({
       state: activityLinkCount > 0 ? "complete" : "attention",
       note:
         activityLinkCount > 0
-          ? "The company is linked to project or plant/facility activity."
-          : "No structured project or plant/facility role links yet.",
+          ? "The company is linked to project or plant activity."
+          : "No structured project or plant role links yet.",
     },
     {
       title: "Evidence coverage",
@@ -370,7 +370,7 @@ function CompanyGovernanceOverview({
             value={formatCount(activityLinkCount)}
             note={`${formatCount(projectLinks.length)} project role${
               projectLinks.length === 1 ? "" : "s"
-            } · ${formatCount(operatingAssetLinks.length)} asset role${
+            } · ${formatCount(operatingAssetLinks.length)} plant role${
               operatingAssetLinks.length === 1 ? "" : "s"
             }`}
             tone={activityLinkCount > 0 ? "green" : "amber"}
@@ -507,10 +507,10 @@ function CompanyActionHub({
     label: "Relationships / Portfolio",
     detail:
       activityLinkCount > 0
-        ? `${formatCount(activityLinkCount)} structured project, asset, or company relationship${
+        ? `${formatCount(activityLinkCount)} structured project, plant, or company relationship${
             activityLinkCount === 1 ? "" : "s"
           } linked.`
-        : "Add project roles, plant/facility roles, ownership, group, or JV relationships.",
+        : "Add project roles, plant roles, ownership, group, or JV relationships.",
     href: "#company-relationships",
     tone: activityLinkCount > 0 ? "ready" : "warning",
   });
@@ -645,7 +645,7 @@ function getCompanyNextRequiredAction({
     return {
       label: "Add relationship or portfolio link",
       detail:
-        "Add project roles, plant/facility roles, ownership, group, JV, or other structured relationships.",
+        "Add project roles, plant roles, ownership, group, JV, or other structured relationships.",
       href: "#company-relationships",
       tone: "warning",
     };
@@ -916,8 +916,8 @@ export default async function PostgresCompanyDetailPage({
               status: activityLinkCount > 0 ? "complete" : "attention",
               note:
                 activityLinkCount > 0
-                  ? "Structured project, asset, or company relationships are linked."
-                  : "Add project roles, plant/facility roles, ownership, group, or JV links.",
+                  ? "Structured project, plant, or company relationships are linked."
+                  : "Add project roles, plant roles, ownership, group, or JV links.",
               meta: `${formatCount(activityLinkCount)} relationship${
                 activityLinkCount === 1 ? "" : "s"
               }`,
@@ -1011,7 +1011,7 @@ export default async function PostgresCompanyDetailPage({
             {
               label: "Relationships",
               href: "#company-relationships",
-              note: "Project, plant/facility, ownership, group, and JV links",
+              note: "Project, plant, ownership, group, and JV links",
             },
             {
               label: "TGE News",

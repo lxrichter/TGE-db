@@ -324,7 +324,7 @@ export default async function AdminPage() {
             <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-3">
               <GovernanceRule
                 title="Approval Gate"
-                text="Projects, plants/facilities, and companies cannot move to approved/export-ready without required identity, classification, and linked evidence."
+                text="Projects, plants, and companies cannot move to approved/export-ready without required identity, classification, and linked evidence."
               />
               <GovernanceRule
                 title="Evidence Governance"

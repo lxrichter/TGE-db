@@ -71,38 +71,38 @@ const operatingAssetMissingOptions: PreviewFilterOption[] = [
 
 const operatingAssetQuickViews: PreviewQuickView[] = [
   {
-    label: "All Assets",
-    description: "Full plant/facility staging list.",
+    label: "All Plants",
+    description: "Full plant staging list.",
     query: {},
   },
   {
     label: "Operating",
-    description: "Currently operating asset records.",
+    description: "Currently operating plant records.",
     query: { status: "operating" },
   },
   {
     label: "Missing Source",
-    description: "Assets without confirmed evidence links.",
+    description: "Plants without confirmed evidence links.",
     query: { missing: "source" },
   },
   {
     label: "Missing Coordinates",
-    description: "Assets not ready for coordinate-confirmed maps.",
+    description: "Plants not ready for coordinate-confirmed maps.",
     query: { missing: "coordinates" },
   },
   {
     label: "Missing Company Link",
-    description: "Assets without structured owner/operator relationships.",
+    description: "Plants without structured owner/operator relationships.",
     query: { missing: "company_link" },
   },
   {
     label: "Missing COD",
-    description: "Operating assets missing commissioning year.",
+    description: "Plants missing commissioning year.",
     query: { missing: "cod" },
   },
   {
     label: "Open Issues",
-    description: "Assets with persistent Research Ops follow-ups.",
+    description: "Plants with persistent Research Ops follow-ups.",
     query: { missing: "research_issue" },
   },
   {
@@ -279,34 +279,34 @@ export default async function PostgresOperatingAssetsListPage({
           },
           {
             href: "/postgres-preview/operating-assets/new",
-            label: "New Plant / Facility",
+            label: "New Plant",
             variant: "primary",
           },
         ]}
-        description="PostgreSQL staging list for operating plants, facilities, units, and future direct-use or hybrid operating assets."
+        description="PostgreSQL staging list for operating plants, units, and future direct-use or hybrid plant records."
         eyebrow="PostgreSQL Staging"
-        title="Plants / Facilities"
+        title="Plants"
       />
 
       <NextActionStrip
-        description="From Plants / Facilities, the next step should be evidence cleanup, operator/owner relationship work, or operating readiness review."
+        description="From Plants, the next step should be evidence cleanup, operator/owner relationship work, or operating readiness review."
         actions={[
           {
             label: "Evidence Work",
-            title: "Assets missing sources",
-            description: "Focus on operating asset records that need confirmed source evidence.",
+            title: "Plants missing sources",
+            description: "Focus on plant records that need confirmed source evidence.",
             href: "/postgres-preview/operating-assets?missing=source",
           },
           {
             label: "Relationship Work",
-            title: "Assets missing companies",
+            title: "Plants missing companies",
             description: "Route records into structured owner, operator, supplier, or offtaker linking.",
             href: "/postgres-preview/operating-assets?missing=company_link",
           },
           {
             label: "Readiness Cleanup",
-            title: "Assets missing COD",
-            description: "Inspect commissioned assets where COD or original commissioning wording needs review.",
+            title: "Plants missing COD",
+            description: "Inspect commissioned plants where COD or original commissioning wording needs review.",
             href: "/postgres-preview/operating-assets?missing=cod",
           },
         ]}
@@ -368,8 +368,8 @@ export default async function PostgresOperatingAssetsListPage({
           />
           <PostgresPreviewListContext
             activeFilters={activeFilters}
-            activeViewLabel={activeView?.label || "Custom Plant / Facility View"}
-            entityLabel="plants / facilities"
+            activeViewLabel={activeView?.label || "Custom Plant View"}
+            entityLabel="plants"
             exportHref={exportHref}
             page={data.page}
             pageSize={data.pageSize}

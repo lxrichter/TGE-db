@@ -178,7 +178,7 @@ export default function AppHeaderShell({
               />
               <NavItem
                 href="/postgres-preview/operating-assets"
-                label="Plants / Facilities"
+                label="Plants"
                 pathname={pathname}
               />
               <NavItem

@@ -100,7 +100,7 @@ function RelationshipGovernanceNotice({
     scope === "project"
       ? "Project Relationship Rules"
       : scope === "asset"
-        ? "Plant / Facility Relationship Rules"
+        ? "Plant Relationship Rules"
         : "Company Relationship Rules";
   const primaryLabel =
     scope === "project"
@@ -118,12 +118,12 @@ function RelationshipGovernanceNotice({
     scope === "project"
       ? "Project Share"
       : scope === "asset"
-        ? "Asset Share"
+        ? "Plant Share"
         : "Ownership Share";
   const shareText =
     scope === "company"
       ? "Use ownership percentage for company-to-company or group relationships where it is known."
-      : "Use the percentage field only when the source supports a project or asset participation share.";
+      : "Use the percentage field only when the source supports a project or plant participation share.";
 
   return (
     <details className="group border border-blue-100 bg-blue-50/60">
@@ -147,7 +147,7 @@ function RelationshipGovernanceNotice({
             <p className="text-sm leading-6 text-blue-800">
               These links feed analytics, Research Ops, profile pages, and
               exports. Removing one does not delete the underlying project,
-              plant/facility, or company record.
+              plant, or company record.
             </p>
           </div>
           <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-3">
@@ -529,7 +529,7 @@ function RelationshipSupportSummary({
       ? "Developer, owner, operator, supplier, investor, or similar links."
       : scope === "asset"
         ? "Owner, operator, supplier, EPC, offtaker, or O&M links."
-        : "Project and plant/facility roles held by this company.";
+        : "Project and plant roles held by this company.";
   const governanceNote =
     scope === "company"
       ? "Current ownership, group, JV, or shareholder relationships."
@@ -588,7 +588,7 @@ function RelationshipSupportSummary({
 
 function confirmStructuredRelationshipRemoval(description: string) {
   return window.confirm(
-    `Remove ${description}? This removes the structured relationship from this record but does not delete the underlying project, plant/facility, or company.`
+    `Remove ${description}? This removes the structured relationship from this record but does not delete the underlying project, plant, or company.`
   );
 }
 
@@ -969,7 +969,7 @@ export function OperatingAssetCompanyLinksPanel({
   return (
     <Section
       title="Companies And Roles"
-      description="Structured company-role links for this PostgreSQL staging plant/facility."
+      description="Structured company-role links for this PostgreSQL staging plant."
     >
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="asset" />
@@ -1383,17 +1383,17 @@ function CompanyAssetPortfolio({
       const json = await safeJson(res);
 
       if (!res.ok || !json?.success) {
-        throw new Error(json?.error || "Failed to save plant/facility role.");
+        throw new Error(json?.error || "Failed to save plant role.");
       }
 
       setForm(initialRoleLinkForm(referenceData));
-      setMessage("Plant/facility role saved.");
+      setMessage("Plant role saved.");
       router.refresh();
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : "Failed to save plant/facility role."
+          : "Failed to save plant role."
       );
     } finally {
       setSaving(false);
@@ -1407,7 +1407,7 @@ function CompanyAssetPortfolio({
 
     if (
       !confirmStructuredRelationshipRemoval(
-        `the plant/facility role${
+        `the plant role${
           link?.asset_name ? ` for ${link.asset_name}` : ""
         }`
       )
@@ -1427,16 +1427,16 @@ function CompanyAssetPortfolio({
       const json = await safeJson(res);
 
       if (!res.ok || !json?.success) {
-        throw new Error(json?.error || "Failed to remove plant/facility role.");
+        throw new Error(json?.error || "Failed to remove plant role.");
       }
 
-      setMessage("Plant/facility role removed.");
+      setMessage("Plant role removed.");
       router.refresh();
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
-          : "Failed to remove plant/facility role."
+          : "Failed to remove plant role."
       );
     } finally {
       setSaving(false);
@@ -1451,7 +1451,7 @@ function CompanyAssetPortfolio({
         className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5"
         onSubmit={handleSubmit}
       >
-        <Field label="Plant / Facility" approvalSensitive required>
+        <Field label="Plant" approvalSensitive required>
           <select
             className={inputClass()}
             value={form.operating_asset_id}
@@ -1557,7 +1557,7 @@ function CompanyAssetPortfolio({
             {links.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
-                  No linked plants/facilities yet.
+                  No linked plants yet.
                 </td>
               </tr>
             ) : null}
@@ -1680,7 +1680,7 @@ export function CompanyRelationshipPanel({
   return (
     <Section
       title="Relationships And Portfolios"
-      description="Structured project, plant/facility, and company-relationship links for this PostgreSQL staging company."
+      description="Structured project, plant, and company-relationship links for this PostgreSQL staging company."
     >
       <RelationshipSupportSummary
         activityLinkCount={projectLinks.length + operatingAssetLinks.length}
@@ -1726,7 +1726,7 @@ export function CompanyRelationshipPanel({
         </div>
         <div className="space-y-3">
           <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500">
-            Plant / Facility Roles
+            Plant Roles
           </h3>
           <CompanyAssetPortfolio
             companyId={companyId}

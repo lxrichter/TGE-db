@@ -635,7 +635,7 @@ function FormReadinessPanel({
 
 function formatEntityType(value: SourceLink["entity_type"]) {
   if (value === "operating_asset") {
-    return "Plant / Facility";
+    return "Plant";
   }
 
   if (value === "project") {
@@ -778,7 +778,7 @@ function SourceLinkManager({
 
         <div className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-800">
           Evidence links are governed relationships between this source and a
-          record. Creating a link does not update project, plant/facility, or
+          record. Creating a link does not update project, plant, or
           company fields; it only creates reviewed evidence context for later
           confirmation and audited field updates.
         </div>
@@ -840,7 +840,7 @@ function SourceLinkManager({
               }
             >
               <option value="project">Project</option>
-              <option value="operating_asset">Plant / Facility</option>
+              <option value="operating_asset">Plant</option>
               <option value="company">Company</option>
             </select>
           </Field>
