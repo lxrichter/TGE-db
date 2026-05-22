@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   getPostgresReplacementReadiness,
   type PostgresReplacementReadiness,
@@ -269,6 +270,23 @@ function GateRow({
   );
 }
 
+function ReadinessMobileField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
 function ReadinessTable({
   entities,
 }: {
@@ -325,7 +343,85 @@ function ReadinessTable({
         </div>
       </summary>
 
-      <div className="overflow-x-auto border-t border-gray-200">
+      <div className="divide-y divide-gray-100 border-t border-gray-200 lg:hidden">
+        {entities.map((entity) => {
+          const coverage = share(
+            entity.approved_or_export_ready_count,
+            entity.record_count
+          );
+          const coreGaps =
+            entity.missing_country_count +
+            entity.missing_use_or_status_count +
+            entity.missing_capacity_count +
+            entity.missing_coordinates_count;
+
+          return (
+            <article key={entity.entity_type} className="px-4 py-4 sm:px-5">
+              <Link
+                className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                href={entityPath(entity.entity_type)}
+              >
+                {entity.label}
+              </Link>
+              <div className="mt-1 text-xs text-gray-500">
+                {formatCount(entity.record_count)} records · Updated{" "}
+                {formatDate(entity.latest_update_at)}
+              </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <ReadinessMobileField label="Readiness">
+                  <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
+                    <span>{formatPercent(coverage)}</span>
+                    <span>
+                      {formatCount(entity.approved_or_export_ready_count)} ready
+                    </span>
+                  </div>
+                  <div className="mt-2">
+                    <ProgressBar value={coverage} />
+                  </div>
+                  <div className="mt-1 text-xs text-gray-500">
+                    {formatCount(entity.draft_or_validation_count)} draft /
+                    validation
+                  </div>
+                </ReadinessMobileField>
+                <ReadinessMobileField label="Source / Link Gaps">
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                      href={missingPath(entity.entity_type, "source")}
+                    >
+                      {formatCount(entity.missing_source_count)} source
+                    </Link>
+                    <Link
+                      className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                      href={missingPath(entity.entity_type, "company_link")}
+                    >
+                      {formatCount(entity.missing_company_link_count)} links
+                    </Link>
+                  </div>
+                </ReadinessMobileField>
+                <ReadinessMobileField label="Core Gaps">
+                  {formatCount(coreGaps)} total
+                  <div className="mt-1 text-xs leading-5 text-gray-500">
+                    {formatCount(entity.missing_country_count)} country ·{" "}
+                    {formatCount(entity.missing_use_or_status_count)} class ·{" "}
+                    {formatCount(entity.missing_capacity_count)} capacity ·{" "}
+                    {formatCount(entity.missing_coordinates_count)} coords
+                  </div>
+                </ReadinessMobileField>
+                <ReadinessMobileField label="Issues">
+                  {formatCount(entity.open_issue_count)} open
+                  <div className="mt-1 text-xs text-red-600">
+                    {formatCount(entity.critical_issue_count)} critical
+                  </div>
+                </ReadinessMobileField>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="hidden overflow-x-auto border-t border-gray-200 lg:block">
         <table className="min-w-[920px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
