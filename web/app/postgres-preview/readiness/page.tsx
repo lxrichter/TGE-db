@@ -159,8 +159,7 @@ function MigrationRehearsalPanel({
             Latest Migration Rehearsal
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            Fresh live SQLite backup import, transform, and validation must be
-            repeated before production cutover.
+            Latest recorded live SQLite import, transform, and validation pass.
           </p>
         </div>
         <span
@@ -254,10 +253,10 @@ function GateRow({
   }[status];
 
   return (
-    <div className="flex flex-col gap-3 border border-gray-200 bg-white px-4 py-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 border border-gray-200 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between">
       <div>
         <div className="font-semibold text-[#1f2937]">{label}</div>
-        <div className="mt-1 text-sm leading-5 text-gray-600">{detail}</div>
+        <div className="mt-1 text-xs leading-5 text-gray-500">{detail}</div>
       </div>
       <span
         className={`inline-flex h-7 shrink-0 items-center border px-2 text-xs font-semibold ${statusClass}`}
@@ -280,27 +279,20 @@ function ReadinessTable({
           Entity Readiness Signals
         </h2>
         <p className="mt-1 text-sm leading-6 text-gray-600">
-          These are live staging signals for replacement planning. They do not
-          replace detailed record review, but they show where cutover risk still
-          sits.
+          Cutover worklist by entity family. Counts link back to filtered
+          staging pages where relevant.
         </p>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-[1120px] table-fixed text-left text-sm">
+        <table className="min-w-[920px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[16%] px-5 py-3 font-semibold">Area</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Records</th>
-              <th className="w-[16%] px-5 py-3 font-semibold">
-                Review Coverage
-              </th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Source Gaps</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Core Gaps</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Links</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Issues</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Updated</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Open</th>
+              <th className="w-[22%] px-5 py-3 font-semibold">Area</th>
+              <th className="w-[24%] px-5 py-3 font-semibold">Readiness</th>
+              <th className="w-[26%] px-5 py-3 font-semibold">Gaps</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">Issues</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">Open</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -325,17 +317,17 @@ function ReadinessTable({
                       {entity.label}
                     </Link>
                     <div className="mt-1 text-xs text-gray-500">
-                      {formatCount(entity.needs_update_count)} need re-review
+                      {formatCount(entity.record_count)} records
                     </div>
-                  </td>
-                  <td className="px-5 py-4 text-gray-700">
-                    {formatCount(entity.record_count)}
+                    <div className="mt-1 text-xs text-gray-500">
+                      Updated {formatDate(entity.latest_update_at)}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
                       <span>{formatPercent(coverage)}</span>
                       <span>
-                        {formatCount(entity.approved_or_export_ready_count)}
+                        {formatCount(entity.approved_or_export_ready_count)} ready
                       </span>
                     </div>
                     <div className="mt-2">
@@ -345,40 +337,38 @@ function ReadinessTable({
                       {formatCount(entity.draft_or_validation_count)} draft /
                       validation
                     </div>
-                  </td>
-                  <td className="px-5 py-4">
-                    <Link
-                      className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
-                      href={missingPath(entity.entity_type, "source")}
-                    >
-                      {formatCount(entity.missing_source_count)}
-                    </Link>
+                    <div className="mt-1 text-xs text-gray-500">
+                      {formatCount(entity.needs_update_count)} need re-review
+                    </div>
                   </td>
                   <td className="px-5 py-4 text-gray-700">
-                    <div>{formatCount(coreGaps)} total</div>
-                    <div className="mt-1 text-xs leading-5 text-gray-500">
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                        href={missingPath(entity.entity_type, "source")}
+                      >
+                        {formatCount(entity.missing_source_count)} source
+                      </Link>
+                      <Link
+                        className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                        href={missingPath(entity.entity_type, "company_link")}
+                      >
+                        {formatCount(entity.missing_company_link_count)} links
+                      </Link>
+                    </div>
+                    <div className="mt-2 text-xs leading-5 text-gray-500">
+                      {formatCount(coreGaps)} core gaps:{" "}
                       {formatCount(entity.missing_country_count)} country ·{" "}
                       {formatCount(entity.missing_use_or_status_count)} class ·{" "}
                       {formatCount(entity.missing_capacity_count)} capacity ·{" "}
                       {formatCount(entity.missing_coordinates_count)} coords
                     </div>
                   </td>
-                  <td className="px-5 py-4">
-                    <Link
-                      className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
-                      href={missingPath(entity.entity_type, "company_link")}
-                    >
-                      {formatCount(entity.missing_company_link_count)}
-                    </Link>
-                  </td>
                   <td className="px-5 py-4 text-gray-700">
                     <div>{formatCount(entity.open_issue_count)} open</div>
                     <div className="mt-1 text-xs text-red-600">
                       {formatCount(entity.critical_issue_count)} critical
                     </div>
-                  </td>
-                  <td className="px-5 py-4 text-gray-700">
-                    {formatDate(entity.latest_update_at)}
                   </td>
                   <td className="px-5 py-4">
                     <Link
@@ -521,17 +511,17 @@ export default async function PostgresReadinessPage() {
 
           <section className="space-y-3">
             <GateRow
-              detail="PostgreSQL staging has the core entity structure, create/edit forms, evidence links, review states, and Research Ops issue tracking."
+              detail="Core entity structure, forms, evidence links, review states, and Research Ops issues exist in staging."
               label="Controlled Internal Data Filling"
               status="partial"
             />
             <GateRow
-              detail="Replacement still needs final live SQLite import, production deployment on Hetzner, backup/restore checks, user access review, export parity, and hands-on workflow acceptance."
+              detail="Still needs final import, Hetzner deployment, backup/restore checks, access review, export parity, and hands-on workflow acceptance."
               label="Replace Current Internal Platform"
               status="partial"
             />
             <GateRow
-              detail="AI suggestions, article fact training, semantic search, subscriber views, and advanced reporting are foundation-stage and should not block internal replacement if governed separately."
+              detail="AI suggestions, article fact training, semantic search, subscriber views, and reporting remain foundation-stage."
               label="Long-Term Intelligence Platform"
               status="partial"
             />

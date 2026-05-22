@@ -134,6 +134,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   groups record counts, electric capacity, direct-use/thermal signals, review
   coverage, source gaps, and drill-through links into fewer columns for better
   scanability before the later visual design pass
+- PostgreSQL Replacement Readiness now uses a more compact cutover worklist
+  table, grouping review coverage, evidence/core gaps, relationship gaps,
+  issues, and entity worklist links into fewer columns so migration risk is
+  visible without reading a full audit report first
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals
