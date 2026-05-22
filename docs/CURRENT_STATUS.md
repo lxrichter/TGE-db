@@ -585,6 +585,11 @@ Known current gaps and risks:
   filters open only when filters are active, source detail metadata/audit
   sections are collapsed by default, and source match/fact review tables remain
   visible as the primary work surface
+- Research Ops now uses a lighter secondary-workflow hierarchy: article
+  match/fact review summaries open only when there is open work, saved
+  operational views are collapsed by default, the deep workbench opens when
+  an operational queue/view is selected, and recent activity is tucked behind
+  its own disclosure panel
 
 ## Validation Snapshot
 
@@ -603,6 +608,8 @@ Last checked locally:
   added on 2026-05-22
 - targeted lint and `npm run build` passed for the Sources / Documents
   progressive-disclosure pass added on 2026-05-22
+- targeted lint and `npm run build` passed for the Research Ops secondary
+  workflow disclosure pass added on 2026-05-22
 - full-repository lint still needs a separate cleanup pass for older lint debt
 
 The lint result should be treated as part of the Phase 1 audit backlog.

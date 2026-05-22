@@ -686,6 +686,65 @@ function SectionIntro({
   );
 }
 
+function DisclosurePanel({
+  id,
+  eyebrow,
+  title,
+  description,
+  defaultOpen = false,
+  open,
+  onOpenChange,
+  children,
+}: {
+  id?: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children: ReactNode;
+}) {
+  const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const isOpen = open ?? internalOpen;
+
+  function toggleOpen() {
+    const nextOpen = !isOpen;
+    if (onOpenChange) {
+      onOpenChange(nextOpen);
+      return;
+    }
+    setInternalOpen(nextOpen);
+  }
+
+  return (
+    <section
+      id={id}
+      className={id ? "scroll-mt-6 border border-gray-200 bg-white" : "border border-gray-200 bg-white"}
+    >
+      <button
+        className="flex w-full flex-col gap-2 border-b border-gray-200 px-5 py-5 text-left md:flex-row md:items-start md:justify-between"
+        type="button"
+        onClick={toggleOpen}
+      >
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            {eyebrow}
+          </div>
+          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{title}</h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            {description}
+          </p>
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          {isOpen ? "Collapse" : "Expand"}
+        </span>
+      </button>
+      {isOpen ? <div className="px-5 py-5">{children}</div> : null}
+    </section>
+  );
+}
+
 function WorkflowTierMarker({
   eyebrow,
   title,
@@ -949,16 +1008,12 @@ function QuickOperationalViews({
   ];
 
   return (
-    <section className="border border-gray-200 bg-white px-5 py-5">
-      <div className="mb-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">
-          Saved Operational Views
-        </h2>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
-          MVP shortcut views are local filter presets for now. Persisted
-          user/team saved views should come after the workflow stabilizes.
-        </p>
-      </div>
+    <DisclosurePanel
+      defaultOpen={false}
+      description="MVP shortcut views are local filter presets for now. Persisted user/team saved views should come after the workflow stabilizes."
+      eyebrow="Saved Views"
+      title="Saved Operational Views"
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {views.map((item) => (
           <button
@@ -974,7 +1029,7 @@ function QuickOperationalViews({
           </button>
         ))}
       </div>
-    </section>
+    </DisclosurePanel>
   );
 }
 
@@ -1221,21 +1276,14 @@ function ArticleMatchReviewPanel({
   ];
 
   return (
-    <section
+    <DisclosurePanel
       id="article-match-review"
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      defaultOpen={summary.open > 0}
+      description="Generated TGE article/entity matches remain candidates until reviewed. This keeps archive-linking workload visible while confirmation stays in Sources."
+      eyebrow="Source Review"
+      title="Article Match Review"
     >
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
-            Article Match Review
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Generated TGE article/entity matches remain candidates until reviewed.
-            This panel keeps the archive-linking workload visible in Research Ops
-            while the actual confirmation workflow stays in Sources.
-          </p>
-        </div>
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link
           className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
           href="/sources/matches"
@@ -1244,7 +1292,7 @@ function ArticleMatchReviewPanel({
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {matchLinks.map((item) => (
           <Link
             key={item.label}
@@ -1264,12 +1312,12 @@ function ArticleMatchReviewPanel({
         ))}
       </div>
 
-      <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+      <div className="mt-4 border-t border-gray-100 pt-3 text-xs leading-5 text-gray-500">
         Open candidate workload: {formatCount(summary.open)}. Matching does not
         create evidence links; confirmation in Sources creates or reuses
         reviewed evidence links.
       </div>
-    </section>
+    </DisclosurePanel>
   );
 }
 
@@ -1318,21 +1366,14 @@ function ArticleFactReviewPanel({
   ];
 
   return (
-    <section
+    <DisclosurePanel
       id="article-fact-review"
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      defaultOpen={summary.open > 0}
+      description="Compact article facts are reviewed separately from entity fields. Confirmed facts can later feed human-approved field suggestions."
+      eyebrow="Source Review"
+      title="Article Fact Review"
     >
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
-            Article Fact Review
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Compact article facts are reviewed separately from entity fields.
-            Confirmed facts can later feed human-approved field suggestions, but
-            they do not update project, plant/facility, or company records here.
-          </p>
-        </div>
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link
           className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
           href="/sources/facts"
@@ -1341,7 +1382,7 @@ function ArticleFactReviewPanel({
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {factLinks.map((item) => (
           <Link
             key={item.label}
@@ -1361,12 +1402,12 @@ function ArticleFactReviewPanel({
         ))}
       </div>
 
-      <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+      <div className="mt-4 border-t border-gray-100 pt-3 text-xs leading-5 text-gray-500">
         Article fact review is a staging layer for future AI-assisted data
         filling. It intentionally stays separate from evidence-link creation and
         entity field updates.
       </div>
-    </section>
+    </DisclosurePanel>
   );
 }
 
@@ -3659,6 +3700,7 @@ export function ResearchOpsDashboardClient({
   const [collapsedQueueKeys, setCollapsedQueueKeys] = useState<
     Set<ResearchOpsQueueKey>
   >(() => new Set());
+  const [deepWorkbenchOpen, setDeepWorkbenchOpen] = useState(false);
 
   const normalizedSearch = search.trim().toLowerCase();
 
@@ -3953,6 +3995,7 @@ export function ResearchOpsDashboardClient({
     severity?: SeverityFilter;
     entity?: EntityFilter;
   }) {
+    setDeepWorkbenchOpen(true);
     setQueueFilter(view.queue || "all");
     setSeverityFilter(view.severity || "all");
     setEntityFilter(view.entity || "all");
@@ -4169,16 +4212,13 @@ export function ResearchOpsDashboardClient({
         onSelectQueue={(queue) => applyOperationalView({ queue })}
       />
 
-      <WorkflowTierMarker
-        eyebrow="Governance"
-        title="Deep Workbench"
-        description="Filters, selected records, bulk actions, exports, activity, legends."
-        tone="governance"
-      />
-
-      <section
+      <DisclosurePanel
         id="deep-table"
-        className="scroll-mt-6 border border-gray-200 bg-white px-5 py-5"
+        description="Filters, selected records, bulk actions, exports, activity, and queue scope. It opens automatically when a queue or operational view is selected."
+        eyebrow="Governance"
+        onOpenChange={setDeepWorkbenchOpen}
+        open={deepWorkbenchOpen || activeOperationalFilters.length > 0}
+        title="Deep Workbench"
       >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1fr)_repeat(4,minmax(150px,190px))] xl:items-end">
@@ -4317,7 +4357,7 @@ export function ResearchOpsDashboardClient({
             onRemoveFilter={removeOperationalFilter}
           />
         </div>
-      </section>
+      </DisclosurePanel>
 
       <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
         <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
@@ -4353,22 +4393,25 @@ export function ResearchOpsDashboardClient({
         onRecordsChanged={handleBulkStatusChanged}
       />
 
-      <SectionIntro
+      <DisclosurePanel
+        defaultOpen={false}
+        description="Recently edited PostgreSQL staging records and summary indicators for source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
         eyebrow="Research Activity"
         title="Recent Activity"
-        description="This starts with recently edited PostgreSQL staging records and summary indicators for recent source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
-      />
+      >
+        <div className="space-y-5">
+          <ResearchActivitySummary recentEdits={filteredRecentEdits} />
 
-      <ResearchActivitySummary recentEdits={filteredRecentEdits} />
-
-      <RecentEdits
-        items={filteredRecentEdits}
-        onSelect={setSelectedRecord}
-        onToggleBulk={toggleBulkRecord}
-        onToggleVisible={toggleBulkRecords}
-        selectedBulkKeys={selectedBulkKeys}
-        selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
-      />
+          <RecentEdits
+            items={filteredRecentEdits}
+            onSelect={setSelectedRecord}
+            onToggleBulk={toggleBulkRecord}
+            onToggleVisible={toggleBulkRecords}
+            selectedBulkKeys={selectedBulkKeys}
+            selectedKey={selectedRecord ? recordKey(selectedRecord) : null}
+          />
+        </div>
+      </DisclosurePanel>
 
       <SectionIntro
         eyebrow="Deep Table View"
