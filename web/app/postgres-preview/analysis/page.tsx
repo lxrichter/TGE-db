@@ -11,6 +11,7 @@ import {
   formatPreviewFilterLabel,
   PostgresPreviewSetupNotice,
 } from "@/components/postgres-preview/PostgresPreviewListTables";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 
 export const dynamic = "force-dynamic";
 
@@ -266,71 +267,96 @@ export default async function PostgresAnalysisPreviewPage() {
         <PostgresPreviewSetupNotice error={data.ok ? "No data" : data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Analysis Snapshot"
-            description="Record counts and capacity signals."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              {
+                href: "#analysis-snapshot",
+                label: "Snapshot",
+                note: "KPIs",
+              },
+              {
+                href: "#benchmark-views",
+                label: "Benchmarks",
+                note: "Buckets",
+              },
+              {
+                href: "#country-drilldown",
+                label: "Countries",
+                note: "Drilldown",
+              },
+            ]}
           />
 
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <StatTile
-              label="Project Records"
-              note="PostgreSQL staging pipeline records"
-              value={formatCount(totals.projectRecords)}
+          <section id="analysis-snapshot" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Analysis Snapshot"
+              description="Record counts and capacity signals."
+              tone="core"
             />
-            <StatTile
-              label="Asset Records"
-              note="PostgreSQL staging operating asset records"
-              value={formatCount(totals.assetRecords)}
+
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+              <StatTile
+                label="Project Records"
+                note="PostgreSQL staging pipeline records"
+                value={formatCount(totals.projectRecords)}
+              />
+              <StatTile
+                label="Asset Records"
+                note="PostgreSQL staging operating asset records"
+                value={formatCount(totals.assetRecords)}
+              />
+              <StatTile
+                label="Top-10 Operating"
+                note="Installed MWe across top countries in this preview"
+                value={`${formatMw(totals.topCountryOperating)} MWe`}
+              />
+              <StatTile
+                label="Top-10 Pipeline"
+                note="Pipeline MWe across top countries in this preview"
+                value={`${formatMw(totals.topCountryPipeline)} MWe`}
+              />
+            </div>
+          </section>
+
+          <section id="benchmark-views" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Benchmark Views"
+              description="Lifecycle, status, use type, country comparison."
+              tone="workflow"
             />
-            <StatTile
-              label="Top-10 Operating"
-              note="Installed MWe across top countries in this preview"
-              value={`${formatMw(totals.topCountryOperating)} MWe`}
-            />
-            <StatTile
-              label="Top-10 Pipeline"
-              note="Pipeline MWe across top countries in this preview"
-              value={`${formatMw(totals.topCountryPipeline)} MWe`}
+
+            <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+              <BucketTable
+                buckets={summary.projectLifecycle}
+                description="Project records grouped by lifecycle phase, including electric and thermal capacity signals where available."
+                title="Project Lifecycle"
+              />
+              <BucketTable
+                buckets={summary.operatingAssetStatus}
+                description="Plant/facility records grouped by operating status or lifecycle-style asset state."
+                title="Plants / Facilities Status"
+              />
+            </div>
+
+            <BucketTable
+              buckets={summary.useTypeBreakdown}
+              defaultOpen={false}
+              description="Combined project and operating asset distribution by geothermal use type."
+              title="Use-Type Distribution"
             />
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Benchmark Views"
-            description="Lifecycle, status, use type, country comparison."
-            tone="workflow"
-          />
-
-          <section className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-            <BucketTable
-              buckets={summary.projectLifecycle}
-              description="Project records grouped by lifecycle phase, including electric and thermal capacity signals where available."
-              title="Project Lifecycle"
+          <section id="country-drilldown" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Country Drilldown"
+              description="Connect analysis back to filtered worklists."
+              tone="governance"
             />
-            <BucketTable
-              buckets={summary.operatingAssetStatus}
-              description="Plant/facility records grouped by operating status or lifecycle-style asset state."
-              title="Plants / Facilities Status"
-            />
-          </section>
 
-          <BucketTable
-            buckets={summary.useTypeBreakdown}
-            defaultOpen={false}
-            description="Combined project and operating asset distribution by geothermal use type."
-            title="Use-Type Distribution"
-          />
-
-          <DetailPriorityMarker
-            label="Governance"
-            title="Country Drilldown"
-            description="Connect analysis back to filtered worklists."
-            tone="governance"
-          />
-
-          <details className="border border-gray-200 bg-white">
+            <details className="border border-gray-200 bg-white">
             <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
               <div>
                 <h2 className="text-lg font-bold text-[#1f2937]">
@@ -435,7 +461,8 @@ export default async function PostgresAnalysisPreviewPage() {
                 </table>
               </div>
             </div>
-          </details>
+            </details>
+          </section>
         </>
       )}
     </main>

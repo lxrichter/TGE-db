@@ -7,6 +7,7 @@ import {
 import { formatCount, formatMw } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 
 export const dynamic = "force-dynamic";
 
@@ -744,58 +745,84 @@ export default async function PostgresCountryMarketsPage() {
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Market Snapshot"
-            description="Coverage, capacity, direct use, source gaps."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              {
+                href: "#market-snapshot",
+                label: "Snapshot",
+                note: "KPIs",
+              },
+              {
+                href: "#market-operations",
+                label: "Operations",
+                note: "Queues",
+              },
+              {
+                href: "#country-worklist",
+                label: "Worklist",
+                note: "Table",
+              },
+            ]}
           />
 
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <StatTile
-              label="Countries"
-              note="With staged project, asset, or company records"
-              value={formatCount(countries.length)}
+          <section id="market-snapshot" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Market Snapshot"
+              description="Coverage, capacity, direct use, source gaps."
+              tone="core"
             />
-            <StatTile
-              label="Operating"
-              note="Installed electric capacity in staged assets"
-              value={`${formatMw(totals.operatingMwe)} MWe`}
-            />
-            <StatTile
-              label="Pipeline"
-              note="Project electric capacity in staged pipeline"
-              value={`${formatMw(totals.pipelineMwe)} MWe`}
-            />
-            <StatTile
-              label="Direct Use"
-              note="Direct-use project and facility records"
-              value={formatCount(totals.directUseRecords)}
-            />
-            <StatTile
-              label="Source Gaps"
-              note="Records without confirmed evidence links"
-              value={formatCount(totals.sourceGaps)}
-            />
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <StatTile
+                label="Countries"
+                note="With staged project, asset, or company records"
+                value={formatCount(countries.length)}
+              />
+              <StatTile
+                label="Operating"
+                note="Installed electric capacity in staged assets"
+                value={`${formatMw(totals.operatingMwe)} MWe`}
+              />
+              <StatTile
+                label="Pipeline"
+                note="Project electric capacity in staged pipeline"
+                value={`${formatMw(totals.pipelineMwe)} MWe`}
+              />
+              <StatTile
+                label="Direct Use"
+                note="Direct-use project and facility records"
+                value={formatCount(totals.directUseRecords)}
+              />
+              <StatTile
+                label="Source Gaps"
+                note="Records without confirmed evidence links"
+                value={formatCount(totals.sourceGaps)}
+              />
+            </div>
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Market Operations"
-            description="Country-scoped queues for source gaps, market priority, direct-use coverage, and recent activity."
-            tone="workflow"
-          />
+          <section id="market-operations" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Market Operations"
+              description="Country-scoped queues for source gaps, market priority, direct-use coverage, and recent activity."
+              tone="workflow"
+            />
 
-          <CountryOperationsLayer countries={countries} />
+            <CountryOperationsLayer countries={countries} />
+          </section>
 
-          <DetailPriorityMarker
-            label="Workbench"
-            title="Country Worklist"
-            description="Comparison, validation coverage, drill-through."
-            tone="workflow"
-          />
+          <section id="country-worklist" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workbench"
+              title="Country Worklist"
+              description="Comparison, validation coverage, drill-through."
+              tone="workflow"
+            />
 
-          <CountryMarketsTable countries={countries} />
+            <CountryMarketsTable countries={countries} />
+          </section>
         </>
       )}
     </main>

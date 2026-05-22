@@ -9,6 +9,7 @@ import {
 import { formatCount } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 
 export const dynamic = "force-dynamic";
 
@@ -590,88 +591,114 @@ export default async function PostgresReadinessPage() {
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
-          <DetailPriorityMarker
-            label="Core"
-            title="Readiness Snapshot"
-            description="Coverage, gaps, issues, re-review load."
-            tone="core"
+          <PostgresSectionJumpNav
+            items={[
+              {
+                href: "#readiness-snapshot",
+                label: "Snapshot",
+                note: "Signals",
+              },
+              {
+                href: "#migration-gates",
+                label: "Gates",
+                note: "Cutover",
+              },
+              {
+                href: "#cutover-worklist",
+                label: "Worklist",
+                note: "Risks",
+              },
+            ]}
           />
 
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
-            <StatTile
-              label="Staged Records"
-              note="Projects, plants/facilities, and companies"
-              value={formatCount(totals.records)}
+          <section id="readiness-snapshot" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Core"
+              title="Readiness Snapshot"
+              description="Coverage, gaps, issues, re-review load."
+              tone="core"
             />
-            <StatTile
-              label="Review Coverage"
-              note="Approved or export-ready records"
-              tone={reviewCoverage >= 70 ? "good" : "warning"}
-              value={formatPercent(reviewCoverage)}
-            />
-            <StatTile
-              label="Source Gaps"
-              note="Records without confirmed evidence links"
-              tone={totals.sourceGaps > 0 ? "warning" : "good"}
-              value={formatCount(totals.sourceGaps)}
-            />
-            <StatTile
-              label="Open Issues"
-              note="Persistent human-created Research Ops issues"
-              tone={totals.openIssues > 0 ? "warning" : "good"}
-              value={formatCount(totals.openIssues)}
-            />
-            <StatTile
-              label="Critical Issues"
-              note="Must be resolved or explicitly accepted before cutover"
-              tone={totals.criticalIssues > 0 ? "critical" : "good"}
-              value={formatCount(totals.criticalIssues)}
-            />
-            <StatTile
-              label="Needs Update"
-              note="Edited approved records requiring re-review"
-              tone={totals.needsUpdate > 0 ? "warning" : "good"}
-              value={formatCount(totals.needsUpdate)}
-            />
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+              <StatTile
+                label="Staged Records"
+                note="Projects, plants/facilities, and companies"
+                value={formatCount(totals.records)}
+              />
+              <StatTile
+                label="Review Coverage"
+                note="Approved or export-ready records"
+                tone={reviewCoverage >= 70 ? "good" : "warning"}
+                value={formatPercent(reviewCoverage)}
+              />
+              <StatTile
+                label="Source Gaps"
+                note="Records without confirmed evidence links"
+                tone={totals.sourceGaps > 0 ? "warning" : "good"}
+                value={formatCount(totals.sourceGaps)}
+              />
+              <StatTile
+                label="Open Issues"
+                note="Persistent human-created Research Ops issues"
+                tone={totals.openIssues > 0 ? "warning" : "good"}
+                value={formatCount(totals.openIssues)}
+              />
+              <StatTile
+                label="Critical Issues"
+                note="Must be resolved or explicitly accepted before cutover"
+                tone={totals.criticalIssues > 0 ? "critical" : "good"}
+                value={formatCount(totals.criticalIssues)}
+              />
+              <StatTile
+                label="Needs Update"
+                note="Edited approved records requiring re-review"
+                tone={totals.needsUpdate > 0 ? "warning" : "good"}
+                value={formatCount(totals.needsUpdate)}
+              />
+            </div>
           </section>
 
-          <DetailPriorityMarker
-            label="Workflow"
-            title="Migration Gates"
-            description="Rehearsal status and cutover gates."
-            tone="workflow"
-          />
+          <section id="migration-gates" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Migration Gates"
+              description="Rehearsal status and cutover gates."
+              tone="workflow"
+            />
 
-          <MigrationRehearsalPanel
-            migration={data.readiness.latestMigrationRun}
-          />
+            <MigrationRehearsalPanel
+              migration={data.readiness.latestMigrationRun}
+            />
 
-          <section className="space-y-3">
-            <GateRow
-              detail="Core entity structure, forms, evidence links, review states, and Research Ops issues exist in staging."
-              label="Controlled Internal Data Filling"
-              status="partial"
-            />
-            <GateRow
-              detail="Still needs final import, Hetzner deployment, backup/restore checks, access review, export parity, and hands-on workflow acceptance."
-              label="Replace Current Internal Platform"
-              status="partial"
-            />
-            <GateRow
-              detail="AI suggestions, article fact training, semantic search, subscriber views, and reporting remain foundation-stage."
-              label="Long-Term Intelligence Platform"
-              status="partial"
-            />
+            <div className="space-y-3">
+              <GateRow
+                detail="Core entity structure, forms, evidence links, review states, and Research Ops issues exist in staging."
+                label="Controlled Internal Data Filling"
+                status="partial"
+              />
+              <GateRow
+                detail="Still needs final import, Hetzner deployment, backup/restore checks, access review, export parity, and hands-on workflow acceptance."
+                label="Replace Current Internal Platform"
+                status="partial"
+              />
+              <GateRow
+                detail="AI suggestions, article fact training, semantic search, subscriber views, and reporting remain foundation-stage."
+                label="Long-Term Intelligence Platform"
+                status="partial"
+              />
+            </div>
           </section>
 
-          <DetailPriorityMarker
-            label="Governance"
-            title="Cutover Worklist"
-            description="Entity-level risk and follow-up."
-            tone="governance"
-          />
+          <section id="cutover-worklist" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Cutover Worklist"
+              description="Entity-level risk and follow-up."
+              tone="governance"
+            />
 
-          <ReadinessTable entities={entities} />
+            <ReadinessTable entities={entities} />
+          </section>
         </>
       )}
     </main>
