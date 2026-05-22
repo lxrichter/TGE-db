@@ -212,20 +212,26 @@ function WorkflowStrip() {
   ];
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">
-          Source Governance Flow
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-          Source records, evidence links, article matches, and extracted facts
-          remain separate until reviewed. This keeps source governance ahead of
-          AI-assisted data filling.
-        </p>
-      </div>
-      <div className="grid grid-cols-1 gap-2 px-5 py-5 md:grid-cols-4">
+    <details className="border border-gray-200 bg-white">
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden md:flex-row md:items-center md:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Governance Model
+          </div>
+          <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+            Source Record -&gt; Review -&gt; Evidence Link -&gt; Candidate
+          </h2>
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          Expand
+        </span>
+      </summary>
+      <div className="grid grid-cols-1 gap-2 border-t border-gray-200 px-5 py-5 md:grid-cols-4">
         {steps.map((item) => (
-          <div key={item.step} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+          <div
+            key={item.step}
+            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4"
+          >
             <div className="flex items-center gap-2">
               <span className="inline-flex h-6 w-6 items-center justify-center border border-gray-300 bg-white text-xs font-bold text-[#1f2937]">
                 {item.step}
@@ -240,7 +246,7 @@ function WorkflowStrip() {
           </div>
         ))}
       </div>
-    </section>
+    </details>
   );
 }
 

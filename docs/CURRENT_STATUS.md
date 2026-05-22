@@ -133,6 +133,10 @@ foundation. Current implemented PostgreSQL staging areas include:
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals
+- Sources / Documents list and source detail pages now keep the source
+  governance flow available as a collapsed reference model, reducing repeated
+  explanatory weight while preserving the evidence-backbone mental model for
+  researchers and editors
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

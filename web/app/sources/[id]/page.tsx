@@ -182,6 +182,48 @@ function WorkflowStep({
   );
 }
 
+function SourceGovernanceDetails() {
+  return (
+    <details className="border border-gray-200 bg-white">
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden md:flex-row md:items-center md:justify-between">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            Governance Model
+          </div>
+          <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+            Source Record -&gt; Review -&gt; Evidence Link -&gt; Candidate
+          </h2>
+        </div>
+        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          Expand
+        </span>
+      </summary>
+      <div className="grid grid-cols-1 gap-3 border-t border-gray-200 px-5 py-5 md:grid-cols-4">
+        <WorkflowStep
+          step="1"
+          title="Source Record"
+          note="Imported or manually added metadata, URL/reference, visibility, and source type."
+        />
+        <WorkflowStep
+          step="2"
+          title="Credibility Review"
+          note="Editors mark whether the source is credible, weak, outdated, rejected, or pending."
+        />
+        <WorkflowStep
+          step="3"
+          title="Evidence Link"
+          note="Confirmed links connect this source to projects, plants/facilities, or companies."
+        />
+        <WorkflowStep
+          step="4"
+          title="Fact / Candidate"
+          note="Extracted facts and AI suggestions stay reviewable before affecting records."
+        />
+      </div>
+    </details>
+  );
+}
+
 function StatusTile({
   label,
   value,
@@ -869,28 +911,7 @@ export default async function SourceDetailPage({
         tone="core"
       />
 
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <WorkflowStep
-          step="1"
-          title="Source Record"
-          note="Imported or manually added metadata, URL/reference, visibility, and source type."
-        />
-        <WorkflowStep
-          step="2"
-          title="Credibility Review"
-          note="Editors mark whether the source is credible, weak, outdated, rejected, or still pending."
-        />
-        <WorkflowStep
-          step="3"
-          title="Evidence Link"
-          note="Confirmed links connect this source to projects, plants/facilities, or companies."
-        />
-        <WorkflowStep
-          step="4"
-          title="Fact / Candidate"
-          note="Extracted facts and AI field suggestions stay reviewable before they affect records."
-        />
-      </section>
+      <SourceGovernanceDetails />
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <StatusTile
