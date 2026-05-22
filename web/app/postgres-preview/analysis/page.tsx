@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   getPostgresPreviewAnalysisSummary,
   type PostgresPreviewAnalysisBucket,
@@ -61,6 +62,23 @@ function StatTile({
   );
 }
 
+function MobileAnalysisField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
+}
+
 function BucketTable({
   title,
   description,
@@ -101,7 +119,41 @@ function BucketTable({
           </span>
         </div>
       </summary>
-      <div className="overflow-x-auto border-t border-gray-200">
+      <div className="divide-y divide-gray-100 border-t border-gray-200 md:hidden">
+        {buckets.map((bucket) => {
+          const share = Math.round(
+            (bucket.electric_capacity_mwe / maxElectric) * 100
+          );
+
+          return (
+            <article key={bucket.bucket_code} className="px-4 py-4">
+              <div className="font-semibold text-[#1f2937]">
+                {formatPreviewFilterLabel(bucket.bucket_code)}
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <MobileAnalysisField label="Records">
+                  {formatCount(bucket.record_count)}
+                </MobileAnalysisField>
+                <MobileAnalysisField label="Electric">
+                  {formatMw(bucket.electric_capacity_mwe)} MWe
+                </MobileAnalysisField>
+                <MobileAnalysisField label="Thermal">
+                  {formatMw(bucket.thermal_capacity_mwth)} MWth
+                </MobileAnalysisField>
+                <MobileAnalysisField label="Relative Share">
+                  <div className="h-1.5 overflow-hidden bg-gray-100">
+                    <div
+                      className="h-full bg-[#8dc63f]"
+                      style={{ width: `${share}%` }}
+                    />
+                  </div>
+                </MobileAnalysisField>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <div className="hidden overflow-x-auto border-t border-gray-200 md:block">
         <table className="min-w-[820px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
@@ -298,8 +350,43 @@ export default async function PostgresAnalysisPreviewPage() {
                 </span>
               </div>
             </summary>
-            <div className="overflow-x-auto border-t border-gray-200">
-              <table className="min-w-[820px] table-fixed text-left text-sm">
+            <div className="border-t border-gray-200">
+              <div className="divide-y divide-gray-100 md:hidden">
+                {summary.topCountries.map((country) => (
+                  <article key={country.country} className="px-4 py-4">
+                    <div className="font-semibold text-[#1f2937]">
+                      {country.country}
+                    </div>
+                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                      <MobileAnalysisField label="Operating">
+                        {formatMw(country.operating_installed_mwe)} MWe
+                      </MobileAnalysisField>
+                      <MobileAnalysisField label="Pipeline">
+                        {formatMw(country.project_pipeline_mwe)} MWe
+                      </MobileAnalysisField>
+                      <MobileAnalysisField label="Records">
+                        {formatCount(
+                          country.project_count +
+                            country.operating_asset_count +
+                            country.company_count
+                        )}
+                      </MobileAnalysisField>
+                      <MobileAnalysisField label="Open">
+                        <Link
+                          className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                          href={`/postgres-preview/projects?country=${encodeURIComponent(
+                            country.country
+                          )}`}
+                        >
+                          Project worklist
+                        </Link>
+                      </MobileAnalysisField>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="min-w-[820px] table-fixed text-left text-sm">
                 <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                   <tr>
                     <th className="w-[28%] px-5 py-3 font-semibold">Country</th>
@@ -345,7 +432,8 @@ export default async function PostgresAnalysisPreviewPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </div>
           </details>
         </>
