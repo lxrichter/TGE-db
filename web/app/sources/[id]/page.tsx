@@ -5,6 +5,7 @@ import PostgresFieldSuggestionsPanel from "@/components/postgres-preview/Postgre
 import PostgresRecordActionHub, {
   type PostgresRecordAction,
 } from "@/components/postgres-preview/PostgresRecordActionHub";
+import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresStatusBadge, {
   postgresStatusTone,
   type PostgresStatusTone,
@@ -953,265 +954,319 @@ export default async function SourceDetailPage({
         </div>
       </section>
 
-      <DetailPriorityMarker
-        label="Core"
-        title="Source Triage"
-        description="Credibility, visibility, links, open review work."
-        tone="core"
+      <PostgresSectionJumpNav
+        items={[
+          {
+            href: "#source-triage",
+            label: "Triage",
+            note: "Readiness",
+          },
+          {
+            href: "#source-metadata",
+            label: "Metadata",
+            note: "Reference",
+          },
+          {
+            href: "#source-evidence-work",
+            label: "Evidence Work",
+            note: "Links",
+          },
+          {
+            href: "#source-review-controls",
+            label: "Review",
+            note: "Governance",
+          },
+        ]}
       />
 
-      <SourceGovernanceDetails />
+      <section id="source-triage" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core"
+          title="Source Triage"
+          description="Credibility, visibility, links, open review work."
+          tone="core"
+        />
 
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-        <StatusTile
-          label="Credibility"
-          value={
-            <span className="text-xl">
-              {source.credibility_status_label ||
-                formatCode(source.credibility_status_code)}
-            </span>
-          }
-          note="Current source review state"
-          tone={sourceStatusTone(source.credibility_status_code)}
-        />
-        <StatusTile
-          label="Visibility"
-          value={
-            <span className="text-xl">
-              {source.visibility_label || formatCode(source.visibility_code)}
-            </span>
-          }
-          note="Controls future export/subscriber exposure"
-          tone={visibilityStatusTone(source.visibility_code)}
-        />
-        <StatusTile
-          label="Evidence Links"
-          value={formatCount(source.linked_entity_count)}
-          note="Confirmed source-to-record relationships"
-          tone={source.linked_entity_count > 0 ? "success" : "attention"}
-        />
-        <StatusTile
-          label="Open Matches"
-          value={formatCount(openSourceMatchCount)}
-          note="Article/entity candidates needing review"
-          tone={openSourceMatchCount > 0 ? "attention" : "neutral"}
-        />
-        <StatusTile
-          label="Open Facts"
-          value={formatCount(openArticleFactCount)}
-          note="Extracted fact candidates not finalized"
-          tone={openArticleFactCount > 0 ? "attention" : "neutral"}
-        />
-        <StatusTile
-          label="AI Suggestions"
-          value={formatCount(openFieldSuggestionCount)}
-          note="Reviewable field suggestions"
-          tone={openFieldSuggestionCount > 0 ? "attention" : "neutral"}
-        />
-      </section>
+        <SourceGovernanceDetails />
 
-      <SourceActionHub
-        canReviewSource={canReviewSource}
-        openArticleFactCount={openArticleFactCount}
-        openFieldSuggestionCount={openFieldSuggestionCount}
-        openSourceMatchCount={openSourceMatchCount}
-        source={source}
-      />
-
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <SourceSupportsPanel
-          links={source.links}
-          openMatchCount={openSourceMatchCount}
-        />
-        <SourceLifecyclePanel steps={sourceLifecycleSteps} />
-      </section>
-
-      <DetailPriorityMarker
-        label="Core Record"
-        title="Source Metadata"
-        description="Reference, dates, summary, excerpt, notes, attachments."
-        tone="core"
-      />
-
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <DetailField
-          label="Source Type"
-          value={source.source_type_label || source.source_type_code}
-        />
-        <DetailField label="Country" value={source.country || "-"} />
-        <DetailField label="Published" value={formatDate(source.published_date)} />
-        <DetailField label="Accessed" value={formatDateTime(source.accessed_at)} />
-        <DetailField
-          label="Linked Records"
-          value={formatCount(source.linked_entity_count)}
-        />
-      </section>
-
-      <Section
-        id="source-reference"
-        title="Reference"
-        description="URL, citation, publisher, language, and source access details."
-        collapsible
-        defaultOpen={false}
-      >
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <DetailField
-            label="URL"
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+          <StatusTile
+            label="Credibility"
             value={
-              source.url ? (
-                <a
-                  href={source.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="break-all font-semibold text-[#4f7f1f] hover:underline"
-                >
-                  {source.url}
-                </a>
-              ) : (
-                "-"
-              )
+              <span className="text-xl">
+                {source.credibility_status_label ||
+                  formatCode(source.credibility_status_code)}
+              </span>
             }
+            note="Current source review state"
+            tone={sourceStatusTone(source.credibility_status_code)}
           />
-          <DetailField
-            label="Reference"
-            value={source.source_reference || source.publisher || "-"}
-          />
-          <DetailField
-            label="Author / Organization"
-            value={source.author_organization || "-"}
-          />
-          <DetailField label="Language" value={source.language_code || "-"} />
-        </div>
-      </Section>
-
-      <Section
-        id="source-summary-notes"
-        title="Summary And Notes"
-        description="Research notes, relevant excerpts, extracted summary, and attachments."
-        collapsible
-        defaultOpen={false}
-      >
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <DetailField
-            label="Extracted Summary"
-            value={source.extracted_summary || "No extracted summary added yet."}
-          />
-          <DetailField
-            label="Relevant Excerpt"
-            value={source.relevant_excerpt || "No excerpt added yet."}
-          />
-          <DetailField label="Internal Notes" value={source.notes || "No notes added."} />
-          <DetailField
-            label="Attachment"
+          <StatusTile
+            label="Visibility"
             value={
-              source.attachment_url ? (
-                <a
-                  href={source.attachment_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="break-all font-semibold text-[#4f7f1f] hover:underline"
-                >
-                  {source.attachment_url}
-                </a>
-              ) : (
-                "No attachment URL added."
-              )
+              <span className="text-xl">
+                {source.visibility_label || formatCode(source.visibility_code)}
+              </span>
             }
+            note="Controls future export/subscriber exposure"
+            tone={visibilityStatusTone(source.visibility_code)}
           />
-        </div>
-      </Section>
+          <StatusTile
+            label="Evidence Links"
+            value={formatCount(source.linked_entity_count)}
+            note="Confirmed source-to-record relationships"
+            tone={source.linked_entity_count > 0 ? "success" : "attention"}
+          />
+          <StatusTile
+            label="Open Matches"
+            value={formatCount(openSourceMatchCount)}
+            note="Article/entity candidates needing review"
+            tone={openSourceMatchCount > 0 ? "attention" : "neutral"}
+          />
+          <StatusTile
+            label="Open Facts"
+            value={formatCount(openArticleFactCount)}
+            note="Extracted fact candidates not finalized"
+            tone={openArticleFactCount > 0 ? "attention" : "neutral"}
+          />
+          <StatusTile
+            label="AI Suggestions"
+            value={formatCount(openFieldSuggestionCount)}
+            note="Reviewable field suggestions"
+            tone={openFieldSuggestionCount > 0 ? "attention" : "neutral"}
+          />
+        </section>
 
-      <DetailPriorityMarker
-        label="Workflow"
-        title="Evidence Work"
-        description="Evidence links, article matches, facts, AI suggestions."
-        tone="workflow"
-      />
-
-      <Section
-        id="source-linked-evidence"
-        title="Linked Evidence"
-        description={`${formatCount(source.links.length)} confirmed evidence link${
-          source.links.length === 1 ? "" : "s"
-        }. Open for full relationship detail, linked fields, claims, and confidence labels.`}
-        collapsible
-        defaultOpen={false}
-      >
-        <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="font-semibold text-[#1f2937]">Evidence link</div>
-            <p className="mt-1 text-xs leading-5">
-              A confirmed relationship between this source and a database
-              record. It does not automatically change fields.
-            </p>
-          </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="font-semibold text-[#1f2937]">Claim context</div>
-            <p className="mt-1 text-xs leading-5">
-              Linked field, extracted value, and evidence note explain what the
-              source supports.
-            </p>
-          </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="font-semibold text-[#1f2937]">Primary evidence</div>
-            <p className="mt-1 text-xs leading-5">
-              Primary evidence can later drive export readiness and confidence
-              scoring.
-            </p>
-          </div>
-        </div>
-        <LinkedEntityTable links={source.links} />
-      </Section>
-
-      <div id="source-match-candidates" className="scroll-mt-6">
-        <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
-      </div>
-
-      <div id="source-fact-candidates" className="scroll-mt-6">
-        <ArticleFactCandidatesClient
-          canReview={canReviewSource}
-          candidates={articleFactCandidates}
+        <SourceActionHub
+          canReviewSource={canReviewSource}
+          openArticleFactCount={openArticleFactCount}
+          openFieldSuggestionCount={openFieldSuggestionCount}
+          openSourceMatchCount={openSourceMatchCount}
+          source={source}
         />
-      </div>
 
-      <PostgresFieldSuggestionsPanel
-        id="source-ai-suggestions"
-        canReviewStatus={canReviewSource}
-        candidates={fieldSuggestionCandidates}
-        collapseWhenIdle
-        showEntity
-      />
+        <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <SourceSupportsPanel
+            links={source.links}
+            openMatchCount={openSourceMatchCount}
+          />
+          <SourceLifecyclePanel steps={sourceLifecycleSteps} />
+        </section>
+      </section>
 
-      <DetailPriorityMarker
-        label="Governance"
-        title="Review Controls"
-        description="Credibility actions and review metadata."
-        tone="governance"
-      />
+      <section id="source-metadata" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core Record"
+          title="Source Metadata"
+          description="Reference, dates, summary, excerpt, notes, attachments."
+          tone="core"
+        />
 
-      {canReviewSource ? (
-        <div id="source-credibility-actions" className="scroll-mt-6">
-          <SourceStatusActions
-            sourceId={source.source_id}
-            currentStatus={source.credibility_status_code}
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <DetailField
+            label="Source Type"
+            value={source.source_type_label || source.source_type_code}
+          />
+          <DetailField label="Country" value={source.country || "-"} />
+          <DetailField
+            label="Published"
+            value={formatDate(source.published_date)}
+          />
+          <DetailField
+            label="Accessed"
+            value={formatDateTime(source.accessed_at)}
+          />
+          <DetailField
+            label="Linked Records"
+            value={formatCount(source.linked_entity_count)}
+          />
+        </section>
+
+        <Section
+          id="source-reference"
+          title="Reference"
+          description="URL, citation, publisher, language, and source access details."
+          collapsible
+          defaultOpen={false}
+        >
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <DetailField
+              label="URL"
+              value={
+                source.url ? (
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="break-all font-semibold text-[#4f7f1f] hover:underline"
+                  >
+                    {source.url}
+                  </a>
+                ) : (
+                  "-"
+                )
+              }
+            />
+            <DetailField
+              label="Reference"
+              value={source.source_reference || source.publisher || "-"}
+            />
+            <DetailField
+              label="Author / Organization"
+              value={source.author_organization || "-"}
+            />
+            <DetailField label="Language" value={source.language_code || "-"} />
+          </div>
+        </Section>
+
+        <Section
+          id="source-summary-notes"
+          title="Summary And Notes"
+          description="Research notes, relevant excerpts, extracted summary, and attachments."
+          collapsible
+          defaultOpen={false}
+        >
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <DetailField
+              label="Extracted Summary"
+              value={source.extracted_summary || "No extracted summary added yet."}
+            />
+            <DetailField
+              label="Relevant Excerpt"
+              value={source.relevant_excerpt || "No excerpt added yet."}
+            />
+            <DetailField
+              label="Internal Notes"
+              value={source.notes || "No notes added."}
+            />
+            <DetailField
+              label="Attachment"
+              value={
+                source.attachment_url ? (
+                  <a
+                    href={source.attachment_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="break-all font-semibold text-[#4f7f1f] hover:underline"
+                  >
+                    {source.attachment_url}
+                  </a>
+                ) : (
+                  "No attachment URL added."
+                )
+              }
+            />
+          </div>
+        </Section>
+      </section>
+
+      <section id="source-evidence-work" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Workflow"
+          title="Evidence Work"
+          description="Evidence links, article matches, facts, AI suggestions."
+          tone="workflow"
+        />
+
+        <Section
+          id="source-linked-evidence"
+          title="Linked Evidence"
+          description={`${formatCount(source.links.length)} confirmed evidence link${
+            source.links.length === 1 ? "" : "s"
+          }. Open for full relationship detail, linked fields, claims, and confidence labels.`}
+          collapsible
+          defaultOpen={false}
+        >
+          <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
+            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+              <div className="font-semibold text-[#1f2937]">Evidence link</div>
+              <p className="mt-1 text-xs leading-5">
+                A confirmed relationship between this source and a database
+                record. It does not automatically change fields.
+              </p>
+            </div>
+            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+              <div className="font-semibold text-[#1f2937]">Claim context</div>
+              <p className="mt-1 text-xs leading-5">
+                Linked field, extracted value, and evidence note explain what the
+                source supports.
+              </p>
+            </div>
+            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+              <div className="font-semibold text-[#1f2937]">Primary evidence</div>
+              <p className="mt-1 text-xs leading-5">
+                Primary evidence can later drive export readiness and confidence
+                scoring.
+              </p>
+            </div>
+          </div>
+          <LinkedEntityTable links={source.links} />
+        </Section>
+
+        <div id="source-match-candidates" className="scroll-mt-6">
+          <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        </div>
+
+        <div id="source-fact-candidates" className="scroll-mt-6">
+          <ArticleFactCandidatesClient
+            canReview={canReviewSource}
+            candidates={articleFactCandidates}
           />
         </div>
-      ) : null}
 
-      <Section
-        id="source-review-metadata"
-        title="Review Metadata"
-        description="Audit metadata for source creation, review ownership, and last update."
-        collapsible
-        defaultOpen={false}
-      >
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
-          <DetailField label="Added By" value={source.added_by_name || "Unknown"} />
-          <DetailField label="Reviewed By" value={source.reviewed_by_name || "-"} />
-          <DetailField label="Created" value={formatDateTime(source.created_at)} />
-          <DetailField label="Updated" value={formatDateTime(source.updated_at)} />
-        </div>
-      </Section>
+        <PostgresFieldSuggestionsPanel
+          id="source-ai-suggestions"
+          canReviewStatus={canReviewSource}
+          candidates={fieldSuggestionCandidates}
+          collapseWhenIdle
+          showEntity
+        />
+      </section>
+
+      <section id="source-review-controls" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Governance"
+          title="Review Controls"
+          description="Credibility actions and review metadata."
+          tone="governance"
+        />
+
+        {canReviewSource ? (
+          <div id="source-credibility-actions" className="scroll-mt-6">
+            <SourceStatusActions
+              sourceId={source.source_id}
+              currentStatus={source.credibility_status_code}
+            />
+          </div>
+        ) : null}
+
+        <Section
+          id="source-review-metadata"
+          title="Review Metadata"
+          description="Audit metadata for source creation, review ownership, and last update."
+          collapsible
+          defaultOpen={false}
+        >
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+            <DetailField
+              label="Added By"
+              value={source.added_by_name || "Unknown"}
+            />
+            <DetailField
+              label="Reviewed By"
+              value={source.reviewed_by_name || "-"}
+            />
+            <DetailField
+              label="Created"
+              value={formatDateTime(source.created_at)}
+            />
+            <DetailField
+              label="Updated"
+              value={formatDateTime(source.updated_at)}
+            />
+          </div>
+        </Section>
+      </section>
     </main>
   );
 }
