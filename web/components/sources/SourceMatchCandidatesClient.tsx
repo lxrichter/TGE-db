@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Fragment, useMemo, useState, useTransition } from "react";
+import {
+  Fragment,
+  useMemo,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
 import { formatCount } from "@/lib/format";
@@ -117,6 +123,23 @@ function entityTypeLabel(value: string) {
   }
 
   return value.replaceAll("_", " ");
+}
+
+function MobileMatchField({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+    </div>
+  );
 }
 
 export default function SourceMatchCandidatesClient({
@@ -483,7 +506,260 @@ export default function SourceMatchCandidatesClient({
         onPageChange={setPage}
       />
 
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {sourceGroups.map((group) => {
+          const isGroupCollapsed = collapsedSourceKeys.has(group.sourceKey);
+          const groupHasAmbiguity = group.candidates.some(hasSourceAmbiguity);
+          const groupOpenRows = group.candidates.filter(
+            (candidate) => !isClosedCandidate(candidate)
+          ).length;
+
+          return (
+            <section key={group.sourceKey} className="bg-white">
+              <div className="bg-[#fbfcfa] px-4 py-4 sm:px-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                      Source Article Group
+                    </div>
+                    <Link
+                      className="mt-1 inline-block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      href={`/sources/${group.sourceKey}`}
+                    >
+                      {group.sourceTitle ||
+                        group.sourceReference ||
+                        "Untitled source"}
+                    </Link>
+                    <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                      {group.sourceReference ||
+                        group.sourceUrl ||
+                        "No source reference"}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      <PostgresStatusBadge
+                        label={`${formatCount(group.candidates.length)} visible candidate${
+                          group.candidates.length === 1 ? "" : "s"
+                        }`}
+                        tone="info"
+                        value="open"
+                      />
+                      <PostgresStatusBadge
+                        label={`${formatCount(groupOpenRows)} open row${
+                          groupOpenRows === 1 ? "" : "s"
+                        }`}
+                        tone={groupOpenRows > 0 ? "attention" : "success"}
+                        value={groupOpenRows > 0 ? "review" : "complete"}
+                      />
+                      <PostgresStatusBadge
+                        label={`${formatCount(group.sourceOpenCandidateCount)} source open match${
+                          group.sourceOpenCandidateCount === 1 ? "" : "es"
+                        }`}
+                        tone={groupHasAmbiguity ? "attention" : "success"}
+                        value={groupHasAmbiguity ? "warning" : "ready"}
+                      />
+                      {group.confirmedArticleFactCount > 0 ? (
+                        <PostgresStatusBadge
+                          label={`${formatCount(group.confirmedArticleFactCount)} confirmed fact${
+                            group.confirmedArticleFactCount === 1 ? "" : "s"
+                          }`}
+                          tone="success"
+                          value="confirmed"
+                        />
+                      ) : null}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 text-xs text-gray-500 sm:items-end">
+                    <span>
+                      {group.sourcePublishedDate
+                        ? formatDate(group.sourcePublishedDate)
+                        : group.sourceCountry || "No date/country metadata"}
+                    </span>
+                    {group.sourceCountry ? (
+                      <span>Source country: {group.sourceCountry}</span>
+                    ) : null}
+                    <button
+                      className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      type="button"
+                      onClick={() => toggleSourceGroup(group.sourceKey)}
+                    >
+                      {isGroupCollapsed ? "Expand Group" : "Collapse Group"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {isGroupCollapsed ? null : (
+                <div className="divide-y divide-gray-100">
+                  {group.candidates.map((candidate) => {
+                    const href = entityHref(candidate);
+                    const isClosed = isClosedCandidate(candidate);
+                    const isAmbiguous = hasSourceAmbiguity(candidate);
+
+                    return (
+                      <article
+                        key={candidate.match_candidate_id}
+                        className="px-4 py-4 sm:px-5"
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            aria-label={`Select ${candidate.entity_label}`}
+                            className="mt-1"
+                            disabled={isClosed}
+                            checked={selected.has(candidate.match_candidate_id)}
+                            onChange={() =>
+                              toggleCandidate(candidate.match_candidate_id)
+                            }
+                            type="checkbox"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                              {entityTypeLabel(candidate.entity_type)}
+                            </div>
+                            {href ? (
+                              <Link
+                                href={href}
+                                className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                              >
+                                {candidate.entity_label}
+                              </Link>
+                            ) : (
+                              <div className="mt-1 font-semibold text-[#1f2937]">
+                                {candidate.entity_label}
+                              </div>
+                            )}
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <StatusBadge
+                                status={candidate.match_status_code}
+                                label={candidate.match_status_label}
+                              />
+                              <PostgresStatusBadge
+                                domain="confidence"
+                                label={formatConfidence(candidate.confidence_score)}
+                                value={
+                                  candidate.confidence_score >= 0.8
+                                    ? "high"
+                                    : candidate.confidence_score >= 0.55
+                                      ? "medium"
+                                      : "low"
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                          <MobileMatchField label="Entity Signal">
+                            {candidate.matched_alias ? (
+                              <div>Alias: {candidate.matched_alias}</div>
+                            ) : null}
+                            {candidate.entity_country ? (
+                              <div>Entity country: {candidate.entity_country}</div>
+                            ) : null}
+                            {candidate.entity_use_type ? (
+                              <div>
+                                Use type:{" "}
+                                {candidate.entity_use_type.replaceAll("_", " ")}
+                              </div>
+                            ) : null}
+                            {!candidate.matched_alias &&
+                            !candidate.entity_country &&
+                            !candidate.entity_use_type
+                              ? "-"
+                              : null}
+                          </MobileMatchField>
+                          <MobileMatchField label="Reason / Signals">
+                            <div className="line-clamp-4 text-xs leading-5 text-gray-600">
+                              {candidate.match_reason || "-"}
+                            </div>
+                            {candidate.article_country_candidates.length > 0 ? (
+                              <div className="mt-2 text-xs text-gray-500">
+                                Article countries:{" "}
+                                {candidate.article_country_candidates.join(", ")}
+                              </div>
+                            ) : null}
+                            {candidate.review_flags.length > 0 ? (
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {candidate.review_flags.map((flag) => (
+                                  <PostgresStatusBadge
+                                    key={flag}
+                                    label={formatReviewFlag(flag)}
+                                    tone="attention"
+                                    value="warning"
+                                  />
+                                ))}
+                              </div>
+                            ) : null}
+                            {isAmbiguous ? (
+                              <div className="mt-2 border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] font-medium leading-4 text-amber-900">
+                                This source has{" "}
+                                {candidate.source_open_candidate_count} open
+                                match candidates. Confirm only the record(s)
+                                this article actually supports.
+                              </div>
+                            ) : null}
+                          </MobileMatchField>
+                          <MobileMatchField label="Source Context">
+                            {candidate.source_published_date
+                              ? formatDate(candidate.source_published_date)
+                              : candidate.source_country ||
+                                "No date/country metadata"}
+                            {candidate.source_country ? (
+                              <div className="mt-1 text-xs text-gray-500">
+                                Source country: {candidate.source_country}
+                              </div>
+                            ) : null}
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              <PostgresStatusBadge
+                                label={`${candidate.source_open_candidate_count} open match${
+                                  candidate.source_open_candidate_count === 1
+                                    ? ""
+                                    : "es"
+                                }`}
+                                tone={isAmbiguous ? "attention" : "success"}
+                                value={isAmbiguous ? "warning" : "ready"}
+                              />
+                              {candidate.confirmed_article_fact_count > 0 ? (
+                                <PostgresStatusBadge
+                                  label={`${candidate.confirmed_article_fact_count} confirmed fact${
+                                    candidate.confirmed_article_fact_count === 1
+                                      ? ""
+                                      : "s"
+                                  }`}
+                                  tone="success"
+                                  value="confirmed"
+                                />
+                              ) : null}
+                            </div>
+                          </MobileMatchField>
+                          <MobileMatchField label="Generated">
+                            {formatDate(candidate.generated_at)}
+                            <div className="mt-1 text-xs text-gray-500">
+                              {candidate.generated_by}
+                            </div>
+                            {candidate.reviewed_by_name ? (
+                              <div className="mt-1 text-xs text-gray-500">
+                                reviewed by {candidate.reviewed_by_name}
+                              </div>
+                            ) : null}
+                          </MobileMatchField>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          );
+        })}
+
+        {candidates.length === 0 ? (
+          <div className="px-5 py-10 text-center text-sm text-gray-500">
+            No match candidates fit the current filters.
+          </div>
+        ) : null}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1280px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
