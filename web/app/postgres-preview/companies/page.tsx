@@ -25,6 +25,7 @@ import {
   type PostgresPreviewCompanyListFilters,
   type PostgresPreviewListFacets,
 } from "@/lib/postgres-preview";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -268,6 +269,30 @@ export default async function PostgresCompaniesListPage({
         description="PostgreSQL staging list for company profiles, controlled categories, and future relationship/role intelligence."
         eyebrow="PostgreSQL Staging"
         title="Companies"
+      />
+
+      <NextActionStrip
+        description="From company intelligence, the next step should be source cleanup, activity relationship work, or controlled classification review."
+        actions={[
+          {
+            label: "Evidence Work",
+            title: "Companies missing sources",
+            description: "Focus on company records that need source evidence before profile use or export.",
+            href: "/postgres-preview/companies?missing=source",
+          },
+          {
+            label: "Relationship Work",
+            title: "Companies missing activity links",
+            description: "Find companies not yet connected to project or plant/facility roles.",
+            href: "/postgres-preview/companies?missing=activity_link",
+          },
+          {
+            label: "Classification",
+            title: "Companies missing identity",
+            description: "Review records that still need a controlled primary business identity.",
+            href: "/postgres-preview/companies?missing=primary_type",
+          },
+        ]}
       />
 
       {!data.ok ? (

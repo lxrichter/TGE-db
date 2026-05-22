@@ -25,6 +25,7 @@ import {
   type PostgresPreviewOperatingAsset,
   type PostgresPreviewOperatingAssetListFilters,
 } from "@/lib/postgres-preview";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -285,6 +286,30 @@ export default async function PostgresOperatingAssetsListPage({
         description="PostgreSQL staging list for operating plants, facilities, units, and future direct-use or hybrid operating assets."
         eyebrow="PostgreSQL Staging"
         title="Plants / Facilities"
+      />
+
+      <NextActionStrip
+        description="From Plants / Facilities, the next step should be evidence cleanup, operator/owner relationship work, or operating readiness review."
+        actions={[
+          {
+            label: "Evidence Work",
+            title: "Assets missing sources",
+            description: "Focus on operating asset records that need confirmed source evidence.",
+            href: "/postgres-preview/operating-assets?missing=source",
+          },
+          {
+            label: "Relationship Work",
+            title: "Assets missing companies",
+            description: "Route records into structured owner, operator, supplier, or offtaker linking.",
+            href: "/postgres-preview/operating-assets?missing=company_link",
+          },
+          {
+            label: "Readiness Cleanup",
+            title: "Assets missing COD",
+            description: "Inspect commissioned assets where COD or original commissioning wording needs review.",
+            href: "/postgres-preview/operating-assets?missing=cod",
+          },
+        ]}
       />
 
       {!data.ok ? (

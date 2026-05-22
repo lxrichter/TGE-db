@@ -25,6 +25,7 @@ import {
   type PostgresPreviewProject,
   type PostgresPreviewProjectListFilters,
 } from "@/lib/postgres-preview";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -276,6 +277,30 @@ export default async function PostgresProjectsListPage({
         description="PostgreSQL staging list for project records imported from the current SQLite platform and future PostgreSQL-native records."
         eyebrow="PostgreSQL Staging"
         title="Projects"
+      />
+
+      <NextActionStrip
+        description="From the project pipeline, the next step should be evidence cleanup, company relationship work, or validation review before records move toward export readiness."
+        actions={[
+          {
+            label: "Evidence Work",
+            title: "Projects missing sources",
+            description: "Focus on project records that need source evidence before review or export.",
+            href: "/postgres-preview/projects?missing=source",
+          },
+          {
+            label: "Relationship Work",
+            title: "Projects missing companies",
+            description: "Route records into structured developer, owner, operator, or stakeholder linking.",
+            href: "/postgres-preview/projects?missing=company_link",
+          },
+          {
+            label: "Review Queue",
+            title: "Projects in validation",
+            description: "Open project records that are ready for researcher/editor review work.",
+            href: "/postgres-preview/projects?review=validation",
+          },
+        ]}
       />
 
       {!data.ok ? (
