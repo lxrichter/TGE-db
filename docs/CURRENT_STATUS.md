@@ -166,6 +166,11 @@ foundation. Current implemented PostgreSQL staging areas include:
   workflow shortcut cards, post-save relationship/evidence bridges, and bottom
   save actions now stack more cleanly on mobile and avoid cramped three-column
   layouts on tablet-sized screens
+- PostgreSQL detail pages now start shifting from explanatory scaffolding toward
+  progressive disclosure: evidence-layer orientation, review-status actions, and
+  export-readiness checks use collapsed/attention-aware panels so core record
+  data, source evidence, relationships, and urgent blockers remain easier to
+  scan before the later visual design phase
 - The hierarchy marker pattern is now centralized as a shared compact component
   and page copy has been shortened from explanatory scaffolding toward quick
   core/workflow/governance orientation signals

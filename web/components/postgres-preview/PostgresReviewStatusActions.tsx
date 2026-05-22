@@ -99,6 +99,10 @@ function entityLabel(entityType: ReviewEntityType) {
   return entityType;
 }
 
+function reviewPanelStartsOpen(status: string | null) {
+  return ["validation", "needs_update", "needs_review"].includes(status || "");
+}
+
 export default function PostgresReviewStatusActions({
   entityType,
   entityId,
@@ -195,18 +199,30 @@ export default function PostgresReviewStatusActions({
     return null;
   }
 
+  const startsOpen = reviewPanelStartsOpen(currentStatus) || Boolean(error || message);
+
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-          {description ||
-            `Move this ${entityLabel(
-              entityType
-            )} through the staging review workflow without opening the full edit form.`}
-        </p>
-      </div>
-      <div className="space-y-4 px-5 py-5">
+    <details className="border border-gray-200 bg-white" open={startsOpen}>
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            {description ||
+              `Move this ${entityLabel(
+                entityType
+              )} through the staging review workflow without opening the full edit form.`}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
+          <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            Current: {currentStatus || "not set"}
+          </span>
+          <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            {startsOpen ? "Open" : "Expand actions"}
+          </span>
+        </div>
+      </summary>
+      <div className="space-y-4 border-t border-gray-200 px-5 py-5">
         {error ? (
           <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
             <div>{error}</div>
@@ -259,6 +275,6 @@ export default function PostgresReviewStatusActions({
           })}
         </div>
       </div>
-    </section>
+    </details>
   );
 }

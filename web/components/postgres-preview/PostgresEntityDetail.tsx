@@ -621,8 +621,8 @@ export function EvidenceWorkflowContext({
   ];
 
   return (
-    <section className="border border-gray-200 bg-white px-5 py-4">
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+    <details className="border border-gray-200 bg-white">
+      <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
             Evidence Layers
@@ -636,9 +636,14 @@ export function EvidenceWorkflowContext({
             applied.
           </p>
         </div>
-        <StatusBadge value="orientation" />
-      </div>
-      <div className="mt-3 grid gap-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
+          <StatusBadge value="orientation" />
+          <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            Expand
+          </span>
+        </div>
+      </summary>
+      <div className="grid gap-2 border-t border-gray-200 px-5 py-4 lg:grid-cols-3">
         {cards.map((card) => (
           <Link
             className="block border border-gray-200 bg-[#fbfbfb] px-3 py-3 hover:border-[#8dc63f] hover:bg-[#f5faef]"
@@ -655,7 +660,7 @@ export function EvidenceWorkflowContext({
           </Link>
         ))}
       </div>
-    </section>
+    </details>
   );
 }
 
@@ -703,13 +708,15 @@ export function ExportReadinessPanel({
   const blockers = issues.filter((issue) => issue.severity === "blocker");
   const warnings = issues.filter((issue) => issue.severity === "warning");
   const ready = blockers.length === 0;
+  const hasIssues = issues.length > 0;
 
   return (
-    <section
+    <details
       id={id}
       className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+      open={hasIssues}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Export Readiness</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
@@ -720,9 +727,12 @@ export function ExportReadinessPanel({
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <StatusBadge value={ready ? "ready" : "not_ready"} />
           <StatusBadge value={`${credibleSourceCount}/${sourceCount} credible sources`} />
+          <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+            {hasIssues ? "Open" : "Expand"}
+          </span>
         </div>
-      </div>
-      <div className="space-y-4 px-5 py-5">
+      </summary>
+      <div className="space-y-4 border-t border-gray-200 px-5 py-5">
         {ready && warnings.length === 0 ? (
           <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
             No export-readiness blockers or warnings detected for this staging
@@ -747,7 +757,7 @@ export function ExportReadinessPanel({
           </div>
         ) : null}
       </div>
-    </section>
+    </details>
   );
 }
 
