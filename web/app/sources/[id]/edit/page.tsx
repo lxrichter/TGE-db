@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SourceForm from "@/components/sources/SourceForm";
+import NextActionStrip from "@/components/ui/NextActionStrip";
 import {
   getSourceById,
   getSourceFormReferenceData,
@@ -75,6 +76,30 @@ export default async function EditSourcePage({
           </p>
         </div>
       </section>
+
+      <NextActionStrip
+        description="While editing a source, keep the governed evidence context close: profile review, source-specific matches, and source-specific fact candidates."
+        actions={[
+          {
+            label: "Source Profile",
+            title: "Return to evidence profile",
+            description: "Review credibility, linked entities, extracted facts, and source lifecycle state.",
+            href: `/sources/${id}`,
+          },
+          {
+            label: "Entity Matching",
+            title: "Review this source's matches",
+            description: "Open article-to-entity candidates filtered to this source record.",
+            href: `/sources/matches?sourceId=${id}`,
+          },
+          {
+            label: "Fact Review",
+            title: "Review this source's facts",
+            description: "Open extracted fact candidates filtered to this source record.",
+            href: `/sources/facts?sourceId=${id}`,
+          },
+        ]}
+      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />
