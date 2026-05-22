@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { Fragment, useMemo, useState, useTransition } from "react";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import ReviewTablePagination from "@/components/sources/ReviewTablePagination";
+import { formatCount } from "@/lib/format";
 import type {
   SourceMatchCandidateAction,
   SourceMatchCandidateItem,
@@ -127,6 +128,9 @@ export default function SourceMatchCandidatesClient({
   const pageSize = 25;
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [collapsedSourceKeys, setCollapsedSourceKeys] = useState<Set<string>>(
+    () => new Set()
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const pageCount = Math.max(1, Math.ceil(candidates.length / pageSize));
@@ -166,6 +170,64 @@ export default function SourceMatchCandidatesClient({
     candidateIds.length > 0 &&
     candidateIds.every((candidateId) => selected.has(candidateId));
   const selectedCleanCount = selectedCandidates.filter(isCleanHighConfidence).length;
+  const sourceGroups = useMemo(() => {
+    const groups = new Map<
+      string,
+      {
+        sourceKey: string;
+        sourceTitle: string | null;
+        sourceReference: string | null;
+        sourceUrl: string | null;
+        sourcePublishedDate: string | null;
+        sourceCountry: string | null;
+        sourceOpenCandidateCount: number;
+        confirmedArticleFactCount: number;
+        suggestionRelevantFactCount: number;
+        candidates: SourceMatchCandidateItem[];
+      }
+    >();
+
+    pageItems.forEach((candidate) => {
+      const sourceKey =
+        candidate.source_id ||
+        candidate.source_reference ||
+        candidate.source_url ||
+        candidate.match_candidate_id;
+      const existing = groups.get(sourceKey);
+
+      if (existing) {
+        existing.sourceOpenCandidateCount = Math.max(
+          existing.sourceOpenCandidateCount,
+          candidate.source_open_candidate_count
+        );
+        existing.confirmedArticleFactCount = Math.max(
+          existing.confirmedArticleFactCount,
+          candidate.confirmed_article_fact_count
+        );
+        existing.suggestionRelevantFactCount = Math.max(
+          existing.suggestionRelevantFactCount,
+          candidate.suggestion_relevant_fact_count
+        );
+        existing.candidates.push(candidate);
+        return;
+      }
+
+      groups.set(sourceKey, {
+        sourceKey,
+        sourceTitle: candidate.source_title,
+        sourceReference: candidate.source_reference,
+        sourceUrl: candidate.source_url,
+        sourcePublishedDate: candidate.source_published_date,
+        sourceCountry: candidate.source_country,
+        sourceOpenCandidateCount: candidate.source_open_candidate_count,
+        confirmedArticleFactCount: candidate.confirmed_article_fact_count,
+        suggestionRelevantFactCount: candidate.suggestion_relevant_fact_count,
+        candidates: [candidate],
+      });
+    });
+
+    return Array.from(groups.values());
+  }, [pageItems]);
 
   function toggleCandidate(candidateId: string) {
     setSelected((current) => {
@@ -216,6 +278,20 @@ export default function SourceMatchCandidatesClient({
   function clearSelection() {
     setSelected(new Set());
     setMessage(null);
+  }
+
+  function toggleSourceGroup(sourceKey: string) {
+    setCollapsedSourceKeys((current) => {
+      const next = new Set(current);
+
+      if (next.has(sourceKey)) {
+        next.delete(sourceKey);
+      } else {
+        next.add(sourceKey);
+      }
+
+      return next;
+    });
   }
 
   function runAction(action: SourceMatchCandidateAction) {
@@ -412,163 +488,278 @@ export default function SourceMatchCandidatesClient({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {pageItems.map((candidate) => {
-              const href = entityHref(candidate);
-              const isClosed = isClosedCandidate(candidate);
-              const isAmbiguous = hasSourceAmbiguity(candidate);
+            {sourceGroups.map((group) => {
+              const isGroupCollapsed = collapsedSourceKeys.has(group.sourceKey);
+              const groupHasAmbiguity = group.candidates.some(hasSourceAmbiguity);
+              const groupOpenRows = group.candidates.filter(
+                (candidate) => !isClosedCandidate(candidate)
+              ).length;
+
               return (
-                <tr key={candidate.match_candidate_id} className="align-top">
-                  <td className="px-4 py-4">
-                    <input
-                      aria-label={`Select ${candidate.entity_label}`}
-                      disabled={isClosed}
-                      checked={selected.has(candidate.match_candidate_id)}
-                      onChange={() => toggleCandidate(candidate.match_candidate_id)}
-                      type="checkbox"
-                    />
-                  </td>
-                  <td className="px-4 py-4">
-                    <Link
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                      href={`/sources/${candidate.source_id}`}
-                    >
-                      {candidate.source_title ||
-                        candidate.source_reference ||
-                        "Untitled source"}
-                    </Link>
-                    <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
-                      {candidate.source_reference || candidate.source_url || "No source reference"}
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500">
-                      {candidate.source_published_date
-                        ? formatDate(candidate.source_published_date)
-                        : candidate.source_country || "No date/country metadata"}
-                    </div>
-                    {candidate.source_country ? (
-                      <div className="mt-1 text-xs font-medium text-gray-600">
-                        Source country: {candidate.source_country}
-                      </div>
-                    ) : null}
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      <PostgresStatusBadge
-                        label={`${candidate.source_open_candidate_count} open match${
-                          candidate.source_open_candidate_count === 1 ? "" : "es"
-                        }`}
-                        tone={isAmbiguous ? "attention" : "success"}
-                        value={isAmbiguous ? "warning" : "ready"}
-                      />
-                      {candidate.confirmed_article_fact_count > 0 ? (
-                        <PostgresStatusBadge
-                          label={`${candidate.confirmed_article_fact_count} confirmed fact${
-                            candidate.confirmed_article_fact_count === 1 ? "" : "s"
-                          }`}
-                          tone="success"
-                          value="confirmed"
-                        />
-                      ) : null}
-                      {candidate.suggestion_relevant_fact_count > 0 ? (
-                        <PostgresStatusBadge
-                          label={`${candidate.suggestion_relevant_fact_count} field-suggestion fact${
-                            candidate.suggestion_relevant_fact_count === 1
-                              ? ""
-                              : "s"
-                          }`}
-                          tone="info"
-                          value="suggested"
-                        />
-                      ) : null}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      {entityTypeLabel(candidate.entity_type)}
-                    </div>
-                    {href ? (
-                      <Link
-                        href={href}
-                        className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                      >
-                        {candidate.entity_label}
-                      </Link>
-                    ) : (
-                      <div className="mt-1 font-semibold text-[#1f2937]">
-                        {candidate.entity_label}
-                      </div>
-                    )}
-                    {candidate.matched_alias ? (
-                      <div className="mt-2 text-xs text-gray-500">
-                        Alias: {candidate.matched_alias}
-                      </div>
-                    ) : null}
-                    {candidate.entity_country || candidate.entity_use_type ? (
-                      <div className="mt-2 text-xs leading-5 text-gray-500">
-                        {candidate.entity_country ? (
-                          <div>Entity country: {candidate.entity_country}</div>
-                        ) : null}
-                        {candidate.entity_use_type ? (
-                          <div>
-                            Use type: {candidate.entity_use_type.replaceAll("_", " ")}
+                <Fragment key={group.sourceKey}>
+                  <tr
+                    key={`${group.sourceKey}-header`}
+                    className="bg-[#fbfcfa] align-top"
+                  >
+                    <td className="px-4 py-3" colSpan={7}>
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div>
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                            Source Article Group
                           </div>
-                        ) : null}
+                          <Link
+                            className="mt-1 inline-block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                            href={`/sources/${group.sourceKey}`}
+                          >
+                            {group.sourceTitle ||
+                              group.sourceReference ||
+                              "Untitled source"}
+                          </Link>
+                          <div className="mt-1 line-clamp-1 break-all text-xs text-gray-500">
+                            {group.sourceReference ||
+                              group.sourceUrl ||
+                              "No source reference"}
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <PostgresStatusBadge
+                              label={`${formatCount(group.candidates.length)} visible candidate${
+                                group.candidates.length === 1 ? "" : "s"
+                              }`}
+                              tone="info"
+                              value="open"
+                            />
+                            <PostgresStatusBadge
+                              label={`${formatCount(groupOpenRows)} open row${
+                                groupOpenRows === 1 ? "" : "s"
+                              }`}
+                              tone={groupOpenRows > 0 ? "attention" : "success"}
+                              value={groupOpenRows > 0 ? "review" : "complete"}
+                            />
+                            <PostgresStatusBadge
+                              label={`${formatCount(group.sourceOpenCandidateCount)} source open match${
+                                group.sourceOpenCandidateCount === 1 ? "" : "es"
+                              }`}
+                              tone={groupHasAmbiguity ? "attention" : "success"}
+                              value={groupHasAmbiguity ? "warning" : "ready"}
+                            />
+                            {group.confirmedArticleFactCount > 0 ? (
+                              <PostgresStatusBadge
+                                label={`${formatCount(group.confirmedArticleFactCount)} confirmed fact${
+                                  group.confirmedArticleFactCount === 1 ? "" : "s"
+                                }`}
+                                tone="success"
+                                value="confirmed"
+                              />
+                            ) : null}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 text-xs text-gray-500 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+                          <span>
+                            {group.sourcePublishedDate
+                              ? formatDate(group.sourcePublishedDate)
+                              : group.sourceCountry || "No date/country metadata"}
+                          </span>
+                          {group.sourceCountry ? (
+                            <span>Source country: {group.sourceCountry}</span>
+                          ) : null}
+                          <button
+                            className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                            type="button"
+                            onClick={() => toggleSourceGroup(group.sourceKey)}
+                          >
+                            {isGroupCollapsed ? "Expand Group" : "Collapse Group"}
+                          </button>
+                        </div>
                       </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-4">
-                    <div className="text-xl font-bold text-[#1f2937]">
-                      {formatConfidence(candidate.confidence_score)}
-                    </div>
-                    <div className="mt-1 text-xs text-gray-500">
-                      {candidate.confirmed_entity_source_id
-                        ? "Evidence link confirmed"
-                        : "Candidate only"}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-xs leading-5 text-gray-600">
-                    <div>{candidate.match_reason || "-"}</div>
-                    {candidate.article_country_candidates.length > 0 ? (
-                      <div className="mt-2 text-gray-500">
-                        Article countries:{" "}
-                        {candidate.article_country_candidates.join(", ")}
-                      </div>
-                    ) : null}
-                    {candidate.review_flags.length > 0 ? (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {candidate.review_flags.map((flag) => (
-                          <PostgresStatusBadge
-                            key={flag}
-                            label={formatReviewFlag(flag)}
-                            tone="attention"
-                            value="warning"
-                          />
-                        ))}
-                      </div>
-                    ) : null}
-                    {isAmbiguous ? (
-                      <div className="mt-2 border border-amber-200 bg-amber-50 px-2 py-2 text-[11px] font-medium leading-4 text-amber-900">
-                        This source has {candidate.source_open_candidate_count} open
-                        match candidates. Confirm only the record(s) this article
-                        actually supports.
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-4">
-                    <StatusBadge
-                      status={candidate.match_status_code}
-                      label={candidate.match_status_label}
-                    />
-                    {candidate.reviewed_by_name ? (
-                      <div className="mt-2 text-xs text-gray-500">
-                        by {candidate.reviewed_by_name}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-4 py-4 text-gray-700">
-                    {formatDate(candidate.generated_at)}
-                    <div className="mt-1 text-xs text-gray-500">
-                      {candidate.generated_by}
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
+                  {isGroupCollapsed
+                    ? null
+                    : group.candidates.map((candidate) => {
+                        const href = entityHref(candidate);
+                        const isClosed = isClosedCandidate(candidate);
+                        const isAmbiguous = hasSourceAmbiguity(candidate);
+
+                        return (
+                          <tr
+                            key={candidate.match_candidate_id}
+                            className="align-top"
+                          >
+                            <td className="px-4 py-4">
+                              <input
+                                aria-label={`Select ${candidate.entity_label}`}
+                                disabled={isClosed}
+                                checked={selected.has(
+                                  candidate.match_candidate_id
+                                )}
+                                onChange={() =>
+                                  toggleCandidate(candidate.match_candidate_id)
+                                }
+                                type="checkbox"
+                              />
+                            </td>
+                            <td className="px-4 py-4">
+                              <Link
+                                className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                                href={`/sources/${candidate.source_id}`}
+                              >
+                                {candidate.source_title ||
+                                  candidate.source_reference ||
+                                  "Untitled source"}
+                              </Link>
+                              <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                                {candidate.source_reference ||
+                                  candidate.source_url ||
+                                  "No source reference"}
+                              </div>
+                              <div className="mt-2 text-xs text-gray-500">
+                                {candidate.source_published_date
+                                  ? formatDate(candidate.source_published_date)
+                                  : candidate.source_country ||
+                                    "No date/country metadata"}
+                              </div>
+                              {candidate.source_country ? (
+                                <div className="mt-1 text-xs font-medium text-gray-600">
+                                  Source country: {candidate.source_country}
+                                </div>
+                              ) : null}
+                              <div className="mt-3 flex flex-wrap gap-1">
+                                <PostgresStatusBadge
+                                  label={`${candidate.source_open_candidate_count} open match${
+                                    candidate.source_open_candidate_count === 1
+                                      ? ""
+                                      : "es"
+                                  }`}
+                                  tone={isAmbiguous ? "attention" : "success"}
+                                  value={isAmbiguous ? "warning" : "ready"}
+                                />
+                                {candidate.confirmed_article_fact_count > 0 ? (
+                                  <PostgresStatusBadge
+                                    label={`${candidate.confirmed_article_fact_count} confirmed fact${
+                                      candidate.confirmed_article_fact_count ===
+                                      1
+                                        ? ""
+                                        : "s"
+                                    }`}
+                                    tone="success"
+                                    value="confirmed"
+                                  />
+                                ) : null}
+                                {candidate.suggestion_relevant_fact_count > 0 ? (
+                                  <PostgresStatusBadge
+                                    label={`${candidate.suggestion_relevant_fact_count} field-suggestion fact${
+                                      candidate.suggestion_relevant_fact_count ===
+                                      1
+                                        ? ""
+                                        : "s"
+                                    }`}
+                                    tone="info"
+                                    value="suggested"
+                                  />
+                                ) : null}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                {entityTypeLabel(candidate.entity_type)}
+                              </div>
+                              {href ? (
+                                <Link
+                                  href={href}
+                                  className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                                >
+                                  {candidate.entity_label}
+                                </Link>
+                              ) : (
+                                <div className="mt-1 font-semibold text-[#1f2937]">
+                                  {candidate.entity_label}
+                                </div>
+                              )}
+                              {candidate.matched_alias ? (
+                                <div className="mt-2 text-xs text-gray-500">
+                                  Alias: {candidate.matched_alias}
+                                </div>
+                              ) : null}
+                              {candidate.entity_country ||
+                              candidate.entity_use_type ? (
+                                <div className="mt-2 text-xs leading-5 text-gray-500">
+                                  {candidate.entity_country ? (
+                                    <div>
+                                      Entity country: {candidate.entity_country}
+                                    </div>
+                                  ) : null}
+                                  {candidate.entity_use_type ? (
+                                    <div>
+                                      Use type:{" "}
+                                      {candidate.entity_use_type.replaceAll(
+                                        "_",
+                                        " "
+                                      )}
+                                    </div>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                            </td>
+                            <td className="px-4 py-4">
+                              <div className="text-xl font-bold text-[#1f2937]">
+                                {formatConfidence(candidate.confidence_score)}
+                              </div>
+                              <div className="mt-1 text-xs text-gray-500">
+                                {candidate.confirmed_entity_source_id
+                                  ? "Evidence link confirmed"
+                                  : "Candidate only"}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 text-xs leading-5 text-gray-600">
+                              <div>{candidate.match_reason || "-"}</div>
+                              {candidate.article_country_candidates.length > 0 ? (
+                                <div className="mt-2 text-gray-500">
+                                  Article countries:{" "}
+                                  {candidate.article_country_candidates.join(", ")}
+                                </div>
+                              ) : null}
+                              {candidate.review_flags.length > 0 ? (
+                                <div className="mt-2 flex flex-wrap gap-1">
+                                  {candidate.review_flags.map((flag) => (
+                                    <PostgresStatusBadge
+                                      key={flag}
+                                      label={formatReviewFlag(flag)}
+                                      tone="attention"
+                                      value="warning"
+                                    />
+                                  ))}
+                                </div>
+                              ) : null}
+                              {isAmbiguous ? (
+                                <div className="mt-2 border border-amber-200 bg-amber-50 px-2 py-2 text-[11px] font-medium leading-4 text-amber-900">
+                                  This source has{" "}
+                                  {candidate.source_open_candidate_count} open
+                                  match candidates. Confirm only the record(s)
+                                  this article actually supports.
+                                </div>
+                              ) : null}
+                            </td>
+                            <td className="px-4 py-4">
+                              <StatusBadge
+                                status={candidate.match_status_code}
+                                label={candidate.match_status_label}
+                              />
+                              {candidate.reviewed_by_name ? (
+                                <div className="mt-2 text-xs text-gray-500">
+                                  by {candidate.reviewed_by_name}
+                                </div>
+                              ) : null}
+                            </td>
+                            <td className="px-4 py-4 text-gray-700">
+                              {formatDate(candidate.generated_at)}
+                              <div className="mt-1 text-xs text-gray-500">
+                                {candidate.generated_by}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                </Fragment>
               );
             })}
 
