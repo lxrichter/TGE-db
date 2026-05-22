@@ -126,43 +126,59 @@ function RelationshipGovernanceNotice({
       : "Use the percentage field only when the source supports a project or asset participation share.";
 
   return (
-    <div className="border border-blue-200 bg-blue-50 px-4 py-3">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+    <details className="group border border-blue-100 bg-blue-50/60">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 marker:hidden">
         <div className="max-w-sm">
           <h4 className="text-xs font-bold uppercase tracking-wide text-blue-900">
             {title}
           </h4>
           <p className="mt-1 text-sm leading-6 text-blue-800">
-            These links feed analytics, Research Ops, profile pages, and
-            exports. Removing one does not delete the underlying project,
-            plant/facility, or company record.
+            Structured roles, shares, and evidence rules. Expand only when
+            guidance is needed.
           </p>
         </div>
-        <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-3">
-          <div className="border border-blue-100 bg-white/70 px-3 py-2">
-            <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
-              {primaryLabel}
-            </div>
-            <p className="mt-1 text-xs leading-5 text-blue-800">{primaryText}</p>
-          </div>
-          <div className="border border-blue-100 bg-white/70 px-3 py-2">
-            <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
-              {shareLabel}
-            </div>
-            <p className="mt-1 text-xs leading-5 text-blue-800">{shareText}</p>
-          </div>
-          <div className="border border-blue-100 bg-white/70 px-3 py-2">
-            <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
-              Evidence And Notes
-            </div>
-            <p className="mt-1 text-xs leading-5 text-blue-800">
-              Evidence should support important links. Notes explain uncertainty
-              or context, but do not replace structured relationship data.
+        <span className="shrink-0 border border-blue-200 bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-800">
+          Details
+        </span>
+      </summary>
+      <div className="border-t border-blue-100 px-4 py-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-sm">
+            <p className="text-sm leading-6 text-blue-800">
+              These links feed analytics, Research Ops, profile pages, and
+              exports. Removing one does not delete the underlying project,
+              plant/facility, or company record.
             </p>
+          </div>
+          <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-3">
+            <div className="border border-blue-100 bg-white/70 px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+                {primaryLabel}
+              </div>
+              <p className="mt-1 text-xs leading-5 text-blue-800">
+                {primaryText}
+              </p>
+            </div>
+            <div className="border border-blue-100 bg-white/70 px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+                {shareLabel}
+              </div>
+              <p className="mt-1 text-xs leading-5 text-blue-800">{shareText}</p>
+            </div>
+            <div className="border border-blue-100 bg-white/70 px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+                Evidence And Notes
+              </div>
+              <p className="mt-1 text-xs leading-5 text-blue-800">
+                Evidence should support important links. Notes explain
+                uncertainty or context, but do not replace structured
+                relationship data.
+              </p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </details>
   );
 }
 
@@ -340,6 +356,7 @@ function RelationshipEvidenceLinker({
   const sourceOptions = useMemo(() => uniqueSourceOptions(sources), [sources]);
   const [sourceId, setSourceId] = useState(sourceOptions[0]?.source_id || "");
   const [saving, setSaving] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const selectedSourceId = sourceId || sourceOptions[0]?.source_id || "";
@@ -375,6 +392,7 @@ function RelationshipEvidenceLinker({
       }
 
       setMessage("Evidence linked.");
+      setExpanded(false);
       router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : "Failed to link evidence.");
@@ -386,13 +404,28 @@ function RelationshipEvidenceLinker({
   if (sourceOptions.length === 0) {
     return (
       <div className="mt-2 text-[11px] font-medium leading-4 text-amber-700">
-        Add record source first.
+        Add record source first
       </div>
     );
   }
 
+  if (!expanded) {
+    return (
+      <button
+        className="mt-2 min-h-7 border border-gray-200 bg-white px-2 text-[11px] font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+        type="button"
+        onClick={() => setExpanded(true)}
+      >
+        Link evidence
+      </button>
+    );
+  }
+
   return (
-    <form className="mt-2 space-y-2" onSubmit={handleSubmit}>
+    <form
+      className="mt-2 space-y-2 border border-gray-200 bg-[#fafafa] p-2"
+      onSubmit={handleSubmit}
+    >
       <select
         className="min-h-8 w-full border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
         value={selectedSourceId}
@@ -404,13 +437,25 @@ function RelationshipEvidenceLinker({
           </option>
         ))}
       </select>
-      <button
-        className="min-h-8 w-full border border-[#8dc63f] bg-white px-2 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f1f8e8] disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={saving || !selectedSourceId}
-        type="submit"
-      >
-        {saving ? "Linking..." : "Link Evidence"}
-      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          className="min-h-8 border border-[#8dc63f] bg-white px-2 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f1f8e8] disabled:cursor-not-allowed disabled:opacity-60"
+          disabled={saving || !selectedSourceId}
+          type="submit"
+        >
+          {saving ? "Linking..." : "Save"}
+        </button>
+        <button
+          className="min-h-8 border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+          type="button"
+          onClick={() => {
+            setExpanded(false);
+            setError("");
+          }}
+        >
+          Cancel
+        </button>
+      </div>
       {error ? (
         <div className="text-[11px] font-medium leading-4 text-red-700">{error}</div>
       ) : null}
