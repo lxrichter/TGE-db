@@ -164,24 +164,25 @@ export default async function PostgresPreviewMapPage() {
       </section>
 
       <NextActionStrip
-        description="From the map, users should either open the spatial record, clean missing coordinates, or interpret the market pattern."
+        title="Primary Work Paths"
+        description="Use these routes for the three main map workflows: markers, coordinate cleanup, and market context."
         actions={[
           {
-            label: "Spatial Intelligence",
+            label: "Markers",
             title: "Use marker popups",
-            description: "Open project and plant records directly from coordinate-confirmed marker groups.",
+            description: "Open project and plant records from coordinate-confirmed marker groups.",
             href: "#map-view",
           },
           {
-            label: "Operational Queue",
+            label: "Coordinates",
             title: "Fix missing coordinates",
-            description: "Route records without usable coordinates back through Research Ops cleanup.",
+            description: "Route records without usable coordinates through Research Ops cleanup.",
             href: "#map-workflow",
           },
           {
-            label: "Market Context",
+            label: "Markets",
             title: "Open country signals",
-            description: "Move from spatial clusters into country and regional market intelligence.",
+            description: "Move from spatial clusters into country and regional intelligence.",
             href: "/postgres-preview/countries",
           },
         ]}

@@ -743,24 +743,25 @@ export default async function PostgresCountryMarketsPage() {
       </section>
 
       <NextActionStrip
-        description="From a market view, the next step should be a country drilldown, a filtered entity worklist, or evidence cleanup for source gaps."
+        title="Primary Work Paths"
+        description="Use these routes for the three main market workflows: country worklists, source-gap cleanup, and benchmark analysis."
         actions={[
           {
-            label: "Intelligence Drilldown",
+            label: "Worklists",
             title: "Review country worklists",
-            description: "Open the country table and drill into projects, plants, and companies by market.",
+            description: "Drill into projects, plants, and companies by market.",
             href: "#country-worklist",
           },
           {
-            label: "Operational Queue",
+            label: "Source Gaps",
             title: "Resolve source-gap markets",
-            description: "Focus on markets where missing source evidence weakens export readiness.",
+            description: "Review markets where missing evidence weakens export readiness.",
             href: "#market-operations",
           },
           {
             label: "Analysis",
             title: "Compare country signals",
-            description: "Move into benchmark views for lifecycle, operating status, and market comparison.",
+            description: "Move into lifecycle, operating status, and market comparison views.",
             href: "/postgres-preview/analysis#country-drilldown",
           },
         ]}

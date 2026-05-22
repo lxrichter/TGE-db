@@ -265,22 +265,23 @@ export default async function PostgresAnalysisPreviewPage() {
       </section>
 
       <NextActionStrip
-        description="From analysis, the next step should be a market drilldown, a filtered worklist, or a spatial view of the pattern."
+        title="Primary Work Paths"
+        description="Use these routes for the three main analysis workflows: markets, record worklists, and spatial patterns."
         actions={[
           {
-            label: "Market Drilldown",
+            label: "Markets",
             title: "Open Countries / Markets",
-            description: "Move from benchmark signals into country-level market intelligence and worklists.",
+            description: "Move from benchmark signals into country-level intelligence.",
             href: "/postgres-preview/countries",
           },
           {
-            label: "Filtered Work",
+            label: "Worklists",
             title: "Open project pipeline",
-            description: "Use lifecycle and capacity patterns to inspect the underlying project records.",
+            description: "Inspect the underlying records behind lifecycle and capacity signals.",
             href: "/postgres-preview/projects",
           },
           {
-            label: "Spatial Pattern",
+            label: "Map",
             title: "Open Map",
             description: "View coordinate-confirmed project and plant groups spatially.",
             href: "/postgres-preview/map",

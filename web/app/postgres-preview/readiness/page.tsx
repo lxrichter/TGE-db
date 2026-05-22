@@ -589,24 +589,25 @@ export default async function PostgresReadinessPage() {
       </section>
 
       <NextActionStrip
-        description="From readiness, the next step should be resolving blockers, checking migration gates, or returning to the operational command layer."
+        title="Primary Work Paths"
+        description="Use these routes for the three main readiness workflows: blockers, migration gates, and command navigation."
         actions={[
           {
-            label: "Resolve Blockers",
+            label: "Blockers",
             title: "Open Research Ops",
             description: "Work through critical issues, export blockers, and human-created follow-ups.",
             href: "/postgres-preview/research-ops",
           },
           {
-            label: "Cutover Gates",
+            label: "Gates",
             title: "Review migration gates",
-            description: "Check import, transform, validation, and replacement readiness signals.",
+            description: "Check import, transform, validation, and replacement readiness.",
             href: "#migration-gates",
           },
           {
-            label: "Platform Navigation",
+            label: "Command",
             title: "Return to Command Center",
-            description: "Use the command layer to route into staging modules and acceptance checks.",
+            description: "Route into staging modules and acceptance checks.",
             href: "/postgres-preview",
           },
         ]}
