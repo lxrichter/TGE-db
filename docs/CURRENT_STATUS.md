@@ -126,6 +126,10 @@ foundation. Current implemented PostgreSQL staging areas include:
   governance hierarchy language across the source list, source detail, article
   match review, article fact review, and Research Ops dashboard, keeping
   evidence governance and queue work visually separated before the design pass
+- PostgreSQL Countries / Markets, Analysis, and Replacement Readiness now use
+  concise hierarchy markers for market snapshots, benchmark views, migration
+  gates, and drilldown worklists so the intelligence/transition layer follows
+  the same reading order without over-explaining already-clean analytical pages
 - Sources / Documents list, source detail, article match review, and article
   fact review surfaces now use the same shared badge hierarchy for visibility,
   credibility, confidence, candidate status, and review workload signals

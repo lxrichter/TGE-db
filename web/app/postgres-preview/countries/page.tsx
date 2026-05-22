@@ -4,6 +4,7 @@ import {
   type PostgresCountryMarketSummary,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
 
 export const dynamic = "force-dynamic";
@@ -354,6 +355,13 @@ export default async function PostgresCountryMarketsPage() {
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Level 1"
+            title="Market Snapshot"
+            description="Top-level country coverage, operating capacity, pipeline capacity, direct-use activity, and source gaps."
+            tone="core"
+          />
+
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             <StatTile
               label="Countries"
@@ -381,6 +389,13 @@ export default async function PostgresCountryMarketsPage() {
               value={formatCount(totals.sourceGaps)}
             />
           </section>
+
+          <DetailPriorityMarker
+            label="Level 2"
+            title="Country Intelligence Worklist"
+            description="Use the table for country comparison, validation coverage, market worklists, and drill-through into projects, assets, and companies."
+            tone="workflow"
+          />
 
           <CountryMarketsTable countries={countries} />
         </>

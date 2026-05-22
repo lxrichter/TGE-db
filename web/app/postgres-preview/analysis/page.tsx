@@ -5,6 +5,7 @@ import {
   type PostgresPreviewAnalysisSummary,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import {
   formatPreviewFilterLabel,
   PostgresPreviewSetupNotice,
@@ -193,6 +194,13 @@ export default async function PostgresAnalysisPreviewPage() {
         <PostgresPreviewSetupNotice error={data.ok ? "No data" : data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Level 1"
+            title="Analytical Snapshot"
+            description="High-level record counts and capacity signals before drilling into lifecycle, status, use type, and country comparisons."
+            tone="core"
+          />
+
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <StatTile
               label="Project Records"
@@ -216,6 +224,13 @@ export default async function PostgresAnalysisPreviewPage() {
             />
           </section>
 
+          <DetailPriorityMarker
+            label="Level 2"
+            title="Structured Benchmark Views"
+            description="Predefined analysis tables keep the BI layer clean, comparable, and ready for future charts and saved analytical filters."
+            tone="workflow"
+          />
+
           <section className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <BucketTable
               buckets={summary.projectLifecycle}
@@ -233,6 +248,13 @@ export default async function PostgresAnalysisPreviewPage() {
             buckets={summary.useTypeBreakdown}
             description="Combined project and operating asset distribution by geothermal use type."
             title="Use-Type Distribution"
+          />
+
+          <DetailPriorityMarker
+            label="Level 3"
+            title="Country Drilldown"
+            description="Top-country rows connect the analytical layer back to filtered project worklists and market review."
+            tone="governance"
           />
 
           <section className="border border-gray-200 bg-white">

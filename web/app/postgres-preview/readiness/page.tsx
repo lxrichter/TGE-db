@@ -6,6 +6,7 @@ import {
   type PostgresReplacementMigrationSummary,
 } from "@/lib/postgres-preview";
 import { formatCount } from "@/lib/format";
+import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
 
 export const dynamic = "force-dynamic";
@@ -462,6 +463,13 @@ export default async function PostgresReadinessPage() {
         <PostgresPreviewSetupNotice error={data.error} />
       ) : (
         <>
+          <DetailPriorityMarker
+            label="Level 1"
+            title="Cutover Readiness Snapshot"
+            description="Start with staged record coverage, source gaps, open issues, critical issues, and records needing re-review."
+            tone="core"
+          />
+
           <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
             <StatTile
               label="Staged Records"
@@ -500,6 +508,13 @@ export default async function PostgresReadinessPage() {
             />
           </section>
 
+          <DetailPriorityMarker
+            label="Level 2"
+            title="Migration And Gate Review"
+            description="Migration rehearsal status and replacement gates show what must be repeated, accepted, or completed before internal cutover."
+            tone="workflow"
+          />
+
           <MigrationRehearsalPanel
             migration={data.readiness.latestMigrationRun}
           />
@@ -521,6 +536,13 @@ export default async function PostgresReadinessPage() {
               status="partial"
             />
           </section>
+
+          <DetailPriorityMarker
+            label="Level 3"
+            title="Entity-Level Cutover Worklist"
+            description="Detailed readiness rows show which entity areas still carry source, core-field, link, issue, or re-review risk."
+            tone="governance"
+          />
 
           <ReadinessTable entities={entities} />
         </>
