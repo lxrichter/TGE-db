@@ -140,6 +140,33 @@ function MobileMarketField({
   );
 }
 
+function CountryReferenceMeta({
+  country,
+}: {
+  country: PostgresCountryMarketSummary;
+}) {
+  const values = [country.iso3, country.tge_region, country.wb_region].filter(
+    (value): value is string => Boolean(value)
+  );
+
+  if (values.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {values.map((value) => (
+        <span
+          key={value}
+          className="inline-flex min-h-6 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-[10px] font-semibold uppercase tracking-wide text-gray-500"
+        >
+          {value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function CountryWorklistLinks({
   country,
   missing,
@@ -237,6 +264,7 @@ function CountryQueueCard({
                     <div className="font-semibold text-[#1f2937]">
                       {country.country}
                     </div>
+                    <CountryReferenceMeta country={country} />
                     <div className="mt-1 text-xs text-gray-500">
                       {item.note}
                     </div>
@@ -395,6 +423,7 @@ function CountryMarketsTable({
                 <div className="font-semibold text-[#1f2937]">
                   {country.country}
                 </div>
+                <CountryReferenceMeta country={country} />
                 <div className="mt-1 text-xs text-gray-500">
                   {formatCount(
                     country.project_count +
@@ -551,6 +580,7 @@ function CountryMarketsTable({
                   <div className="font-semibold text-[#1f2937]">
                     {country.country}
                   </div>
+                  <CountryReferenceMeta country={country} />
                   <div className="mt-1 text-xs text-gray-500">
                     {formatCount(
                       country.project_count +
@@ -802,7 +832,7 @@ export default async function PostgresCountryMarketsPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <StatTile
                 label="Countries"
-                note="With staged project, plant, or company records"
+                note="Canonical countries with staged records"
                 value={formatCount(countries.length)}
               />
               <StatTile

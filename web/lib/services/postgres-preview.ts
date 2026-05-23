@@ -13,7 +13,11 @@ export type PostgresPreviewSummary = {
 };
 
 export type PostgresCountryMarketSummary = {
+  country_id: string | null;
   country: string;
+  iso3: string | null;
+  tge_region: string | null;
+  wb_region: string | null;
   project_count: number;
   active_project_count: number;
   operating_asset_count: number;
@@ -2075,19 +2079,51 @@ export async function listPostgresCountryMarketSummaries(
   >(
     `
     WITH countries AS (
-      SELECT DISTINCT country
+      SELECT DISTINCT
+        country_id,
+        country,
+        iso3,
+        tge_region,
+        wb_region
       FROM (
-        SELECT NULLIF(trim(country), '') AS country FROM projects
+        SELECT
+          COALESCE(cr.country_id::text, p.country_id::text) AS country_id,
+          COALESCE(cr.country_name, NULLIF(trim(p.country), '')) AS country,
+          cr.iso3,
+          COALESCE(cr.tge_region, NULLIF(trim(p.region), '')) AS tge_region,
+          COALESCE(cr.wb_region, NULLIF(trim(p.wb_region), '')) AS wb_region
+        FROM projects p
+        LEFT JOIN countries_reference cr
+          ON cr.country_id = p.country_id
         UNION ALL
-        SELECT NULLIF(trim(country), '') AS country FROM operating_assets
+        SELECT
+          COALESCE(cr.country_id::text, a.country_id::text) AS country_id,
+          COALESCE(cr.country_name, NULLIF(trim(a.country), '')) AS country,
+          cr.iso3,
+          COALESCE(cr.tge_region, NULLIF(trim(a.region), '')) AS tge_region,
+          COALESCE(cr.wb_region, NULLIF(trim(a.wb_region), '')) AS wb_region
+        FROM operating_assets a
+        LEFT JOIN countries_reference cr
+          ON cr.country_id = a.country_id
         UNION ALL
-        SELECT NULLIF(trim(headquarters_country), '') AS country FROM companies
+        SELECT
+          COALESCE(cr.country_id::text, c.headquarters_country_id::text)
+            AS country_id,
+          COALESCE(cr.country_name, NULLIF(trim(c.headquarters_country), ''))
+            AS country,
+          cr.iso3,
+          COALESCE(cr.tge_region, NULLIF(trim(c.region), '')) AS tge_region,
+          COALESCE(cr.wb_region, NULLIF(trim(c.wb_region), '')) AS wb_region
+        FROM companies c
+        LEFT JOIN countries_reference cr
+          ON cr.country_id = c.headquarters_country_id
       ) seed
       WHERE country IS NOT NULL
     ),
     project_stats AS (
       SELECT
-        p.country,
+        COALESCE(cr.country_id::text, p.country_id::text) AS country_id,
+        COALESCE(cr.country_name, NULLIF(trim(p.country), '')) AS country,
         count(*)::int AS project_count,
         count(*) FILTER (
           WHERE COALESCE(p.lifecycle_phase_code, '') NOT IN ('cancelled', 'archived')
@@ -2111,12 +2147,17 @@ export async function listPostgresCountryMarketSummaries(
         )::int AS project_missing_source_count,
         max(p.updated_at) AS latest_project_update_at
       FROM projects p
-      WHERE p.country IS NOT NULL AND trim(p.country) <> ''
-      GROUP BY p.country
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = p.country_id
+      WHERE COALESCE(cr.country_name, NULLIF(trim(p.country), '')) IS NOT NULL
+      GROUP BY
+        COALESCE(cr.country_id::text, p.country_id::text),
+        COALESCE(cr.country_name, NULLIF(trim(p.country), ''))
     ),
     asset_stats AS (
       SELECT
-        a.country,
+        COALESCE(cr.country_id::text, a.country_id::text) AS country_id,
+        COALESCE(cr.country_name, NULLIF(trim(a.country), '')) AS country,
         count(*)::int AS operating_asset_count,
         count(*) FILTER (WHERE a.lifecycle_phase_code = 'operating')::int
           AS operating_asset_active_count,
@@ -2143,12 +2184,19 @@ export async function listPostgresCountryMarketSummaries(
         )::int AS asset_missing_source_count,
         max(a.updated_at) AS latest_asset_update_at
       FROM operating_assets a
-      WHERE a.country IS NOT NULL AND trim(a.country) <> ''
-      GROUP BY a.country
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = a.country_id
+      WHERE COALESCE(cr.country_name, NULLIF(trim(a.country), '')) IS NOT NULL
+      GROUP BY
+        COALESCE(cr.country_id::text, a.country_id::text),
+        COALESCE(cr.country_name, NULLIF(trim(a.country), ''))
     ),
     company_stats AS (
       SELECT
-        c.headquarters_country AS country,
+        COALESCE(cr.country_id::text, c.headquarters_country_id::text)
+          AS country_id,
+        COALESCE(cr.country_name, NULLIF(trim(c.headquarters_country), ''))
+          AS country,
         count(*)::int AS company_count,
         count(*) FILTER (
           WHERE c.review_status_code IN ('approved', 'export_ready')
@@ -2165,12 +2213,20 @@ export async function listPostgresCountryMarketSummaries(
         )::int AS company_missing_source_count,
         max(c.updated_at) AS latest_company_update_at
       FROM companies c
-      WHERE c.headquarters_country IS NOT NULL
-        AND trim(c.headquarters_country) <> ''
-      GROUP BY c.headquarters_country
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = c.headquarters_country_id
+      WHERE COALESCE(cr.country_name, NULLIF(trim(c.headquarters_country), ''))
+        IS NOT NULL
+      GROUP BY
+        COALESCE(cr.country_id::text, c.headquarters_country_id::text),
+        COALESCE(cr.country_name, NULLIF(trim(c.headquarters_country), ''))
     )
     SELECT
+      countries.country_id,
       countries.country,
+      countries.iso3,
+      countries.tge_region,
+      countries.wb_region,
       COALESCE(project_stats.project_count, 0)::int AS project_count,
       COALESCE(project_stats.active_project_count, 0)::int AS active_project_count,
       COALESCE(asset_stats.operating_asset_count, 0)::int
@@ -2214,11 +2270,20 @@ export async function listPostgresCountryMarketSummaries(
       ) AS latest_update_at
     FROM countries
     LEFT JOIN project_stats
-      ON project_stats.country = countries.country
+      ON (
+        project_stats.country_id IS NOT DISTINCT FROM countries.country_id
+        AND project_stats.country = countries.country
+      )
     LEFT JOIN asset_stats
-      ON asset_stats.country = countries.country
+      ON (
+        asset_stats.country_id IS NOT DISTINCT FROM countries.country_id
+        AND asset_stats.country = countries.country
+      )
     LEFT JOIN company_stats
-      ON company_stats.country = countries.country
+      ON (
+        company_stats.country_id IS NOT DISTINCT FROM countries.country_id
+        AND company_stats.country = countries.country
+      )
     ORDER BY
       (
         COALESCE(asset_stats.operating_installed_mwe, 0) +
@@ -2260,8 +2325,8 @@ export async function listPostgresPreviewMapGroups(): Promise<{
       SELECT
         COALESCE(NULLIF(a.project_group, ''), a.asset_name) AS group_name,
         min(a.operating_asset_id)::text AS representative_id,
-        a.country,
-        a.region,
+        COALESCE(cr.country_name, a.country) AS country,
+        COALESCE(cr.tge_region, a.region) AS region,
         avg(a.latitude)::float8 AS latitude,
         avg(a.longitude)::float8 AS longitude,
         count(*)::int AS record_count,
@@ -2271,17 +2336,22 @@ export async function listPostgresPreviewMapGroups(): Promise<{
         max(a.lifecycle_phase_code) AS phase,
         'plant'::text AS type
       FROM operating_assets a
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = a.country_id
       WHERE a.latitude IS NOT NULL
         AND a.longitude IS NOT NULL
-      GROUP BY COALESCE(NULLIF(a.project_group, ''), a.asset_name), a.country, a.region
+      GROUP BY
+        COALESCE(NULLIF(a.project_group, ''), a.asset_name),
+        COALESCE(cr.country_name, a.country),
+        COALESCE(cr.tge_region, a.region)
       ORDER BY group_name ASC
     `),
     getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(`
       SELECT
         COALESCE(NULLIF(p.project_group, ''), p.project_name) AS group_name,
         min(p.project_id)::text AS representative_id,
-        p.country,
-        p.region,
+        COALESCE(cr.country_name, p.country) AS country,
+        COALESCE(cr.tge_region, p.region) AS region,
         avg(p.latitude)::float8 AS latitude,
         avg(p.longitude)::float8 AS longitude,
         count(*)::int AS record_count,
@@ -2291,9 +2361,14 @@ export async function listPostgresPreviewMapGroups(): Promise<{
         max(p.lifecycle_phase_code) AS phase,
         'project'::text AS type
       FROM projects p
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = p.country_id
       WHERE p.latitude IS NOT NULL
         AND p.longitude IS NOT NULL
-      GROUP BY COALESCE(NULLIF(p.project_group, ''), p.project_name), p.country, p.region
+      GROUP BY
+        COALESCE(NULLIF(p.project_group, ''), p.project_name),
+        COALESCE(cr.country_name, p.country),
+        COALESCE(cr.tge_region, p.region)
       ORDER BY group_name ASC
     `),
   ]);
@@ -3078,14 +3153,50 @@ function compactFacetValues(rows: Array<Record<string, string | null>>) {
   ).sort((a, b) => a.localeCompare(b));
 }
 
+async function listReferencedCountryFacetValues(
+  entity:
+    | "projects"
+    | "operating_assets"
+    | "companies"
+): Promise<Array<{ country: string | null }>> {
+  const tableByEntity = {
+    projects: {
+      table: "projects",
+      countryColumn: "country",
+      countryIdColumn: "country_id",
+    },
+    operating_assets: {
+      table: "operating_assets",
+      countryColumn: "country",
+      countryIdColumn: "country_id",
+    },
+    companies: {
+      table: "companies",
+      countryColumn: "headquarters_country",
+      countryIdColumn: "headquarters_country_id",
+    },
+  } as const;
+  const config = tableByEntity[entity];
+
+  return getPrismaClient().$queryRawUnsafe<Array<{ country: string | null }>>(
+    `
+    SELECT DISTINCT
+      COALESCE(cr.country_name, NULLIF(trim(entity_row.${config.countryColumn}), ''))
+        AS country
+    FROM ${config.table} entity_row
+    LEFT JOIN countries_reference cr
+      ON cr.country_id = entity_row.${config.countryIdColumn}
+    WHERE COALESCE(cr.country_name, NULLIF(trim(entity_row.${config.countryColumn}), ''))
+      IS NOT NULL
+    ORDER BY country ASC
+    `
+  );
+}
+
 export async function getPostgresPreviewProjectListFacets(): Promise<PostgresPreviewListFacets> {
   const prisma = getPrismaClient();
   const [countries, reviewStatuses, useTypes, statuses] = await Promise.all([
-    prisma.projects.findMany({
-      distinct: ["country"],
-      orderBy: { country: "asc" },
-      select: { country: true },
-    }),
+    listReferencedCountryFacetValues("projects"),
     prisma.projects.findMany({
       distinct: ["review_status_code"],
       orderBy: { review_status_code: "asc" },
@@ -3115,11 +3226,7 @@ export async function getPostgresPreviewProjectListFacets(): Promise<PostgresPre
 export async function getPostgresPreviewOperatingAssetListFacets(): Promise<PostgresPreviewListFacets> {
   const prisma = getPrismaClient();
   const [countries, reviewStatuses, useTypes, statuses] = await Promise.all([
-    prisma.operating_assets.findMany({
-      distinct: ["country"],
-      orderBy: { country: "asc" },
-      select: { country: true },
-    }),
+    listReferencedCountryFacetValues("operating_assets"),
     prisma.operating_assets.findMany({
       distinct: ["review_status_code"],
       orderBy: { review_status_code: "asc" },
@@ -3149,11 +3256,7 @@ export async function getPostgresPreviewOperatingAssetListFacets(): Promise<Post
 export async function getPostgresPreviewCompanyListFacets(): Promise<PostgresPreviewListFacets> {
   const prisma = getPrismaClient();
   const [countries, reviewStatuses, companyTypes] = await Promise.all([
-    prisma.companies.findMany({
-      distinct: ["headquarters_country"],
-      orderBy: { headquarters_country: "asc" },
-      select: { headquarters_country: true },
-    }),
+    listReferencedCountryFacetValues("companies"),
     prisma.companies.findMany({
       distinct: ["review_status_code"],
       orderBy: { review_status_code: "asc" },
