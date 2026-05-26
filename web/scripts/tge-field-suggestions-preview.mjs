@@ -531,7 +531,7 @@ async function listFieldSuggestionCandidates(pool, args) {
         m.confirmed_entity_source_id AS linked_entity_source_id,
         NULL::text AS evidence_note,
         m.capacity_confidence AS confidence_score,
-        'Matched source title contains a capacity signal; the plant/facility has no structured capacity values yet.' AS suggestion_reason,
+        'Matched source title contains a capacity signal; the plant has no structured capacity values yet.' AS suggestion_reason,
         jsonb_build_object(
           'suggested_from', 'source_title_capacity_signal',
           'source_reference', m.source_reference,

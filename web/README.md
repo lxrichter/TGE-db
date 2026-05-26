@@ -246,12 +246,12 @@ Current PostgreSQL-backed route foundations:
 The PostgreSQL Sources / Documents foundation currently provides source
 reference data, source list/detail reads, source list/profile/create/edit pages,
 source-link add/remove actions, Research Ops source queues, and source/evidence
-panels on PostgreSQL project, plant/facility, and company preview pages. It also
+panels on PostgreSQL project, plant, and company preview pages. It also
 includes editor source-credibility actions on source profiles, selected-row
 source credibility actions inside PostgreSQL Research Ops, and preview-only
 export-readiness panels on PostgreSQL entity detail pages. Source create,
 source review, and evidence-link review actions now stamp mapped PostgreSQL
-`app_users` metadata. PostgreSQL project, plant/facility, and company detail
+`app_users` metadata. PostgreSQL project, plant, and company detail
 pages can also link existing sources directly with evidence metadata. File
 uploads, country/market evidence panels, and enforced export-readiness rules
 are proposed next steps, not completed production functionality.
@@ -265,7 +265,7 @@ production evidence governance.
 TGE article/news integration is now implemented as a PostgreSQL staging
 foundation slice. Entity detail source panels can search the public
 ThinkGeoEnergy WordPress posts API, import or reuse a matching `tge_article`
-source record, and link it to the current project, plant/facility, or company.
+source record, and link it to the current project, plant, or company.
 Imported TGE article sources default to public visibility and `needs_review`
 credibility so editors still control export readiness.
 
@@ -338,14 +338,14 @@ current SQLite prototype routes under `/projects`, `/plants`, and `/companies`.
 The forms include live readiness panels for critical and important missing-data
 guidance while still allowing incomplete draft saves. It also includes staging
 add/remove managers for company-project roles,
-company-plant/facility roles, and company-company relationships. PostgreSQL
+company-plant roles, and company-company relationships. PostgreSQL
 Research Ops also supports selected-row review/status quick actions for
-projects, plants/facilities, companies, and sources, plus row selection,
+projects, plants, companies, and sources, plus row selection,
 filtered CSV export, lightweight bulk status changes, and persistent
 human-created research issues/tasks with issue status history. Project detail
 pages also include a staging-only promotion panel that creates a linked
 operating asset draft, copies existing source/evidence links, and copies current
-company-role links where available. PostgreSQL project, plant/facility, and
+company-role links where available. PostgreSQL project, plant, and
 company detail pages show linked open persistent Research Ops issues and allow
 editors/admins to create, progress, resolve, or dismiss human-created issues
 from the record page. Generated Research Ops queues remain live/calculated for

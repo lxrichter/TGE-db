@@ -1771,7 +1771,7 @@ function ProjectWorkflowBridge({
                 className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={linkedAssetHref}
               >
-                Review Linked Plants
+                Review Related Plants
               </Link>
             ) : (
               <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">

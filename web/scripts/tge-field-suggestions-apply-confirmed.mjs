@@ -86,7 +86,7 @@ Options:
 
 Safety:
   Only confirmed, unapplied field_suggestion_candidates are eligible.
-  Only whitelisted project and plant/facility fields are supported.
+  Only whitelisted project and plant fields are supported.
   A target field is updated only if it is still empty.
   Execute mode writes audit_events and marks applied_at; it does not approve
   records, export records, or create new source links.

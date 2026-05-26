@@ -63,7 +63,7 @@ Options:
 
 Safety:
   Metadata only. No full article body text. No entity_sources creation.
-  No project, plant/facility, company, approval, or export-ready updates.
+  No project, plant, company, approval, or export-ready updates.
   Execute mode blocks non-local database URLs unless --allow-remote-db is supplied.
 `);
 }
