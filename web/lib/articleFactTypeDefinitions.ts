@@ -192,10 +192,10 @@ export const ARTICLE_FACT_TYPE_DEFINITIONS: ArticleFactTypeDefinition[] = [
     purpose:
       "Captures article evidence for owner, operator, developer, or responsible-party roles.",
     reviewQuestion:
-      "Does this source support a company role or ownership/operator claim for a project or plant/facility?",
+      "Does this source support a company role or ownership/operator claim for a project or plant?",
     accept: [
       "owner, operator, developer, concession holder, or responsible company roles",
-      "role claims tied to a named project, plant/facility, or company",
+      "role claims tied to a named project, plant, or company",
       "company-role evidence useful for structured relationship records",
     ],
     reject: [
@@ -277,7 +277,7 @@ export const ARTICLE_FACT_TYPE_DEFINITIONS: ArticleFactTypeDefinition[] = [
     code: "entity_signal",
     label: "Entity Signal",
     purpose:
-      "Captures entity-like article signals for later matching to projects, plants/facilities, companies, and countries.",
+      "Captures entity-like article signals for later matching to projects, plants, companies, and countries.",
     reviewQuestion:
       "Is this detected entity signal useful for article-to-record matching or related-news discovery?",
     accept: [

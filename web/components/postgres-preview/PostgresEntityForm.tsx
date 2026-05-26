@@ -1482,7 +1482,7 @@ const workflowQuickActionGroupMeta: Record<
   },
   governance: {
     eyebrow: "Governance",
-    title: "Review And Readiness",
+    title: "Review & Readiness",
     description: "Route follow-up work into Research Ops.",
   },
 };

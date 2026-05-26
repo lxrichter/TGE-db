@@ -55,7 +55,7 @@ const actionGroupMeta: Record<
   },
   governance: {
     eyebrow: "Governance",
-    title: "Review And Readiness",
+    title: "Review & Readiness",
     description: "Resolve AI review, Research Ops issues, and export checks.",
   },
 };

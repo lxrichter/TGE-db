@@ -185,7 +185,7 @@ export async function parseCompanyOperatingAssetLinkMutationInput(
   if (!companyId || !operatingAssetId || !roleCode) {
     return {
       ok: false,
-      error: "Company, plant/facility, and role are required.",
+      error: "Company, plant, and role are required.",
     };
   }
 
@@ -194,7 +194,7 @@ export async function parseCompanyOperatingAssetLinkMutationInput(
   }
 
   if (!operatingAssetIds.has(operatingAssetId)) {
-    return { ok: false, error: "Selected plant/facility was not found." };
+    return { ok: false, error: "Selected plant was not found." };
   }
 
   if (!roleCodes.has(roleCode)) {
