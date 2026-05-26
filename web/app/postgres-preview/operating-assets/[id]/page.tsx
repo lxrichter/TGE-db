@@ -383,17 +383,19 @@ function AssetActionHub({
       href: `/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`,
       tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
       primary: blockers.length > 0,
+      group: "record",
     });
   }
 
   actions.push({
-      label: "Review COD / Capacity",
-      detail:
+    label: "Review COD / Capacity",
+    detail:
       hasAssetCapacity(asset) && hasCod
         ? "Capacity/output and COD fields are present for this plant."
         : "Confirm COD, installed/running capacity, thermal output, or explain gaps.",
     href: "#asset-operating-data",
     tone: hasAssetCapacity(asset) && hasCod ? "ready" : "warning",
+    group: "record",
   });
 
   actions.push({
@@ -410,6 +412,7 @@ function AssetActionHub({
     href: asset.sources.length === 0 ? addSourceHref : "#asset-source-evidence",
     tone: asset.sources.length === 0 ? "blocker" : "ready",
     primary: asset.sources.length === 0,
+    group: "evidence",
   });
 
   if (openSourceMatchCount > 0) {
@@ -421,6 +424,7 @@ function AssetActionHub({
       href: "#asset-article-matches",
       tone: "warning",
       primary: asset.sources.length === 0,
+      group: "evidence",
     });
   }
 
@@ -436,6 +440,7 @@ function AssetActionHub({
       }.`,
       href: "#asset-ai-suggestions",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -449,6 +454,7 @@ function AssetActionHub({
         : "Review owner, operator, supplier, EPC, offtaker, and other plant roles.",
     href: "#asset-company-links",
     tone: companyLinkCount > 0 ? "ready" : "neutral",
+    group: "relationships",
   });
 
   if (asset.promoted_from_project_id) {
@@ -457,6 +463,7 @@ function AssetActionHub({
       detail: "Open the source project that promoted into this plant.",
       href: `/postgres-preview/projects/${asset.promoted_from_project_id}`,
       tone: "ready",
+      group: "relationships",
     });
   }
 
@@ -468,6 +475,7 @@ function AssetActionHub({
       } assigned or tracked for this record.`,
       href: "#asset-research-issues",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -487,6 +495,7 @@ function AssetActionHub({
           : "No export-readiness blockers detected.",
     href: "#asset-export-readiness",
     tone: blockers.length > 0 ? "blocker" : warnings.length > 0 ? "warning" : "ready",
+    group: "governance",
   });
 
   return (

@@ -5,6 +5,11 @@ import PostgresStatusBadge, {
 import { formatCount } from "@/lib/format";
 
 export type PostgresRecordActionTone = "blocker" | "warning" | "ready" | "neutral";
+export type PostgresRecordActionGroup =
+  | "record"
+  | "evidence"
+  | "relationships"
+  | "governance";
 
 export type PostgresRecordAction = {
   label: string;
@@ -12,6 +17,7 @@ export type PostgresRecordAction = {
   href: string;
   tone: PostgresRecordActionTone;
   primary?: boolean;
+  group?: PostgresRecordActionGroup;
 };
 
 const actionToneClasses: Record<PostgresRecordActionTone, string> = {
@@ -19,6 +25,39 @@ const actionToneClasses: Record<PostgresRecordActionTone, string> = {
   warning: postgresStatusToneClass("attention"),
   ready: postgresStatusToneClass("success"),
   neutral: postgresStatusToneClass("neutral"),
+};
+
+const actionGroupOrder: PostgresRecordActionGroup[] = [
+  "record",
+  "evidence",
+  "relationships",
+  "governance",
+];
+
+const actionGroupMeta: Record<
+  PostgresRecordActionGroup,
+  { eyebrow: string; title: string; description: string }
+> = {
+  record: {
+    eyebrow: "Core",
+    title: "Record Work",
+    description: "Fix the primary structured fields that define this record.",
+  },
+  evidence: {
+    eyebrow: "Evidence",
+    title: "Sources And Claims",
+    description: "Add, review, or connect evidence before relying on the record.",
+  },
+  relationships: {
+    eyebrow: "Workflow",
+    title: "Relationships",
+    description: "Manage linked companies, projects, plants, and portfolio logic.",
+  },
+  governance: {
+    eyebrow: "Governance",
+    title: "Review And Readiness",
+    description: "Resolve AI review, Research Ops issues, and export readiness.",
+  },
 };
 
 function actionLinkClass(action: PostgresRecordAction) {
@@ -79,6 +118,13 @@ export default function PostgresRecordActionHub({
   blockerCount: number;
   warningCount: number;
 }) {
+  const groupedActions = actionGroupOrder
+    .map((group) => ({
+      group,
+      actions: actions.filter((action) => (action.group || "record") === group),
+    }))
+    .filter((group) => group.actions.length > 0);
+
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
@@ -111,21 +157,47 @@ export default function PostgresRecordActionHub({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 xl:grid-cols-4">
-        {actions.map((action) => (
-          <Link
-            key={`${action.label}-${action.href}`}
-            className={actionLinkClass(action)}
-            href={action.href}
-          >
-            <div className="text-sm font-bold text-[#1f2937]">
-              {action.label}
-            </div>
-            <div className="mt-2 text-xs leading-5 text-gray-600">
-              {action.detail}
-            </div>
-          </Link>
-        ))}
+      <div className="space-y-4 px-5 py-5">
+        {groupedActions.map(({ group, actions: groupActions }) => {
+          const meta = actionGroupMeta[group];
+
+          return (
+            <section
+              className="border border-gray-200 bg-[#fafafa] px-4 py-4"
+              key={group}
+            >
+              <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+                    {meta.eyebrow}
+                  </div>
+                  <h3 className="mt-1 text-sm font-bold text-[#1f2937]">
+                    {meta.title}
+                  </h3>
+                </div>
+                <p className="max-w-2xl text-xs leading-5 text-gray-500">
+                  {meta.description}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {groupActions.map((action) => (
+                  <Link
+                    key={`${action.label}-${action.href}`}
+                    className={actionLinkClass(action)}
+                    href={action.href}
+                  >
+                    <div className="text-sm font-bold text-[#1f2937]">
+                      {action.label}
+                    </div>
+                    <div className="mt-2 text-xs leading-5 text-gray-600">
+                      {action.detail}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </section>
   );

@@ -487,6 +487,7 @@ function CompanyActionHub({
       href: `/postgres-preview/companies/${company.company_id}/edit`,
       tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
       primary: blockers.length > 0,
+      group: "record",
     });
   }
 
@@ -501,6 +502,7 @@ function CompanyActionHub({
       company.company_type_primary_code && company.headquarters_country
         ? "ready"
         : "warning",
+    group: "record",
   });
 
   actions.push({
@@ -513,6 +515,7 @@ function CompanyActionHub({
         : "Add project roles, plant roles, ownership, group, or JV relationships.",
     href: "#company-relationships",
     tone: activityLinkCount > 0 ? "ready" : "warning",
+    group: "relationships",
   });
 
   actions.push({
@@ -529,6 +532,7 @@ function CompanyActionHub({
     href: company.sources.length === 0 ? addSourceHref : "#company-source-evidence",
     tone: company.sources.length === 0 ? "blocker" : "ready",
     primary: company.sources.length === 0,
+    group: "evidence",
   });
 
   if (openSourceMatchCount > 0) {
@@ -540,6 +544,7 @@ function CompanyActionHub({
       href: "#company-article-matches",
       tone: "warning",
       primary: company.sources.length === 0,
+      group: "evidence",
     });
   }
 
@@ -555,6 +560,7 @@ function CompanyActionHub({
       }.`,
       href: "#company-ai-suggestions",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -566,6 +572,7 @@ function CompanyActionHub({
       } assigned or tracked for this record.`,
       href: "#company-research-issues",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -585,6 +592,7 @@ function CompanyActionHub({
           : "No export-readiness blockers detected.",
     href: "#company-export-readiness",
     tone: blockers.length > 0 ? "blocker" : warnings.length > 0 ? "warning" : "ready",
+    group: "governance",
   });
 
   return (

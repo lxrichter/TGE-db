@@ -379,6 +379,7 @@ function ProjectActionHub({
       href: `/postgres-preview/projects/${project.project_id}/edit`,
       tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
       primary: blockers.length > 0,
+      group: "record",
     });
   }
 
@@ -396,6 +397,7 @@ function ProjectActionHub({
     href: project.sources.length === 0 ? addSourceHref : "#project-source-evidence",
     tone: project.sources.length === 0 ? "blocker" : "ready",
     primary: project.sources.length === 0,
+    group: "evidence",
   });
 
   if (openSourceMatchCount > 0) {
@@ -407,6 +409,7 @@ function ProjectActionHub({
       href: "#project-article-matches",
       tone: "warning",
       primary: project.sources.length === 0,
+      group: "evidence",
     });
   }
 
@@ -422,6 +425,7 @@ function ProjectActionHub({
       }.`,
       href: "#project-ai-suggestions",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -431,6 +435,7 @@ function ProjectActionHub({
       "Review developer, owner, operator, supplier, investor, and other structured roles.",
     href: "#project-company-links",
     tone: "neutral",
+    group: "relationships",
   });
 
   actions.push({
@@ -445,6 +450,7 @@ function ProjectActionHub({
           : "Promotion is editor/admin controlled.",
     href: "#project-promotion",
     tone: promotedAssetCount > 0 ? "ready" : "neutral",
+    group: "relationships",
   });
 
   if (openIssues.length > 0) {
@@ -455,6 +461,7 @@ function ProjectActionHub({
       } assigned or tracked for this record.`,
       href: "#project-research-issues",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -474,6 +481,7 @@ function ProjectActionHub({
           : "No export-readiness blockers detected.",
     href: "#project-export-readiness",
     tone: blockers.length > 0 ? "blocker" : warnings.length > 0 ? "warning" : "ready",
+    group: "governance",
   });
 
   return (
