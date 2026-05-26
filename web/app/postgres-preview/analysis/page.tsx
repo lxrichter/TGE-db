@@ -81,6 +81,37 @@ function MobileAnalysisField({
   );
 }
 
+function AnalysisCountryMeta({
+  iso3,
+  tgeRegion,
+  wbRegion,
+}: {
+  iso3?: string | null;
+  tgeRegion?: string | null;
+  wbRegion?: string | null;
+}) {
+  const values = [iso3, tgeRegion, wbRegion].filter(
+    (value): value is string => Boolean(value)
+  );
+
+  if (values.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {values.map((value) => (
+        <span
+          key={value}
+          className="inline-flex min-h-6 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-[10px] font-semibold uppercase tracking-wide text-gray-500"
+        >
+          {value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function BucketTable({
   title,
   description,
@@ -271,8 +302,8 @@ export default async function PostgresAnalysisPreviewPage() {
           {
             label: "Markets",
             title: "Open Countries / Markets",
-            description: "Move from benchmark signals into country-level intelligence.",
-            href: "/postgres-preview/countries",
+            description: "Move from benchmark signals into country and regional intelligence.",
+            href: "/postgres-preview/countries#region-drilldown",
           },
           {
             label: "Worklists",
@@ -409,6 +440,11 @@ export default async function PostgresAnalysisPreviewPage() {
                     <div className="font-semibold text-[#1f2937]">
                       {country.country}
                     </div>
+                    <AnalysisCountryMeta
+                      iso3={country.iso3}
+                      tgeRegion={country.tge_region}
+                      wbRegion={country.wb_region}
+                    />
                     <div className="mt-4 grid gap-4 sm:grid-cols-2">
                       <MobileAnalysisField label="Operating">
                         {formatMw(country.operating_installed_mwe)} MWe
@@ -456,7 +492,12 @@ export default async function PostgresAnalysisPreviewPage() {
                   {summary.topCountries.map((country) => (
                     <tr key={country.country}>
                       <td className="px-5 py-4 font-semibold text-[#1f2937]">
-                        {country.country}
+                        <div>{country.country}</div>
+                        <AnalysisCountryMeta
+                          iso3={country.iso3}
+                          tgeRegion={country.tge_region}
+                          wbRegion={country.wb_region}
+                        />
                       </td>
                       <td className="px-5 py-4 text-gray-700">
                         {formatMw(country.operating_installed_mwe)} MWe

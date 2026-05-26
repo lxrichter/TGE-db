@@ -22,6 +22,21 @@ type CountriesData =
       error: string;
     };
 
+type CountryMarketSearchParams = {
+  tge_region?: string | string[];
+  wb_region?: string | string[];
+};
+
+type RegionSummary = {
+  name: string;
+  kind: "tge" | "wb";
+  countryCount: number;
+  recordCount: number;
+  operatingMwe: number;
+  pipelineMwe: number;
+  sourceGaps: number;
+};
+
 async function getCountriesData(): Promise<CountriesData> {
   try {
     const countries = await listPostgresCountryMarketSummaries();
@@ -36,6 +51,24 @@ async function getCountriesData(): Promise<CountriesData> {
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
+}
+
+function cleanParam(value: string | string[] | undefined) {
+  const first = Array.isArray(value) ? value[0] : value;
+  const trimmed = first?.trim();
+
+  return trimmed || "";
+}
+
+function marketRegionHref(
+  regionKind: RegionSummary["kind"],
+  regionName: string
+) {
+  const params = new URLSearchParams();
+
+  params.set(regionKind === "tge" ? "tge_region" : "wb_region", regionName);
+
+  return `/postgres-preview/countries?${params.toString()}#market-operations`;
 }
 
 function countryQueryHref(path: string, country: string) {
@@ -226,6 +259,135 @@ function sortCountriesByUpdate(countries: PostgresCountryMarketSummary[]) {
         new Date(left.latest_update_at).getTime()
     )
     .slice(0, 5);
+}
+
+function aggregateRegions(
+  countries: PostgresCountryMarketSummary[],
+  kind: RegionSummary["kind"]
+) {
+  const key = kind === "tge" ? "tge_region" : "wb_region";
+  const summaries = new Map<string, RegionSummary>();
+
+  for (const country of countries) {
+    const name = country[key] || "Unclassified";
+    const summary =
+      summaries.get(name) ||
+      {
+        name,
+        kind,
+        countryCount: 0,
+        recordCount: 0,
+        operatingMwe: 0,
+        pipelineMwe: 0,
+        sourceGaps: 0,
+      };
+
+    summary.countryCount += 1;
+    summary.recordCount +=
+      country.project_count +
+      country.operating_asset_count +
+      country.company_count;
+    summary.operatingMwe += country.operating_installed_mwe;
+    summary.pipelineMwe += country.project_pipeline_mwe;
+    summary.sourceGaps += country.missing_source_count;
+    summaries.set(name, summary);
+  }
+
+  return [...summaries.values()].sort(
+    (left, right) =>
+      right.operatingMwe +
+        right.pipelineMwe -
+        (left.operatingMwe + left.pipelineMwe) ||
+      right.recordCount - left.recordCount ||
+      left.name.localeCompare(right.name)
+  );
+}
+
+function RegionCard({ region }: { region: RegionSummary }) {
+  return (
+    <Link
+      className="block border border-gray-200 bg-white px-4 py-4 hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      href={marketRegionHref(region.kind, region.name)}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            {region.kind === "tge" ? "TGE Region" : "World Bank Region"}
+          </div>
+          <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
+          <div className="mt-2 text-xs leading-5 text-gray-500">
+            {formatCount(region.countryCount)} countries ·{" "}
+            {formatCount(region.recordCount)} records
+          </div>
+        </div>
+        <span
+          className={`inline-flex min-h-7 shrink-0 items-center border px-2 text-xs font-semibold ${
+            region.sourceGaps > 0
+              ? "border-amber-200 bg-amber-50 text-amber-700"
+              : "border-emerald-200 bg-emerald-50 text-emerald-700"
+          }`}
+        >
+          {formatCount(region.sourceGaps)} gaps
+        </span>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        <div className="border border-gray-200 bg-[#f7f7f7] px-2 py-2">
+          <div className="font-semibold text-[#1f2937]">
+            {formatMw(region.operatingMwe)} MWe
+          </div>
+          <div className="mt-1 text-gray-500">operating</div>
+        </div>
+        <div className="border border-gray-200 bg-[#f7f7f7] px-2 py-2">
+          <div className="font-semibold text-[#1f2937]">
+            {formatMw(region.pipelineMwe)} MWe
+          </div>
+          <div className="mt-1 text-gray-500">pipeline</div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function RegionDrilldownLayer({
+  allCountries,
+}: {
+  allCountries: PostgresCountryMarketSummary[];
+}) {
+  const tgeRegions = aggregateRegions(allCountries, "tge");
+  const wbRegions = aggregateRegions(allCountries, "wb");
+
+  return (
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <section className="border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 px-4 py-3">
+          <h3 className="text-sm font-bold text-[#1f2937]">TGE Regions</h3>
+          <p className="mt-1 text-xs leading-5 text-gray-500">
+            Editorial and market-intelligence regional grouping.
+          </p>
+        </div>
+        <div className="grid gap-3 p-4 md:grid-cols-2">
+          {tgeRegions.map((region) => (
+            <RegionCard key={region.name} region={region} />
+          ))}
+        </div>
+      </section>
+      <section className="border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 px-4 py-3">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            World Bank Regions
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-gray-500">
+            External reporting and donor-aligned regional grouping.
+          </p>
+        </div>
+        <div className="grid gap-3 p-4 md:grid-cols-2">
+          {wbRegions.map((region) => (
+            <RegionCard key={region.name} region={region} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function CountryQueueCard({
@@ -714,10 +876,31 @@ function CountryMarketsTable({
   );
 }
 
-export default async function PostgresCountryMarketsPage() {
+export default async function PostgresCountryMarketsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<CountryMarketSearchParams>;
+}) {
   const data = await getCountriesData();
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const activeTgeRegion = cleanParam(resolvedSearchParams.tge_region);
+  const activeWbRegion = cleanParam(resolvedSearchParams.wb_region);
+  const allCountries = data.ok ? data.countries : [];
+  const countries = allCountries.filter((country) => {
+    if (activeTgeRegion && country.tge_region !== activeTgeRegion) {
+      return false;
+    }
 
-  const countries = data.ok ? data.countries : [];
+    if (activeWbRegion && country.wb_region !== activeWbRegion) {
+      return false;
+    }
+
+    return true;
+  });
+  const activeRegionLabel =
+    activeTgeRegion || activeWbRegion
+      ? activeTgeRegion || activeWbRegion
+      : "";
   const totals = countries.reduce(
     (acc, country) => ({
       operatingMwe: acc.operatingMwe + country.operating_installed_mwe,
@@ -777,10 +960,10 @@ export default async function PostgresCountryMarketsPage() {
         description="Use these routes for the three main market workflows: country worklists, source-gap cleanup, and benchmark analysis."
         actions={[
           {
-            label: "Worklists",
-            title: "Review country worklists",
-            description: "Drill into projects, plants, and companies by market.",
-            href: "#country-worklist",
+            label: "Regions",
+            title: "Open regional drilldowns",
+            description: "Filter markets by TGE or World Bank region.",
+            href: "#region-drilldown",
           },
           {
             label: "Source Gaps",
@@ -809,6 +992,11 @@ export default async function PostgresCountryMarketsPage() {
                 note: "KPIs",
               },
               {
+                href: "#region-drilldown",
+                label: "Regions",
+                note: "TGE / WB",
+              },
+              {
                 href: "#market-operations",
                 label: "Operations",
                 note: "Queues",
@@ -828,6 +1016,21 @@ export default async function PostgresCountryMarketsPage() {
               description="Coverage, capacity, direct use, source gaps."
               tone="core"
             />
+
+            {activeRegionLabel ? (
+              <div className="flex flex-col gap-3 border border-[#b9d98b] bg-[#f7fbf1] px-4 py-3 text-sm text-[#365f16] sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <span className="font-semibold">Active region filter:</span>{" "}
+                  {activeRegionLabel}
+                </div>
+                <Link
+                  className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
+                  href="/postgres-preview/countries#region-drilldown"
+                >
+                  Clear Region Filter
+                </Link>
+              </div>
+            ) : null}
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <StatTile
@@ -856,6 +1059,17 @@ export default async function PostgresCountryMarketsPage() {
                 value={formatCount(totals.sourceGaps)}
               />
             </div>
+          </section>
+
+          <section id="region-drilldown" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Intelligence"
+              title="Regional Drilldowns"
+              description="TGE editorial regions and World Bank regions built from canonical geography."
+              tone="workflow"
+            />
+
+            <RegionDrilldownLayer allCountries={allCountries} />
           </section>
 
           <section id="market-operations" className="space-y-4 scroll-mt-24">

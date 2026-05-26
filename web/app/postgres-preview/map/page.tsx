@@ -183,7 +183,7 @@ export default async function PostgresPreviewMapPage() {
             label: "Markets",
             title: "Open country signals",
             description: "Move from spatial clusters into country and regional intelligence.",
-            href: "/postgres-preview/countries",
+            href: "/postgres-preview/countries#region-drilldown",
           },
         ]}
       />
@@ -257,7 +257,7 @@ export default async function PostgresPreviewMapPage() {
           description="Map navigation connects back to governed coordinate cleanup."
           tone="workflow"
         />
-        <section className="grid gap-3 md:grid-cols-3">
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <MapWorkflowCard
             description="Review projects and plants that cannot appear on coordinate-confirmed map layers yet."
             href="/postgres-preview/research-ops?queue=missing_coordinates"
@@ -278,6 +278,13 @@ export default async function PostgresPreviewMapPage() {
             label="Plants"
             title="Plant Coordinate Queue"
             tone="info"
+          />
+          <MapWorkflowCard
+            description="Open TGE and World Bank region drilldowns behind the spatial market view."
+            href="/postgres-preview/countries#region-drilldown"
+            label="Regions"
+            title="Regional Market Context"
+            tone="success"
           />
         </section>
       </section>
