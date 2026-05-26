@@ -353,6 +353,7 @@ function ReadinessTable({
           );
           const coreGaps =
             entity.missing_country_count +
+            entity.missing_country_reference_count +
             entity.missing_use_or_status_count +
             entity.missing_capacity_count +
             entity.missing_coordinates_count;
@@ -406,6 +407,7 @@ function ReadinessTable({
                   {formatCount(coreGaps)} total
                   <div className="mt-1 text-xs leading-5 text-gray-500">
                     {formatCount(entity.missing_country_count)} country ·{" "}
+                    {formatCount(entity.missing_country_reference_count)} geo ref ·{" "}
                     {formatCount(entity.missing_use_or_status_count)} class ·{" "}
                     {formatCount(entity.missing_capacity_count)} capacity ·{" "}
                     {formatCount(entity.missing_coordinates_count)} coords
@@ -442,6 +444,7 @@ function ReadinessTable({
               );
               const coreGaps =
                 entity.missing_country_count +
+                entity.missing_country_reference_count +
                 entity.missing_use_or_status_count +
                 entity.missing_capacity_count +
                 entity.missing_coordinates_count;
@@ -498,6 +501,7 @@ function ReadinessTable({
                     <div className="mt-2 text-xs leading-5 text-gray-500">
                       {formatCount(coreGaps)} core gaps:{" "}
                       {formatCount(entity.missing_country_count)} country ·{" "}
+                      {formatCount(entity.missing_country_reference_count)} geo ref ·{" "}
                       {formatCount(entity.missing_use_or_status_count)} class ·{" "}
                       {formatCount(entity.missing_capacity_count)} capacity ·{" "}
                       {formatCount(entity.missing_coordinates_count)} coords
@@ -539,6 +543,8 @@ export default async function PostgresReadinessPage() {
       openIssues: acc.openIssues + entity.open_issue_count,
       criticalIssues: acc.criticalIssues + entity.critical_issue_count,
       needsUpdate: acc.needsUpdate + entity.needs_update_count,
+      geographyReferenceGaps:
+        acc.geographyReferenceGaps + entity.missing_country_reference_count,
     }),
     {
       records: 0,
@@ -547,6 +553,7 @@ export default async function PostgresReadinessPage() {
       openIssues: 0,
       criticalIssues: 0,
       needsUpdate: 0,
+      geographyReferenceGaps: 0,
     }
   );
   const reviewCoverage = share(totals.approved, totals.records);
@@ -645,7 +652,7 @@ export default async function PostgresReadinessPage() {
               tone="core"
             />
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
               <StatTile
                 label="Staged Records"
                 note="Projects, plants, and companies"
@@ -662,6 +669,12 @@ export default async function PostgresReadinessPage() {
                 note="Records without confirmed evidence links"
                 tone={totals.sourceGaps > 0 ? "warning" : "good"}
                 value={formatCount(totals.sourceGaps)}
+              />
+              <StatTile
+                label="Geo Ref Gaps"
+                note="Country text present but not linked to canonical geography"
+                tone={totals.geographyReferenceGaps > 0 ? "warning" : "good"}
+                value={formatCount(totals.geographyReferenceGaps)}
               />
               <StatTile
                 label="Open Issues"

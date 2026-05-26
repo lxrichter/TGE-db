@@ -45,6 +45,8 @@ export type PostgresReplacementReadinessEntity = {
   needs_update_count: number;
   missing_source_count: number;
   missing_country_count: number;
+  canonical_country_linked_count: number;
+  missing_country_reference_count: number;
   missing_use_or_status_count: number;
   missing_capacity_count: number;
   missing_company_link_count: number;
@@ -1833,6 +1835,13 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
       count(*) FILTER (
         WHERE p.country IS NULL OR trim(p.country) = ''
       )::int AS missing_country_count,
+      count(*) FILTER (WHERE p.country_id IS NOT NULL)::int
+        AS canonical_country_linked_count,
+      count(*) FILTER (
+        WHERE p.country_id IS NULL
+          AND p.country IS NOT NULL
+          AND trim(p.country) <> ''
+      )::int AS missing_country_reference_count,
       count(*) FILTER (
         WHERE COALESCE(p.primary_use_type_code, '') IN ('', 'unknown')
           OR COALESCE(p.lifecycle_phase_code, '') IN ('', 'unknown')
@@ -1887,6 +1896,13 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
       count(*) FILTER (
         WHERE a.country IS NULL OR trim(a.country) = ''
       )::int AS missing_country_count,
+      count(*) FILTER (WHERE a.country_id IS NOT NULL)::int
+        AS canonical_country_linked_count,
+      count(*) FILTER (
+        WHERE a.country_id IS NULL
+          AND a.country IS NOT NULL
+          AND trim(a.country) <> ''
+      )::int AS missing_country_reference_count,
       count(*) FILTER (
         WHERE COALESCE(a.primary_use_type_code, '') IN ('', 'unknown')
           OR COALESCE(a.lifecycle_phase_code, '') IN ('', 'unknown')
@@ -1941,6 +1957,13 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
       count(*) FILTER (
         WHERE c.headquarters_country IS NULL OR trim(c.headquarters_country) = ''
       )::int AS missing_country_count,
+      count(*) FILTER (WHERE c.headquarters_country_id IS NOT NULL)::int
+        AS canonical_country_linked_count,
+      count(*) FILTER (
+        WHERE c.headquarters_country_id IS NULL
+          AND c.headquarters_country IS NOT NULL
+          AND trim(c.headquarters_country) <> ''
+      )::int AS missing_country_reference_count,
       count(*) FILTER (
         WHERE COALESCE(c.company_type_primary_code, '') IN ('', 'unknown')
       )::int AS missing_use_or_status_count,
@@ -2034,6 +2057,12 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
       needs_update_count: toNumber(row.needs_update_count),
       missing_source_count: toNumber(row.missing_source_count),
       missing_country_count: toNumber(row.missing_country_count),
+      canonical_country_linked_count: toNumber(
+        row.canonical_country_linked_count
+      ),
+      missing_country_reference_count: toNumber(
+        row.missing_country_reference_count
+      ),
       missing_use_or_status_count: toNumber(row.missing_use_or_status_count),
       missing_capacity_count: toNumber(row.missing_capacity_count),
       missing_company_link_count: toNumber(row.missing_company_link_count),
