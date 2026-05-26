@@ -1445,6 +1445,46 @@ type WorkflowQuickAction = {
   label: string;
   description: string;
   href: string | null;
+  group?: WorkflowQuickActionGroup;
+};
+
+type WorkflowQuickActionGroup =
+  | "record"
+  | "evidence"
+  | "relationships"
+  | "governance";
+
+const workflowQuickActionGroupOrder: WorkflowQuickActionGroup[] = [
+  "record",
+  "evidence",
+  "relationships",
+  "governance",
+];
+
+const workflowQuickActionGroupMeta: Record<
+  WorkflowQuickActionGroup,
+  { eyebrow: string; title: string; description: string }
+> = {
+  record: {
+    eyebrow: "Core",
+    title: "Record Work",
+    description: "Open the saved record and continue core profile review.",
+  },
+  evidence: {
+    eyebrow: "Evidence",
+    title: "Sources And Claims",
+    description: "Attach source records and review evidence-backed claims.",
+  },
+  relationships: {
+    eyebrow: "Workflow",
+    title: "Relationships",
+    description: "Connect companies, projects, plants, ownership, and roles.",
+  },
+  governance: {
+    eyebrow: "Governance",
+    title: "Review And Readiness",
+    description: "Route follow-up work into Research Ops and validation queues.",
+  },
 };
 
 function WorkflowQuickActions({
@@ -1457,6 +1497,12 @@ function WorkflowQuickActions({
   actions: WorkflowQuickAction[];
 }) {
   const saved = actions.some((action) => action.href);
+  const groupedActions = workflowQuickActionGroupOrder
+    .map((group) => ({
+      group,
+      actions: actions.filter((action) => (action.group || "record") === group),
+    }))
+    .filter((group) => group.actions.length > 0);
 
   return (
     <div className="mb-4 border border-blue-100 bg-blue-50 px-4 py-4">
@@ -1477,32 +1523,60 @@ function WorkflowQuickActions({
           </span>
         ) : null}
       </div>
-      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
-        {actions.map((action) =>
-          action.href ? (
-            <Link
-              className="border border-blue-200 bg-white px-3 py-2 text-xs leading-5 text-blue-950 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-              href={action.href}
-              key={action.label}
+      <div className="mt-4 space-y-3">
+        {groupedActions.map(({ group, actions: groupActions }) => {
+          const meta = workflowQuickActionGroupMeta[group];
+
+          return (
+            <section
+              className="border border-blue-100 bg-white/50 px-3 py-3"
+              key={group}
             >
-              <div className="font-bold">{action.label}</div>
-              <div className="mt-0.5 text-blue-800">{action.description}</div>
-            </Link>
-          ) : (
-            <div
-              className="border border-blue-100 bg-white/70 px-3 py-2 text-xs leading-5 text-blue-700 opacity-70"
-              key={action.label}
-            >
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="font-bold">{action.label}</span>
-                <span className="border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
-                  After Save
-                </span>
+              <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-blue-700">
+                    {meta.eyebrow}
+                  </div>
+                  <h4 className="mt-1 text-xs font-bold text-blue-950">
+                    {meta.title}
+                  </h4>
+                </div>
+                <p className="max-w-xl text-[11px] leading-5 text-blue-800">
+                  {meta.description}
+                </p>
               </div>
-              <div className="mt-0.5">{action.description}</div>
-            </div>
-          )
-        )}
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+                {groupActions.map((action) =>
+                  action.href ? (
+                    <Link
+                      className="border border-blue-200 bg-white px-3 py-2 text-xs leading-5 text-blue-950 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      href={action.href}
+                      key={action.label}
+                    >
+                      <div className="font-bold">{action.label}</div>
+                      <div className="mt-0.5 text-blue-800">
+                        {action.description}
+                      </div>
+                    </Link>
+                  ) : (
+                    <div
+                      className="border border-blue-100 bg-white/70 px-3 py-2 text-xs leading-5 text-blue-700 opacity-70"
+                      key={action.label}
+                    >
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-bold">{action.label}</span>
+                        <span className="border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
+                          After Save
+                        </span>
+                      </div>
+                      <div className="mt-0.5">{action.description}</div>
+                    </div>
+                  )
+                )}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </div>
   );
@@ -1543,26 +1617,31 @@ function ProjectWorkflowBridge({
             label: "Open Project",
             description: "Review profile, audit, and readiness.",
             href: projectHref,
+            group: "record",
           },
           {
             label: "Evidence",
             description: "Add source links and field evidence.",
             href: evidenceHref,
+            group: "evidence",
           },
           {
             label: "Company Roles",
             description: "Link developers, owners, operators, suppliers.",
             href: relationshipsHref,
+            group: "relationships",
           },
           {
             label: "Linked Plants",
             description: "Review promotion and plant links.",
             href: linkedAssetHref,
+            group: "relationships",
           },
           {
             label: "Research Ops",
             description: "Create or review operational follow-ups.",
             href: projectHref ? "/postgres-preview/research-ops#persistent-issues" : null,
+            group: "governance",
           },
         ]}
         entityLabel="Project"
@@ -1777,26 +1856,31 @@ function AssetWorkflowBridge({
             label: "Open Plant",
             description: "Review profile, audit, and readiness.",
             href: assetHref,
+            group: "record",
           },
           {
             label: "Evidence",
             description: "Add source links and field evidence.",
             href: evidenceHref,
+            group: "evidence",
           },
           {
             label: "Company Roles",
             description: "Link owners, operators, suppliers, offtakers.",
             href: relationshipsHref,
+            group: "relationships",
           },
           {
             label: "Origin / Units",
             description: "Review originating project and group logic.",
             href: linkedProjectHref,
+            group: "relationships",
           },
           {
             label: "Research Ops",
             description: "Create or review operational follow-ups.",
             href: assetHref ? "/postgres-preview/research-ops#persistent-issues" : null,
+            group: "governance",
           },
         ]}
         entityLabel="Plant"
@@ -2014,21 +2098,25 @@ function CompanyWorkflowBridge({
             label: "Open Company",
             description: "Review profile, audit, and readiness.",
             href: companyHref,
+            group: "record",
           },
           {
             label: "Evidence",
             description: "Add source links and company evidence.",
             href: evidenceHref,
+            group: "evidence",
           },
           {
             label: "Activity Roles",
             description: "Review project and plant roles.",
             href: relationshipsHref,
+            group: "relationships",
           },
           {
             label: "Ownership",
             description: "Review group and company relationships.",
             href: relationshipsHref,
+            group: "relationships",
           },
           {
             label: "Research Ops",
@@ -2036,6 +2124,7 @@ function CompanyWorkflowBridge({
             href: companyHref
               ? "/postgres-preview/research-ops#persistent-issues"
               : null,
+            group: "governance",
           },
         ]}
         entityLabel="Company"
