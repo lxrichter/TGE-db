@@ -5,14 +5,17 @@ import {
   getPostgresPreviewAnalysisSummary,
   getPostgresPreviewSummary,
   getPostgresReplacementReadiness,
+  listPostgresCountryMarketSummaries,
   type PostgresPreviewAnalysisBucket,
   type PostgresPreviewAnalysisSummary,
   type PostgresPreviewSummary,
   type PostgresReplacementReadiness,
+  type PostgresCountryMarketSummary,
 } from "@/lib/postgres-preview";
 import ActionButton from "@/components/ui/ActionButton";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +39,7 @@ type StagingDashboardData =
       summary: PostgresPreviewSummary;
       analysis: PostgresPreviewAnalysisSummary;
       readiness: PostgresReplacementReadiness;
+      countries: PostgresCountryMarketSummary[];
     }
   | {
       ok: false;
@@ -134,10 +138,11 @@ async function getLegacyDashboardStats(): Promise<LegacyDashboardStats> {
 
 async function getStagingDashboardData(): Promise<StagingDashboardData> {
   try {
-    const [summary, analysis, readiness] = await Promise.all([
+    const [summary, analysis, readiness, countries] = await Promise.all([
       getPostgresPreviewSummary(),
       getPostgresPreviewAnalysisSummary(),
       getPostgresReplacementReadiness(),
+      listPostgresCountryMarketSummaries(),
     ]);
 
     return {
@@ -145,6 +150,7 @@ async function getStagingDashboardData(): Promise<StagingDashboardData> {
       summary,
       analysis,
       readiness,
+      countries,
     };
   } catch (error) {
     return {
@@ -809,6 +815,12 @@ export default async function HomePage() {
           <section className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
             <MarketSignalTable analysis={staging.analysis} />
             <div className="space-y-5">
+              <PostgresRegionalWorklistRoutes
+                countries={staging.countries}
+                description="Top regional paths into market context and filtered entity worklists."
+                limit={3}
+                title="Regional Drilldowns"
+              />
               <BucketOverview
                 buckets={staging.analysis.projectLifecycle}
                 href="/postgres-preview/analysis#benchmark-views"

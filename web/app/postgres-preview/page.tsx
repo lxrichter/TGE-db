@@ -1,9 +1,11 @@
 import Link from "next/link";
 import {
   getPostgresPreviewSummary,
+  listPostgresCountryMarketSummaries,
   listPostgresPreviewCompanies,
   listPostgresPreviewOperatingAssets,
   listPostgresPreviewProjects,
+  type PostgresCountryMarketSummary,
   type PostgresPreviewCompany,
   type PostgresPreviewOperatingAsset,
   type PostgresPreviewProject,
@@ -12,6 +14,7 @@ import {
 import { formatCount, formatMw } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +26,7 @@ type PreviewData =
       projects: PostgresPreviewProject[];
       operatingAssets: PostgresPreviewOperatingAsset[];
       companies: PostgresPreviewCompany[];
+      countries: PostgresCountryMarketSummary[];
     }
   | {
       ok: false;
@@ -31,12 +35,14 @@ type PreviewData =
 
 async function getPreviewData(): Promise<PreviewData> {
   try {
-    const [summary, projects, operatingAssets, companies] = await Promise.all([
-      getPostgresPreviewSummary(),
-      listPostgresPreviewProjects(),
-      listPostgresPreviewOperatingAssets(),
-      listPostgresPreviewCompanies(),
-    ]);
+    const [summary, projects, operatingAssets, companies, countries] =
+      await Promise.all([
+        getPostgresPreviewSummary(),
+        listPostgresPreviewProjects(),
+        listPostgresPreviewOperatingAssets(),
+        listPostgresPreviewCompanies(),
+        listPostgresCountryMarketSummaries(),
+      ]);
 
     return {
       ok: true,
@@ -44,6 +50,7 @@ async function getPreviewData(): Promise<PreviewData> {
       projects,
       operatingAssets,
       companies,
+      countries,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
@@ -454,6 +461,7 @@ export default async function PostgresPreviewPage() {
               { href: "#staging-snapshot", label: "Snapshot", note: "Counts" },
               { href: "#entry-path", label: "Entry Path", note: "Where to start" },
               { href: "#work-areas", label: "Work Areas", note: "Modules" },
+              { href: "#regional-routes", label: "Regions", note: "Worklists" },
               { href: "#evidence-review", label: "Evidence", note: "Sources / AI" },
               { href: "#create-inspect", label: "Create", note: "Drafts" },
               { href: "#preview-rows", label: "Preview Rows", note: "Samples" },
@@ -602,6 +610,21 @@ export default async function PostgresPreviewPage() {
                 title="Replacement Readiness"
               />
             </section>
+          </section>
+
+          <section id="regional-routes" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Intelligence"
+              title="Regional Worklist Routes"
+              description="Use canonical geography to move from regional market context into filtered operational worklists."
+              tone="workflow"
+            />
+
+            <PostgresRegionalWorklistRoutes
+              countries={data.countries}
+              description="Regional entry points for market context, project queues, plant queues, and company ecosystem review."
+              limit={4}
+            />
           </section>
 
           <section id="evidence-review" className="space-y-4 scroll-mt-24">
