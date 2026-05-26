@@ -45,24 +45,24 @@ const actionGroupMeta: Record<
   },
   evidence: {
     eyebrow: "Evidence",
-    title: "Sources And Claims",
-    description: "Add, review, or connect evidence before relying on the record.",
+    title: "Sources & Evidence",
+    description: "Add or review source-backed evidence.",
   },
   relationships: {
     eyebrow: "Workflow",
     title: "Relationships",
-    description: "Manage linked companies, projects, plants, and portfolio logic.",
+    description: "Manage linked companies, projects, plants, and roles.",
   },
   governance: {
     eyebrow: "Governance",
     title: "Review And Readiness",
-    description: "Resolve AI review, Research Ops issues, and export readiness.",
+    description: "Resolve AI review, Research Ops issues, and export checks.",
   },
 };
 
 function actionLinkClass(action: PostgresRecordAction) {
   const base =
-    "block border px-4 py-4 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
+    "block border px-3 py-3 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
 
   return `${base} ${actionToneClasses[action.tone]} ${
     action.primary ? "ring-2 ring-[#8dc63f]/20" : ""
@@ -157,16 +157,16 @@ export default function PostgresRecordActionHub({
         </div>
       </div>
 
-      <div className="space-y-4 px-5 py-5">
+      <div className="space-y-3 px-4 py-4 sm:px-5">
         {groupedActions.map(({ group, actions: groupActions }) => {
           const meta = actionGroupMeta[group];
 
           return (
             <section
-              className="border border-gray-200 bg-[#fafafa] px-4 py-4"
+              className="border border-gray-200 bg-[#fafafa] px-3 py-3"
               key={group}
             >
-              <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+              <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
                     {meta.eyebrow}
@@ -179,7 +179,7 @@ export default function PostgresRecordActionHub({
                   {meta.description}
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {groupActions.map((action) => (
                   <Link
                     key={`${action.label}-${action.href}`}
@@ -189,7 +189,7 @@ export default function PostgresRecordActionHub({
                     <div className="text-sm font-bold text-[#1f2937]">
                       {action.label}
                     </div>
-                    <div className="mt-2 text-xs leading-5 text-gray-600">
+                    <div className="mt-1.5 text-xs leading-5 text-gray-600">
                       {action.detail}
                     </div>
                   </Link>
