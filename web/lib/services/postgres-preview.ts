@@ -83,6 +83,7 @@ export type PostgresPreviewMapGroup = {
   representative_id: string;
   country: string | null;
   region: string | null;
+  wb_region?: string | null;
   latitude: number;
   longitude: number;
   record_count: number;
@@ -104,6 +105,12 @@ export type PostgresPreviewAnalysisSummary = {
   operatingAssetStatus: PostgresPreviewAnalysisBucket[];
   useTypeBreakdown: PostgresPreviewAnalysisBucket[];
   topCountries: PostgresCountryMarketSummary[];
+};
+
+export type PostgresPreviewGeographyFilters = {
+  country?: string;
+  tgeRegion?: string;
+  wbRegion?: string;
 };
 
 export type PostgresPreviewProject = {
@@ -2112,7 +2119,8 @@ export async function getPostgresReplacementReadiness(): Promise<PostgresReplace
 }
 
 export async function listPostgresCountryMarketSummaries(
-  limit = 250
+  limit = 250,
+  filters: PostgresPreviewGeographyFilters = {}
 ): Promise<PostgresCountryMarketSummary[]> {
   const rows = await getPrismaClient().$queryRawUnsafe<
     CountryMarketSummaryRow[]
@@ -2335,7 +2343,7 @@ export async function listPostgresCountryMarketSummaries(
     Math.min(Math.max(limit, 1), 500)
   );
 
-  return rows.map((row) => ({
+  const summaries = rows.map((row) => ({
     ...row,
     project_count: toNumber(row.project_count),
     active_project_count: toNumber(row.active_project_count),
@@ -2354,19 +2362,42 @@ export async function listPostgresCountryMarketSummaries(
     missing_source_count: toNumber(row.missing_source_count),
     latest_update_at: normalizeTimestamp(row.latest_update_at),
   }));
+
+  return filterCountryMarketSummaries(summaries, filters);
 }
 
-export async function listPostgresPreviewMapGroups(): Promise<{
+export async function listPostgresPreviewMapGroups(
+  filters: PostgresPreviewGeographyFilters = {}
+): Promise<{
   plants: PostgresPreviewMapGroup[];
   projects: PostgresPreviewMapGroup[];
 }> {
+  const geography = geographyFilterPositions(filters);
+  const assetWhere = geographySqlWhere({
+    filters,
+    rowAlias: "a",
+    countryColumn: "country",
+    regionColumn: "region",
+    wbRegionColumn: "wb_region",
+    positions: geography.positions,
+  });
+  const projectWhere = geographySqlWhere({
+    filters,
+    rowAlias: "p",
+    countryColumn: "country",
+    regionColumn: "region",
+    wbRegionColumn: "wb_region",
+    positions: geography.positions,
+  });
   const [plants, projects] = await Promise.all([
-    getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(`
+    getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(
+      `
       SELECT
         COALESCE(NULLIF(a.project_group, ''), a.asset_name) AS group_name,
         min(a.operating_asset_id)::text AS representative_id,
         COALESCE(cr.country_name, a.country) AS country,
         COALESCE(cr.tge_region, a.region) AS region,
+        COALESCE(cr.wb_region, a.wb_region) AS wb_region,
         avg(a.latitude)::float8 AS latitude,
         avg(a.longitude)::float8 AS longitude,
         count(*)::int AS record_count,
@@ -2380,18 +2411,24 @@ export async function listPostgresPreviewMapGroups(): Promise<{
         ON cr.country_id = a.country_id
       WHERE a.latitude IS NOT NULL
         AND a.longitude IS NOT NULL
+        AND ${assetWhere}
       GROUP BY
         COALESCE(NULLIF(a.project_group, ''), a.asset_name),
         COALESCE(cr.country_name, a.country),
-        COALESCE(cr.tge_region, a.region)
+        COALESCE(cr.tge_region, a.region),
+        COALESCE(cr.wb_region, a.wb_region)
       ORDER BY group_name ASC
-    `),
-    getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(`
+    `,
+      ...geography.values
+    ),
+    getPrismaClient().$queryRawUnsafe<PostgresPreviewMapGroupRow[]>(
+      `
       SELECT
         COALESCE(NULLIF(p.project_group, ''), p.project_name) AS group_name,
         min(p.project_id)::text AS representative_id,
         COALESCE(cr.country_name, p.country) AS country,
         COALESCE(cr.tge_region, p.region) AS region,
+        COALESCE(cr.wb_region, p.wb_region) AS wb_region,
         avg(p.latitude)::float8 AS latitude,
         avg(p.longitude)::float8 AS longitude,
         count(*)::int AS record_count,
@@ -2405,12 +2442,16 @@ export async function listPostgresPreviewMapGroups(): Promise<{
         ON cr.country_id = p.country_id
       WHERE p.latitude IS NOT NULL
         AND p.longitude IS NOT NULL
+        AND ${projectWhere}
       GROUP BY
         COALESCE(NULLIF(p.project_group, ''), p.project_name),
         COALESCE(cr.country_name, p.country),
-        COALESCE(cr.tge_region, p.region)
+        COALESCE(cr.tge_region, p.region),
+        COALESCE(cr.wb_region, p.wb_region)
       ORDER BY group_name ASC
-    `),
+    `,
+      ...geography.values
+    ),
   ]);
 
   const normalizeGroup = (
@@ -2433,10 +2474,52 @@ export async function listPostgresPreviewMapGroups(): Promise<{
   };
 }
 
-export async function getPostgresPreviewAnalysisSummary(): Promise<PostgresPreviewAnalysisSummary> {
+export async function getPostgresPreviewAnalysisSummary(
+  filters: PostgresPreviewGeographyFilters = {}
+): Promise<PostgresPreviewAnalysisSummary> {
+  const geography = geographyFilterPositions(filters);
+  const projectWhere = geographySqlWhere({
+    filters,
+    rowAlias: "p",
+    countryColumn: "country",
+    regionColumn: "region",
+    wbRegionColumn: "wb_region",
+    positions: geography.positions,
+  });
+  const assetWhere = geographySqlWhere({
+    filters,
+    rowAlias: "a",
+    countryColumn: "country",
+    regionColumn: "region",
+    wbRegionColumn: "wb_region",
+    positions: geography.positions,
+  });
   const rows = await getPrismaClient().$queryRawUnsafe<
     PostgresPreviewAnalysisBucketRow[]
-  >(`
+  >(
+    `
+    WITH project_records AS (
+      SELECT
+        p.lifecycle_phase_code,
+        p.primary_use_type_code,
+        p.electric_capacity_mwe,
+        p.thermal_capacity_mwth
+      FROM projects p
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = p.country_id
+      WHERE ${projectWhere}
+    ),
+    asset_records AS (
+      SELECT
+        a.lifecycle_phase_code,
+        a.primary_use_type_code,
+        a.electric_capacity_mwe,
+        a.thermal_capacity_mwth
+      FROM operating_assets a
+      LEFT JOIN countries_reference cr
+        ON cr.country_id = a.country_id
+      WHERE ${assetWhere}
+    )
     SELECT
       'project_lifecycle'::text AS bucket_group,
       p.lifecycle_phase_code AS bucket_code,
@@ -2445,7 +2528,7 @@ export async function getPostgresPreviewAnalysisSummary(): Promise<PostgresPrevi
         AS electric_capacity_mwe,
       sum(COALESCE(p.thermal_capacity_mwth, 0))::float8
         AS thermal_capacity_mwth
-    FROM projects p
+    FROM project_records p
     GROUP BY p.lifecycle_phase_code
 
     UNION ALL
@@ -2458,7 +2541,7 @@ export async function getPostgresPreviewAnalysisSummary(): Promise<PostgresPrevi
         AS electric_capacity_mwe,
       sum(COALESCE(a.thermal_capacity_mwth, 0))::float8
         AS thermal_capacity_mwth
-    FROM operating_assets a
+    FROM asset_records a
     GROUP BY a.lifecycle_phase_code
 
     UNION ALL
@@ -2476,17 +2559,22 @@ export async function getPostgresPreviewAnalysisSummary(): Promise<PostgresPrevi
         primary_use_type_code,
         electric_capacity_mwe,
         thermal_capacity_mwth
-      FROM projects
+      FROM project_records
       UNION ALL
       SELECT
         primary_use_type_code,
         electric_capacity_mwe,
         thermal_capacity_mwth
-      FROM operating_assets
+      FROM asset_records
     ) use_records
     GROUP BY use_records.primary_use_type_code
-  `);
-  const topCountries = await listPostgresCountryMarketSummaries(10);
+  `,
+    ...geography.values
+  );
+  const topCountries = await listPostgresCountryMarketSummaries(
+    hasGeographyFilters(filters) ? 500 : 10,
+    filters
+  );
   const normalizeBucket = (
     row: PostgresPreviewAnalysisBucketRow
   ): PostgresPreviewAnalysisBucket => ({
@@ -2549,6 +2637,105 @@ function toNullableNumber(value: NullableNumeric): number | null {
 
 function toNumber(value: number | bigint | string | null | undefined) {
   return Number(value ?? 0);
+}
+
+function hasGeographyFilters(filters: PostgresPreviewGeographyFilters = {}) {
+  return Boolean(
+    cleanFilterValue(filters.country) ||
+      cleanFilterValue(filters.tgeRegion) ||
+      cleanFilterValue(filters.wbRegion)
+  );
+}
+
+function geographyFilterPositions(filters: PostgresPreviewGeographyFilters = {}) {
+  const values: string[] = [];
+  const positions: {
+    country?: number;
+    tgeRegion?: number;
+    wbRegion?: number;
+  } = {};
+  const country = cleanFilterValue(filters.country);
+  const tgeRegion = cleanFilterValue(filters.tgeRegion);
+  const wbRegion = cleanFilterValue(filters.wbRegion);
+
+  if (country) {
+    values.push(country);
+    positions.country = values.length;
+  }
+
+  if (tgeRegion) {
+    values.push(tgeRegion);
+    positions.tgeRegion = values.length;
+  }
+
+  if (wbRegion) {
+    values.push(wbRegion);
+    positions.wbRegion = values.length;
+  }
+
+  return { values, positions };
+}
+
+function geographySqlWhere({
+  filters,
+  rowAlias,
+  countryColumn,
+  regionColumn,
+  wbRegionColumn,
+  positions,
+}: {
+  filters: PostgresPreviewGeographyFilters;
+  rowAlias: string;
+  countryColumn: string;
+  regionColumn: string;
+  wbRegionColumn: string;
+  positions: {
+    country?: number;
+    tgeRegion?: number;
+    wbRegion?: number;
+  };
+}) {
+  const clauses: string[] = [];
+
+  if (cleanFilterValue(filters.country) && positions.country) {
+    clauses.push(
+      `COALESCE(cr.country_name, NULLIF(trim(${rowAlias}.${countryColumn}), '')) = $${positions.country}`
+    );
+  }
+
+  if (cleanFilterValue(filters.tgeRegion) && positions.tgeRegion) {
+    clauses.push(
+      `COALESCE(cr.tge_region, NULLIF(trim(${rowAlias}.${regionColumn}), '')) = $${positions.tgeRegion}`
+    );
+  }
+
+  if (cleanFilterValue(filters.wbRegion) && positions.wbRegion) {
+    clauses.push(
+      `COALESCE(cr.wb_region, NULLIF(trim(${rowAlias}.${wbRegionColumn}), '')) = $${positions.wbRegion}`
+    );
+  }
+
+  return clauses.length > 0 ? clauses.join("\n      AND ") : "TRUE";
+}
+
+function filterCountryMarketSummaries(
+  rows: PostgresCountryMarketSummary[],
+  filters: PostgresPreviewGeographyFilters = {}
+) {
+  if (!hasGeographyFilters(filters)) {
+    return rows;
+  }
+
+  const country = cleanFilterValue(filters.country);
+  const tgeRegion = cleanFilterValue(filters.tgeRegion);
+  const wbRegion = cleanFilterValue(filters.wbRegion);
+
+  return rows.filter(
+    (row) =>
+      (!country || row.country === country) &&
+      (!tgeRegion || row.tge_region === tgeRegion) &&
+      (!wbRegion || row.wb_region === wbRegion)
+  );
 }
 
 type OpenResearchOpsIssueCountRow = {

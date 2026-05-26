@@ -1,11 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { listPostgresPreviewMapGroups } from "@/lib/postgres-preview";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+function cleanParam(value: string | null) {
+  return value?.trim() || undefined;
+}
+
+export async function GET(request: NextRequest) {
   try {
-    const data = await listPostgresPreviewMapGroups();
+    const data = await listPostgresPreviewMapGroups({
+      country: cleanParam(request.nextUrl.searchParams.get("country")),
+      tgeRegion: cleanParam(request.nextUrl.searchParams.get("tge_region")),
+      wbRegion: cleanParam(request.nextUrl.searchParams.get("wb_region")),
+    });
 
     return NextResponse.json(data, {
       headers: {

@@ -4,6 +4,7 @@ import {
   getPostgresPreviewAnalysisSummary,
   type PostgresPreviewAnalysisBucket,
   type PostgresPreviewAnalysisSummary,
+  type PostgresPreviewGeographyFilters,
 } from "@/lib/postgres-preview";
 import { formatCount, formatMw } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
@@ -26,9 +27,55 @@ type AnalysisData =
       error: string;
     };
 
-async function getAnalysisData(): Promise<AnalysisData> {
+type AnalysisSearchParams = {
+  country?: string;
+  tge_region?: string;
+  wb_region?: string;
+};
+
+function cleanParam(value: string | undefined) {
+  return value?.trim() || undefined;
+}
+
+function getAnalysisFilters(
+  params: AnalysisSearchParams
+): PostgresPreviewGeographyFilters {
+  return {
+    country: cleanParam(params.country),
+    tgeRegion: cleanParam(params.tge_region),
+    wbRegion: cleanParam(params.wb_region),
+  };
+}
+
+function geographyQuery(filters: PostgresPreviewGeographyFilters) {
+  const params = new URLSearchParams();
+
+  if (filters.country) params.set("country", filters.country);
+  if (filters.tgeRegion) params.set("tge_region", filters.tgeRegion);
+  if (filters.wbRegion) params.set("wb_region", filters.wbRegion);
+
+  return params;
+}
+
+function geographyHref(path: string, filters: PostgresPreviewGeographyFilters) {
+  const query = geographyQuery(filters).toString();
+
+  return `${path}${query ? `?${query}` : ""}`;
+}
+
+function geographyLabel(filters: PostgresPreviewGeographyFilters) {
+  if (filters.country) return `Country: ${filters.country}`;
+  if (filters.tgeRegion) return `TGE region: ${filters.tgeRegion}`;
+  if (filters.wbRegion) return `World Bank region: ${filters.wbRegion}`;
+
+  return null;
+}
+
+async function getAnalysisData(
+  filters: PostgresPreviewGeographyFilters
+): Promise<AnalysisData> {
   try {
-    const summary = await getPostgresPreviewAnalysisSummary();
+    const summary = await getPostgresPreviewAnalysisSummary(filters);
 
     return {
       ok: true,
@@ -235,8 +282,15 @@ function BucketTable({
   );
 }
 
-export default async function PostgresAnalysisPreviewPage() {
-  const data = await getAnalysisData();
+export default async function PostgresAnalysisPreviewPage({
+  searchParams,
+}: {
+  searchParams?: Promise<AnalysisSearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const filters = getAnalysisFilters(resolvedSearchParams);
+  const activeGeographyLabel = geographyLabel(filters);
+  const data = await getAnalysisData(filters);
   const summary = data.ok ? data.summary : null;
   const totals = summary
     ? {
@@ -276,6 +330,11 @@ export default async function PostgresAnalysisPreviewPage() {
                 readiness: country capacity, lifecycle, operating status, and
                 use-type distribution.
               </p>
+              {activeGeographyLabel ? (
+                <div className="mt-4 inline-flex min-h-8 items-center border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                  Active analysis view: {activeGeographyLabel}
+                </div>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -286,7 +345,7 @@ export default async function PostgresAnalysisPreviewPage() {
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href="/postgres-preview/countries"
+                href={geographyHref("/postgres-preview/countries", filters)}
               >
                 Countries / Markets
               </Link>
@@ -303,19 +362,19 @@ export default async function PostgresAnalysisPreviewPage() {
             label: "Markets",
             title: "Open Countries / Markets",
             description: "Move from benchmark signals into country and regional intelligence.",
-            href: "/postgres-preview/countries#region-drilldown",
+            href: `${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`,
           },
           {
             label: "Worklists",
             title: "Open project pipeline",
             description: "Inspect the underlying records behind lifecycle and capacity signals.",
-            href: "/postgres-preview/projects",
+            href: geographyHref("/postgres-preview/projects", filters),
           },
           {
             label: "Map",
             title: "Open Map",
             description: "View coordinate-confirmed project and plant groups spatially.",
-            href: "/postgres-preview/map",
+            href: geographyHref("/postgres-preview/map", filters),
           },
         ]}
       />
@@ -343,6 +402,28 @@ export default async function PostgresAnalysisPreviewPage() {
               },
             ]}
           />
+
+          {activeGeographyLabel ? (
+            <section className="border border-[#8dc63f] bg-[#fbfdf8] px-5 py-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                    Filtered Analysis Context
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-gray-700">
+                    {activeGeographyLabel} is applied to benchmark buckets,
+                    country rows, and downstream worklist routes.
+                  </p>
+                </div>
+                <Link
+                  className="inline-flex min-h-9 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  href="/postgres-preview/analysis"
+                >
+                  Clear Filter
+                </Link>
+              </div>
+            </section>
+          ) : null}
 
           <section id="analysis-snapshot" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
@@ -468,6 +549,14 @@ export default async function PostgresAnalysisPreviewPage() {
                         >
                           Project worklist
                         </Link>
+                        <Link
+                          className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                          href={`/postgres-preview/map?country=${encodeURIComponent(
+                            country.country
+                          )}`}
+                        >
+                          Map
+                        </Link>
                       </MobileAnalysisField>
                     </div>
                   </article>
@@ -520,6 +609,14 @@ export default async function PostgresAnalysisPreviewPage() {
                           )}`}
                         >
                           Project worklist
+                        </Link>
+                        <Link
+                          className="mt-2 block text-xs font-semibold text-[#4f7f1f] hover:underline"
+                          href={`/postgres-preview/map?country=${encodeURIComponent(
+                            country.country
+                          )}`}
+                        >
+                          Map
                         </Link>
                       </td>
                     </tr>

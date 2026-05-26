@@ -4,7 +4,10 @@ import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEnti
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import { formatCount, formatMw } from "@/lib/format";
-import { listPostgresPreviewMapGroups } from "@/lib/postgres-preview";
+import {
+  listPostgresPreviewMapGroups,
+  type PostgresPreviewGeographyFilters,
+} from "@/lib/postgres-preview";
 import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +22,53 @@ type MapSummary = {
   regionCount: number;
 };
 
-async function getMapSummary(): Promise<MapSummary | null> {
+type MapSearchParams = {
+  country?: string;
+  tge_region?: string;
+  wb_region?: string;
+};
+
+function cleanParam(value: string | undefined) {
+  return value?.trim() || undefined;
+}
+
+function getMapFilters(params: MapSearchParams): PostgresPreviewGeographyFilters {
+  return {
+    country: cleanParam(params.country),
+    tgeRegion: cleanParam(params.tge_region),
+    wbRegion: cleanParam(params.wb_region),
+  };
+}
+
+function geographyQuery(filters: PostgresPreviewGeographyFilters) {
+  const params = new URLSearchParams();
+
+  if (filters.country) params.set("country", filters.country);
+  if (filters.tgeRegion) params.set("tge_region", filters.tgeRegion);
+  if (filters.wbRegion) params.set("wb_region", filters.wbRegion);
+
+  return params;
+}
+
+function geographyLabel(filters: PostgresPreviewGeographyFilters) {
+  if (filters.country) return `Country: ${filters.country}`;
+  if (filters.tgeRegion) return `TGE region: ${filters.tgeRegion}`;
+  if (filters.wbRegion) return `World Bank region: ${filters.wbRegion}`;
+
+  return null;
+}
+
+function geographyHref(path: string, filters: PostgresPreviewGeographyFilters) {
+  const query = geographyQuery(filters).toString();
+
+  return `${path}${query ? `?${query}` : ""}`;
+}
+
+async function getMapSummary(
+  filters: PostgresPreviewGeographyFilters
+): Promise<MapSummary | null> {
   try {
-    const data = await listPostgresPreviewMapGroups();
+    const data = await listPostgresPreviewMapGroups(filters);
     const allGroups = [...data.plants, ...data.projects];
     const countries = new Set(
       allGroups.map((group) => group.country).filter(Boolean)
@@ -102,8 +149,16 @@ function MapWorkflowCard({
   );
 }
 
-export default async function PostgresPreviewMapPage() {
-  const summary = await getMapSummary();
+export default async function PostgresPreviewMapPage({
+  searchParams,
+}: {
+  searchParams?: Promise<MapSearchParams>;
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const filters = getMapFilters(resolvedSearchParams);
+  const activeGeographyLabel = geographyLabel(filters);
+  const mapApiPath = geographyHref("/api/postgres-preview/map", filters);
+  const summary = await getMapSummary(filters);
 
   return (
     <main className="space-y-8">
@@ -121,6 +176,11 @@ export default async function PostgresPreviewMapPage() {
                 Coordinate-confirmed project and plant groups. Records
                 without coordinates stay in Research Ops queues.
               </p>
+              {activeGeographyLabel ? (
+                <div className="mt-4 inline-flex min-h-8 items-center border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                  Active view: {activeGeographyLabel}
+                </div>
+              ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
@@ -154,6 +214,13 @@ export default async function PostgresPreviewMapPage() {
               <span className="mx-2 text-gray-300">|</span>
               Projects and Plants
             </span>
+            {activeGeographyLabel ? (
+              <span>
+                <span className="font-medium text-[#1f2937]">Geography</span>
+                <span className="mx-2 text-gray-300">|</span>
+                {activeGeographyLabel}
+              </span>
+            ) : null}
             <span>
               <span className="font-medium text-[#1f2937]">Missing Coordinates</span>
               <span className="mx-2 text-gray-300">|</span>
@@ -181,9 +248,11 @@ export default async function PostgresPreviewMapPage() {
           },
           {
             label: "Markets",
-            title: "Open country signals",
+            title: activeGeographyLabel
+              ? "Open filtered market context"
+              : "Open country signals",
             description: "Move from spatial clusters into country and regional intelligence.",
-            href: "/postgres-preview/countries#region-drilldown",
+            href: `${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`,
           },
         ]}
       />
@@ -267,23 +336,27 @@ export default async function PostgresPreviewMapPage() {
           />
           <MapWorkflowCard
             description="Filter projects missing coordinates."
-            href="/postgres-preview/projects?missing=coordinates"
+            href={`${geographyHref("/postgres-preview/projects", filters)}${
+              geographyQuery(filters).toString() ? "&" : "?"
+            }missing=coordinates`}
             label="Projects"
             title="Project Coordinate Queue"
             tone="info"
           />
           <MapWorkflowCard
             description="Filter plants missing coordinates."
-            href="/postgres-preview/operating-assets?missing=coordinates"
+            href={`${geographyHref("/postgres-preview/operating-assets", filters)}${
+              geographyQuery(filters).toString() ? "&" : "?"
+            }missing=coordinates`}
             label="Plants"
             title="Plant Coordinate Queue"
             tone="info"
           />
           <MapWorkflowCard
             description="Open TGE and World Bank region drilldowns behind the spatial market view."
-            href="/postgres-preview/countries#region-drilldown"
+            href={`${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`}
             label="Regions"
-            title="Regional Market Context"
+            title={activeGeographyLabel || "Regional Market Context"}
             tone="success"
           />
         </section>
@@ -297,7 +370,7 @@ export default async function PostgresPreviewMapPage() {
           tone="core"
         />
         <GroupedMap
-          apiPath="/api/postgres-preview/map"
+          apiPath={mapApiPath}
           detailPathMode="postgres-preview"
         />
       </section>
