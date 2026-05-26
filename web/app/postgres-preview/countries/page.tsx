@@ -225,6 +225,18 @@ function CountryWorklistLinks({
     <div className="mt-2 flex flex-wrap gap-3 text-xs">
       <Link
         className="font-semibold text-[#4f7f1f] hover:underline"
+        href={countryQueryHref("/postgres-preview/analysis", country)}
+      >
+        Analysis
+      </Link>
+      <Link
+        className="font-semibold text-[#4f7f1f] hover:underline"
+        href={countryQueryHref("/postgres-preview/map", country)}
+      >
+        Map
+      </Link>
+      <Link
+        className="font-semibold text-[#4f7f1f] hover:underline"
         href={countryWorklistHref("/postgres-preview/projects", country, query)}
       >
         Projects
@@ -751,6 +763,24 @@ function CountryMarketsTable({
                   <Link
                     className="text-xs font-semibold text-[#4f7f1f] hover:underline"
                     href={countryQueryHref(
+                      "/postgres-preview/analysis",
+                      country.country
+                    )}
+                  >
+                    Analysis
+                  </Link>
+                  <Link
+                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
+                      "/postgres-preview/map",
+                      country.country
+                    )}
+                  >
+                    Map
+                  </Link>
+                  <Link
+                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    href={countryQueryHref(
                       "/postgres-preview/projects",
                       country.country
                     )}
@@ -904,6 +934,24 @@ function CountryMarketsTable({
                 </td>
                 <td className="px-5 py-4">
                   <div className="grid gap-1">
+                    <Link
+                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/analysis",
+                        country.country
+                      )}
+                    >
+                      Analysis
+                    </Link>
+                    <Link
+                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/map",
+                        country.country
+                      )}
+                    >
+                      Map
+                    </Link>
                     <Link
                       className="text-xs font-semibold text-[#4f7f1f] hover:underline"
                       href={countryQueryHref(
