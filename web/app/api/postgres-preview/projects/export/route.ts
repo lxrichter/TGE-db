@@ -57,6 +57,8 @@ function projectFiltersFromSearchParams(
   return {
     search: cleanParam(searchParams.get("search")),
     country: cleanParam(searchParams.get("country")),
+    tgeRegion: cleanParam(searchParams.get("tge_region")),
+    wbRegion: cleanParam(searchParams.get("wb_region")),
     reviewStatus: cleanParam(searchParams.get("review")),
     useType: cleanParam(searchParams.get("use")),
     status: cleanParam(searchParams.get("status")),

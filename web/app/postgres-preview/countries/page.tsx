@@ -71,6 +71,18 @@ function marketRegionHref(
   return `/postgres-preview/countries?${params.toString()}#market-operations`;
 }
 
+function regionWorklistHref(
+  path: string,
+  regionKind: RegionSummary["kind"],
+  regionName: string
+) {
+  const params = new URLSearchParams();
+
+  params.set(regionKind === "tge" ? "tge_region" : "wb_region", regionName);
+
+  return `${path}?${params.toString()}`;
+}
+
 function countryQueryHref(path: string, country: string) {
   const params = new URLSearchParams({ country });
 
@@ -305,31 +317,33 @@ function aggregateRegions(
 
 function RegionCard({ region }: { region: RegionSummary }) {
   return (
-    <Link
-      className="block border border-gray-200 bg-white px-4 py-4 hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
-      href={marketRegionHref(region.kind, region.name)}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            {region.kind === "tge" ? "TGE Region" : "World Bank Region"}
+    <div className="border border-gray-200 bg-white px-4 py-4">
+      <Link
+        className="block hover:text-[#4f7d20]"
+        href={marketRegionHref(region.kind, region.name)}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {region.kind === "tge" ? "TGE Region" : "World Bank Region"}
+            </div>
+            <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
+            <div className="mt-2 text-xs leading-5 text-gray-500">
+              {formatCount(region.countryCount)} countries ·{" "}
+              {formatCount(region.recordCount)} records
+            </div>
           </div>
-          <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
-          <div className="mt-2 text-xs leading-5 text-gray-500">
-            {formatCount(region.countryCount)} countries ·{" "}
-            {formatCount(region.recordCount)} records
-          </div>
+          <span
+            className={`inline-flex min-h-7 shrink-0 items-center border px-2 text-xs font-semibold ${
+              region.sourceGaps > 0
+                ? "border-amber-200 bg-amber-50 text-amber-700"
+                : "border-emerald-200 bg-emerald-50 text-emerald-700"
+            }`}
+          >
+            {formatCount(region.sourceGaps)} gaps
+          </span>
         </div>
-        <span
-          className={`inline-flex min-h-7 shrink-0 items-center border px-2 text-xs font-semibold ${
-            region.sourceGaps > 0
-              ? "border-amber-200 bg-amber-50 text-amber-700"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700"
-          }`}
-        >
-          {formatCount(region.sourceGaps)} gaps
-        </span>
-      </div>
+      </Link>
       <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
         <div className="border border-gray-200 bg-[#f7f7f7] px-2 py-2">
           <div className="font-semibold text-[#1f2937]">
@@ -344,7 +358,39 @@ function RegionCard({ region }: { region: RegionSummary }) {
           <div className="mt-1 text-gray-500">pipeline</div>
         </div>
       </div>
-    </Link>
+      <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold">
+        <Link
+          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          href={regionWorklistHref(
+            "/postgres-preview/projects",
+            region.kind,
+            region.name
+          )}
+        >
+          Projects
+        </Link>
+        <Link
+          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          href={regionWorklistHref(
+            "/postgres-preview/operating-assets",
+            region.kind,
+            region.name
+          )}
+        >
+          Plants
+        </Link>
+        <Link
+          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          href={regionWorklistHref(
+            "/postgres-preview/companies",
+            region.kind,
+            region.name
+          )}
+        >
+          Companies
+        </Link>
+      </div>
+    </div>
   );
 }
 

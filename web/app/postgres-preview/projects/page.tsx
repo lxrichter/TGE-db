@@ -35,6 +35,8 @@ type PreviewListSearchParams = {
   density?: string;
   search?: string;
   country?: string;
+  tge_region?: string;
+  wb_region?: string;
   review?: string;
   use?: string;
   status?: string;
@@ -121,6 +123,8 @@ function getProjectFilters(
   return {
     search: cleanParam(params.search),
     country: cleanParam(params.country),
+    tgeRegion: cleanParam(params.tge_region),
+    wbRegion: cleanParam(params.wb_region),
     reviewStatus: cleanParam(params.review),
     useType: cleanParam(params.use),
     status: cleanParam(params.status),
@@ -173,6 +177,8 @@ export default async function PostgresProjectsListPage({
   const exportHref = previewQueryHref("/api/postgres-preview/projects/export", {
     search: exportFilters.search,
     country: exportFilters.country,
+    tge_region: exportFilters.tgeRegion,
+    wb_region: exportFilters.wbRegion,
     review: exportFilters.reviewStatus,
     use: exportFilters.useType,
     status: exportFilters.status,
@@ -182,6 +188,8 @@ export default async function PostgresProjectsListPage({
     ? {
         search: data.filters.search,
         country: data.filters.country,
+        tge_region: data.filters.tgeRegion,
+        wb_region: data.filters.wbRegion,
         review: data.filters.reviewStatus,
         use: data.filters.useType,
         status: data.filters.status,
@@ -200,6 +208,12 @@ export default async function PostgresProjectsListPage({
   const useOptions = data.ok ? previewFilterOptions(data.facets.useTypes) : [];
   const statusOptions = data.ok ? previewFilterOptions(data.facets.statuses) : [];
   const countryOptions = data.ok ? previewFilterOptions(data.facets.countries) : [];
+  const tgeRegionOptions = data.ok
+    ? previewFilterOptions(data.facets.tgeRegions)
+    : [];
+  const wbRegionOptions = data.ok
+    ? previewFilterOptions(data.facets.wbRegions)
+    : [];
   const activeFilters: PreviewActiveFilter[] = data.ok
     ? [
         data.filters.search
@@ -211,6 +225,24 @@ export default async function PostgresProjectsListPage({
               value:
                 previewFilterOptionLabel(countryOptions, data.filters.country) ||
                 data.filters.country,
+            }
+          : null,
+        data.filters.tgeRegion
+          ? {
+              label: "TGE Region",
+              value:
+                previewFilterOptionLabel(
+                  tgeRegionOptions,
+                  data.filters.tgeRegion
+                ) || data.filters.tgeRegion,
+            }
+          : null,
+        data.filters.wbRegion
+          ? {
+              label: "WB Region",
+              value:
+                previewFilterOptionLabel(wbRegionOptions, data.filters.wbRegion) ||
+                data.filters.wbRegion,
             }
           : null,
         data.filters.reviewStatus
@@ -329,6 +361,20 @@ export default async function PostgresProjectsListPage({
                 options: countryOptions,
               },
               {
+                name: "tge_region",
+                label: "TGE Region",
+                value: data.filters.tgeRegion,
+                placeholder: "All TGE Regions",
+                options: tgeRegionOptions,
+              },
+              {
+                name: "wb_region",
+                label: "WB Region",
+                value: data.filters.wbRegion,
+                placeholder: "All WB Regions",
+                options: wbRegionOptions,
+              },
+              {
                 name: "review",
                 label: "Review",
                 value: data.filters.reviewStatus,
@@ -378,6 +424,8 @@ export default async function PostgresProjectsListPage({
               query: {
                 search: data.filters.search,
                 country: data.filters.country,
+                tge_region: data.filters.tgeRegion,
+                wb_region: data.filters.wbRegion,
                 review: data.filters.reviewStatus,
                 use: data.filters.useType,
                 status: data.filters.status,

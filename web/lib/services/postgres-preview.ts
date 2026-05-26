@@ -177,6 +177,8 @@ export type PostgresPreviewCompany = {
 export type PostgresPreviewProjectListFilters = {
   search?: string;
   country?: string;
+  tgeRegion?: string;
+  wbRegion?: string;
   countryReferenceIds?: string[];
   reviewStatus?: string;
   useType?: string;
@@ -188,6 +190,8 @@ export type PostgresPreviewProjectListFilters = {
 export type PostgresPreviewOperatingAssetListFilters = {
   search?: string;
   country?: string;
+  tgeRegion?: string;
+  wbRegion?: string;
   countryReferenceIds?: string[];
   reviewStatus?: string;
   useType?: string;
@@ -199,6 +203,8 @@ export type PostgresPreviewOperatingAssetListFilters = {
 export type PostgresPreviewCompanyListFilters = {
   search?: string;
   country?: string;
+  tgeRegion?: string;
+  wbRegion?: string;
   countryReferenceIds?: string[];
   reviewStatus?: string;
   companyType?: string;
@@ -208,6 +214,8 @@ export type PostgresPreviewCompanyListFilters = {
 
 export type PostgresPreviewListFacets = {
   countries: string[];
+  tgeRegions: string[];
+  wbRegions: string[];
   reviewStatuses: string[];
   useTypes: string[];
   statuses: string[];
@@ -2652,12 +2660,37 @@ async function resolveResearchIssueFilter<T extends { missing?: string }>({
 }
 
 async function resolveCountryReferenceFilter<
-  T extends { country?: string; countryReferenceIds?: string[] }
+  T extends {
+    country?: string;
+    tgeRegion?: string;
+    wbRegion?: string;
+    countryReferenceIds?: string[];
+  }
 >(filters: T): Promise<T> {
   const country = cleanFilterValue(filters.country);
+  const tgeRegion = cleanFilterValue(filters.tgeRegion);
+  const wbRegion = cleanFilterValue(filters.wbRegion);
 
-  if (!country) {
+  if (!country && !tgeRegion && !wbRegion) {
     return filters;
+  }
+
+  const clauses: string[] = ["is_active = TRUE"];
+  const values: string[] = [];
+
+  if (country) {
+    values.push(country);
+    clauses.push(`country_name = $${values.length}`);
+  }
+
+  if (tgeRegion) {
+    values.push(tgeRegion);
+    clauses.push(`tge_region = $${values.length}`);
+  }
+
+  if (wbRegion) {
+    values.push(wbRegion);
+    clauses.push(`wb_region = $${values.length}`);
   }
 
   const rows = await getPrismaClient().$queryRawUnsafe<
@@ -2666,10 +2699,9 @@ async function resolveCountryReferenceFilter<
     `
     SELECT country_id::text
     FROM countries_reference
-    WHERE country_name = $1
-      AND is_active = TRUE
+    WHERE ${clauses.join("\n      AND ")}
     `,
-    country
+    ...values
   );
 
   return {
@@ -2739,6 +2771,8 @@ function buildProjectListWhere(
 ): Prisma.projectsWhereInput {
   const search = cleanFilterValue(filters.search);
   const country = cleanFilterValue(filters.country);
+  const tgeRegion = cleanFilterValue(filters.tgeRegion);
+  const wbRegion = cleanFilterValue(filters.wbRegion);
   const reviewStatus = cleanFilterValue(filters.reviewStatus);
   const useType = cleanFilterValue(filters.useType);
   const status = cleanFilterValue(filters.status);
@@ -2761,13 +2795,27 @@ function buildProjectListWhere(
     });
   }
 
-  if (country) {
+  if (country || tgeRegion || wbRegion) {
+    const fallbackAnd: Prisma.projectsWhereInput[] = [];
+
+    if (country) {
+      fallbackAnd.push({ country });
+    }
+
+    if (tgeRegion) {
+      fallbackAnd.push({ region: tgeRegion });
+    }
+
+    if (wbRegion) {
+      fallbackAnd.push({ wb_region: wbRegion });
+    }
+
     and.push({
       OR: [
         ...(countryReferenceIds.length > 0
           ? [{ country_id: { in: countryReferenceIds } }]
           : []),
-        { country },
+        ...(fallbackAnd.length > 0 ? [{ AND: fallbackAnd }] : []),
       ],
     });
   }
@@ -2826,6 +2874,8 @@ function buildOperatingAssetListWhere(
 ): Prisma.operating_assetsWhereInput {
   const search = cleanFilterValue(filters.search);
   const country = cleanFilterValue(filters.country);
+  const tgeRegion = cleanFilterValue(filters.tgeRegion);
+  const wbRegion = cleanFilterValue(filters.wbRegion);
   const reviewStatus = cleanFilterValue(filters.reviewStatus);
   const useType = cleanFilterValue(filters.useType);
   const status = cleanFilterValue(filters.status);
@@ -2848,13 +2898,27 @@ function buildOperatingAssetListWhere(
     });
   }
 
-  if (country) {
+  if (country || tgeRegion || wbRegion) {
+    const fallbackAnd: Prisma.operating_assetsWhereInput[] = [];
+
+    if (country) {
+      fallbackAnd.push({ country });
+    }
+
+    if (tgeRegion) {
+      fallbackAnd.push({ region: tgeRegion });
+    }
+
+    if (wbRegion) {
+      fallbackAnd.push({ wb_region: wbRegion });
+    }
+
     and.push({
       OR: [
         ...(countryReferenceIds.length > 0
           ? [{ country_id: { in: countryReferenceIds } }]
           : []),
-        { country },
+        ...(fallbackAnd.length > 0 ? [{ AND: fallbackAnd }] : []),
       ],
     });
   }
@@ -2916,6 +2980,8 @@ function buildCompanyListWhere(
 ): Prisma.companiesWhereInput {
   const search = cleanFilterValue(filters.search);
   const country = cleanFilterValue(filters.country);
+  const tgeRegion = cleanFilterValue(filters.tgeRegion);
+  const wbRegion = cleanFilterValue(filters.wbRegion);
   const reviewStatus = cleanFilterValue(filters.reviewStatus);
   const companyType = cleanFilterValue(filters.companyType);
   const missing = cleanFilterValue(filters.missing);
@@ -2938,13 +3004,27 @@ function buildCompanyListWhere(
     });
   }
 
-  if (country) {
+  if (country || tgeRegion || wbRegion) {
+    const fallbackAnd: Prisma.companiesWhereInput[] = [];
+
+    if (country) {
+      fallbackAnd.push({ headquarters_country: country });
+    }
+
+    if (tgeRegion) {
+      fallbackAnd.push({ region: tgeRegion });
+    }
+
+    if (wbRegion) {
+      fallbackAnd.push({ wb_region: wbRegion });
+    }
+
     and.push({
       OR: [
         ...(countryReferenceIds.length > 0
           ? [{ headquarters_country_id: { in: countryReferenceIds } }]
           : []),
-        { headquarters_country: country },
+        ...(fallbackAnd.length > 0 ? [{ AND: fallbackAnd }] : []),
       ],
     });
   }
@@ -3288,10 +3368,33 @@ async function listReferencedCountryFacetValues(
   );
 }
 
+async function listCountryReferenceRegionFacetValues(
+  regionColumn: "tge_region" | "wb_region"
+): Promise<Array<{ region: string | null }>> {
+  return getPrismaClient().$queryRawUnsafe<Array<{ region: string | null }>>(
+    `
+    SELECT DISTINCT ${regionColumn} AS region
+    FROM countries_reference
+    WHERE is_active = TRUE
+      AND NULLIF(trim(${regionColumn}), '') IS NOT NULL
+    ORDER BY region ASC
+    `
+  );
+}
+
 export async function getPostgresPreviewProjectListFacets(): Promise<PostgresPreviewListFacets> {
   const prisma = getPrismaClient();
-  const [countries, reviewStatuses, useTypes, statuses] = await Promise.all([
+  const [
+    countries,
+    tgeRegions,
+    wbRegions,
+    reviewStatuses,
+    useTypes,
+    statuses,
+  ] = await Promise.all([
     listReferencedCountryFacetValues("projects"),
+    listCountryReferenceRegionFacetValues("tge_region"),
+    listCountryReferenceRegionFacetValues("wb_region"),
     prisma.projects.findMany({
       distinct: ["review_status_code"],
       orderBy: { review_status_code: "asc" },
@@ -3311,6 +3414,8 @@ export async function getPostgresPreviewProjectListFacets(): Promise<PostgresPre
 
   return {
     countries: compactFacetValues(countries),
+    tgeRegions: compactFacetValues(tgeRegions),
+    wbRegions: compactFacetValues(wbRegions),
     reviewStatuses: compactFacetValues(reviewStatuses),
     useTypes: compactFacetValues(useTypes),
     statuses: compactFacetValues(statuses),
@@ -3320,8 +3425,17 @@ export async function getPostgresPreviewProjectListFacets(): Promise<PostgresPre
 
 export async function getPostgresPreviewOperatingAssetListFacets(): Promise<PostgresPreviewListFacets> {
   const prisma = getPrismaClient();
-  const [countries, reviewStatuses, useTypes, statuses] = await Promise.all([
+  const [
+    countries,
+    tgeRegions,
+    wbRegions,
+    reviewStatuses,
+    useTypes,
+    statuses,
+  ] = await Promise.all([
     listReferencedCountryFacetValues("operating_assets"),
+    listCountryReferenceRegionFacetValues("tge_region"),
+    listCountryReferenceRegionFacetValues("wb_region"),
     prisma.operating_assets.findMany({
       distinct: ["review_status_code"],
       orderBy: { review_status_code: "asc" },
@@ -3341,6 +3455,8 @@ export async function getPostgresPreviewOperatingAssetListFacets(): Promise<Post
 
   return {
     countries: compactFacetValues(countries),
+    tgeRegions: compactFacetValues(tgeRegions),
+    wbRegions: compactFacetValues(wbRegions),
     reviewStatuses: compactFacetValues(reviewStatuses),
     useTypes: compactFacetValues(useTypes),
     statuses: compactFacetValues(statuses),
@@ -3350,8 +3466,11 @@ export async function getPostgresPreviewOperatingAssetListFacets(): Promise<Post
 
 export async function getPostgresPreviewCompanyListFacets(): Promise<PostgresPreviewListFacets> {
   const prisma = getPrismaClient();
-  const [countries, reviewStatuses, companyTypes] = await Promise.all([
+  const [countries, tgeRegions, wbRegions, reviewStatuses, companyTypes] =
+    await Promise.all([
     listReferencedCountryFacetValues("companies"),
+    listCountryReferenceRegionFacetValues("tge_region"),
+    listCountryReferenceRegionFacetValues("wb_region"),
     prisma.companies.findMany({
       distinct: ["review_status_code"],
       orderBy: { review_status_code: "asc" },
@@ -3366,6 +3485,8 @@ export async function getPostgresPreviewCompanyListFacets(): Promise<PostgresPre
 
   return {
     countries: compactFacetValues(countries),
+    tgeRegions: compactFacetValues(tgeRegions),
+    wbRegions: compactFacetValues(wbRegions),
     reviewStatuses: compactFacetValues(reviewStatuses),
     useTypes: [],
     statuses: [],

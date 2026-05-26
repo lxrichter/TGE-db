@@ -47,6 +47,8 @@ function companyFiltersFromSearchParams(
   return {
     search: cleanParam(searchParams.get("search")),
     country: cleanParam(searchParams.get("country")),
+    tgeRegion: cleanParam(searchParams.get("tge_region")),
+    wbRegion: cleanParam(searchParams.get("wb_region")),
     reviewStatus: cleanParam(searchParams.get("review")),
     companyType: cleanParam(searchParams.get("companyType")),
     missing: cleanParam(searchParams.get("missing")),
