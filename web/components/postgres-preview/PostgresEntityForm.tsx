@@ -1540,7 +1540,7 @@ function ProjectWorkflowBridge({
       <WorkflowQuickActions
         actions={[
           {
-            label: "Record Detail",
+            label: "Open Project",
             description: "Review profile, audit, and readiness.",
             href: projectHref,
           },
@@ -1583,7 +1583,7 @@ function ProjectWorkflowBridge({
                 className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={evidenceHref}
               >
-                Add / Review Evidence
+                Add / Review Project Evidence
               </Link>
             ) : (
               <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
@@ -1774,7 +1774,7 @@ function AssetWorkflowBridge({
       <WorkflowQuickActions
         actions={[
           {
-            label: "Record Detail",
+            label: "Open Plant",
             description: "Review profile, audit, and readiness.",
             href: assetHref,
           },
@@ -1817,7 +1817,7 @@ function AssetWorkflowBridge({
                 className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={evidenceHref}
               >
-                Add / Review Evidence
+                Add / Review Plant Evidence
               </Link>
             ) : (
               <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
@@ -2011,7 +2011,7 @@ function CompanyWorkflowBridge({
       <WorkflowQuickActions
         actions={[
           {
-            label: "Record Detail",
+            label: "Open Company",
             description: "Review profile, audit, and readiness.",
             href: companyHref,
           },
@@ -2057,7 +2057,7 @@ function CompanyWorkflowBridge({
                 className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
                 href={evidenceHref}
               >
-                Add / Review Evidence
+                Add / Review Company Evidence
               </Link>
             ) : (
               <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">

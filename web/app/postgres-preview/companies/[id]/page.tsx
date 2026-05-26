@@ -481,7 +481,7 @@ function CompanyActionHub({
 
   if (canEditRecord) {
     actions.push({
-      label: "Edit Core Fields",
+      label: "Edit Company",
       detail:
         "Update identity, classification, HQ details, website, market focus, and notes.",
       href: `/postgres-preview/companies/${company.company_id}/edit`,
@@ -516,7 +516,10 @@ function CompanyActionHub({
   });
 
   actions.push({
-    label: company.sources.length === 0 ? "Add Evidence" : "Review Evidence",
+    label:
+      company.sources.length === 0
+        ? "Add Company Evidence"
+        : "Review Company Evidence",
     detail:
       company.sources.length === 0
         ? "Open source creation with this company preselected as the linked target."

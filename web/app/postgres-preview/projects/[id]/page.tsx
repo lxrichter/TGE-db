@@ -374,7 +374,7 @@ function ProjectActionHub({
 
   if (canEditRecord) {
     actions.push({
-      label: "Edit Core Fields",
+      label: "Edit Project",
       detail: "Update identity, location, lifecycle, use type, capacity, and notes.",
       href: `/postgres-preview/projects/${project.project_id}/edit`,
       tone: blockers.length > 0 || warnings.length > 0 ? "warning" : "neutral",
@@ -383,7 +383,10 @@ function ProjectActionHub({
   }
 
   actions.push({
-    label: project.sources.length === 0 ? "Add Evidence" : "Review Evidence",
+    label:
+      project.sources.length === 0
+        ? "Add Project Evidence"
+        : "Review Project Evidence",
     detail:
       project.sources.length === 0
         ? "Open source creation with this project preselected as the linked target."

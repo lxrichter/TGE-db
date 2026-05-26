@@ -377,7 +377,7 @@ function AssetActionHub({
 
   if (canEditRecord) {
     actions.push({
-      label: "Edit Core Fields",
+      label: "Edit Plant",
       detail:
         "Update identity, location, operating status, use type, COD, capacity, and notes.",
       href: `/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`,
@@ -397,7 +397,10 @@ function AssetActionHub({
   });
 
   actions.push({
-    label: asset.sources.length === 0 ? "Add Evidence" : "Review Evidence",
+    label:
+      asset.sources.length === 0
+        ? "Add Plant Evidence"
+        : "Review Plant Evidence",
     detail:
       asset.sources.length === 0
         ? "Open source creation with this plant preselected as the linked target."
