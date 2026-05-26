@@ -332,7 +332,7 @@ panels are also paginated client-side, while the route keeps its server-side
 filters and page navigation.
 
 The PostgreSQL entity workflow now includes staging-only create/edit scaffolds
-for Projects, Plants / Facilities, and Companies under `/postgres-preview`.
+for Projects, Plants, and Companies under `/postgres-preview`.
 These routes write to Railway PostgreSQL and are intentionally separate from the
 current SQLite prototype routes under `/projects`, `/plants`, and `/companies`.
 The forms include live readiness panels for critical and important missing-data

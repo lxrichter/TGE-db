@@ -344,7 +344,7 @@ function AssetGovernanceOverview({
       <GovernanceLifecyclePanel
         description="Operational readiness of this plant across identity, operating status, evidence, validation, and AI-assisted review."
         steps={lifecycleSteps}
-        title="Facility Readiness"
+        title="Plant Readiness"
       />
     </section>
   );

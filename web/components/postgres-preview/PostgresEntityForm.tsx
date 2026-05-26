@@ -1799,7 +1799,7 @@ function AssetWorkflowBridge({
             href: assetHref ? "/postgres-preview/research-ops#persistent-issues" : null,
           },
         ]}
-        entityLabel="Plant / facility"
+        entityLabel="Plant"
         mode={mode}
       />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
@@ -1860,7 +1860,7 @@ function AssetWorkflowBridge({
           <p className="mt-2 text-xs leading-5 text-gray-600">
             Owner, operator, developer, turbine supplier, EPC, drilling
             contractor, direct-use operator, and offtaker roles are structured
-            relationship records, not free-text asset fields.
+            relationship records, not free-text plant fields.
           </p>
           <div className="mt-3">
             {relationshipsHref ? (

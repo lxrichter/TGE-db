@@ -582,7 +582,7 @@ async function transformRun(client, run, args) {
 
     return {
       legacy_plant_id: legacyId,
-      asset_name: cleanString(row.plant_name) || "Unnamed Plant / Facility",
+      asset_name: cleanString(row.plant_name) || "Unnamed Plant",
       asset_name_clean: normalizeName(row.plant_name),
       project_group: cleanString(row.project_group),
       other_name: cleanString(row.other_name),

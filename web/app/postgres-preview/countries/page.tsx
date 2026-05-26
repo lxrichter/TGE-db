@@ -584,7 +584,7 @@ function CountryOperationsLayer({
       />
       <CountryQueueCard
         title="Direct-Use Markets"
-        description="Markets with direct-use projects or facilities visible in staging."
+        description="Markets with direct-use projects or plants visible in staging."
         countries={directUseMarkets}
         emptyLabel="No direct-use country records in the current summary."
         metric={(country) => ({
@@ -709,8 +709,7 @@ function CountryMarketsTable({
                       country.country
                     )}
                   >
-                    {formatCount(country.operating_asset_count)} plants /
-                    facilities
+                    {formatCount(country.operating_asset_count)} plants
                   </Link>
                   <span className="text-gray-500">
                     {formatCount(country.operating_asset_active_count)} active
@@ -872,8 +871,7 @@ function CountryMarketsTable({
                         country.country
                       )}
                     >
-                      {formatCount(country.operating_asset_count)} plants /
-                      facilities
+                      {formatCount(country.operating_asset_count)} plants
                     </Link>
                     <span className="text-gray-500">
                       {formatCount(country.operating_asset_active_count)} active
@@ -1164,7 +1162,7 @@ export default async function PostgresCountryMarketsPage({
               />
               <StatTile
                 label="Direct Use"
-                note="Direct-use project and facility records"
+                note="Direct-use project and plant records"
                 value={formatCount(totals.directUseRecords)}
               />
               <StatTile

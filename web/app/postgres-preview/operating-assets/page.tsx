@@ -109,7 +109,7 @@ const operatingAssetQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Direct-Use",
-    description: "Direct-use operating facilities.",
+    description: "Direct-use operating plants.",
     query: { use: "direct_use" },
   },
   {
