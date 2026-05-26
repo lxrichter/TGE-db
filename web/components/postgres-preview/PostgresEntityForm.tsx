@@ -1472,18 +1472,18 @@ const workflowQuickActionGroupMeta: Record<
   },
   evidence: {
     eyebrow: "Evidence",
-    title: "Sources And Claims",
-    description: "Attach source records and review evidence-backed claims.",
+    title: "Sources & Evidence",
+    description: "Attach source records and review evidence.",
   },
   relationships: {
     eyebrow: "Workflow",
     title: "Relationships",
-    description: "Connect companies, projects, plants, ownership, and roles.",
+    description: "Connect companies, projects, plants, and roles.",
   },
   governance: {
     eyebrow: "Governance",
     title: "Review And Readiness",
-    description: "Route follow-up work into Research Ops and validation queues.",
+    description: "Route follow-up work into Research Ops.",
   },
 };
 
@@ -1505,16 +1505,16 @@ function WorkflowQuickActions({
     .filter((group) => group.actions.length > 0);
 
   return (
-    <div className="mb-4 border border-blue-100 bg-blue-50 px-4 py-4">
+    <div className="mb-3 border border-blue-100 bg-blue-50 px-3 py-3">
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div>
           <h3 className="text-sm font-bold text-blue-950">
             Post-save workflow actions
           </h3>
-          <p className="mt-1 text-xs leading-5 text-blue-900">
+          <p className="mt-1 text-[11px] leading-5 text-blue-900">
             {saved
-              ? `Use these shortcuts to move this ${entityLabel.toLowerCase()} from draft editing into governed evidence, relationship, and review work.`
-              : `Save the ${entityLabel.toLowerCase()} draft first. The saved record then exposes governed evidence, relationship, and review workspaces.`}
+              ? `Move this ${entityLabel.toLowerCase()} from draft editing into evidence, relationships, and review.`
+              : `Save the ${entityLabel.toLowerCase()} draft first to unlock evidence, relationships, and review workspaces.`}
           </p>
         </div>
         {mode === "create" ? (
@@ -1523,13 +1523,13 @@ function WorkflowQuickActions({
           </span>
         ) : null}
       </div>
-      <div className="mt-4 space-y-3">
+      <div className="mt-3 space-y-2">
         {groupedActions.map(({ group, actions: groupActions }) => {
           const meta = workflowQuickActionGroupMeta[group];
 
           return (
             <section
-              className="border border-blue-100 bg-white/50 px-3 py-3"
+              className="border border-blue-100 bg-white/50 px-2.5 py-2.5"
               key={group}
             >
               <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
@@ -1545,11 +1545,11 @@ function WorkflowQuickActions({
                   {meta.description}
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
                 {groupActions.map((action) =>
                   action.href ? (
                     <Link
-                      className="border border-blue-200 bg-white px-3 py-2 text-xs leading-5 text-blue-950 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      className="border border-blue-200 bg-white px-2.5 py-1.5 text-[11px] leading-5 text-blue-950 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                       href={action.href}
                       key={action.label}
                     >
@@ -1560,7 +1560,7 @@ function WorkflowQuickActions({
                     </Link>
                   ) : (
                     <div
-                      className="border border-blue-100 bg-white/70 px-3 py-2 text-xs leading-5 text-blue-700 opacity-70"
+                      className="border border-blue-100 bg-white/70 px-2.5 py-1.5 text-[11px] leading-5 text-blue-700 opacity-70"
                       key={action.label}
                     >
                       <div className="flex flex-wrap items-center gap-1.5">
@@ -1632,7 +1632,7 @@ function ProjectWorkflowBridge({
             group: "relationships",
           },
           {
-            label: "Linked Plants",
+            label: "Related Plants",
             description: "Review promotion and plant links.",
             href: linkedAssetHref,
             group: "relationships",
@@ -1871,7 +1871,7 @@ function AssetWorkflowBridge({
             group: "relationships",
           },
           {
-            label: "Origin / Units",
+            label: "Project Origin & Units",
             description: "Review originating project and group logic.",
             href: linkedProjectHref,
             group: "relationships",
