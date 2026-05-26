@@ -362,6 +362,26 @@ function RegionCard({ region }: { region: RegionSummary }) {
         <Link
           className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
           href={regionWorklistHref(
+            "/postgres-preview/analysis",
+            region.kind,
+            region.name
+          )}
+        >
+          Analysis
+        </Link>
+        <Link
+          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          href={regionWorklistHref(
+            "/postgres-preview/map",
+            region.kind,
+            region.name
+          )}
+        >
+          Map
+        </Link>
+        <Link
+          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          href={regionWorklistHref(
             "/postgres-preview/projects",
             region.kind,
             region.name

@@ -81,7 +81,7 @@ function aggregateRegions(
 export default function PostgresRegionalWorklistRoutes({
   countries,
   title = "Regional Worklist Routes",
-  description = "Canonical geography routes into regional markets, projects, plants, and companies.",
+  description = "Canonical geography routes into regional markets, analysis, map, projects, plants, and companies.",
   kind = "tge",
   limit = 4,
 }: {
@@ -152,6 +152,26 @@ export default function PostgresRegionalWorklistRoutes({
                 })}
               >
                 Markets
+              </Link>
+              <Link
+                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href={regionHref({
+                  path: "/postgres-preview/analysis",
+                  kind: region.kind,
+                  name: region.name,
+                })}
+              >
+                Analysis
+              </Link>
+              <Link
+                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href={regionHref({
+                  path: "/postgres-preview/map",
+                  kind: region.kind,
+                  name: region.name,
+                })}
+              >
+                Map
               </Link>
               <Link
                 className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
