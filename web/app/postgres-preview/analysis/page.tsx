@@ -553,7 +553,7 @@ export default async function PostgresAnalysisPreviewPage({
           <section id="country-drilldown" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
               label="Governance"
-              title="Country Drilldown"
+              title="Market Drilldown"
               description="Connect analysis back to filtered worklists."
               tone="governance"
             />

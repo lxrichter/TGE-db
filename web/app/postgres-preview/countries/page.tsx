@@ -801,10 +801,10 @@ function CountryOperationsLayer({
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
       <CountryQueueCard
         title="Source Gap Markets"
-        description="Country-scoped projects, plants, and companies that need evidence before export-ready use."
+        description="Market-scoped projects, plants, and companies that need evidence before export-ready use."
         countries={sourceGapMarkets}
         missing="source"
-        emptyLabel="No country-level source gaps in the current summary."
+        emptyLabel="No market-level source gaps in the current summary."
         metric={(country) => ({
           value: formatCount(country.missing_source_count),
           note: "profiles without confirmed evidence links",
@@ -847,7 +847,7 @@ function CountryOperationsLayer({
       />
       <CountryQueueCard
         title="Recently Updated Markets"
-        description="Country pages likely to show recent staging or evidence activity."
+        description="Market profiles likely to show recent staging or evidence activity."
         countries={recentMarkets}
         defaultOpen={false}
         emptyLabel="No recent country update metadata available."
@@ -1439,7 +1439,7 @@ export default async function PostgresCountryMarketsPage({
             <DetailPriorityMarker
               label="Workflow"
               title="Market Operations"
-              description="Country-scoped queues for source gaps, market priority, direct-use coverage, and recent activity."
+              description="Market-scoped queues for source gaps, market priority, direct-use coverage, and recent activity."
               tone="workflow"
             />
 
@@ -1449,7 +1449,7 @@ export default async function PostgresCountryMarketsPage({
           <section id="country-worklist" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
               label="Workbench"
-              title="Country Worklist"
+              title="Market Worklist"
               description="Comparison, validation coverage, drill-through."
               tone="workflow"
             />
