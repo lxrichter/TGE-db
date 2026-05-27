@@ -55,6 +55,18 @@ type QueueGroupKey =
   | "validation_approval"
   | "duplicates_stale"
   | "classification";
+type ResearcherActivityRow = {
+  name: string;
+  recentEdits: number;
+  sourceUpdates: number;
+  approvedOrReady: number;
+  needsReview: number;
+  auditedChanges: number;
+  assignedOpenIssues: number;
+  createdIssues: number;
+  resolvedIssues: number;
+  lastUpdatedAt: string | null;
+};
 
 const editorOnlyReviewStatuses = new Set(["approved", "export_ready", "archived"]);
 const editorOnlySourceStatuses = new Set(["credible", "weak", "outdated", "rejected"]);
@@ -405,6 +417,133 @@ function formatEntityType(value: EntityType) {
 
 function formatConfidence(value: number) {
   return `${Math.round(value * 100)}%`;
+}
+
+function latestTimestamp(current: string | null, next: string | null) {
+  if (!next) {
+    return current;
+  }
+
+  if (!current) {
+    return next;
+  }
+
+  return new Date(next).getTime() > new Date(current).getTime()
+    ? next
+    : current;
+}
+
+function normalizedResearcherName(value: string | null | undefined) {
+  const trimmed = String(value || "").trim();
+  return trimmed || null;
+}
+
+function isOpenResearchIssue(issue: PostgresResearchOpsIssue) {
+  return !["resolved", "dismissed"].includes(issue.issue_status_code);
+}
+
+function ensureResearcherRow(
+  rows: Map<string, ResearcherActivityRow>,
+  name: string
+) {
+  const existing = rows.get(name);
+
+  if (existing) {
+    return existing;
+  }
+
+  const row: ResearcherActivityRow = {
+    name,
+    recentEdits: 0,
+    sourceUpdates: 0,
+    approvedOrReady: 0,
+    needsReview: 0,
+    auditedChanges: 0,
+    assignedOpenIssues: 0,
+    createdIssues: 0,
+    resolvedIssues: 0,
+    lastUpdatedAt: null,
+  };
+
+  rows.set(name, row);
+  return row;
+}
+
+function buildResearcherActivityRows(
+  recentEdits: PostgresResearchOpsRecentEdit[],
+  issues: PostgresResearchOpsIssue[]
+) {
+  const rows = new Map<string, ResearcherActivityRow>();
+
+  recentEdits.forEach((item) => {
+    const name = normalizedResearcherName(item.last_updated_by_name);
+
+    if (!name) {
+      return;
+    }
+
+    const row = ensureResearcherRow(rows, name);
+    row.recentEdits += 1;
+    row.sourceUpdates += item.entity_type === "source" ? 1 : 0;
+    row.approvedOrReady += ["approved", "export_ready", "credible"].includes(
+      item.review_status_code || ""
+    )
+      ? 1
+      : 0;
+    row.needsReview += [
+      "draft",
+      "validation",
+      "needs_review",
+      "needs_update",
+    ].includes(item.review_status_code || "")
+      ? 1
+      : 0;
+    row.auditedChanges += item.latest_activity_type ? 1 : 0;
+    row.lastUpdatedAt = latestTimestamp(row.lastUpdatedAt, item.updated_at);
+  });
+
+  issues.forEach((issue) => {
+    const assignedName = normalizedResearcherName(issue.assigned_to_name);
+    const createdName = normalizedResearcherName(issue.created_by_name);
+    const resolvedName = normalizedResearcherName(issue.resolved_by_name);
+
+    if (assignedName && isOpenResearchIssue(issue)) {
+      const row = ensureResearcherRow(rows, assignedName);
+      row.assignedOpenIssues += 1;
+      row.lastUpdatedAt = latestTimestamp(row.lastUpdatedAt, issue.updated_at);
+    }
+
+    if (createdName) {
+      const row = ensureResearcherRow(rows, createdName);
+      row.createdIssues += 1;
+      row.lastUpdatedAt = latestTimestamp(row.lastUpdatedAt, issue.created_at);
+    }
+
+    if (resolvedName) {
+      const row = ensureResearcherRow(rows, resolvedName);
+      row.resolvedIssues += 1;
+      row.lastUpdatedAt = latestTimestamp(
+        row.lastUpdatedAt,
+        issue.resolved_at || issue.updated_at
+      );
+    }
+  });
+
+  return Array.from(rows.values()).sort((a, b) => {
+    const activityDelta = b.recentEdits - a.recentEdits;
+
+    if (activityDelta !== 0) {
+      return activityDelta;
+    }
+
+    const assignedDelta = b.assignedOpenIssues - a.assignedOpenIssues;
+
+    if (assignedDelta !== 0) {
+      return assignedDelta;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 }
 
 function recordKey(record: ResearchOpsRecord) {
@@ -3739,6 +3878,150 @@ function ResearchActivitySummary({
   );
 }
 
+function ResearcherActivityOverview({
+  recentEdits,
+  issues,
+  onFocusResearcher,
+}: {
+  recentEdits: PostgresResearchOpsRecentEdit[];
+  issues: PostgresResearchOpsIssue[];
+  onFocusResearcher: (name: string) => void;
+}) {
+  const rows = useMemo(
+    () => buildResearcherActivityRows(recentEdits, issues),
+    [issues, recentEdits]
+  );
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Researcher Activity Lens
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            Operational visibility for validation and guidance: recent edits,
+            evidence activity, assigned follow-ups, and completed issue work.
+            This is context, not scoring.
+          </p>
+        </div>
+        <span className="inline-flex h-8 items-center self-start border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-800">
+          Work visibility
+        </span>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="px-5 py-5 text-sm text-gray-500">
+          No named researcher activity is available in the current recent
+          activity window.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-[1080px] table-fixed text-left text-sm">
+            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="w-[20%] px-4 py-3 font-semibold">Researcher</th>
+                <th className="w-[12%] px-4 py-3 font-semibold">Recent Work</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Review Movement</th>
+                <th className="w-[14%] px-4 py-3 font-semibold">Follow-Ups</th>
+                <th className="w-[12%] px-4 py-3 font-semibold">Sources</th>
+                <th className="w-[12%] px-4 py-3 font-semibold">Last Touched</th>
+                <th className="w-[16%] px-4 py-3 font-semibold">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {rows.map((row) => (
+                <tr
+                  key={row.name}
+                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                >
+                  <td className="px-4 py-2.5">
+                    <CompactCellText
+                      className="font-semibold text-[#1f2937]"
+                      value={row.name}
+                    />
+                    <div className="mt-1 text-xs text-gray-500">
+                      Named recent activity
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-gray-700">
+                    <div className="text-lg font-bold leading-none text-[#1f2937]">
+                      {formatCount(row.recentEdits)}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      edited rows
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-xs leading-5 text-gray-600">
+                    <div>
+                      <span className="font-semibold text-[#4f7f1f]">
+                        {formatCount(row.approvedOrReady)}
+                      </span>{" "}
+                      approved / ready
+                    </div>
+                    <div>
+                      <span className="font-semibold text-amber-700">
+                        {formatCount(row.needsReview)}
+                      </span>{" "}
+                      still in review
+                    </div>
+                    <div>
+                      <span className="font-semibold text-blue-800">
+                        {formatCount(row.auditedChanges)}
+                      </span>{" "}
+                      audited changes
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-xs leading-5 text-gray-600">
+                    <div>
+                      <span className="font-semibold text-[#1f2937]">
+                        {formatCount(row.assignedOpenIssues)}
+                      </span>{" "}
+                      open assigned
+                    </div>
+                    <div>
+                      <span className="font-semibold text-gray-700">
+                        {formatCount(row.createdIssues)}
+                      </span>{" "}
+                      created
+                    </div>
+                    <div>
+                      <span className="font-semibold text-[#4f7f1f]">
+                        {formatCount(row.resolvedIssues)}
+                      </span>{" "}
+                      resolved
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-gray-700">
+                    <div className="text-lg font-bold leading-none text-[#1f2937]">
+                      {formatCount(row.sourceUpdates)}
+                    </div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      evidence rows
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-gray-700">
+                    {formatDate(row.lastUpdatedAt)}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <button
+                      className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                      type="button"
+                      onClick={() => onFocusResearcher(row.name)}
+                    >
+                      View Work
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function RecentEdits({
   items,
   selectedKey,
@@ -4033,6 +4316,12 @@ export function ResearchOpsDashboardClient({
     setCountryFilter("all");
     setSearch("");
     setShowEmptyQueues(false);
+  }
+
+  function focusResearcher(name: string) {
+    setSearch(name);
+    setDeepWorkbenchOpen(true);
+    scrollToPageSection("deep-table");
   }
 
   function removeOperationalFilter(
@@ -4554,6 +4843,12 @@ export function ResearchOpsDashboardClient({
         >
         <div className="space-y-5">
           <ResearchActivitySummary recentEdits={filteredRecentEdits} />
+
+          <ResearcherActivityOverview
+            issues={dashboard.persistentIssues}
+            recentEdits={filteredRecentEdits}
+            onFocusResearcher={focusResearcher}
+          />
 
           <RecentEdits
             items={filteredRecentEdits}
