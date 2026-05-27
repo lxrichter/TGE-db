@@ -45,7 +45,14 @@ type FieldSuggestionReviewAction =
   | "needs_review"
   | "apply";
 type ActiveOperationalFilter = {
-  key: "queue" | "severity" | "entity" | "country" | "search" | "showEmpty";
+  key:
+    | "queue"
+    | "severity"
+    | "entity"
+    | "country"
+    | "search"
+    | "researcher"
+    | "showEmpty";
   label: string;
   value: string;
 };
@@ -3893,7 +3900,10 @@ function ResearcherActivityOverview({
   );
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section
+      id="researcher-activity"
+      className="scroll-mt-24 border border-gray-200 bg-white"
+    >
       <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
@@ -4099,6 +4109,9 @@ export function ResearchOpsDashboardClient({
   >(() => new Set());
   const [deepWorkbenchOpen, setDeepWorkbenchOpen] = useState(false);
   const [queueRowsCompact, setQueueRowsCompact] = useState(true);
+  const [focusedResearcher, setFocusedResearcher] = useState<string | null>(
+    null
+  );
 
   const normalizedSearch = search.trim().toLowerCase();
 
@@ -4282,7 +4295,13 @@ export function ResearchOpsDashboardClient({
       });
     }
 
-    if (search) {
+    if (focusedResearcher && search === focusedResearcher) {
+      filters.push({
+        key: "researcher",
+        label: "Researcher",
+        value: focusedResearcher,
+      });
+    } else if (search) {
       filters.push({
         key: "search",
         label: "Search",
@@ -4304,6 +4323,7 @@ export function ResearchOpsDashboardClient({
     entityFilter,
     queueFilter,
     queueTitleByKey,
+    focusedResearcher,
     search,
     severityFilter,
     showEmptyQueues,
@@ -4315,10 +4335,12 @@ export function ResearchOpsDashboardClient({
     setEntityFilter("all");
     setCountryFilter("all");
     setSearch("");
+    setFocusedResearcher(null);
     setShowEmptyQueues(false);
   }
 
   function focusResearcher(name: string) {
+    setFocusedResearcher(name);
     setSearch(name);
     setDeepWorkbenchOpen(true);
     scrollToPageSection("deep-table");
@@ -4349,6 +4371,13 @@ export function ResearchOpsDashboardClient({
 
     if (filterKey === "search") {
       setSearch("");
+      setFocusedResearcher(null);
+      return;
+    }
+
+    if (filterKey === "researcher") {
+      setSearch("");
+      setFocusedResearcher(null);
       return;
     }
 
@@ -4531,6 +4560,11 @@ export function ResearchOpsDashboardClient({
             note: "Recent",
           },
           {
+            href: "#researcher-activity",
+            label: "Researchers",
+            note: "Work",
+          },
+          {
             href: "#queue-rows",
             label: "Queue Rows",
             note: "Tables",
@@ -4668,7 +4702,10 @@ export function ResearchOpsDashboardClient({
                 className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
                 placeholder="Name, country, issue, status, researcher"
                 value={search}
-                onChange={(event) => setSearch(event.target.value)}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setFocusedResearcher(null);
+                }}
               />
             </label>
             <FilterSelect
