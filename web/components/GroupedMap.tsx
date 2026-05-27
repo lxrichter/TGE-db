@@ -46,7 +46,7 @@ function MapFilterGroup({
       <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-wide text-gray-500 marker:hidden">
         {title}
       </summary>
-      <div className="mt-2">{children}</div>
+      <div className="mt-1.5">{children}</div>
     </details>
   );
 }
@@ -459,38 +459,38 @@ export default function GroupedMap({
       <div ref={mapRef} className="h-[560px] w-full sm:h-[720px]" />
 
       <div className="pointer-events-none absolute inset-0 z-[1000]">
-        <div className="pointer-events-auto absolute left-4 right-4 top-4 border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:w-[300px]">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
+        <div className="pointer-events-auto absolute left-4 right-4 top-4 max-h-[calc(100%-2rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[280px]">
+          <div className="border-b border-gray-200 bg-[#f7f7f7] px-3 py-2.5">
             <h2 className="text-sm font-bold uppercase tracking-wide text-[#1f2937]">
               Map Filters
             </h2>
           </div>
 
-          <div className="space-y-2.5 px-3 py-3">
+          <div className="space-y-2 px-3 py-2.5">
             <MapFilterGroup title="Layers">
               <div className="space-y-1.5 text-sm">
-                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-3 py-1.5">
-                  <div className="flex items-center gap-3">
+                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-2.5 py-1.5">
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={showPlants}
                       onChange={(e) => setShowPlants(e.target.checked)}
                     />
-                    <span>Plants / Groups</span>
+                    <span>Plants</span>
                   </div>
                   <span className="font-semibold text-[#64A542]">
                     {data.plants.length}
                   </span>
                 </label>
 
-                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-3 py-1.5">
-                  <div className="flex items-center gap-3">
+                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-2.5 py-1.5">
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={showProjects}
                       onChange={(e) => setShowProjects(e.target.checked)}
                     />
-                    <span>Projects / Groups</span>
+                    <span>Projects</span>
                   </div>
                   <span className="font-semibold text-[#E8A56C]">
                     {data.projects.length}
@@ -500,7 +500,7 @@ export default function GroupedMap({
             </MapFilterGroup>
 
             <MapFilterGroup title="Geography">
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="block">
                   <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                     Country
@@ -508,7 +508,7 @@ export default function GroupedMap({
                   <select
                     value={countryFilter}
                     onChange={(e) => setCountryFilter(e.target.value)}
-                    className="mt-1 w-full border border-gray-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
+                    className="mt-1 w-full border border-gray-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
                   >
                     {countryOptions.map((country) => (
                       <option key={country} value={country}>
@@ -525,7 +525,7 @@ export default function GroupedMap({
                   <select
                     value={regionFilter}
                     onChange={(e) => setRegionFilter(e.target.value)}
-                    className="mt-1 w-full border border-gray-300 bg-white px-3 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
+                    className="mt-1 w-full border border-gray-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
                   >
                     {regionOptions.map((region) => (
                       <option key={region} value={region}>
@@ -542,7 +542,7 @@ export default function GroupedMap({
                 <button
                   type="button"
                   onClick={() => setViewMode("map")}
-                  className={`border px-3 py-1.5 text-xs font-semibold ${
+                  className={`flex-1 border px-3 py-1.5 text-xs font-semibold ${
                     viewMode === "map"
                       ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
                       : "border-gray-300 bg-white text-gray-700"
@@ -554,7 +554,7 @@ export default function GroupedMap({
                 <button
                   type="button"
                   onClick={() => setViewMode("satellite")}
-                  className={`border px-3 py-1.5 text-xs font-semibold ${
+                  className={`flex-1 border px-3 py-1.5 text-xs font-semibold ${
                     viewMode === "satellite"
                       ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
                       : "border-gray-300 bg-white text-gray-700"
