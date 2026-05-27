@@ -506,7 +506,7 @@ export default function SourceMatchCandidatesClient({
         onPageChange={setPage}
       />
 
-      <div className="space-y-3 border-t border-gray-100 bg-gray-50 px-3 py-3 lg:hidden">
+      <div className="space-y-4 border-t border-gray-100 bg-gray-50 px-3 py-4 lg:hidden">
         {sourceGroups.map((group) => {
           const isGroupCollapsed = collapsedSourceKeys.has(group.sourceKey);
           const groupHasAmbiguity = group.candidates.some(hasSourceAmbiguity);
@@ -794,7 +794,7 @@ export default function SourceMatchCandidatesClient({
                 <Fragment key={group.sourceKey}>
                   <tr
                     key={`${group.sourceKey}-header`}
-                    className="border-t-4 border-t-gray-100 bg-[#fbfcfa] align-top"
+                    className="border-t-8 border-t-white bg-[#fbfcfa] align-top"
                   >
                     <td className={groupHeaderClassName} colSpan={7}>
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

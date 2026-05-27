@@ -209,9 +209,8 @@ function FactTypeTrainingCard({
           Fact Type Training
         </div>
         <p className="mt-2 max-w-4xl text-sm leading-5 text-gray-600">
-          Filter to one fact type, accept/reject a compact sample, then tune the
-          rule before expanding the archive batch. Confirmed candidates remain
-          review signals only.
+          Filter to one fact type, review a compact sample, then tune the rule
+          before expanding the archive batch.
         </p>
       </section>
     );
@@ -304,8 +303,7 @@ function FilterDisclosure({
             Fact Review Filters
           </h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
-            Scope extracted fact candidates by status, fact type, field, or
-            search term before review.
+            Scope candidates by status, fact type, field, or search.
           </p>
         </div>
         <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
@@ -428,9 +426,8 @@ export default async function ArticleFactCandidatesPage({
                 Article Fact Review
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-                Review compact fact candidates extracted from local TGE markdown
-                articles. This is the controlled bridge between article
-                extraction and future human-confirmed field suggestions.
+                Review compact fact candidates from local TGE markdown articles
+                before they inform human-confirmed field suggestions.
               </p>
             </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
@@ -459,7 +456,7 @@ export default async function ArticleFactCandidatesPage({
 
       <NextActionStrip
         title="Review Context"
-        description="Keep fact review tied to source context, entity matching, and Research Ops."
+        description="Keep fact review tied to source context, matching, and Research Ops."
         actions={factNextActions}
       />
 

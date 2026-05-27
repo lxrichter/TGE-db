@@ -242,9 +242,8 @@ export default function ArticleFactCandidatesClient({
             Article Fact Candidates
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Review compact facts extracted from TGE article markdown. Confirming
-            here keeps the candidate; it does not update records or create
-            evidence links.
+            Confirming keeps the candidate for governance; it does not update
+            records or create evidence links.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
