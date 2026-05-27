@@ -2483,7 +2483,7 @@ function EntityTable({
                     <CompactCellText
                       className={supportingTextClass}
                       value={item.legacy_id}
-                      fallback="new-postgres-record"
+                      fallback="No legacy ID"
                     />
                     {"issue_label" in item ? (
                       <CompactCellText

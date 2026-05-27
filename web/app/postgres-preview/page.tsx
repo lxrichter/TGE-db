@@ -239,7 +239,7 @@ function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
                     {project.project_name}
                   </Link>
                   <div className="mt-1 text-xs text-gray-500">
-                    {project.legacy_project_id || "new-postgres-record"}
+                    {project.legacy_project_id || "No legacy ID"}
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-700">
@@ -307,7 +307,7 @@ function OperatingAssetsTable({
                     {asset.asset_name}
                   </Link>
                   <div className="mt-1 text-xs text-gray-500">
-                    {asset.legacy_plant_id || "new-postgres-record"}
+                    {asset.legacy_plant_id || "No legacy ID"}
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-700">
@@ -369,7 +369,7 @@ function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) 
                     {company.company_name}
                   </Link>
                   <div className="mt-1 text-xs text-gray-500">
-                    {company.legacy_company_id || "new-postgres-record"}
+                    {company.legacy_company_id || "No legacy ID"}
                   </div>
                 </td>
                 <td className="px-5 py-4 text-gray-700">

@@ -1296,7 +1296,7 @@ export function ProjectsPreviewTable({
               key={project.project_id}
               href={`/postgres-preview/projects/${project.project_id}`}
               name={project.project_name}
-              meta={project.legacy_project_id || "new-postgres-record"}
+              meta={project.legacy_project_id || "No legacy ID"}
             >
               <MobileField label="Country / Region">
                 {project.country || <EmptyValue />}
@@ -1366,7 +1366,7 @@ export function ProjectsPreviewTable({
                       {project.project_name}
                     </Link>
                     <div className="mt-1 text-xs text-gray-500">
-                      {project.legacy_project_id || "new-postgres-record"}
+                      {project.legacy_project_id || "No legacy ID"}
                     </div>
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
@@ -1450,7 +1450,7 @@ export function OperatingAssetsPreviewTable({
               key={asset.operating_asset_id}
               href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
               name={asset.asset_name}
-              meta={asset.legacy_plant_id || "new-postgres-record"}
+              meta={asset.legacy_plant_id || "No legacy ID"}
             >
               <MobileField label="Country / Region">
                 {asset.country || <EmptyValue />}
@@ -1520,7 +1520,7 @@ export function OperatingAssetsPreviewTable({
                       {asset.asset_name}
                     </Link>
                     <div className="mt-1 text-xs text-gray-500">
-                      {asset.legacy_plant_id || "new-postgres-record"}
+                      {asset.legacy_plant_id || "No legacy ID"}
                     </div>
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
@@ -1607,7 +1607,7 @@ export function CompaniesPreviewTable({
               key={company.company_id}
               href={`/postgres-preview/companies/${company.company_id}`}
               name={company.company_name}
-              meta={company.legacy_company_id || "new-postgres-record"}
+              meta={company.legacy_company_id || "No legacy ID"}
             >
               <MobileField label="Primary Identity">
                 <div className="line-clamp-1">
@@ -1664,7 +1664,7 @@ export function CompaniesPreviewTable({
                       {company.company_name}
                     </Link>
                     <div className="mt-1 text-xs text-gray-500">
-                      {company.legacy_company_id || "new-postgres-record"}
+                      {company.legacy_company_id || "No legacy ID"}
                     </div>
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
