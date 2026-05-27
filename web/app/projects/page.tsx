@@ -500,7 +500,7 @@ const userCanExport = canExport(currentRole);
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Project Records
+                Projects
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatCount(stats.count)}
@@ -542,7 +542,7 @@ const userCanExport = canExport(currentRole);
                 {formatCount(stats.needInfo)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Records still flagged for research follow-up
+                Projects still flagged for research follow-up
               </div>
             </div>
           </div>
@@ -556,31 +556,31 @@ const userCanExport = canExport(currentRole);
               Phase Overview
             </h2>
             <p className="mt-1 text-sm text-gray-500">
-              Distribution of project records and associated MW by development phase.
+              Distribution of projects and associated planned MWe by development phase.
             </p>
           </div>
 
           <div className="px-6 py-4">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex gap-3 overflow-x-auto pb-1">
               {stats.phaseOverview.map((item) => (
                 <div
                   key={item.phase}
-                  className="min-w-[170px] border border-gray-200 bg-[#fafafa] px-4 py-3"
+                  className="min-w-[170px] flex-1 border border-gray-200 bg-[#fafafa] px-4 py-3"
                 >
                   <div className="mb-2">
                     <PhaseBadge value={item.phase} />
                   </div>
                   <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                    No of projects
+                    Planned MWe
                   </div>
-                  <div className="text-lg font-bold text-[#1f2937]">
-                    {formatCount(item.count)}
+                  <div className="text-2xl font-bold text-[#1f2937]">
+                    {formatMw(item.mw, 1)}
                   </div>
                   <div className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                    MW Planned
+                    Projects
                   </div>
-                  <div className="text-base font-semibold text-[#1f2937]">
-                    {formatMw(item.mw, 1)}
+                  <div className="text-sm font-semibold text-[#1f2937]">
+                    {formatCount(item.count)}
                   </div>
                 </div>
               ))}
@@ -595,7 +595,7 @@ const userCanExport = canExport(currentRole);
             Project Overview Table
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Search records, filter by view and country, and click a column header to sort.
+            Search projects, filter by view and country, and click a column header to sort.
           </p>
         </div>
 

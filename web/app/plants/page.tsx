@@ -470,7 +470,7 @@ if (researchStatusFilter !== "All Research Status") {
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Plant Records
+                Plants
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatCount(stats.count)}
@@ -512,7 +512,7 @@ if (researchStatusFilter !== "All Research Status") {
                 {formatCount(stats.pendingReview)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Records awaiting approval
+                Plants awaiting approval
               </div>
             </div>
           </div>
@@ -522,7 +522,7 @@ if (researchStatusFilter !== "All Research Status") {
           <div className="border-t border-gray-200 bg-[#fafafa] px-8 py-3">
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
               <span className="font-semibold uppercase tracking-wide text-gray-500">
-                Plant Phases
+                Plant Status
               </span>
               {stats.phaseCounts.map((item) => (
                 <span key={item.phase} className="text-gray-700">
@@ -542,7 +542,7 @@ if (researchStatusFilter !== "All Research Status") {
             Plant Overview Table
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Search records, filter by country, phase, research status, and review status,
+            Search plants, filter by country, status, research status, and review status,
             and click a column header to sort.
           </p>
         </div>

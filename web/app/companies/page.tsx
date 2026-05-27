@@ -313,7 +313,7 @@ export default function CompaniesPage() {
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Company Records
+                Companies
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatCount(stats.count)}
@@ -343,7 +343,7 @@ export default function CompaniesPage() {
                 {formatCount(stats.done)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Records marked complete
+                Companies marked complete
               </div>
             </div>
 
@@ -355,7 +355,7 @@ export default function CompaniesPage() {
                 {formatCount(stats.needInfo)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Records flagged for follow-up
+                Companies flagged for follow-up
               </div>
             </div>
           </div>
@@ -368,7 +368,7 @@ export default function CompaniesPage() {
             Company Overview Table
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Search records, filter by country, primary type, research status, and review status, and click a column header to sort.
+            Search companies, filter by country, primary type, research status, and review status, and click a column header to sort.
           </p>
         </div>
 
