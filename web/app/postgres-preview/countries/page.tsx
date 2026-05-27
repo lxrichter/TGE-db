@@ -475,6 +475,7 @@ function CountryQueueCard({
   metric,
   missing,
   emptyLabel,
+  defaultOpen = true,
 }: {
   title: string;
   description: string;
@@ -485,13 +486,19 @@ function CountryQueueCard({
   };
   missing?: string;
   emptyLabel: string;
+  defaultOpen?: boolean;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-4 py-3">
-        <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
-        <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
-      </div>
+    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+      <summary className="flex cursor-pointer list-none flex-col gap-2 border-b border-gray-200 px-4 py-3 marker:hidden sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
+          <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
+        </div>
+        <span className="inline-flex min-h-7 shrink-0 items-center self-start border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          {formatCount(countries.length)} markets
+        </span>
+      </summary>
       <div className="divide-y divide-gray-100">
         {countries.length > 0 ? (
           countries.map((country) => {
@@ -521,7 +528,7 @@ function CountryQueueCard({
           <div className="px-4 py-6 text-sm text-gray-500">{emptyLabel}</div>
         )}
       </div>
-    </section>
+    </details>
   );
 }
 
@@ -586,6 +593,7 @@ function CountryOperationsLayer({
         title="Direct-Use Markets"
         description="Markets with direct-use projects or plants visible in staging."
         countries={directUseMarkets}
+        defaultOpen={false}
         emptyLabel="No direct-use country records in the current summary."
         metric={(country) => ({
           value: formatCount(
@@ -600,6 +608,7 @@ function CountryOperationsLayer({
         title="Recently Updated Markets"
         description="Country pages likely to show recent staging or evidence activity."
         countries={recentMarkets}
+        defaultOpen={false}
         emptyLabel="No recent country update metadata available."
         metric={(country) => ({
           value: formatDate(country.latest_update_at),
