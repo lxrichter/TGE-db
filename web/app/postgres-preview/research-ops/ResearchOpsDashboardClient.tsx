@@ -1279,7 +1279,7 @@ function ArticleMatchReviewPanel({
   return (
     <DisclosurePanel
       id="article-match-review"
-      defaultOpen={summary.open > 0}
+      defaultOpen={false}
       description="Generated TGE article/entity matches remain candidates until reviewed. This keeps archive-linking workload visible while confirmation stays in Sources."
       eyebrow="Source Review"
       title="Article Match Review"
@@ -1369,7 +1369,7 @@ function ArticleFactReviewPanel({
   return (
     <DisclosurePanel
       id="article-fact-review"
-      defaultOpen={summary.open > 0}
+      defaultOpen={false}
       description="Compact article facts are reviewed separately from entity fields. Confirmed facts can later feed human-approved field suggestions."
       eyebrow="Source Review"
       title="Article Fact Review"
@@ -1731,28 +1731,26 @@ function FieldSuggestionReviewPanel({
   }
 
   return (
-    <section
+    <DisclosurePanel
       id="field-suggestion-review"
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      defaultOpen={false}
+      description="AI-assisted extraction creates review candidates first. Confirmation accepts a suggestion; Apply To Database is the audited write step."
+      eyebrow="AI Review"
+      title="AI Field Suggestion Review"
     >
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
-            AI Field Suggestion Review
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            AI-assisted extraction should create review candidates first. These
-            suggestions do not update project, plant, or company fields
-            until a researcher/editor confirms them through a controlled apply
-            workflow.
-          </p>
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="text-xs leading-5 text-gray-500">
+          {formatCount(summary.open)} open review item
+          {summary.open === 1 ? "" : "s"} ·{" "}
+          {formatCount(summary.applyReady)} ready to apply ·{" "}
+          {formatCount(summary.applied)} applied to records
         </div>
         <span className="inline-flex min-h-[28px] self-start border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
           Human confirmation required
         </span>
       </div>
 
-      <div className="border-b border-gray-100 px-5 py-4">
+      <div className="border border-gray-200 bg-white px-4 py-4">
         <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
           {[
             ["1", "AI Suggestion", "Candidate only"],
@@ -1778,7 +1776,7 @@ function FieldSuggestionReviewPanel({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         {cards.map((card) => (
           <div key={card.label} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
             <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -2032,13 +2030,13 @@ function FieldSuggestionReviewPanel({
         </div>
       )}
 
-      <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+      <div className="mt-4 border border-gray-100 bg-[#fbfbfb] px-4 py-3 text-xs leading-5 text-gray-500">
         Total candidates: {formatCount(summary.total)}. Confirm first, then
         apply confirmed suggestions as a separate audited write step. Applying
         only updates supported empty fields and leaves validation/export
         approval under editor control.
       </div>
-    </section>
+    </DisclosurePanel>
   );
 }
 
