@@ -466,7 +466,7 @@ export default async function PostgresOperatingAssetsListPage({
                 tone: "market",
               },
               {
-                label: "Visible Rows",
+                label: "Visible Plants",
                 value: formatOverviewCount(data.total),
                 note: "Plants matching current table filters",
                 href: exportHref,

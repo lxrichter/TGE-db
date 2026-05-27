@@ -454,7 +454,7 @@ function BucketOverview({
                   {formatBucketLabel(bucket.bucket_code)}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {formatCount(bucket.record_count)} records
+                  {formatCount(bucket.record_count)} profiles
                 </span>
               </div>
               <div className="mt-2 h-2 bg-gray-100">
@@ -595,19 +595,19 @@ function OperationalPulse({
         <ExecutiveKpi
           href="/postgres-preview/research-ops"
           label="Critical Issues"
-          note={staging.ok ? "Blocking or high-risk records" : "Pending review records"}
+          note={staging.ok ? "Blocking or high-risk profiles" : "Pending review profiles"}
           value={formatCount(staging.ok ? criticalIssues : legacy.pendingReviewTotal)}
         />
         <ExecutiveKpi
           href="/sources"
           label="Source Gaps"
-          note={staging.ok ? "Records missing source evidence" : "Evidence layer pending"}
+          note={staging.ok ? "Profiles missing source evidence" : "Evidence layer pending"}
           value={staging.ok ? formatCount(missingSources) : "-"}
         />
         <ExecutiveKpi
           href="/postgres-preview/readiness"
           label="Export-Ready"
-          note={staging.ok ? "Approved/export-ready staging records" : "Legacy approved records"}
+          note={staging.ok ? "Approved/export-ready staging profiles" : "Legacy approved profiles"}
           value={formatCount(staging.ok ? exportReady : legacy.approvedTotal)}
         />
       </div>
@@ -751,7 +751,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/projects"
             label="Projects"
-            note="Project records in staging scope"
+            note="Projects in staging scope"
             prominence="executive"
             tone="pipeline"
             value={formatCount(projectRecords)}
@@ -759,7 +759,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/operating-assets"
             label="Plants"
-            note="Plant records in staging scope"
+            note="Plants in staging scope"
             prominence="executive"
             tone="operating"
             value={formatCount(plantRecords)}
@@ -900,7 +900,7 @@ export default async function HomePage() {
             title="Research Ops"
           />
           <IntelligenceCard
-            description="Use this for operational navigation across PostgreSQL staging modules and preview records."
+            description="Use this for operational navigation across PostgreSQL staging modules and preview samples."
             href="/postgres-preview"
             label="Navigation"
             meta="Control"
@@ -916,7 +916,7 @@ export default async function HomePage() {
           <IntelligenceCard
             description={`Hybrid/mineral activity signal: ${
               staging.ok ? formatCount(hybridRecords) : "PostgreSQL pending"
-            } records.`}
+            } profiles.`}
             href="/postgres-preview/analysis"
             label="Emerging Sectors"
             meta="Future"

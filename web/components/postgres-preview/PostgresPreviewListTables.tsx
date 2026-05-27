@@ -789,7 +789,7 @@ export function PostgresPreviewListContext({
                   )} of ${formatCount(total)} matching ${entityLabel}`}
             </div>
             <div className="mt-1 text-xs leading-5 text-gray-500">
-              Page {formatCount(page)} · {formatCount(pageSize)} rows per page
+              Page {formatCount(page)} · {formatCount(pageSize)} items per page
             </div>
           </div>
           <div className="flex flex-col gap-2 lg:items-end">
@@ -801,7 +801,7 @@ export function PostgresPreviewListContext({
             </Link>
             <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
               Export includes the current search and filter state, not just this
-              page of rows.
+              page.
             </div>
           </div>
         </div>
@@ -1050,13 +1050,13 @@ export function PostgresPreviewListFilters({
 
 function rangeLabel(pagination: PreviewTablePagination, count: number) {
   if (pagination.total === 0) {
-    return "No records";
+    return "No items";
   }
 
   if (count === 0) {
-    return `No records on page ${formatCount(pagination.page)} of ${formatCount(
+    return `No items on page ${formatCount(pagination.page)} of ${formatCount(
       pagination.total
-    )} total records`;
+    )} total items`;
   }
 
   const start = (pagination.page - 1) * pagination.pageSize + 1;
@@ -1064,7 +1064,7 @@ function rangeLabel(pagination: PreviewTablePagination, count: number) {
 
   return `Showing ${formatCount(start)}-${formatCount(end)} of ${formatCount(
     pagination.total
-  )} records`;
+  )} items`;
 }
 
 function PaginationControls({
@@ -1108,7 +1108,7 @@ function PaginationControls({
           Compact
         </Link>
         <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Rows
+          Items
         </span>
         {PREVIEW_PAGE_SIZE_OPTIONS.map((pageSize) => (
           <Link
@@ -1184,8 +1184,8 @@ function SectionHeader({
     pagination
       ? rangeLabel(pagination, count)
       : total && total > count
-      ? `Showing ${formatCount(count)} of ${formatCount(total)} records`
-      : `${formatCount(count)} records`;
+      ? `Showing ${formatCount(count)} of ${formatCount(total)} items`
+      : `${formatCount(count)} items`;
 
   return (
     <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 md:flex-row md:items-center md:justify-between">

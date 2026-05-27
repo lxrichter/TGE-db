@@ -199,7 +199,7 @@ function RecordPreview({
         <div>
           <div className="text-sm font-bold text-[#1f2937]">{title}</div>
           <div className="mt-1 text-xs text-gray-500">
-            {formatCount(count)} preview rows
+            {formatCount(count)} preview samples
           </div>
         </div>
         <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
@@ -464,7 +464,7 @@ export default async function PostgresPreviewPage() {
               { href: "#regional-routes", label: "Regions", note: "Worklists" },
               { href: "#evidence-review", label: "Evidence", note: "Sources / AI" },
               { href: "#create-inspect", label: "Create", note: "Drafts" },
-              { href: "#preview-rows", label: "Preview Rows", note: "Samples" },
+              { href: "#preview-rows", label: "Preview Samples", note: "Examples" },
             ]}
           />
 
@@ -694,16 +694,16 @@ export default async function PostgresPreviewPage() {
           </section>
 
           <section id="preview-rows" className="space-y-3 scroll-mt-24">
-            <RecordPreview title="Project Preview Rows" count={data.projects.length}>
+            <RecordPreview title="Project Preview Samples" count={data.projects.length}>
               <ProjectsTable projects={data.projects} />
             </RecordPreview>
             <RecordPreview
-              title="Plant Preview Rows"
+              title="Plant Preview Samples"
               count={data.operatingAssets.length}
             >
               <OperatingAssetsTable operatingAssets={data.operatingAssets} />
             </RecordPreview>
-            <RecordPreview title="Company Preview Rows" count={data.companies.length}>
+            <RecordPreview title="Company Preview Samples" count={data.companies.length}>
               <CompaniesTable companies={data.companies} />
             </RecordPreview>
           </section>
