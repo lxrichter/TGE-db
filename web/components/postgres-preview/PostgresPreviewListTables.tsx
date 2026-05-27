@@ -1098,6 +1098,12 @@ function tableHeadClass(density: PreviewTableDensity) {
   return density === "compact" ? "px-4 py-2" : "px-5 py-3";
 }
 
+function tableRowClass(index: number) {
+  const stripeClass = index % 2 === 0 ? "bg-white" : "bg-[#fcfcfb]";
+
+  return `align-top ${stripeClass} transition-colors hover:bg-[#f3f8ec]`;
+}
+
 function SectionHeader({
   title,
   count,
@@ -1279,13 +1285,13 @@ export function ProjectsPreviewTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {projects.map((project) => {
+            {projects.map((project, index) => {
               const issues = projectRowIssues(project);
 
               return (
                 <tr
                   key={project.project_id}
-                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                  className={tableRowClass(index)}
                 >
                   <td className={cellClass}>
                     <Link
@@ -1433,13 +1439,13 @@ export function OperatingAssetsPreviewTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {operatingAssets.map((asset) => {
+            {operatingAssets.map((asset, index) => {
               const issues = operatingAssetRowIssues(asset);
 
               return (
                 <tr
                   key={asset.operating_asset_id}
-                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                  className={tableRowClass(index)}
                 >
                   <td className={cellClass}>
                     <Link
@@ -1578,13 +1584,13 @@ export function CompaniesPreviewTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {companies.map((company) => {
+            {companies.map((company, index) => {
               const issues = companyRowIssues(company);
 
               return (
                 <tr
                   key={company.company_id}
-                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                  className={tableRowClass(index)}
                 >
                   <td className={cellClass}>
                     <Link
