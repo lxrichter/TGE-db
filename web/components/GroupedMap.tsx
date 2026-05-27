@@ -501,12 +501,12 @@ export default function GroupedMap({
   }, [isExpandedMap, showFilterPanel]);
 
   const mapHeightClass = isExpandedMap
-    ? "h-[680px] min-h-[620px] w-full sm:h-[760px] xl:h-[calc(100vh-9rem)]"
-    : "h-[560px] w-full sm:h-[720px]";
-  const filterPanelVisible = !isExpandedMap || showFilterPanel;
+    ? "h-[700px] min-h-[640px] w-full sm:h-[800px] xl:h-[calc(100vh-6rem)]"
+    : "h-[620px] w-full sm:h-[760px]";
+  const filterPanelVisible = showFilterPanel;
   const filterPanelClass = isExpandedMap
-    ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[300px]"
-    : "pointer-events-auto absolute left-4 right-4 top-4 max-h-[calc(100%-2rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[280px]";
+    ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[288px]"
+    : "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[260px]";
 
   return (
     <div className="relative border border-gray-200 bg-white">
@@ -517,22 +517,21 @@ export default function GroupedMap({
           <button
             type="button"
             onClick={() => {
-              setIsExpandedMap((current) => !current);
-              setShowFilterPanel(true);
+              const nextExpandedState = !isExpandedMap;
+              setIsExpandedMap(nextExpandedState);
+              setShowFilterPanel(!nextExpandedState);
             }}
             className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
           >
             {isExpandedMap ? "Standard Mode" : "Expanded Map"}
           </button>
-          {isExpandedMap ? (
-            <button
-              type="button"
-              onClick={() => setShowFilterPanel((current) => !current)}
-              className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-            >
-              {showFilterPanel ? "Hide Filters" : "Show Filters"}
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={() => setShowFilterPanel((current) => !current)}
+            className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            {showFilterPanel ? "Hide Filters" : "Show Filters"}
+          </button>
         </div>
 
         {filterPanelVisible ? (
