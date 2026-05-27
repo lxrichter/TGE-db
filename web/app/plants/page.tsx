@@ -171,7 +171,7 @@ const [search, setSearch] = useState("");
 const [sortKey, setSortKey] = useState<SortKey>("plant_name");
 const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 const [countryFilter, setCountryFilter] = useState("All Countries");
-const [phaseFilter, setPhaseFilter] = useState("All Phases");
+const [phaseFilter, setPhaseFilter] = useState("All Statuses");
 const [researchStatusFilter, setResearchStatusFilter] = useState("All Research Status");
 const [reviewStatusFilter, setReviewStatusFilter] = useState("All Review Status");
 
@@ -209,7 +209,7 @@ const [exporting, setExporting] = useState(false);
       )
     ).sort((a, b) => getPlantPhaseOrder(a) - getPlantPhaseOrder(b));
 
-    return ["All Phases", ...phases];
+    return ["All Statuses", ...phases];
   }, [plants]);
 
   const researchStatusOptions = [
@@ -295,7 +295,7 @@ const [exporting, setExporting] = useState(false);
       );
     }
 
-    if (phaseFilter !== "All Phases") {
+    if (phaseFilter !== "All Statuses") {
       filtered = filtered.filter(
         (row) => normalizePlantPhase(row.project_phase) === phaseFilter
       );
@@ -476,13 +476,13 @@ if (researchStatusFilter !== "All Research Status") {
                 {formatCount(stats.count)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Current plant entries
+                Current plants
               </div>
             </div>
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Installed Capacity (MW)
+                Installed Capacity (MWe)
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatMw(stats.totalCapacity, 1)}
@@ -568,7 +568,7 @@ if (researchStatusFilter !== "All Research Status") {
 
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
-                Plant Phase
+                Plant Status
               </label>
               <select
                 value={phaseFilter}
@@ -622,7 +622,7 @@ if (researchStatusFilter !== "All Research Status") {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by ID, name, country, region, operator, phase, technology, research status..."
+            placeholder="Search by ID, name, country, region, operator, status, technology, research status..."
             className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
           />
         </div>
@@ -681,7 +681,7 @@ if (researchStatusFilter !== "All Research Status") {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2 min-w-[110px]">
                   <SortableHeader
-                    label="Installed MW"
+                    label="Installed MWe"
                     column="installed_capacity_mw"
                     sortKey={sortKey}
                     sortDirection={sortDirection}
@@ -690,7 +690,7 @@ if (researchStatusFilter !== "All Research Status") {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2 min-w-[150px]">
                   <SortableHeader
-                    label="Plant Phase"
+                    label="Plant Status"
                     column="project_phase"
                     sortKey={sortKey}
                     sortDirection={sortDirection}
@@ -806,7 +806,7 @@ if (researchStatusFilter !== "All Research Status") {
                     colSpan={10}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching plant records found.
+                    No matching plants found.
                   </td>
                 </tr>
               )}
