@@ -384,7 +384,7 @@ function ReadinessTable({
                 {entity.label}
               </Link>
               <div className="mt-1 text-xs text-gray-500">
-                {formatCount(entity.record_count)} records · Updated{" "}
+                {formatCount(entity.record_count)} profiles · Updated{" "}
                 {formatDate(entity.latest_update_at)}
               </div>
 
@@ -479,7 +479,7 @@ function ReadinessTable({
                       {entity.label}
                     </Link>
                     <div className="mt-1 text-xs text-gray-500">
-                      {formatCount(entity.record_count)} records
+                      {formatCount(entity.record_count)} profiles
                     </div>
                     <div className="mt-1 text-xs text-gray-500">
                       Updated {formatDate(entity.latest_update_at)}
@@ -674,19 +674,19 @@ export default async function PostgresReadinessPage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
               <StatTile
-                label="Staged Records"
+                label="Staged Profiles"
                 note="Projects, plants, and companies"
                 value={formatCount(totals.records)}
               />
               <StatTile
                 label="Review Coverage"
-                note="Approved or export-ready records"
+                note="Approved or export-ready profiles"
                 tone={reviewCoverage >= 70 ? "good" : "warning"}
                 value={formatPercent(reviewCoverage)}
               />
               <StatTile
                 label="Source Gaps"
-                note="Records without confirmed evidence links"
+                note="Profiles without confirmed evidence links"
                 tone={totals.sourceGaps > 0 ? "warning" : "good"}
                 value={formatCount(totals.sourceGaps)}
               />
@@ -710,7 +710,7 @@ export default async function PostgresReadinessPage() {
               />
               <StatTile
                 label="Needs Update"
-                note="Edited approved records requiring re-review"
+                note="Edited approved profiles requiring re-review"
                 tone={totals.needsUpdate > 0 ? "warning" : "good"}
                 value={formatCount(totals.needsUpdate)}
               />

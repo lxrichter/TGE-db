@@ -351,7 +351,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
             <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
             <div className="mt-2 text-xs leading-5 text-gray-500">
               {formatCount(region.countryCount)} countries ·{" "}
-              {formatCount(region.recordCount)} records
+              {formatCount(region.recordCount)} market profiles
             </div>
           </div>
           <span
@@ -519,7 +519,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 </Link>
                 <div className="mt-1 text-xs leading-5 text-gray-500">
                   {formatCount(region.countryCount)} countries ·{" "}
-                  {formatCount(region.recordCount)} records
+                  {formatCount(region.recordCount)} market profiles
                 </div>
               </div>
               <span
@@ -602,7 +602,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 <td className="px-5 py-4 text-xs leading-5 text-gray-600">
                   {formatCount(region.countryCount)} countries
                   <br />
-                  {formatCount(region.recordCount)} staged records
+                  {formatCount(region.recordCount)} staged profiles
                 </td>
                 <td className="px-5 py-4">
                   <RegionCapacityBars
@@ -801,13 +801,13 @@ function CountryOperationsLayer({
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
       <CountryQueueCard
         title="Source Gap Markets"
-        description="Country-scoped records that need evidence before export-ready use."
+        description="Country-scoped projects, plants, and companies that need evidence before export-ready use."
         countries={sourceGapMarkets}
         missing="source"
         emptyLabel="No country-level source gaps in the current summary."
         metric={(country) => ({
           value: formatCount(country.missing_source_count),
-          note: "records without confirmed evidence links",
+          note: "profiles without confirmed evidence links",
         })}
       />
       <CountryQueueCard
@@ -817,7 +817,7 @@ function CountryOperationsLayer({
         emptyLabel="No pipeline capacity values in the current country summary."
         metric={(country) => ({
           value: `${formatMw(country.project_pipeline_mwe)} MWe`,
-          note: `${formatCount(country.active_project_count)} active project records`,
+          note: `${formatCount(country.active_project_count)} active projects`,
         })}
       />
       <CountryQueueCard
@@ -827,7 +827,7 @@ function CountryOperationsLayer({
         emptyLabel="No operating electric capacity values in the current country summary."
         metric={(country) => ({
           value: `${formatMw(country.operating_installed_mwe)} MWe`,
-          note: `${formatCount(country.operating_asset_active_count)} active plant records`,
+          note: `${formatCount(country.operating_asset_active_count)} active plants`,
         })}
       />
       <CountryQueueCard
@@ -835,7 +835,7 @@ function CountryOperationsLayer({
         description="Markets with direct-use projects or plants visible in staging."
         countries={directUseMarkets}
         defaultOpen={false}
-        emptyLabel="No direct-use country records in the current summary."
+        emptyLabel="No direct-use country activity in the current summary."
         metric={(country) => ({
           value: formatCount(
             country.direct_use_project_count + country.direct_use_asset_count
@@ -857,7 +857,7 @@ function CountryOperationsLayer({
             country.project_count +
               country.operating_asset_count +
               country.company_count
-          )} staged records`,
+          )} staged profiles`,
         })}
       />
     </div>
@@ -920,7 +920,7 @@ function CountryMarketsTable({
                       country.operating_asset_count +
                       country.company_count
                   )}{" "}
-                  staged records
+                  staged profiles
                 </div>
                 <div className="mt-1 text-xs text-gray-500">
                   Updated {formatDate(country.latest_update_at)}
@@ -938,7 +938,7 @@ function CountryMarketsTable({
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <MobileMarketField label="Records">
+              <MobileMarketField label="Profiles">
                 <div className="grid gap-1 text-xs">
                   <Link
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
@@ -991,7 +991,7 @@ function CountryMarketsTable({
                     country.direct_use_project_count +
                       country.direct_use_asset_count
                   )}{" "}
-                  records
+                  direct-use profiles
                 </div>
                 <div className="mt-1 text-xs leading-5 text-gray-500">
                   {formatMw(
@@ -1066,7 +1066,7 @@ function CountryMarketsTable({
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[20%] px-5 py-3 font-semibold">Country</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">Records</th>
+              <th className="w-[18%] px-5 py-3 font-semibold">Profiles</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Electric</th>
               <th className="w-[14%] px-5 py-3 font-semibold">
                 Direct Use / Thermal
@@ -1094,7 +1094,7 @@ function CountryMarketsTable({
                         country.operating_asset_count +
                         country.company_count
                     )}{" "}
-                    staged records
+                    staged profiles
                   </div>
                   <div className="mt-1 text-xs text-gray-500">
                     Updated {formatDate(country.latest_update_at)}
@@ -1153,7 +1153,7 @@ function CountryMarketsTable({
                       country.direct_use_project_count +
                         country.direct_use_asset_count
                     )}{" "}
-                    records
+                    direct-use profiles
                   </div>
                   <div className="mt-1 text-xs leading-5 text-gray-500">
                     {formatMw(
@@ -1398,7 +1398,7 @@ export default async function PostgresCountryMarketsPage({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <StatTile
                 label="Countries"
-                note="Canonical countries with staged records"
+                note="Canonical countries with staged activity"
                 value={formatCount(countries.length)}
               />
               <StatTile
@@ -1413,12 +1413,12 @@ export default async function PostgresCountryMarketsPage({
               />
               <StatTile
                 label="Direct Use"
-                note="Direct-use project and plant records"
+                note="Direct-use project and plant profiles"
                 value={formatCount(totals.directUseRecords)}
               />
               <StatTile
                 label="Source Gaps"
-                note="Records without confirmed evidence links"
+                note="Profiles without confirmed evidence links"
                 value={formatCount(totals.sourceGaps)}
               />
             </div>
