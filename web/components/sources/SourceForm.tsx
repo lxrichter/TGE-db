@@ -1296,12 +1296,12 @@ export default function SourceForm({
               </select>
             </Field>
             <Field
-              label="Country / Market"
+              label="Market / Country"
               {...sourceFieldMeta("country", changeState)}
             >
               <TextInput
                 name="country"
-                placeholder="Country"
+                placeholder="Market or country"
                 value={form.country}
                 onChange={setField}
               />

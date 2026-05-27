@@ -128,7 +128,7 @@ function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   }
 
   if (value === "country") {
-    return "Country / Market";
+    return "Market";
   }
 
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -177,7 +177,7 @@ function SearchForm({ query }: { query: string }) {
         className="h-11 border border-gray-300 bg-white px-4 text-sm font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
         defaultValue={query}
         name="q"
-        placeholder="Search projects, plants, companies, sources, countries..."
+        placeholder="Search projects, plants, companies, sources, markets..."
         type="search"
       />
       <button

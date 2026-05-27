@@ -119,7 +119,7 @@ function entityTypeLabel(value: string) {
   }
 
   if (value === "country_market") {
-    return "Country / Market";
+    return "Market";
   }
 
   return value.replaceAll("_", " ");

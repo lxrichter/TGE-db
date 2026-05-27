@@ -204,7 +204,7 @@ function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   }
 
   if (value === "country") {
-    return "Country / Market";
+    return "Market";
   }
 
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -424,7 +424,7 @@ export default function GlobalCommandPalette({
               </div>
               <div className="mt-2 text-xs leading-5 text-gray-500">
                 Use arrow keys and Enter, or search for projects, plants,
-                companies, sources, countries, and operational actions.
+                companies, sources, markets, and operational actions.
               </div>
             </div>
 
