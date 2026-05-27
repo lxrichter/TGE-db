@@ -81,6 +81,15 @@ export function parsePreviewTableDensity(
 }
 
 export function formatPreviewFilterLabel(value: string) {
+  const labelOverrides: Record<string, string> = {
+    pre_feasibility: "Pre-Feasibility",
+    prospect_tbd: "Prospect",
+  };
+
+  if (labelOverrides[value]) {
+    return labelOverrides[value];
+  }
+
   return value
     .replaceAll("_", " ")
     .replace(/\b\w/g, (match) => match.toUpperCase())

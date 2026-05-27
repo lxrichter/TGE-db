@@ -173,14 +173,6 @@ const projectStagePlantStatusCodes = new Set([
   "under_construction",
 ]);
 
-function formatPlantStatusBucketLabel(bucketCode: string) {
-  if (projectStagePlantStatusCodes.has(bucketCode)) {
-    return `Needs Normalization: ${formatPreviewFilterLabel(bucketCode)}`;
-  }
-
-  return formatPreviewFilterLabel(bucketCode);
-}
-
 function plantStatusBarClass(bucketCode: string) {
   if (projectStagePlantStatusCodes.has(bucketCode)) {
     return postgresStatusBarClass("attention");
@@ -195,6 +187,9 @@ function BucketTable({
   buckets,
   defaultOpen = true,
   useLifecycleColors = false,
+  segmentHeader = "Segment",
+  countHeader = "Profiles",
+  countSummaryLabel = "profiles",
   formatBucketLabel = (bucket) => formatPreviewFilterLabel(bucket.bucket_code),
   getBucketBarClass,
 }: {
@@ -203,6 +198,9 @@ function BucketTable({
   buckets: PostgresPreviewAnalysisBucket[];
   defaultOpen?: boolean;
   useLifecycleColors?: boolean;
+  segmentHeader?: string;
+  countHeader?: string;
+  countSummaryLabel?: string;
   formatBucketLabel?: (bucket: PostgresPreviewAnalysisBucket) => string;
   getBucketBarClass?: (bucket: PostgresPreviewAnalysisBucket) => string;
 }) {
@@ -225,7 +223,7 @@ function BucketTable({
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
           <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
-            {formatCount(recordCount)} profiles
+            {formatCount(recordCount)} {countSummaryLabel}
           </span>
           <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
             {formatMw(electricCapacity)} MWe
@@ -254,7 +252,7 @@ function BucketTable({
                 {formatBucketLabel(bucket)}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <MobileAnalysisField label="Profiles">
+                <MobileAnalysisField label={countHeader}>
                   {formatCount(bucket.record_count)}
                 </MobileAnalysisField>
                 <MobileAnalysisField label="Electric">
@@ -278,10 +276,14 @@ function BucketTable({
       </div>
       <div className="hidden overflow-x-auto border-t border-gray-200 md:block">
         <table className="min-w-[820px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[#f7f7f7] text-[11px] tracking-wide text-gray-500">
             <tr>
-              <th className="w-[30%] px-5 py-3 font-semibold">Segment</th>
-              <th className="w-[14%] px-5 py-3 font-semibold">Profiles</th>
+              <th className="w-[30%] px-5 py-3 font-semibold">
+                {segmentHeader}
+              </th>
+              <th className="w-[14%] px-5 py-3 font-semibold">
+                {countHeader}
+              </th>
               <th className="w-[18%] px-5 py-3 font-semibold">MWe</th>
               <th className="w-[14%] px-5 py-3 font-semibold">MWth</th>
               <th className="w-[24%] px-5 py-3 font-semibold">Share</th>
@@ -518,27 +520,32 @@ export default async function PostgresAnalysisPreviewPage({
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               <BucketTable
                 buckets={summary.projectLifecycle}
+                countHeader="No. of Projects"
+                countSummaryLabel="projects"
                 description="Projects grouped by lifecycle phase, including electric and thermal capacity signals where available."
+                segmentHeader="Phase"
                 title="Project Lifecycle"
                 useLifecycleColors
               />
               <BucketTable
                 buckets={summary.operatingAssetStatus}
+                countHeader="No. of Plants"
+                countSummaryLabel="plants"
                 description="Plants grouped through an operating-status lens. Project-stage values are flagged as plant-status normalization work."
-                formatBucketLabel={(bucket) =>
-                  formatPlantStatusBucketLabel(bucket.bucket_code)
-                }
                 getBucketBarClass={(bucket) =>
                   plantStatusBarClass(bucket.bucket_code)
                 }
+                segmentHeader="Phase"
                 title="Plant Operating Status"
               />
             </div>
 
             <BucketTable
               buckets={summary.useTypeBreakdown}
+              countHeader="Profiles"
               defaultOpen={false}
               description="Combined project and plant distribution by geothermal use type."
+              segmentHeader="Use Type"
               title="Use-Type Distribution"
             />
           </section>
