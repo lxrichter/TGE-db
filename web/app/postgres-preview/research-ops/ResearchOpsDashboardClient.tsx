@@ -107,19 +107,19 @@ const queueGroupDefinitions: Array<{
   {
     key: "sources_evidence",
     title: "Sources / Evidence",
-    description: "Records and sources that need evidence coverage or credibility review.",
+    description: "Projects, plants, companies, and sources that need evidence coverage or credibility review.",
     queueKeys: ["needs_source", "source_needs_review", "weak_or_outdated_source"],
   },
   {
     key: "validation_approval",
     title: "Validation / Approval",
-    description: "Draft, validation, or updated records that need editor attention.",
+    description: "Draft, validation, or updated items that need editor attention.",
     queueKeys: ["needs_approval", "needs_update"],
   },
   {
     key: "duplicates_stale",
     title: "Duplicates / Stale",
-    description: "Duplicate warnings and records that should be rechecked.",
+    description: "Duplicate warnings and items that should be rechecked.",
     queueKeys: ["suspected_duplicates", "needs_update"],
   },
   {
@@ -151,19 +151,19 @@ const queueListTargetConfig: Partial<
       label: "Projects",
       basePath: "/postgres-preview/projects",
       query: { missing: "source" },
-      note: "Project records missing evidence",
+      note: "Projects missing evidence",
     },
     {
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "source" },
-      note: "Operating records missing evidence",
+      note: "Plants missing evidence",
     },
     {
       label: "Companies",
       basePath: "/postgres-preview/companies",
       query: { missing: "source" },
-      note: "Company records missing evidence",
+      note: "Companies missing evidence",
     },
   ],
   source_needs_review: [
@@ -277,7 +277,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { review: "draft_or_validation" },
-      note: "Draft or validation assets",
+      note: "Draft or validation plants",
     },
     {
       label: "Companies",
@@ -1157,7 +1157,7 @@ function QuickOperationalViews({
   }> = [
     {
       label: "Critical / Export Blockers",
-      note: "High-priority records first",
+      note: "High-priority items first",
       view: { severity: "critical" },
     },
     {
@@ -1177,12 +1177,12 @@ function QuickOperationalViews({
     },
     {
       label: "Duplicate Review",
-      note: "Possible duplicate records",
+      note: "Possible duplicate items",
       view: { queue: "suspected_duplicates" },
     },
     {
       label: "Stale / Needs Update",
-      note: "Records needing re-review",
+      note: "Items needing re-review",
       view: { queue: "needs_update" },
     },
     {
@@ -1347,7 +1347,7 @@ function SystemQueueGroups({
           Queue Groups
         </h2>
         <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
-          These queues are calculated from current PostgreSQL staging data. They
+          These queues are calculated from current platform data. They
           are not human assignments unless a persistent issue is created from a
           row.
         </p>
@@ -1546,7 +1546,7 @@ function ArticleFactReviewPanel({
       label: "Source Rows",
       value: summary.withSourceRecord,
       href: "/sources/facts",
-      note: "Linked to source records",
+      note: "Linked to governed sources",
     },
   ];
 
@@ -1851,7 +1851,7 @@ function FieldSuggestionReviewPanel({
       !window.confirm(
         `Apply ${formatCount(
           selectedCandidateIds.size
-        )} confirmed suggestion(s) to database records? This is the audited write step and should only be used after human review.`
+        )} confirmed suggestion(s) to project, plant, or company fields? This is the audited write step and should only be used after human review.`
       )
     ) {
       return;
@@ -1927,7 +1927,7 @@ function FieldSuggestionReviewPanel({
           {formatCount(summary.open)} open review item
           {summary.open === 1 ? "" : "s"} ·{" "}
           {formatCount(summary.applyReady)} ready to apply ·{" "}
-          {formatCount(summary.applied)} applied to records
+          {formatCount(summary.applied)} applied to entities
         </div>
         <span className="inline-flex min-h-[28px] self-start border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
           Human confirmation required
@@ -2278,7 +2278,7 @@ function FilterSelect({
 function EmptyQueue() {
   return (
     <div className="border-t border-gray-100 px-5 py-5 text-sm text-gray-500">
-      No matching records in this queue.
+      No matching items in this queue.
     </div>
   );
 }
@@ -2711,7 +2711,7 @@ function ResearchOpsViewContext({
               Generated staging queues
             </div>
             <p className="mt-1 leading-5 text-gray-500">
-              Calculated from current PostgreSQL staging data, separate from
+              Calculated from current platform data, separate from
               persisted human-created issues.
             </p>
           </div>
@@ -2743,7 +2743,7 @@ function ResearchOpsViewContext({
       </div>
       <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
         {formatCount(filteredIssueRows)} queue rows ·{" "}
-        {formatCount(filteredRecordCount)} unique records
+        {formatCount(filteredRecordCount)} unique items
       </div>
     </div>
   );
@@ -2887,7 +2887,7 @@ function BulkActionsPanel({
             Bulk Review Actions
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Apply a workflow status to selected PostgreSQL staging rows. Sources
+            Apply a workflow status to selected queue rows. Sources
             use source credibility states; projects, plants, and
             companies use review states.
           </p>
@@ -2921,7 +2921,7 @@ function BulkActionsPanel({
               Active Target
             </div>
             <div className="mt-1 text-sm font-semibold text-[#1f2937]">
-              {activeTarget === "sources" ? "Sources" : "Database Records"}
+              {activeTarget === "sources" ? "Sources" : "Projects / Plants / Companies"}
             </div>
             <p className="mt-1 text-xs leading-5 text-gray-500">
               Record statuses and source credibility states are handled
@@ -2967,7 +2967,7 @@ function BulkActionsPanel({
             onChange={(value) => setBulkTarget(value as BulkTarget)}
           >
             <option disabled={!hasRecords} value="records">
-              Records ({formatCount(selectedRecords.filter((r) => r.entity_type !== "source").length)})
+              Entity Items ({formatCount(selectedRecords.filter((r) => r.entity_type !== "source").length)})
             </option>
             <option disabled={!hasSources} value="sources">
               Sources ({formatCount(selectedRecords.filter((r) => r.entity_type === "source").length)})
@@ -3003,7 +3003,7 @@ function BulkActionsPanel({
             {saving
               ? "Applying..."
               : `Apply To ${formatCount(targetRecords.length)} ${
-                  activeTarget === "sources" ? "Source" : "Record"
+                  activeTarget === "sources" ? "Source" : "Item"
                 }${targetRecords.length === 1 ? "" : "s"}`}
           </button>
           <div className="text-sm text-gray-600">
@@ -4052,7 +4052,7 @@ function RecentEdits({
       <div className="border-b border-gray-200 px-5 py-4">
         <h2 className="text-lg font-bold text-[#1f2937]">Recently Edited</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-          Latest PostgreSQL staging records by updated timestamp, including the
+          Latest platform edits by updated timestamp, including the
           researcher/editor field when user metadata exists.
         </p>
       </div>
@@ -4592,7 +4592,7 @@ export function ResearchOpsDashboardClient({
             {
               label: "Validation Backlog",
               value: queueCounts.get("needs_approval") || 0,
-              note: "Draft or validation records",
+              note: "Draft or validation items",
               tone: "workflow",
               onClick: () => applyOperationalView({ queue: "needs_approval" }),
             },
@@ -4613,7 +4613,7 @@ export function ResearchOpsDashboardClient({
             {
               label: "Duplicate Warnings",
               value: queueCounts.get("suspected_duplicates") || 0,
-              note: "Potential duplicate records",
+              note: "Potential duplicate items",
               tone: "important",
               onClick: () =>
                 applyOperationalView({ queue: "suspected_duplicates" }),
@@ -4688,7 +4688,7 @@ export function ResearchOpsDashboardClient({
       <section id="deep-workbench" className="space-y-5 scroll-mt-24">
         <DisclosurePanel
           id="deep-table"
-          description="Filters, selected records, bulk actions, exports, activity, and queue scope. It opens automatically when a queue or operational view is selected."
+          description="Filters, selected items, bulk actions, exports, activity, and queue scope. It opens automatically when a queue or operational view is selected."
           eyebrow="Governance"
           onOpenChange={setDeepWorkbenchOpen}
           open={deepWorkbenchOpen || activeOperationalFilters.length > 0}
@@ -4838,9 +4838,9 @@ export function ResearchOpsDashboardClient({
 
         <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
         <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
-        PostgreSQL staging queues now support quick review-status changes for
-        projects, plants, companies, and source credibility records.
-        Railway PostgreSQL staging uses a transformed copied Hetzner SQLite
+        Platform queues now support quick review-status changes for
+        projects, plants, companies, and source credibility.
+        Railway PostgreSQL uses a transformed copied Hetzner SQLite
         backup for controlled review; the current live SQLite database remains
         on the server. Generated {formatDate(dashboard.generatedAt)}.
         </section>
@@ -4874,7 +4874,7 @@ export function ResearchOpsDashboardClient({
       <section id="research-activity" className="scroll-mt-24">
         <DisclosurePanel
           defaultOpen={false}
-          description="Recently edited PostgreSQL staging records and summary indicators for source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
+          description="Recently edited platform items and summary indicators for source, approval, and review activity. Dedicated approval/source-addition timelines should come next."
           eyebrow="Research Activity"
           title="Recent Activity"
         >
