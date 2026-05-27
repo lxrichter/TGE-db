@@ -43,7 +43,7 @@ const commandShortcuts = [
     group: "Intelligence / Research",
     label: "Open Map",
     href: "/postgres-preview/map",
-    note: "Spatial intelligence for coordinate-confirmed projects and assets.",
+    note: "Spatial intelligence for coordinate-confirmed projects and plants.",
   },
   {
     group: "Platform / Admin",

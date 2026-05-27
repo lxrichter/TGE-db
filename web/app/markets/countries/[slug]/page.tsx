@@ -355,7 +355,7 @@ export default async function CountryMarketPage({
             </h1>
             <p className="mt-4 text-lg leading-8 text-gray-600">
               Country-market geothermal view with installed and operating
-              capacity, project pipeline, asset map, operator landscape, and
+              capacity, project pipeline, plant map, operator landscape, and
               structured plant and project profiles.
             </p>
           </div>
