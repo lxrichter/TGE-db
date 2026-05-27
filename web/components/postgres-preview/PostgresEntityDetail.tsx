@@ -461,7 +461,7 @@ export function StatGrid({ stats }: { stats: DetailStat[] }) {
 }
 
 export function DetailAnchorNav({
-  title = "Record Sections",
+  title = "Page Sections",
   items,
 }: {
   title?: string;
@@ -1148,7 +1148,7 @@ export function DetailShell({
   badges,
   stats,
   statusLegendGroups = ["review", "lifecycle", "severity"],
-  statusLegendTitle = "Record Status Meaning",
+  statusLegendTitle = "Status Meaning",
   statusLegendDescription = "Detail pages use the same badge language as Research Ops and the table views.",
   children,
 }: {

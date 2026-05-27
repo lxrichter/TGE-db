@@ -1467,8 +1467,8 @@ const workflowQuickActionGroupMeta: Record<
 > = {
   record: {
     eyebrow: "Core",
-    title: "Record Work",
-    description: "Open the saved record and continue core profile review.",
+    title: "Core Data",
+    description: "Open the saved profile and continue core review.",
   },
   evidence: {
     eyebrow: "Evidence",
