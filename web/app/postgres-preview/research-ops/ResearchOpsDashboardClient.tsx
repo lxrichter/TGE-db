@@ -193,7 +193,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "country" },
-      note: "Assets without country",
+      note: "Plants without country",
     },
   ],
   missing_lifecycle: [
@@ -207,7 +207,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "status" },
-      note: "Assets without status",
+      note: "Plants without status",
     },
   ],
   missing_use_type: [
@@ -221,7 +221,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "use_type" },
-      note: "Assets without use type",
+      note: "Plants without use type",
     },
   ],
   missing_company_link: [
@@ -235,7 +235,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "company_link" },
-      note: "Assets without company links",
+      note: "Plants without company links",
     },
   ],
   missing_coordinates: [
@@ -249,7 +249,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "coordinates" },
-      note: "Assets missing map coordinates",
+      note: "Plants missing map coordinates",
     },
   ],
   missing_capacity: [
@@ -263,7 +263,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { missing: "capacity" },
-      note: "Assets without capacity/output",
+      note: "Plants without capacity/output",
     },
   ],
   needs_approval: [
@@ -297,7 +297,7 @@ const queueListTargetConfig: Partial<
       label: "Plants",
       basePath: "/postgres-preview/operating-assets",
       query: { review: "needs_update" },
-      note: "Assets requiring re-check",
+      note: "Plants requiring re-check",
     },
     {
       label: "Companies",
@@ -408,7 +408,7 @@ function formatDate(value: string | null) {
 
 function formatEntityType(value: EntityType) {
   if (value === "operating_asset") {
-    return "Asset";
+    return "Plant";
   }
 
   if (value === "project") {
