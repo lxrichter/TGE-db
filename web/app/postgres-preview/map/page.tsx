@@ -51,7 +51,7 @@ function geographyQuery(filters: PostgresPreviewGeographyFilters) {
 }
 
 function geographyLabel(filters: PostgresPreviewGeographyFilters) {
-  if (filters.country) return `Country: ${filters.country}`;
+  if (filters.country) return `Market: ${filters.country}`;
   if (filters.tgeRegion) return `TGE region: ${filters.tgeRegion}`;
   if (filters.wbRegion) return `World Bank region: ${filters.wbRegion}`;
 
@@ -252,7 +252,7 @@ export default async function PostgresPreviewMapPage({
             title: activeGeographyLabel
               ? "Open filtered market context"
               : "Open market signals",
-            description: "Move from spatial clusters into country and regional intelligence.",
+            description: "Move from spatial clusters into regional and market intelligence.",
             href: `${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`,
           },
         ]}
@@ -369,7 +369,9 @@ export default async function PostgresPreviewMapPage({
           tone="core"
         />
         <GroupedMap
+          allCountriesLabel="All Markets"
           apiPath={mapApiPath}
+          countryFilterLabel="Market"
           detailPathMode="postgres-preview"
           regionFilterLabel="TGE Region"
         />

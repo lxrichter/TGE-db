@@ -174,10 +174,14 @@ function getTileConfig(viewMode: ViewMode) {
 
 export default function GroupedMap({
   apiPath = "/api/map",
+  allCountriesLabel = "All Countries",
+  countryFilterLabel = "Country",
   detailPathMode = "legacy",
   regionFilterLabel = "Region",
 }: {
   apiPath?: string;
+  allCountriesLabel?: string;
+  countryFilterLabel?: string;
   detailPathMode?: "legacy" | "postgres-preview";
   regionFilterLabel?: string;
 }) {
@@ -185,7 +189,7 @@ export default function GroupedMap({
   const [showPlants, setShowPlants] = useState(true);
   const [showProjects, setShowProjects] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("map");
-  const [countryFilter, setCountryFilter] = useState("All Countries");
+  const [countryFilter, setCountryFilter] = useState(allCountriesLabel);
   const [regionFilter, setRegionFilter] = useState("All Regions");
   const [isExpandedMap, setIsExpandedMap] = useState(false);
   const [showFilterPanel, setShowFilterPanel] = useState(true);
@@ -232,8 +236,8 @@ export default function GroupedMap({
       )
     ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 
-    return ["All Countries", ...countries];
-  }, [allMarkers]);
+    return [allCountriesLabel, ...countries];
+  }, [allCountriesLabel, allMarkers]);
 
   const regionOptions = useMemo(() => {
     const regions = Array.from(
@@ -253,7 +257,7 @@ export default function GroupedMap({
     if (showPlants) items.push(...data.plants);
     if (showProjects) items.push(...data.projects);
 
-    if (countryFilter !== "All Countries") {
+    if (countryFilter !== allCountriesLabel) {
       items = items.filter(
         (item) => (item.country || "").trim() === countryFilter
       );
@@ -266,7 +270,14 @@ export default function GroupedMap({
     }
 
     return items;
-  }, [data, showPlants, showProjects, countryFilter, regionFilter]);
+  }, [
+    allCountriesLabel,
+    data,
+    showPlants,
+    showProjects,
+    countryFilter,
+    regionFilter,
+  ]);
 
   // Initialize map once
   useEffect(() => {
@@ -595,7 +606,7 @@ export default function GroupedMap({
               <div className="space-y-1.5">
                 <label className="block">
                   <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                    Country
+                    {countryFilterLabel}
                   </span>
                   <select
                     value={countryFilter}
