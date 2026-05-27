@@ -767,7 +767,7 @@ export default async function PostgresProjectDetailPage({
           },
           {
             href: "#project-record-data",
-            label: "Record Data",
+            label: "Project Data",
             note: "Fields",
           },
           {
@@ -896,7 +896,7 @@ export default async function PostgresProjectDetailPage({
 
       <section id="project-record-data" className="space-y-5 scroll-mt-24">
         <DetailPriorityMarker
-          label="Core Record"
+          label="Core Profile"
           title="Project Data"
           description="Identity, location, capacity, resource, timeline, technology."
           tone="core"

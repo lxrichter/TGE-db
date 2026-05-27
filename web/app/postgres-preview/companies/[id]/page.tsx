@@ -868,7 +868,7 @@ export default async function PostgresCompanyDetailPage({
           },
           {
             href: "#company-record-data",
-            label: "Record Data",
+            label: "Company Data",
             note: "Fields",
           },
           {
@@ -1001,7 +1001,7 @@ export default async function PostgresCompanyDetailPage({
 
       <section id="company-record-data" className="space-y-5 scroll-mt-24">
         <DetailPriorityMarker
-          label="Core Record"
+          label="Core Profile"
           title="Company Data"
           description="Identity, classification, market focus, website, activity context."
           tone="core"

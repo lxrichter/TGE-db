@@ -526,7 +526,7 @@ function workflowStepTone(status: DetailWorkflowStep["status"]) {
 }
 
 export function DetailWorkflowMap({
-  title = "Record Workflow",
+  title = "Review Workflow",
   description,
   steps,
 }: {

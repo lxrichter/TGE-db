@@ -40,8 +40,8 @@ const actionGroupMeta: Record<
 > = {
   record: {
     eyebrow: "Core",
-    title: "Record Work",
-    description: "Fix the primary structured fields that define this record.",
+    title: "Core Data",
+    description: "Fix the primary structured fields that define this profile.",
   },
   evidence: {
     eyebrow: "Evidence",

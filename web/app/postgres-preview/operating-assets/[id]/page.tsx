@@ -789,7 +789,7 @@ export default async function PostgresOperatingAssetDetailPage({
           },
           {
             href: "#asset-record-data",
-            label: "Record Data",
+            label: "Plant Data",
             note: "Fields",
           },
           {
@@ -919,7 +919,7 @@ export default async function PostgresOperatingAssetDetailPage({
 
       <section id="asset-record-data" className="space-y-5 scroll-mt-24">
         <DetailPriorityMarker
-          label="Core Record"
+          label="Core Profile"
           title="Plant Data"
           description="Identity, location, status, capacity, resource, technology, COD."
           tone="core"
