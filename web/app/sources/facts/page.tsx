@@ -387,31 +387,31 @@ export default async function ArticleFactCandidatesPage({
     filters.sourceId
       ? {
           label: "Source",
-          title: "Back to source profile",
+          title: "Open Source Profile",
           description:
-            "Return to the filtered source record, credibility state, and linked evidence context.",
+            "Return to the source, credibility state, and linked evidence.",
           href: `/sources/${filters.sourceId}`,
         }
       : {
-          label: "Sources",
-          title: "Open Evidence Backbone",
+          label: "Sources & Evidence",
+          title: "Open Sources & Evidence",
           description:
-            "Review source records, credibility state, and linked evidence coverage.",
+            "Review source records, credibility, and evidence coverage.",
           href: "/sources",
         },
     {
       label: "Matches",
-      title: "Review article matches",
-      description: "Check whether extracted facts have a reviewed article-to-entity path.",
+      title: "Review Article Matches",
+      description: "Confirm the article-to-entity path behind extracted facts.",
       href: filters.sourceId
         ? `/sources/matches?sourceId=${filters.sourceId}`
         : "/sources/matches",
     },
     {
-      label: "Operations",
-      title: "Open fact queue",
+      label: "Research Ops",
+      title: "Open Fact Queue",
       description:
-        "Return to Research Ops for fact review and field-suggestion governance.",
+        "Review fact workload and field-suggestion governance.",
       href: "/postgres-preview/research-ops#article-fact-review",
     },
   ];
@@ -460,7 +460,7 @@ export default async function ArticleFactCandidatesPage({
 
       <NextActionStrip
         title="Review Context"
-        description="Use these routes to keep fact review tied to source context, entity matching, and Research Ops."
+        description="Keep fact review tied to source context, entity matching, and Research Ops."
         actions={factNextActions}
       />
 

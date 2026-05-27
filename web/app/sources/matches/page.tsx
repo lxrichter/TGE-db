@@ -260,31 +260,31 @@ export default async function SourceMatchCandidatesPage({
     filters.sourceId
       ? {
           label: "Source",
-          title: "Back to source profile",
+          title: "Open Source Profile",
           description:
-            "Return to the filtered source record, credibility state, and linked evidence context.",
+            "Return to the source, credibility state, and linked evidence.",
           href: `/sources/${filters.sourceId}`,
         }
       : {
-          label: "Sources",
-          title: "Open Evidence Backbone",
+          label: "Sources & Evidence",
+          title: "Open Sources & Evidence",
           description:
-            "Review source records, credibility state, and existing evidence links.",
+            "Review source records, credibility, and evidence links.",
           href: "/sources",
         },
     {
       label: "Facts",
-      title: "Review extracted facts",
+      title: "Review Extracted Facts",
       description:
-        "Move from article/entity matches into compact extracted fact review.",
+        "Move reviewed matches into compact fact review.",
       href: filters.sourceId
         ? `/sources/facts?sourceId=${filters.sourceId}`
         : "/sources/facts",
     },
     {
-      label: "Operations",
-      title: "Open match queue",
-      description: "Return to Research Ops for article match workload visibility.",
+      label: "Research Ops",
+      title: "Open Match Queue",
+      description: "Review article match workload in Research Ops.",
       href: "/postgres-preview/research-ops#article-match-review",
     },
   ];
@@ -327,7 +327,7 @@ export default async function SourceMatchCandidatesPage({
 
       <NextActionStrip
         title="Review Context"
-        description="Use these routes to keep match review tied to source context, fact triage, and Research Ops."
+        description="Keep match review tied to source context, fact triage, and Research Ops."
         actions={matchNextActions}
       />
 
