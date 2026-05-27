@@ -416,7 +416,7 @@ export default async function PostgresCompaniesListPage({
                 label: "HQ Markets",
                 value: formatOverviewCount(data.facets.countries.length),
                 note: "Headquarters country values in staging",
-                href: "/postgres-preview/countries",
+                href: "/postgres-preview/markets",
                 tone: "market",
               },
               {

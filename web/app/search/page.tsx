@@ -29,8 +29,8 @@ const commandShortcuts = [
   },
   {
     group: "Intelligence / Research",
-    label: "Open Countries / Markets",
-    href: "/postgres-preview/countries",
+    label: "Open Markets",
+    href: "/postgres-preview/markets",
     note: "Market intelligence, country worklists, and source-gap signals.",
   },
   {

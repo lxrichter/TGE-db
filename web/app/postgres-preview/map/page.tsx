@@ -253,7 +253,7 @@ export default async function PostgresPreviewMapPage({
               ? "Open filtered market context"
               : "Open country signals",
             description: "Move from spatial clusters into country and regional intelligence.",
-            href: `${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`,
+            href: `${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`,
           },
         ]}
       />
@@ -353,7 +353,7 @@ export default async function PostgresPreviewMapPage({
           />
           <MapWorkflowCard
             description="Open the TGE-first regional market layer behind the spatial view."
-            href={`${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`}
+            href={`${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`}
             label="Regions"
             title={activeGeographyLabel || "Regional Market Context"}
             tone="success"

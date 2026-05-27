@@ -442,7 +442,7 @@ export default async function PostgresProjectsListPage({
                 label: "Markets",
                 value: formatOverviewCount(data.analysis.topCountries.length),
                 note: "Countries represented in this pipeline view",
-                href: "/postgres-preview/countries",
+                href: "/postgres-preview/markets",
                 tone: "market",
               },
               {

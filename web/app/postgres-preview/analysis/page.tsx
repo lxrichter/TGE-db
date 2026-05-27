@@ -361,9 +361,9 @@ export default async function PostgresAnalysisPreviewPage({
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
-                href={geographyHref("/postgres-preview/countries", filters)}
+                href={geographyHref("/postgres-preview/markets", filters)}
               >
-                Countries / Markets
+                Markets
               </Link>
             </div>
           </div>
@@ -376,9 +376,9 @@ export default async function PostgresAnalysisPreviewPage({
         actions={[
           {
             label: "Markets",
-            title: "Open Countries / Markets",
+            title: "Open Markets",
             description: "Move from benchmark signals into country and regional intelligence.",
-            href: `${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`,
+            href: `${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`,
           },
           {
             label: "Worklists",

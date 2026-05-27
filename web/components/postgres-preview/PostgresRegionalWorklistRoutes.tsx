@@ -145,7 +145,7 @@ export default function PostgresRegionalWorklistRoutes({
               <Link
                 className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href={regionHref({
-                  path: "/postgres-preview/countries",
+                  path: "/postgres-preview/markets",
                   kind: region.kind,
                   name: region.name,
                   hash: "#market-operations",

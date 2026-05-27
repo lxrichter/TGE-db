@@ -334,7 +334,7 @@ function MarketSignalTable({
           </p>
         </div>
         <Link
-          href="/postgres-preview/countries"
+          href="/postgres-preview/markets"
           className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:bg-[#f3f8ec]"
         >
           Open Markets
@@ -345,7 +345,7 @@ function MarketSignalTable({
         {analysis.topCountries.slice(0, 5).map((country) => (
           <Link
             key={country.country}
-            href={`/postgres-preview/countries?country=${encodeURIComponent(
+            href={`/postgres-preview/markets?country=${encodeURIComponent(
               country.country
             )}`}
             className="block px-5 py-4"
@@ -378,7 +378,7 @@ function MarketSignalTable({
                 <td className="px-5 py-4">
                   <Link
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
-                    href={`/postgres-preview/countries?country=${encodeURIComponent(
+                    href={`/postgres-preview/markets?country=${encodeURIComponent(
                       country.country
                     )}`}
                   >
@@ -398,7 +398,7 @@ function MarketSignalTable({
                   <div>{formatCount(country.missing_source_count)} source gaps</div>
                   <Link
                     className="mt-2 inline-flex text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
-                    href={`/postgres-preview/countries?country=${encodeURIComponent(
+                    href={`/postgres-preview/markets?country=${encodeURIComponent(
                       country.country
                     )}`}
                   >
@@ -499,8 +499,8 @@ function RecentIntelligenceSignals() {
     {
       category: "Policy / tender",
       title: "Policy, tenders, incentives, and market support",
-      detail: "Future feed connected to Countries / Markets and related news.",
-      href: "/postgres-preview/countries",
+      detail: "Future feed connected to Markets and related news.",
+      href: "/postgres-preview/markets",
     },
     {
       category: "Plant activity",
@@ -768,7 +768,7 @@ export default async function HomePage() {
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <ExecutiveKpi
-            href="/postgres-preview/countries"
+            href="/postgres-preview/markets"
             label="Markets"
             note={staging.ok ? "Top market records loaded" : "Legacy countries covered"}
             tone="market"
@@ -806,10 +806,10 @@ export default async function HomePage() {
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <IntelligenceCard
             description="Country and regional market views with operating capacity, pipeline, evidence gaps, and source-aware market signals."
-            href="/postgres-preview/countries"
+            href="/postgres-preview/markets"
             label="Market Intelligence"
             meta="Markets"
-            title="Countries / Markets"
+            title="Markets"
           />
           <IntelligenceCard
             description="Spatial view of coordinate-confirmed projects and plants, with Research Ops handling missing coordinates."
@@ -840,7 +840,7 @@ export default async function HomePage() {
           <DetailPriorityMarker
             label="Signals"
             title="Market And Pipeline Signals"
-            description="Readable high-level slices before users drill into Analysis or Countries / Markets."
+            description="Readable high-level slices before users drill into Analysis or Markets."
             tone="core"
           />
 

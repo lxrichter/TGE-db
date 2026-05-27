@@ -587,9 +587,9 @@ export default async function PostgresPreviewPage() {
               />
               <WorkAreaCard
                 description="Country aggregation, market worklists, validation coverage, and source-gap signals."
-                href="/postgres-preview/countries"
+                href="/postgres-preview/markets"
                 label="Market Layer"
-                title="Countries / Markets"
+                title="Markets"
               />
               <WorkAreaCard
                 description="Spatial view for projects and plants with map-based navigation."

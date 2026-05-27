@@ -161,7 +161,7 @@ export default function AppHeaderShell({
             <NavGroup isFirst label="Intelligence / Research">
               <NavItem href="/" label="Dashboard" pathname={pathname} />
               <NavItem
-                href="/postgres-preview/countries"
+                href="/postgres-preview/markets"
                 label="Markets"
                 pathname={pathname}
               />

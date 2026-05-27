@@ -72,7 +72,7 @@ function marketRegionHref(
 
   params.set(regionKind === "tge" ? "tge_region" : "wb_region", regionName);
 
-  return `/postgres-preview/countries?${params.toString()}#market-operations`;
+  return `/postgres-preview/markets?${params.toString()}#market-operations`;
 }
 
 function regionWorklistHref(
@@ -1388,7 +1388,7 @@ export default async function PostgresCountryMarketsPage({
                 </div>
                 <Link
                   className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
-                  href="/postgres-preview/countries#region-drilldown"
+                  href="/postgres-preview/markets#region-drilldown"
                 >
                   Clear Region Filter
                 </Link>

@@ -45,9 +45,9 @@ const baseCommands: CommandItem[] = [
     type: "command",
     key: "markets",
     group: "Intelligence / Research",
-    label: "Open Countries / Markets",
+    label: "Open Markets",
     note: "Market intelligence, country worklists, and source-gap signals.",
-    href: "/postgres-preview/countries",
+    href: "/postgres-preview/markets",
   },
   {
     type: "command",

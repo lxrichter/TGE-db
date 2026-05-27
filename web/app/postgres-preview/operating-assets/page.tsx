@@ -455,7 +455,7 @@ export default async function PostgresOperatingAssetsListPage({
                 label: "Markets",
                 value: formatOverviewCount(data.analysis.topCountries.length),
                 note: "Countries represented in this plant view",
-                href: "/postgres-preview/countries",
+                href: "/postgres-preview/markets",
                 tone: "market",
               },
               {
