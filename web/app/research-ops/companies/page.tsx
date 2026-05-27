@@ -108,7 +108,7 @@ function buildFlags(row: CompanyRow) {
   if (isMissingPrimaryType(row)) flags.push("Missing Primary Type");
   if (isMissingCountry(row)) flags.push("Missing Country");
   if (isMissingSource(row)) flags.push("Missing Source");
-  if (isMissingLinks(row)) flags.push("No Asset Links");
+  if (isMissingLinks(row)) flags.push("No Project / Plant Links");
   if (isMissingRelationships(row)) flags.push("No Relationships");
   if (isNeedInfo(row)) flags.push("Need Info");
   if (isPendingReview(row)) flags.push("Pending Review");
@@ -653,7 +653,7 @@ export default function ResearchOpsCompaniesPage() {
               }`}
             >
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                No Asset Links
+                No Project / Plant Links
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatCount(stats.missingLinks)}
@@ -824,7 +824,7 @@ export default function ResearchOpsCompaniesPage() {
                 <option value="missing_primary_type">Missing Primary Type</option>
                 <option value="missing_country">Missing Country</option>
                 <option value="missing_source">Missing Source</option>
-                <option value="missing_links">No Asset Links</option>
+                <option value="missing_links">No Project / Plant Links</option>
                 <option value="missing_relationships">No Relationships</option>
                 <option value="my_records">My Records</option>
               </select>

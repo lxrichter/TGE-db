@@ -390,7 +390,7 @@ export default async function AdminPage() {
             examples="Developer, EPC Contractor, Drilling Company, Utility / IPP, Investor"
           />
           <RuleCard
-            title="Asset Role"
+            title="Project / Plant Role"
             subtitle="What the company does on a specific project or plant."
             examples="Owner, Operator, Operator Power, Operator Steam, Developer, EPC"
           />
@@ -402,7 +402,7 @@ export default async function AdminPage() {
         </div>
 
         <div className="mt-3 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Never use company type to describe project or plant participation. Asset participation belongs in linked projects and linked plants.
+          Never use company type to describe project or plant participation. Project and plant participation should live in linked projects and linked plants.
         </div>
       </SectionCard>
 

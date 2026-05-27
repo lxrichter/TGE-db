@@ -1562,7 +1562,7 @@ export default function EditCompanyPage() {
                 COMPANY_TYPE_PRIMARY_OPTIONS,
                 form.company_type_primary
               )}
-              helpText="Use one broad company identity only. Asset-specific roles belong in linked projects and plants."
+              helpText="Use one broad company identity only. Project- and plant-specific roles belong in linked projects and plants."
               error={fieldErrors.company_type_primary}
             />
 
