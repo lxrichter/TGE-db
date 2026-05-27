@@ -187,6 +187,8 @@ export default function GroupedMap({
   const [viewMode, setViewMode] = useState<ViewMode>("map");
   const [countryFilter, setCountryFilter] = useState("All Countries");
   const [regionFilter, setRegionFilter] = useState("All Regions");
+  const [isExpandedMap, setIsExpandedMap] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(true);
 
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<LeafletMap | null>(null);
@@ -494,19 +496,67 @@ export default function GroupedMap({
     };
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => leafletMapRef.current?.invalidateSize(), 0);
+  }, [isExpandedMap, showFilterPanel]);
+
+  const mapHeightClass = isExpandedMap
+    ? "h-[680px] min-h-[620px] w-full sm:h-[760px] xl:h-[calc(100vh-9rem)]"
+    : "h-[560px] w-full sm:h-[720px]";
+  const filterPanelVisible = !isExpandedMap || showFilterPanel;
+  const filterPanelClass = isExpandedMap
+    ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[300px]"
+    : "pointer-events-auto absolute left-4 right-4 top-4 max-h-[calc(100%-2rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[280px]";
+
   return (
     <div className="relative border border-gray-200 bg-white">
-      <div ref={mapRef} className="h-[560px] w-full sm:h-[720px]" />
+      <div ref={mapRef} className={mapHeightClass} />
 
       <div className="pointer-events-none absolute inset-0 z-[1000]">
-        <div className="pointer-events-auto absolute left-4 right-4 top-4 max-h-[calc(100%-2rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[280px]">
+        <div className="pointer-events-auto absolute right-4 top-4 flex flex-wrap justify-end gap-2 sm:right-6 sm:top-6">
+          <button
+            type="button"
+            onClick={() => {
+              setIsExpandedMap((current) => !current);
+              setShowFilterPanel(true);
+            }}
+            className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          >
+            {isExpandedMap ? "Standard Mode" : "Expanded Map"}
+          </button>
+          {isExpandedMap ? (
+            <button
+              type="button"
+              onClick={() => setShowFilterPanel((current) => !current)}
+              className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            >
+              {showFilterPanel ? "Hide Filters" : "Show Filters"}
+            </button>
+          ) : null}
+        </div>
+
+        {filterPanelVisible ? (
+          <div className={filterPanelClass}>
           <div className="border-b border-gray-200 bg-[#f7f7f7] px-3 py-2.5">
-            <h2 className="text-sm font-bold uppercase tracking-wide text-[#1f2937]">
-              Spatial Filters
-            </h2>
-            <p className="mt-1 text-[11px] leading-4 text-gray-500">
-              Filter coordinate-confirmed projects and plants.
-            </p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-bold uppercase tracking-wide text-[#1f2937]">
+                  Spatial Filters
+                </h2>
+                <p className="mt-1 text-[11px] leading-4 text-gray-500">
+                  Filter coordinate-confirmed projects and plants.
+                </p>
+              </div>
+              {isExpandedMap ? (
+                <button
+                  type="button"
+                  onClick={() => setShowFilterPanel(false)}
+                  className="shrink-0 border border-gray-300 bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                >
+                  Hide
+                </button>
+              ) : null}
+            </div>
           </div>
 
           <div className="space-y-2 px-3 py-2.5">
@@ -653,7 +703,8 @@ export default function GroupedMap({
               </div>
             </MapFilterGroup>
           </div>
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
