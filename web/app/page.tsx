@@ -243,12 +243,16 @@ function ExecutiveKpi({
   const toneClass = getExecutiveKpiToneClass(tone);
   const frameClass =
     prominence === "executive"
-      ? `border border-l-4 border-gray-200 ${toneClass} px-5 py-5 sm:px-6 sm:py-6`
+      ? `border border-l-4 border-gray-200 ${toneClass} px-5 py-5 sm:min-h-[148px] sm:px-6 sm:py-6`
       : `border border-l-4 border-gray-200 ${toneClass} px-4 py-4`;
   const valueClass =
     prominence === "executive"
-      ? "mt-4 text-4xl font-bold leading-none text-[#1f2937] sm:text-[2.6rem]"
-      : "mt-3 text-3xl font-bold leading-none text-[#1f2937]";
+      ? "mt-4 text-4xl font-bold leading-none text-[#1f2937] sm:text-[2.85rem]"
+      : "mt-3 text-2xl font-bold leading-none text-[#1f2937] sm:text-3xl";
+  const noteClass =
+    prominence === "executive"
+      ? "mt-3 text-sm leading-6 text-gray-600"
+      : "mt-2 text-xs leading-5 text-gray-500";
 
   const content = (
     <>
@@ -256,7 +260,7 @@ function ExecutiveKpi({
         {label}
       </div>
       <div className={valueClass}>{value}</div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={noteClass}>{note}</div>
     </>
   );
 
@@ -613,8 +617,11 @@ export default async function HomePage() {
   const pipelineMwe = staging.ok
     ? sumElectricCapacity(staging.analysis.projectLifecycle)
     : legacy.projectCapacity;
-  const operatingRecords = staging.ok
-    ? sumRecordCount(staging.analysis.operatingAssetStatus)
+  const projectRecords = staging.ok
+    ? staging.summary.projectCount
+    : legacy.projectCount;
+  const plantRecords = staging.ok
+    ? staging.summary.operatingAssetCount
     : legacy.plantCount;
   const directUseBuckets = staging.ok
     ? staging.analysis.useTypeBreakdown.filter(isDirectUseBucket)
@@ -707,15 +714,7 @@ export default async function HomePage() {
           tone="core"
         />
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-6">
-          <ExecutiveKpi
-            href="/postgres-preview/operating-assets"
-            label="Plants"
-            note="Plant records in staging scope"
-            prominence="executive"
-            tone="operating"
-            value={formatCount(operatingRecords)}
-          />
+        <section className="grid grid-cols-1 gap-3 lg:grid-cols-4">
           <ExecutiveKpi
             href="/postgres-preview/analysis"
             label="Operating MWe"
@@ -733,10 +732,28 @@ export default async function HomePage() {
             value={`${formatMw(pipelineMwe)} MWe`}
           />
           <ExecutiveKpi
+            href="/postgres-preview/projects"
+            label="Projects"
+            note="Project records in staging scope"
+            prominence="executive"
+            tone="pipeline"
+            value={formatCount(projectRecords)}
+          />
+          <ExecutiveKpi
+            href="/postgres-preview/operating-assets"
+            label="Plants"
+            note="Plant records in staging scope"
+            prominence="executive"
+            tone="operating"
+            value={formatCount(plantRecords)}
+          />
+        </section>
+
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <ExecutiveKpi
             href="/postgres-preview/countries"
             label="Markets"
             note={staging.ok ? "Top market records loaded" : "Legacy countries covered"}
-            prominence="executive"
             tone="market"
             value={formatCount(countriesCovered)}
           />
@@ -744,7 +761,6 @@ export default async function HomePage() {
             href="/postgres-preview/companies"
             label="Companies"
             note="Tracked ecosystem participants"
-            prominence="executive"
             tone="ecosystem"
             value={formatCount(companiesTracked)}
           />
@@ -756,7 +772,6 @@ export default async function HomePage() {
                 ? `${formatMw(directUseThermal)} MWth signal`
                 : "PostgreSQL signal pending"
             }
-            prominence="executive"
             tone="direct-use"
             value={staging.ok ? formatCount(directUseRecords) : "-"}
           />
