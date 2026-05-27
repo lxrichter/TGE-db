@@ -72,7 +72,7 @@ function marketRegionHref(
 
   params.set(regionKind === "tge" ? "tge_region" : "wb_region", regionName);
 
-  return `/postgres-preview/markets?${params.toString()}#market-operations`;
+  return `/postgres-preview/markets?${params.toString()}#market-rankings`;
 }
 
 function regionWorklistHref(
@@ -803,6 +803,7 @@ function CountryOperationsLayer({
         title="Source Gap Markets"
         description="Market-scoped projects, plants, and companies that need evidence before export-ready use."
         countries={sourceGapMarkets}
+        defaultOpen={false}
         missing="source"
         emptyLabel="No market-level source gaps in the current summary."
         metric={(country) => ({
@@ -812,8 +813,9 @@ function CountryOperationsLayer({
       />
       <CountryQueueCard
         title="Pipeline Markets"
-        description="Largest project pipeline markets for market-page and analysis review."
+        description="Pipeline markets queued for source and analysis review."
         countries={pipelineMarkets}
+        defaultOpen={false}
         emptyLabel="No pipeline capacity values in the current country summary."
         metric={(country) => ({
           value: `${formatMw(country.project_pipeline_mwe)} MWe`,
@@ -822,8 +824,9 @@ function CountryOperationsLayer({
       />
       <CountryQueueCard
         title="Operating Markets"
-        description="Largest operating markets by staged installed electric capacity."
+        description="Operating markets queued for source and capacity review."
         countries={operatingMarkets}
+        defaultOpen={false}
         emptyLabel="No operating electric capacity values in the current country summary."
         metric={(country) => ({
           value: `${formatMw(country.operating_installed_mwe)} MWe`,
@@ -864,6 +867,250 @@ function CountryOperationsLayer({
   );
 }
 
+function MarketSignalBar({
+  value,
+  max,
+  tone,
+}: {
+  value: number;
+  max: number;
+  tone: "operating" | "pipeline" | "attention";
+}) {
+  const width = max > 0 ? Math.max(2, Math.round((value / max) * 100)) : 0;
+  const barClass =
+    tone === "operating"
+      ? postgresStatusBarClass("operating")
+      : tone === "pipeline"
+        ? postgresStatusBarClass("info")
+        : postgresStatusBarClass("attention");
+
+  return (
+    <div className="mt-2 h-1.5 overflow-hidden bg-gray-100">
+      <div
+        className={`h-full ${barClass}`}
+        style={{ width: width > 0 ? `${width}%` : "0%" }}
+      />
+    </div>
+  );
+}
+
+function MarketRankingsLayer({
+  countries,
+}: {
+  countries: PostgresCountryMarketSummary[];
+}) {
+  const rankedMarkets = [...countries]
+    .sort(
+      (left, right) =>
+        right.operating_installed_mwe +
+          right.project_pipeline_mwe -
+          (left.operating_installed_mwe + left.project_pipeline_mwe) ||
+        right.active_project_count - left.active_project_count ||
+        left.country.localeCompare(right.country)
+    )
+    .slice(0, 12);
+  const maxOperating = Math.max(
+    1,
+    ...rankedMarkets.map((country) => country.operating_installed_mwe)
+  );
+  const maxPipeline = Math.max(
+    1,
+    ...rankedMarkets.map((country) => country.project_pipeline_mwe)
+  );
+  const maxSourceGaps = Math.max(
+    1,
+    ...rankedMarkets.map((country) => country.missing_source_count)
+  );
+
+  return (
+    <details className="border border-gray-200 bg-white" open>
+      <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-[#1f2937]">
+            Market Rankings
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            Top markets by combined operating and pipeline capacity, with source
+            gaps kept visible as governance context.
+          </p>
+        </div>
+        <span className="inline-flex min-h-8 w-fit items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          {formatCount(rankedMarkets.length)} markets
+        </span>
+      </summary>
+
+      <div className="divide-y divide-gray-100 border-t border-gray-200 lg:hidden">
+        {rankedMarkets.map((country, index) => (
+          <article key={country.country} className="px-4 py-4 sm:px-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  #{index + 1}
+                </div>
+                <div className="mt-1 font-semibold text-[#1f2937]">
+                  {country.country}
+                </div>
+                <CountryReferenceMeta country={country} />
+              </div>
+              <Link
+                className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                href={countryQueryHref(
+                  "/postgres-preview/analysis",
+                  country.country
+                )}
+              >
+                Analysis
+              </Link>
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <MobileMarketField label="Operating">
+                <div className="font-semibold text-[#1f2937]">
+                  {formatMw(country.operating_installed_mwe)} MWe
+                </div>
+                <MarketSignalBar
+                  max={maxOperating}
+                  tone="operating"
+                  value={country.operating_installed_mwe}
+                />
+              </MobileMarketField>
+              <MobileMarketField label="Pipeline">
+                <div className="font-semibold text-[#1f2937]">
+                  {formatMw(country.project_pipeline_mwe)} MWe
+                </div>
+                <MarketSignalBar
+                  max={maxPipeline}
+                  tone="pipeline"
+                  value={country.project_pipeline_mwe}
+                />
+              </MobileMarketField>
+              <MobileMarketField label="Activity">
+                {formatCount(country.active_project_count)} active projects
+                <br />
+                {formatCount(country.operating_asset_active_count)} active plants
+              </MobileMarketField>
+              <MobileMarketField label="Source Gaps">
+                <div className="font-semibold text-[#1f2937]">
+                  {formatCount(country.missing_source_count)}
+                </div>
+                <MarketSignalBar
+                  max={maxSourceGaps}
+                  tone="attention"
+                  value={country.missing_source_count}
+                />
+              </MobileMarketField>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto border-t border-gray-200 lg:block">
+        <table className="min-w-[960px] table-fixed text-left text-sm">
+          <thead className="bg-[#f7f7f7] text-[11px] tracking-wide text-gray-500">
+            <tr>
+              <th className="w-[20%] px-5 py-3 font-semibold">Market</th>
+              <th className="w-[21%] px-5 py-3 font-semibold">Operating MWe</th>
+              <th className="w-[21%] px-5 py-3 font-semibold">Pipeline MWe</th>
+              <th className="w-[16%] px-5 py-3 font-semibold">Activity</th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Source Gaps</th>
+              <th className="w-[10%] px-5 py-3 font-semibold">Open</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {rankedMarkets.map((country, index) => (
+              <tr
+                key={country.country}
+                className="align-top transition-colors hover:bg-[#fbfdf8]"
+              >
+                <td className="px-5 py-4">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    #{index + 1}
+                  </div>
+                  <div className="mt-1 font-semibold text-[#1f2937]">
+                    {country.country}
+                  </div>
+                  <CountryReferenceMeta country={country} />
+                </td>
+                <td className="px-5 py-4 text-gray-700">
+                  <div className="font-semibold text-[#1f2937]">
+                    {formatMw(country.operating_installed_mwe)} MWe
+                  </div>
+                  <MarketSignalBar
+                    max={maxOperating}
+                    tone="operating"
+                    value={country.operating_installed_mwe}
+                  />
+                </td>
+                <td className="px-5 py-4 text-gray-700">
+                  <div className="font-semibold text-[#1f2937]">
+                    {formatMw(country.project_pipeline_mwe)} MWe
+                  </div>
+                  <MarketSignalBar
+                    max={maxPipeline}
+                    tone="pipeline"
+                    value={country.project_pipeline_mwe}
+                  />
+                </td>
+                <td className="px-5 py-4 text-xs leading-5 text-gray-600">
+                  {formatCount(country.active_project_count)} active projects
+                  <br />
+                  {formatCount(country.operating_asset_active_count)} active plants
+                </td>
+                <td className="px-5 py-4">
+                  <span
+                    className={`inline-flex h-7 items-center border px-2 text-xs font-semibold ${
+                      country.missing_source_count > 0
+                        ? postgresStatusToneClass("attention")
+                        : postgresStatusToneClass("success")
+                    }`}
+                  >
+                    {formatCount(country.missing_source_count)}
+                  </span>
+                  <MarketSignalBar
+                    max={maxSourceGaps}
+                    tone="attention"
+                    value={country.missing_source_count}
+                  />
+                </td>
+                <td className="px-5 py-4">
+                  <div className="grid gap-1 text-xs font-semibold">
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/analysis",
+                        country.country
+                      )}
+                    >
+                      Analysis
+                    </Link>
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/map",
+                        country.country
+                      )}
+                    >
+                      Map
+                    </Link>
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={countryQueryHref(
+                        "/postgres-preview/projects",
+                        country.country
+                      )}
+                    >
+                      Projects
+                    </Link>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
+
 function CountryMarketsTable({
   countries,
 }: {
@@ -879,10 +1126,10 @@ function CountryMarketsTable({
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">
-            Country / Market Summary
+            Full Market Worklist
           </h2>
           <p className="mt-1 text-sm text-gray-600">
-            Database-derived market rows. Click counts to open filtered
+            Detailed market rows. Click counts to open filtered
             project, plant, or company worklists.
           </p>
         </div>
@@ -1320,7 +1567,7 @@ export default async function PostgresCountryMarketsPage({
 
       <NextActionStrip
         title="Primary Work Paths"
-        description="Use these routes for the main market workflows: TGE regional intelligence, source-gap cleanup, and benchmark analysis."
+        description="Use these routes for the main market workflows: regional intelligence, rankings, and benchmark analysis."
         actions={[
           {
             label: "TGE Regions",
@@ -1329,10 +1576,10 @@ export default async function PostgresCountryMarketsPage({
             href: "#region-drilldown",
           },
           {
-            label: "Source Gaps",
-            title: "Resolve source-gap markets",
-            description: "Review markets where missing evidence weakens export readiness.",
-            href: "#market-operations",
+            label: "Rankings",
+            title: "Compare top markets",
+            description: "Review operating capacity, pipeline capacity, activity, and source gaps side by side.",
+            href: "#market-rankings",
           },
           {
             label: "Analysis",
@@ -1360,12 +1607,17 @@ export default async function PostgresCountryMarketsPage({
                 note: "TGE first",
               },
               {
+                href: "#market-rankings",
+                label: "Rankings",
+                note: "Countries",
+              },
+              {
                 href: "#market-operations",
-                label: "Operations",
+                label: "Review",
                 note: "Queues",
               },
               {
-                href: "#country-worklist",
+                href: "#market-worklist",
                 label: "Worklist",
                 note: "Table",
               },
@@ -1435,18 +1687,29 @@ export default async function PostgresCountryMarketsPage({
             <RegionDrilldownLayer allCountries={allCountries} />
           </section>
 
+          <section id="market-rankings" className="space-y-4 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Intelligence"
+              title="Market Rankings"
+              description="Country-level comparison of operating capacity, pipeline capacity, activity, and evidence gaps."
+              tone="core"
+            />
+
+            <MarketRankingsLayer countries={countries} />
+          </section>
+
           <section id="market-operations" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
-              label="Workflow"
-              title="Market Operations"
-              description="Market-scoped queues for source gaps, market priority, direct-use coverage, and recent activity."
-              tone="workflow"
+              label="Governance"
+              title="Market Review Queues"
+              description="Operational review queues for source gaps, market priority, direct-use coverage, and recent activity."
+              tone="governance"
             />
 
             <CountryOperationsLayer countries={countries} />
           </section>
 
-          <section id="country-worklist" className="space-y-4 scroll-mt-24">
+          <section id="market-worklist" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
               label="Workbench"
               title="Market Worklist"
