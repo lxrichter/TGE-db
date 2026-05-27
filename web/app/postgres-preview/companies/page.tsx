@@ -392,6 +392,7 @@ export default async function PostgresCompaniesListPage({
             views={companyQuickViews}
           />
           <PostgresEntityOverview
+            bucketEntityLabel="companies"
             buckets={companyTypeBuckets(data.companyTypeCounts)}
             bucketsTitle="Business identity distribution"
             description="Compact ecosystem intelligence before the operational company table."
@@ -400,7 +401,7 @@ export default async function PostgresCompaniesListPage({
               {
                 label: "Total Companies",
                 value: formatOverviewCount(data.ecosystemTotal),
-                note: "Company records in current geography scope",
+                note: "Companies in current geography scope",
                 href: "/postgres-preview/companies",
                 tone: "ecosystem",
               },
@@ -421,7 +422,7 @@ export default async function PostgresCompaniesListPage({
               {
                 label: "Visible Rows",
                 value: formatOverviewCount(data.total),
-                note: "Records matching current table filters",
+                note: "Companies matching current table filters",
                 href: exportHref,
                 tone: "neutral",
               },

@@ -200,6 +200,29 @@ const plantStatusOrder = [
   "unknown",
 ];
 
+function plantStatusTone(bucketCode: string): OverviewBucket["tone"] {
+  if (bucketCode.includes("operating")) return "operating";
+  if (bucketCode.includes("pilot") || bucketCode.includes("test")) return "pilot";
+  if (
+    bucketCode.includes("rehabilitation") ||
+    bucketCode.includes("refurbishment") ||
+    bucketCode.includes("offline") ||
+    bucketCode.includes("suspended") ||
+    bucketCode.includes("idle")
+  ) {
+    return "pilot";
+  }
+  if (
+    bucketCode.includes("retired") ||
+    bucketCode.includes("decommissioned")
+  ) {
+    return "retired";
+  }
+  if (bucketCode.includes("cancelled")) return "cancelled";
+
+  return "neutral";
+}
+
 function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {
   return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
 }
@@ -235,7 +258,7 @@ function plantStatusBuckets(
       href: `/postgres-preview/operating-assets?status=${encodeURIComponent(
         bucket.bucket_code
       )}`,
-      tone: bucket.bucket_code.includes("operating") ? "operating" : "neutral",
+      tone: plantStatusTone(bucket.bucket_code),
     }));
 }
 
@@ -424,9 +447,12 @@ export default async function PostgresOperatingAssetsListPage({
             views={operatingAssetQuickViews}
           />
           <PostgresEntityOverview
+            bucketEntityLabel="plants"
+            bucketLayout="single-line"
+            bucketValuePriority="capacity"
             buckets={plantStatusBuckets(data.analysis.operatingAssetStatus)}
             bucketsTitle="Operating status distribution"
-            description="Compact fleet intelligence before the operational plant table."
+            description="Compact operational-status intelligence before the plant table."
             label="Fleet Intelligence"
             metrics={[
               {
@@ -434,7 +460,7 @@ export default async function PostgresOperatingAssetsListPage({
                 value: formatOverviewCount(
                   bucketCount(data.analysis.operatingAssetStatus)
                 ),
-                note: "Plant records in current geography scope",
+                note: "Plants in current geography scope",
                 href: "/postgres-preview/operating-assets",
                 tone: "operating",
               },
@@ -457,7 +483,7 @@ export default async function PostgresOperatingAssetsListPage({
               {
                 label: "Visible Rows",
                 value: formatOverviewCount(data.total),
-                note: "Records matching current table filters",
+                note: "Plants matching current table filters",
                 href: exportHref,
                 tone: "neutral",
               },

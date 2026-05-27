@@ -194,6 +194,18 @@ const projectLifecycleOrder = [
   "operating",
 ];
 
+function projectLifecycleTone(bucketCode: string): OverviewBucket["tone"] {
+  if (bucketCode.includes("cancelled")) return "cancelled";
+  if (bucketCode.includes("construction")) return "construction";
+  if (bucketCode.includes("pre_feasibility")) return "pre-feasibility";
+  if (bucketCode.includes("feasibility")) return "feasibility";
+  if (bucketCode.includes("exploration")) return "exploration";
+  if (bucketCode.includes("prospect")) return "prospect";
+  if (bucketCode.includes("operating")) return "operating";
+
+  return "neutral";
+}
+
 function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {
   return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
 }
@@ -220,7 +232,6 @@ function projectPipelineBuckets(
         a.bucket_code.localeCompare(b.bucket_code)
       );
     })
-    .slice(0, 7)
     .map((bucket) => ({
       label: normalizeOverviewLabel(bucket.bucket_code),
       count: bucket.record_count,
@@ -228,11 +239,7 @@ function projectPipelineBuckets(
       href: `/postgres-preview/projects?status=${encodeURIComponent(
         bucket.bucket_code
       )}`,
-      tone:
-        bucket.bucket_code.includes("construction") ||
-        bucket.bucket_code.includes("feasibility")
-          ? "pipeline"
-          : "neutral",
+      tone: projectLifecycleTone(bucket.bucket_code),
     }));
 }
 
@@ -418,8 +425,11 @@ export default async function PostgresProjectsListPage({
             views={projectQuickViews}
           />
           <PostgresEntityOverview
+            bucketEntityLabel="projects"
+            bucketLayout="single-line"
+            bucketValuePriority="capacity"
             buckets={projectPipelineBuckets(data.analysis.projectLifecycle)}
-            bucketsTitle="Lifecycle distribution"
+            bucketsTitle="Phase distribution"
             description="Compact pipeline intelligence before the operational project table."
             label="Pipeline Intelligence"
             metrics={[
@@ -428,7 +438,7 @@ export default async function PostgresProjectsListPage({
                 value: formatOverviewCount(
                   bucketCount(data.analysis.projectLifecycle)
                 ),
-                note: "Project records in current geography scope",
+                note: "Projects in current geography scope",
                 href: "/postgres-preview/projects",
                 tone: "pipeline",
               },
@@ -449,7 +459,7 @@ export default async function PostgresProjectsListPage({
               {
                 label: "Visible Rows",
                 value: formatOverviewCount(data.total),
-                note: "Records matching current table filters",
+                note: "Projects matching current table filters",
                 href: exportHref,
                 tone: "neutral",
               },

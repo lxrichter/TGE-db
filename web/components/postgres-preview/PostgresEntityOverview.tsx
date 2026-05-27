@@ -3,7 +3,20 @@ import type { ReactNode } from "react";
 import { formatCount, formatMw } from "@/lib/format";
 import { formatStatusLabel } from "@/components/postgres-preview/PostgresStatusBadge";
 
-type OverviewTone = "operating" | "pipeline" | "ecosystem" | "market" | "neutral";
+type OverviewTone =
+  | "operating"
+  | "pipeline"
+  | "ecosystem"
+  | "market"
+  | "prospect"
+  | "exploration"
+  | "pre-feasibility"
+  | "feasibility"
+  | "construction"
+  | "cancelled"
+  | "retired"
+  | "pilot"
+  | "neutral";
 
 export type OverviewMetric = {
   label: string;
@@ -31,6 +44,22 @@ function toneClass(tone: OverviewTone = "neutral") {
       return "border-l-[#5b6b7f] bg-[#fafafa]";
     case "market":
       return "border-l-[#b58900] bg-[#fffdf5]";
+    case "prospect":
+      return "border-l-slate-300 bg-slate-50";
+    case "exploration":
+      return "border-l-blue-300 bg-blue-50";
+    case "pre-feasibility":
+      return "border-l-violet-300 bg-violet-50";
+    case "feasibility":
+      return "border-l-teal-300 bg-teal-50";
+    case "construction":
+      return "border-l-[#4f7f1f] bg-[#fbfdf8]";
+    case "cancelled":
+      return "border-l-red-300 bg-red-50";
+    case "retired":
+      return "border-l-gray-300 bg-gray-50";
+    case "pilot":
+      return "border-l-amber-300 bg-amber-50";
     case "neutral":
     default:
       return "border-l-gray-200 bg-white";
@@ -82,6 +111,9 @@ export default function PostgresEntityOverview({
   metrics,
   bucketsTitle,
   buckets,
+  bucketEntityLabel = "records",
+  bucketValuePriority = "count",
+  bucketLayout = "wrap",
 }: {
   label: string;
   title: string;
@@ -89,7 +121,15 @@ export default function PostgresEntityOverview({
   metrics: OverviewMetric[];
   bucketsTitle: string;
   buckets: OverviewBucket[];
+  bucketEntityLabel?: string;
+  bucketValuePriority?: "count" | "capacity";
+  bucketLayout?: "wrap" | "single-line";
 }) {
+  const bucketContainerClass =
+    bucketLayout === "single-line"
+      ? "flex gap-2 overflow-x-auto pb-1"
+      : "grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6";
+
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:px-5">
@@ -128,25 +168,45 @@ export default function PostgresEntityOverview({
       </div>
 
       <div className="border-t border-gray-100 px-4 py-3 sm:px-5">
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+        <div className={bucketContainerClass}>
           {buckets.map((bucket) => (
             <MaybeLink
               key={bucket.label}
               href={bucket.href}
-              className={overviewItemClass(bucket.tone)}
+              className={`${overviewItemClass(bucket.tone)} ${
+                bucketLayout === "single-line"
+                  ? "min-w-[145px] flex-1"
+                  : ""
+              }`}
             >
               <div className="line-clamp-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
                 {bucket.label}
               </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-xl font-bold leading-none text-[#1f2937]">
-                  {formatCount(bucket.count)}
-                </span>
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                  records
-                </span>
-              </div>
-              {bucket.capacityMwe !== undefined ? (
+              {bucketValuePriority === "capacity" &&
+              bucket.capacityMwe !== undefined ? (
+                <>
+                  <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+                    {formatMw(bucket.capacityMwe)}
+                    <span className="ml-1 text-sm font-semibold text-gray-500">
+                      MWe
+                    </span>
+                  </div>
+                  <div className="mt-2 text-xs leading-5 text-gray-600">
+                    {formatCount(bucket.count)} {bucketEntityLabel}
+                  </div>
+                </>
+              ) : (
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-xl font-bold leading-none text-[#1f2937]">
+                    {formatCount(bucket.count)}
+                  </span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    {bucketEntityLabel}
+                  </span>
+                </div>
+              )}
+              {bucketValuePriority === "count" &&
+              bucket.capacityMwe !== undefined ? (
                 <div className="mt-1 text-xs leading-5 text-gray-600">
                   {formatMw(bucket.capacityMwe)} MWe
                 </div>
