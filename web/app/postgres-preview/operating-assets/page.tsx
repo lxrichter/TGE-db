@@ -35,6 +35,7 @@ import PostgresEntityOverview, {
   normalizeOverviewLabel,
   type OverviewBucket,
 } from "@/components/postgres-preview/PostgresEntityOverview";
+import { postgresStatusTone } from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -200,29 +201,6 @@ const plantStatusOrder = [
   "unknown",
 ];
 
-function plantStatusTone(bucketCode: string): OverviewBucket["tone"] {
-  if (bucketCode.includes("operating")) return "operating";
-  if (bucketCode.includes("pilot") || bucketCode.includes("test")) return "pilot";
-  if (
-    bucketCode.includes("rehabilitation") ||
-    bucketCode.includes("refurbishment") ||
-    bucketCode.includes("offline") ||
-    bucketCode.includes("suspended") ||
-    bucketCode.includes("idle")
-  ) {
-    return "pilot";
-  }
-  if (
-    bucketCode.includes("retired") ||
-    bucketCode.includes("decommissioned")
-  ) {
-    return "retired";
-  }
-  if (bucketCode.includes("cancelled")) return "cancelled";
-
-  return "neutral";
-}
-
 function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {
   return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
 }
@@ -258,7 +236,7 @@ function plantStatusBuckets(
       href: `/postgres-preview/operating-assets?status=${encodeURIComponent(
         bucket.bucket_code
       )}`,
-      tone: plantStatusTone(bucket.bucket_code),
+      tone: postgresStatusTone(bucket.bucket_code, "lifecycle"),
     }));
 }
 

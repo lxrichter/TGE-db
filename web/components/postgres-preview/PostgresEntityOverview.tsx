@@ -1,22 +1,16 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatCount, formatMw } from "@/lib/format";
-import { formatStatusLabel } from "@/components/postgres-preview/PostgresStatusBadge";
+import {
+  formatStatusLabel,
+  type PostgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 type OverviewTone =
-  | "operating"
+  | PostgresStatusTone
   | "pipeline"
   | "ecosystem"
-  | "market"
-  | "prospect"
-  | "exploration"
-  | "pre-feasibility"
-  | "feasibility"
-  | "construction"
-  | "cancelled"
-  | "retired"
-  | "pilot"
-  | "neutral";
+  | "market";
 
 export type OverviewMetric = {
   label: string;
@@ -37,6 +31,7 @@ export type OverviewBucket = {
 function toneClass(tone: OverviewTone = "neutral") {
   switch (tone) {
     case "operating":
+    case "success":
       return "border-l-[#3f8f2f] bg-[#fbfdf8]";
     case "pipeline":
       return "border-l-[#2f6f9f] bg-[#f8fbfd]";
@@ -48,18 +43,23 @@ function toneClass(tone: OverviewTone = "neutral") {
       return "border-l-slate-300 bg-slate-50";
     case "exploration":
       return "border-l-blue-300 bg-blue-50";
-    case "pre-feasibility":
+    case "pre_feasibility":
       return "border-l-violet-300 bg-violet-50";
     case "feasibility":
       return "border-l-teal-300 bg-teal-50";
     case "construction":
       return "border-l-[#4f7f1f] bg-[#fbfdf8]";
+    case "danger":
     case "cancelled":
       return "border-l-red-300 bg-red-50";
+    case "muted":
     case "retired":
       return "border-l-gray-300 bg-gray-50";
+    case "attention":
     case "pilot":
       return "border-l-amber-300 bg-amber-50";
+    case "info":
+      return "border-l-blue-300 bg-blue-50";
     case "neutral":
     default:
       return "border-l-gray-200 bg-white";

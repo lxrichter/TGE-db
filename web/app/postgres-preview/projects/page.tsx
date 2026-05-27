@@ -35,6 +35,7 @@ import PostgresEntityOverview, {
   normalizeOverviewLabel,
   type OverviewBucket,
 } from "@/components/postgres-preview/PostgresEntityOverview";
+import { postgresStatusTone } from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -194,18 +195,6 @@ const projectLifecycleOrder = [
   "operating",
 ];
 
-function projectLifecycleTone(bucketCode: string): OverviewBucket["tone"] {
-  if (bucketCode.includes("cancelled")) return "cancelled";
-  if (bucketCode.includes("construction")) return "construction";
-  if (bucketCode.includes("pre_feasibility")) return "pre-feasibility";
-  if (bucketCode.includes("feasibility")) return "feasibility";
-  if (bucketCode.includes("exploration")) return "exploration";
-  if (bucketCode.includes("prospect")) return "prospect";
-  if (bucketCode.includes("operating")) return "operating";
-
-  return "neutral";
-}
-
 function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {
   return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
 }
@@ -239,7 +228,7 @@ function projectPipelineBuckets(
       href: `/postgres-preview/projects?status=${encodeURIComponent(
         bucket.bucket_code
       )}`,
-      tone: projectLifecycleTone(bucket.bucket_code),
+      tone: postgresStatusTone(bucket.bucket_code, "lifecycle"),
     }));
 }
 

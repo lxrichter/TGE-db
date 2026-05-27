@@ -18,6 +18,7 @@ import {
 } from "@/lib/services/article-facts";
 import { formatCount } from "@/lib/format";
 import PostgresStatusBadge, {
+  postgresStatusToneClass,
   type PostgresStatusTone,
 } from "@/components/postgres-preview/PostgresStatusBadge";
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
@@ -147,14 +148,6 @@ function OperationCard({
   href?: string;
   tone?: PostgresStatusTone;
 }) {
-  const toneClasses = {
-    success: "border-[#b9d98b] bg-[#f8fcf2]",
-    attention: "border-amber-200 bg-amber-50",
-    danger: "border-red-200 bg-red-50",
-    info: "border-blue-200 bg-blue-50",
-    neutral: "border-gray-200 bg-white",
-    muted: "border-gray-200 bg-gray-50",
-  };
   const content = (
     <>
       <div className="flex items-start justify-between gap-3">
@@ -174,7 +167,7 @@ function OperationCard({
     </>
   );
 
-  const className = `border px-4 py-4 transition ${toneClasses[tone]} ${
+  const className = `border px-4 py-4 transition ${postgresStatusToneClass(tone)} ${
     href ? "hover:border-[#8dc63f] hover:bg-[#fbfdf8]" : ""
   }`;
 

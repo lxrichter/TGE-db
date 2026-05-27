@@ -4,7 +4,16 @@ export type PostgresStatusTone =
   | "danger"
   | "info"
   | "neutral"
-  | "muted";
+  | "muted"
+  | "prospect"
+  | "exploration"
+  | "pre_feasibility"
+  | "feasibility"
+  | "construction"
+  | "operating"
+  | "cancelled"
+  | "retired"
+  | "pilot";
 
 export type PostgresStatusDomain =
   | "generic"
@@ -23,6 +32,9 @@ export type PostgresStatusDomain =
  * danger = blocker, rejected, cancelled, or not export-safe
  * neutral = contextual/default state
  * muted = historical, inactive, superseded, or archived
+ * prospect/exploration/pre_feasibility/feasibility/construction =
+ *   geothermal development-stage semantics
+ * operating/cancelled/retired/pilot = operating asset and lifecycle semantics
  */
 const toneClasses: Record<PostgresStatusTone, string> = {
   success: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
@@ -31,6 +43,15 @@ const toneClasses: Record<PostgresStatusTone, string> = {
   info: "border-blue-200 bg-blue-50 text-blue-800",
   neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
   muted: "border-gray-200 bg-gray-50 text-gray-500",
+  prospect: "border-slate-200 bg-slate-50 text-slate-700",
+  exploration: "border-blue-200 bg-blue-50 text-blue-800",
+  pre_feasibility: "border-violet-200 bg-violet-50 text-violet-800",
+  feasibility: "border-teal-200 bg-teal-50 text-teal-800",
+  construction: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
+  operating: "border-[#a9cf7a] bg-[#f1f8e8] text-[#356d1c]",
+  cancelled: "border-red-200 bg-red-50 text-red-700",
+  retired: "border-gray-200 bg-gray-50 text-gray-500",
+  pilot: "border-amber-200 bg-amber-50 text-amber-800",
 };
 
 const reviewStatusTones: Record<string, PostgresStatusTone> = {
@@ -47,21 +68,27 @@ const reviewStatusTones: Record<string, PostgresStatusTone> = {
 };
 
 const lifecycleStatusTones: Record<string, PostgresStatusTone> = {
-  prospect_tbd: "muted",
-  prospect: "muted",
-  exploration: "info",
-  pre_feasibility: "info",
-  feasibility: "info",
-  construction: "attention",
-  under_construction: "attention",
-  operating: "success",
+  prospect_tbd: "prospect",
+  prospect: "prospect",
+  exploration: "exploration",
+  pre_feasibility: "pre_feasibility",
+  feasibility: "feasibility",
+  construction: "construction",
+  under_construction: "construction",
+  operating: "operating",
   partially_operating: "attention",
-  temporarily_offline: "attention",
-  retired_decommissioned: "muted",
-  retired: "muted",
-  decommissioned: "muted",
-  under_refurbishment: "attention",
-  cancelled: "danger",
+  temporarily_offline: "pilot",
+  idle_suspended: "pilot",
+  suspended: "pilot",
+  test_pilot: "pilot",
+  pilot: "pilot",
+  retired_decommissioned: "retired",
+  retired: "retired",
+  decommissioned: "retired",
+  under_refurbishment: "pilot",
+  under_rehabilitation: "pilot",
+  cancelled: "cancelled",
+  cancelled_before_operation: "cancelled",
   unknown: "neutral",
 };
 
@@ -159,6 +186,7 @@ const statusLabelOverrides: Record<string, string> = {
   export_blocker: "Export Blocker",
   export_ready: "Export Ready",
   internal_only: "Internal Only",
+  idle_suspended: "Idle / Suspended",
   needs_review: "Needs Review",
   needs_update: "Needs Update",
   not_for_publication: "Not For Publication",
@@ -178,7 +206,9 @@ const statusLabelOverrides: Record<string, string> = {
   suggested_medium_confidence: "Suggested - Medium Confidence",
   suggested_needs_review: "Suggested - Needs Review",
   temporarily_offline: "Temporarily Offline",
+  test_pilot: "Test / Pilot",
   under_construction: "Under Construction",
+  under_rehabilitation: "Under Rehabilitation",
   under_refurbishment: "Under Refurbishment",
 };
 

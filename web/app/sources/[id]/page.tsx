@@ -237,13 +237,22 @@ function StatusTile({
   note: string;
   tone?: PostgresStatusTone;
 }) {
-  const accents = {
+  const accents: Record<PostgresStatusTone, string> = {
     success: "border-l-[#8dc63f]",
     attention: "border-l-amber-300",
     danger: "border-l-red-300",
     info: "border-l-blue-300",
     neutral: "border-l-gray-300",
     muted: "border-l-gray-200",
+    prospect: "border-l-slate-300",
+    exploration: "border-l-blue-300",
+    pre_feasibility: "border-l-violet-300",
+    feasibility: "border-l-teal-300",
+    construction: "border-l-[#8dc63f]",
+    operating: "border-l-[#3f8f2f]",
+    cancelled: "border-l-red-300",
+    retired: "border-l-gray-300",
+    pilot: "border-l-amber-300",
   };
 
   return (
