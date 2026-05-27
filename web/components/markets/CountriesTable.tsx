@@ -99,7 +99,7 @@ export default function CountriesTable({
           <tr>
             <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
               <SortableHeader
-                label="Country"
+                label="Market"
                 column="country"
                 sortKey={sortKey}
                 sortDirection={sortDirection}

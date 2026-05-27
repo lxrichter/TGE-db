@@ -107,7 +107,7 @@ export default async function MarketsCountriesPage() {
           href="/markets"
           className="text-sm font-semibold text-[#8dc63f] hover:underline"
         >
-          ← Back to Markets Overview
+          ← Back to Markets
         </Link>
       </div>
 
@@ -119,11 +119,11 @@ export default async function MarketsCountriesPage() {
             </p>
 
             <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Countries
+              Country Markets
             </h1>
 
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
-              Country-level market overview pages derived from TGE’s geothermal
+              Country-market overview pages derived from TGE’s geothermal
               plants and projects databases, covering installed capacity,
               operating capacity, project pipeline, and structured market records.
             </p>
@@ -135,7 +135,7 @@ export default async function MarketsCountriesPage() {
             <span className="font-semibold uppercase tracking-wide text-gray-500">
               Scope
             </span>
-            <span>{countries.length} Countries</span>
+            <span>{countries.length} Markets</span>
             <span className="text-gray-300">|</span>
             <span>{regionSet.size} Regions</span>
             <span className="text-gray-300">|</span>
@@ -149,13 +149,13 @@ export default async function MarketsCountriesPage() {
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-5">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Countries
+                Markets
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {countries.length}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Country market pages
+                Country-market pages
               </div>
             </div>
 

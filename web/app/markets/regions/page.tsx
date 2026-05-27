@@ -96,7 +96,7 @@ export default async function MarketsRegionsPage() {
           href="/markets"
           className="text-sm font-semibold text-[#8dc63f] hover:underline"
         >
-          ← Back to Markets Overview
+          ← Back to Markets
         </Link>
       </div>
 
@@ -114,7 +114,7 @@ export default async function MarketsRegionsPage() {
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
               Regional market overview pages derived from TGE’s geothermal
               plants and projects databases, combining installed capacity,
-              operating capacity, project pipeline, and country-level aggregation.
+              operating capacity, project pipeline, and country-market aggregation.
             </p>
           </div>
         </div>
@@ -142,7 +142,7 @@ export default async function MarketsRegionsPage() {
                 {regions.length}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Regional market pages
+                Regional market drilldowns
               </div>
             </div>
 

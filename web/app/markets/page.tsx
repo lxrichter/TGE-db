@@ -38,12 +38,12 @@ export default function MarketsPage() {
               Markets
             </p>
             <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Markets Overview
+              Markets
             </h1>
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
-              Internal market overview pages for geothermal countries and TGE
-              regions, combining operating plants, development pipeline, maps,
-              and structured database intelligence.
+              Internal geothermal market intelligence pages for country markets
+              and TGE regions, combining operating plants, development pipeline,
+              maps, and structured database intelligence.
             </p>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default function MarketsPage() {
               Scope
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Country Pages</span>
+              <span className="font-medium text-[#1f2937]">Country Markets</span>
               <span className="mx-2 text-gray-300">|</span>
               capacity, phases, maps, plants, projects
             </span>
@@ -69,14 +69,14 @@ export default function MarketsPage() {
 
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <MarketCard
-          title="Countries"
-          text="Browse country-level market pages with installed capacity, operating capacity, plant counts, project pipeline by phase, maps, and related records."
+          title="Country Markets"
+          text="Browse country-market drilldowns with installed capacity, operating capacity, plant counts, project pipeline by phase, maps, and related records."
           href="/markets/countries"
         />
 
         <MarketCard
-          title="Regions"
-          text="Browse TGE regional overview pages with regional capacity, countries covered, project pipeline, country summaries, maps, and related records."
+          title="Regional Markets"
+          text="Browse TGE regional drilldowns with regional capacity, market coverage, project pipeline, country-market summaries, maps, and related records."
           href="/markets/regions"
         />
       </section>
