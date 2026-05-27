@@ -175,7 +175,7 @@ const projectStagePlantStatusCodes = new Set([
 
 function formatPlantStatusBucketLabel(bucketCode: string) {
   if (projectStagePlantStatusCodes.has(bucketCode)) {
-    return `Needs plant status: ${formatPreviewFilterLabel(bucketCode)}`;
+    return `Needs Normalization: ${formatPreviewFilterLabel(bucketCode)}`;
   }
 
   return formatPreviewFilterLabel(bucketCode);
@@ -280,11 +280,11 @@ function BucketTable({
         <table className="min-w-[820px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[34%] px-5 py-3 font-semibold">Segment</th>
+              <th className="w-[30%] px-5 py-3 font-semibold">Segment</th>
               <th className="w-[14%] px-5 py-3 font-semibold">Profiles</th>
               <th className="w-[18%] px-5 py-3 font-semibold">MWe</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">MWth</th>
-              <th className="w-[16%] px-5 py-3 font-semibold">Share</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">MWth</th>
+              <th className="w-[24%] px-5 py-3 font-semibold">Share</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">

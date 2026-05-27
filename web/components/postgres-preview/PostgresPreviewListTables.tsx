@@ -83,6 +83,7 @@ export function parsePreviewTableDensity(
 export function formatPreviewFilterLabel(value: string) {
   return value
     .replaceAll("_", " ")
+    .replace(/\b\w/g, (match) => match.toUpperCase())
     .replace(/\bmw\b/gi, "MW")
     .replace(/\bmwe\b/gi, "MWe")
     .replace(/\bmwth\b/gi, "MWth")
