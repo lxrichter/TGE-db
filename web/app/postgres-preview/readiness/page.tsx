@@ -306,7 +306,7 @@ function ReadinessTable({
     (sum, entity) => sum + entity.missing_source_count,
     0
   );
-  const startsOpen = criticalIssueCount > 0 || openIssueCount > 0;
+  const startsOpen = criticalIssueCount > 0;
 
   return (
     <details className="border border-gray-200 bg-white" open={startsOpen}>
@@ -316,8 +316,8 @@ function ReadinessTable({
             Entity Readiness Signals
           </h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            Cutover worklist by entity family. Counts link back to filtered
-            staging pages where relevant.
+            Cutover worklist by entity family, with counts linking back to
+            filtered staging pages.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
@@ -329,6 +329,15 @@ function ReadinessTable({
             }`}
           >
             {formatCount(criticalIssueCount)} critical
+          </span>
+          <span
+            className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
+              openIssueCount > 0
+                ? "border-amber-200 bg-amber-50 text-amber-800"
+                : "border-gray-200 bg-[#f7f7f7] text-gray-600"
+            }`}
+          >
+            {formatCount(openIssueCount)} open issues
           </span>
           <span
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
@@ -450,7 +459,10 @@ function ReadinessTable({
                 entity.missing_coordinates_count;
 
               return (
-                <tr key={entity.entity_type} className="align-top">
+                <tr
+                  key={entity.entity_type}
+                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                >
                   <td className="px-5 py-4">
                     <Link
                       className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
@@ -498,7 +510,7 @@ function ReadinessTable({
                         {formatCount(entity.missing_company_link_count)} links
                       </Link>
                     </div>
-                    <div className="mt-2 text-xs leading-5 text-gray-500">
+                    <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
                       {formatCount(coreGaps)} core gaps:{" "}
                       {formatCount(entity.missing_country_count)} country ·{" "}
                       {formatCount(entity.missing_country_reference_count)} geo ref ·{" "}
