@@ -193,7 +193,7 @@ export default function RegionsTable({
                 colSpan={6}
                 className="px-4 py-8 text-center text-[13px] text-gray-500"
               >
-                No regional market records found.
+                No regional markets found.
               </td>
             </tr>
           )}

@@ -70,13 +70,13 @@ export default function MarketsPage() {
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <MarketCard
           title="Country Markets"
-          text="Browse country-market drilldowns with installed capacity, operating capacity, plant counts, project pipeline by phase, maps, and related records."
+          text="Browse country-market drilldowns with installed capacity, operating capacity, plant counts, project pipeline by phase, maps, and linked plant/project profiles."
           href="/markets/countries"
         />
 
         <MarketCard
           title="Regional Markets"
-          text="Browse TGE regional drilldowns with regional capacity, market coverage, project pipeline, country-market summaries, maps, and related records."
+          text="Browse TGE regional drilldowns with regional capacity, market coverage, project pipeline, country-market summaries, maps, and linked plant/project profiles."
           href="/markets/regions"
         />
       </section>

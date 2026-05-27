@@ -212,7 +212,7 @@ export default function CountriesTable({
                 colSpan={7}
                 className="px-4 py-8 text-center text-[13px] text-gray-500"
               >
-                No country market records found.
+                No country markets found.
               </td>
             </tr>
           )}

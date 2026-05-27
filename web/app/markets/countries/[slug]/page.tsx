@@ -356,7 +356,7 @@ export default async function CountryMarketPage({
             <p className="mt-4 text-lg leading-8 text-gray-600">
               Country-market geothermal view with installed and operating
               capacity, project pipeline, asset map, operator landscape, and
-              structured database records.
+              structured plant and project profiles.
             </p>
           </div>
         </div>
@@ -389,7 +389,7 @@ export default async function CountryMarketPage({
             <StatBlock
               title="Plants"
               value={plants.length}
-              subtitle="Operating / recorded plants"
+              subtitle="Operating / tracked plants"
             />
             <StatBlock
               title="Planned Capacity"
@@ -399,7 +399,7 @@ export default async function CountryMarketPage({
             <StatBlock
               title="Need Info"
               value={needInfoCount}
-              subtitle="Records flagged for follow-up"
+              subtitle="Profiles flagged for follow-up"
             />
           </div>
         </div>
@@ -628,10 +628,10 @@ export default async function CountryMarketPage({
               </h2>
             </div>
             <div className="p-6 text-[13px] text-gray-600">
-              <div>Total records: {plants.length + projects.length}</div>
-              <div className="mt-2">Need Info records: {needInfoCount}</div>
-              <div className="mt-2">Plant records: {plants.length}</div>
-              <div className="mt-2">Project records: {projects.length}</div>
+              <div>Total profiles: {plants.length + projects.length}</div>
+              <div className="mt-2">Need Info profiles: {needInfoCount}</div>
+              <div className="mt-2">Plant profiles: {plants.length}</div>
+              <div className="mt-2">Project profiles: {projects.length}</div>
             </div>
           </section>
 

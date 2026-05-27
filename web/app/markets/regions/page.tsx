@@ -126,9 +126,9 @@ export default async function MarketsRegionsPage() {
             </span>
             <span>{regions.length} Regions</span>
             <span className="text-gray-300">|</span>
-            <span>{totalPlants} Plant Records</span>
+            <span>{totalPlants} Plants</span>
             <span className="text-gray-300">|</span>
-            <span>{totalProjects} Project Records</span>
+            <span>{totalProjects} Projects</span>
           </div>
         </div>
 
@@ -184,13 +184,13 @@ export default async function MarketsRegionsPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Project Records
+                Projects
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {totalProjects}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Development pipeline records
+                Development pipeline projects
               </div>
             </div>
           </div>

@@ -403,7 +403,7 @@ export default async function RegionMarketPage({
             <p className="mt-4 text-lg leading-8 text-gray-600">
               Regional geothermal market view with installed and operating
               capacity, project pipeline, country-market summaries, plant maps,
-              and structured records across the region.
+              and structured plant and project profiles across the region.
             </p>
           </div>
         </div>
@@ -446,7 +446,7 @@ export default async function RegionMarketPage({
             <StatBlock
               title="Projects"
               value={projects.length}
-              subtitle="Development pipeline records"
+              subtitle="Development pipeline projects"
             />
           </div>
         </div>
@@ -761,10 +761,10 @@ export default async function RegionMarketPage({
               </h2>
             </div>
             <div className="p-6 text-[13px] text-gray-600">
-              <div>Total records: {plants.length + projects.length}</div>
-              <div className="mt-2">Need Info records: {needInfoCount}</div>
-              <div className="mt-2">Plant records: {plants.length}</div>
-              <div className="mt-2">Project records: {projects.length}</div>
+              <div>Total profiles: {plants.length + projects.length}</div>
+              <div className="mt-2">Need Info profiles: {needInfoCount}</div>
+              <div className="mt-2">Plant profiles: {plants.length}</div>
+              <div className="mt-2">Project profiles: {projects.length}</div>
             </div>
           </section>
 

@@ -301,7 +301,7 @@ export default function CountriesAnalysisPage() {
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.countries}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Market rows in analysis</div>
+              <div className="mt-1 text-xs text-gray-500">Country markets in analysis</div>
             </div>
 
             <div>
@@ -336,22 +336,22 @@ export default function CountriesAnalysisPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Plant Records
+                Plants
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.plants}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Plant rows included</div>
+              <div className="mt-1 text-xs text-gray-500">Plants included</div>
             </div>
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Project Records
+                Projects
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.projects}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Project rows included</div>
+              <div className="mt-1 text-xs text-gray-500">Projects included</div>
             </div>
           </div>
         </div>
@@ -515,7 +515,7 @@ export default function CountriesAnalysisPage() {
                     colSpan={6}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country-market records found.
+                    No matching country markets found.
                   </td>
                 </tr>
               )}
@@ -627,7 +627,7 @@ export default function CountriesAnalysisPage() {
                     colSpan={4}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching region records found.
+                    No matching regions found.
                   </td>
                 </tr>
               )}
@@ -801,7 +801,7 @@ export default function CountriesAnalysisPage() {
                     colSpan={7}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching phase records found.
+                    No matching phase results found.
                   </td>
                 </tr>
               )}

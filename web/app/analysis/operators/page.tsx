@@ -124,7 +124,7 @@ export default function OperatorAnalysisPage() {
         <div className="border-t border-gray-200 bg-[#fafafa] px-8 py-5">
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
             <StatCard
-              label="Owner Rows"
+              label="Owners"
               value={owners.length}
               help="Companies with weighted owner MWe"
             />
@@ -134,7 +134,7 @@ export default function OperatorAnalysisPage() {
               help="Weighted by ownership share"
             />
             <StatCard
-              label="Operator Rows"
+              label="Operators"
               value={operators.length}
               help="Companies linked as operator"
             />
@@ -203,7 +203,7 @@ export default function OperatorAnalysisPage() {
                   {owners.length === 0 && (
                     <tr>
                       <td colSpan={5} className="px-4 py-8 text-center text-[13px] text-gray-500">
-                        No owner analysis rows found.
+                        No owner analysis found.
                       </td>
                     </tr>
                   )}
@@ -252,7 +252,7 @@ export default function OperatorAnalysisPage() {
                   {operators.length === 0 && (
                     <tr>
                       <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-gray-500">
-                        No operator analysis rows found.
+                        No operator analysis found.
                       </td>
                     </tr>
                   )}

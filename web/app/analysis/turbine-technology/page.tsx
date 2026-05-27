@@ -787,7 +787,7 @@ export default function TurbineTechnologyPage() {
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.technologies}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Technology rows</div>
+              <div className="mt-1 text-xs text-gray-500">Technology categories</div>
             </div>
 
             <div>
@@ -797,7 +797,7 @@ export default function TurbineTechnologyPage() {
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.suppliers}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Supplier rows</div>
+              <div className="mt-1 text-xs text-gray-500">Supplier profiles</div>
             </div>
 
             <div>
@@ -807,7 +807,7 @@ export default function TurbineTechnologyPage() {
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.countries}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Market comparison rows</div>
+              <div className="mt-1 text-xs text-gray-500">Market comparisons</div>
             </div>
 
             <div>
@@ -977,7 +977,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={6}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching technology records found.
+                    No matching technology categories found.
                   </td>
                 </tr>
               )}
@@ -1090,7 +1090,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={4}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching supplier records found.
+                    No matching suppliers found.
                   </td>
                 </tr>
               )}
@@ -1187,7 +1187,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={data.technologyOrder.length + 2}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country-market MWe records found.
+                    No matching country-market MWe results found.
                   </td>
                 </tr>
               )}
@@ -1284,7 +1284,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={data.technologyOrder.length + 2}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country-market percentage records found.
+                    No matching country-market percentage results found.
                   </td>
                 </tr>
               )}

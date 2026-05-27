@@ -125,7 +125,7 @@ export default async function MarketsCountriesPage() {
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
               Country-market overview pages derived from TGE’s geothermal
               plants and projects databases, covering installed capacity,
-              operating capacity, project pipeline, and structured market records.
+              operating capacity, project pipeline, and structured market profiles.
             </p>
           </div>
         </div>
@@ -139,9 +139,9 @@ export default async function MarketsCountriesPage() {
             <span className="text-gray-300">|</span>
             <span>{regionSet.size} Regions</span>
             <span className="text-gray-300">|</span>
-            <span>{totalPlants} Plant Records</span>
+            <span>{totalPlants} Plants</span>
             <span className="text-gray-300">|</span>
-            <span>{totalProjects} Project Records</span>
+            <span>{totalProjects} Projects</span>
           </div>
         </div>
 
@@ -197,13 +197,13 @@ export default async function MarketsCountriesPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Project Records
+                Projects
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {totalProjects}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Development pipeline records
+                Development pipeline projects
               </div>
             </div>
           </div>
