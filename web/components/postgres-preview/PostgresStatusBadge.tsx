@@ -54,6 +54,24 @@ const toneClasses: Record<PostgresStatusTone, string> = {
   pilot: "border-amber-200 bg-amber-50 text-amber-800",
 };
 
+const toneBarClasses: Record<PostgresStatusTone, string> = {
+  success: "bg-[#8dc63f]",
+  attention: "bg-amber-400",
+  danger: "bg-red-500",
+  info: "bg-blue-400",
+  neutral: "bg-gray-300",
+  muted: "bg-gray-300",
+  prospect: "bg-slate-300",
+  exploration: "bg-blue-400",
+  pre_feasibility: "bg-violet-400",
+  feasibility: "bg-teal-400",
+  construction: "bg-[#8dc63f]",
+  operating: "bg-[#3f8f2f]",
+  cancelled: "bg-red-500",
+  retired: "bg-gray-400",
+  pilot: "bg-amber-400",
+};
+
 const reviewStatusTones: Record<string, PostgresStatusTone> = {
   draft: "muted",
   needs_review: "attention",
@@ -285,6 +303,10 @@ export function postgresStatusTone(
 
 export function postgresStatusToneClass(tone: PostgresStatusTone) {
   return toneClasses[tone];
+}
+
+export function postgresStatusBarClass(tone: PostgresStatusTone) {
+  return toneBarClasses[tone];
 }
 
 export function postgresStatusClassForValue(

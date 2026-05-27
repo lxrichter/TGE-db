@@ -14,6 +14,10 @@ import {
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import NextActionStrip from "@/components/ui/NextActionStrip";
+import {
+  postgresStatusBarClass,
+  postgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -164,11 +168,13 @@ function BucketTable({
   description,
   buckets,
   defaultOpen = true,
+  useLifecycleColors = false,
 }: {
   title: string;
   description: string;
   buckets: PostgresPreviewAnalysisBucket[];
   defaultOpen?: boolean;
+  useLifecycleColors?: boolean;
 }) {
   const maxElectric = Math.max(
     1,
@@ -204,6 +210,11 @@ function BucketTable({
           const share = Math.round(
             (bucket.electric_capacity_mwe / maxElectric) * 100
           );
+          const barClass = useLifecycleColors
+            ? postgresStatusBarClass(
+                postgresStatusTone(bucket.bucket_code, "lifecycle")
+              )
+            : "bg-[#8dc63f]";
 
           return (
             <article key={bucket.bucket_code} className="px-4 py-4">
@@ -223,7 +234,7 @@ function BucketTable({
                 <MobileAnalysisField label="Relative Share">
                   <div className="h-1.5 overflow-hidden bg-gray-100">
                     <div
-                      className="h-full bg-[#8dc63f]"
+                      className={`h-full ${barClass}`}
                       style={{ width: `${share}%` }}
                     />
                   </div>
@@ -249,6 +260,11 @@ function BucketTable({
               const share = Math.round(
                 (bucket.electric_capacity_mwe / maxElectric) * 100
               );
+              const barClass = useLifecycleColors
+                ? postgresStatusBarClass(
+                    postgresStatusTone(bucket.bucket_code, "lifecycle")
+                  )
+                : "bg-[#8dc63f]";
 
               return (
                 <tr key={bucket.bucket_code}>
@@ -267,7 +283,7 @@ function BucketTable({
                   <td className="px-5 py-4">
                     <div className="h-1.5 overflow-hidden bg-gray-100">
                       <div
-                        className="h-full bg-[#8dc63f]"
+                        className={`h-full ${barClass}`}
                         style={{ width: `${share}%` }}
                       />
                     </div>
@@ -470,11 +486,13 @@ export default async function PostgresAnalysisPreviewPage({
                 buckets={summary.projectLifecycle}
                 description="Project records grouped by lifecycle phase, including electric and thermal capacity signals where available."
                 title="Project Lifecycle"
+                useLifecycleColors
               />
               <BucketTable
                 buckets={summary.operatingAssetStatus}
                 description="Plant records grouped by operating status or lifecycle-style plant state."
                 title="Plant Status"
+                useLifecycleColors
               />
             </div>
 

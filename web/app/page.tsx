@@ -16,6 +16,10 @@ import ActionButton from "@/components/ui/ActionButton";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
+import {
+  postgresStatusBarClass,
+  postgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -414,10 +418,12 @@ function BucketOverview({
   title,
   buckets,
   href,
+  useLifecycleColors = false,
 }: {
   title: string;
   buckets: PostgresPreviewAnalysisBucket[];
   href: string;
+  useLifecycleColors?: boolean;
 }) {
   const visibleBuckets = buckets.slice(0, 5);
   const maxCount = Math.max(...visibleBuckets.map((bucket) => bucket.record_count), 1);
@@ -434,26 +440,37 @@ function BucketOverview({
         </Link>
       </div>
       <div className="space-y-4 px-5 py-5">
-        {visibleBuckets.map((bucket) => (
-          <div key={bucket.bucket_code}>
-            <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="font-semibold text-[#1f2937]">
-                {formatBucketLabel(bucket.bucket_code)}
-              </span>
-              <span className="text-xs text-gray-500">
-                {formatCount(bucket.record_count)} records
-              </span>
+        {visibleBuckets.map((bucket) => {
+          const barClass = useLifecycleColors
+            ? postgresStatusBarClass(
+                postgresStatusTone(bucket.bucket_code, "lifecycle")
+              )
+            : "bg-[#8dc63f]";
+
+          return (
+            <div key={bucket.bucket_code}>
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className="font-semibold text-[#1f2937]">
+                  {formatBucketLabel(bucket.bucket_code)}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {formatCount(bucket.record_count)} records
+                </span>
+              </div>
+              <div className="mt-2 h-2 bg-gray-100">
+                <div
+                  className={`h-2 ${barClass}`}
+                  style={{
+                    width: `${Math.max(
+                      8,
+                      (bucket.record_count / maxCount) * 100
+                    )}%`,
+                  }}
+                />
+              </div>
             </div>
-            <div className="mt-2 h-2 bg-[#edf2e7]">
-              <div
-                className="h-2 bg-[#8dc63f]"
-                style={{
-                  width: `${Math.max(8, (bucket.record_count / maxCount) * 100)}%`,
-                }}
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -840,11 +857,13 @@ export default async function HomePage() {
                 buckets={staging.analysis.projectLifecycle}
                 href="/postgres-preview/analysis#benchmark-views"
                 title="Project Lifecycle"
+                useLifecycleColors
               />
               <BucketOverview
                 buckets={staging.analysis.operatingAssetStatus}
                 href="/postgres-preview/analysis#benchmark-views"
                 title="Operating Status"
+                useLifecycleColors
               />
             </div>
           </section>
