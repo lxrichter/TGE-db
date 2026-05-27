@@ -163,18 +163,48 @@ function AnalysisCountryMeta({
   );
 }
 
+const projectStagePlantStatusCodes = new Set([
+  "prospect_tbd",
+  "prospect",
+  "exploration",
+  "pre_feasibility",
+  "feasibility",
+  "construction",
+  "under_construction",
+]);
+
+function formatPlantStatusBucketLabel(bucketCode: string) {
+  if (projectStagePlantStatusCodes.has(bucketCode)) {
+    return `Needs plant status: ${formatPreviewFilterLabel(bucketCode)}`;
+  }
+
+  return formatPreviewFilterLabel(bucketCode);
+}
+
+function plantStatusBarClass(bucketCode: string) {
+  if (projectStagePlantStatusCodes.has(bucketCode)) {
+    return postgresStatusBarClass("attention");
+  }
+
+  return postgresStatusBarClass(postgresStatusTone(bucketCode, "lifecycle"));
+}
+
 function BucketTable({
   title,
   description,
   buckets,
   defaultOpen = true,
   useLifecycleColors = false,
+  formatBucketLabel = (bucket) => formatPreviewFilterLabel(bucket.bucket_code),
+  getBucketBarClass,
 }: {
   title: string;
   description: string;
   buckets: PostgresPreviewAnalysisBucket[];
   defaultOpen?: boolean;
   useLifecycleColors?: boolean;
+  formatBucketLabel?: (bucket: PostgresPreviewAnalysisBucket) => string;
+  getBucketBarClass?: (bucket: PostgresPreviewAnalysisBucket) => string;
 }) {
   const maxElectric = Math.max(
     1,
@@ -210,16 +240,18 @@ function BucketTable({
           const share = Math.round(
             (bucket.electric_capacity_mwe / maxElectric) * 100
           );
-          const barClass = useLifecycleColors
-            ? postgresStatusBarClass(
-                postgresStatusTone(bucket.bucket_code, "lifecycle")
-              )
-            : "bg-[#8dc63f]";
+          const barClass =
+            getBucketBarClass?.(bucket) ||
+            (useLifecycleColors
+              ? postgresStatusBarClass(
+                  postgresStatusTone(bucket.bucket_code, "lifecycle")
+                )
+              : "bg-[#8dc63f]");
 
           return (
             <article key={bucket.bucket_code} className="px-4 py-4">
               <div className="font-semibold text-[#1f2937]">
-                {formatPreviewFilterLabel(bucket.bucket_code)}
+                {formatBucketLabel(bucket)}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <MobileAnalysisField label="Profiles">
@@ -260,16 +292,18 @@ function BucketTable({
               const share = Math.round(
                 (bucket.electric_capacity_mwe / maxElectric) * 100
               );
-              const barClass = useLifecycleColors
-                ? postgresStatusBarClass(
-                    postgresStatusTone(bucket.bucket_code, "lifecycle")
-                  )
-                : "bg-[#8dc63f]";
+              const barClass =
+                getBucketBarClass?.(bucket) ||
+                (useLifecycleColors
+                  ? postgresStatusBarClass(
+                      postgresStatusTone(bucket.bucket_code, "lifecycle")
+                    )
+                  : "bg-[#8dc63f]");
 
               return (
                 <tr key={bucket.bucket_code}>
                   <td className="px-5 py-4 font-semibold text-[#1f2937]">
-                    {formatPreviewFilterLabel(bucket.bucket_code)}
+                    {formatBucketLabel(bucket)}
                   </td>
                   <td className="px-5 py-4 text-gray-700">
                     {formatCount(bucket.record_count)}
@@ -490,9 +524,14 @@ export default async function PostgresAnalysisPreviewPage({
               />
               <BucketTable
                 buckets={summary.operatingAssetStatus}
-                description="Plants grouped by operating status or lifecycle-style plant state."
-                title="Plant Status"
-                useLifecycleColors
+                description="Plants grouped through an operating-status lens. Project-stage values are flagged as plant-status normalization work."
+                formatBucketLabel={(bucket) =>
+                  formatPlantStatusBucketLabel(bucket.bucket_code)
+                }
+                getBucketBarClass={(bucket) =>
+                  plantStatusBarClass(bucket.bucket_code)
+                }
+                title="Plant Operating Status"
               />
             </div>
 
