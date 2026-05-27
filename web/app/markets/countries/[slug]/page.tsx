@@ -135,12 +135,12 @@ export default async function CountryMarketPage({
     return (
       <main className="space-y-6">
         <div className="border border-gray-200 bg-white p-8">
-          <p className="text-base text-gray-700">Country not found.</p>
+          <p className="text-base text-gray-700">Country market not found.</p>
           <Link
             href="/markets/countries"
             className="mt-4 inline-block text-sm text-[#8dc63f]"
           >
-            ← Back to countries
+            ← Back to country markets
           </Link>
         </div>
       </main>
@@ -340,7 +340,7 @@ export default async function CountryMarketPage({
           href="/markets/countries"
           className="text-sm font-medium text-[#8dc63f] hover:underline"
         >
-          ← Back to countries
+          ← Back to country markets
         </Link>
       </div>
 
@@ -354,7 +354,7 @@ export default async function CountryMarketPage({
               {matchedCountry}
             </h1>
             <p className="mt-4 text-lg leading-8 text-gray-600">
-              Country-level geothermal market view with installed and operating
+              Country-market geothermal view with installed and operating
               capacity, project pipeline, asset map, operator landscape, and
               structured database records.
             </p>

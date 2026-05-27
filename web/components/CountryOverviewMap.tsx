@@ -347,7 +347,7 @@ export default function CountryOverviewMap({
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">Country Map</h2>
+        <h2 className="text-xl font-bold text-[#1f2937]">Country Market Map</h2>
 
         <div className="flex gap-2">
           <button

@@ -402,8 +402,8 @@ export default async function RegionMarketPage({
             </h1>
             <p className="mt-4 text-lg leading-8 text-gray-600">
               Regional geothermal market view with installed and operating
-              capacity, project pipeline, country summaries, asset maps, and
-              structured records across the region.
+              capacity, project pipeline, country-market summaries, plant maps,
+              and structured records across the region.
             </p>
           </div>
         </div>
@@ -413,7 +413,7 @@ export default async function RegionMarketPage({
             <span className="font-semibold uppercase tracking-wide text-gray-500">
               Summary
             </span>
-            <span>{countrySet.size} Countries</span>
+            <span>{countrySet.size} Country Markets</span>
             <span className="text-gray-300">|</span>
             <span>{plants.length} Plants</span>
             <span className="text-gray-300">|</span>
@@ -434,9 +434,9 @@ export default async function RegionMarketPage({
               subtitle="Total plant operating MW"
             />
             <StatBlock
-              title="Countries"
+              title="Country Markets"
               value={countrySet.size}
-              subtitle="Countries in region"
+              subtitle="Markets in region"
             />
             <StatBlock
               title="Planned Capacity"
@@ -486,7 +486,7 @@ export default async function RegionMarketPage({
           <section className="border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
               <h2 className="text-xl font-bold text-[#1f2937]">
-                Countries in Region
+                Country Markets in Region
               </h2>
             </div>
 
@@ -495,7 +495,7 @@ export default async function RegionMarketPage({
                 <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
                   <tr>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
-                      Country
+                      Market
                     </th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
                       Installed MW
