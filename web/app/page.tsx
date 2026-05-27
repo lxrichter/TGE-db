@@ -347,7 +347,7 @@ function MarketSignalTable({
             key={country.country}
             href={`/postgres-preview/markets?country=${encodeURIComponent(
               country.country
-            )}`}
+            )}#market-rankings`}
             className="block px-5 py-4"
           >
             <div className="font-semibold text-[#1f2937]">{country.country}</div>
@@ -380,7 +380,7 @@ function MarketSignalTable({
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                     href={`/postgres-preview/markets?country=${encodeURIComponent(
                       country.country
-                    )}`}
+                    )}#market-rankings`}
                   >
                     {country.country}
                   </Link>
@@ -400,7 +400,7 @@ function MarketSignalTable({
                     className="mt-2 inline-flex text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
                     href={`/postgres-preview/markets?country=${encodeURIComponent(
                       country.country
-                    )}`}
+                    )}#market-rankings`}
                   >
                     Open Market
                   </Link>
@@ -770,7 +770,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/markets"
             label="Markets"
-            note={staging.ok ? "Top market profiles loaded" : "Legacy countries covered"}
+            note={staging.ok ? "Top market profiles loaded" : "Legacy markets covered"}
             tone="market"
             value={formatCount(countriesCovered)}
           />
@@ -805,7 +805,7 @@ export default async function HomePage() {
 
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <IntelligenceCard
-            description="Country and regional market views with operating capacity, pipeline, evidence gaps, and source-aware market signals."
+            description="Regional and market views with operating capacity, pipeline, evidence gaps, and source-aware market signals."
             href="/postgres-preview/markets"
             label="Market Intelligence"
             meta="Markets"
@@ -819,7 +819,7 @@ export default async function HomePage() {
             title="Geothermal Map"
           />
           <IntelligenceCard
-            description="Cross-database benchmarking for lifecycle, operating status, use type, and country comparison."
+            description="Cross-database benchmarking for lifecycle, operating status, use type, and market comparison."
             href="/postgres-preview/analysis"
             label="Analytical Layer"
             meta="BI"

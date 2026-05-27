@@ -27,6 +27,7 @@ type CountriesData =
     };
 
 type CountryMarketSearchParams = {
+  country?: string | string[];
   tge_region?: string | string[];
   wb_region?: string | string[];
 };
@@ -1492,10 +1493,15 @@ export default async function PostgresCountryMarketsPage({
 }) {
   const data = await getCountriesData();
   const resolvedSearchParams = searchParams ? await searchParams : {};
+  const activeMarket = cleanParam(resolvedSearchParams.country);
   const activeTgeRegion = cleanParam(resolvedSearchParams.tge_region);
   const activeWbRegion = cleanParam(resolvedSearchParams.wb_region);
   const allCountries = data.ok ? data.countries : [];
   const countries = allCountries.filter((country) => {
+    if (activeMarket && country.country !== activeMarket) {
+      return false;
+    }
+
     if (activeTgeRegion && country.tge_region !== activeTgeRegion) {
       return false;
     }
@@ -1506,10 +1512,13 @@ export default async function PostgresCountryMarketsPage({
 
     return true;
   });
-  const activeRegionLabel =
-    activeTgeRegion || activeWbRegion
-      ? activeTgeRegion || activeWbRegion
-      : "";
+  const activeFilterLabel = activeMarket
+    ? `Market: ${activeMarket}`
+    : activeTgeRegion
+      ? `TGE region: ${activeTgeRegion}`
+      : activeWbRegion
+        ? `World Bank region: ${activeWbRegion}`
+        : "";
   const totals = countries.reduce(
     (acc, country) => ({
       operatingMwe: acc.operatingMwe + country.operating_installed_mwe,
@@ -1633,17 +1642,17 @@ export default async function PostgresCountryMarketsPage({
               tone="core"
             />
 
-            {activeRegionLabel ? (
+            {activeFilterLabel ? (
               <div className="flex flex-col gap-3 border border-[#b9d98b] bg-[#f7fbf1] px-4 py-3 text-sm text-[#365f16] sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <span className="font-semibold">Active region filter:</span>{" "}
-                  {activeRegionLabel}
+                  <span className="font-semibold">Active market filter:</span>{" "}
+                  {activeFilterLabel}
                 </div>
                 <Link
                   className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
-                  href="/postgres-preview/markets#region-drilldown"
+                  href="/postgres-preview/markets#market-rankings"
                 >
-                  Clear Region Filter
+                  Clear Market Filter
                 </Link>
               </div>
             ) : null}

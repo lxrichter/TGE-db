@@ -538,7 +538,7 @@ export default async function PostgresPreviewPage() {
                 title="Edit Entity Profiles"
               />
               <EntryPathCard
-                description="Use countries, map, and analysis to interpret market and spatial patterns."
+                description="Use markets, map, and analysis to interpret market and spatial patterns."
                 href="/postgres-preview/analysis"
                 step="04"
                 title="Interpret Intelligence"
@@ -586,7 +586,7 @@ export default async function PostgresPreviewPage() {
                 title="Companies"
               />
               <WorkAreaCard
-                description="Country aggregation, market worklists, validation coverage, and source-gap signals."
+                description="Market aggregation, worklists, validation coverage, and source-gap signals."
                 href="/postgres-preview/markets"
                 label="Market Layer"
                 title="Markets"
@@ -598,7 +598,7 @@ export default async function PostgresPreviewPage() {
                 title="Map"
               />
               <WorkAreaCard
-                description="Cross-database analytical snapshot for capacity, lifecycle, use type, and country comparison."
+                description="Cross-database analytical snapshot for capacity, lifecycle, use type, and market comparison."
                 href="/postgres-preview/analysis"
                 label="Intelligence View"
                 title="Analysis"
