@@ -1917,7 +1917,7 @@ function FieldSuggestionReviewPanel({
                 {pageItems.map((candidate) => (
                   <tr
                     key={candidate.field_suggestion_candidate_id}
-                    className="align-top"
+                    className="align-top transition-colors hover:bg-[#fbfdf8]"
                   >
                     <td className="px-4 py-3">
                       <input
@@ -1982,13 +1982,17 @@ function FieldSuggestionReviewPanel({
                       ) : null}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
-                      {candidate.current_value || "-"}
+                      <div className="line-clamp-2 break-words">
+                        {candidate.current_value || "-"}
+                      </div>
                       <div className="mt-2 text-xs font-semibold text-gray-500">
                         {fieldSuggestionFieldContext(candidate)}
                       </div>
                     </td>
                     <td className="px-4 py-3 font-semibold text-[#1f2937]">
-                      {candidate.suggested_value}
+                      <div className="line-clamp-2 break-words">
+                        {candidate.suggested_value}
+                      </div>
                       {candidate.suggestion_reason ? (
                         <div className="mt-2 line-clamp-2 text-xs font-normal text-gray-500">
                           {candidate.suggestion_reason}
@@ -2258,7 +2262,11 @@ function EntityTable({
               return (
                 <tr
                   key={key}
-                  className={selected ? "align-top bg-[#f3f8ec]" : "align-top"}
+                  className={
+                    selected
+                      ? "align-top bg-[#f3f8ec]"
+                      : "align-top transition-colors hover:bg-[#fbfdf8]"
+                  }
                 >
                   <td className={cellClass}>
                     <input
@@ -3468,7 +3476,10 @@ function PersistentIssues({
                   const saving = savingIssueId === issue.research_ops_issue_id;
 
                   return (
-                    <tr key={issue.research_ops_issue_id} className="align-top">
+                    <tr
+                      key={issue.research_ops_issue_id}
+                      className="align-top transition-colors hover:bg-[#fbfdf8]"
+                    >
                       <td className="px-4 py-3">
                         <div className="font-semibold text-[#1f2937]">
                           {issue.issue_type_label}
@@ -3485,7 +3496,7 @@ function PersistentIssues({
                           {issue.name}
                         </div>
                         {issue.description ? (
-                          <div className="mt-2 text-xs leading-5 text-gray-500">
+                          <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
                             {issue.description}
                           </div>
                         ) : null}
@@ -3532,7 +3543,7 @@ function PersistentIssues({
                         {formatDate(issue.updated_at)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                           {href ? (
                             <Link
                               className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -3687,6 +3698,7 @@ function RecentEdits({
         </p>
       </div>
       <EntityTable
+        compactRows
         items={items}
         onSelect={onSelect}
         onToggleBulk={onToggleBulk}
