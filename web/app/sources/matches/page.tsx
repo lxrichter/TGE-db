@@ -5,7 +5,6 @@ import SourceReviewFilterChips, {
 } from "@/components/sources/SourceReviewFilterChips";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
-import NextActionStrip from "@/components/ui/NextActionStrip";
 import { formatCount } from "@/lib/format";
 import {
   countSourceMatchCandidates,
@@ -256,39 +255,6 @@ export default async function SourceMatchCandidatesPage({
           : null,
       ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
     : [];
-  const matchNextActions = [
-    filters.sourceId
-      ? {
-          label: "Source",
-          title: "Open Source Profile",
-          description:
-            "Return to the source, credibility state, and linked evidence.",
-          href: `/sources/${filters.sourceId}`,
-        }
-      : {
-          label: "Sources & Evidence",
-          title: "Open Sources & Evidence",
-          description:
-            "Review source records, credibility, and evidence links.",
-          href: "/sources",
-        },
-    {
-      label: "Facts",
-      title: "Review Extracted Facts",
-      description:
-        "Move reviewed matches into compact fact review.",
-      href: filters.sourceId
-        ? `/sources/facts?sourceId=${filters.sourceId}`
-        : "/sources/facts",
-    },
-    {
-      label: "Research Ops",
-      title: "Open Match Queue",
-      description: "Review article match workload in Research Ops.",
-      href: "/postgres-preview/research-ops#article-match-review",
-    },
-  ];
-
   return (
     <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
@@ -307,12 +273,22 @@ export default async function SourceMatchCandidatesPage({
                 auditable, and separate from automated field updates.
               </p>
             </div>
-            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:w-auto lg:flex lg:flex-wrap">
+            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href="/sources"
               >
                 Sources
+              </Link>
+              <Link
+                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                href={
+                  filters.sourceId
+                    ? `/sources/facts?sourceId=${filters.sourceId}`
+                    : "/sources/facts"
+                }
+              >
+                Article Facts
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -324,12 +300,6 @@ export default async function SourceMatchCandidatesPage({
           </div>
         </div>
       </section>
-
-      <NextActionStrip
-        title="Review Context"
-        description="Keep match review tied to source context, fact triage, and Research Ops."
-        actions={matchNextActions}
-      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

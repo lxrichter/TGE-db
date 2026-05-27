@@ -23,7 +23,6 @@ import PostgresStatusBadge, {
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
-import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -760,31 +759,6 @@ export default async function SourcesPage({
         </div>
       </section>
 
-      <NextActionStrip
-        title="Primary Work Paths"
-        description="Move between source review, entity matching, and fact triage."
-        actions={[
-          {
-            label: "Sources & Evidence",
-            title: "Review Source Records",
-            description: "Check credibility, visibility, source type, and evidence coverage.",
-            href: "#source-triage",
-          },
-          {
-            label: "Matches",
-            title: "Review Article Matches",
-            description: "Confirm or reject candidates before evidence links are created.",
-            href: "/sources/matches",
-          },
-          {
-            label: "Facts",
-            title: "Review Article Facts",
-            description: "Triage extracted facts before suggestions or audited application.",
-            href: "/sources/facts",
-          },
-        ]}
-      />
-
       {!data.ok ? (
         <SetupNotice error={data.error} />
       ) : (
@@ -817,8 +791,6 @@ export default async function SourcesPage({
               tone="core"
             />
 
-            <WorkflowStrip />
-
             <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
               <StatTile
                 label="Total Sources"
@@ -848,7 +820,7 @@ export default async function SourcesPage({
               <StatTile
                 label="Linked Evidence"
                 value={formatCount(data.summary.linkedEvidence)}
-                note="Project/asset/company links"
+                note="Project/plant/company links"
               />
               <StatTile
                 label="Open Matches"
@@ -861,6 +833,8 @@ export default async function SourcesPage({
                 note="Extracted fact candidates"
               />
             </section>
+
+            <WorkflowStrip />
           </section>
 
           <section id="source-queues" className="space-y-5 scroll-mt-24">

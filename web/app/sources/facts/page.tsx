@@ -6,7 +6,6 @@ import SourceReviewFilterChips, {
 } from "@/components/sources/SourceReviewFilterChips";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
-import NextActionStrip from "@/components/ui/NextActionStrip";
 import { getArticleFactTypeDefinition } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import { canReview } from "@/lib/auth/roles";
@@ -380,39 +379,6 @@ export default async function ArticleFactCandidatesPage({
           : null,
       ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
     : [];
-  const factNextActions = [
-    filters.sourceId
-      ? {
-          label: "Source",
-          title: "Open Source Profile",
-          description:
-            "Return to the source, credibility state, and linked evidence.",
-          href: `/sources/${filters.sourceId}`,
-        }
-      : {
-          label: "Sources & Evidence",
-          title: "Open Sources & Evidence",
-          description:
-            "Review source records, credibility, and evidence coverage.",
-          href: "/sources",
-        },
-    {
-      label: "Matches",
-      title: "Review Article Matches",
-      description: "Confirm the article-to-entity path behind extracted facts.",
-      href: filters.sourceId
-        ? `/sources/matches?sourceId=${filters.sourceId}`
-        : "/sources/matches",
-    },
-    {
-      label: "Research Ops",
-      title: "Open Fact Queue",
-      description:
-        "Review fact workload and field-suggestion governance.",
-      href: "/postgres-preview/research-ops#article-fact-review",
-    },
-  ];
-
   return (
     <main className="space-y-6 sm:space-y-8">
       <section className="border border-gray-200 bg-white">
@@ -453,12 +419,6 @@ export default async function ArticleFactCandidatesPage({
           </div>
         </div>
       </section>
-
-      <NextActionStrip
-        title="Review Context"
-        description="Keep fact review tied to source context, matching, and Research Ops."
-        actions={factNextActions}
-      />
 
       {!data.ok ? (
         <SetupNotice error={data.error} />

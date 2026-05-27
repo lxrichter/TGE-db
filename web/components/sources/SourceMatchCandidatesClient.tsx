@@ -776,9 +776,9 @@ export default function SourceMatchCandidatesClient({
               </th>
               <th className="w-[26%] px-4 py-3 font-semibold">Article Source</th>
               <th className="w-[19%] px-4 py-3 font-semibold">Matched Entity</th>
-              <th className="w-[12%] px-4 py-3 font-semibold">Confidence</th>
+              <th className="w-[13%] px-4 py-3 font-semibold">Review Status</th>
+              <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
               <th className="w-[20%] px-4 py-3 font-semibold">Reason / Signals</th>
-              <th className="w-[12%] px-4 py-3 font-semibold">Status</th>
               <th className="w-[10%] px-4 py-3 font-semibold">Generated</th>
             </tr>
           </thead>
@@ -1014,13 +1014,24 @@ export default function SourceMatchCandidatesClient({
                               ) : null}
                             </td>
                             <td className={cellClassName}>
-                              <div className="text-xl font-bold text-[#1f2937]">
+                              <StatusBadge
+                                status={candidate.match_status_code}
+                                label={candidate.match_status_label}
+                              />
+                              {candidate.reviewed_by_name ? (
+                                <div className="mt-2 text-xs text-gray-500">
+                                  by {candidate.reviewed_by_name}
+                                </div>
+                              ) : null}
+                            </td>
+                            <td className={cellClassName}>
+                              <div className="text-base font-bold text-[#1f2937]">
                                 {formatConfidence(candidate.confidence_score)}
                               </div>
                               <div className="mt-1 text-xs text-gray-500">
                                 {candidate.confirmed_entity_source_id
-                                  ? "Evidence link confirmed"
-                                  : "Candidate only"}
+                                  ? "Evidence linked"
+                                  : "Candidate"}
                               </div>
                             </td>
                             <td className={cellClassName}>
@@ -1057,17 +1068,6 @@ export default function SourceMatchCandidatesClient({
                                   {candidate.source_open_candidate_count} open
                                   match candidates. Confirm only the record(s)
                                   this article actually supports.
-                                </div>
-                              ) : null}
-                            </td>
-                            <td className={cellClassName}>
-                              <StatusBadge
-                                status={candidate.match_status_code}
-                                label={candidate.match_status_label}
-                              />
-                              {candidate.reviewed_by_name ? (
-                                <div className="mt-2 text-xs text-gray-500">
-                                  by {candidate.reviewed_by_name}
                                 </div>
                               ) : null}
                             </td>
