@@ -622,6 +622,44 @@ function recentActivityLabel(record: ResearchOpsRecord) {
   return `${formatActivityType(record.latest_activity_type)}${fieldCount}`;
 }
 
+function tableCellTitle(value: string | number | null | undefined) {
+  if (value === null || value === undefined || value === "") {
+    return undefined;
+  }
+
+  return String(value);
+}
+
+function CompactCellText({
+  value,
+  fallback = "-",
+  lines = 1,
+  className = "",
+  title,
+}: {
+  value: string | number | null | undefined;
+  fallback?: string;
+  lines?: 1 | 2;
+  className?: string;
+  title?: string | null;
+}) {
+  const displayValue =
+    value === null || value === undefined || value === "" ? fallback : value;
+  const titleValue =
+    title || tableCellTitle(value) || tableCellTitle(displayValue);
+
+  return (
+    <div
+      className={`min-w-0 break-words ${
+        lines === 2 ? "line-clamp-2" : "line-clamp-1"
+      } ${className}`}
+      title={titleValue}
+    >
+      {displayValue}
+    </div>
+  );
+}
+
 function recordMatchesSearch(record: ResearchOpsRecord, search: string) {
   if (!search) {
     return true;
@@ -1937,7 +1975,7 @@ function FieldSuggestionReviewPanel({
                         className="h-4 w-4 rounded-none border-gray-300 text-[#8dc63f] focus:ring-[#8dc63f]"
                       />
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-2.5 text-gray-700">
                       {formatEntityType(candidate.entity_type)}
                       <div
                         className={`mt-2 inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${fieldSuggestionWorkflowTone(
@@ -1952,23 +1990,30 @@ function FieldSuggestionReviewPanel({
                         </div>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5">
                       <Link
                         href={fieldSuggestionHref(candidate)}
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        title={candidate.entity_name}
                       >
                         {candidate.entity_name}
                       </Link>
-                      <div className="mt-1 text-xs text-gray-500">
-                        {candidate.country || "No country"}
-                      </div>
+                      <CompactCellText
+                        className="mt-1 text-xs text-gray-500"
+                        value={candidate.country}
+                        fallback="No country"
+                      />
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {candidate.field_name}
+                    <td className="px-4 py-2.5 text-gray-700">
+                      <CompactCellText value={candidate.field_name} />
                       {candidate.source_title || candidate.source_reference ? (
-                        <div className="mt-2 line-clamp-2 text-xs text-gray-500">
-                          {candidate.source_title || candidate.source_reference}
-                        </div>
+                        <CompactCellText
+                          className="mt-2 text-xs text-gray-500"
+                          lines={2}
+                          value={
+                            candidate.source_title || candidate.source_reference
+                          }
+                        />
                       ) : null}
                       {candidate.source_id ? (
                         <Link
@@ -1979,31 +2024,36 @@ function FieldSuggestionReviewPanel({
                         </Link>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      <div className="line-clamp-2 break-words">
-                        {candidate.current_value || "-"}
-                      </div>
-                      <div className="mt-2 text-xs font-semibold text-gray-500">
-                        {fieldSuggestionFieldContext(candidate)}
-                      </div>
+                    <td className="px-4 py-2.5 text-gray-700">
+                      <CompactCellText
+                        lines={2}
+                        value={candidate.current_value}
+                      />
+                      <CompactCellText
+                        className="mt-2 text-xs font-semibold text-gray-500"
+                        value={fieldSuggestionFieldContext(candidate)}
+                      />
                     </td>
-                    <td className="px-4 py-3 font-semibold text-[#1f2937]">
-                      <div className="line-clamp-2 break-words">
-                        {candidate.suggested_value}
-                      </div>
+                    <td className="px-4 py-2.5 font-semibold text-[#1f2937]">
+                      <CompactCellText
+                        lines={2}
+                        value={candidate.suggested_value}
+                      />
                       {candidate.suggestion_reason ? (
-                        <div className="mt-2 line-clamp-2 text-xs font-normal text-gray-500">
-                          {candidate.suggestion_reason}
-                        </div>
+                        <CompactCellText
+                          className="mt-2 text-xs font-normal text-gray-500"
+                          lines={2}
+                          value={candidate.suggestion_reason}
+                        />
                       ) : null}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-2.5 text-gray-700">
                       {formatConfidence(candidate.confidence_score)}
                       <div className="mt-1 text-xs text-gray-500">
                         {formatDate(candidate.generated_at)}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-2.5">
                       <Link
                         href={fieldSuggestionHref(candidate)}
                         className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
@@ -2276,29 +2326,37 @@ function EntityTable({
                     />
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    {formatEntityType(item.entity_type)}
+                    <CompactCellText value={formatEntityType(item.entity_type)} />
                   </td>
                   <td className={cellClass}>
-                    <div className="font-semibold text-[#1f2937]">{item.name}</div>
-                    <div className={supportingTextClass}>
-                      {item.legacy_id || "new-postgres-record"}
-                    </div>
+                    <CompactCellText
+                      className="font-semibold text-[#1f2937]"
+                      lines={2}
+                      value={item.name}
+                    />
+                    <CompactCellText
+                      className={supportingTextClass}
+                      value={item.legacy_id}
+                      fallback="new-postgres-record"
+                    />
                     {"issue_label" in item ? (
-                      <div className={issueTextClass}>
-                        {item.issue_label}
-                      </div>
+                      <CompactCellText
+                        className={issueTextClass}
+                        value={item.issue_label}
+                      />
                     ) : null}
                     {activityLabel ? (
-                      <div className={activityTextClass}>
-                        {activityLabel}
-                      </div>
+                      <CompactCellText
+                        className={activityTextClass}
+                        value={activityLabel}
+                      />
                     ) : null}
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    {item.country || "-"}
+                    <CompactCellText value={item.country} />
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    {item.primary_use_type_code || "-"}
+                    <CompactCellText value={item.primary_use_type_code} />
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
                     <StatusBadge
@@ -2313,7 +2371,7 @@ function EntityTable({
                     />
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    {item.last_updated_by_name || "-"}
+                    <CompactCellText value={item.last_updated_by_name} />
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
                     {formatDate(item.updated_at)}
@@ -3478,31 +3536,39 @@ function PersistentIssues({
                       key={issue.research_ops_issue_id}
                       className="align-top transition-colors hover:bg-[#fbfdf8]"
                     >
-                      <td className="px-4 py-3">
-                        <div className="font-semibold text-[#1f2937]">
-                          {issue.issue_type_label}
-                        </div>
-                        <div className="mt-1 text-xs text-gray-500">
-                          {formatEntityType(issue.entity_type)}
-                        </div>
+                      <td className="px-4 py-2.5">
+                        <CompactCellText
+                          className="font-semibold text-[#1f2937]"
+                          value={issue.issue_type_label}
+                        />
+                        <CompactCellText
+                          className="mt-1 text-xs text-gray-500"
+                          value={formatEntityType(issue.entity_type)}
+                        />
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="font-semibold text-[#1f2937]">
-                          {issue.title}
-                        </div>
-                        <div className="mt-1 text-xs text-gray-600">
-                          {issue.name}
-                        </div>
+                      <td className="px-4 py-2.5">
+                        <CompactCellText
+                          className="font-semibold text-[#1f2937]"
+                          lines={2}
+                          value={issue.title}
+                        />
+                        <CompactCellText
+                          className="mt-1 text-xs text-gray-600"
+                          value={issue.name}
+                        />
                         {issue.description ? (
-                          <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
-                            {issue.description}
-                          </div>
+                          <CompactCellText
+                            className="mt-2 text-xs leading-5 text-gray-500"
+                            lines={2}
+                            value={issue.description}
+                          />
                         ) : null}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <button
-                          className="inline-flex min-h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-left text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                          className="inline-flex min-h-7 max-w-full items-center border border-gray-200 bg-[#f7f7f7] px-2 text-left text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                           type="button"
+                          title={formatLinkedField(issue.linked_field)}
                           onClick={() =>
                             setLinkedFieldFilter(
                               issue.linked_field
@@ -3511,16 +3577,18 @@ function PersistentIssues({
                             )
                           }
                         >
-                          {formatLinkedField(issue.linked_field)}
+                          <span className="line-clamp-1 break-words">
+                            {formatLinkedField(issue.linked_field)}
+                          </span>
                         </button>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <SeverityBadge severity={issue.severity} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <StatusBadge value={issue.issue_status_label} />
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-2.5 text-gray-700">
                         <select
                           className="h-8 w-full min-w-0 border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#8dc63f] disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={saving}
@@ -3537,10 +3605,10 @@ function PersistentIssues({
                           ))}
                         </select>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-2.5 text-gray-700">
                         {formatDate(issue.updated_at)}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-2.5">
                         <div className="flex flex-wrap gap-1.5">
                           {href ? (
                             <Link
