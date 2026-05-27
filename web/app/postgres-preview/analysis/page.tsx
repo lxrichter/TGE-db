@@ -440,7 +440,7 @@ export default async function PostgresAnalysisPreviewPage({
                 value={formatCount(totals.projectRecords)}
               />
               <StatTile
-                label="Asset Records"
+                label="Plant Records"
                 note="PostgreSQL staging plant records"
                 value={formatCount(totals.assetRecords)}
               />
