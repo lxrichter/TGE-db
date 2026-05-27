@@ -34,7 +34,7 @@ function formatCode(value: string | null) {
 
   return value
     .replaceAll("_", " ")
-    .replace(/\bmw\b/gi, "MW")
+    .replace(/\bmw\b/gi, "MWe")
     .replace(/\bmwe\b/gi, "MWe")
     .replace(/\bmwth\b/gi, "MWth")
     .replace(/\bcod\b/gi, "COD");
