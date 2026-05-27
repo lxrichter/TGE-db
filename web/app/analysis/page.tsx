@@ -80,7 +80,7 @@ export default function AnalysisPage() {
                 Live modules
               </span>
               <div className="mt-1 text-[#1f2937]">
-                countries, turbine technology, owners/operators
+                country markets, turbine technology, owners/operators
               </div>
             </div>
 
@@ -107,7 +107,7 @@ export default function AnalysisPage() {
                 Markets note
               </span>
               <div className="mt-1 text-[#1f2937]">
-                regional and country overviews live under Markets
+                regional and country-market overviews live under Markets
               </div>
             </div>
           </div>
@@ -127,8 +127,8 @@ export default function AnalysisPage() {
 
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
             <AvailableAnalysisCard
-              title="Countries Analysis"
-              text="Installed capacity by country and TGE region, planned project MW, and country-level project phase distribution."
+              title="Country Market Analysis"
+              text="Installed capacity by country market and TGE region, planned project MW, and market-level project phase distribution."
               href="/analysis/countries"
             />
 

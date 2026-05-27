@@ -654,7 +654,7 @@ export default function TurbineTechnologyPage() {
         )}`;
       }
 
-      return "Installed Capacity Share by Technology - Filtered Countries";
+      return "Installed Capacity Share by Technology - Filtered Markets";
     }
 
     return "Installed Capacity Share by Technology - Global";
@@ -670,7 +670,7 @@ export default function TurbineTechnologyPage() {
           ? countryNames.join(", ")
           : `${countryNames.slice(0, 3).join(", ")} +${countryNames.length - 3} more`;
 
-      return `Based on the currently filtered country data: ${preview}. Flash combines single, double, and triple flash. All remaining technologies are grouped as Other.`;
+      return `Based on the currently filtered country-market data: ${preview}. Flash combines single, double, and triple flash. All remaining technologies are grouped as Other.`;
     }
 
     return "Global installed capacity split by technology bucket. Flash combines single, double, and triple flash. All remaining technologies are grouped as Other.";
@@ -694,7 +694,7 @@ export default function TurbineTechnologyPage() {
         return `Turbine Supplier Share - ${matchedSupplierCountries[0]}`;
       }
 
-      return "Turbine Supplier Share - Filtered Countries";
+      return "Turbine Supplier Share - Filtered Markets";
     }
 
     return "Turbine Supplier Share - Global";
@@ -772,7 +772,7 @@ export default function TurbineTechnologyPage() {
             <span className="text-gray-300">|</span>
             <span>{kpis.suppliers} Suppliers</span>
             <span className="text-gray-300">|</span>
-            <span>{kpis.countries} Countries</span>
+            <span>{kpis.countries} Country Markets</span>
             <span className="text-gray-300">|</span>
             <span>{formatNumber(kpis.installed)} MW Installed</span>
           </div>
@@ -802,12 +802,12 @@ export default function TurbineTechnologyPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Countries
+                Country Markets
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.countries}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Country comparison rows</div>
+              <div className="mt-1 text-xs text-gray-500">Market comparison rows</div>
             </div>
 
             <div>
@@ -1100,8 +1100,8 @@ export default function TurbineTechnologyPage() {
       </SectionCard>
 
       <SectionCard
-        title="Technology by Country — MW"
-        description="Installed MW by technology across countries."
+        title="Technology by Country Market — MW"
+        description="Installed MW by technology across country markets."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -1109,7 +1109,7 @@ export default function TurbineTechnologyPage() {
               <tr>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Country"
+                    label="Market"
                     active={countryMwSortKey === "country"}
                     direction={countryMwSortDirection}
                     onClick={() =>
@@ -1187,7 +1187,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={data.technologyOrder.length + 2}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country MW records found.
+                    No matching country-market MW records found.
                   </td>
                 </tr>
               )}
@@ -1197,8 +1197,8 @@ export default function TurbineTechnologyPage() {
       </SectionCard>
 
       <SectionCard
-        title="Technology by Country — % Share"
-        description="Installed share by technology across countries."
+        title="Technology by Country Market — % Share"
+        description="Installed share by technology across country markets."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -1206,7 +1206,7 @@ export default function TurbineTechnologyPage() {
               <tr>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Country"
+                    label="Market"
                     active={countryPctSortKey === "country"}
                     direction={countryPctSortDirection}
                     onClick={() =>
@@ -1284,7 +1284,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={data.technologyOrder.length + 2}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country percentage records found.
+                    No matching country-market percentage records found.
                   </td>
                 </tr>
               )}

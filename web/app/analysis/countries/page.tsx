@@ -247,7 +247,7 @@ export default function CountriesAnalysisPage() {
               Analysis
             </p>
             <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Countries Analysis
+              Country Market Analysis
             </h1>
             <p className="mt-4 text-lg leading-8 text-gray-600">
               Loading analysis…
@@ -267,10 +267,10 @@ export default function CountriesAnalysisPage() {
               Analysis
             </p>
             <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Countries Analysis
+              Country Market Analysis
             </h1>
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
-              Country-level geothermal market analysis derived from the plants and
+              Country-market geothermal analysis derived from the plants and
               projects database, including installed MW, planned MW, TGE region,
               and project phase distribution.
             </p>
@@ -282,7 +282,7 @@ export default function CountriesAnalysisPage() {
             <span className="font-semibold uppercase tracking-wide text-gray-500">
               Scope
             </span>
-            <span>{kpis.countries} Countries</span>
+            <span>{kpis.countries} Country Markets</span>
             <span className="text-gray-300">|</span>
             <span>{kpis.regions} Regions</span>
             <span className="text-gray-300">|</span>
@@ -296,12 +296,12 @@ export default function CountriesAnalysisPage() {
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-6">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Countries
+                Country Markets
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {kpis.countries}
               </div>
-              <div className="mt-1 text-xs text-gray-500">Country rows in analysis</div>
+              <div className="mt-1 text-xs text-gray-500">Market rows in analysis</div>
             </div>
 
             <div>
@@ -370,8 +370,8 @@ export default function CountriesAnalysisPage() {
       </section>
 
       <SectionCard
-        title="Country Summary"
-        description="Installed MW, planned MW, plant counts, and project counts by country."
+        title="Country Market Summary"
+        description="Installed MW, planned MW, plant counts, and project counts by country market."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -379,7 +379,7 @@ export default function CountriesAnalysisPage() {
               <tr>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Country"
+                    label="Market"
                     active={countrySortKey === "country"}
                     direction={countrySortDirection}
                     onClick={() =>
@@ -515,7 +515,7 @@ export default function CountriesAnalysisPage() {
                     colSpan={6}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country records found.
+                    No matching country-market records found.
                   </td>
                 </tr>
               )}
@@ -526,7 +526,7 @@ export default function CountriesAnalysisPage() {
 
       <SectionCard
         title="Installed Capacity by TGE Region"
-        description="Installed MW, plant counts, and country counts by TGE region."
+        description="Installed MW, plant counts, and country-market counts by TGE region."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -582,7 +582,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="# Countries"
+                    label="# Markets"
                     active={regionSortKey === "country_count"}
                     direction={regionSortDirection}
                     onClick={() =>
@@ -637,8 +637,8 @@ export default function CountriesAnalysisPage() {
       </SectionCard>
 
       <SectionCard
-        title="Projects in Development by Country and Phase"
-        description="Pipeline view showing planned MW split by phase group at country level."
+        title="Projects in Development by Country Market and Phase"
+        description="Pipeline view showing planned MW split by phase group at country-market level."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -646,7 +646,7 @@ export default function CountriesAnalysisPage() {
               <tr>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Country"
+                    label="Market"
                     active={phaseSortKey === "country"}
                     direction={phaseSortDirection}
                     onClick={() =>
