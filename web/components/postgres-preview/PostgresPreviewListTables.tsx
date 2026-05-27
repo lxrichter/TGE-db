@@ -300,7 +300,7 @@ function MobileEntityCard({
     <article className="px-4 py-4 sm:px-5">
       <Link
         href={href}
-        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+        className="block line-clamp-2 font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
       >
         {name}
       </Link>
@@ -1548,7 +1548,9 @@ export function CompaniesPreviewTable({
                 {company.headquarters_country || <EmptyValue />}
               </MobileField>
               <MobileField label="Activity Focus">
-                {company.geothermal_focus || <EmptyValue />}
+                <div className="line-clamp-2">
+                  {company.geothermal_focus || <EmptyValue />}
+                </div>
               </MobileField>
               <MobileField label="Review">
                 <StatusBadge value={company.review_status_code} />
@@ -1586,7 +1588,7 @@ export function CompaniesPreviewTable({
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/companies/${company.company_id}`}
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className="block line-clamp-2 font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                     >
                       {company.company_name}
                     </Link>
@@ -1604,7 +1606,7 @@ export function CompaniesPreviewTable({
                     {company.headquarters_country || <EmptyValue />}
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    <div className={compact ? "line-clamp-1" : undefined}>
+                    <div className={compact ? "line-clamp-1" : "line-clamp-2"}>
                       {company.geothermal_focus || <EmptyValue />}
                     </div>
                   </td>

@@ -307,11 +307,11 @@ export default async function PostgresPreviewMapPage({
             />
           </section>
         ) : (
-          <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-            <h2 className="text-lg font-bold text-amber-900">
+          <section className="border border-gray-200 bg-white px-5 py-4">
+            <h2 className="text-base font-bold text-[#1f2937]">
               Map Summary Not Available
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
               The map can still attempt to load from the API. Start the app with
               local PostgreSQL variables if the map remains empty.
             </p>
