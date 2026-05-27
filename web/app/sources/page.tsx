@@ -423,12 +423,33 @@ function SourcesListContext({
           </div>
         ) : null}
       </section>
-      <PostgresStatusLegend
-        compact
-        description="Sources use badges to separate source credibility, visibility restrictions, match confidence, and human review status."
-        groups={["source", "visibility", "confidence", "review"]}
-        title="Source Status Meaning"
-      />
+      <details className="border border-gray-200 bg-white">
+        <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              Status Language
+            </div>
+            <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+              Source Status Meaning
+            </h2>
+            <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-500">
+              Badge help for credibility, visibility, confidence, and review
+              states.
+            </p>
+          </div>
+          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            Show badge guide
+          </span>
+        </summary>
+        <div className="border-t border-gray-200">
+          <PostgresStatusLegend
+            compact
+            description="Sources use badges to separate source credibility, visibility restrictions, match confidence, and human review status."
+            groups={["source", "visibility", "confidence", "review"]}
+            title="Source Status Meaning"
+          />
+        </div>
+      </details>
     </>
   );
 }
