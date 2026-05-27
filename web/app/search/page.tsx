@@ -61,19 +61,19 @@ const commandShortcuts = [
     group: "Research Operations",
     label: "Add Project",
     href: "/postgres-preview/projects/new",
-    note: "Create a new development pipeline record.",
+    note: "Create a new development project.",
   },
   {
     group: "Research Operations",
     label: "Add Plant",
     href: "/postgres-preview/operating-assets/new",
-    note: "Create a commissioned plant, unit, or direct-use plant record.",
+    note: "Create a commissioned plant, unit, or direct-use plant.",
   },
   {
     group: "Research Operations",
     label: "Add Company",
     href: "/postgres-preview/companies/new",
-    note: "Create a legal entity, group, supplier, investor, or operator record.",
+    note: "Create a legal entity, group, supplier, investor, or operator.",
   },
   {
     group: "Research Operations",
@@ -91,13 +91,13 @@ const commandShortcuts = [
     group: "Research Operations",
     label: "Manage Sources",
     href: "/sources",
-    note: "Search source records and evidence-governance status.",
+    note: "Search governed sources and evidence status.",
   },
   {
     group: "Research Operations",
     label: "Add Source",
     href: "/sources/new",
-    note: "Create a governed source/evidence record.",
+    note: "Create a governed source/evidence entry.",
   },
   {
     group: "Research Operations",
@@ -276,8 +276,8 @@ export default async function GlobalSearchPage({
           <div className="border-b border-gray-200 px-5 py-4">
             <h2 className="text-lg font-bold text-[#1f2937]">Quick Actions</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-              Use search for records, or jump directly into common operational
-              workflows.
+              Use search to find projects, plants, companies, sources, and
+              markets, or jump directly into common operational workflows.
             </p>
           </div>
           <div className="space-y-6 px-5 py-5">
@@ -321,7 +321,7 @@ export default async function GlobalSearchPage({
 
           {data.results.length === 0 ? (
             <div className="px-5 py-8 text-sm text-gray-600">
-              No PostgreSQL staging records matched this search.
+              No projects, plants, companies, sources, or markets matched this search.
             </div>
           ) : (
             <div className="space-y-6 px-5 py-5">

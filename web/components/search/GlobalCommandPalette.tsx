@@ -70,7 +70,7 @@ const baseCommands: CommandItem[] = [
     key: "projects",
     group: "Intelligence / Research",
     label: "Open Projects",
-    note: "Review and edit development pipeline records.",
+    note: "Review and edit the development pipeline.",
     href: "/postgres-preview/projects",
   },
   {
@@ -78,7 +78,7 @@ const baseCommands: CommandItem[] = [
     key: "operating-assets",
     group: "Intelligence / Research",
     label: "Open Plants",
-    note: "Review plants, units, direct-use records, and capacity.",
+    note: "Review plants, units, direct-use plants, and capacity.",
     href: "/postgres-preview/operating-assets",
   },
   {
@@ -86,7 +86,7 @@ const baseCommands: CommandItem[] = [
     key: "companies",
     group: "Intelligence / Research",
     label: "Open Companies",
-    note: "Review company profiles, roles, ownership, and evidence.",
+    note: "Review companies, roles, ownership, and evidence.",
     href: "/postgres-preview/companies",
   },
   {
@@ -102,7 +102,7 @@ const baseCommands: CommandItem[] = [
     key: "sources",
     group: "Research Operations",
     label: "Open Sources / Documents",
-    note: "Manage governed source/evidence records.",
+    note: "Manage governed sources and evidence.",
     href: "/sources",
   },
   {
@@ -110,7 +110,7 @@ const baseCommands: CommandItem[] = [
     key: "add-source",
     group: "Research Operations",
     label: "Add Source",
-    note: "Create a governed source/evidence record.",
+    note: "Create a governed source/evidence entry.",
     href: "/sources/new",
   },
   {
@@ -142,7 +142,7 @@ const baseCommands: CommandItem[] = [
     key: "add-project",
     group: "Research Operations",
     label: "Add Project",
-    note: "Create a project pipeline record.",
+    note: "Create a project pipeline entry.",
     href: "/postgres-preview/projects/new",
   },
   {
@@ -150,7 +150,7 @@ const baseCommands: CommandItem[] = [
     key: "add-asset",
     group: "Research Operations",
     label: "Add Plant",
-    note: "Create a plant, unit, or direct-use record.",
+    note: "Create a plant, unit, or direct-use plant.",
     href: "/postgres-preview/operating-assets/new",
   },
   {
@@ -158,7 +158,7 @@ const baseCommands: CommandItem[] = [
     key: "add-company",
     group: "Research Operations",
     label: "Add Company",
-    note: "Create a company, group, supplier, operator, or investor record.",
+    note: "Create a company, group, supplier, operator, or investor.",
     href: "/postgres-preview/companies/new",
   },
   {
@@ -408,7 +408,7 @@ export default function GlobalCommandPalette({
                 <input
                   ref={inputRef}
                   className="h-11 min-w-0 flex-1 border border-gray-300 bg-white px-4 text-sm font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
-                  placeholder="Search records or type a command..."
+                  placeholder="Search projects, plants, companies, sources, or commands..."
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -441,7 +441,7 @@ export default function GlobalCommandPalette({
 
               {items.length === 0 && !loading ? (
                 <div className="px-3 py-8 text-center text-sm text-gray-500">
-                  No commands or records matched this query.
+                  No commands or results matched this query.
                 </div>
               ) : (
                 <div className="space-y-2">
