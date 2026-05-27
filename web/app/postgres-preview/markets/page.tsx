@@ -350,7 +350,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
             </div>
             <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
             <div className="mt-2 text-xs leading-5 text-gray-500">
-              {formatCount(region.countryCount)} countries ·{" "}
+              {formatCount(region.countryCount)} markets ·{" "}
               {formatCount(region.recordCount)} market profiles
             </div>
           </div>
@@ -518,7 +518,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                   {region.name}
                 </Link>
                 <div className="mt-1 text-xs leading-5 text-gray-500">
-                  {formatCount(region.countryCount)} countries ·{" "}
+                  {formatCount(region.countryCount)} markets ·{" "}
                   {formatCount(region.recordCount)} market profiles
                 </div>
               </div>
@@ -600,7 +600,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                   </div>
                 </td>
                 <td className="px-5 py-4 text-xs leading-5 text-gray-600">
-                  {formatCount(region.countryCount)} countries
+                  {formatCount(region.countryCount)} markets
                   <br />
                   {formatCount(region.recordCount)} staged profiles
                 </td>
@@ -816,7 +816,7 @@ function CountryOperationsLayer({
         description="Pipeline markets queued for source and analysis review."
         countries={pipelineMarkets}
         defaultOpen={false}
-        emptyLabel="No pipeline capacity values in the current country summary."
+        emptyLabel="No pipeline capacity values in the current market summary."
         metric={(country) => ({
           value: `${formatMw(country.project_pipeline_mwe)} MWe`,
           note: `${formatCount(country.active_project_count)} active projects`,
@@ -827,7 +827,7 @@ function CountryOperationsLayer({
         description="Operating markets queued for source and capacity review."
         countries={operatingMarkets}
         defaultOpen={false}
-        emptyLabel="No operating electric capacity values in the current country summary."
+        emptyLabel="No operating electric capacity values in the current market summary."
         metric={(country) => ({
           value: `${formatMw(country.operating_installed_mwe)} MWe`,
           note: `${formatCount(country.operating_asset_active_count)} active plants`,
@@ -838,7 +838,7 @@ function CountryOperationsLayer({
         description="Markets with direct-use projects or plants visible in staging."
         countries={directUseMarkets}
         defaultOpen={false}
-        emptyLabel="No direct-use country activity in the current summary."
+        emptyLabel="No direct-use market activity in the current summary."
         metric={(country) => ({
           value: formatCount(
             country.direct_use_project_count + country.direct_use_asset_count
@@ -853,7 +853,7 @@ function CountryOperationsLayer({
         description="Market profiles likely to show recent staging or evidence activity."
         countries={recentMarkets}
         defaultOpen={false}
-        emptyLabel="No recent country update metadata available."
+        emptyLabel="No recent market update metadata available."
         metric={(country) => ({
           value: formatDate(country.latest_update_at),
           note: `${formatCount(
@@ -1135,7 +1135,7 @@ function CountryMarketsTable({
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
           <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
-            {formatCount(countries.length)} countries
+            {formatCount(countries.length)} markets
           </span>
           <span
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
@@ -1312,7 +1312,7 @@ function CountryMarketsTable({
         <table className="min-w-[980px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="w-[20%] px-5 py-3 font-semibold">Country</th>
+              <th className="w-[20%] px-5 py-3 font-semibold">Market</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Profiles</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Electric</th>
               <th className="w-[14%] px-5 py-3 font-semibold">
@@ -1541,10 +1541,11 @@ export default async function PostgresCountryMarketsPage({
                 Markets
               </h1>
               <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
-                PostgreSQL-backed market layer for country and regional
-                intelligence, filtered worklists, and replacement-readiness
-                checks. TGE regions are the primary market framework; World
-                Bank regions remain available as a secondary reporting taxonomy.
+                PostgreSQL-backed market intelligence layer for regional and
+                country-market drilldowns, filtered worklists, and
+                replacement-readiness checks. TGE regions are the primary market
+                framework; World Bank regions remain available as a secondary
+                reporting taxonomy.
               </p>
             </div>
             <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
@@ -1609,7 +1610,7 @@ export default async function PostgresCountryMarketsPage({
               {
                 href: "#market-rankings",
                 label: "Rankings",
-                note: "Countries",
+                note: "Markets",
               },
               {
                 href: "#market-operations",
@@ -1649,8 +1650,8 @@ export default async function PostgresCountryMarketsPage({
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <StatTile
-                label="Countries"
-                note="Canonical countries with staged activity"
+                label="Markets"
+                note="Country markets with staged activity"
                 value={formatCount(countries.length)}
               />
               <StatTile
@@ -1691,7 +1692,7 @@ export default async function PostgresCountryMarketsPage({
             <DetailPriorityMarker
               label="Intelligence"
               title="Market Rankings"
-              description="Country-level comparison of operating capacity, pipeline capacity, activity, and evidence gaps."
+              description="Market-level comparison of operating capacity, pipeline capacity, activity, and evidence gaps."
               tone="core"
             />
 
