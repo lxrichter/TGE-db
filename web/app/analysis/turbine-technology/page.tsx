@@ -357,7 +357,7 @@ function CapacityShareBar({
                           : "#ffffff",
                       minWidth: item.pct > 0 ? "36px" : "0",
                     }}
-                    title={`${item.label}: ${formatNumber(item.mw, 0)} MW (${formatNumber(
+                    title={`${item.label}: ${formatNumber(item.mw, 0)} MWe (${formatNumber(
                       item.pct,
                       1
                     )}%)`}
@@ -376,7 +376,7 @@ function CapacityShareBar({
                 {item.label}
               </div>
               <div className="mt-1 text-xl font-bold text-[#1f2937]">
-                {formatNumber(item.mw, 0)} MW
+                {formatNumber(item.mw, 0)} MWe
               </div>
               <div className="mt-1 text-sm text-gray-600">
                 {formatNumber(item.pct, 1)}%
@@ -386,7 +386,7 @@ function CapacityShareBar({
         </div>
 
         <div className="mt-4 text-xs text-gray-500">
-          Total installed capacity shown: {formatNumber(totalMw, 0)} MW
+          Total installed capacity shown: {formatNumber(totalMw, 0)} MWe
         </div>
       </div>
     </section>
@@ -442,7 +442,7 @@ function SupplierShareBar({
                           : "#ffffff",
                       minWidth: item.pct > 0 ? "36px" : "0",
                     }}
-                    title={`${item.label}: ${formatNumber(item.mw, 0)} MW (${formatNumber(
+                    title={`${item.label}: ${formatNumber(item.mw, 0)} MWe (${formatNumber(
                       item.pct,
                       1
                     )}%)`}
@@ -461,7 +461,7 @@ function SupplierShareBar({
                 {item.label}
               </div>
               <div className="mt-1 text-xl font-bold text-[#1f2937]">
-                {formatNumber(item.mw, 0)} MW
+                {formatNumber(item.mw, 0)} MWe
               </div>
               <div className="mt-1 text-sm text-gray-600">
                 {formatNumber(item.pct, 1)}%
@@ -471,7 +471,7 @@ function SupplierShareBar({
         </div>
 
         <div className="mt-4 text-xs text-gray-500">
-          Total installed capacity shown: {formatNumber(totalMw, 0)} MW
+          Total installed capacity shown: {formatNumber(totalMw, 0)} MWe
         </div>
       </div>
     </section>
@@ -774,7 +774,7 @@ export default function TurbineTechnologyPage() {
             <span className="text-gray-300">|</span>
             <span>{kpis.countries} Country Markets</span>
             <span className="text-gray-300">|</span>
-            <span>{formatNumber(kpis.installed)} MW Installed</span>
+            <span>{formatNumber(kpis.installed)} MWe Installed</span>
           </div>
         </div>
 
@@ -812,7 +812,7 @@ export default function TurbineTechnologyPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Installed MW
+                Installed MWe
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatNumber(kpis.installed)}
@@ -829,7 +829,7 @@ export default function TurbineTechnologyPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search technology, supplier, country, MW, units..."
+            placeholder="Search technology, supplier, country, MWe, units..."
             className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
           />
         </div>
@@ -843,7 +843,7 @@ export default function TurbineTechnologyPage() {
 
       <SectionCard
         title="Technology Summary"
-        description="Installed MW, operating MW, unit counts, average size, and installed share by technology."
+        description="Installed MWe, operating MWe, unit counts, average size, and installed share by technology."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -867,7 +867,7 @@ export default function TurbineTechnologyPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="MW Installed"
+                    label="MWe Installed"
                     active={techSortKey === "installed_mw"}
                     direction={techSortDirection}
                     onClick={() =>
@@ -883,7 +883,7 @@ export default function TurbineTechnologyPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="MW Operating"
+                    label="MWe Operating"
                     active={techSortKey === "operating_mw"}
                     direction={techSortDirection}
                     onClick={() =>
@@ -915,7 +915,7 @@ export default function TurbineTechnologyPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Avg Size Installed MW"
+                    label="Avg Size Installed MWe"
                     active={techSortKey === "avg_size_installed_mw"}
                     direction={techSortDirection}
                     onClick={() =>
@@ -994,7 +994,7 @@ export default function TurbineTechnologyPage() {
 
       <SectionCard
         title="Turbine Supplier Summary"
-        description="Installed MW, unit counts, and average turbine size by supplier."
+        description="Installed MWe, unit counts, and average turbine size by supplier."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -1018,7 +1018,7 @@ export default function TurbineTechnologyPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Installed Capacity MW"
+                    label="Installed Capacity MWe"
                     active={supplierSortKey === "installed_capacity_mw"}
                     direction={supplierSortDirection}
                     onClick={() =>
@@ -1050,7 +1050,7 @@ export default function TurbineTechnologyPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Avg Size Turbine MW"
+                    label="Avg Size Turbine MWe"
                     active={supplierSortKey === "avg_size_turbine_mw"}
                     direction={supplierSortDirection}
                     onClick={() =>
@@ -1100,8 +1100,8 @@ export default function TurbineTechnologyPage() {
       </SectionCard>
 
       <SectionCard
-        title="Technology by Country Market — MW"
-        description="Installed MW by technology across country markets."
+        title="Technology by Country Market — MWe"
+        description="Installed MWe by technology across country markets."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -1143,7 +1143,7 @@ export default function TurbineTechnologyPage() {
                 ))}
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Total MW"
+                    label="Total MWe"
                     active={countryMwSortKey === "total_mw"}
                     direction={countryMwSortDirection}
                     onClick={() =>
@@ -1187,7 +1187,7 @@ export default function TurbineTechnologyPage() {
                     colSpan={data.technologyOrder.length + 2}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    No matching country-market MW records found.
+                    No matching country-market MWe records found.
                   </td>
                 </tr>
               )}
@@ -1240,7 +1240,7 @@ export default function TurbineTechnologyPage() {
                 ))}
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Total MW"
+                    label="Total MWe"
                     active={countryPctSortKey === "total_mw"}
                     direction={countryPctSortDirection}
                     onClick={() =>

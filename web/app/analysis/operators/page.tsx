@@ -116,7 +116,7 @@ export default function OperatorAnalysisPage() {
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
               First internal ranking view based on structured company-to-plant links.
               Owners are weighted by ownership share. Operators are counted on full
-              installed MW where the company is linked as Operator.
+              installed MWe where the company is linked as Operator.
             </p>
           </div>
         </div>
@@ -126,10 +126,10 @@ export default function OperatorAnalysisPage() {
             <StatCard
               label="Owner Rows"
               value={owners.length}
-              help="Companies with weighted owner MW"
+              help="Companies with weighted owner MWe"
             />
             <StatCard
-              label="Owner MW"
+              label="Owner MWe"
               value={formatNumber(totalOwnerMw)}
               help="Weighted by ownership share"
             />
@@ -139,9 +139,9 @@ export default function OperatorAnalysisPage() {
               help="Companies linked as operator"
             />
             <StatCard
-              label="Operator MW"
+              label="Operator MWe"
               value={formatNumber(totalOperatorMw)}
-              help="Full installed MW attributed"
+              help="Full installed MWe attributed"
             />
           </div>
         </div>
@@ -164,10 +164,10 @@ export default function OperatorAnalysisPage() {
           <section className="border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
               <h2 className="text-xl font-bold text-[#1f2937]">
-                Top Owners by MW
+                Top Owners by MWe
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                Weighted owner ranking using installed MW × ownership share.
+                Weighted owner ranking using installed MWe × ownership share.
               </p>
             </div>
 
@@ -178,7 +178,7 @@ export default function OperatorAnalysisPage() {
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold"># Plants</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MW</th>
+                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MWe</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Ownership % Sum</th>
                   </tr>
                 </thead>
@@ -215,10 +215,10 @@ export default function OperatorAnalysisPage() {
           <section className="border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
               <h2 className="text-xl font-bold text-[#1f2937]">
-                Top Operators by MW
+                Top Operators by MWe
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                Operator ranking based on full installed MW for plants linked as Operator.
+                Operator ranking based on full installed MWe for plants linked as Operator.
               </p>
             </div>
 
@@ -229,7 +229,7 @@ export default function OperatorAnalysisPage() {
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold"># Plants</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Operated MW</th>
+                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Operated MWe</th>
                   </tr>
                 </thead>
                 <tbody>

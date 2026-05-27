@@ -271,7 +271,7 @@ export default function CountriesAnalysisPage() {
             </h1>
             <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
               Country-market geothermal analysis derived from the plants and
-              projects database, including installed MW, planned MW, TGE region,
+              projects database, including installed MWe, planned MWe, TGE region,
               and project phase distribution.
             </p>
           </div>
@@ -286,9 +286,9 @@ export default function CountriesAnalysisPage() {
             <span className="text-gray-300">|</span>
             <span>{kpis.regions} Regions</span>
             <span className="text-gray-300">|</span>
-            <span>{formatNumber(kpis.installed)} MW Installed</span>
+            <span>{formatNumber(kpis.installed)} MWe Installed</span>
             <span className="text-gray-300">|</span>
-            <span>{formatNumber(kpis.planned)} MW Planned</span>
+            <span>{formatNumber(kpis.planned)} MWe Planned</span>
           </div>
         </div>
 
@@ -316,7 +316,7 @@ export default function CountriesAnalysisPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Installed MW
+                Installed MWe
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatNumber(kpis.installed)}
@@ -326,7 +326,7 @@ export default function CountriesAnalysisPage() {
 
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Planned MW
+                Planned MWe
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatNumber(kpis.planned)}
@@ -363,7 +363,7 @@ export default function CountriesAnalysisPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search country, region, MW, plants, projects, phases..."
+            placeholder="Search country, region, MWe, plants, projects, phases..."
             className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
           />
         </div>
@@ -371,7 +371,7 @@ export default function CountriesAnalysisPage() {
 
       <SectionCard
         title="Country Market Summary"
-        description="Installed MW, planned MW, plant counts, and project counts by country market."
+        description="Installed MWe, planned MWe, plant counts, and project counts by country market."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -411,7 +411,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Installed MW"
+                    label="Installed MWe"
                     active={countrySortKey === "installed_mw"}
                     direction={countrySortDirection}
                     onClick={() =>
@@ -427,7 +427,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Planned MW"
+                    label="Planned MWe"
                     active={countrySortKey === "planned_mw"}
                     direction={countrySortDirection}
                     onClick={() =>
@@ -526,7 +526,7 @@ export default function CountriesAnalysisPage() {
 
       <SectionCard
         title="Installed Capacity by TGE Region"
-        description="Installed MW, plant counts, and country-market counts by TGE region."
+        description="Installed MWe, plant counts, and country-market counts by TGE region."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -550,7 +550,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Installed MW"
+                    label="Installed MWe"
                     active={regionSortKey === "installed_mw"}
                     direction={regionSortDirection}
                     onClick={() =>
@@ -638,7 +638,7 @@ export default function CountriesAnalysisPage() {
 
       <SectionCard
         title="Projects in Development by Country Market and Phase"
-        description="Pipeline view showing planned MW split by phase group at country-market level."
+        description="Pipeline view showing planned MWe split by phase group at country-market level."
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -678,7 +678,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Exploration MW"
+                    label="Exploration MWe"
                     active={phaseSortKey === "exploration_mw"}
                     direction={phaseSortDirection}
                     onClick={() =>
@@ -694,7 +694,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Feasibility MW"
+                    label="Feasibility MWe"
                     active={phaseSortKey === "feasibility_mw"}
                     direction={phaseSortDirection}
                     onClick={() =>
@@ -710,7 +710,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Construction MW"
+                    label="Construction MWe"
                     active={phaseSortKey === "construction_mw"}
                     direction={phaseSortDirection}
                     onClick={() =>
@@ -726,7 +726,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Other / TBD MW"
+                    label="Other / TBD MWe"
                     active={phaseSortKey === "other_mw"}
                     direction={phaseSortDirection}
                     onClick={() =>
@@ -742,7 +742,7 @@ export default function CountriesAnalysisPage() {
                 </th>
                 <th className="border-b border-gray-200 px-4 py-2">
                   <SortableHeader
-                    label="Total Planned MW"
+                    label="Total Planned MWe"
                     active={phaseSortKey === "total_planned_mw"}
                     direction={phaseSortDirection}
                     onClick={() =>

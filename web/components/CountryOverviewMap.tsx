@@ -283,17 +283,17 @@ export default function CountryOverviewMap({
                 point.type === "plant"
                   ? `
                     <div class="tge-map-popup__metric">
-                      <span class="tge-map-popup__label">Installed MW</span>
+                      <span class="tge-map-popup__label">Installed MWe</span>
                       <strong>${formatPopupValue(point.capacity)}</strong>
                     </div>
                   `
                   : `
                     <div class="tge-map-popup__metric">
-                      <span class="tge-map-popup__label">Planned MW</span>
+                      <span class="tge-map-popup__label">Planned MWe</span>
                       <strong>${formatPopupValue(point.capacity)}</strong>
                     </div>
                     <div class="tge-map-popup__metric">
-                      <span class="tge-map-popup__label">Potential min MW</span>
+                      <span class="tge-map-popup__label">Potential min MWe</span>
                       <strong>${formatPopupValue(point.potentialMinMw)}</strong>
                     </div>
                   `

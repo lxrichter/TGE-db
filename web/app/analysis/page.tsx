@@ -128,7 +128,7 @@ export default function AnalysisPage() {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
             <AvailableAnalysisCard
               title="Country Market Analysis"
-              text="Installed capacity by country market and TGE region, planned project MW, and market-level project phase distribution."
+              text="Installed capacity by country market and TGE region, planned project MWe, and market-level project phase distribution."
               href="/analysis/countries"
             />
 
@@ -140,7 +140,7 @@ export default function AnalysisPage() {
 
             <AvailableAnalysisCard
               title="Owners & Operators Analysis"
-              text="Weighted owner MW and operator-linked installed MW based on structured company-to-plant links."
+              text="Weighted owner MWe and operator-linked installed MWe based on structured company-to-plant links."
               href="/analysis/operators"
             />
           </div>
@@ -162,7 +162,7 @@ export default function AnalysisPage() {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 xl:grid-cols-3">
             <PlannedAnalysisCard
               title="Developer Analysis"
-              text="Developer exposure across projects and plants, including planned MW, project counts, and phase distribution."
+              text="Developer exposure across projects and plants, including planned MWe, project counts, and phase distribution."
             />
 
             <PlannedAnalysisCard
@@ -172,7 +172,7 @@ export default function AnalysisPage() {
 
             <PlannedAnalysisCard
               title="Project Phase Analysis"
-              text="Pipeline overview by development phase, including counts and MW by prospect, exploration, feasibility, construction, operational, and cancelled."
+              text="Pipeline overview by development phase, including counts and MWe by prospect, exploration, feasibility, construction, operational, and cancelled."
             />
 
             <PlannedAnalysisCard

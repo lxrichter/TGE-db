@@ -117,7 +117,7 @@ export default function CountriesTable({
             </th>
             <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
               <SortableHeader
-                label="Installed MW"
+                label="Installed MWe"
                 column="installed_mw"
                 sortKey={sortKey}
                 sortDirection={sortDirection}
@@ -126,7 +126,7 @@ export default function CountriesTable({
             </th>
             <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
               <SortableHeader
-                label="Operating MW"
+                label="Operating MWe"
                 column="operating_mw"
                 sortKey={sortKey}
                 sortDirection={sortDirection}
@@ -144,7 +144,7 @@ export default function CountriesTable({
             </th>
             <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
               <SortableHeader
-                label="Planned MW"
+                label="Planned MWe"
                 column="planned_mw"
                 sortKey={sortKey}
                 sortDirection={sortDirection}

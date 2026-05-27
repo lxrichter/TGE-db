@@ -215,14 +215,14 @@ export default async function CountryMarketPage({
     PhaseName,
     { count: number; mw: number; mwLabel: string }
   > = {
-    Prospect: { count: 0, mw: 0, mwLabel: "Min MW" },
-    Exploration: { count: 0, mw: 0, mwLabel: "Planned MW" },
-    "Pre-Feasibility": { count: 0, mw: 0, mwLabel: "Planned MW" },
-    Feasibility: { count: 0, mw: 0, mwLabel: "Planned MW" },
-    Construction: { count: 0, mw: 0, mwLabel: "Planned MW" },
-    Stalled: { count: 0, mw: 0, mwLabel: "Planned MW" },
-    TBD: { count: 0, mw: 0, mwLabel: "Planned MW" },
-    Cancelled: { count: 0, mw: 0, mwLabel: "Planned MW" },
+    Prospect: { count: 0, mw: 0, mwLabel: "Min MWe" },
+    Exploration: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    "Pre-Feasibility": { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Feasibility: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Construction: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Stalled: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    TBD: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Cancelled: { count: 0, mw: 0, mwLabel: "Planned MWe" },
   };
 
   projects.forEach((row) => {
@@ -379,12 +379,12 @@ export default async function CountryMarketPage({
             <StatBlock
               title="Installed Capacity"
               value={formatNumber(totalInstalled)}
-              subtitle="Total plant installed MW"
+              subtitle="Total plant installed MWe"
             />
             <StatBlock
               title="Operating Capacity"
               value={formatNumber(totalOperating)}
-              subtitle="Total plant operating MW"
+              subtitle="Total plant operating MWe"
             />
             <StatBlock
               title="Plants"
@@ -394,7 +394,7 @@ export default async function CountryMarketPage({
             <StatBlock
               title="Planned Capacity"
               value={formatNumber(totalPlanned)}
-              subtitle="Total planned project MW"
+              subtitle="Total planned project MWe"
             />
             <StatBlock
               title="Need Info"
@@ -452,10 +452,10 @@ export default async function CountryMarketPage({
                       Operator
                     </th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
-                      Installed MW
+                      Installed MWe
                     </th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
-                      Operating MW
+                      Operating MWe
                     </th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
                       Technology
@@ -514,7 +514,7 @@ export default async function CountryMarketPage({
                       Operator
                     </th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
-                      Planned MW
+                      Planned MWe
                     </th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">
                       Phase
@@ -580,7 +580,7 @@ export default async function CountryMarketPage({
                     >
                       <div className="font-semibold text-[#1f2937]">{row.name}</div>
                       <div className="mt-1 text-gray-600">
-                        Plants: {row.plants} | MW: {formatNumber(row.operating_mw)} |
+                        Plants: {row.plants} | MWe: {formatNumber(row.operating_mw)} |
                         Projects: {row.projects}
                       </div>
                     </div>
@@ -612,7 +612,7 @@ export default async function CountryMarketPage({
                         {row.technology}
                       </div>
                       <div className="mt-1 text-gray-600">
-                        Installed MW: {formatNumber(row.mw)}
+                        Installed MWe: {formatNumber(row.mw)}
                       </div>
                     </div>
                   ))}

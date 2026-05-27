@@ -167,7 +167,7 @@ export default async function MarketsCountriesPage() {
                 {formatNumber(totalInstalled)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Total plant installed MW
+                Total plant installed MWe
               </div>
             </div>
 
@@ -179,7 +179,7 @@ export default async function MarketsCountriesPage() {
                 {formatNumber(totalOperating)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Total plant operating MW
+                Total plant operating MWe
               </div>
             </div>
 
@@ -191,7 +191,7 @@ export default async function MarketsCountriesPage() {
                 {formatNumber(totalPlanned)}
               </div>
               <div className="mt-1 text-xs text-gray-500">
-                Total project planned MW
+                Total project planned MWe
               </div>
             </div>
 
