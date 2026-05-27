@@ -353,6 +353,13 @@ export default async function PostgresProjectsListPage({
         views: projectQuickViews,
       })
     : null;
+  const marketOverviewHref = data.ok
+    ? `${previewQueryHref("/postgres-preview/markets", {
+        country: data.filters.country,
+        tge_region: data.filters.tgeRegion,
+        wb_region: data.filters.wbRegion,
+      })}#market-rankings`
+    : "/postgres-preview/markets#market-rankings";
 
   return (
     <main className="space-y-6 sm:space-y-8">
@@ -442,7 +449,7 @@ export default async function PostgresProjectsListPage({
                 label: "Markets",
                 value: formatOverviewCount(data.analysis.topCountries.length),
                 note: "Markets represented in this pipeline view",
-                href: "/postgres-preview/markets",
+                href: marketOverviewHref,
                 tone: "market",
               },
               {
