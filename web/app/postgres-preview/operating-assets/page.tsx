@@ -298,7 +298,7 @@ export default async function PostgresOperatingAssetsListPage({
           : null,
         data.filters.country
           ? {
-              label: "Country",
+              label: "Market",
               value:
                 previewFilterOptionLabel(countryOptions, data.filters.country) ||
                 data.filters.country,
@@ -454,7 +454,7 @@ export default async function PostgresOperatingAssetsListPage({
               {
                 label: "Markets",
                 value: formatOverviewCount(data.analysis.topCountries.length),
-                note: "Countries represented in this plant view",
+                note: "Markets represented in this plant view",
                 href: "/postgres-preview/markets",
                 tone: "market",
               },
@@ -476,9 +476,9 @@ export default async function PostgresOperatingAssetsListPage({
             selects={[
               {
                 name: "country",
-                label: "Country",
+                label: "Market",
                 value: data.filters.country,
-                placeholder: "All Countries",
+                placeholder: "All Markets",
                 options: countryOptions,
               },
               {

@@ -273,7 +273,7 @@ export default async function PostgresCompaniesListPage({
           : null,
         data.filters.country
           ? {
-              label: "HQ Country",
+              label: "HQ Market",
               value:
                 previewFilterOptionLabel(countryOptions, data.filters.country) ||
                 data.filters.country,
@@ -415,7 +415,7 @@ export default async function PostgresCompaniesListPage({
               {
                 label: "HQ Markets",
                 value: formatOverviewCount(data.facets.countries.length),
-                note: "Headquarters country values in staging",
+                note: "Headquarters markets represented in staging",
                 href: "/postgres-preview/markets",
                 tone: "market",
               },
@@ -437,9 +437,9 @@ export default async function PostgresCompaniesListPage({
             selects={[
               {
                 name: "country",
-                label: "HQ Country",
+                label: "HQ Market",
                 value: data.filters.country,
-                placeholder: "All Countries",
+                placeholder: "All HQ Markets",
                 options: countryOptions,
               },
               {

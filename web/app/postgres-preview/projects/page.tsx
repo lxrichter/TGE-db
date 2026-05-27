@@ -287,7 +287,7 @@ export default async function PostgresProjectsListPage({
           : null,
         data.filters.country
           ? {
-              label: "Country",
+              label: "Market",
               value:
                 previewFilterOptionLabel(countryOptions, data.filters.country) ||
                 data.filters.country,
@@ -441,7 +441,7 @@ export default async function PostgresProjectsListPage({
               {
                 label: "Markets",
                 value: formatOverviewCount(data.analysis.topCountries.length),
-                note: "Countries represented in this pipeline view",
+                note: "Markets represented in this pipeline view",
                 href: "/postgres-preview/markets",
                 tone: "market",
               },
@@ -463,9 +463,9 @@ export default async function PostgresProjectsListPage({
             selects={[
               {
                 name: "country",
-                label: "Country",
+                label: "Market",
                 value: data.filters.country,
-                placeholder: "All Countries",
+                placeholder: "All Markets",
                 options: countryOptions,
               },
               {
