@@ -19,13 +19,22 @@ import {
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
   countPostgresPreviewOperatingAssets,
+  getPostgresPreviewAnalysisSummary,
   getPostgresPreviewOperatingAssetListFacets,
   listPostgresPreviewOperatingAssets,
+  type PostgresPreviewAnalysisBucket,
+  type PostgresPreviewAnalysisSummary,
   type PostgresPreviewListFacets,
   type PostgresPreviewOperatingAsset,
   type PostgresPreviewOperatingAssetListFilters,
 } from "@/lib/postgres-preview";
 import NextActionStrip from "@/components/ui/NextActionStrip";
+import PostgresEntityOverview, {
+  formatOverviewCount,
+  formatOverviewMwe,
+  normalizeOverviewLabel,
+  type OverviewBucket,
+} from "@/components/postgres-preview/PostgresEntityOverview";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +59,7 @@ type OperatingAssetsListData =
       total: number;
       filters: PostgresPreviewOperatingAssetListFilters;
       facets: PostgresPreviewListFacets;
+      analysis: PostgresPreviewAnalysisSummary;
       page: number;
       pageSize: number;
       density: PreviewTableDensity;
@@ -148,10 +158,16 @@ async function getOperatingAssetsListData(
   const offset = (page - 1) * pageSize;
 
   try {
-    const [operatingAssets, filteredCount, facets] = await Promise.all([
+    const analysisFilters = {
+      country: filters.country,
+      tgeRegion: filters.tgeRegion,
+      wbRegion: filters.wbRegion,
+    };
+    const [operatingAssets, filteredCount, facets, analysis] = await Promise.all([
       listPostgresPreviewOperatingAssets({ limit: pageSize, offset, filters }),
       countPostgresPreviewOperatingAssets(filters),
       getPostgresPreviewOperatingAssetListFacets(),
+      getPostgresPreviewAnalysisSummary(analysisFilters),
     ]);
 
     return {
@@ -160,6 +176,7 @@ async function getOperatingAssetsListData(
       total: filteredCount,
       filters,
       facets,
+      analysis,
       page,
       pageSize,
       density,
@@ -170,6 +187,56 @@ async function getOperatingAssetsListData(
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
+}
+
+const plantStatusOrder = [
+  "operating",
+  "partially_operating",
+  "temporarily_offline",
+  "under_refurbishment",
+  "retired_decommissioned",
+  "retired",
+  "decommissioned",
+  "unknown",
+];
+
+function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {
+  return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
+}
+
+function bucketMwe(buckets: PostgresPreviewAnalysisBucket[]) {
+  return buckets.reduce(
+    (total, bucket) => total + bucket.electric_capacity_mwe,
+    0
+  );
+}
+
+function plantStatusBuckets(
+  buckets: PostgresPreviewAnalysisBucket[]
+): OverviewBucket[] {
+  return [...buckets]
+    .sort((a, b) => {
+      const aIndex = plantStatusOrder.indexOf(a.bucket_code);
+      const bIndex = plantStatusOrder.indexOf(b.bucket_code);
+
+      return (
+        (aIndex === -1 ? 999 : aIndex) -
+          (bIndex === -1 ? 999 : bIndex) ||
+        b.electric_capacity_mwe - a.electric_capacity_mwe ||
+        b.record_count - a.record_count ||
+        a.bucket_code.localeCompare(b.bucket_code)
+      );
+    })
+    .slice(0, 6)
+    .map((bucket) => ({
+      label: normalizeOverviewLabel(bucket.bucket_code),
+      count: bucket.record_count,
+      capacityMwe: bucket.electric_capacity_mwe,
+      href: `/postgres-preview/operating-assets?status=${encodeURIComponent(
+        bucket.bucket_code
+      )}`,
+      tone: bucket.bucket_code.includes("operating") ? "operating" : "neutral",
+    }));
 }
 
 export default async function PostgresOperatingAssetsListPage({
@@ -355,6 +422,47 @@ export default async function PostgresOperatingAssetsListPage({
             density={data.density}
             pageSize={data.pageSize}
             views={operatingAssetQuickViews}
+          />
+          <PostgresEntityOverview
+            buckets={plantStatusBuckets(data.analysis.operatingAssetStatus)}
+            bucketsTitle="Operating status distribution"
+            description="Compact fleet intelligence before the operational plant table."
+            label="Fleet Intelligence"
+            metrics={[
+              {
+                label: "Total Plants",
+                value: formatOverviewCount(
+                  bucketCount(data.analysis.operatingAssetStatus)
+                ),
+                note: "Plant records in current geography scope",
+                href: "/postgres-preview/operating-assets",
+                tone: "operating",
+              },
+              {
+                label: "Installed MWe",
+                value: formatOverviewMwe(
+                  bucketMwe(data.analysis.operatingAssetStatus)
+                ),
+                note: "Combined operating fleet capacity signal",
+                href: "/postgres-preview/analysis",
+                tone: "operating",
+              },
+              {
+                label: "Markets",
+                value: formatOverviewCount(data.analysis.topCountries.length),
+                note: "Countries represented in this plant view",
+                href: "/postgres-preview/countries",
+                tone: "market",
+              },
+              {
+                label: "Visible Rows",
+                value: formatOverviewCount(data.total),
+                note: "Records matching current table filters",
+                href: exportHref,
+                tone: "neutral",
+              },
+            ]}
+            title="Operating Fleet Snapshot"
           />
           <PostgresPreviewListFilters
             basePath="/postgres-preview/operating-assets"

@@ -26,6 +26,11 @@ import {
   type PostgresPreviewListFacets,
 } from "@/lib/postgres-preview";
 import NextActionStrip from "@/components/ui/NextActionStrip";
+import PostgresEntityOverview, {
+  formatOverviewCount,
+  normalizeOverviewLabel,
+  type OverviewBucket,
+} from "@/components/postgres-preview/PostgresEntityOverview";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +54,8 @@ type CompaniesListData =
       total: number;
       filters: PostgresPreviewCompanyListFilters;
       facets: PostgresPreviewListFacets;
+      ecosystemTotal: number;
+      companyTypeCounts: CompanyTypeCount[];
       page: number;
       pageSize: number;
       density: PreviewTableDensity;
@@ -57,6 +64,11 @@ type CompaniesListData =
       ok: false;
       error: string;
     };
+
+type CompanyTypeCount = {
+  value: string;
+  count: number;
+};
 
 const companyMissingOptions: PreviewFilterOption[] = [
   { value: "country", label: "Missing HQ Country" },
@@ -148,6 +160,33 @@ async function getCompaniesListData(
       countPostgresPreviewCompanies(filters),
       getPostgresPreviewCompanyListFacets(),
     ]);
+    const geographyFilters = {
+      country: filters.country,
+      tgeRegion: filters.tgeRegion,
+      wbRegion: filters.wbRegion,
+    };
+    const [ecosystemTotal, companyTypeCounts] = await Promise.all([
+      countPostgresPreviewCompanies(geographyFilters),
+      Promise.all(
+        facets.companyTypes.map(async (companyType) => ({
+          value: companyType,
+          count: await countPostgresPreviewCompanies({
+            ...geographyFilters,
+            companyType,
+          }),
+        }))
+      ),
+    ]);
+    const topCompanyTypeCounts = companyTypeCounts
+      .filter((entry) => entry.count > 0)
+      .sort(
+        (a, b) =>
+          b.count - a.count ||
+          normalizeOverviewLabel(a.value).localeCompare(
+            normalizeOverviewLabel(b.value)
+          )
+      )
+      .slice(0, 6);
 
     return {
       ok: true,
@@ -155,6 +194,8 @@ async function getCompaniesListData(
       total: filteredCount,
       filters,
       facets,
+      ecosystemTotal,
+      companyTypeCounts: topCompanyTypeCounts,
       page,
       pageSize,
       density,
@@ -165,6 +206,17 @@ async function getCompaniesListData(
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
+}
+
+function companyTypeBuckets(companyTypeCounts: CompanyTypeCount[]): OverviewBucket[] {
+  return companyTypeCounts.map((entry) => ({
+    label: normalizeOverviewLabel(entry.value),
+    count: entry.count,
+    href: `/postgres-preview/companies?companyType=${encodeURIComponent(
+      entry.value
+    )}`,
+    tone: "ecosystem",
+  }));
 }
 
 export default async function PostgresCompaniesListPage({
@@ -338,6 +390,43 @@ export default async function PostgresCompaniesListPage({
             density={data.density}
             pageSize={data.pageSize}
             views={companyQuickViews}
+          />
+          <PostgresEntityOverview
+            buckets={companyTypeBuckets(data.companyTypeCounts)}
+            bucketsTitle="Business identity distribution"
+            description="Compact ecosystem intelligence before the operational company table."
+            label="Ecosystem Intelligence"
+            metrics={[
+              {
+                label: "Total Companies",
+                value: formatOverviewCount(data.ecosystemTotal),
+                note: "Company records in current geography scope",
+                href: "/postgres-preview/companies",
+                tone: "ecosystem",
+              },
+              {
+                label: "Business Identities",
+                value: formatOverviewCount(data.facets.companyTypes.length),
+                note: "Controlled primary company categories represented",
+                href: "/postgres-preview/companies",
+                tone: "ecosystem",
+              },
+              {
+                label: "HQ Markets",
+                value: formatOverviewCount(data.facets.countries.length),
+                note: "Headquarters country values in staging",
+                href: "/postgres-preview/countries",
+                tone: "market",
+              },
+              {
+                label: "Visible Rows",
+                value: formatOverviewCount(data.total),
+                note: "Records matching current table filters",
+                href: exportHref,
+                tone: "neutral",
+              },
+            ]}
+            title="Geothermal Ecosystem Snapshot"
           />
           <PostgresPreviewListFilters
             basePath="/postgres-preview/companies"

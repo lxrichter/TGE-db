@@ -19,13 +19,22 @@ import {
 } from "@/components/postgres-preview/PostgresPreviewListTables";
 import {
   countPostgresPreviewProjects,
+  getPostgresPreviewAnalysisSummary,
   getPostgresPreviewProjectListFacets,
   listPostgresPreviewProjects,
+  type PostgresPreviewAnalysisBucket,
+  type PostgresPreviewAnalysisSummary,
   type PostgresPreviewListFacets,
   type PostgresPreviewProject,
   type PostgresPreviewProjectListFilters,
 } from "@/lib/postgres-preview";
 import NextActionStrip from "@/components/ui/NextActionStrip";
+import PostgresEntityOverview, {
+  formatOverviewCount,
+  formatOverviewMwe,
+  normalizeOverviewLabel,
+  type OverviewBucket,
+} from "@/components/postgres-preview/PostgresEntityOverview";
 
 export const dynamic = "force-dynamic";
 
@@ -50,6 +59,7 @@ type ProjectsListData =
       total: number;
       filters: PostgresPreviewProjectListFilters;
       facets: PostgresPreviewListFacets;
+      analysis: PostgresPreviewAnalysisSummary;
       page: number;
       pageSize: number;
       density: PreviewTableDensity;
@@ -142,10 +152,16 @@ async function getProjectsListData(
   const offset = (page - 1) * pageSize;
 
   try {
-    const [projects, filteredCount, facets] = await Promise.all([
+    const analysisFilters = {
+      country: filters.country,
+      tgeRegion: filters.tgeRegion,
+      wbRegion: filters.wbRegion,
+    };
+    const [projects, filteredCount, facets, analysis] = await Promise.all([
       listPostgresPreviewProjects({ limit: pageSize, offset, filters }),
       countPostgresPreviewProjects(filters),
       getPostgresPreviewProjectListFacets(),
+      getPostgresPreviewAnalysisSummary(analysisFilters),
     ]);
 
     return {
@@ -154,6 +170,7 @@ async function getProjectsListData(
       total: filteredCount,
       filters,
       facets,
+      analysis,
       page,
       pageSize,
       density,
@@ -164,6 +181,59 @@ async function getProjectsListData(
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
+}
+
+const projectLifecycleOrder = [
+  "prospect_tbd",
+  "prospect",
+  "exploration",
+  "pre_feasibility",
+  "feasibility",
+  "construction",
+  "under_construction",
+  "operating",
+];
+
+function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {
+  return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
+}
+
+function bucketMwe(buckets: PostgresPreviewAnalysisBucket[]) {
+  return buckets.reduce(
+    (total, bucket) => total + bucket.electric_capacity_mwe,
+    0
+  );
+}
+
+function projectPipelineBuckets(
+  buckets: PostgresPreviewAnalysisBucket[]
+): OverviewBucket[] {
+  return [...buckets]
+    .sort((a, b) => {
+      const aIndex = projectLifecycleOrder.indexOf(a.bucket_code);
+      const bIndex = projectLifecycleOrder.indexOf(b.bucket_code);
+
+      return (
+        (aIndex === -1 ? 999 : aIndex) -
+          (bIndex === -1 ? 999 : bIndex) ||
+        b.record_count - a.record_count ||
+        a.bucket_code.localeCompare(b.bucket_code)
+      );
+    })
+    .slice(0, 7)
+    .map((bucket) => ({
+      label: normalizeOverviewLabel(bucket.bucket_code),
+      count: bucket.record_count,
+      capacityMwe: bucket.electric_capacity_mwe,
+      href: `/postgres-preview/projects?status=${encodeURIComponent(
+        bucket.bucket_code
+      )}`,
+      tone:
+        bucket.bucket_code.includes("construction") ||
+        bucket.bucket_code.includes("feasibility")
+          ? "pipeline"
+          : "neutral",
+    }));
 }
 
 export default async function PostgresProjectsListPage({
@@ -346,6 +416,45 @@ export default async function PostgresProjectsListPage({
             density={data.density}
             pageSize={data.pageSize}
             views={projectQuickViews}
+          />
+          <PostgresEntityOverview
+            buckets={projectPipelineBuckets(data.analysis.projectLifecycle)}
+            bucketsTitle="Lifecycle distribution"
+            description="Compact pipeline intelligence before the operational project table."
+            label="Pipeline Intelligence"
+            metrics={[
+              {
+                label: "Total Projects",
+                value: formatOverviewCount(
+                  bucketCount(data.analysis.projectLifecycle)
+                ),
+                note: "Project records in current geography scope",
+                href: "/postgres-preview/projects",
+                tone: "pipeline",
+              },
+              {
+                label: "Pipeline MWe",
+                value: formatOverviewMwe(bucketMwe(data.analysis.projectLifecycle)),
+                note: "Combined electric capacity signal",
+                href: "/postgres-preview/analysis",
+                tone: "pipeline",
+              },
+              {
+                label: "Markets",
+                value: formatOverviewCount(data.analysis.topCountries.length),
+                note: "Countries represented in this pipeline view",
+                href: "/postgres-preview/countries",
+                tone: "market",
+              },
+              {
+                label: "Visible Rows",
+                value: formatOverviewCount(data.total),
+                note: "Records matching current table filters",
+                href: exportHref,
+                tone: "neutral",
+              },
+            ]}
+            title="Project Pipeline Overview"
           />
           <PostgresPreviewListFilters
             basePath="/postgres-preview/projects"
