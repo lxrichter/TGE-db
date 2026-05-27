@@ -34,10 +34,12 @@ type ViewMode = "map" | "satellite";
 
 function MapFilterGroup({
   title,
+  note,
   children,
   defaultOpen = true,
 }: {
   title: string;
+  note?: string;
   children: ReactNode;
   defaultOpen?: boolean;
 }) {
@@ -45,9 +47,45 @@ function MapFilterGroup({
     <details className="border-t border-gray-200 pt-2" open={defaultOpen}>
       <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-wide text-gray-500 marker:hidden">
         {title}
+        {note ? (
+          <span className="ml-2 normal-case tracking-normal text-gray-400">
+            {note}
+          </span>
+        ) : null}
       </summary>
       <div className="mt-1.5">{children}</div>
     </details>
+  );
+}
+
+function FutureFilterRow({
+  label,
+  values,
+}: {
+  label: string;
+  values: string[];
+}) {
+  return (
+    <div className="border border-gray-200 bg-[#fafafa] px-2.5 py-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          {label}
+        </span>
+        <span className="border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+          Planned
+        </span>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {values.map((value) => (
+          <span
+            key={value}
+            className="inline-flex min-h-6 items-center border border-gray-200 bg-white px-2 text-[11px] font-semibold text-gray-500"
+          >
+            {value}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -137,9 +175,11 @@ function getTileConfig(viewMode: ViewMode) {
 export default function GroupedMap({
   apiPath = "/api/map",
   detailPathMode = "legacy",
+  regionFilterLabel = "Region",
 }: {
   apiPath?: string;
   detailPathMode?: "legacy" | "postgres-preview";
+  regionFilterLabel?: string;
 }) {
   const [data, setData] = useState<MapApiResponse>({ plants: [], projects: [] });
   const [showPlants, setShowPlants] = useState(true);
@@ -462,12 +502,15 @@ export default function GroupedMap({
         <div className="pointer-events-auto absolute left-4 right-4 top-4 max-h-[calc(100%-2rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[280px]">
           <div className="border-b border-gray-200 bg-[#f7f7f7] px-3 py-2.5">
             <h2 className="text-sm font-bold uppercase tracking-wide text-[#1f2937]">
-              Map Filters
+              Spatial Filters
             </h2>
+            <p className="mt-1 text-[11px] leading-4 text-gray-500">
+              Filter coordinate-confirmed projects and plants.
+            </p>
           </div>
 
           <div className="space-y-2 px-3 py-2.5">
-            <MapFilterGroup title="Layers">
+            <MapFilterGroup note="visible markers" title="Layers">
               <div className="space-y-1.5 text-sm">
                 <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-2.5 py-1.5">
                   <div className="flex items-center gap-2">
@@ -499,7 +542,7 @@ export default function GroupedMap({
               </div>
             </MapFilterGroup>
 
-            <MapFilterGroup title="Geography">
+            <MapFilterGroup note="market scope" title="Geography">
               <div className="space-y-1.5">
                 <label className="block">
                   <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -520,7 +563,7 @@ export default function GroupedMap({
 
                 <label className="block">
                   <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                    Region
+                    {regionFilterLabel}
                   </span>
                   <select
                     value={regionFilter}
@@ -537,7 +580,28 @@ export default function GroupedMap({
               </div>
             </MapFilterGroup>
 
-            <MapFilterGroup title="Basemap">
+            <MapFilterGroup
+              defaultOpen={false}
+              note="future overlays"
+              title="Intelligence Filters"
+            >
+              <div className="space-y-1.5">
+                <FutureFilterRow
+                  label="Use Category"
+                  values={["Power", "Heat", "Hybrid", "Minerals"]}
+                />
+                <FutureFilterRow
+                  label="Lifecycle / Status"
+                  values={["Exploration", "Construction", "Operating"]}
+                />
+                <FutureFilterRow
+                  label="Technology"
+                  values={["Binary", "Flash", "EGS / AGS"]}
+                />
+              </div>
+            </MapFilterGroup>
+
+            <MapFilterGroup note="base layer" title="Basemap">
               <div className="flex gap-2">
                 <button
                   type="button"

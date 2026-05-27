@@ -170,11 +170,11 @@ export default async function PostgresPreviewMapPage({
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
-                PostgreSQL Map Preview
+                Map
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-                Coordinate-confirmed project and plant groups. Records
-                without coordinates stay in Research Ops queues.
+                Coordinate-confirmed spatial intelligence for projects and
+                plants. Records without coordinates stay in Research Ops queues.
               </p>
               {activeGeographyLabel ? (
                 <div className="mt-4 inline-flex min-h-8 items-center border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
@@ -351,7 +351,7 @@ export default async function PostgresPreviewMapPage({
             tone="info"
           />
           <MapWorkflowCard
-            description="Open TGE and World Bank region drilldowns behind the spatial market view."
+            description="Open the TGE-first regional market layer behind the spatial view."
             href={`${geographyHref("/postgres-preview/countries", filters)}#region-drilldown`}
             label="Regions"
             title={activeGeographyLabel || "Regional Market Context"}
@@ -370,6 +370,7 @@ export default async function PostgresPreviewMapPage({
         <GroupedMap
           apiPath={mapApiPath}
           detailPathMode="postgres-preview"
+          regionFilterLabel="TGE Region"
         />
       </section>
     </main>
