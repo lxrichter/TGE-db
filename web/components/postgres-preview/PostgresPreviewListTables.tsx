@@ -6,9 +6,7 @@ import type {
   PostgresPreviewOperatingAsset,
   PostgresPreviewProject,
 } from "@/lib/postgres-preview";
-import PostgresStatusBadge, {
-  postgresStatusToneClass,
-} from "@/components/postgres-preview/PostgresStatusBadge";
+import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 
 type HeaderAction = {
@@ -147,10 +145,10 @@ type RowIssue = {
 };
 
 const rowIssueToneClass: Record<RowIssueTone, string> = {
-  critical: postgresStatusToneClass("danger"),
-  important: postgresStatusToneClass("attention"),
-  workflow: postgresStatusToneClass("info"),
-  useful: postgresStatusToneClass("neutral"),
+  critical: "border-red-200 bg-white text-red-700",
+  important: "border-amber-200 bg-white text-amber-800",
+  workflow: "border-blue-100 bg-white text-blue-700",
+  useful: "border-gray-200 bg-white text-gray-600",
 };
 
 function hasText(value: string | null | undefined) {
@@ -210,7 +208,7 @@ function IssueBadges({
   if (issues.length === 0) {
     return (
       <span
-        className={`inline-flex items-center border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 ${
+        className={`inline-flex items-center border border-[#cfe5ad] bg-white font-semibold text-[#4f7f1f] ${
           compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
         }`}
       >
