@@ -810,7 +810,7 @@ export default async function PostgresCompanyDetailPage({
     <DetailShell
       eyebrow="Company Workspace"
       title={company.company_name}
-      subtitle="Company profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="Company profile with source/evidence coverage and export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to Command Center"
       statusLegendDescription="Company detail badges separate business identity, review state, relationship/evidence issue severity, source credibility, and AI/match confidence."
@@ -1057,7 +1057,7 @@ export default async function PostgresCompanyDetailPage({
             {
               label: "Export",
               href: "#company-export-readiness",
-              note: "Preview export-readiness checks",
+              note: "Export-readiness checks",
             },
           ]}
         />

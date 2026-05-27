@@ -131,8 +131,8 @@ const pilotSteps: PilotStep[] = [
     links: [
       { label: "Global Search", href: "/search", primary: true },
       { label: "Markets", href: "/postgres-preview/markets" },
-      { label: "Map Preview", href: "/postgres-preview/map" },
-      { label: "Analysis Preview", href: "/postgres-preview/analysis" },
+      { label: "Map", href: "/postgres-preview/map" },
+      { label: "Analysis", href: "/postgres-preview/analysis" },
     ],
   },
 ];
@@ -219,7 +219,7 @@ export default function PostgresPilotWorkflowPage() {
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href="/postgres-preview"
               >
-                Back to Preview
+                Back to Command Center
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"

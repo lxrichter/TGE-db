@@ -721,8 +721,8 @@ export function ExportReadinessPanel({
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Export Readiness</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Preview-only readiness check for governed entity profiles. This
-            does not yet enforce production exports.
+            Readiness check for governed entity profiles. This does not yet
+            enforce production exports.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">

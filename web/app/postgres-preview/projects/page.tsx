@@ -367,7 +367,7 @@ export default async function PostgresProjectsListPage({
         actions={[
           {
             href: "/postgres-preview",
-            label: "Back to Preview",
+            label: "Back to Command Center",
           },
           {
             href: exportHref,

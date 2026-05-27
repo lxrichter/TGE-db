@@ -464,7 +464,7 @@ export default async function PostgresPreviewPage() {
               { href: "#regional-routes", label: "Regions", note: "Worklists" },
               { href: "#evidence-review", label: "Evidence", note: "Sources / AI" },
               { href: "#create-inspect", label: "Create", note: "Drafts" },
-              { href: "#preview-rows", label: "Preview Samples", note: "Examples" },
+              { href: "#sample-rows", label: "Sample Rows", note: "Examples" },
             ]}
           />
 
@@ -693,17 +693,17 @@ export default async function PostgresPreviewPage() {
             </section>
           </section>
 
-          <section id="preview-rows" className="space-y-3 scroll-mt-24">
-            <RecordPreview title="Project Preview Samples" count={data.projects.length}>
+          <section id="sample-rows" className="space-y-3 scroll-mt-24">
+            <RecordPreview title="Project Samples" count={data.projects.length}>
               <ProjectsTable projects={data.projects} />
             </RecordPreview>
             <RecordPreview
-              title="Plant Preview Samples"
+              title="Plant Samples"
               count={data.operatingAssets.length}
             >
               <OperatingAssetsTable operatingAssets={data.operatingAssets} />
             </RecordPreview>
-            <RecordPreview title="Company Preview Samples" count={data.companies.length}>
+            <RecordPreview title="Company Samples" count={data.companies.length}>
               <CompaniesTable companies={data.companies} />
             </RecordPreview>
           </section>

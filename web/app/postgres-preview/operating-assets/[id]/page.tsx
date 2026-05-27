@@ -731,7 +731,7 @@ export default async function PostgresOperatingAssetDetailPage({
     <DetailShell
       eyebrow="Plant Workspace"
       title={asset.asset_name}
-      subtitle="Plant profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="Plant profile with source/evidence coverage and export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to Command Center"
       statusLegendDescription="Plant detail badges separate operating or development phase, review state, readiness severity, and source confidence."
@@ -975,7 +975,7 @@ export default async function PostgresOperatingAssetDetailPage({
             {
               label: "Export",
               href: "#asset-export-readiness",
-              note: "Preview export-readiness checks",
+              note: "Export-readiness checks",
             },
           ]}
         />

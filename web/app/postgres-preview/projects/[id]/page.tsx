@@ -703,7 +703,7 @@ export default async function PostgresProjectDetailPage({
     <DetailShell
       eyebrow="Project Workspace"
       title={project.project_name}
-      subtitle="Project profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="Project profile with source/evidence coverage and export-readiness checks."
       backHref="/postgres-preview"
       backLabel="Back to Command Center"
       statusLegendDescription="Project detail badges separate geothermal use category, development phase, review state, readiness severity, and source confidence."
@@ -957,7 +957,7 @@ export default async function PostgresProjectDetailPage({
             {
               label: "Export",
               href: "#project-export-readiness",
-              note: "Preview export-readiness checks",
+              note: "Export-readiness checks",
             },
           ]}
         />

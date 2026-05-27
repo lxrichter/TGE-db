@@ -188,7 +188,7 @@ export default async function PostgresPreviewMapPage({
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
                 href="/postgres-preview"
               >
-                Back to Preview
+                Back to Command Center
               </Link>
               <Link
                 className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"

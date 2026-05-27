@@ -378,7 +378,7 @@ export default async function PostgresOperatingAssetsListPage({
         actions={[
           {
             href: "/postgres-preview",
-            label: "Back to Preview",
+            label: "Back to Command Center",
           },
           {
             href: exportHref,

@@ -345,7 +345,7 @@ export default async function PostgresCompaniesListPage({
         actions={[
           {
             href: "/postgres-preview",
-            label: "Back to Preview",
+            label: "Back to Command Center",
           },
           {
             href: exportHref,
