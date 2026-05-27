@@ -125,8 +125,8 @@ export default async function NewSourcePage({
         title={initialLinkTarget ? "Creation Context" : "After Save"}
         description={
           initialLinkTarget
-            ? "This source was opened from a record. Keep the linked target, source registry, and review work nearby."
-            : "Create the source record first, then continue through source review, matching, or fact triage."
+            ? "This source was opened from a record. Keep the target, evidence registry, and review work nearby."
+            : "Create the source first, then continue through review, matching, or fact triage."
         }
         actions={
           initialLinkTarget
@@ -141,38 +141,38 @@ export default async function NewSourcePage({
                   href: targetHref(initialLinkTarget),
                 },
                 {
-                  label: "Sources",
-                  title: "Open Sources",
+                  label: "Sources & Evidence",
+                  title: "Open Sources & Evidence",
                   description:
-                    "Review source records, credibility states, and linked evidence coverage.",
+                    "Review source records, credibility, and evidence coverage.",
                   href: "/sources",
                 },
                 {
                   label: "Matches",
-                  title: "Review article matches",
+                  title: "Review Article Matches",
                   description:
-                    "Review article-to-entity candidates before evidence links are confirmed.",
+                    "Review article-to-entity candidates before evidence links.",
                   href: "/sources/matches",
                 },
               ]
             : [
                 {
-                  label: "Sources",
-                  title: "Open Sources",
+                  label: "Sources & Evidence",
+                  title: "Open Sources & Evidence",
                   description:
-                    "Return to the governed source registry and source operations.",
+                    "Return to the governed source registry and operations.",
                   href: "/sources",
                 },
                 {
                   label: "Matches",
-                  title: "Review article matches",
+                  title: "Review Article Matches",
                   description:
                     "Confirm or reject article-to-record match candidates.",
                   href: "/sources/matches",
                 },
                 {
                   label: "Facts",
-                  title: "Review article facts",
+                  title: "Review Article Facts",
                   description:
                     "Triage extracted fact candidates before field suggestions or audited apply.",
                   href: "/sources/facts",

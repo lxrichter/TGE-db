@@ -79,23 +79,23 @@ export default async function EditSourcePage({
 
       <NextActionStrip
         title="Editing Context"
-        description="Keep the source profile, source-specific matches, and source-specific facts close while editing."
+        description="Keep the source profile, matches, and fact candidates close while editing."
         actions={[
           {
             label: "Profile",
-            title: "Return to evidence profile",
-            description: "Review credibility, linked entities, extracted facts, and source lifecycle state.",
+            title: "Open Source Profile",
+            description: "Review credibility, linked entities, facts, and lifecycle state.",
             href: `/sources/${id}`,
           },
           {
             label: "Matches",
-            title: "Review this source's matches",
+            title: "Review Source Matches",
             description: "Open article-to-entity candidates filtered to this source record.",
             href: `/sources/matches?sourceId=${id}`,
           },
           {
             label: "Facts",
-            title: "Review this source's facts",
+            title: "Review Source Facts",
             description: "Open extracted fact candidates filtered to this source record.",
             href: `/sources/facts?sourceId=${id}`,
           },

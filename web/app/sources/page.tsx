@@ -741,24 +741,24 @@ export default async function SourcesPage({
 
       <NextActionStrip
         title="Primary Work Paths"
-        description="Use these routes for the three main evidence workflows: source review, entity matching, and fact triage."
+        description="Move between source review, entity matching, and fact triage."
         actions={[
           {
-            label: "Sources",
-            title: "Review source records",
+            label: "Sources & Evidence",
+            title: "Review Source Records",
             description: "Check credibility, visibility, source type, and evidence coverage.",
             href: "#source-triage",
           },
           {
             label: "Matches",
-            title: "Review article matches",
-            description: "Confirm or reject article-to-entity candidates before evidence links are created.",
+            title: "Review Article Matches",
+            description: "Confirm or reject candidates before evidence links are created.",
             href: "/sources/matches",
           },
           {
             label: "Facts",
-            title: "Review article facts",
-            description: "Triage extracted facts before field suggestions or audited application.",
+            title: "Review Article Facts",
+            description: "Triage extracted facts before suggestions or audited application.",
             href: "/sources/facts",
           },
         ]}
