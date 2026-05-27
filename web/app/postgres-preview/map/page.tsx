@@ -251,7 +251,7 @@ export default async function PostgresPreviewMapPage({
             label: "Markets",
             title: activeGeographyLabel
               ? "Open filtered market context"
-              : "Open country signals",
+              : "Open market signals",
             description: "Move from spatial clusters into country and regional intelligence.",
             href: `${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`,
           },

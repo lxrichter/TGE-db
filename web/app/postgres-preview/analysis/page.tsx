@@ -520,7 +520,7 @@ export default async function PostgresAnalysisPreviewPage({
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-gray-600">
                   Highest combined operating plus pipeline MWe from the
-                  PostgreSQL country/market aggregation.
+                  PostgreSQL market aggregation.
                 </p>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">

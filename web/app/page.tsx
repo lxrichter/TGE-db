@@ -330,7 +330,7 @@ function MarketSignalTable({
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Top Market Signals</h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            Highest-capacity country/market signals from PostgreSQL staging.
+            Highest-capacity market signals from PostgreSQL staging.
           </p>
         </div>
         <Link
@@ -770,7 +770,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/markets"
             label="Markets"
-            note={staging.ok ? "Top market records loaded" : "Legacy countries covered"}
+            note={staging.ok ? "Top market profiles loaded" : "Legacy countries covered"}
             tone="market"
             value={formatCount(countriesCovered)}
           />
