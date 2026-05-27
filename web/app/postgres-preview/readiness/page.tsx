@@ -10,6 +10,11 @@ import { formatCount } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import {
+  postgresStatusBarClass,
+  postgresStatusToneClass,
+  type PostgresStatusTone,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
@@ -113,9 +118,9 @@ function StatTile({
 }) {
   const toneClass = {
     neutral: "border-gray-200 bg-white text-[#1f2937]",
-    good: "border-emerald-200 bg-emerald-50 text-emerald-900",
-    warning: "border-amber-200 bg-amber-50 text-amber-900",
-    critical: "border-red-200 bg-red-50 text-red-900",
+    good: postgresStatusToneClass("success"),
+    warning: postgresStatusToneClass("attention"),
+    critical: postgresStatusToneClass("danger"),
   }[tone];
 
   return (
@@ -170,8 +175,8 @@ function MigrationRehearsalPanel({
         <span
           className={`inline-flex h-7 items-center border px-2 text-xs font-semibold ${
             validationReady
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-amber-200 bg-amber-50 text-amber-700"
+              ? postgresStatusToneClass("success")
+              : postgresStatusToneClass("attention")
           }`}
         >
           {validationReady ? "Validation clean" : "Needs cutover review"}
@@ -228,10 +233,11 @@ function MigrationRehearsalPanel({
 
 function ProgressBar({ value }: { value: number }) {
   const bounded = Math.min(Math.max(value, 0), 100);
+  const barClass = postgresStatusBarClass("success");
 
   return (
     <div className="h-1.5 overflow-hidden bg-gray-100">
-      <div className="h-full bg-[#8dc63f]" style={{ width: `${bounded}%` }} />
+      <div className={`h-full ${barClass}`} style={{ width: `${bounded}%` }} />
     </div>
   );
 }
@@ -245,11 +251,13 @@ function GateRow({
   detail: string;
   status: "ready" | "partial" | "blocked";
 }) {
-  const statusClass = {
-    ready: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    partial: "border-amber-200 bg-amber-50 text-amber-700",
-    blocked: "border-red-200 bg-red-50 text-red-700",
-  }[status];
+  const statusTones: Record<typeof status, PostgresStatusTone> = {
+    ready: "success",
+    partial: "attention",
+    blocked: "danger",
+  };
+  const statusTone = statusTones[status];
+  const statusClass = postgresStatusToneClass(statusTone);
 
   const statusLabel = {
     ready: "Ready",
@@ -324,8 +332,8 @@ function ReadinessTable({
           <span
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
               criticalIssueCount > 0
-                ? "border-red-200 bg-red-50 text-red-700"
-                : "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]"
+                ? postgresStatusToneClass("danger")
+                : postgresStatusToneClass("success")
             }`}
           >
             {formatCount(criticalIssueCount)} critical
@@ -333,7 +341,7 @@ function ReadinessTable({
           <span
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
               openIssueCount > 0
-                ? "border-amber-200 bg-amber-50 text-amber-800"
+                ? postgresStatusToneClass("attention")
                 : "border-gray-200 bg-[#f7f7f7] text-gray-600"
             }`}
           >
@@ -342,7 +350,7 @@ function ReadinessTable({
           <span
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
               sourceGapCount > 0
-                ? "border-amber-200 bg-amber-50 text-amber-800"
+                ? postgresStatusToneClass("attention")
                 : "border-gray-200 bg-[#f7f7f7] text-gray-600"
             }`}
           >

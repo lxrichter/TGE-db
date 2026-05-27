@@ -8,6 +8,10 @@ import { formatCount, formatMw } from "@/lib/format";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import { PostgresPreviewSetupNotice } from "@/components/postgres-preview/PostgresPreviewListTables";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
+import {
+  postgresStatusBarClass,
+  postgresStatusToneClass,
+} from "@/components/postgres-preview/PostgresStatusBadge";
 import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
@@ -149,6 +153,7 @@ function CoverageBar({
 }) {
   const total = approved + draft;
   const approvedShare = total > 0 ? Math.round((approved / total) * 100) : 0;
+  const barClass = postgresStatusBarClass("success");
 
   return (
     <div>
@@ -160,7 +165,7 @@ function CoverageBar({
       </div>
       <div className="mt-2 h-1.5 overflow-hidden bg-gray-100">
         <div
-          className="h-full bg-[#8dc63f]"
+          className={`h-full ${barClass}`}
           style={{ width: `${approvedShare}%` }}
         />
       </div>
@@ -328,6 +333,10 @@ function aggregateRegions(
 }
 
 function RegionCard({ region }: { region: RegionSummary }) {
+  const sourceGapToneClass = postgresStatusToneClass(
+    region.sourceGaps > 0 ? "attention" : "success"
+  );
+
   return (
     <div className="border border-gray-200 bg-white px-4 py-4">
       <Link
@@ -346,11 +355,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
             </div>
           </div>
           <span
-            className={`inline-flex min-h-7 shrink-0 items-center border px-2 text-xs font-semibold ${
-              region.sourceGaps > 0
-                ? "border-amber-200 bg-amber-50 text-amber-700"
-                : "border-emerald-200 bg-emerald-50 text-emerald-700"
-            }`}
+            className={`inline-flex min-h-7 shrink-0 items-center border px-2 text-xs font-semibold ${sourceGapToneClass}`}
           >
             {formatCount(region.sourceGaps)} gaps
           </span>
