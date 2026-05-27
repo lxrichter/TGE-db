@@ -1517,7 +1517,6 @@ export function CompaniesPreviewTable({
   const density = pagination?.density ?? "comfortable";
   const cellClass = tableCellClass(density);
   const headClass = tableHeadClass(density);
-  const compact = density === "compact";
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -1539,7 +1538,9 @@ export function CompaniesPreviewTable({
               meta={company.legacy_company_id || "new-postgres-record"}
             >
               <MobileField label="Primary Identity">
-                {company.company_type_primary_code || <EmptyValue />}
+                <div className="line-clamp-1">
+                  {company.company_type_primary_code || <EmptyValue />}
+                </div>
                 <div className="mt-1 text-xs text-gray-500">
                   {company.entity_type_code || <EmptyValue />}
                 </div>
@@ -1597,8 +1598,10 @@ export function CompaniesPreviewTable({
                     </div>
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    {company.company_type_primary_code || <EmptyValue />}
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="line-clamp-1">
+                      {company.company_type_primary_code || <EmptyValue />}
+                    </div>
+                    <div className="mt-1 line-clamp-1 text-xs text-gray-500">
                       {company.entity_type_code || <EmptyValue />}
                     </div>
                   </td>
@@ -1606,7 +1609,7 @@ export function CompaniesPreviewTable({
                     {company.headquarters_country || <EmptyValue />}
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    <div className={compact ? "line-clamp-1" : "line-clamp-2"}>
+                    <div className="line-clamp-1">
                       {company.geothermal_focus || <EmptyValue />}
                     </div>
                   </td>
@@ -1615,7 +1618,7 @@ export function CompaniesPreviewTable({
                   </td>
                   <td className={cellClass}>
                     <IssueBadges
-                      compact={compact}
+                      compact
                       issues={issues}
                       pagination={pagination}
                     />
