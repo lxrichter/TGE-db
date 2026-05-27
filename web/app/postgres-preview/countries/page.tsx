@@ -431,6 +431,247 @@ function RegionCard({ region }: { region: RegionSummary }) {
   );
 }
 
+function RegionCapacityBars({
+  region,
+  maxCapacity,
+}: {
+  region: RegionSummary;
+  maxCapacity: number;
+}) {
+  const operatingShare =
+    maxCapacity > 0 ? Math.round((region.operatingMwe / maxCapacity) * 100) : 0;
+  const pipelineShare =
+    maxCapacity > 0 ? Math.round((region.pipelineMwe / maxCapacity) * 100) : 0;
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <div className="flex items-center justify-between gap-3 text-[11px] text-gray-500">
+          <span>Operating</span>
+          <span className="font-semibold text-[#1f2937]">
+            {formatMw(region.operatingMwe)} MWe
+          </span>
+        </div>
+        <div className="mt-1 h-1.5 overflow-hidden bg-gray-100">
+          <div
+            className={`h-full ${postgresStatusBarClass("operating")}`}
+            style={{
+              width:
+                operatingShare > 0 ? `${Math.max(2, operatingShare)}%` : "0%",
+            }}
+          />
+        </div>
+      </div>
+      <div>
+        <div className="flex items-center justify-between gap-3 text-[11px] text-gray-500">
+          <span>Pipeline</span>
+          <span className="font-semibold text-[#1f2937]">
+            {formatMw(region.pipelineMwe)} MWe
+          </span>
+        </div>
+        <div className="mt-1 h-1.5 overflow-hidden bg-gray-100">
+          <div
+            className={`h-full ${postgresStatusBarClass("info")}`}
+            style={{
+              width:
+                pipelineShare > 0 ? `${Math.max(2, pipelineShare)}%` : "0%",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
+  const maxCapacity = Math.max(
+    1,
+    ...regions.map((region) => region.operatingMwe + region.pipelineMwe)
+  );
+
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            TGE Regional Intelligence Overview
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-gray-500">
+            Primary market-intelligence regions for geothermal reporting,
+            benchmarking, and future regional profile pages.
+          </p>
+        </div>
+        <span className="inline-flex min-h-7 items-center self-start border border-[#b9d98b] bg-[#f1f8e8] px-2 text-xs font-semibold uppercase tracking-wide text-[#3f6f19] sm:self-auto">
+          Primary taxonomy
+        </span>
+      </div>
+
+      <div className="divide-y divide-gray-100 lg:hidden">
+        {regions.map((region) => (
+          <article key={region.name} className="px-4 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <Link
+                  className="font-semibold text-[#1f2937] hover:text-[#4f7d20] hover:underline"
+                  href={marketRegionHref(region.kind, region.name)}
+                >
+                  {region.name}
+                </Link>
+                <div className="mt-1 text-xs leading-5 text-gray-500">
+                  {formatCount(region.countryCount)} countries ·{" "}
+                  {formatCount(region.recordCount)} records
+                </div>
+              </div>
+              <span
+                className={`inline-flex min-h-7 shrink-0 items-center border px-2 text-xs font-semibold ${postgresStatusToneClass(
+                  region.sourceGaps > 0 ? "attention" : "success"
+                )}`}
+              >
+                {formatCount(region.sourceGaps)} gaps
+              </span>
+            </div>
+            <div className="mt-4">
+              <RegionCapacityBars region={region} maxCapacity={maxCapacity} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold">
+              <Link
+                className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+                href={regionWorklistHref(
+                  "/postgres-preview/analysis",
+                  region.kind,
+                  region.name
+                )}
+              >
+                Analysis
+              </Link>
+              <Link
+                className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+                href={regionWorklistHref(
+                  "/postgres-preview/projects",
+                  region.kind,
+                  region.name
+                )}
+              >
+                Projects
+              </Link>
+              <Link
+                className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+                href={regionWorklistHref(
+                  "/postgres-preview/operating-assets",
+                  region.kind,
+                  region.name
+                )}
+              >
+                Plants
+              </Link>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
+        <table className="min-w-[900px] table-fixed text-left text-sm">
+          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+            <tr>
+              <th className="w-[24%] px-5 py-3 font-semibold">Region</th>
+              <th className="w-[16%] px-5 py-3 font-semibold">Coverage</th>
+              <th className="w-[34%] px-5 py-3 font-semibold">
+                Capacity Signal
+              </th>
+              <th className="w-[12%] px-5 py-3 font-semibold">Source Gaps</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">Open</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {regions.map((region) => (
+              <tr
+                key={region.name}
+                className="align-top transition-colors hover:bg-[#fbfdf8]"
+              >
+                <td className="px-5 py-4">
+                  <Link
+                    className="font-semibold text-[#1f2937] hover:text-[#4f7d20] hover:underline"
+                    href={marketRegionHref(region.kind, region.name)}
+                  >
+                    {region.name}
+                  </Link>
+                  <div className="mt-1 text-xs text-gray-500">
+                    TGE regional market view
+                  </div>
+                </td>
+                <td className="px-5 py-4 text-xs leading-5 text-gray-600">
+                  {formatCount(region.countryCount)} countries
+                  <br />
+                  {formatCount(region.recordCount)} staged records
+                </td>
+                <td className="px-5 py-4">
+                  <RegionCapacityBars
+                    region={region}
+                    maxCapacity={maxCapacity}
+                  />
+                </td>
+                <td className="px-5 py-4">
+                  <span
+                    className={`inline-flex min-h-7 items-center border px-2 text-xs font-semibold ${postgresStatusToneClass(
+                      region.sourceGaps > 0 ? "attention" : "success"
+                    )}`}
+                  >
+                    {formatCount(region.sourceGaps)}
+                  </span>
+                </td>
+                <td className="px-5 py-4">
+                  <div className="grid gap-1 text-xs font-semibold">
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={regionWorklistHref(
+                        "/postgres-preview/analysis",
+                        region.kind,
+                        region.name
+                      )}
+                    >
+                      Analysis
+                    </Link>
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={regionWorklistHref(
+                        "/postgres-preview/projects",
+                        region.kind,
+                        region.name
+                      )}
+                    >
+                      Projects
+                    </Link>
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={regionWorklistHref(
+                        "/postgres-preview/operating-assets",
+                        region.kind,
+                        region.name
+                      )}
+                    >
+                      Plants
+                    </Link>
+                    <Link
+                      className="text-[#4f7f1f] hover:underline"
+                      href={regionWorklistHref(
+                        "/postgres-preview/map",
+                        region.kind,
+                        region.name
+                      )}
+                    >
+                      Map
+                    </Link>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function RegionDrilldownLayer({
   allCountries,
 }: {
@@ -440,35 +681,30 @@ function RegionDrilldownLayer({
   const wbRegions = aggregateRegions(allCountries, "wb");
 
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-4 py-3">
-          <h3 className="text-sm font-bold text-[#1f2937]">TGE Regions</h3>
-          <p className="mt-1 text-xs leading-5 text-gray-500">
-            Editorial and market-intelligence regional grouping.
-          </p>
-        </div>
-        <div className="grid gap-3 p-4 md:grid-cols-2">
-          {tgeRegions.map((region) => (
-            <RegionCard key={region.name} region={region} />
-          ))}
-        </div>
-      </section>
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-4 py-3">
-          <h3 className="text-sm font-bold text-[#1f2937]">
-            World Bank Regions
-          </h3>
-          <p className="mt-1 text-xs leading-5 text-gray-500">
-            External reporting and donor-aligned regional grouping.
-          </p>
-        </div>
-        <div className="grid gap-3 p-4 md:grid-cols-2">
+    <div className="space-y-4">
+      <TgeRegionOverview regions={tgeRegions} />
+
+      <details className="border border-gray-200 bg-white">
+        <summary className="flex cursor-pointer list-none flex-col gap-2 px-4 py-3 marker:hidden sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-[#1f2937]">
+              World Bank Region Reference
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-gray-500">
+              Secondary taxonomy for donor reporting and external benchmarking.
+              TGE regions remain the primary market-intelligence view.
+            </p>
+          </div>
+          <span className="inline-flex min-h-7 shrink-0 items-center self-start border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            Secondary taxonomy
+          </span>
+        </summary>
+        <div className="grid gap-3 border-t border-gray-200 p-4 md:grid-cols-2 xl:grid-cols-3">
           {wbRegions.map((region) => (
             <RegionCard key={region.name} region={region} />
           ))}
         </div>
-      </section>
+      </details>
     </div>
   );
 }
@@ -657,8 +893,8 @@ function CountryMarketsTable({
           <span
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
               sourceGapCount > 0
-                ? "border-amber-200 bg-amber-50 text-amber-800"
-                : "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]"
+                ? postgresStatusToneClass("attention")
+                : postgresStatusToneClass("success")
             }`}
           >
             {formatCount(sourceGapCount)} source gaps
@@ -693,8 +929,8 @@ function CountryMarketsTable({
               <span
                 className={`inline-flex h-7 w-fit items-center border px-2 text-xs font-semibold ${
                   country.missing_source_count > 0
-                    ? "border-amber-200 bg-amber-50 text-amber-700"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    ? postgresStatusToneClass("attention")
+                    : postgresStatusToneClass("success")
                 }`}
               >
                 {formatCount(country.missing_source_count)} source gaps
@@ -937,8 +1173,8 @@ function CountryMarketsTable({
                   <span
                     className={`inline-flex h-7 items-center border px-2 text-xs font-semibold ${
                       country.missing_source_count > 0
-                        ? "border-amber-200 bg-amber-50 text-amber-700"
-                        : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                        ? postgresStatusToneClass("attention")
+                        : postgresStatusToneClass("success")
                     }`}
                   >
                     {formatCount(country.missing_source_count)}
@@ -1055,12 +1291,13 @@ export default async function PostgresCountryMarketsPage({
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
-                Countries / Markets
+                Markets
               </h1>
               <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
-                First PostgreSQL-backed country layer for market summaries,
-                filtered queue entry points, and replacement-readiness checks.
-                Detailed editorial market pages will evolve from this base.
+                PostgreSQL-backed market layer for country and regional
+                intelligence, filtered worklists, and replacement-readiness
+                checks. TGE regions are the primary market framework; World
+                Bank regions remain available as a secondary reporting taxonomy.
               </p>
             </div>
             <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
@@ -1083,12 +1320,12 @@ export default async function PostgresCountryMarketsPage({
 
       <NextActionStrip
         title="Primary Work Paths"
-        description="Use these routes for the three main market workflows: country worklists, source-gap cleanup, and benchmark analysis."
+        description="Use these routes for the main market workflows: TGE regional intelligence, source-gap cleanup, and benchmark analysis."
         actions={[
           {
-            label: "Regions",
-            title: "Open regional drilldowns",
-            description: "Filter markets by TGE or World Bank region.",
+            label: "TGE Regions",
+            title: "Open regional intelligence",
+            description: "Compare markets through the primary TGE region taxonomy.",
             href: "#region-drilldown",
           },
           {
@@ -1120,7 +1357,7 @@ export default async function PostgresCountryMarketsPage({
               {
                 href: "#region-drilldown",
                 label: "Regions",
-                note: "TGE / WB",
+                note: "TGE first",
               },
               {
                 href: "#market-operations",
@@ -1190,8 +1427,8 @@ export default async function PostgresCountryMarketsPage({
           <section id="region-drilldown" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
               label="Intelligence"
-              title="Regional Drilldowns"
-              description="TGE editorial regions and World Bank regions built from canonical geography."
+              title="Regional Market Intelligence"
+              description="TGE regions drive the primary market view; World Bank regions remain available as a secondary taxonomy."
               tone="workflow"
             />
 
