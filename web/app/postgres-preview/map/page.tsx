@@ -208,7 +208,7 @@ export default async function PostgresPreviewMapPage({
             <span>
               <span className="font-medium text-[#1f2937]">Source</span>
               <span className="mx-2 text-gray-300">|</span>
-              PostgreSQL staging
+              Current platform data
             </span>
             <span>
               <span className="font-medium text-[#1f2937]">Layers</span>

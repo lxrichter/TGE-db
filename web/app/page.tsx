@@ -330,7 +330,7 @@ function MarketSignalTable({
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Top Market Signals</h2>
           <p className="mt-1 text-sm leading-6 text-gray-600">
-            Highest-capacity market signals from PostgreSQL staging.
+            Highest-capacity market signals from the current intelligence layer.
           </p>
         </div>
         <Link
@@ -454,7 +454,7 @@ function BucketOverview({
                   {formatBucketLabel(bucket.bucket_code)}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {formatCount(bucket.record_count)} profiles
+                  {formatCount(bucket.record_count)} items
                 </span>
               </div>
               <div className="mt-2 h-2 bg-gray-100">
@@ -589,32 +589,32 @@ function OperationalPulse({
         <ExecutiveKpi
           href="/postgres-preview/research-ops"
           label="Research Issues"
-          note={staging.ok ? "Open PostgreSQL staging issues" : "Legacy need-info follow-up"}
+          note={staging.ok ? "Open governance issues" : "Legacy need-info follow-up"}
           value={formatCount(staging.ok ? openIssues : legacy.needInfo)}
         />
         <ExecutiveKpi
           href="/postgres-preview/research-ops"
           label="Critical Issues"
-          note={staging.ok ? "Blocking or high-risk profiles" : "Pending review profiles"}
+          note={staging.ok ? "Blocking or high-risk items" : "Pending review items"}
           value={formatCount(staging.ok ? criticalIssues : legacy.pendingReviewTotal)}
         />
         <ExecutiveKpi
           href="/sources"
           label="Source Gaps"
-          note={staging.ok ? "Profiles missing source evidence" : "Evidence layer pending"}
+          note={staging.ok ? "Projects, plants, or companies missing evidence" : "Evidence layer pending"}
           value={staging.ok ? formatCount(missingSources) : "-"}
         />
         <ExecutiveKpi
           href="/postgres-preview/readiness"
           label="Export-Ready"
-          note={staging.ok ? "Approved/export-ready staging profiles" : "Legacy approved profiles"}
+          note={staging.ok ? "Approved or export-ready items" : "Legacy approved items"}
           value={formatCount(staging.ok ? exportReady : legacy.approvedTotal)}
         />
       </div>
 
       {!staging.ok ? (
         <div className="border-t border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
-          PostgreSQL staging signals are unavailable right now. The dashboard is
+          Platform intelligence signals are unavailable right now. The dashboard is
           showing legacy SQLite counters where possible. Error: {staging.error}
         </div>
       ) : null}
@@ -751,7 +751,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/projects"
             label="Projects"
-            note="Projects in staging scope"
+            note="Projects in platform scope"
             prominence="executive"
             tone="pipeline"
             value={formatCount(projectRecords)}
@@ -759,7 +759,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/operating-assets"
             label="Plants"
-            note="Plants in staging scope"
+            note="Plants in platform scope"
             prominence="executive"
             tone="operating"
             value={formatCount(plantRecords)}
@@ -770,7 +770,7 @@ export default async function HomePage() {
           <ExecutiveKpi
             href="/postgres-preview/markets"
             label="Markets"
-            note={staging.ok ? "Top market profiles loaded" : "Legacy markets covered"}
+            note={staging.ok ? "Top markets loaded" : "Legacy markets covered"}
             tone="market"
             value={formatCount(countriesCovered)}
           />
@@ -826,7 +826,7 @@ export default async function HomePage() {
             title="Analysis"
           />
           <IntelligenceCard
-            description="Governed source records, article matches, and fact candidates that underpin future AI-assisted research."
+            description="Governed sources, article matches, and fact candidates that underpin future AI-assisted research."
             href="/sources"
             label="Evidence Layer"
             meta="Sources"
@@ -874,7 +874,7 @@ export default async function HomePage() {
         <DetailPriorityMarker
           label="Intelligence"
           title="Recent Intelligence Signals"
-          description="A controlled shell for the future market pulse feed from TGE articles, source records, and confirmed evidence."
+          description="A controlled shell for the future market pulse feed from TGE articles, governed sources, and confirmed evidence."
           tone="workflow"
         />
 
@@ -900,7 +900,7 @@ export default async function HomePage() {
             title="Research Ops"
           />
           <IntelligenceCard
-            description="Use this for operational navigation across PostgreSQL staging modules and preview samples."
+            description="Use this for operational navigation across platform work areas and preview samples."
             href="/postgres-preview"
             label="Navigation"
             meta="Control"
@@ -916,7 +916,7 @@ export default async function HomePage() {
           <IntelligenceCard
             description={`Hybrid/mineral activity signal: ${
               staging.ok ? formatCount(hybridRecords) : "PostgreSQL pending"
-            } profiles.`}
+            } items.`}
             href="/postgres-preview/analysis"
             label="Emerging Sectors"
             meta="Future"

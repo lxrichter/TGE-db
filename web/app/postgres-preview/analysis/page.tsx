@@ -188,8 +188,8 @@ function BucketTable({
   defaultOpen = true,
   useLifecycleColors = false,
   segmentHeader = "Segment",
-  countHeader = "Profiles",
-  countSummaryLabel = "profiles",
+  countHeader = "Items",
+  countSummaryLabel = "items",
   formatBucketLabel = (bucket) => formatPreviewFilterLabel(bucket.bucket_code),
   getBucketBarClass,
 }: {
@@ -488,12 +488,12 @@ export default async function PostgresAnalysisPreviewPage({
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <StatTile
                 label="Projects"
-                note="PostgreSQL staging pipeline"
+                note="Current project pipeline"
                 value={formatCount(totals.projectRecords)}
               />
               <StatTile
                 label="Plants"
-                note="PostgreSQL staging plants"
+                note="Current plant layer"
                 value={formatCount(totals.assetRecords)}
               />
               <StatTile
@@ -542,7 +542,7 @@ export default async function PostgresAnalysisPreviewPage({
 
             <BucketTable
               buckets={summary.useTypeBreakdown}
-              countHeader="Profiles"
+              countHeader="Items"
               defaultOpen={false}
               description="Combined project and plant distribution by geothermal use type."
               segmentHeader="Use Type"
@@ -597,7 +597,7 @@ export default async function PostgresAnalysisPreviewPage({
                       <MobileAnalysisField label="Pipeline">
                         {formatMw(country.project_pipeline_mwe)} MWe
                       </MobileAnalysisField>
-                      <MobileAnalysisField label="Profiles">
+                      <MobileAnalysisField label="Linked Work">
                         {formatCount(
                           country.project_count +
                             country.operating_asset_count +
@@ -637,7 +637,7 @@ export default async function PostgresAnalysisPreviewPage({
                     <th className="w-[18%] px-5 py-3 font-semibold">
                       Pipeline
                     </th>
-                    <th className="w-[18%] px-5 py-3 font-semibold">Profiles</th>
+                    <th className="w-[18%] px-5 py-3 font-semibold">Linked Work</th>
                     <th className="w-[18%] px-5 py-3 font-semibold">Open</th>
                   </tr>
                 </thead>

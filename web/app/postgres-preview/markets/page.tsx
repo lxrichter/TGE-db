@@ -352,7 +352,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
             <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
             <div className="mt-2 text-xs leading-5 text-gray-500">
               {formatCount(region.countryCount)} markets ·{" "}
-              {formatCount(region.recordCount)} market profiles
+              {formatCount(region.recordCount)} market items
             </div>
           </div>
           <span
@@ -520,7 +520,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 </Link>
                 <div className="mt-1 text-xs leading-5 text-gray-500">
                   {formatCount(region.countryCount)} markets ·{" "}
-                  {formatCount(region.recordCount)} market profiles
+                  {formatCount(region.recordCount)} market items
                 </div>
               </div>
               <span
@@ -603,7 +603,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 <td className="px-5 py-4 text-xs leading-5 text-gray-600">
                   {formatCount(region.countryCount)} markets
                   <br />
-                  {formatCount(region.recordCount)} staged profiles
+                  {formatCount(region.recordCount)} market items
                 </td>
                 <td className="px-5 py-4">
                   <RegionCapacityBars
@@ -809,7 +809,7 @@ function CountryOperationsLayer({
         emptyLabel="No market-level source gaps in the current summary."
         metric={(country) => ({
           value: formatCount(country.missing_source_count),
-          note: "profiles without confirmed evidence links",
+          note: "items without confirmed evidence links",
         })}
       />
       <CountryQueueCard
@@ -851,7 +851,7 @@ function CountryOperationsLayer({
       />
       <CountryQueueCard
         title="Recently Updated Markets"
-        description="Market profiles likely to show recent staging or evidence activity."
+        description="Markets likely to show recent updates or evidence activity."
         countries={recentMarkets}
         defaultOpen={false}
         emptyLabel="No recent market update metadata available."
@@ -861,7 +861,7 @@ function CountryOperationsLayer({
             country.project_count +
               country.operating_asset_count +
               country.company_count
-          )} staged profiles`,
+          )} linked items`,
         })}
       />
     </div>
@@ -1168,7 +1168,7 @@ function CountryMarketsTable({
                       country.operating_asset_count +
                       country.company_count
                   )}{" "}
-                  staged profiles
+                  linked items
                 </div>
                 <div className="mt-1 text-xs text-gray-500">
                   Updated {formatDate(country.latest_update_at)}
@@ -1186,7 +1186,7 @@ function CountryMarketsTable({
             </div>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <MobileMarketField label="Profiles">
+              <MobileMarketField label="Linked Work">
                 <div className="grid gap-1 text-xs">
                   <Link
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
@@ -1239,7 +1239,7 @@ function CountryMarketsTable({
                     country.direct_use_project_count +
                       country.direct_use_asset_count
                   )}{" "}
-                  direct-use profiles
+                  direct-use items
                 </div>
                 <div className="mt-1 text-xs leading-5 text-gray-500">
                   {formatMw(
@@ -1314,7 +1314,7 @@ function CountryMarketsTable({
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[20%] px-5 py-3 font-semibold">Market</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">Profiles</th>
+              <th className="w-[18%] px-5 py-3 font-semibold">Linked Work</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Electric</th>
               <th className="w-[14%] px-5 py-3 font-semibold">
                 Direct Use / Thermal
@@ -1342,7 +1342,7 @@ function CountryMarketsTable({
                         country.operating_asset_count +
                         country.company_count
                     )}{" "}
-                    staged profiles
+                    linked items
                   </div>
                   <div className="mt-1 text-xs text-gray-500">
                     Updated {formatDate(country.latest_update_at)}
@@ -1401,7 +1401,7 @@ function CountryMarketsTable({
                       country.direct_use_project_count +
                         country.direct_use_asset_count
                     )}{" "}
-                    direct-use profiles
+                    direct-use items
                   </div>
                   <div className="mt-1 text-xs leading-5 text-gray-500">
                     {formatMw(
@@ -1675,12 +1675,12 @@ export default async function PostgresCountryMarketsPage({
               />
               <StatTile
                 label="Direct Use"
-                note="Direct-use project and plant profiles"
+                note="Direct-use projects and plants"
                 value={formatCount(totals.directUseRecords)}
               />
               <StatTile
                 label="Source Gaps"
-                note="Profiles without confirmed evidence links"
+                note="Items without confirmed evidence links"
                 value={formatCount(totals.sourceGaps)}
               />
             </div>
