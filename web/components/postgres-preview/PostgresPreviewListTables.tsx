@@ -308,6 +308,63 @@ function MobileEntityCard({
   );
 }
 
+function ClampedText({
+  value,
+  lines = 1,
+}: {
+  value: string | null | undefined;
+  lines?: 1 | 2;
+}) {
+  if (!hasText(value)) {
+    return <EmptyValue />;
+  }
+
+  return (
+    <span
+      className={lines === 2 ? "line-clamp-2" : "line-clamp-1"}
+      title={value || undefined}
+    >
+      {value}
+    </span>
+  );
+}
+
+function CompanyActivitySummary({
+  company,
+  compact = false,
+}: {
+  company: PostgresPreviewCompany;
+  compact?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <div className="flex flex-wrap gap-1.5">
+        <span
+          className={`inline-flex items-center border border-blue-100 bg-white font-semibold text-blue-700 ${
+            compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
+          }`}
+        >
+          {formatCount(company.project_link_count)} projects
+        </span>
+        <span
+          className={`inline-flex items-center border border-[#d7e8bf] bg-white font-semibold text-[#4f7f1f] ${
+            compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
+          }`}
+        >
+          {formatCount(company.operating_asset_link_count)} plants
+        </span>
+      </div>
+      <div
+        className={`mt-1 min-w-0 text-gray-500 ${
+          compact ? "text-[11px]" : "text-xs"
+        }`}
+      >
+        <ClampedText value={company.geothermal_focus} />
+      </div>
+    </div>
+  );
+}
+
 function projectRowIssues(project: PostgresPreviewProject): RowIssue[] {
   const issues: RowIssue[] = [];
 
@@ -1521,6 +1578,7 @@ export function CompaniesPreviewTable({
   const density = pagination?.density ?? "comfortable";
   const cellClass = tableCellClass(density);
   const headClass = tableHeadClass(density);
+  const compact = density === "compact";
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -1553,9 +1611,7 @@ export function CompaniesPreviewTable({
                 {company.headquarters_country || <EmptyValue />}
               </MobileField>
               <MobileField label="Activity Focus">
-                <div className="line-clamp-2">
-                  {company.geothermal_focus || <EmptyValue />}
-                </div>
+                <CompanyActivitySummary compact company={company} />
               </MobileField>
               <MobileField label="Review">
                 <StatusBadge value={company.review_status_code} />
@@ -1571,12 +1627,12 @@ export function CompaniesPreviewTable({
         <table className="min-w-[1040px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
-              <th className={`w-[28%] ${headClass} font-semibold`}>Name</th>
+              <th className={`w-[25%] ${headClass} font-semibold`}>Name</th>
               <th className={`w-[16%] ${headClass} font-semibold`}>
                 Identity
               </th>
-              <th className={`w-[14%] ${headClass} font-semibold`}>HQ</th>
-              <th className={`w-[16%] ${headClass} font-semibold`}>Focus</th>
+              <th className={`w-[12%] ${headClass} font-semibold`}>HQ</th>
+              <th className={`w-[17%] ${headClass} font-semibold`}>Activity</th>
               <th className={`w-[10%] ${headClass} font-semibold`}>Review</th>
               <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
@@ -1602,9 +1658,7 @@ export function CompaniesPreviewTable({
                     </div>
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    <div className="line-clamp-1">
-                      {company.company_type_primary_code || <EmptyValue />}
-                    </div>
+                    <ClampedText value={company.company_type_primary_code} />
                     <div className="mt-1 line-clamp-1 text-xs text-gray-500">
                       {company.entity_type_code || <EmptyValue />}
                     </div>
@@ -1613,9 +1667,7 @@ export function CompaniesPreviewTable({
                     {company.headquarters_country || <EmptyValue />}
                   </td>
                   <td className={`${cellClass} text-gray-700`}>
-                    <div className="line-clamp-1">
-                      {company.geothermal_focus || <EmptyValue />}
-                    </div>
+                    <CompanyActivitySummary compact={compact} company={company} />
                   </td>
                   <td className={cellClass}>
                     <StatusBadge value={company.review_status_code} />
