@@ -1206,6 +1206,7 @@ export function ProjectsPreviewTable({
   const density = pagination?.density ?? "comfortable";
   const cellClass = tableCellClass(density);
   const headClass = tableHeadClass(density);
+  const compact = density === "compact";
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -1254,7 +1255,7 @@ export function ProjectsPreviewTable({
                 <StatusBadge value={project.review_status_code} />
               </MobileField>
               <MobileField label="Issues">
-                <IssueBadges issues={issues} pagination={pagination} />
+                <IssueBadges compact issues={issues} pagination={pagination} />
               </MobileField>
               <MobileField label="Use">
                 {project.primary_use_type_code || <EmptyValue />}
@@ -1282,7 +1283,10 @@ export function ProjectsPreviewTable({
               const issues = projectRowIssues(project);
 
               return (
-                <tr key={project.project_id} className="align-top">
+                <tr
+                  key={project.project_id}
+                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                >
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/projects/${project.project_id}`}
@@ -1325,7 +1329,11 @@ export function ProjectsPreviewTable({
                     <StatusBadge value={project.review_status_code} />
                   </td>
                   <td className={cellClass}>
-                    <IssueBadges issues={issues} pagination={pagination} />
+                    <IssueBadges
+                      compact={compact}
+                      issues={issues}
+                      pagination={pagination}
+                    />
                   </td>
                 </tr>
               );
@@ -1352,6 +1360,7 @@ export function OperatingAssetsPreviewTable({
   const density = pagination?.density ?? "comfortable";
   const cellClass = tableCellClass(density);
   const headClass = tableHeadClass(density);
+  const compact = density === "compact";
 
   return (
     <section className="border border-gray-200 bg-white">
@@ -1400,7 +1409,7 @@ export function OperatingAssetsPreviewTable({
                 <StatusBadge value={asset.review_status_code} />
               </MobileField>
               <MobileField label="Issues">
-                <IssueBadges issues={issues} pagination={pagination} />
+                <IssueBadges compact issues={issues} pagination={pagination} />
               </MobileField>
               <MobileField label="Use">
                 {asset.primary_use_type_code || <EmptyValue />}
@@ -1428,7 +1437,10 @@ export function OperatingAssetsPreviewTable({
               const issues = operatingAssetRowIssues(asset);
 
               return (
-                <tr key={asset.operating_asset_id} className="align-top">
+                <tr
+                  key={asset.operating_asset_id}
+                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                >
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
@@ -1471,7 +1483,11 @@ export function OperatingAssetsPreviewTable({
                     <StatusBadge value={asset.review_status_code} />
                   </td>
                   <td className={cellClass}>
-                    <IssueBadges issues={issues} pagination={pagination} />
+                    <IssueBadges
+                      compact={compact}
+                      issues={issues}
+                      pagination={pagination}
+                    />
                   </td>
                 </tr>
               );
@@ -1538,7 +1554,7 @@ export function CompaniesPreviewTable({
                 <StatusBadge value={company.review_status_code} />
               </MobileField>
               <MobileField label="Issues">
-                <IssueBadges issues={issues} pagination={pagination} />
+                <IssueBadges compact issues={issues} pagination={pagination} />
               </MobileField>
             </MobileEntityCard>
           );
@@ -1563,7 +1579,10 @@ export function CompaniesPreviewTable({
               const issues = companyRowIssues(company);
 
               return (
-                <tr key={company.company_id} className="align-top">
+                <tr
+                  key={company.company_id}
+                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                >
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/companies/${company.company_id}`}
