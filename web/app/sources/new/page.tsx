@@ -103,7 +103,7 @@ export default async function NewSourcePage({
           <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
             {initialLinkTarget ? (
               <>
-                Add a PostgreSQL source/evidence record and link it to{" "}
+                Add a governed source/evidence entry and link it to{" "}
                 <span className="font-semibold text-[#1f2937]">
                   {initialLinkTarget.label}
                 </span>{" "}
@@ -112,7 +112,7 @@ export default async function NewSourcePage({
               </>
             ) : (
               <>
-                Add a PostgreSQL source/evidence record. Source linking to
+                Add a governed source/evidence entry. Source linking to
                 projects, plants, and companies is available after
                 the source has been created.
               </>
@@ -125,7 +125,7 @@ export default async function NewSourcePage({
         title={initialLinkTarget ? "Creation Context" : "After Save"}
         description={
           initialLinkTarget
-            ? "This source was opened from a record. Keep the target, evidence registry, and review work nearby."
+            ? "This source was opened from an entity page. Keep the target, evidence registry, and review work nearby."
             : "Create the source first, then continue through review, matching, or fact triage."
         }
         actions={
@@ -137,14 +137,14 @@ export default async function NewSourcePage({
                     initialLinkTarget.entity_type
                   )}`,
                   description:
-                    "Return to the record that requested this source evidence.",
+                    "Return to the entity that requested this source evidence.",
                   href: targetHref(initialLinkTarget),
                 },
                 {
                   label: "Sources & Evidence",
                   title: "Open Sources & Evidence",
                   description:
-                    "Review source records, credibility, and evidence coverage.",
+                    "Review governed sources, credibility, and evidence coverage.",
                   href: "/sources",
                 },
                 {
@@ -167,7 +167,7 @@ export default async function NewSourcePage({
                   label: "Matches",
                   title: "Review Article Matches",
                   description:
-                    "Confirm or reject article-to-record match candidates.",
+                    "Confirm or reject article-to-entity match candidates.",
                   href: "/sources/matches",
                 },
                 {

@@ -345,7 +345,7 @@ function activeSourceFilterLabels(
 
 function sourceViewLabel(activeFilters: Array<{ label: string; value: string }>) {
   if (activeFilters.length === 0) {
-    return "All Source Records";
+    return "All Governed Sources";
   }
 
   if (activeFilters.length === 1) {
@@ -389,10 +389,10 @@ function SourcesListContext({
             </div>
             <div className="mt-1 text-sm font-semibold text-[#1f2937]">
               Showing {formatCount(shownCount)} of {formatCount(total)} matching
-              source records
+              governed sources
             </div>
             <div className="mt-1 text-xs leading-5 text-gray-500">
-              Source table currently shows the first {formatCount(shownCount)} records.
+              Source table currently shows the first {formatCount(shownCount)} sources.
             </div>
           </div>
           <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
@@ -524,7 +524,7 @@ function SourcesTable({
   return (
     <section className="border border-gray-200 bg-white">
       <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-bold text-[#1f2937]">Source Records</h2>
+        <h2 className="text-lg font-bold text-[#1f2937]">Governed Sources</h2>
         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Showing {formatCount(sources.length)} of {formatCount(total)} matching
         </span>
@@ -590,9 +590,9 @@ function SourcesTable({
 
         {sources.length === 0 ? (
           <div className="px-5 py-10 text-center text-sm text-gray-500">
-            No source records match the current filters. The PostgreSQL source
-            model and reference data are in place; source entry is the next
-            implementation slice.
+            No governed sources match the current filters. The source model
+            and reference data are in place; source entry is ready for review
+            workflow expansion.
           </div>
         ) : null}
       </div>
@@ -667,9 +667,9 @@ function SourcesTable({
             {sources.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-10 text-center text-sm text-gray-500">
-                  No source records match the current filters. The PostgreSQL
-                  source model and reference data are in place; source entry is
-                  the next implementation slice.
+                  No governed sources match the current filters. The source
+                  model and reference data are in place; source entry is ready
+                  for review workflow expansion.
                 </td>
               </tr>
             ) : null}
@@ -722,10 +722,9 @@ export default async function SourcesPage({
                 Evidence Backbone
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-                PostgreSQL-backed source records, evidence links, source
-                credibility, and visibility controls. This page is the first
-                read-only working surface for validation and future AI-ready
-                source management.
+                Governed sources, evidence links, credibility, and visibility
+                controls. This page is the working surface for validation and
+                future AI-ready source management.
               </p>
             </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
@@ -788,12 +787,12 @@ export default async function SourcesPage({
               <StatTile
                 label="Total Sources"
                 value={formatCount(data.summary.total)}
-                note="Records matching filters"
+                note="Sources matching filters"
               />
               <StatTile
                 label="Credible"
                 value={formatCount(data.summary.credible)}
-                note="Reviewed source records"
+                note="Reviewed governed sources"
               />
               <StatTile
                 label="TGE Articles"
@@ -893,7 +892,7 @@ export default async function SourcesPage({
                   <OperationCard
                     label="Article Archive"
                     value={formatCount(data.summary.tgeArticles)}
-                    note="TGE article metadata records"
+                    note="TGE article metadata"
                     href="/sources?sourceType=tge_article"
                   />
                   <OperationCard
@@ -930,7 +929,7 @@ export default async function SourcesPage({
             <DetailPriorityMarker
               label="Governance"
               title="Source Workbench"
-              description="Detailed filters and source records."
+              description="Detailed filters and governed sources."
               tone="governance"
             />
 

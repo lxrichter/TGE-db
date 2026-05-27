@@ -1001,7 +1001,7 @@ function SourceLinkManager({
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-semibold text-[#1f2937]">
-                      {link.entity_name || "Unnamed record"}
+                      {link.entity_name || "Unnamed entity"}
                     </div>
                     <div className="mt-1 text-xs text-gray-500">
                       {link.legacy_id || link.entity_id}
@@ -1040,7 +1040,7 @@ function SourceLinkManager({
               {source.links.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                    No linked records yet.
+                    No linked entities yet.
                   </td>
                 </tr>
               ) : null}

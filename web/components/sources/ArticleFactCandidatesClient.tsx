@@ -243,7 +243,7 @@ export default function ArticleFactCandidatesClient({
           </h2>
           <p className="mt-1 text-sm text-gray-500">
             Confirming keeps the candidate for governance; it does not update
-            records or create evidence links.
+            project, plant, or company fields or create evidence links.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">

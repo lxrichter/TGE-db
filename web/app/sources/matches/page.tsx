@@ -178,7 +178,7 @@ function FilterDisclosure({
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Match Filters</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
-            Scope article-to-record candidates before review. The candidate
+            Scope article-to-entity candidates before review. The candidate
             table remains the primary work surface.
           </p>
         </div>
@@ -268,7 +268,7 @@ export default async function SourceMatchCandidatesPage({
                 Article Match Review
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-                Review generated TGE article-to-record candidates before they
+                Review generated TGE article-to-entity candidates before they
                 become evidence links. This keeps the archive import controlled,
                 auditable, and separate from automated field updates.
               </p>
@@ -376,7 +376,7 @@ export default async function SourceMatchCandidatesPage({
             <DetailPriorityMarker
               label="Workflow"
               title="Match Filters"
-              description="Scope article-to-record candidates before review."
+              description="Scope article-to-entity candidates before review."
               tone="workflow"
             />
 

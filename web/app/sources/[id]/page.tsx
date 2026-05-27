@@ -219,7 +219,7 @@ function SourceGovernanceDetails() {
         <WorkflowStep
           step="4"
           title="Fact / Candidate"
-          note="Extracted facts and AI suggestions stay reviewable before affecting records."
+          note="Extracted facts and AI suggestions stay reviewable before affecting entity fields."
         />
       </div>
     </details>
@@ -282,7 +282,7 @@ function SourceLifecyclePanel({ steps }: { steps: LifecycleStep[] }) {
           <div>
             <h2 className="text-lg font-bold text-[#1f2937]">Source Lifecycle</h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
-              Current operational state from imported source record through
+              Current operational state from governed source entry through
               reviewed evidence and controlled AI-assisted updates.
             </p>
           </div>
@@ -455,7 +455,7 @@ function SourceSupportsPanel({
             </h2>
             <p className="mt-2 text-sm leading-6 text-gray-600">
               Confirmed evidence relationships. This is the core bridge between
-              source governance and geothermal records.
+              source governance and geothermal entities.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -482,10 +482,10 @@ function SourceSupportsPanel({
               No confirmed evidence links yet
             </div>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
-              This source exists as a governed source record, but it does not yet
+              This source exists as a governed source, but it does not yet
               support a specific project, plant, or company. Review
               article match candidates or add an evidence link before using it
-              in export-ready records.
+              in export-ready workflows.
             </p>
           </div>
         </div>
@@ -509,7 +509,7 @@ function SourceSupportsPanel({
                         href={entityHref(link)}
                         className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                       >
-                        {link.entity_name || "Unnamed record"}
+                        {link.entity_name || "Unnamed entity"}
                       </Link>
                       <div className="mt-1 text-xs leading-5 text-gray-500">
                         {link.country || "No country"} ·{" "}
@@ -697,7 +697,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                   className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                   href={entityHref(link)}
                 >
-                  {link.entity_name || "Unnamed record"}
+                  {link.entity_name || "Unnamed entity"}
                 </Link>
                 <div className="mt-1 text-xs text-gray-500">
                   {link.legacy_id || link.entity_id}
@@ -763,8 +763,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
 
         {links.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-gray-500">
-            This source is not linked to project, plant, or company
-            records yet.
+            This source is not linked to a project, plant, or company yet.
           </div>
         ) : null}
       </div>
@@ -793,7 +792,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                     className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
                     href={entityHref(link)}
                   >
-                    {link.entity_name || "Unnamed record"}
+                    {link.entity_name || "Unnamed entity"}
                   </Link>
                   <div className="mt-1 text-xs text-gray-500">
                     {link.legacy_id || link.entity_id}
@@ -846,8 +845,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
             {links.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
-                  This source is not linked to project, plant, or
-                  company records yet.
+                  This source is not linked to a project, plant, or company yet.
                 </td>
               </tr>
             ) : null}
@@ -1124,7 +1122,7 @@ export default async function SourceDetailPage({
           <StatusTile
             label="Evidence Links"
             value={formatCount(source.linked_entity_count)}
-            note="Confirmed source-to-record relationships"
+            note="Confirmed source-to-entity relationships"
             tone={source.linked_entity_count > 0 ? "success" : "attention"}
           />
           <StatusTile

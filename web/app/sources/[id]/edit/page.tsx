@@ -71,8 +71,8 @@ export default async function EditSourcePage({
             Edit Source
           </h1>
           <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
-            Edit source metadata and manage record-level evidence links for the
-            PostgreSQL source backbone.
+            Edit source metadata and manage entity-level evidence links for the
+            governed source backbone.
           </p>
         </div>
       </section>
@@ -90,13 +90,13 @@ export default async function EditSourcePage({
           {
             label: "Matches",
             title: "Review Source Matches",
-            description: "Open article-to-entity candidates filtered to this source record.",
+            description: "Open article-to-entity candidates filtered to this source.",
             href: `/sources/matches?sourceId=${id}`,
           },
           {
             label: "Facts",
             title: "Review Source Facts",
-            description: "Open extracted fact candidates filtered to this source record.",
+            description: "Open extracted fact candidates filtered to this source.",
             href: `/sources/facts?sourceId=${id}`,
           },
         ]}

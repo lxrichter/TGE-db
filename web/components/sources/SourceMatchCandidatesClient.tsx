@@ -342,7 +342,7 @@ export default function SourceMatchCandidatesClient({
     if (
       action === "confirm" &&
       !window.confirm(
-        `Confirm ${selectedIds.length} article match candidate(s) and create or reuse evidence link(s)? This links sources to records but does not update project, plant, or company fields.`
+        `Confirm ${selectedIds.length} article match candidate(s) and create or reuse evidence link(s)? This links sources to entities but does not update project, plant, or company fields.`
       )
     ) {
       return;

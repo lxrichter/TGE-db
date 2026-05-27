@@ -99,7 +99,7 @@ export default function SourceStatusActions({
         <h2 className="text-lg font-bold text-[#1f2937]">Editor Review Actions</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
           Move this source through the MVP credibility workflow without editing
-          the full source record.
+          the full source profile.
         </p>
       </div>
       <div className="space-y-4 px-5 py-5">

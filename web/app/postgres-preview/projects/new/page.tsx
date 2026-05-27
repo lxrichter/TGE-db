@@ -81,7 +81,7 @@ export default async function NewPostgresProjectPage() {
           {
             label: "Evidence",
             title: "Open Sources",
-            description: "Review source records, article matches, and evidence links.",
+            description: "Review governed sources, article matches, and evidence links.",
             href: "/sources",
           },
           {

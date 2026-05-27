@@ -489,7 +489,7 @@ export default async function ArticleFactCandidatesPage({
                 note="Has entity label"
               />
               <StatTile
-                label="Source Records"
+                label="Governed Sources"
                 value={formatCount(data.summary.withSourceRecord)}
                 note="Linked to source row"
               />
