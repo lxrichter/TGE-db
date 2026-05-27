@@ -195,7 +195,7 @@ function BucketTable({
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
           <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
-            {formatCount(recordCount)} records
+            {formatCount(recordCount)} profiles
           </span>
           <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
             {formatMw(electricCapacity)} MWe
@@ -222,7 +222,7 @@ function BucketTable({
                 {formatPreviewFilterLabel(bucket.bucket_code)}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <MobileAnalysisField label="Records">
+                <MobileAnalysisField label="Profiles">
                   {formatCount(bucket.record_count)}
                 </MobileAnalysisField>
                 <MobileAnalysisField label="Electric">
@@ -249,7 +249,7 @@ function BucketTable({
           <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
             <tr>
               <th className="w-[34%] px-5 py-3 font-semibold">Segment</th>
-              <th className="w-[14%] px-5 py-3 font-semibold">Records</th>
+              <th className="w-[14%] px-5 py-3 font-semibold">Profiles</th>
               <th className="w-[18%] px-5 py-3 font-semibold">MWe</th>
               <th className="w-[18%] px-5 py-3 font-semibold">MWth</th>
               <th className="w-[16%] px-5 py-3 font-semibold">Share</th>
@@ -372,7 +372,7 @@ export default async function PostgresAnalysisPreviewPage({
 
       <NextActionStrip
         title="Primary Work Paths"
-        description="Use these routes for the three main analysis workflows: markets, record worklists, and spatial patterns."
+        description="Use these routes for the three main analysis workflows: markets, entity worklists, and spatial patterns."
         actions={[
           {
             label: "Markets",
@@ -551,7 +551,7 @@ export default async function PostgresAnalysisPreviewPage({
                       <MobileAnalysisField label="Pipeline">
                         {formatMw(country.project_pipeline_mwe)} MWe
                       </MobileAnalysisField>
-                      <MobileAnalysisField label="Records">
+                      <MobileAnalysisField label="Profiles">
                         {formatCount(
                           country.project_count +
                             country.operating_asset_count +
@@ -591,7 +591,7 @@ export default async function PostgresAnalysisPreviewPage({
                     <th className="w-[18%] px-5 py-3 font-semibold">
                       Pipeline
                     </th>
-                    <th className="w-[18%] px-5 py-3 font-semibold">Records</th>
+                    <th className="w-[18%] px-5 py-3 font-semibold">Profiles</th>
                     <th className="w-[18%] px-5 py-3 font-semibold">Open</th>
                   </tr>
                 </thead>
