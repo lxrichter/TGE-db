@@ -795,7 +795,7 @@ export default async function PlantDetailPage({
             <div className="grid grid-cols-2 gap-x-6 gap-y-5 xl:grid-cols-[120px_140px_180px_minmax(240px,1.4fr)_120px]">
               <SummaryItem label="Plant ID" value={displayValue(plant.plant_id)} />
               <SummaryItem
-                label="Installed MW"
+                label="Installed MWe"
                 value={displayValue(plant.installed_capacity_mw)}
               />
               <SummaryItem
@@ -911,8 +911,8 @@ export default async function PlantDetailPage({
 
                 {activeTab === "capacity-timeline" && (
                   <TabSection title="Capacity & Timeline">
-                    <Row label="Potential min (MW)" value={plant.potential_min_mw} />
-                    <Row label="Potential max (MW)" value={plant.potential_max_mw} />
+                    <Row label="Potential min (MWe)" value={plant.potential_min_mw} />
+                    <Row label="Potential max (MWe)" value={plant.potential_max_mw} />
                     <Row
                       label="Installed capacity"
                       value={plant.installed_capacity_mw}
@@ -1115,7 +1115,7 @@ export default async function PlantDetailPage({
               </div>
 
               <div className="print-summary-item">
-                <div className="print-summary-label">Installed MW</div>
+                <div className="print-summary-label">Installed MWe</div>
                 <div className="print-summary-value">{plant.installed_capacity_mw ?? "NA"}</div>
               </div>
 
@@ -1256,8 +1256,8 @@ export default async function PlantDetailPage({
           <section className="print-section">
             <h2 className="print-section-title">Capacity & Timeline</h2>
             <div className="print-grid">
-              <div className="print-row"><span>Potential min (MW)</span><strong>{plant.potential_min_mw ?? "NA"}</strong></div>
-              <div className="print-row"><span>Potential max (MW)</span><strong>{plant.potential_max_mw ?? "NA"}</strong></div>
+              <div className="print-row"><span>Potential min (MWe)</span><strong>{plant.potential_min_mw ?? "NA"}</strong></div>
+              <div className="print-row"><span>Potential max (MWe)</span><strong>{plant.potential_max_mw ?? "NA"}</strong></div>
               <div className="print-row"><span>Installed capacity</span><strong>{plant.installed_capacity_mw ?? "NA"}</strong></div>
               <div className="print-row"><span>Capacity running</span><strong>{plant.capacity_running_mw ?? "NA"}</strong></div>
               <div className="print-row"><span>Gross production (GWh)</span><strong>{plant.gross_production_gwh ?? "NA"}</strong></div>

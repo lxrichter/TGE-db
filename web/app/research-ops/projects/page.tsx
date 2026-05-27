@@ -134,7 +134,7 @@ function buildFlags(row: ProjectRow) {
   const flags: string[] = [];
 
   if (isMissingCoordinates(row)) flags.push("Missing Coordinates");
-  if (isMissingMw(row)) flags.push("Missing MW");
+  if (isMissingMw(row)) flags.push("Missing MWe");
   if (isMissingSource(row)) flags.push("Missing Source");
   if (isMissingOperator(row)) flags.push("Missing Operator");
   if (isNeedInfo(row)) flags.push("Need Info");
@@ -611,7 +611,7 @@ export default function ResearchOpsProjectsPage() {
               }`}
             >
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing MW
+                Missing MWe
               </div>
               <div className="mt-1 text-3xl font-bold text-[#1f2937]">
                 {formatCount(stats.missingMw)}
@@ -812,7 +812,7 @@ export default function ResearchOpsProjectsPage() {
                 <option value="pending_review">Pending Review</option>
                 <option value="need_info">Need Info</option>
                 <option value="missing_coordinates">Missing Coordinates</option>
-                <option value="missing_mw">Missing MW</option>
+                <option value="missing_mw">Missing MWe</option>
                 <option value="missing_source">Missing Source</option>
                 <option value="missing_operator">Missing Operator / Owner</option>
                 <option value="promoted">Promoted</option>
@@ -927,7 +927,7 @@ export default function ResearchOpsProjectsPage() {
                   <th className="border-b border-gray-200 px-4 py-2">Country</th>
                   <th className="border-b border-gray-200 px-4 py-2">Phase</th>
                   <th className="border-b border-gray-200 px-4 py-2">Owner / Operator</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Planned MW</th>
+                  <th className="border-b border-gray-200 px-4 py-2">Planned MWe</th>
                   <th className="border-b border-gray-200 px-4 py-2">Research Status</th>
                   <th className="border-b border-gray-200 px-4 py-2">Review Status</th>
                   <th className="border-b border-gray-200 px-4 py-2">Ops Flags</th>

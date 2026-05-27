@@ -805,7 +805,7 @@ export default async function ProjectDetailPage({
                 value={displayValue(project.project_id)}
               />
               <SummaryItem
-                label="Planned MW"
+                label="Planned MWe"
                 value={displayValue(project.installed_capacity_mw)}
               />
               <SummaryItem
@@ -926,11 +926,11 @@ export default async function ProjectDetailPage({
                 {activeTab === "capacity-timeline" && (
                   <TabSection title="Capacity & Timeline">
                     <Row
-                      label="Potential min (MW)"
+                      label="Potential min (MWe)"
                       value={project.potential_min_mw}
                     />
                     <Row
-                      label="Potential max (MW)"
+                      label="Potential max (MWe)"
                       value={project.potential_max_mw}
                     />
                     <Row
@@ -1138,7 +1138,7 @@ export default async function ProjectDetailPage({
               </div>
 
               <div className="print-summary-item">
-                <div className="print-summary-label">Planned MW</div>
+                <div className="print-summary-label">Planned MWe</div>
                 <div className="print-summary-value">{project.installed_capacity_mw ?? "NA"}</div>
               </div>
 
@@ -1279,8 +1279,8 @@ export default async function ProjectDetailPage({
           <section className="print-section">
             <h2 className="print-section-title">Capacity & Timeline</h2>
             <div className="print-grid">
-              <div className="print-row"><span>Potential min (MW)</span><strong>{project.potential_min_mw ?? "NA"}</strong></div>
-              <div className="print-row"><span>Potential max (MW)</span><strong>{project.potential_max_mw ?? "NA"}</strong></div>
+              <div className="print-row"><span>Potential min (MWe)</span><strong>{project.potential_min_mw ?? "NA"}</strong></div>
+              <div className="print-row"><span>Potential max (MWe)</span><strong>{project.potential_max_mw ?? "NA"}</strong></div>
               <div className="print-row"><span>Planned installed capacity</span><strong>{project.installed_capacity_mw ?? "NA"}</strong></div>
               <div className="print-row"><span>Planned capacity running</span><strong>{project.capacity_running_mw ?? "NA"}</strong></div>
               <div className="print-row"><span>Gross production (GWh)</span><strong>{project.gross_production_gwh ?? "NA"}</strong></div>

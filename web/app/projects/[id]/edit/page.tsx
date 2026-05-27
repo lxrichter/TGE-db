@@ -934,26 +934,26 @@ export default function EditProjectPage() {
         <FormSection title="Capacity & Timeline">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <Input
-              label="Potential Min MW"
+              label="Potential Min MWe"
               name="potential_min_mw"
               value={form.potential_min_mw}
               onChange={handleChange}
             />
             <Input
-              label="Potential Max MW"
+              label="Potential Max MWe"
               name="potential_max_mw"
               value={form.potential_max_mw}
               onChange={handleChange}
               error={fieldErrors.potential_max_mw}
             />
             <Input
-              label="Planned Capacity MW"
+              label="Planned Capacity MWe"
               name="installed_capacity_mw"
               value={form.installed_capacity_mw}
               onChange={handleChange}
             />
             <Input
-              label="Planned Capacity Running MW"
+              label="Planned Capacity Running MWe"
               name="capacity_running_mw"
               value={form.capacity_running_mw}
               onChange={handleChange}
