@@ -90,7 +90,7 @@ const operatingAssetQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Operating",
-    description: "Currently operating plant records.",
+    description: "Currently operating plants.",
     query: { status: "operating" },
   },
   {
@@ -125,7 +125,7 @@ const operatingAssetQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Needs Update",
-    description: "Previously reviewed records requiring re-check.",
+    description: "Previously reviewed plants requiring re-check.",
     query: { review: "needs_update" },
   },
 ];
@@ -383,7 +383,7 @@ export default async function PostgresOperatingAssetsListPage({
             variant: "primary",
           },
         ]}
-        description="PostgreSQL staging list for operating plants, units, and future direct-use or hybrid plant records."
+        description="PostgreSQL staging list for operating plants, units, and future direct-use or hybrid plants."
         eyebrow="PostgreSQL Staging"
         title="Plants"
       />
@@ -395,7 +395,7 @@ export default async function PostgresOperatingAssetsListPage({
           {
             label: "Evidence",
             title: "Plants missing sources",
-            description: "Open records that need confirmed source evidence.",
+            description: "Open plants that need confirmed source evidence.",
             href: "/postgres-preview/operating-assets?missing=source",
           },
           {

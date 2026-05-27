@@ -383,7 +383,7 @@ export default async function PostgresAnalysisPreviewPage({
           {
             label: "Worklists",
             title: "Open project pipeline",
-            description: "Inspect the underlying records behind lifecycle and capacity signals.",
+            description: "Inspect the underlying projects and plants behind lifecycle and capacity signals.",
             href: geographyHref("/postgres-preview/projects", filters),
           },
           {
@@ -445,19 +445,19 @@ export default async function PostgresAnalysisPreviewPage({
             <DetailPriorityMarker
               label="Core"
               title="Analysis Snapshot"
-              description="Record counts and capacity signals."
+              description="Project and plant counts with capacity signals."
               tone="core"
             />
 
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <StatTile
-                label="Project Records"
-                note="PostgreSQL staging pipeline records"
+                label="Projects"
+                note="PostgreSQL staging pipeline"
                 value={formatCount(totals.projectRecords)}
               />
               <StatTile
-                label="Plant Records"
-                note="PostgreSQL staging plant records"
+                label="Plants"
+                note="PostgreSQL staging plants"
                 value={formatCount(totals.assetRecords)}
               />
               <StatTile
@@ -484,13 +484,13 @@ export default async function PostgresAnalysisPreviewPage({
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
               <BucketTable
                 buckets={summary.projectLifecycle}
-                description="Project records grouped by lifecycle phase, including electric and thermal capacity signals where available."
+                description="Projects grouped by lifecycle phase, including electric and thermal capacity signals where available."
                 title="Project Lifecycle"
                 useLifecycleColors
               />
               <BucketTable
                 buckets={summary.operatingAssetStatus}
-                description="Plant records grouped by operating status or lifecycle-style plant state."
+                description="Plants grouped by operating status or lifecycle-style plant state."
                 title="Plant Status"
                 useLifecycleColors
               />

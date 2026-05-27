@@ -117,12 +117,12 @@ const companyQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Drafts",
-    description: "Company records still in draft state.",
+    description: "Companies still in draft state.",
     query: { review: "draft" },
   },
   {
     label: "Needs Update",
-    description: "Previously reviewed records requiring re-check.",
+    description: "Previously reviewed companies requiring re-check.",
     query: { review: "needs_update" },
   },
 ];
@@ -362,7 +362,7 @@ export default async function PostgresCompaniesListPage({
           {
             label: "Evidence",
             title: "Companies missing sources",
-            description: "Open records that need source evidence before profile use or export.",
+            description: "Open companies that need source evidence before profile use or export.",
             href: "/postgres-preview/companies?missing=source",
           },
           {
@@ -374,7 +374,7 @@ export default async function PostgresCompaniesListPage({
           {
             label: "Classification",
             title: "Companies missing identity",
-            description: "Review records that need a controlled primary business identity.",
+            description: "Review companies that need a controlled primary business identity.",
             href: "/postgres-preview/companies?missing=primary_type",
           },
         ]}

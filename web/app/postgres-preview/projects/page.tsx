@@ -94,7 +94,7 @@ const projectQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Missing Source",
-    description: "Records without confirmed evidence links.",
+    description: "Projects without confirmed evidence links.",
     query: { missing: "source" },
   },
   {
@@ -114,12 +114,12 @@ const projectQuickViews: PreviewQuickView[] = [
   },
   {
     label: "Direct-Use",
-    description: "Direct-use project pipeline records.",
+    description: "Direct-use project pipeline.",
     query: { use: "direct_use" },
   },
   {
     label: "Needs Update",
-    description: "Previously reviewed records requiring re-check.",
+    description: "Previously reviewed projects requiring re-check.",
     query: { review: "needs_update" },
   },
 ];
@@ -372,7 +372,7 @@ export default async function PostgresProjectsListPage({
             variant: "primary",
           },
         ]}
-        description="PostgreSQL staging list for project records imported from the current SQLite platform and future PostgreSQL-native records."
+        description="PostgreSQL staging list for projects imported from the current SQLite platform and future PostgreSQL-native project entries."
         eyebrow="PostgreSQL Staging"
         title="Projects"
       />
@@ -384,7 +384,7 @@ export default async function PostgresProjectsListPage({
           {
             label: "Evidence",
             title: "Projects missing sources",
-            description: "Open records that need source evidence before review or export.",
+            description: "Open projects that need source evidence before review or export.",
             href: "/postgres-preview/projects?missing=source",
           },
           {
@@ -396,7 +396,7 @@ export default async function PostgresProjectsListPage({
           {
             label: "Review",
             title: "Projects in validation",
-            description: "Open records waiting for researcher or editor review.",
+            description: "Open projects waiting for researcher or editor review.",
             href: "/postgres-preview/projects?review=validation",
           },
         ]}
