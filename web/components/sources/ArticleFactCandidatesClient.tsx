@@ -470,7 +470,10 @@ export default function ArticleFactCandidatesClient({
                 candidate.source_reference;
 
               return (
-                <tr key={candidate.article_fact_candidate_id} className="align-top">
+                <tr
+                  key={candidate.article_fact_candidate_id}
+                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                >
                   <td className={cellClassName}>
                     <input
                       aria-label={`Select ${candidate.fact_key}`}

@@ -506,7 +506,7 @@ export default function SourceMatchCandidatesClient({
         onPageChange={setPage}
       />
 
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className="space-y-3 border-t border-gray-100 bg-gray-50 px-3 py-3 lg:hidden">
         {sourceGroups.map((group) => {
           const isGroupCollapsed = collapsedSourceKeys.has(group.sourceKey);
           const groupHasAmbiguity = group.candidates.some(hasSourceAmbiguity);
@@ -515,7 +515,10 @@ export default function SourceMatchCandidatesClient({
           ).length;
 
           return (
-            <section key={group.sourceKey} className="bg-white">
+            <section
+              key={group.sourceKey}
+              className="border border-gray-200 bg-white"
+            >
               <div className="bg-[#fbfcfa] px-4 py-4 sm:px-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
@@ -791,7 +794,7 @@ export default function SourceMatchCandidatesClient({
                 <Fragment key={group.sourceKey}>
                   <tr
                     key={`${group.sourceKey}-header`}
-                    className="bg-[#fbfcfa] align-top"
+                    className="border-t-4 border-t-gray-100 bg-[#fbfcfa] align-top"
                   >
                     <td className={groupHeaderClassName} colSpan={7}>
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -881,7 +884,7 @@ export default function SourceMatchCandidatesClient({
                       return (
                         <tr
                           key={candidate.match_candidate_id}
-                          className="align-top"
+                          className="align-top transition-colors hover:bg-[#fbfdf8]"
                         >
                             <td className={cellClassName}>
                               <input

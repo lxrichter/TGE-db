@@ -204,15 +204,14 @@ function FactTypeTrainingCard({
 
   if (!definition) {
     return (
-      <section className="border border-gray-200 bg-white px-5 py-5">
+      <section className="border border-gray-200 bg-white px-5 py-4">
         <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Fact Type Training
         </div>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
-          Filter to one fact type, review a compact sample, mark accept/reject,
-          then tune the extraction rule before expanding the archive batch.
-          Confirmed candidates remain review signals and do not update records
-          automatically.
+        <p className="mt-2 max-w-4xl text-sm leading-5 text-gray-600">
+          Filter to one fact type, accept/reject a compact sample, then tune the
+          rule before expanding the archive batch. Confirmed candidates remain
+          review signals only.
         </p>
       </section>
     );
@@ -220,7 +219,7 @@ function FactTypeTrainingCard({
 
   return (
     <section className="border border-gray-200 bg-white">
-      <div className="border-l-4 border-l-[#8dc63f] px-5 py-5">
+      <div className="border-l-4 border-l-[#8dc63f] px-5 py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -229,7 +228,7 @@ function FactTypeTrainingCard({
             <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
               {definition.label}
             </h2>
-            <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+            <p className="mt-2 max-w-4xl text-sm leading-5 text-gray-600">
               {definition.purpose}
             </p>
           </div>
@@ -238,21 +237,21 @@ function FactTypeTrainingCard({
           </div>
         </div>
 
-        <div className="mt-5 border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+        <div className="mt-4 border border-gray-200 bg-[#fbfbfb] px-4 py-3">
           <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Reviewer Question
           </div>
-          <p className="mt-2 text-sm font-semibold leading-6 text-[#1f2937]">
+          <p className="mt-2 text-sm font-semibold leading-5 text-[#1f2937]">
             {definition.reviewQuestion}
           </p>
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
               Accept When
             </h3>
-            <ul className="mt-2 space-y-2 text-sm leading-6 text-gray-700">
+            <ul className="mt-2 space-y-1.5 text-sm leading-5 text-gray-700">
               {definition.accept.map((item) => (
                 <li key={item}>- {item}</li>
               ))}
@@ -262,7 +261,7 @@ function FactTypeTrainingCard({
             <h3 className="text-xs font-semibold uppercase tracking-wide text-red-700">
               Reject When
             </h3>
-            <ul className="mt-2 space-y-2 text-sm leading-6 text-gray-700">
+            <ul className="mt-2 space-y-1.5 text-sm leading-5 text-gray-700">
               {definition.reject.map((item) => (
                 <li key={item}>- {item}</li>
               ))}
