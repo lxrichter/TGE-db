@@ -779,17 +779,17 @@ export function PostgresPreviewQuickViews({
 }) {
   return (
     <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">
+      <div className="border-b border-gray-200 px-4 py-3">
+        <h2 className="text-base font-bold text-[#1f2937]">
           Quick Operational Views
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+        <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-500">
           Reusable filter presets for common research and data-quality work.
           These are static MVP views; user/team saved views can build on this
           pattern later.
         </p>
       </div>
-      <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 px-3 py-3 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5">
         {views.map((view) => {
           const active = isQuickViewActive({
             currentQuery,
@@ -799,7 +799,7 @@ export function PostgresPreviewQuickViews({
           return (
             <Link
               key={view.label}
-              className={`border px-4 py-4 text-left ${
+              className={`border px-3 py-2.5 text-left ${
                 active
                   ? "border-[#8dc63f] bg-[#f3f8ec]"
                   : "border-gray-200 bg-white hover:border-[#8dc63f] hover:bg-[#fbfff7]"
@@ -818,7 +818,7 @@ export function PostgresPreviewQuickViews({
               >
                 {view.label}
               </div>
-              <div className="mt-2 text-xs leading-5 text-gray-500">
+              <div className="mt-1 line-clamp-2 text-xs leading-5 text-gray-500">
                 {view.description}
               </div>
             </Link>
