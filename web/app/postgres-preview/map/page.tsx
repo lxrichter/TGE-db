@@ -174,7 +174,8 @@ export default async function PostgresPreviewMapPage({
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
                 Coordinate-confirmed spatial intelligence for projects and
-                plants. Records without coordinates stay in Research Ops queues.
+                plants. Projects and plants without coordinates stay in
+                Research Ops queues.
               </p>
               {activeGeographyLabel ? (
                 <div className="mt-4 inline-flex min-h-8 items-center border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
@@ -237,13 +238,13 @@ export default async function PostgresPreviewMapPage({
           {
             label: "Markers",
             title: "Use marker popups",
-            description: "Open project and plant records from coordinate-confirmed marker groups.",
+            description: "Open projects and plants from coordinate-confirmed marker groups.",
             href: "#map-view",
           },
           {
             label: "Coordinates",
             title: "Fix missing coordinates",
-            description: "Route records without usable coordinates through Research Ops cleanup.",
+            description: "Route projects and plants without usable coordinates through Research Ops cleanup.",
             href: "#map-workflow",
           },
           {
@@ -269,7 +270,7 @@ export default async function PostgresPreviewMapPage({
         <DetailPriorityMarker
           label="Core"
           title="Coordinate-Confirmed Map Readiness"
-          description="Only records with usable coordinates appear here."
+          description="Only projects and plants with usable coordinates appear here."
           tone="core"
         />
 
@@ -286,7 +287,7 @@ export default async function PostgresPreviewMapPage({
               value={formatCount(summary.projectGroupCount)}
             />
             <MapStatCard
-              label="Mapped Records"
+              label="Mapped Sites"
               note="Represented by markers"
               value={formatCount(summary.mappedRecordCount)}
             />

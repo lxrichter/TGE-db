@@ -120,7 +120,7 @@ function SectionHeader({
     <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
       <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-        {formatCount(count)} records
+        {formatCount(count)} {title.toLowerCase()}
       </span>
     </div>
   );
@@ -199,7 +199,7 @@ function RecordPreview({
         <div>
           <div className="text-sm font-bold text-[#1f2937]">{title}</div>
           <div className="mt-1 text-xs text-gray-500">
-            {formatCount(count)} preview records
+            {formatCount(count)} preview rows
           </div>
         </div>
         <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
@@ -480,12 +480,12 @@ export default async function PostgresPreviewPage() {
               <StatTile
                 label="Projects"
                 value={formatCount(data.summary.projectCount)}
-                note="Development records"
+                note="Development pipeline"
               />
               <StatTile
                 label="Plants"
                 value={formatCount(data.summary.operatingAssetCount)}
-                note="Plant records"
+                note="Plant fleet"
               />
               <StatTile
                 label="Companies"
@@ -535,7 +535,7 @@ export default async function PostgresPreviewPage() {
                 description="Open projects, plants, or companies to fix fields and relationships."
                 href="/postgres-preview/projects"
                 step="03"
-                title="Edit Entity Records"
+                title="Edit Entity Profiles"
               />
               <EntryPathCard
                 description="Use countries, map, and analysis to interpret market and spatial patterns."
@@ -568,7 +568,7 @@ export default async function PostgresPreviewPage() {
                 title="Research Ops"
               />
               <WorkAreaCard
-                description="Create, edit, filter, export, and review development pipeline records."
+                description="Create, edit, filter, export, and review the development pipeline."
                 href="/postgres-preview/projects"
                 label="Entity Worklist"
                 title="Projects"
@@ -637,7 +637,7 @@ export default async function PostgresPreviewPage() {
 
             <section className="grid gap-3 md:grid-cols-3">
               <WorkAreaCard
-                description="Manage source records, credibility states, visibility, evidence links, and source review queues."
+                description="Manage sources, credibility states, visibility, evidence links, and source review queues."
                 href="/sources"
                 label="Evidence Backbone"
                 title="Sources / Documents"
@@ -661,19 +661,19 @@ export default async function PostgresPreviewPage() {
             <DetailPriorityMarker
               label="Governance"
               title="Create And Inspect"
-              description="Quick creation plus expandable record samples."
+              description="Quick creation plus expandable profile samples."
               tone="governance"
             />
 
             <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <WorkAreaCard
-                description="Start a draft pipeline/development record with readiness checks and evidence workflow."
+                description="Start a draft project with readiness checks and evidence workflow."
                 href="/postgres-preview/projects/new"
                 label="Quick Add"
                 title="New Project"
               />
               <WorkAreaCard
-                description="Start a draft plant, unit, or direct-use record."
+                description="Start a draft plant, unit, or direct-use profile."
                 href="/postgres-preview/operating-assets/new"
                 label="Quick Add"
                 title="New Plant"
