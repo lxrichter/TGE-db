@@ -68,7 +68,7 @@ function geographyHref(path: string, filters: PostgresPreviewGeographyFilters) {
 }
 
 function geographyLabel(filters: PostgresPreviewGeographyFilters) {
-  if (filters.country) return `Country: ${filters.country}`;
+  if (filters.country) return `Market: ${filters.country}`;
   if (filters.tgeRegion) return `TGE region: ${filters.tgeRegion}`;
   if (filters.wbRegion) return `World Bank region: ${filters.wbRegion}`;
 
@@ -278,15 +278,15 @@ function BucketTable({
         <table className="min-w-[820px] table-fixed text-left text-sm">
           <thead className="bg-[#f7f7f7] text-[11px] tracking-wide text-gray-500">
             <tr>
-              <th className="w-[30%] px-5 py-3 font-semibold">
+              <th className="w-[26%] px-5 py-3 font-semibold">
                 {segmentHeader}
               </th>
-              <th className="w-[14%] px-5 py-3 font-semibold">
+              <th className="w-[13%] px-5 py-3 font-semibold">
                 {countHeader}
               </th>
-              <th className="w-[18%] px-5 py-3 font-semibold">MWe</th>
-              <th className="w-[14%] px-5 py-3 font-semibold">MWth</th>
-              <th className="w-[24%] px-5 py-3 font-semibold">Share</th>
+              <th className="w-[16%] px-5 py-3 font-semibold">MWe</th>
+              <th className="w-[11%] px-5 py-3 font-semibold">MWth</th>
+              <th className="w-[34%] px-5 py-3 font-semibold">Share</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -379,7 +379,7 @@ export default async function PostgresAnalysisPreviewPage({
               </h1>
               <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
                 First PostgreSQL-backed analytical overview for replacement
-                readiness: country capacity, lifecycle, operating status, and
+                readiness: market capacity, lifecycle, operating status, and
                 use-type distribution.
               </p>
               {activeGeographyLabel ? (
@@ -413,7 +413,7 @@ export default async function PostgresAnalysisPreviewPage({
           {
             label: "Markets",
             title: "Open Markets",
-            description: "Move from benchmark signals into country and regional intelligence.",
+            description: "Move from benchmark signals into regional and market intelligence.",
             href: `${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`,
           },
           {
@@ -448,8 +448,8 @@ export default async function PostgresAnalysisPreviewPage({
                 note: "Buckets",
               },
               {
-                href: "#country-drilldown",
-                label: "Countries",
+                href: "#market-drilldown",
+                label: "Markets",
                 note: "Drilldown",
               },
             ]}
@@ -464,7 +464,7 @@ export default async function PostgresAnalysisPreviewPage({
                   </div>
                   <p className="mt-1 text-sm leading-6 text-gray-700">
                     {activeGeographyLabel} is applied to benchmark buckets,
-                    country rows, and downstream worklist routes.
+                    market rows, and downstream worklist routes.
                   </p>
                 </div>
                 <Link
@@ -498,12 +498,12 @@ export default async function PostgresAnalysisPreviewPage({
               />
               <StatTile
                 label="Top-10 Operating"
-                note="Installed MWe across top countries in this preview"
+                note="Installed MWe across top markets in this preview"
                 value={`${formatMw(totals.topCountryOperating)} MWe`}
               />
               <StatTile
                 label="Top-10 Pipeline"
-                note="Pipeline MWe across top countries in this preview"
+                note="Pipeline MWe across top markets in this preview"
                 value={`${formatMw(totals.topCountryPipeline)} MWe`}
               />
             </div>
@@ -513,7 +513,7 @@ export default async function PostgresAnalysisPreviewPage({
             <DetailPriorityMarker
               label="Workflow"
               title="Benchmark Views"
-              description="Lifecycle, status, use type, country comparison."
+              description="Lifecycle, status, use type, market comparison."
               tone="workflow"
             />
 
@@ -550,7 +550,7 @@ export default async function PostgresAnalysisPreviewPage({
             />
           </section>
 
-          <section id="country-drilldown" className="space-y-4 scroll-mt-24">
+          <section id="market-drilldown" className="space-y-4 scroll-mt-24">
             <DetailPriorityMarker
               label="Governance"
               title="Market Drilldown"
@@ -562,7 +562,7 @@ export default async function PostgresAnalysisPreviewPage({
             <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
               <div>
                 <h2 className="text-lg font-bold text-[#1f2937]">
-                  Top Countries
+                  Top Markets
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-gray-600">
                   Highest combined operating plus pipeline MWe from the
@@ -571,7 +571,7 @@ export default async function PostgresAnalysisPreviewPage({
               </div>
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
                 <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                  {formatCount(summary.topCountries.length)} countries
+                  {formatCount(summary.topCountries.length)} markets
                 </span>
                 <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
                   Expand
@@ -630,7 +630,7 @@ export default async function PostgresAnalysisPreviewPage({
                 <table className="min-w-[820px] table-fixed text-left text-sm">
                 <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
                   <tr>
-                    <th className="w-[28%] px-5 py-3 font-semibold">Country</th>
+                    <th className="w-[28%] px-5 py-3 font-semibold">Market</th>
                     <th className="w-[18%] px-5 py-3 font-semibold">
                       Operating
                     </th>

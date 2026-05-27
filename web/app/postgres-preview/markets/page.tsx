@@ -1586,7 +1586,7 @@ export default async function PostgresCountryMarketsPage({
             label: "Analysis",
             title: "Compare market signals",
             description: "Move into lifecycle, operating status, and market comparison views.",
-            href: "/postgres-preview/analysis#country-drilldown",
+            href: "/postgres-preview/analysis#market-drilldown",
           },
         ]}
       />
