@@ -583,7 +583,7 @@ export default async function PostgresReadinessPage() {
       <section className="border border-gray-200 bg-white">
         <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Cutover Governance
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>

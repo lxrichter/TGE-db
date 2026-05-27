@@ -639,7 +639,7 @@ function getAssetNextRequiredAction({
   return {
     label: "Ready for editor review",
     detail:
-      "Core identity, operating data, source evidence, company roles, and export-readiness checks are clear on this staging record.",
+      "Core identity, operating data, source evidence, company roles, and export-readiness checks are clear for this plant.",
     href: "#asset-export-readiness",
     tone: "ready",
   };
@@ -729,11 +729,11 @@ export default async function PostgresOperatingAssetDetailPage({
 
   return (
     <DetailShell
-      eyebrow="PostgreSQL Plant"
+      eyebrow="Plant Workspace"
       title={asset.asset_name}
-      subtitle="PostgreSQL staging plant profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="Plant profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
-      backLabel="Back to PostgreSQL Preview"
+      backLabel="Back to Command Center"
       statusLegendDescription="Plant detail badges separate operating or development phase, review state, readiness severity, and source confidence."
       statusLegendGroups={["review", "lifecycle", "severity", "source"]}
       statusLegendTitle="Plant Status Meaning"

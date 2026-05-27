@@ -85,7 +85,7 @@ const operatingAssetMissingOptions: PreviewFilterOption[] = [
 const operatingAssetQuickViews: PreviewQuickView[] = [
   {
     label: "All Plants",
-    description: "Full plant staging list.",
+    description: "Full plant worklist.",
     query: {},
   },
   {
@@ -390,8 +390,8 @@ export default async function PostgresOperatingAssetsListPage({
             variant: "primary",
           },
         ]}
-        description="PostgreSQL staging list for operating plants, units, and future direct-use or hybrid plants."
-        eyebrow="PostgreSQL Staging"
+        description="Plant worklist for operating intelligence, source coverage, company roles, and review readiness."
+        eyebrow="Entity Workspaces"
         title="Plants"
       />
 

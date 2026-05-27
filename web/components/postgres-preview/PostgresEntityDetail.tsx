@@ -349,7 +349,7 @@ export function AuditTrailPanel({
             Activity / Audit Trail
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Recent governed changes for this staging record, including review
+            Recent governed changes for this entity, including review
             status changes and audited AI-assisted field applications.
           </p>
         </div>
@@ -364,7 +364,7 @@ export function AuditTrailPanel({
       {events.length === 0 ? (
         <div className="px-5 py-5">
           <div className="border border-dashed border-gray-300 bg-[#fbfbfb] px-4 py-5 text-sm leading-6 text-gray-600">
-            No audit events recorded yet for this staging record.
+            No audit events recorded yet for this entity.
           </div>
         </div>
       ) : (
@@ -721,7 +721,7 @@ export function ExportReadinessPanel({
         <div>
           <h2 className="text-lg font-bold text-[#1f2937]">Export Readiness</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Preview-only readiness check for PostgreSQL staging records. This
+            Preview-only readiness check for governed entity profiles. This
             does not yet enforce production exports.
           </p>
         </div>
@@ -736,8 +736,7 @@ export function ExportReadinessPanel({
       <div className="space-y-4 border-t border-gray-200 px-5 py-5">
         {ready && warnings.length === 0 ? (
           <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
-            No export-readiness blockers or warnings detected for this staging
-            record.
+            No export-readiness blockers or warnings detected for this entity.
           </div>
         ) : null}
 
@@ -805,7 +804,7 @@ export function SourceEvidenceTable({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="max-w-3xl text-sm leading-6 text-gray-600">
-          Source/evidence links for this PostgreSQL staging record.
+          Source/evidence links for this entity.
         </p>
         <Link
           href={`/sources/new?entityType=${entityType}&entityId=${entityId}`}
@@ -1220,7 +1219,7 @@ export function NotFoundNotice({
           href={backHref}
           className="mt-4 inline-block text-sm font-semibold text-[#4f7f1f]"
         >
-          Back to PostgreSQL Preview
+          Back to Command Center
         </Link>
       </section>
     </main>

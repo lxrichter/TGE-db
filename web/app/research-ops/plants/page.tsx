@@ -247,7 +247,7 @@ export default function ResearchOpsPlantsPage() {
   const [plants, setPlants] = useState<PlantRow[]>([]);
   const [search, setSearch] = useState("");
   const [countryFilter, setCountryFilter] = useState("All Countries");
-  const [phaseFilter, setPhaseFilter] = useState("All Phases");
+  const [phaseFilter, setPhaseFilter] = useState("All Statuses");
   const [researchStatusFilter, setResearchStatusFilter] =
     useState("All Research Status");
   const [reviewStatusFilter, setReviewStatusFilter] =
@@ -289,7 +289,7 @@ export default function ResearchOpsPlantsPage() {
       )
     ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 
-    return ["All Phases", ...phases];
+    return ["All Statuses", ...phases];
   }, [plants]);
 
   const researchStatusOptions = [
@@ -377,7 +377,7 @@ export default function ResearchOpsPlantsPage() {
       );
     }
 
-    if (phaseFilter !== "All Phases") {
+    if (phaseFilter !== "All Statuses") {
       filtered = filtered.filter(
         (row) => normalizePlantPhase(row.project_phase) === phaseFilter
       );
@@ -850,7 +850,7 @@ if (editorFilter) {
 
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
-                Phase
+                Plant Status
               </label>
               <select
                 value={phaseFilter}
@@ -904,7 +904,7 @@ if (editorFilter) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by ID, name, country, operator, phase, source..."
+            placeholder="Search by ID, name, country, operator, status, source..."
             className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
           />
         </div>
@@ -936,7 +936,7 @@ if (editorFilter) {
                   <th className="border-b border-gray-200 px-4 py-2">Plant ID</th>
                   <th className="border-b border-gray-200 px-4 py-2">Name</th>
                   <th className="border-b border-gray-200 px-4 py-2">Country</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Phase</th>
+                  <th className="border-b border-gray-200 px-4 py-2">Plant Status</th>
                   <th className="border-b border-gray-200 px-4 py-2">Owner / Operator</th>
                   <th className="border-b border-gray-200 px-4 py-2">Installed MWe</th>
                   <th className="border-b border-gray-200 px-4 py-2">Research Status</th>

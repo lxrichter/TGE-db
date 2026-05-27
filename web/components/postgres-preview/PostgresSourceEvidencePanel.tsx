@@ -368,8 +368,8 @@ export default function PostgresSourceEvidencePanel({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="max-w-3xl text-sm leading-6 text-gray-600">
-          Authoritative governed source/evidence table for this PostgreSQL
-          staging record. It covers all source types, including TGE articles;
+          Authoritative governed source/evidence table for this entity. It
+          covers all source types, including TGE articles;
           the related-news section is a filtered article view of the same
           evidence layer. Evidence is reviewed separately from database field
           updates: source record, credibility, fact type, field/value, then

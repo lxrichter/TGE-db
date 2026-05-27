@@ -420,15 +420,15 @@ export default async function PostgresPreviewPage() {
       <section className="border border-gray-200 bg-white">
         <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Platform Command
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
-                PostgreSQL Staging Command Center
+                Platform Command Center
               </h1>
               <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
-                Operational front door for the PostgreSQL replacement platform:
+                Operational front door for the replacement platform:
                 route into Research Ops, governed evidence review, entity
                 worklists, market intelligence, map navigation, and cutover
                 readiness.

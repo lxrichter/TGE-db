@@ -82,7 +82,7 @@ const companyMissingOptions: PreviewFilterOption[] = [
 const companyQuickViews: PreviewQuickView[] = [
   {
     label: "All Companies",
-    description: "Full company staging list.",
+    description: "Full company worklist.",
     query: {},
   },
   {
@@ -357,8 +357,8 @@ export default async function PostgresCompaniesListPage({
             variant: "primary",
           },
         ]}
-        description="PostgreSQL staging list for company profiles, controlled categories, and future relationship/role intelligence."
-        eyebrow="PostgreSQL Staging"
+        description="Company worklist for ecosystem intelligence, business identity, relationships, and evidence coverage."
+        eyebrow="Entity Workspaces"
         title="Companies"
       />
 

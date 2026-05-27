@@ -165,7 +165,7 @@ export default async function PostgresPreviewMapPage({
       <section className="border border-gray-200 bg-white">
         <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Spatial Intelligence
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>

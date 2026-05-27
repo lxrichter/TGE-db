@@ -102,7 +102,7 @@ export default async function EditPostgresCompanyPage({
             Back to Company
           </Link>
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Entity Workspace
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -110,9 +110,9 @@ export default async function EditPostgresCompanyPage({
                 Edit Company
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-                Update the staging company profile. Draft saves remain allowed
-                while source evidence, project/plant roles, ownership links,
-                and group relationships are completed through the saved detail
+                Update the company profile. Draft saves remain allowed while
+                source evidence, project/plant roles, ownership links, and
+                group relationships are completed through the saved detail
                 workflow.
               </p>
             </div>

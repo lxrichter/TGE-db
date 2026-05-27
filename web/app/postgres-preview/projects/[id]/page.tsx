@@ -609,7 +609,7 @@ function getProjectNextRequiredAction({
 
   return {
     label: "Ready for editor review",
-    detail: "Core identity, source evidence, company roles, and export-readiness checks are clear on this staging record.",
+    detail: "Core identity, source evidence, company roles, and export-readiness checks are clear for this project.",
     href: "#project-export-readiness",
     tone: "ready",
   };
@@ -701,11 +701,11 @@ export default async function PostgresProjectDetailPage({
 
   return (
     <DetailShell
-      eyebrow="PostgreSQL Project"
+      eyebrow="Project Workspace"
       title={project.project_name}
-      subtitle="PostgreSQL staging project profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="Project profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
-      backLabel="Back to PostgreSQL Preview"
+      backLabel="Back to Command Center"
       statusLegendDescription="Project detail badges separate geothermal use category, development phase, review state, readiness severity, and source confidence."
       statusLegendGroups={["review", "lifecycle", "severity", "source"]}
       statusLegendTitle="Project Status Meaning"

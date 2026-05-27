@@ -724,7 +724,7 @@ export default async function PlantDetailPage({
   const tabs = [
     { key: "ownership-location", label: "Location & Legacy Fields" },
     { key: "capacity-timeline", label: "Capacity & Timeline" },
-    { key: "resource-status", label: "Resource & Project Status" },
+    { key: "resource-status", label: "Resource & Plant Status" },
     { key: "wellfield", label: "Wellfield Data" },
     { key: "plant-commercial", label: "Plant / Technology / Commercial" },
   ];
@@ -931,18 +931,18 @@ export default async function PlantDetailPage({
                 )}
 
                 {activeTab === "resource-status" && (
-                  <TabSection title="Resource & Project Status">
+                  <TabSection title="Resource & Plant Status">
                     <Row label="Resource type" value={plant.resource_type} />
                     <Row
                       label="Resource temp. (°C)"
                       value={plant.resource_temp_c}
                     />
                     <Row
-                      label="Project phase"
+                      label="Plant status"
                       value={<PhaseBadge value={plant.project_phase} />}
                     />
                     <Row
-                      label="Phase (historical)"
+                      label="Historical phase/status"
                       value={<PhaseBadge value={plant.phase_historical} />}
                     />
                     <Row label="Field name" value={plant.field_name} />
@@ -1267,12 +1267,12 @@ export default async function PlantDetailPage({
           </section>
 
           <section className="print-section">
-            <h2 className="print-section-title">Resource & Project Status</h2>
+            <h2 className="print-section-title">Resource & Plant Status</h2>
             <div className="print-grid">
               <div className="print-row"><span>Resource type</span><strong>{plant.resource_type || "NA"}</strong></div>
               <div className="print-row"><span>Resource temp. (°C)</span><strong>{plant.resource_temp_c ?? "NA"}</strong></div>
-              <div className="print-row"><span>Project phase</span><strong>{plant.project_phase || "NA"}</strong></div>
-              <div className="print-row"><span>Phase historical</span><strong>{plant.phase_historical || "NA"}</strong></div>
+              <div className="print-row"><span>Plant status</span><strong>{plant.project_phase || "NA"}</strong></div>
+              <div className="print-row"><span>Historical phase/status</span><strong>{plant.phase_historical || "NA"}</strong></div>
               <div className="print-row"><span>Field name</span><strong>{plant.field_name || "NA"}</strong></div>
             </div>
           </section>

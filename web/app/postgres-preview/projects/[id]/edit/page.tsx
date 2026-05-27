@@ -86,7 +86,7 @@ export default async function EditPostgresProjectPage({
             Back to Project
           </Link>
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Entity Workspace
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -94,8 +94,8 @@ export default async function EditPostgresProjectPage({
                 Edit Project
               </h1>
               <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-                Update the staging project record. Approved or export-ready
-                records edited through this path are moved back toward review
+                Update the project profile. Approved or export-ready projects
+                edited through this path are moved back toward review
                 unless an editor keeps the approval status. Evidence, company
                 roles, and linked plant workflows are visible in the
                 form but managed on the project detail page.

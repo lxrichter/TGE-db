@@ -365,7 +365,7 @@ function RelationshipEvidenceLinker({
     event.preventDefault();
 
     if (!selectedSourceId) {
-      setError("Add record-level source evidence first.");
+      setError("Add entity-level source evidence first.");
       return;
     }
 
@@ -702,7 +702,7 @@ export function ProjectCompanyLinksPanel({
   return (
     <Section
       title="Companies And Roles"
-      description="Structured company-role links for this PostgreSQL staging project."
+      description="Structured company-role links for this project."
     >
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="project" />
@@ -969,7 +969,7 @@ export function OperatingAssetCompanyLinksPanel({
   return (
     <Section
       title="Companies And Roles"
-      description="Structured company-role links for this PostgreSQL staging plant."
+      description="Structured company-role links for this plant."
     >
       <Notice error={error} message={message} />
       <RelationshipGovernanceNotice scope="asset" />
@@ -1680,7 +1680,7 @@ export function CompanyRelationshipPanel({
   return (
     <Section
       title="Relationships And Portfolios"
-      description="Structured project, plant, and company-relationship links for this PostgreSQL staging company."
+      description="Structured project, plant, and company-relationship links for this company."
     >
       <RelationshipSupportSummary
         activityLinkCount={projectLinks.length + operatingAssetLinks.length}

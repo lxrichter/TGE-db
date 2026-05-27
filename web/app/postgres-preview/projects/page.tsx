@@ -84,7 +84,7 @@ const projectMissingOptions: PreviewFilterOption[] = [
 const projectQuickViews: PreviewQuickView[] = [
   {
     label: "All Projects",
-    description: "Full project staging list.",
+    description: "Full project worklist.",
     query: {},
   },
   {
@@ -379,8 +379,8 @@ export default async function PostgresProjectsListPage({
             variant: "primary",
           },
         ]}
-        description="PostgreSQL staging list for projects imported from the current SQLite platform and future PostgreSQL-native project entries."
-        eyebrow="PostgreSQL Staging"
+        description="Project worklist for pipeline intelligence, source coverage, relationships, and review readiness."
+        eyebrow="Entity Workspaces"
         title="Projects"
       />
 

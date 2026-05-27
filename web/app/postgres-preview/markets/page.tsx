@@ -1542,7 +1542,7 @@ export default async function PostgresCountryMarketsPage({
       <section className="border border-gray-200 bg-white">
         <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Market Intelligence
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -1550,8 +1550,8 @@ export default async function PostgresCountryMarketsPage({
                 Markets
               </h1>
               <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
-                PostgreSQL-backed market intelligence layer for regional and
-                country-market drilldowns, filtered worklists, and
+                Market intelligence layer for regional and country-market
+                drilldowns, filtered worklists, and
                 replacement-readiness checks. TGE regions are the primary market
                 framework; World Bank regions remain available as a secondary
                 reporting taxonomy.

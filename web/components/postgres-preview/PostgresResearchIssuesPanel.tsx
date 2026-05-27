@@ -235,8 +235,8 @@ export default function PostgresResearchIssuesPanel({
             Research Ops Issues
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Open persistent research issues linked to this PostgreSQL staging
-            record. Generated missing-data queues remain visible in Research Ops.
+            Open persistent research issues linked to this entity. Generated
+            missing-data queues remain visible in Research Ops.
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap md:justify-end">

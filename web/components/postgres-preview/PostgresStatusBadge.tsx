@@ -212,7 +212,7 @@ const statusLabelOverrides: Record<string, string> = {
   open_review: "Open Review",
   partially_operating: "Partially Operating",
   pre_feasibility: "Pre-Feasibility",
-  prospect_tbd: "Prospect / TBD",
+  prospect_tbd: "Prospect",
   ready_for_validation: "Ready For Validation",
   ready_to_apply: "Ready To Apply",
   retired_decommissioned: "Retired / Decommissioned",

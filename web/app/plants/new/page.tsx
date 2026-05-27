@@ -451,7 +451,7 @@ export default function NewPlantPage() {
           </div>
         </FormSection>
 
-        <FormSection title="Resource & Project Status">
+        <FormSection title="Resource & Plant Status">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <FormSelect
               label="Resource Type"
@@ -473,7 +473,7 @@ export default function NewPlantPage() {
               onChange={handleChange}
             />
             <FormSelect
-              label="Plant Phase"
+              label="Plant Status"
               name="project_phase"
               value={form.project_phase}
               onChange={handleChange}
@@ -488,7 +488,7 @@ export default function NewPlantPage() {
               options={RESEARCH_STATUS_OPTIONS}
             />
             <Input
-              label="Phase Historical"
+              label="Status Historical"
               name="phase_historical"
               value={form.phase_historical}
               onChange={handleChange}

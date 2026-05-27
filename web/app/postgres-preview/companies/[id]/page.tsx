@@ -718,7 +718,7 @@ function getCompanyNextRequiredAction({
   return {
     label: "Ready for editor review",
     detail:
-      "Core identity, source evidence, relationship links, and export-readiness checks are clear on this staging record.",
+      "Core identity, source evidence, relationship links, and export-readiness checks are clear for this company.",
     href: "#company-export-readiness",
     tone: "ready",
   };
@@ -808,11 +808,11 @@ export default async function PostgresCompanyDetailPage({
 
   return (
     <DetailShell
-      eyebrow="PostgreSQL Company"
+      eyebrow="Company Workspace"
       title={company.company_name}
-      subtitle="PostgreSQL staging company profile with source/evidence coverage and preview export-readiness checks."
+      subtitle="Company profile with source/evidence coverage and preview export-readiness checks."
       backHref="/postgres-preview"
-      backLabel="Back to PostgreSQL Preview"
+      backLabel="Back to Command Center"
       statusLegendDescription="Company detail badges separate business identity, review state, relationship/evidence issue severity, source credibility, and AI/match confidence."
       statusLegendGroups={["review", "severity", "source", "confidence"]}
       statusLegendTitle="Company Status Meaning"

@@ -87,8 +87,8 @@ export default function PostgresProjectPromotionPanel({
             Promotion To Plant
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
-            Create a non-destructive PostgreSQL staging plant record from this
-            project. Sources and company-role links are copied when available.
+            Create a non-destructive plant draft from this project. Sources
+            and company-role links are copied when available.
           </p>
         </div>
         <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">

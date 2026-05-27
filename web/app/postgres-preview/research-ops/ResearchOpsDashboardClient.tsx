@@ -3288,7 +3288,7 @@ function SelectedRecordPanel({
 
       <PostgresReviewStatusActions
         currentStatus={record.review_status_code}
-        description="Move the selected staging record through the MVP review workflow directly from the Research Ops queue."
+        description="Move the selected entity through the MVP review workflow directly from the Research Ops queue."
         entityId={record.entity_id}
         entityType={record.entity_type}
         reviewStatuses={reviewStatuses}

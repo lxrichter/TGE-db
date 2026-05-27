@@ -50,20 +50,19 @@ export default async function NewPostgresOperatingAssetPage() {
             href="/postgres-preview"
             className="text-sm font-semibold text-[#4f7f1f] hover:underline"
           >
-            Back to PostgreSQL Preview
+            Back to Command Center
           </Link>
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Entity Workspace
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
             Add Plant
           </h1>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-            Create a staging plant record for power plants, direct-use
-            plants, hybrid records, or historically relevant retired units.
-            Draft saving is allowed while evidence, owner/operator roles, and
-            linked project or unit relationships are completed in the saved
-            detail workflow.
+            Create a plant draft for power plants, direct-use plants, hybrid
+            profiles, or historically relevant retired units. Draft saving is
+            allowed while evidence, owner/operator roles, and linked project or
+            unit relationships are completed in the saved detail workflow.
           </p>
         </div>
       </section>

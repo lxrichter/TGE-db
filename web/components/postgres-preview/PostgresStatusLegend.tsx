@@ -43,7 +43,7 @@ const legendGroups: Record<
     items: [
       {
         value: "prospect_tbd",
-        label: "Prospect / TBD",
+        label: "Prospect",
         note: "Early or not fully classified",
         domain: "lifecycle",
       },

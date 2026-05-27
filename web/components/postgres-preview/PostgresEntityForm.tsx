@@ -1155,9 +1155,9 @@ function getProjectReadinessIssues(
   if (form.lifecycle_phase_code === "prospect_tbd") {
     issues.push({
       severity: "important",
-      label: "Project phase is Prospect / TBD",
+      label: "Project phase is Prospect",
       detail:
-        "Prospect / TBD is valid for early-stage records, but should remain visible for editor review and later classification.",
+        "Prospect is valid for early-stage projects, but should remain visible for editor review and later classification.",
       issueTypeCode: "missing_lifecycle_status",
       linkedField: "lifecycle_phase_code",
     });
@@ -1418,7 +1418,7 @@ function FormActions({
   return (
     <div className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm leading-6 text-gray-600">
-        Save writes a draft/staging record even when non-critical fields are
+        Save writes a governed draft even when non-critical fields are
         incomplete. Submit/review, approval, export-ready status, source links,
         company relationships, and promotion workflows stay governed separately.
       </p>
@@ -1434,7 +1434,7 @@ function FormActions({
           disabled={saving}
           type="submit"
         >
-          {saving ? "Saving..." : "Save Draft / Staging Record"}
+          {saving ? "Saving..." : "Save Draft"}
         </button>
       </div>
     </div>
@@ -1473,7 +1473,7 @@ const workflowQuickActionGroupMeta: Record<
   evidence: {
     eyebrow: "Evidence",
     title: "Sources & Evidence",
-    description: "Attach source records and review evidence.",
+    description: "Attach governed sources and review evidence.",
   },
   relationships: {
     eyebrow: "Workflow",

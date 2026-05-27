@@ -50,18 +50,18 @@ export default async function NewPostgresCompanyPage() {
             href="/postgres-preview"
             className="text-sm font-semibold text-[#4f7f1f] hover:underline"
           >
-            Back to PostgreSQL Preview
+            Back to Command Center
           </Link>
           <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-            PostgreSQL Staging
+            Entity Workspace
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
             Add Company
           </h1>
           <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
-            Create a staging company record. Draft saving is allowed while
-            source evidence, project/plant roles, ownership structures, and
-            group relationships are completed in the saved detail workflow.
+            Create a company draft. Draft saving is allowed while source
+            evidence, project/plant roles, ownership structures, and group
+            relationships are completed in the saved detail workflow.
           </p>
         </div>
       </section>
