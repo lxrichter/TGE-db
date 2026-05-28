@@ -108,6 +108,33 @@ const SUPPLIER_CHART_COLORS = [
   "#c9c9c9",
 ];
 
+const CHART_DARK_TEXT = "var(--tge-text-primary)";
+const CHART_LIGHT_TEXT = "var(--tge-surface-card)";
+
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const subtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const tableHeadClass =
+  "bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]";
+const tableHeadCellClass =
+  "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2";
+const tableRowClass = "hover:bg-[var(--tge-surface-subtle)]";
+const tableCellClass =
+  "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5";
+const tablePrimaryCellClass = `${tableCellClass} font-medium`;
+const tableStrongCellClass = `${tableCellClass} font-semibold`;
+const emptyCellClass =
+  "px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]";
+const linkClass =
+  "text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]";
+
 function SectionCard({
   title,
   description,
@@ -118,11 +145,11 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-6 py-4`}>
+        <h2 className={`text-xl font-bold ${titleTextClass}`}>{title}</h2>
         {description ? (
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
+          <p className={`mt-1 text-sm ${bodyTextClass}`}>{description}</p>
         ) : null}
       </div>
       <div>{children}</div>
@@ -156,15 +183,17 @@ function CoveragePanel({
   }[];
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6b8f2a]">
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-5 py-3`}>
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-brand-muted)]">
           Analysis Coverage
         </div>
-        <h2 className="mt-1 text-base font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-xs text-gray-500">{description}</p>
+        <h2 className={`mt-1 text-base font-bold ${titleTextClass}`}>{title}</h2>
+        <p className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+          {description}
+        </p>
       </div>
-      <div className="grid grid-cols-1 divide-y divide-gray-100 md:grid-cols-2 md:divide-x md:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-[var(--tge-governance-muted-border)] md:grid-cols-2 md:divide-x md:divide-y-0">
         {items.map((item) => {
           const percent =
             typeof item.total === "number"
@@ -173,32 +202,32 @@ function CoveragePanel({
 
           return (
             <div key={item.label} className="px-5 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className={eyebrowClass}>
                 {item.label}
               </div>
               <div
                 className={
                   item.tone === "warning"
-                    ? "mt-1 text-2xl font-bold text-[#b45309]"
-                    : "mt-1 text-2xl font-bold text-[#1f2937]"
+                    ? "mt-1 text-2xl font-bold text-[var(--tge-governance-attention-text)]"
+                    : `mt-1 text-2xl font-bold ${titleTextClass}`
                 }
               >
                 {formatNumber(item.value, 0)}
               </div>
               {percent !== null ? (
-                <div className="mt-2 h-1.5 overflow-hidden bg-gray-100">
+                <div className="mt-2 h-1.5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
                   <div
                     className={
                       item.tone === "warning"
-                        ? "h-full bg-[#f59e0b]"
-                        : "h-full bg-[#8dc63f]"
+                        ? "h-full bg-[var(--tge-status-bar-attention)]"
+                        : "h-full bg-[var(--tge-status-bar-success)]"
                     }
                     style={{ width: `${Math.min(percent, 100)}%` }}
                   />
                 </div>
               ) : null}
               {percent !== null ? (
-                <div className="mt-1 text-xs text-gray-500">
+                <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                   {percent}% of plant rows
                 </div>
               ) : null}
@@ -222,18 +251,20 @@ function GovernanceMetric({
   tone?: "default" | "warning";
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-3">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${panelClass} px-4 py-3`}>
+      <div className={eyebrowClass}>
         {label}
       </div>
       <div
         className={`mt-1 text-xl font-bold ${
-          tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+          tone === "warning"
+            ? "text-[var(--tge-governance-attention-text)]"
+            : titleTextClass
         }`}
       >
         {value}
       </div>
-      <p className="mt-1 text-xs leading-5 text-gray-600">{note}</p>
+      <p className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>{note}</p>
     </div>
   );
 }
@@ -276,12 +307,12 @@ function TechnologyGovernanceReadiness({
           />
         </div>
 
-        <div className="border border-amber-200 bg-white">
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3">
-            <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)]">
+          <div className="border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3">
+            <h3 className={`text-sm font-bold ${titleTextClass}`}>
               Cleanup Routing
             </h3>
-            <p className="mt-1 text-xs leading-5 text-amber-900">
+            <p className="mt-1 text-xs leading-5 text-[var(--tge-governance-attention-text)]">
               Resolve plant capacity, unit counts, technology taxonomy, and
               turbine supplier values in the operational workspaces.
             </p>
@@ -298,7 +329,7 @@ function TechnologyGovernanceReadiness({
               <Link
                 key={route.label}
                 href={route.href}
-                className="border border-gray-200 bg-[#fafafa] px-3 py-2 text-xs font-semibold text-[#1f2937] transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
+                className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--tge-text-primary)] transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
               >
                 {route.label}
               </Link>
@@ -328,7 +359,7 @@ function SortableHeader({
       className="flex items-center gap-1 text-left font-semibold"
     >
       <span>{label}</span>
-      <span className="text-[10px] text-gray-400">
+      <span className="text-[10px] text-[var(--tge-governance-muted-text)]">
         {active ? (direction === "asc" ? "▲" : "▼") : "↕"}
       </span>
     </button>
@@ -508,6 +539,26 @@ function buildSupplierChartItemsFromCountryRows(
   }));
 }
 
+function HeroMetric({
+  label,
+  value,
+  help,
+}: {
+  label: string;
+  value: string | number;
+  help: string;
+}) {
+  return (
+    <div>
+      <div className={eyebrowClass}>{label}</div>
+      <div className={`mt-1 text-3xl font-bold ${titleTextClass}`}>{value}</div>
+      <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+        {help}
+      </div>
+    </div>
+  );
+}
+
 function CapacityShareBar({
   title,
   subtitle,
@@ -520,10 +571,10 @@ function CapacityShareBar({
   const totalMw = items.reduce((sum, item) => sum + item.mw, 0);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-6 py-4`}>
+        <h2 className={`text-xl font-bold ${titleTextClass}`}>{title}</h2>
+        <p className={`mt-1 text-sm ${bodyTextClass}`}>{subtitle}</p>
       </div>
 
       <div className="px-6 py-5">
@@ -534,27 +585,27 @@ function CapacityShareBar({
                 className="inline-block h-3 w-3"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-[#1f2937]">{item.label}</span>
+              <span className={titleTextClass}>{item.label}</span>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 border-t-2 border-t-[#4aa34a] pt-3">
-          <div className="overflow-hidden border border-gray-200 bg-white">
+        <div className="mt-4 border-t-2 border-t-[var(--tge-brand-green)] pt-3">
+          <div className="overflow-hidden border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
             <div className="flex h-11 w-full">
               {items
                 .filter((item) => item.mw > 0)
                 .map((item) => (
                   <div
                     key={item.key}
-                    className="flex items-center justify-center text-sm font-semibold text-[#111827]"
+                    className="flex items-center justify-center text-sm font-semibold text-[var(--tge-text-primary)]"
                     style={{
                       width: `${item.pct}%`,
                       backgroundColor: item.color,
                       color:
                         item.key === "Dry Steam" || item.key === "Other"
-                          ? "#111827"
-                          : "#ffffff",
+                          ? CHART_DARK_TEXT
+                          : CHART_LIGHT_TEXT,
                       minWidth: item.pct > 0 ? "36px" : "0",
                     }}
                     title={`${item.label}: ${formatNumber(item.mw, 0)} MWe (${formatNumber(
@@ -571,21 +622,21 @@ function CapacityShareBar({
 
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
           {items.map((item) => (
-            <div key={item.key} className="border border-gray-200 bg-[#fafafa] p-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div key={item.key} className={`${subtleCardClass} p-3`}>
+              <div className={eyebrowClass}>
                 {item.label}
               </div>
-              <div className="mt-1 text-xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-xl font-bold ${titleTextClass}`}>
                 {formatNumber(item.mw, 0)} MWe
               </div>
-              <div className="mt-1 text-sm text-gray-600">
+              <div className={`mt-1 text-sm ${bodyTextClass}`}>
                 {formatNumber(item.pct, 1)}%
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 text-xs text-gray-500">
+        <div className="mt-4 text-xs text-[var(--tge-governance-muted-text)]">
           Total installed capacity shown: {formatNumber(totalMw, 0)} MWe
         </div>
       </div>
@@ -605,10 +656,10 @@ function SupplierShareBar({
   const totalMw = items.reduce((sum, item) => sum + item.mw, 0);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-sm text-gray-500">{subtitle}</p>
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-6 py-4`}>
+        <h2 className={`text-xl font-bold ${titleTextClass}`}>{title}</h2>
+        <p className={`mt-1 text-sm ${bodyTextClass}`}>{subtitle}</p>
       </div>
 
       <div className="px-6 py-5">
@@ -619,13 +670,13 @@ function SupplierShareBar({
                 className="inline-block h-3 w-3"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-[#1f2937]">{item.label}</span>
+              <span className={titleTextClass}>{item.label}</span>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 border-t-2 border-t-[#4aa34a] pt-3">
-          <div className="overflow-hidden border border-gray-200 bg-white">
+        <div className="mt-4 border-t-2 border-t-[var(--tge-brand-green)] pt-3">
+          <div className="overflow-hidden border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
             <div className="flex h-11 w-full">
               {items
                 .filter((item) => item.mw > 0)
@@ -637,9 +688,10 @@ function SupplierShareBar({
                       width: `${item.pct}%`,
                       backgroundColor: item.color,
                       color:
-                        item.label === "Other" || item.color === "#c6dfb8"
-                          ? "#111827"
-                          : "#ffffff",
+                        item.label === "Other" ||
+                        item.color === TECH_COLORS["Dry Steam"]
+                          ? CHART_DARK_TEXT
+                          : CHART_LIGHT_TEXT,
                       minWidth: item.pct > 0 ? "36px" : "0",
                     }}
                     title={`${item.label}: ${formatNumber(item.mw, 0)} MWe (${formatNumber(
@@ -656,21 +708,21 @@ function SupplierShareBar({
 
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
           {items.map((item) => (
-            <div key={item.label} className="border border-gray-200 bg-[#fafafa] p-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div key={item.label} className={`${subtleCardClass} p-3`}>
+              <div className={eyebrowClass}>
                 {item.label}
               </div>
-              <div className="mt-1 text-xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-xl font-bold ${titleTextClass}`}>
                 {formatNumber(item.mw, 0)} MWe
               </div>
-              <div className="mt-1 text-sm text-gray-600">
+              <div className={`mt-1 text-sm ${bodyTextClass}`}>
                 {formatNumber(item.pct, 1)}%
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 text-xs text-gray-500">
+        <div className="mt-4 text-xs text-[var(--tge-governance-muted-text)]">
           Total installed capacity shown: {formatNumber(totalMw, 0)} MWe
         </div>
       </div>
@@ -942,57 +994,33 @@ export default function TurbineTechnologyPage() {
           { value: `${formatNumber(kpis.installed)} MWe`, label: "Installed" },
         ]}
       >
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-5">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Plants Analyzed
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.plants}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Plant profiles in scope</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Technologies
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.technologies}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Technology categories</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Suppliers
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.suppliers}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Supplier profiles</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Country Markets
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.countries}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Market comparisons</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Installed MWe
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatNumber(kpis.installed)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Installed capacity covered</div>
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-5">
+          <HeroMetric
+            label="Plants Analyzed"
+            value={kpis.plants}
+            help="Plant profiles in scope"
+          />
+          <HeroMetric
+            label="Technologies"
+            value={kpis.technologies}
+            help="Technology categories"
+          />
+          <HeroMetric
+            label="Suppliers"
+            value={kpis.suppliers}
+            help="Supplier profiles"
+          />
+          <HeroMetric
+            label="Country Markets"
+            value={kpis.countries}
+            help="Market comparisons"
+          />
+          <HeroMetric
+            label="Installed MWe"
+            value={formatNumber(kpis.installed)}
+            help="Installed capacity covered"
+          />
+        </div>
       </AnalysisModuleHero>
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -1068,14 +1096,14 @@ export default function TurbineTechnologyPage() {
 
       <TechnologyGovernanceReadiness coverage={data.coverage} />
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-6 py-3`}>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search technology, supplier, country, MWe, units..."
-            className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+            className="w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
           />
         </div>
       </section>
@@ -1092,9 +1120,9 @@ export default function TurbineTechnologyPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Technology"
                     active={techSortKey === "technology"}
@@ -1110,7 +1138,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="MWe Installed"
                     active={techSortKey === "installed_mw"}
@@ -1126,7 +1154,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="MWe Operating"
                     active={techSortKey === "operating_mw"}
@@ -1142,7 +1170,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="# Units"
                     active={techSortKey === "units"}
@@ -1158,7 +1186,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Avg Size Installed MWe"
                     active={techSortKey === "avg_size_installed_mw"}
@@ -1174,7 +1202,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Share Installed %"
                     active={techSortKey === "share_installed_pct"}
@@ -1194,23 +1222,23 @@ export default function TurbineTechnologyPage() {
             </thead>
             <tbody>
               {technologyRows.map((row) => (
-                <tr key={row.technology} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.technology} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     {row.technology}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.installed_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.operating_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.units, 0)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.avg_size_installed_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.share_installed_pct)}%
                   </td>
                 </tr>
@@ -1220,7 +1248,7 @@ export default function TurbineTechnologyPage() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching technology categories found.
                   </td>
@@ -1243,9 +1271,9 @@ export default function TurbineTechnologyPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Turbine Supplier"
                     active={supplierSortKey === "turbine_supplier"}
@@ -1261,7 +1289,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Installed Capacity MWe"
                     active={supplierSortKey === "installed_capacity_mw"}
@@ -1277,7 +1305,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="# Units"
                     active={supplierSortKey === "units"}
@@ -1293,7 +1321,7 @@ export default function TurbineTechnologyPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Avg Size Turbine MWe"
                     active={supplierSortKey === "avg_size_turbine_mw"}
@@ -1313,17 +1341,17 @@ export default function TurbineTechnologyPage() {
             </thead>
             <tbody>
               {supplierRows.map((row) => (
-                <tr key={row.turbine_supplier} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.turbine_supplier} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     {row.turbine_supplier}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.installed_capacity_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.units, 0)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.avg_size_turbine_mw, 2)}
                   </td>
                 </tr>
@@ -1333,7 +1361,7 @@ export default function TurbineTechnologyPage() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching suppliers found.
                   </td>
@@ -1350,9 +1378,9 @@ export default function TurbineTechnologyPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Market"
                     active={countryMwSortKey === "country"}
@@ -1369,7 +1397,7 @@ export default function TurbineTechnologyPage() {
                   />
                 </th>
                 {data.technologyOrder.map((tech) => (
-                  <th key={tech} className="border-b border-gray-200 px-4 py-2">
+                  <th key={tech} className={tableHeadCellClass}>
                     <SortableHeader
                       label={tech}
                       active={countryMwSortKey === tech}
@@ -1386,7 +1414,7 @@ export default function TurbineTechnologyPage() {
                     />
                   </th>
                 ))}
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Total MWe"
                     active={countryMwSortKey === "total_mw"}
@@ -1406,21 +1434,21 @@ export default function TurbineTechnologyPage() {
             </thead>
             <tbody>
               {countryMwRows.map((row) => (
-                <tr key={row.country} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.country} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     <Link
                       href={`/markets/countries/${slugify(String(row.country))}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.country}
                     </Link>
                   </td>
                   {data.technologyOrder.map((tech) => (
-                    <td key={tech} className="border-b border-gray-100 px-4 py-2.5">
+                    <td key={tech} className={tableCellClass}>
                       {formatNumber(Number(row[tech] || 0))}
                     </td>
                   ))}
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-semibold">
+                  <td className={tableStrongCellClass}>
                     {formatNumber(Number(row.total_mw || 0))}
                   </td>
                 </tr>
@@ -1430,7 +1458,7 @@ export default function TurbineTechnologyPage() {
                 <tr>
                   <td
                     colSpan={data.technologyOrder.length + 2}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching country-market MWe results found.
                   </td>
@@ -1447,9 +1475,9 @@ export default function TurbineTechnologyPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Market"
                     active={countryPctSortKey === "country"}
@@ -1466,7 +1494,7 @@ export default function TurbineTechnologyPage() {
                   />
                 </th>
                 {data.technologyOrder.map((tech) => (
-                  <th key={tech} className="border-b border-gray-200 px-4 py-2">
+                  <th key={tech} className={tableHeadCellClass}>
                     <SortableHeader
                       label={tech}
                       active={countryPctSortKey === tech}
@@ -1483,7 +1511,7 @@ export default function TurbineTechnologyPage() {
                     />
                   </th>
                 ))}
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Total MWe"
                     active={countryPctSortKey === "total_mw"}
@@ -1503,21 +1531,21 @@ export default function TurbineTechnologyPage() {
             </thead>
             <tbody>
               {countryPctRows.map((row) => (
-                <tr key={row.country} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.country} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     <Link
                       href={`/markets/countries/${slugify(String(row.country))}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.country}
                     </Link>
                   </td>
                   {data.technologyOrder.map((tech) => (
-                    <td key={tech} className="border-b border-gray-100 px-4 py-2.5">
+                    <td key={tech} className={tableCellClass}>
                       {formatNumber(Number(row[tech] || 0))}%
                     </td>
                   ))}
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-semibold">
+                  <td className={tableStrongCellClass}>
                     {formatNumber(Number(row.total_mw || 0))}
                   </td>
                 </tr>
@@ -1527,7 +1555,7 @@ export default function TurbineTechnologyPage() {
                 <tr>
                   <td
                     colSpan={data.technologyOrder.length + 2}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching country-market percentage results found.
                   </td>
