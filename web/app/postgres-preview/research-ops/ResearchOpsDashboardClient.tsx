@@ -99,6 +99,15 @@ const opsClass = {
     "inline-flex h-9 w-full items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] sm:w-auto",
   secondaryButton:
     "inline-flex h-9 w-full items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto",
+  compactButton:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:justify-start",
+  routeCard:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4 hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
+  dangerPanel:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)]",
+  dangerCard:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+  divider: "border-[var(--tge-governance-neutral-border)]",
 };
 
 const queueGroupDefinitions: Array<{
@@ -1223,12 +1232,12 @@ function QuickOperationalViews({
         {views.map((item) => (
           <button
             key={item.label}
-            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 text-left hover:border-[#8dc63f] hover:bg-[#f3f8ec]"
+            className={`${opsClass.routeCard} text-left`}
             type="button"
             onClick={() => onApplyView(item.view)}
           >
-            <div className="text-sm font-bold text-[#1f2937]">{item.label}</div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`text-sm font-bold ${opsClass.title}`}>{item.label}</div>
+            <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
               {item.note}
             </div>
           </button>
@@ -1241,7 +1250,7 @@ function QuickOperationalViews({
 function QueueTargetLinks({ targets }: { targets: QueueListTarget[] }) {
   if (targets.length === 0) {
     return (
-      <div className="text-xs leading-5 text-gray-500">
+      <div className={`text-xs leading-5 ${opsClass.muted}`}>
         Detailed review stays in Research Ops for this queue until a dedicated
         entity-list filter exists.
       </div>
@@ -1253,7 +1262,7 @@ function QueueTargetLinks({ targets }: { targets: QueueListTarget[] }) {
       {targets.map((target) => (
         <Link
           key={`${target.href}-${target.label}`}
-          className="inline-flex min-h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:justify-start"
+          className={opsClass.compactButton}
           href={target.href}
           title={target.note}
         >
@@ -1277,26 +1286,26 @@ function ExportBlockerPanel({
   const total = blockerQueues.reduce((sum, queue) => sum + queue.count, 0);
 
   return (
-    <section className="border border-red-200 bg-red-50">
-      <div className="flex flex-col gap-3 border-b border-red-100 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+    <section className={opsClass.dangerPanel}>
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-danger-border)] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-red-700">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-governance-danger-text)]">
             Export Readiness
           </div>
-          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+          <h2 className={`mt-2 text-xl font-bold ${opsClass.title}`}>
             Export-Blocking Queues
           </h2>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-red-900">
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--tge-governance-danger-text)]">
             These generated queues should be cleared or explicitly accepted
             before data is treated as approved/export-ready for formal outputs.
             Operational CSV exports remain internal working exports.
           </p>
         </div>
-        <div className="w-full border border-red-200 bg-white px-4 py-3 text-left sm:w-auto sm:text-right">
-          <div className="text-3xl font-bold leading-none text-[#1f2937]">
+        <div className="w-full border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-4 py-3 text-left sm:w-auto sm:text-right">
+          <div className={`text-3xl font-bold leading-none ${opsClass.title}`}>
             {formatCount(total)}
           </div>
-          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-red-700">
+          <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-danger-text)]">
             blockers
           </div>
         </div>
@@ -1304,23 +1313,23 @@ function ExportBlockerPanel({
 
       <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 xl:grid-cols-5">
         {blockerQueues.map((queue) => (
-          <div key={queue.key} className="border border-red-200 bg-white px-4 py-4">
+          <div key={queue.key} className={opsClass.dangerCard}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-sm font-bold text-[#1f2937]">
+                <div className={`text-sm font-bold ${opsClass.title}`}>
                   {queue.title}
                 </div>
-                <div className="mt-2 text-xs leading-5 text-gray-500">
+                <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
                   {queue.description}
                 </div>
               </div>
-              <div className="text-xl font-bold leading-none text-red-700">
+              <div className="text-xl font-bold leading-none text-[var(--tge-governance-danger-text)]">
                 {formatCount(queue.count)}
               </div>
             </div>
             <div className="mt-4 flex flex-col gap-2">
               <button
-                className="inline-flex h-8 w-full items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+                className="inline-flex h-8 w-full items-center justify-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] hover:text-[var(--tge-brand-green-dark)]"
                 type="button"
                 onClick={() => onSelectQueue(queue.key)}
               >
@@ -1357,16 +1366,16 @@ function SystemQueueGroups({
   return (
     <section
       id="system-queue-groups"
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      className={`scroll-mt-6 ${opsClass.panel}`}
     >
-      <div className="border-b border-gray-200 px-5 py-4">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <div className={opsClass.eyebrow}>
           System-Generated Queues
         </div>
-        <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+        <h2 className={`mt-2 text-xl font-bold ${opsClass.title}`}>
           Queue Groups
         </h2>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+        <p className={`mt-2 max-w-4xl text-sm leading-6 ${opsClass.body}`}>
           These queues are calculated from current platform data. They
           are not human assignments unless a persistent issue is created from a
           row.
@@ -1375,45 +1384,45 @@ function SystemQueueGroups({
 
       <div className="grid grid-cols-1 gap-4 px-5 py-5 md:grid-cols-2 xl:grid-cols-5">
         {groups.map((group) => (
-          <div key={group.key} className="border border-gray-200 bg-[#fbfbfb]">
-            <div className="border-b border-gray-200 px-4 py-4">
-              <div className="text-3xl font-bold leading-none text-[#1f2937]">
+          <div key={group.key} className={opsClass.panelSubtle}>
+            <div className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-4">
+              <div className={`text-3xl font-bold leading-none ${opsClass.title}`}>
                 {formatCount(group.count)}
               </div>
-              <h3 className="mt-3 text-base font-bold text-[#1f2937]">
+              <h3 className={`mt-3 text-base font-bold ${opsClass.title}`}>
                 {group.title}
               </h3>
-              <p className="mt-2 text-xs leading-5 text-gray-500">
+              <p className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
                 {group.description}
               </p>
               {group.criticalCount > 0 ? (
-                <div className="mt-3 inline-flex min-h-[26px] items-center border border-red-200 bg-red-50 px-2 text-xs font-semibold text-red-800">
+                <div className="mt-3 inline-flex min-h-[26px] items-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-danger-text)]">
                   {formatCount(group.criticalCount)} critical
                 </div>
               ) : null}
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-[var(--tge-governance-neutral-border)]">
               {group.queues.map((queue) => (
                 <div
                   key={queue.key}
                   className="flex items-start justify-between gap-3 px-4 py-3"
                 >
                   <span>
-                    <span className="text-xs font-semibold text-gray-700">
+                    <span className="text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
                       {queue.title}
                     </span>
                     {exportBlockingQueueKeys.has(queue.key) ? (
-                      <span className="mt-1 block text-[10px] font-semibold uppercase tracking-wide text-red-700">
+                      <span className="mt-1 block text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-danger-text)]">
                         Export blocker
                       </span>
                     ) : null}
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-2">
-                    <span className="text-xs font-bold text-[#1f2937]">
+                    <span className={`text-xs font-bold ${opsClass.title}`}>
                       {formatCount(queue.count)}
                     </span>
                     <button
-                      className="h-7 border border-gray-300 bg-white px-2 text-[11px] font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      className="h-7 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-2 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                       type="button"
                       onClick={() => onSelectQueue(queue.key)}
                     >
@@ -1490,7 +1499,7 @@ function ArticleMatchReviewPanel({
     >
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link
-          className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+          className={opsClass.primaryButton}
           href="/sources/matches"
         >
           Review Matches
@@ -1501,23 +1510,23 @@ function ArticleMatchReviewPanel({
         {matchLinks.map((item) => (
           <Link
             key={item.label}
-            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f] hover:bg-[#f3f8ec]"
+            className={opsClass.routeCard}
             href={item.href}
           >
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               {item.label}
             </div>
-            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+            <div className={`mt-2 text-2xl font-bold leading-none ${opsClass.title}`}>
               {formatCount(item.value)}
             </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
               {item.note}
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="mt-4 border-t border-gray-100 pt-3 text-xs leading-5 text-gray-500">
+      <div className={`mt-4 border-t pt-3 text-xs leading-5 ${opsClass.divider} ${opsClass.muted}`}>
         Open candidate workload: {formatCount(summary.open)}. Matching does not
         create evidence links; confirmation in Sources creates or reuses
         reviewed evidence links.
@@ -1580,7 +1589,7 @@ function ArticleFactReviewPanel({
     >
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Link
-          className="inline-flex h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+          className={opsClass.primaryButton}
           href="/sources/facts"
         >
           Review Facts
@@ -1591,23 +1600,23 @@ function ArticleFactReviewPanel({
         {factLinks.map((item) => (
           <Link
             key={item.label}
-            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f] hover:bg-[#f3f8ec]"
+            className={opsClass.routeCard}
             href={item.href}
           >
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               {item.label}
             </div>
-            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+            <div className={`mt-2 text-2xl font-bold leading-none ${opsClass.title}`}>
               {formatCount(item.value)}
             </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
               {item.note}
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="mt-4 border-t border-gray-100 pt-3 text-xs leading-5 text-gray-500">
+      <div className={`mt-4 border-t pt-3 text-xs leading-5 ${opsClass.divider} ${opsClass.muted}`}>
         Article fact review is a staging layer for future AI-assisted data
         filling. It intentionally stays separate from evidence-link creation and
         entity field updates.
