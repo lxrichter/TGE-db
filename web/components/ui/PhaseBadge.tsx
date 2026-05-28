@@ -49,46 +49,46 @@ function getPhaseClasses(phase: string) {
   const normalized = phase.toLowerCase();
 
   if (normalized === "operating") {
-    return "border-green-700 bg-green-700 text-white";
+    return "border-[var(--tge-lifecycle-operating-border)] bg-[var(--tge-status-bar-operating)] text-white";
   }
 
   if (normalized === "construction") {
-    return "border-green-600 bg-green-600 text-white";
+    return "border-[var(--tge-lifecycle-construction-border)] bg-[var(--tge-status-bar-success)] text-white";
   }
 
   if (normalized === "feasibility") {
-    return "border-teal-500 bg-teal-500 text-white";
+    return "border-[var(--tge-lifecycle-feasibility-border)] bg-[var(--tge-status-bar-feasibility)] text-white";
   }
 
   if (normalized === "pre-feasibility") {
-    return "border-indigo-500 bg-indigo-500 text-white";
+    return "border-[var(--tge-lifecycle-pre-feasibility-border)] bg-[var(--tge-status-bar-pre-feasibility)] text-white";
   }
 
   if (normalized === "exploration") {
-    return "border-blue-500 bg-blue-500 text-white";
+    return "border-[var(--tge-lifecycle-exploration-border)] bg-[var(--tge-status-bar-info)] text-white";
   }
 
   if (normalized === "prospect") {
-    return "border-slate-300 bg-slate-200 text-slate-700";
+    return "border-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)] text-[var(--tge-lifecycle-prospect-text)]";
   }
 
   if (normalized === "stalled") {
-    return "border-stone-400 bg-stone-400 text-white";
+    return "border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]";
   }
 
   if (normalized === "tbd") {
-    return "border-slate-400 bg-slate-300 text-slate-800";
+    return "border-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)] text-[var(--tge-lifecycle-prospect-text)]";
   }
 
   if (normalized === "cancelled" || normalized === "decommissioned") {
-    return "border-rose-600 bg-rose-600 text-white";
+    return "border-[var(--tge-lifecycle-cancelled-border)] bg-[var(--tge-status-bar-danger)] text-white";
   }
 
   if (normalized === "na") {
-    return "border-slate-300 bg-slate-200 text-slate-700";
+    return "border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]";
   }
 
-  return "border-slate-300 bg-slate-200 text-slate-700";
+  return "border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]";
 }
 
 export default function PhaseBadge({

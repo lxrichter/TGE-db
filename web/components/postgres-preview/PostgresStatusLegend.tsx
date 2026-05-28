@@ -136,16 +136,16 @@ export default function PostgresStatusLegend({
 }) {
   if (compact) {
     return (
-      <section className="border border-gray-200 bg-white px-5 py-4">
+      <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-5 py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
               Status Language
             </div>
-            <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+            <h2 className="mt-1 text-base font-bold text-[var(--tge-text-primary)]">
               {title}
             </h2>
-            <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-500">
+            <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--tge-text-secondary)]">
               {description}
             </p>
           </div>
@@ -158,7 +158,7 @@ export default function PostgresStatusLegend({
                   key={groupKey}
                   className="flex flex-col gap-2 sm:flex-row sm:items-center"
                 >
-                  <div className="min-w-[135px] text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <div className="min-w-[135px] text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
                     {group.title}
                   </div>
                   <div className="flex flex-wrap gap-1.5">
@@ -181,13 +181,13 @@ export default function PostgresStatusLegend({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
           Status Language
         </div>
-        <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+        <h2 className="mt-1 text-lg font-bold text-[var(--tge-text-primary)]">{title}</h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)]">
           {description}
         </p>
       </div>
@@ -196,17 +196,17 @@ export default function PostgresStatusLegend({
           const group = legendGroups[groupKey];
 
           return (
-            <div key={groupKey} className="border border-gray-200 bg-[#fbfbfb] p-4">
-              <div className="text-sm font-bold text-[#1f2937]">
+            <div key={groupKey} className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] p-4">
+              <div className="text-sm font-bold text-[var(--tge-text-primary)]">
                 {group.title}
               </div>
-              <p className="mt-1 text-xs leading-5 text-gray-500">
+              <p className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
                 {group.description}
               </p>
               <div className="mt-3 space-y-2">
                 {group.items.map((item) => (
                   <div
-                    className="flex flex-col gap-1 border-t border-gray-100 pt-2 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-1 border-t border-[var(--tge-governance-neutral-border)] pt-2 sm:flex-row sm:items-center sm:justify-between"
                     key={`${item.domain}-${item.value}-${item.label || ""}`}
                   >
                     <PostgresStatusBadge
@@ -214,7 +214,7 @@ export default function PostgresStatusLegend({
                       label={item.label}
                       value={item.value}
                     />
-                    <span className="text-xs leading-5 text-gray-500 sm:max-w-[180px] sm:text-right">
+                    <span className="text-xs leading-5 text-[var(--tge-text-secondary)] sm:max-w-[180px] sm:text-right">
                       {item.note}
                     </span>
                   </div>

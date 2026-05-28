@@ -159,23 +159,23 @@ export function GovernanceSignalCard({
   children?: ReactNode;
 }) {
   const accents = {
-    green: "border-l-[#8dc63f]",
-    amber: "border-l-amber-300",
-    red: "border-l-red-300",
-    neutral: "border-l-gray-300",
+    green: "border-l-[var(--tge-governance-success-border)]",
+    amber: "border-l-[var(--tge-governance-attention-border)]",
+    red: "border-l-[var(--tge-governance-danger-border)]",
+    neutral: "border-l-[var(--tge-governance-neutral-border)]",
   };
 
   return (
     <div
-      className={`border border-l-4 border-gray-200 bg-white px-4 py-4 ${accents[tone]}`}
+      className={`border border-l-4 border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 ${accents[tone]}`}
     >
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+      <div className="mt-2 text-2xl font-bold leading-none text-[var(--tge-text-primary)]">
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className="mt-2 text-xs leading-5 text-[var(--tge-text-secondary)]">{note}</div>
       {children ? <div className="mt-3 flex flex-wrap gap-2">{children}</div> : null}
     </div>
   );
@@ -214,23 +214,23 @@ export function GovernanceLifecyclePanel({
   };
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--tge-text-secondary)]">{description}</p>
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-[var(--tge-governance-neutral-border)]">
         {steps.map((step, index) => (
           <div
             key={step.title}
             className="grid gap-3 px-5 py-4 sm:grid-cols-[32px_1fr_auto] sm:items-start"
           >
-            <div className="flex h-8 w-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] text-xs font-bold text-gray-600">
+            <div className="flex h-8 w-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-page)] text-xs font-bold text-[var(--tge-governance-neutral-text)]">
               {index + 1}
             </div>
             <div>
-              <div className="font-semibold text-[#1f2937]">{step.title}</div>
-              <p className="mt-1 text-xs leading-5 text-gray-500">{step.note}</p>
+              <div className="font-semibold text-[var(--tge-text-primary)]">{step.title}</div>
+              <p className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">{step.note}</p>
             </div>
             <GovernanceBadge
               label={lifecycleLabel(step.state)}
@@ -276,11 +276,11 @@ export function GovernanceEvidenceSnapshot({
     });
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">Evidence Backbone</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">Evidence Backbone</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             {description}
           </p>
         </div>
@@ -302,9 +302,9 @@ export function GovernanceEvidenceSnapshot({
 
       <div className="grid gap-4 px-5 py-5 xl:grid-cols-[1fr_280px]">
         {sources.length === 0 ? (
-          <div className="border border-dashed border-red-200 bg-red-50 px-5 py-5">
-            <div className="font-semibold text-red-700">No confirmed evidence</div>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-red-700">
+          <div className="border border-dashed border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-5 py-5">
+            <div className="font-semibold text-[var(--tge-governance-danger-text)]">No confirmed evidence</div>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-danger-text)]">
               {emptyMessage}
             </p>
           </div>
@@ -313,11 +313,11 @@ export function GovernanceEvidenceSnapshot({
             {sortedSources.slice(0, 4).map((source) => (
               <div
                 key={source.entity_source_id}
-                className="border border-gray-200 bg-[#fbfbfb] px-4 py-4"
+                className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4"
               >
                 <Link
                   href={`/sources/${source.source_id}`}
-                  className="font-semibold leading-6 text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  className="font-semibold leading-6 text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                 >
                   {source.source_title || source.source_reference || "Untitled source"}
                 </Link>
@@ -333,22 +333,22 @@ export function GovernanceEvidenceSnapshot({
                     <GovernanceBadge label="Primary evidence" tone="green" />
                   ) : null}
                 </div>
-                <div className="mt-3 text-xs leading-5 text-gray-500">
+                <div className="mt-3 text-xs leading-5 text-[var(--tge-text-secondary)]">
                   {source.evidence_type ? (
                     <div>
-                      <span className="font-semibold text-gray-700">Fact type:</span>{" "}
+                      <span className="font-semibold text-[var(--tge-governance-neutral-text)]">Fact type:</span>{" "}
                       {formatGovernanceCode(source.evidence_type)}
                     </div>
                   ) : null}
                   {source.linked_field ? (
                     <div>
-                      <span className="font-semibold text-gray-700">Field:</span>{" "}
+                      <span className="font-semibold text-[var(--tge-governance-neutral-text)]">Field:</span>{" "}
                       {formatGovernanceCode(source.linked_field)}
                     </div>
                   ) : null}
                   {source.extracted_value ? (
                     <div>
-                      <span className="font-semibold text-gray-700">Value:</span>{" "}
+                      <span className="font-semibold text-[var(--tge-governance-neutral-text)]">Value:</span>{" "}
                       {source.extracted_value}
                     </div>
                   ) : null}
@@ -361,38 +361,38 @@ export function GovernanceEvidenceSnapshot({
           </div>
         )}
 
-        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-          <div className="text-sm font-bold text-[#1f2937]">Evidence Coverage</div>
-          <div className="mt-3 space-y-3 text-sm text-gray-700">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4">
+          <div className="text-sm font-bold text-[var(--tge-text-primary)]">Evidence Coverage</div>
+          <div className="mt-3 space-y-3 text-sm text-[var(--tge-governance-neutral-text)]">
             <div className="flex justify-between gap-3">
               <span>Total sources</span>
-              <span className="font-bold text-[#1f2937]">
+              <span className="font-bold text-[var(--tge-text-primary)]">
                 {formatCount(sources.length)}
               </span>
             </div>
             <div className="flex justify-between gap-3">
               <span>Primary evidence</span>
-              <span className="font-bold text-[#1f2937]">
+              <span className="font-bold text-[var(--tge-text-primary)]">
                 {formatCount(primaryEvidence.length)}
               </span>
             </div>
             <div className="flex justify-between gap-3">
               <span>TGE articles</span>
-              <span className="font-bold text-[#1f2937]">
+              <span className="font-bold text-[var(--tge-text-primary)]">
                 {formatCount(tgeArticles.length)}
               </span>
             </div>
             <div className="flex justify-between gap-3">
               <span>Open article matches</span>
-              <span className="font-bold text-[#1f2937]">
+              <span className="font-bold text-[var(--tge-text-primary)]">
                 {formatCount(openSourceMatchCount)}
               </span>
             </div>
           </div>
-          <div className="mt-4 border-t border-gray-200 pt-4">
+          <div className="mt-4 border-t border-[var(--tge-governance-neutral-border)] pt-4">
             <Link
               href="/sources/matches"
-              className="inline-flex h-9 w-full items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-9 w-full items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
             >
               Review Article Matches
             </Link>
