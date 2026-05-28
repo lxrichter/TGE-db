@@ -101,6 +101,8 @@ const opsClass = {
     "inline-flex h-9 w-full items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto",
   compactButton:
     "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:justify-start",
+  compactControl:
+    "inline-flex h-8 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-neutral-border)] disabled:bg-[var(--tge-surface-subtle)] disabled:text-[var(--tge-governance-muted-text)]",
   routeCard:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4 hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
   dangerPanel:
@@ -1695,18 +1697,18 @@ function fieldSuggestionWorkflowTone(
   candidate: PostgresFieldSuggestionCandidate
 ) {
   if (candidate.applied_at) {
-    return "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]";
+    return "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]";
   }
 
   if (candidate.suggestion_status_code === "confirmed") {
-    return "border-blue-200 bg-blue-50 text-blue-700";
+    return "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]";
   }
 
   if (candidate.suggestion_status_code === "rejected") {
-    return "border-red-200 bg-red-50 text-red-700";
+    return "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]";
   }
 
-  return "border-amber-200 bg-amber-50 text-amber-800";
+  return "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]";
 }
 
 function fieldSuggestionFieldContext(
@@ -1952,18 +1954,18 @@ function FieldSuggestionReviewPanel({
       title="AI Field Suggestion Review"
     >
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="text-xs leading-5 text-gray-500">
+        <div className={`text-xs leading-5 ${opsClass.muted}`}>
           {formatCount(summary.open)} open review item
           {summary.open === 1 ? "" : "s"} ·{" "}
           {formatCount(summary.applyReady)} ready to apply ·{" "}
           {formatCount(summary.applied)} applied to entities
         </div>
-        <span className="inline-flex min-h-[28px] self-start border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-semibold text-amber-800">
+        <span className="inline-flex min-h-[28px] self-start border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 py-1 text-xs font-semibold text-[var(--tge-governance-attention-text)]">
           Human confirmation required
         </span>
       </div>
 
-      <div className="border border-gray-200 bg-white px-4 py-4">
+      <div className={`${opsClass.panel} px-4 py-4`}>
         <div className="grid grid-cols-1 gap-2 md:grid-cols-4">
           {[
             ["1", "AI Suggestion", "Candidate only"],
@@ -1973,17 +1975,17 @@ function FieldSuggestionReviewPanel({
           ].map(([step, label, note]) => (
             <div
               key={step}
-              className="border border-gray-200 bg-[#fbfbfb] px-3 py-3"
+              className={`${opsClass.panelSubtle} px-3 py-3`}
             >
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center border border-gray-300 bg-white text-xs font-bold text-[#1f2937]">
+                <span className="inline-flex h-6 w-6 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-xs font-bold text-[var(--tge-text-primary)]">
                   {step}
                 </span>
-                <span className="text-xs font-bold uppercase tracking-wide text-[#1f2937]">
+                <span className={`text-xs font-bold uppercase tracking-wide ${opsClass.title}`}>
                   {label}
                 </span>
               </div>
-              <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+              <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>{note}</div>
             </div>
           ))}
         </div>
@@ -1991,14 +1993,14 @@ function FieldSuggestionReviewPanel({
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
         {cards.map((card) => (
-          <div key={card.label} className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div key={card.label} className={`${opsClass.panelSubtle} px-4 py-4`}>
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               {card.label}
             </div>
-            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+            <div className={`mt-2 text-2xl font-bold leading-none ${opsClass.title}`}>
               {formatCount(card.value)}
             </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
               {card.note}
             </div>
           </div>
@@ -2006,14 +2008,14 @@ function FieldSuggestionReviewPanel({
       </div>
 
       {candidates.length === 0 ? (
-        <div className="border-t border-gray-100 px-5 py-5 text-sm leading-6 text-gray-600">
+        <div className={`border-t px-5 py-5 text-sm leading-6 ${opsClass.divider} ${opsClass.body}`}>
           No field suggestions are available yet. This is expected until
           extraction scripts begin writing review candidates.
         </div>
       ) : (
-        <div className="border-t border-gray-100">
+        <div className={`border-t ${opsClass.divider}`}>
           <div className="flex flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="text-xs leading-5 text-gray-500">
+            <div className={`text-xs leading-5 ${opsClass.muted}`}>
               {formatCount(selectedCount)} selected. Confirm accepts the AI
               suggestion for later application. It does NOT update the database
               record. Apply To Database is the audited write step.
@@ -2027,7 +2029,7 @@ function FieldSuggestionReviewPanel({
                   Boolean(busyAction)
                 }
                 onClick={selectHighConfidenceCandidates}
-                className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className={opsClass.compactControl}
               >
                 Select high confidence
               </button>
@@ -2039,7 +2041,7 @@ function FieldSuggestionReviewPanel({
                   Boolean(busyAction)
                 }
                 onClick={selectApplyReadyCandidates}
-                className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className={opsClass.compactControl}
               >
                 Select apply-ready
               </button>
@@ -2047,7 +2049,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("confirm")}
-                className="inline-flex h-8 items-center justify-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-info-text)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-neutral-border)] disabled:bg-[var(--tge-surface-subtle)] disabled:text-[var(--tge-governance-muted-text)]"
               >
                 {busyAction === "confirm" ? "Confirming..." : "Confirm selected"}
               </button>
@@ -2055,7 +2057,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("apply")}
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 text-xs font-semibold text-[var(--tge-surface-card)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-neutral-border)] disabled:bg-[var(--tge-surface-subtle)] disabled:text-[var(--tge-governance-muted-text)]"
               >
                 {busyAction === "apply" ? "Applying..." : "Apply To Database"}
               </button>
@@ -2063,7 +2065,7 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("needs_review")}
-                className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className={opsClass.compactControl}
               >
                 {busyAction === "needs_review" ? "Updating..." : "Needs review"}
               </button>
@@ -2071,19 +2073,19 @@ function FieldSuggestionReviewPanel({
                 type="button"
                 disabled={!canReviewStatus || selectedCount === 0 || Boolean(busyAction)}
                 onClick={() => submitFieldSuggestionAction("reject")}
-                className="inline-flex h-8 items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                className="inline-flex h-8 items-center justify-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-neutral-border)] disabled:bg-[var(--tge-surface-subtle)] disabled:text-[var(--tge-governance-muted-text)]"
               >
                 {busyAction === "reject" ? "Rejecting..." : "Reject selected"}
               </button>
             </div>
           </div>
           {actionMessage ? (
-            <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-600">
+            <div className={`border-t px-5 py-3 text-xs leading-5 ${opsClass.divider} ${opsClass.body}`}>
               {actionMessage}
             </div>
           ) : null}
           {!canReviewStatus ? (
-            <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+            <div className={`border-t px-5 py-3 text-xs leading-5 ${opsClass.divider} ${opsClass.muted}`}>
               Review actions require editor/admin permissions.
             </div>
           ) : null}
@@ -2098,7 +2100,7 @@ function FieldSuggestionReviewPanel({
           />
           <div className="overflow-x-auto">
             <table className="min-w-[1240px] table-fixed text-left text-sm">
-              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <thead className="bg-[var(--tge-surface-subtle)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 <tr>
                   <th className="w-[4%] px-4 py-3 font-semibold">
                     <input
@@ -2112,7 +2114,7 @@ function FieldSuggestionReviewPanel({
                       onChange={(event) =>
                         toggleVisibleCandidates(event.target.checked)
                       }
-                      className="h-4 w-4 rounded-none border-gray-300 text-[#8dc63f] focus:ring-[#8dc63f]"
+                      className="h-4 w-4 rounded-none border-[var(--tge-governance-muted-border)] text-[var(--tge-brand-green)] focus:ring-[var(--tge-brand-green)]"
                     />
                   </th>
                   <th className="w-[12%] px-4 py-3 font-semibold">Type</th>
@@ -2124,11 +2126,11 @@ function FieldSuggestionReviewPanel({
                   <th className="w-[14%] px-4 py-3 font-semibold">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[var(--tge-governance-neutral-border)]">
                 {pageItems.map((candidate) => (
                   <tr
                     key={candidate.field_suggestion_candidate_id}
-                    className="align-top transition-colors hover:bg-[#fbfdf8]"
+                    className="align-top transition-colors hover:bg-[var(--tge-surface-subtle)]"
                   >
                     <td className="px-4 py-3">
                       <input
@@ -2147,10 +2149,10 @@ function FieldSuggestionReviewPanel({
                             event.target.checked
                           )
                         }
-                        className="h-4 w-4 rounded-none border-gray-300 text-[#8dc63f] focus:ring-[#8dc63f]"
+                        className="h-4 w-4 rounded-none border-[var(--tge-governance-muted-border)] text-[var(--tge-brand-green)] focus:ring-[var(--tge-brand-green)]"
                       />
                     </td>
-                    <td className="px-4 py-2.5 text-gray-700">
+                    <td className={`px-4 py-2.5 ${opsClass.body}`}>
                       {formatEntityType(candidate.entity_type)}
                       <div
                         className={`mt-2 inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${fieldSuggestionWorkflowTone(
@@ -2160,7 +2162,7 @@ function FieldSuggestionReviewPanel({
                         {fieldSuggestionWorkflowLabel(candidate)}
                       </div>
                       {candidate.applied_at ? (
-                        <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
+                        <div className="mt-1 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                           Applied {formatDate(candidate.applied_at)}
                         </div>
                       ) : null}
@@ -2168,22 +2170,22 @@ function FieldSuggestionReviewPanel({
                     <td className="px-4 py-2.5">
                       <Link
                         href={fieldSuggestionHref(candidate)}
-                        className="line-clamp-2 font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={`line-clamp-2 font-semibold ${opsClass.title} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                         title={candidate.entity_name}
                       >
                         {candidate.entity_name}
                       </Link>
                       <CompactCellText
-                        className="mt-1 text-xs text-gray-500"
+                        className={`mt-1 text-xs ${opsClass.muted}`}
                         value={candidate.country}
                         fallback="No country"
                       />
                     </td>
-                    <td className="px-4 py-2.5 text-gray-700">
+                    <td className={`px-4 py-2.5 ${opsClass.body}`}>
                       <CompactCellText value={candidate.field_name} />
                       {candidate.source_title || candidate.source_reference ? (
                         <CompactCellText
-                          className="mt-2 text-xs text-gray-500"
+                          className={`mt-2 text-xs ${opsClass.muted}`}
                           lines={2}
                           value={
                             candidate.source_title || candidate.source_reference
@@ -2193,45 +2195,45 @@ function FieldSuggestionReviewPanel({
                       {candidate.source_id ? (
                         <Link
                           href={`/sources/${candidate.source_id}`}
-                          className="mt-2 inline-flex text-xs font-semibold text-[#4f7f1f] hover:underline"
+                          className="mt-2 inline-flex text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:underline"
                         >
                           Open source
                         </Link>
                       ) : null}
                     </td>
-                    <td className="px-4 py-2.5 text-gray-700">
+                    <td className={`px-4 py-2.5 ${opsClass.body}`}>
                       <CompactCellText
                         lines={2}
                         value={candidate.current_value}
                       />
                       <CompactCellText
-                        className="mt-2 text-xs font-semibold text-gray-500"
+                        className={`mt-2 text-xs font-semibold ${opsClass.muted}`}
                         value={fieldSuggestionFieldContext(candidate)}
                       />
                     </td>
-                    <td className="px-4 py-2.5 font-semibold text-[#1f2937]">
+                    <td className={`px-4 py-2.5 font-semibold ${opsClass.title}`}>
                       <CompactCellText
                         lines={2}
                         value={candidate.suggested_value}
                       />
                       {candidate.suggestion_reason ? (
                         <CompactCellText
-                          className="mt-2 text-xs font-normal text-gray-500"
+                          className={`mt-2 text-xs font-normal ${opsClass.muted}`}
                           lines={2}
                           value={candidate.suggestion_reason}
                         />
                       ) : null}
                     </td>
-                    <td className="px-4 py-2.5 text-gray-700">
+                    <td className={`px-4 py-2.5 ${opsClass.body}`}>
                       {formatConfidence(candidate.confidence_score)}
-                      <div className="mt-1 text-xs text-gray-500">
+                      <div className={`mt-1 text-xs ${opsClass.muted}`}>
                         {formatDate(candidate.generated_at)}
                       </div>
                     </td>
                     <td className="px-4 py-2.5">
                       <Link
                         href={fieldSuggestionHref(candidate)}
-                        className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                        className={opsClass.compactButton}
                       >
                         Open Record
                       </Link>
@@ -2255,7 +2257,7 @@ function FieldSuggestionReviewPanel({
         </div>
       )}
 
-      <div className="mt-4 border border-gray-100 bg-[#fbfbfb] px-4 py-3 text-xs leading-5 text-gray-500">
+      <div className={`mt-4 ${opsClass.panelSubtle} px-4 py-3 text-xs leading-5 ${opsClass.muted}`}>
         Total candidates: {formatCount(summary.total)}. Confirm first, then
         apply confirmed suggestions as a separate audited write step. Applying
         only updates supported empty fields and leaves validation/export
