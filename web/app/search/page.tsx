@@ -128,6 +128,37 @@ const commandShortcutGroups = [
   shortcuts: commandShortcuts.filter((shortcut) => shortcut.group === group),
 }));
 
+const searchPageClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] px-5 py-4",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  input:
+    "h-11 border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-medium text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  primaryButton:
+    "h-11 border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]",
+  resultCard:
+    "block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 hover:border-[var(--tge-brand-green)]",
+  shortcutCard:
+    "block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4 hover:border-[var(--tge-brand-green)]",
+  entityBadge:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  statusBadge:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-governance-success-text)]",
+  openLink:
+    "shrink-0 text-xs font-semibold text-[var(--tge-brand-green-dark)]",
+  warningPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5",
+  warningText: "text-[var(--tge-governance-attention-text)]",
+};
+
 function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   if (value === "operating_asset") {
     return "Plant";
@@ -180,14 +211,14 @@ function SearchForm({ query }: { query: string }) {
     <form action="/search" className="grid gap-3 md:grid-cols-[minmax(0,1fr)_140px]">
       <input
         autoFocus
-        className="h-11 border border-gray-300 bg-white px-4 text-sm font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+        className={searchPageClass.input}
         defaultValue={query}
         name="q"
         placeholder="Search projects, plants, companies, sources, markets..."
         type="search"
       />
       <button
-        className="h-11 border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+        className={searchPageClass.primaryButton}
         type="submit"
       >
         Search
@@ -200,35 +231,35 @@ function ResultCard({ result }: { result: GlobalSearchResult }) {
   return (
     <Link
       href={result.href}
-      className="block border border-gray-200 bg-white px-4 py-4 hover:border-[#8dc63f]"
+      className={searchPageClass.resultCard}
     >
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+            <span className={searchPageClass.entityBadge}>
               {entityTypeLabel(result.entity_type)}
             </span>
             {result.status_code ? (
-              <span className="border border-[#d7e8bf] bg-[#f5faef] px-2 py-1 text-[11px] font-semibold text-[#4f7f1f]">
+              <span className={searchPageClass.statusBadge}>
                 {result.status_code}
               </span>
             ) : null}
             {result.country ? (
-              <span className="text-xs font-medium text-gray-500">
+              <span className={`text-xs font-medium ${searchPageClass.muted}`}>
                 {result.country}
               </span>
             ) : null}
           </div>
-          <div className="mt-2 truncate text-base font-bold text-[#1f2937]">
+          <div className={`mt-2 truncate text-base font-bold ${searchPageClass.title}`}>
             {result.title}
           </div>
           {result.subtitle ? (
-            <div className="mt-1 text-sm leading-6 text-gray-600">
+            <div className={`mt-1 text-sm leading-6 ${searchPageClass.body}`}>
               {result.subtitle}
             </div>
           ) : null}
         </div>
-        <div className="shrink-0 text-xs font-semibold text-[#4f7f1f]">
+        <div className={searchPageClass.openLink}>
           Open
         </div>
       </div>
@@ -247,15 +278,15 @@ export default async function GlobalSearchPage({
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={searchPageClass.panel}>
+        <div className={searchPageClass.hero}>
+          <p className={searchPageClass.kicker}>
             Global Search
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
+          <h1 className={`mt-3 text-4xl font-bold tracking-tight ${searchPageClass.title}`}>
             Search And Quick Actions
           </h1>
-          <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+          <p className={`mt-4 max-w-4xl text-base leading-7 ${searchPageClass.body}`}>
             Fast internal lookup across PostgreSQL staging projects,
             plants, companies, sources, and country signals. This is
             the first simple step toward command-palette and semantic search.
@@ -267,21 +298,21 @@ export default async function GlobalSearchPage({
       </section>
 
       {!data.ok ? (
-        <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-          <h2 className="text-lg font-bold text-amber-900">
+        <section className={searchPageClass.warningPanel}>
+          <h2 className={`text-lg font-bold ${searchPageClass.warningText}`}>
             PostgreSQL Search Not Connected
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+          <p className={`mt-2 max-w-3xl text-sm leading-6 ${searchPageClass.warningText}`}>
             Global search reads from the PostgreSQL staging tables. Run the app
             with local `DATABASE_URL` or Railway PostgreSQL variables.
           </p>
-          <p className="mt-3 text-xs text-amber-900">Error: {data.error}</p>
+          <p className={`mt-3 text-xs ${searchPageClass.warningText}`}>Error: {data.error}</p>
         </section>
       ) : data.query.length < 2 ? (
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 px-5 py-4">
-            <h2 className="text-lg font-bold text-[#1f2937]">Quick Actions</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+        <section className={searchPageClass.panel}>
+          <div className={searchPageClass.sectionHeader}>
+            <h2 className={`text-lg font-bold ${searchPageClass.title}`}>Quick Actions</h2>
+            <p className={`mt-2 max-w-3xl text-sm leading-6 ${searchPageClass.body}`}>
               Use search to find projects, plants, companies, sources, and
               markets, or jump directly into common operational workflows.
             </p>
@@ -289,7 +320,7 @@ export default async function GlobalSearchPage({
           <div className="space-y-6 px-5 py-5">
             {commandShortcutGroups.map((group) => (
               <div key={group.group}>
-                <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+                <div className={`mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] ${searchPageClass.muted}`}>
                   {group.group}
                 </div>
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -297,12 +328,12 @@ export default async function GlobalSearchPage({
                     <Link
                       key={shortcut.href}
                       href={shortcut.href}
-                      className="block border border-gray-200 bg-[#fbfbfb] px-4 py-4 hover:border-[#8dc63f]"
+                      className={searchPageClass.shortcutCard}
                     >
-                      <div className="text-sm font-bold text-[#1f2937]">
+                      <div className={`text-sm font-bold ${searchPageClass.title}`}>
                         {shortcut.label}
                       </div>
-                      <p className="mt-2 text-xs leading-5 text-gray-600">
+                      <p className={`mt-2 text-xs leading-5 ${searchPageClass.body}`}>
                         {shortcut.note}
                       </p>
                     </Link>
@@ -313,11 +344,11 @@ export default async function GlobalSearchPage({
           </div>
         </section>
       ) : (
-        <section className="border border-gray-200 bg-white">
-          <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+        <section className={searchPageClass.panel}>
+          <div className={`flex flex-col gap-3 md:flex-row md:items-start md:justify-between ${searchPageClass.sectionHeader}`}>
             <div>
-              <h2 className="text-lg font-bold text-[#1f2937]">Results</h2>
-              <p className="mt-2 text-sm leading-6 text-gray-600">
+              <h2 className={`text-lg font-bold ${searchPageClass.title}`}>Results</h2>
+              <p className={`mt-2 text-sm leading-6 ${searchPageClass.body}`}>
                 {formatCount(data.results.length)} result
                 {data.results.length === 1 ? "" : "s"} for{" "}
                 <span className="font-semibold">“{data.query}”</span>
@@ -326,7 +357,7 @@ export default async function GlobalSearchPage({
           </div>
 
           {data.results.length === 0 ? (
-            <div className="px-5 py-8 text-sm text-gray-600">
+            <div className={`px-5 py-8 text-sm ${searchPageClass.body}`}>
               No projects, plants, companies, sources, or markets matched this search.
             </div>
           ) : (
@@ -334,10 +365,10 @@ export default async function GlobalSearchPage({
               {groupedResults.map(([entityType, results]) => (
                 <div key={entityType}>
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-[#1f2937]">
+                    <h3 className={`text-sm font-bold ${searchPageClass.title}`}>
                       {entityTypeLabel(entityType)}
                     </h3>
-                    <span className="text-xs font-semibold text-gray-500">
+                    <span className={`text-xs font-semibold ${searchPageClass.muted}`}>
                       {formatCount(results.length)}
                     </span>
                   </div>
