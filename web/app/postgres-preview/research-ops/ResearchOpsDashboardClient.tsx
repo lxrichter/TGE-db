@@ -4737,10 +4737,10 @@ export function ResearchOpsDashboardClient({
         >
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(260px,1fr)_repeat(4,minmax(150px,190px))] xl:items-end">
-            <label className="flex min-w-0 flex-1 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <label className={`${opsClass.label} flex-1`}>
               Search
               <input
-                className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                className={opsClass.input}
                 placeholder="Name, country, issue, status, researcher"
                 value={search}
                 onChange={(event) => {
@@ -4801,8 +4801,8 @@ export function ResearchOpsDashboardClient({
               <button
                 className={
                   queueFilter === "all"
-                    ? "h-8 border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold text-[#4f7f1f]"
-                    : "h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    ? "h-8 border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)]"
+                    : "h-8 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                 }
                 type="button"
                 onClick={() => setQueueFilter("all")}
@@ -4813,8 +4813,8 @@ export function ResearchOpsDashboardClient({
                 <button
                   className={
                     queueFilter === queue.key
-                      ? "h-8 border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold text-[#4f7f1f]"
-                      : "h-8 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      ? "h-8 border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)]"
+                      : "h-8 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                   }
                   key={queue.key}
                   type="button"
@@ -4826,24 +4826,24 @@ export function ResearchOpsDashboardClient({
             </div>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
-              <label className="inline-flex h-9 items-center justify-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 sm:justify-start">
+              <label className="inline-flex h-9 items-center justify-center gap-2 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] sm:justify-start">
                 <input
                   checked={showEmptyQueues}
-                  className="h-4 w-4 accent-[#8dc63f]"
+                  className="h-4 w-4 accent-[var(--tge-brand-green)]"
                   type="checkbox"
                   onChange={(event) => setShowEmptyQueues(event.target.checked)}
                 />
                 Show empty queues
               </label>
               <button
-                className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                 type="button"
                 onClick={clearFilters}
               >
                 Clear Filters
               </button>
               <button
-                className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                 disabled={filteredRecords.length === 0}
                 type="button"
                 onClick={selectFilteredRecords}
@@ -4851,7 +4851,7 @@ export function ResearchOpsDashboardClient({
                 Select Filtered
               </button>
               <button
-                className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-9 border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={!canReviewStatus || filteredIssueRows === 0}
                 type="button"
                 onClick={exportFilteredIssues}
@@ -4877,8 +4877,8 @@ export function ResearchOpsDashboardClient({
         </div>
         </DisclosurePanel>
 
-        <section className="border border-gray-200 bg-white px-5 py-4 text-sm leading-6 text-gray-600">
-        <span className="font-semibold text-[#1f2937]">Current scope:</span>{" "}
+        <section className={`${opsClass.panel} px-5 py-4 text-sm leading-6 ${opsClass.body}`}>
+        <span className={`font-semibold ${opsClass.title}`}>Current scope:</span>{" "}
         Platform queues now support quick review-status changes for
         projects, plants, companies, and source credibility.
         Railway PostgreSQL uses a transformed copied Hetzner SQLite
@@ -4947,29 +4947,29 @@ export function ResearchOpsDashboardClient({
           description="Use this area for detailed filtering, row selection, bulk review actions, CSV exports, and click-through to the underlying project, plant, company, or source record."
         />
 
-        <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 md:flex-row md:items-center md:justify-between">
-        <div className="text-sm leading-6 text-gray-600">
+        <section className={`flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between ${opsClass.panel}`}>
+        <div className={`text-sm leading-6 ${opsClass.body}`}>
           {formatCount(filteredQueues.length)} queue
           {filteredQueues.length === 1 ? "" : "s"} visible. Collapse queues to
           keep the workbench manageable while preserving the active filter state.
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:flex md:flex-wrap">
           <button
-            className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
             type="button"
             onClick={() => setQueueRowsCompact((current) => !current)}
           >
             {queueRowsCompact ? "Detailed Rows" : "Compact Rows"}
           </button>
           <button
-            className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
             type="button"
             onClick={collapseAllQueues}
           >
             Collapse All
           </button>
           <button
-            className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
             type="button"
             onClick={expandAllQueues}
           >
