@@ -14,6 +14,8 @@ type EditableItem = {
   isActive: boolean;
 };
 
+type VocabularyStatusFilter = "all" | "active" | "inactive";
+
 function toEditableItem(item: VocabularyItem): EditableItem {
   return {
     code: item.code,
@@ -62,12 +64,52 @@ export default function VocabularyManagementPanel({
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [termSearch, setTermSearch] = useState("");
+  const [termStatusFilter, setTermStatusFilter] =
+    useState<VocabularyStatusFilter>("all");
   const [isPending, startTransition] = useTransition();
 
   const activeGroup = useMemo(
     () => groups.find((group) => group.key === activeGroupKey) || groups[0],
     [activeGroupKey, groups]
   );
+
+  const filteredItems = useMemo(() => {
+    if (!activeGroup) return [];
+
+    const query = termSearch.trim().toLowerCase();
+
+    return activeGroup.items.filter((item) => {
+      const matchesSearch =
+        !query ||
+        [
+          item.code,
+          item.label,
+          item.description,
+          ...Object.values(item.metadata || {}),
+        ]
+          .map((value) => String(value ?? "").toLowerCase())
+          .some((value) => value.includes(query));
+
+      const matchesStatus =
+        termStatusFilter === "all" ||
+        (termStatusFilter === "active" && item.is_active) ||
+        (termStatusFilter === "inactive" && !item.is_active);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [activeGroup, termSearch, termStatusFilter]);
+
+  const activeTermCount =
+    activeGroup?.items.filter((item) => item.is_active).length || 0;
+  const inactiveTermCount = (activeGroup?.items.length || 0) - activeTermCount;
+  const hasTermFilters =
+    termSearch.trim() !== "" || termStatusFilter !== "all";
+
+  function clearTermFilters() {
+    setTermSearch("");
+    setTermStatusFilter("all");
+  }
 
   function replaceItem(groupKey: string, item: VocabularyItem) {
     setGroups((current) =>
@@ -233,6 +275,8 @@ export default function VocabularyManagementPanel({
                 onClick={() => {
                   setActiveGroupKey(group.key);
                   setEditing({});
+                  setTermSearch("");
+                  setTermStatusFilter("all");
                   setMessage("");
                   setError("");
                 }}
@@ -264,6 +308,40 @@ export default function VocabularyManagementPanel({
               </span>
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-3 border-t border-gray-200 bg-[#fafafa] px-5 py-4 md:grid-cols-4">
+            <div className="border border-gray-200 bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                Total Terms
+              </div>
+              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+                {activeGroup.items.length.toLocaleString()}
+              </div>
+            </div>
+            <div className="border border-[#b7df72] bg-[#eef8dc] px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#4d6b16]">
+                Active
+              </div>
+              <div className="mt-1 text-2xl font-bold text-[#2e6b1f]">
+                {activeTermCount.toLocaleString()}
+              </div>
+            </div>
+            <div className="border border-gray-200 bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                Inactive
+              </div>
+              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+                {inactiveTermCount.toLocaleString()}
+              </div>
+            </div>
+            <div className="border border-gray-200 bg-white px-4 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                Visible
+              </div>
+              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+                {filteredItems.length.toLocaleString()}
+              </div>
+            </div>
+          </div>
         </section>
 
         {error ? (
@@ -276,6 +354,54 @@ export default function VocabularyManagementPanel({
             {message}
           </div>
         ) : null}
+
+        <section className="border border-gray-200 bg-white">
+          <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
+            <h3 className="text-lg font-bold text-[#1f2937]">Term Filters</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Search and filter the selected vocabulary group before editing.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 px-5 py-4 lg:grid-cols-[minmax(0,1fr)_160px_auto]">
+            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Search Terms
+              <input
+                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                placeholder="Code, label, description, metadata..."
+                type="search"
+                value={termSearch}
+                onChange={(event) => setTermSearch(event.target.value)}
+              />
+            </label>
+
+            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Status
+              <select
+                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                value={termStatusFilter}
+                onChange={(event) =>
+                  setTermStatusFilter(
+                    event.target.value as VocabularyStatusFilter
+                  )
+                }
+              >
+                <option value="all">All terms</option>
+                <option value="active">Active only</option>
+                <option value="inactive">Inactive only</option>
+              </select>
+            </label>
+
+            <button
+              className="h-10 self-end border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
+              disabled={!hasTermFilters}
+              type="button"
+              onClick={clearTermFilters}
+            >
+              Clear
+            </button>
+          </div>
+        </section>
 
         <section className="border border-gray-200 bg-white">
           <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-4">
@@ -370,7 +496,7 @@ export default function VocabularyManagementPanel({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {activeGroup.items.map((item) => {
+              {filteredItems.map((item) => {
                 const editable = getEditable(item);
 
                 return (
@@ -443,6 +569,22 @@ export default function VocabularyManagementPanel({
                   </tr>
                 );
               })}
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td
+                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    colSpan={
+                      5 +
+                      activeGroup.metadataColumns.length +
+                      (activeGroup.hasDescription ? 1 : 0)
+                    }
+                  >
+                    {activeGroup.items.length === 0
+                      ? "No terms exist in this vocabulary group yet."
+                      : "No terms match the current filters."}
+                  </td>
+                </tr>
+              ) : null}
             </tbody>
           </table>
         </section>
