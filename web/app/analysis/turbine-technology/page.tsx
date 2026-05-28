@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { AnalysisGovernanceQaSection } from "@/components/analysis/AnalysisGovernanceQa";
 import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
 import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
 import { slugify } from "@/lib/slug";
@@ -203,6 +204,103 @@ function CoveragePanel({
         })}
       </div>
     </section>
+  );
+}
+
+function GovernanceMetric({
+  label,
+  value,
+  note,
+  tone = "default",
+}: {
+  label: string;
+  value: string | number;
+  note: string;
+  tone?: "default" | "warning";
+}) {
+  return (
+    <div className="border border-gray-200 bg-white px-4 py-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div
+        className={`mt-1 text-xl font-bold ${
+          tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+        }`}
+      >
+        {value}
+      </div>
+      <p className="mt-1 text-xs leading-5 text-gray-600">{note}</p>
+    </div>
+  );
+}
+
+function TechnologyGovernanceReadiness({
+  coverage,
+}: {
+  coverage: CoverageSummary;
+}) {
+  return (
+    <AnalysisGovernanceQaSection
+      title="Technology Analysis Readiness"
+      description="These checks keep turbine technology and supplier benchmarks transparent. Missing capacity weakens MWe shares, missing units weakens average-size calculations, and unmapped values need taxonomy cleanup before subscriber-grade use."
+    >
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.8fr]">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <GovernanceMetric
+            label="Missing installed MWe"
+            value={coverage.plants_missing_installed_mwe}
+            note="Plant rows excluded or underweighted in installed-capacity shares."
+            tone={coverage.plants_missing_installed_mwe ? "warning" : "default"}
+          />
+          <GovernanceMetric
+            label="Missing unit count"
+            value={coverage.plants_missing_unit_count}
+            note="Rows weaken unit totals and average turbine-size calculations."
+            tone={coverage.plants_missing_unit_count ? "warning" : "default"}
+          />
+          <GovernanceMetric
+            label="Unmapped technology"
+            value={coverage.plants_unmapped_technology}
+            note="Technology values currently fall into tbd/other taxonomy buckets."
+            tone={coverage.plants_unmapped_technology ? "warning" : "default"}
+          />
+          <GovernanceMetric
+            label="Missing supplier"
+            value={coverage.plants_missing_supplier}
+            note="Supplier rankings include unknown/NA exposure until plant records are cleaned."
+            tone={coverage.plants_missing_supplier ? "warning" : "default"}
+          />
+        </div>
+
+        <div className="border border-amber-200 bg-white">
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3">
+            <h3 className="text-sm font-bold text-[#1f2937]">
+              Cleanup Routing
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-amber-900">
+              Resolve plant capacity, unit counts, technology taxonomy, and
+              turbine supplier values in the operational workspaces.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-3 xl:grid-cols-1">
+            {[
+              { label: "Research Ops", href: "/postgres-preview/research-ops" },
+              { label: "Plant Records", href: "/plants" },
+              { label: "Technology Module", href: "/analysis/modules/turbine-technology" },
+            ].map((route) => (
+              <Link
+                key={route.label}
+                href={route.href}
+                className="border border-gray-200 bg-[#fafafa] px-3 py-2 text-xs font-semibold text-[#1f2937] transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
+              >
+                {route.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </AnalysisGovernanceQaSection>
   );
 }
 
@@ -961,6 +1059,8 @@ export default function TurbineTechnologyPage() {
           ]}
         />
       </section>
+
+      <TechnologyGovernanceReadiness coverage={data.coverage} />
 
       <section className="border border-gray-200 bg-white">
         <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
