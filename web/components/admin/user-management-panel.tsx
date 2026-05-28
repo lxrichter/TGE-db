@@ -44,6 +44,73 @@ function roleLabel(role: CanonicalUserRole) {
   return ROLE_OPTIONS.find((option) => option.value === role)?.label || role;
 }
 
+const ROLE_PERMISSION_ROWS: {
+  capability: string;
+  researcher: string;
+  editor: string;
+  senior_editor: string;
+  admin: string;
+}[] = [
+  {
+    capability: "View internal records",
+    researcher: "Yes",
+    editor: "Yes",
+    senior_editor: "Yes",
+    admin: "Yes",
+  },
+  {
+    capability: "Create and edit drafts",
+    researcher: "Yes",
+    editor: "Yes",
+    senior_editor: "Yes",
+    admin: "Yes",
+  },
+  {
+    capability: "Approve / review records",
+    researcher: "No",
+    editor: "Yes",
+    senior_editor: "Yes",
+    admin: "Yes",
+  },
+  {
+    capability: "Run exports",
+    researcher: "No",
+    editor: "Yes",
+    senior_editor: "Yes",
+    admin: "Yes",
+  },
+  {
+    capability: "Manage vocabularies",
+    researcher: "No",
+    editor: "No",
+    senior_editor: "No",
+    admin: "Yes",
+  },
+  {
+    capability: "Manage users",
+    researcher: "No",
+    editor: "No",
+    senior_editor: "No",
+    admin: "Yes",
+  },
+];
+
+function RolePermissionValue({ value }: { value: string }) {
+  const isAllowed = value === "Yes";
+
+  return (
+    <span
+      className={
+        isAllowed
+          ? "inline-flex min-w-[44px] justify-center border border-[#b7df72] bg-[#eef8dc] px-2 py-1 text-[11px] font-semibold text-[#2e6b1f]"
+          : "inline-flex min-w-[44px] justify-center border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] font-semibold text-gray-500"
+      }
+    >
+      {value}
+    </span>
+  );
+}
+
 export default function UserManagementPanel({
   initialUsers,
   currentUserEmail,
@@ -606,6 +673,43 @@ export default function UserManagementPanel({
               <p className="mt-1 text-sm text-gray-500">
                 MVP role logic used across the platform.
               </p>
+            </div>
+
+            <div className="overflow-x-auto border-b border-gray-200">
+              <table className="min-w-full text-sm">
+                <thead className="bg-white text-left text-[11px] uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="border-b border-gray-200 px-4 py-3 font-semibold">
+                      Capability
+                    </th>
+                    {ROLE_OPTIONS.map((option) => (
+                      <th
+                        key={option.value}
+                        className="border-b border-gray-200 px-4 py-3 font-semibold"
+                      >
+                        {option.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {ROLE_PERMISSION_ROWS.map((row) => (
+                    <tr key={row.capability} className="hover:bg-gray-50">
+                      <td className="border-b border-gray-100 px-4 py-3 font-medium text-[#1f2937]">
+                        {row.capability}
+                      </td>
+                      {ROLE_OPTIONS.map((option) => (
+                        <td
+                          key={option.value}
+                          className="border-b border-gray-100 px-4 py-3"
+                        >
+                          <RolePermissionValue value={row[option.value]} />
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
             <div className="space-y-2 px-5 py-4 text-sm leading-6 text-gray-600">
