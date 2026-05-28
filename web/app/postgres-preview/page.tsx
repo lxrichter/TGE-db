@@ -64,6 +64,53 @@ async function getPreviewData(): Promise<PreviewData> {
   }
 }
 
+const commandCenterClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  statTile:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+  sectionHeader:
+    "flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5",
+  workCard:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] sm:px-5 sm:py-5",
+  entryCard:
+    "group border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
+  stepBadge:
+    "inline-flex h-8 w-8 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] text-xs font-bold text-[var(--tge-brand-green-dark)]",
+  openText:
+    "text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]",
+  recordPreview:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  recordPreviewBody:
+    "border-t border-[var(--tge-governance-neutral-border)]",
+  tableShell: "bg-[var(--tge-surface-card)]",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  tableDivider: "divide-y divide-[var(--tge-governance-muted-border)]",
+  tableCell: "px-5 py-4 text-[var(--tge-governance-neutral-text)]",
+  tableMuted: "mt-1 text-xs text-[var(--tge-governance-muted-text)]",
+  tableLink:
+    "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  primaryAction:
+    "inline-flex h-10 w-full items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] sm:w-auto",
+  secondaryAction:
+    "inline-flex h-10 w-full items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto",
+  warningPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5",
+  warningText: "text-[var(--tge-governance-attention-text)]",
+  pre:
+    "mt-4 overflow-x-auto bg-[var(--tge-surface-card)] px-4 py-3 text-xs text-[var(--tge-governance-neutral-text)]",
+};
+
 function StatTile({
   label,
   value,
@@ -74,14 +121,14 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={commandCenterClass.statTile}>
+      <div className={commandCenterClass.label}>
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937] sm:text-3xl">
+      <div className={`mt-2 text-2xl font-bold leading-none sm:text-3xl ${commandCenterClass.title}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${commandCenterClass.muted}`}>{note}</div>
     </div>
   );
 }
@@ -91,7 +138,7 @@ function StatusBadge({ value }: { value: string | null }) {
 }
 
 function EmptyValue() {
-  return <span className="text-gray-400">-</span>;
+  return <span className={commandCenterClass.muted}>-</span>;
 }
 
 function MetricValue({
@@ -120,9 +167,9 @@ function SectionHeader({
   count: number;
 }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-      <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-      <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <div className={commandCenterClass.sectionHeader}>
+      <h2 className={`text-lg font-bold ${commandCenterClass.title}`}>{title}</h2>
+      <span className={`text-xs font-semibold uppercase tracking-wide ${commandCenterClass.muted}`}>
         {formatCount(count)} {title.toLowerCase()}
       </span>
     </div>
@@ -142,15 +189,15 @@ function WorkAreaCard({
 }) {
   return (
     <Link
-      className="border border-gray-200 bg-white px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8] sm:px-5 sm:py-5"
+      className={commandCenterClass.workCard}
       href={href}
     >
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={commandCenterClass.label}>
         {label}
       </div>
-      <div className="mt-2 text-lg font-bold text-[#1f2937]">{title}</div>
-      <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
-      <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+      <div className={`mt-2 text-lg font-bold ${commandCenterClass.title}`}>{title}</div>
+      <p className={`mt-2 text-sm leading-6 ${commandCenterClass.body}`}>{description}</p>
+      <div className={`mt-4 ${commandCenterClass.openText}`}>
         Open
       </div>
     </Link>
@@ -170,19 +217,19 @@ function EntryPathCard({
 }) {
   return (
     <Link
-      className="group border border-gray-200 bg-white px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      className={commandCenterClass.entryCard}
       href={href}
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="inline-flex h-8 w-8 items-center justify-center border border-[#8dc63f] bg-[#f3f8ec] text-xs font-bold text-[#4f7f1f]">
+        <span className={commandCenterClass.stepBadge}>
           {step}
         </span>
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 group-hover:text-[#4f7f1f]">
+        <span className={`text-[11px] font-semibold uppercase tracking-wide ${commandCenterClass.muted} group-hover:text-[var(--tge-brand-green-dark)]`}>
           Open
         </span>
       </div>
-      <div className="mt-4 text-base font-bold text-[#1f2937]">{title}</div>
-      <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
+      <div className={`mt-4 text-base font-bold ${commandCenterClass.title}`}>{title}</div>
+      <p className={`mt-2 text-sm leading-6 ${commandCenterClass.body}`}>{description}</p>
     </Link>
   );
 }
@@ -197,30 +244,30 @@ function RecordPreview({
   children: React.ReactNode;
 }) {
   return (
-    <details className="border border-gray-200 bg-white">
+    <details className={commandCenterClass.recordPreview}>
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-4 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
-          <div className="text-sm font-bold text-[#1f2937]">{title}</div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className={`text-sm font-bold ${commandCenterClass.title}`}>{title}</div>
+          <div className={`mt-1 text-xs ${commandCenterClass.muted}`}>
             {formatCount(count)} preview samples
           </div>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className={commandCenterClass.openText}>
           Expand
         </span>
       </summary>
-      <div className="border-t border-gray-200">{children}</div>
+      <div className={commandCenterClass.recordPreviewBody}>{children}</div>
     </details>
   );
 }
 
 function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
   return (
-    <section className="bg-white">
+    <section className={commandCenterClass.tableShell}>
       <SectionHeader title="Projects" count={projects.length} />
       <div className="overflow-x-auto">
         <table className="min-w-[860px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={commandCenterClass.tableHead}>
             <tr>
               <th className="w-[30%] px-5 py-3 font-semibold">Name</th>
               <th className="w-[12%] px-5 py-3 font-semibold">Use</th>
@@ -231,21 +278,21 @@ function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
               <th className="w-[12%] px-5 py-3 font-semibold">Review</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={commandCenterClass.tableDivider}>
             {projects.map((project) => (
               <tr key={project.project_id} className="align-top">
                 <td className="px-5 py-4">
                   <Link
                     href={`/postgres-preview/projects/${project.project_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={commandCenterClass.tableLink}
                   >
                     {project.project_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={commandCenterClass.tableMuted}>
                     {project.legacy_project_id || "No legacy ID"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {project.primary_use_type_code}
                 </td>
                 <td className="px-5 py-4">
@@ -254,16 +301,16 @@ function ProjectsTable({ projects }: { projects: PostgresPreviewProject[] }) {
                     value={project.lifecycle_phase_code}
                   />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {project.country || <EmptyValue />}
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={commandCenterClass.tableMuted}>
                     {project.region || <EmptyValue />}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   <MetricValue value={project.electric_capacity_mwe} suffix="MWe" />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   <MetricValue value={project.thermal_capacity_mwth} suffix="MWth" />
                 </td>
                 <td className="px-5 py-4">
@@ -284,11 +331,11 @@ function OperatingAssetsTable({
   operatingAssets: PostgresPreviewOperatingAsset[];
 }) {
   return (
-    <section className="bg-white">
+    <section className={commandCenterClass.tableShell}>
       <SectionHeader title="Plants" count={operatingAssets.length} />
       <div className="overflow-x-auto">
         <table className="min-w-[860px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={commandCenterClass.tableHead}>
             <tr>
               <th className="w-[30%] px-5 py-3 font-semibold">Name</th>
               <th className="w-[12%] px-5 py-3 font-semibold">Use</th>
@@ -299,21 +346,21 @@ function OperatingAssetsTable({
               <th className="w-[12%] px-5 py-3 font-semibold">Review</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={commandCenterClass.tableDivider}>
             {operatingAssets.map((asset) => (
               <tr key={asset.operating_asset_id} className="align-top">
                 <td className="px-5 py-4">
                   <Link
                     href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={commandCenterClass.tableLink}
                   >
                     {asset.asset_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={commandCenterClass.tableMuted}>
                     {asset.legacy_plant_id || "No legacy ID"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {asset.primary_use_type_code}
                 </td>
                 <td className="px-5 py-4">
@@ -322,16 +369,16 @@ function OperatingAssetsTable({
                     value={asset.lifecycle_phase_code}
                   />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {asset.country || <EmptyValue />}
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={commandCenterClass.tableMuted}>
                     {asset.region || <EmptyValue />}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   <MetricValue value={asset.electric_capacity_mwe} suffix="MWe" />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   <MetricValue value={asset.thermal_capacity_mwth} suffix="MWth" />
                 </td>
                 <td className="px-5 py-4">
@@ -348,11 +395,11 @@ function OperatingAssetsTable({
 
 function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) {
   return (
-    <section className="bg-white">
+    <section className={commandCenterClass.tableShell}>
       <SectionHeader title="Companies" count={companies.length} />
       <div className="overflow-x-auto">
         <table className="min-w-[760px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={commandCenterClass.tableHead}>
             <tr>
               <th className="w-[34%] px-5 py-3 font-semibold">Name</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Type</th>
@@ -361,30 +408,30 @@ function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) 
               <th className="w-[12%] px-5 py-3 font-semibold">Review</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={commandCenterClass.tableDivider}>
             {companies.map((company) => (
               <tr key={company.company_id} className="align-top">
                 <td className="px-5 py-4">
                   <Link
                     href={`/postgres-preview/companies/${company.company_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={commandCenterClass.tableLink}
                   >
                     {company.company_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={commandCenterClass.tableMuted}>
                     {company.legacy_company_id || "No legacy ID"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {company.company_type_primary_code || <EmptyValue />}
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={commandCenterClass.tableMuted}>
                     {company.entity_type_code || <EmptyValue />}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {company.headquarters_country || <EmptyValue />}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={commandCenterClass.tableCell}>
                   {company.geothermal_focus || <EmptyValue />}
                 </td>
                 <td className="px-5 py-4">
@@ -401,16 +448,16 @@ function CompaniesTable({ companies }: { companies: PostgresPreviewCompany[] }) 
 
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className={commandCenterClass.warningPanel}>
+      <h2 className={`text-lg font-bold ${commandCenterClass.warningText}`}>PostgreSQL Not Connected</h2>
+      <p className={`mt-2 max-w-3xl text-sm leading-6 ${commandCenterClass.warningText}`}>
         This preview reads from the Railway PostgreSQL database. Run the app
         through Railway variables or set `DATABASE_URL` locally.
       </p>
-      <pre className="mt-4 overflow-x-auto bg-white px-4 py-3 text-xs text-gray-700">
+      <pre className={commandCenterClass.pre}>
         railway run --service Postgres -- npm --prefix web run dev
       </pre>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className={`mt-3 text-xs ${commandCenterClass.warningText}`}>Error: {error}</p>
     </section>
   );
 }
@@ -424,17 +471,17 @@ export default async function PostgresPreviewPage() {
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={commandCenterClass.panel}>
+        <div className={commandCenterClass.hero}>
+          <p className={commandCenterClass.kicker}>
             Platform Command
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className={`text-3xl font-bold tracking-tight sm:text-4xl ${commandCenterClass.title}`}>
                 Platform Command Center
               </h1>
-              <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
+              <p className={`mt-4 max-w-4xl text-sm leading-6 sm:text-base sm:leading-7 ${commandCenterClass.body}`}>
                 Operational front door for the replacement platform:
                 route into Research Ops, governed evidence review, entity
                 worklists, market intelligence, map navigation, and cutover
@@ -443,13 +490,13 @@ export default async function PostgresPreviewPage() {
             </div>
             <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <Link
-                className="inline-flex h-10 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+                className={commandCenterClass.primaryAction}
                 href="/postgres-preview/research-ops"
               >
                 Open Research Ops
               </Link>
               <Link
-                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+                className={commandCenterClass.secondaryAction}
                 href="/postgres-preview/readiness"
               >
                 Replacement Readiness
