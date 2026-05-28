@@ -134,12 +134,22 @@ function MobileMatchField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className="mt-1 min-w-0 text-sm text-[var(--tge-governance-neutral-text)]">
+        {children}
+      </div>
     </div>
   );
+}
+
+function secondaryActionClass() {
+  return "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+}
+
+function entityLinkClass() {
+  return "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline";
 }
 
 export default function SourceMatchCandidatesClient({
@@ -197,11 +207,11 @@ export default function SourceMatchCandidatesClient({
   const cellClassName = compactRows ? "px-4 py-3" : "px-4 py-4";
   const groupHeaderClassName = compactRows ? "px-4 py-2.5" : "px-4 py-3";
   const sourceReferenceClassName = compactRows
-    ? "mt-1 line-clamp-1 break-all text-xs text-gray-500"
-    : "mt-1 line-clamp-2 break-all text-xs text-gray-500";
+    ? "mt-1 line-clamp-1 break-all text-xs text-[var(--tge-governance-muted-text)]"
+    : "mt-1 line-clamp-2 break-all text-xs text-[var(--tge-governance-muted-text)]";
   const signalClassName = compactRows
-    ? "line-clamp-3 text-xs leading-5 text-gray-600"
-    : "text-xs leading-5 text-gray-600";
+    ? "line-clamp-3 text-xs leading-5 text-[var(--tge-text-secondary)]"
+    : "text-xs leading-5 text-[var(--tge-text-secondary)]";
   const sourceGroups = useMemo(() => {
     const groups = new Map<
       string,
@@ -383,19 +393,21 @@ export default function SourceMatchCandidatesClient({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex flex-col gap-4 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">Article Match Candidates</h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+            Article Match Candidates
+          </h2>
+          <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
             Review generated article/entity matches before creating evidence links.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
-          <div className="border border-gray-200 bg-[#f7f7f7] px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 sm:col-span-2 xl:mr-1 xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:text-right">
+          <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] sm:col-span-2 xl:mr-1 xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:text-right">
             <div>{selected.size} selected</div>
             {selected.size > 0 ? (
-              <div className="mt-1 normal-case tracking-normal text-gray-400">
+              <div className="mt-1 normal-case tracking-normal text-[var(--tge-governance-muted-text)]">
                 {selectedCleanCount} clean / {selectedCautionCount} needs care
               </div>
             ) : null}
@@ -403,7 +415,7 @@ export default function SourceMatchCandidatesClient({
           <button
             type="button"
             onClick={() => setCompactRows((current) => !current)}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm ${secondaryActionClass()}`}
           >
             {compactRows ? "Detailed Rows" : "Compact Rows"}
           </button>
@@ -411,7 +423,7 @@ export default function SourceMatchCandidatesClient({
             type="button"
             disabled={isPending || cleanHighConfidenceIds.length === 0}
             onClick={selectCleanVisible}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)] ${secondaryActionClass()}`}
           >
             Select Clean Visible
           </button>
@@ -423,7 +435,7 @@ export default function SourceMatchCandidatesClient({
               (selected.size > 1 && selectedCautionCount > 0)
             }
             onClick={() => runAction("confirm")}
-            className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+            className="inline-flex h-9 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:bg-[var(--tge-governance-muted-bg)] disabled:text-[var(--tge-governance-muted-text)]"
           >
             Confirm
           </button>
@@ -431,7 +443,7 @@ export default function SourceMatchCandidatesClient({
             type="button"
             disabled={isPending || selected.size === 0}
             onClick={() => runAction("reject")}
-            className="inline-flex h-9 items-center justify-center border border-red-200 bg-white px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-semibold text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)]"
           >
             Reject
           </button>
@@ -439,7 +451,7 @@ export default function SourceMatchCandidatesClient({
             type="button"
             disabled={isPending || selected.size === 0}
             onClick={() => runAction("needs_review")}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)] ${secondaryActionClass()}`}
           >
             Needs Review
           </button>
@@ -447,23 +459,27 @@ export default function SourceMatchCandidatesClient({
             type="button"
             disabled={isPending || selected.size === 0}
             onClick={clearSelection}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)] ${secondaryActionClass()}`}
           >
             Clear
           </button>
         </div>
       </div>
 
-      <div className="grid gap-3 border-b border-gray-200 bg-[#fbfcfa] px-5 py-4 text-sm text-gray-600 lg:grid-cols-3">
+      <div className="grid gap-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-4 text-sm text-[var(--tge-text-secondary)] lg:grid-cols-3">
         <div>
-          <div className="font-semibold text-[#1f2937]">Confirm means evidence link</div>
+          <div className="font-semibold text-[var(--tge-text-primary)]">
+            Confirm means evidence link
+          </div>
           <p className="mt-1 leading-5">
             Confirmation links the TGE article to the record. It does not update
             project, plant, or company fields.
           </p>
         </div>
         <div>
-          <div className="font-semibold text-[#1f2937]">Clean visible is safest</div>
+          <div className="font-semibold text-[var(--tge-text-primary)]">
+            Clean visible is safest
+          </div>
           <p className="mt-1 leading-5">
             The clean selector only picks high-confidence rows on the current
             page without review flags and without competing open candidates for
@@ -471,7 +487,9 @@ export default function SourceMatchCandidatesClient({
           </p>
         </div>
         <div>
-          <div className="font-semibold text-[#1f2937]">Multiple candidates need care</div>
+          <div className="font-semibold text-[var(--tge-text-primary)]">
+            Multiple candidates need care
+          </div>
           <p className="mt-1 leading-5">
             Field/group articles can correctly link to several records, but they
             should be confirmed deliberately rather than by broad bulk action.
@@ -480,13 +498,13 @@ export default function SourceMatchCandidatesClient({
       </div>
 
       {message ? (
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3 text-sm text-gray-700">
+        <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-5 py-3 text-sm text-[var(--tge-governance-neutral-text)]">
           {message}
         </div>
       ) : null}
 
       {selectedCautionCount > 0 ? (
-        <div className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-sm text-amber-900">
+        <div className="border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-3 text-sm text-[var(--tge-governance-attention-text)]">
           {selectedCautionCount} selected candidate(s) need careful review
           {selectedFlaggedCount > 0 ? `; ${selectedFlaggedCount} flagged` : ""}
           {selectedAmbiguousCount > 0
@@ -506,7 +524,7 @@ export default function SourceMatchCandidatesClient({
         onPageChange={setPage}
       />
 
-      <div className="space-y-4 border-t border-gray-100 bg-gray-50 px-3 py-4 lg:hidden">
+      <div className="space-y-4 border-t border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] px-3 py-4 lg:hidden">
         {sourceGroups.map((group) => {
           const isGroupCollapsed = collapsedSourceKeys.has(group.sourceKey);
           const groupHasAmbiguity = group.candidates.some(hasSourceAmbiguity);
@@ -517,23 +535,23 @@ export default function SourceMatchCandidatesClient({
           return (
             <section
               key={group.sourceKey}
-              className="border border-gray-200 bg-white"
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]"
             >
-              <div className="bg-[#fbfcfa] px-4 py-4 sm:px-5">
+              <div className="bg-[var(--tge-surface-subtle)] px-4 py-4 sm:px-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                       Source Article Group
                     </div>
                     <Link
-                      className="mt-1 inline-block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={`mt-1 inline-block ${entityLinkClass()}`}
                       href={`/sources/${group.sourceKey}`}
                     >
                       {group.sourceTitle ||
                         group.sourceReference ||
                         "Untitled source"}
                     </Link>
-                    <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                    <div className="mt-1 line-clamp-2 break-all text-xs text-[var(--tge-governance-muted-text)]">
                       {group.sourceReference ||
                         group.sourceUrl ||
                         "No source reference"}
@@ -571,7 +589,7 @@ export default function SourceMatchCandidatesClient({
                       ) : null}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2 text-xs text-gray-500 sm:items-end">
+                  <div className="flex flex-col gap-2 text-xs text-[var(--tge-governance-muted-text)] sm:items-end">
                     <span>
                       {group.sourcePublishedDate
                         ? formatDate(group.sourcePublishedDate)
@@ -581,7 +599,7 @@ export default function SourceMatchCandidatesClient({
                       <span>Source country: {group.sourceCountry}</span>
                     ) : null}
                     <button
-                      className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      className={`inline-flex h-8 items-center justify-center px-3 text-xs ${secondaryActionClass()}`}
                       type="button"
                       onClick={() => toggleSourceGroup(group.sourceKey)}
                     >
@@ -592,7 +610,7 @@ export default function SourceMatchCandidatesClient({
               </div>
 
               {isGroupCollapsed ? null : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-[var(--tge-governance-muted-border)]">
                   {group.candidates.map((candidate) => {
                     const href = entityHref(candidate);
                     const isClosed = isClosedCandidate(candidate);
@@ -615,18 +633,18 @@ export default function SourceMatchCandidatesClient({
                             type="checkbox"
                           />
                           <div className="min-w-0 flex-1">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                               {entityTypeLabel(candidate.entity_type)}
                             </div>
                             {href ? (
                               <Link
                                 href={href}
-                                className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                                className={`mt-1 block ${entityLinkClass()}`}
                               >
                                 {candidate.entity_label}
                               </Link>
                             ) : (
-                              <div className="mt-1 font-semibold text-[#1f2937]">
+                              <div className="mt-1 font-semibold text-[var(--tge-text-primary)]">
                                 {candidate.entity_label}
                               </div>
                             )}
@@ -671,11 +689,11 @@ export default function SourceMatchCandidatesClient({
                               : null}
                           </MobileMatchField>
                           <MobileMatchField label="Reason / Signals">
-                            <div className="line-clamp-4 text-xs leading-5 text-gray-600">
+                            <div className="line-clamp-4 text-xs leading-5 text-[var(--tge-text-secondary)]">
                               {candidate.match_reason || "-"}
                             </div>
                             {candidate.article_country_candidates.length > 0 ? (
-                              <div className="mt-2 text-xs text-gray-500">
+                              <div className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
                                 Article countries:{" "}
                                 {candidate.article_country_candidates.join(", ")}
                               </div>
@@ -693,7 +711,7 @@ export default function SourceMatchCandidatesClient({
                               </div>
                             ) : null}
                             {isAmbiguous ? (
-                              <div className="mt-2 border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] font-medium leading-4 text-amber-900">
+                              <div className="mt-2 border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 py-1.5 text-[11px] font-medium leading-4 text-[var(--tge-governance-attention-text)]">
                                 This source has{" "}
                                 {candidate.source_open_candidate_count} open
                                 match candidates. Confirm only the record(s)
@@ -707,7 +725,7 @@ export default function SourceMatchCandidatesClient({
                               : candidate.source_country ||
                                 "No date/country metadata"}
                             {candidate.source_country ? (
-                              <div className="mt-1 text-xs text-gray-500">
+                              <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                                 Source country: {candidate.source_country}
                               </div>
                             ) : null}
@@ -736,11 +754,11 @@ export default function SourceMatchCandidatesClient({
                           </MobileMatchField>
                           <MobileMatchField label="Generated">
                             {formatDate(candidate.generated_at)}
-                            <div className="mt-1 text-xs text-gray-500">
+                            <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                               {candidate.generated_by}
                             </div>
                             {candidate.reviewed_by_name ? (
-                              <div className="mt-1 text-xs text-gray-500">
+                              <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                                 reviewed by {candidate.reviewed_by_name}
                               </div>
                             ) : null}
@@ -756,7 +774,7 @@ export default function SourceMatchCandidatesClient({
         })}
 
         {candidates.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-gray-500">
+          <div className="px-5 py-10 text-center text-sm text-[var(--tge-governance-muted-text)]">
             No match candidates fit the current filters.
           </div>
         ) : null}
@@ -764,7 +782,7 @@ export default function SourceMatchCandidatesClient({
 
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1280px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
               <th className="w-[44px] px-4 py-3 font-semibold">
                 <input
@@ -782,7 +800,7 @@ export default function SourceMatchCandidatesClient({
               <th className="w-[10%] px-4 py-3 font-semibold">Generated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
             {sourceGroups.map((group) => {
               const isGroupCollapsed = collapsedSourceKeys.has(group.sourceKey);
               const groupHasAmbiguity = group.candidates.some(hasSourceAmbiguity);
@@ -794,23 +812,23 @@ export default function SourceMatchCandidatesClient({
                 <Fragment key={group.sourceKey}>
                   <tr
                     key={`${group.sourceKey}-header`}
-                    className="border-t-8 border-t-white bg-[#fbfcfa] align-top"
+                    className="border-t-8 border-t-[var(--tge-surface-card)] bg-[var(--tge-surface-subtle)] align-top"
                   >
                     <td className={groupHeaderClassName} colSpan={7}>
                       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                         <div>
-                          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                             Source Article Group
                           </div>
                           <Link
-                            className="mt-1 inline-block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                            className={`mt-1 inline-block ${entityLinkClass()}`}
                             href={`/sources/${group.sourceKey}`}
                           >
                             {group.sourceTitle ||
                               group.sourceReference ||
                               "Untitled source"}
                           </Link>
-                          <div className="mt-1 line-clamp-1 break-all text-xs text-gray-500">
+                          <div className="mt-1 line-clamp-1 break-all text-xs text-[var(--tge-governance-muted-text)]">
                             {group.sourceReference ||
                               group.sourceUrl ||
                               "No source reference"}
@@ -854,7 +872,7 @@ export default function SourceMatchCandidatesClient({
                             ) : null}
                           </div>
                         </div>
-                        <div className="flex flex-col gap-2 text-xs text-gray-500 sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
+                        <div className="flex flex-col gap-2 text-xs text-[var(--tge-governance-muted-text)] sm:flex-row sm:flex-wrap sm:items-center lg:justify-end">
                           <span>
                             {group.sourcePublishedDate
                               ? formatDate(group.sourcePublishedDate)
@@ -864,7 +882,7 @@ export default function SourceMatchCandidatesClient({
                             <span>Source country: {group.sourceCountry}</span>
                           ) : null}
                           <button
-                            className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                            className={`inline-flex h-8 items-center justify-center px-3 text-xs ${secondaryActionClass()}`}
                             type="button"
                             onClick={() => toggleSourceGroup(group.sourceKey)}
                           >
@@ -884,7 +902,7 @@ export default function SourceMatchCandidatesClient({
                       return (
                         <tr
                           key={candidate.match_candidate_id}
-                          className="align-top transition-colors hover:bg-[#fbfdf8]"
+                          className="align-top transition-colors hover:bg-[var(--tge-surface-subtle)]"
                         >
                             <td className={cellClassName}>
                               <input
@@ -901,7 +919,7 @@ export default function SourceMatchCandidatesClient({
                             </td>
                             <td className={cellClassName}>
                               <Link
-                                className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                                className={entityLinkClass()}
                                 href={`/sources/${candidate.source_id}`}
                               >
                                 {candidate.source_title ||
@@ -916,8 +934,8 @@ export default function SourceMatchCandidatesClient({
                               <div
                                 className={
                                   compactRows
-                                    ? "mt-1 text-xs text-gray-500"
-                                    : "mt-2 text-xs text-gray-500"
+                                    ? "mt-1 text-xs text-[var(--tge-governance-muted-text)]"
+                                    : "mt-2 text-xs text-[var(--tge-governance-muted-text)]"
                                 }
                               >
                                 {candidate.source_published_date
@@ -926,7 +944,7 @@ export default function SourceMatchCandidatesClient({
                                     "No date/country metadata"}
                               </div>
                               {candidate.source_country ? (
-                                <div className="mt-1 text-xs font-medium text-gray-600">
+                                <div className="mt-1 text-xs font-medium text-[var(--tge-text-secondary)]">
                                   Source country: {candidate.source_country}
                                 </div>
                               ) : null}
@@ -973,29 +991,29 @@ export default function SourceMatchCandidatesClient({
                               </div>
                             </td>
                             <td className={cellClassName}>
-                              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                                 {entityTypeLabel(candidate.entity_type)}
                               </div>
                               {href ? (
                                 <Link
                                   href={href}
-                                  className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                                  className={`mt-1 block ${entityLinkClass()}`}
                                 >
                                   {candidate.entity_label}
                                 </Link>
                               ) : (
-                                <div className="mt-1 font-semibold text-[#1f2937]">
+                                <div className="mt-1 font-semibold text-[var(--tge-text-primary)]">
                                   {candidate.entity_label}
                                 </div>
                               )}
                               {candidate.matched_alias ? (
-                                <div className="mt-2 text-xs text-gray-500">
+                                <div className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
                                   Alias: {candidate.matched_alias}
                                 </div>
                               ) : null}
                               {candidate.entity_country ||
                               candidate.entity_use_type ? (
-                                <div className="mt-2 text-xs leading-5 text-gray-500">
+                                <div className="mt-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
                                   {candidate.entity_country ? (
                                     <div>
                                       Entity country: {candidate.entity_country}
@@ -1018,17 +1036,17 @@ export default function SourceMatchCandidatesClient({
                                 status={candidate.match_status_code}
                                 label={candidate.match_status_label}
                               />
-                              {candidate.reviewed_by_name ? (
-                                <div className="mt-2 text-xs text-gray-500">
+                             {candidate.reviewed_by_name ? (
+                                <div className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
                                   by {candidate.reviewed_by_name}
                                 </div>
                               ) : null}
                             </td>
                             <td className={cellClassName}>
-                              <div className="text-base font-bold text-[#1f2937]">
+                              <div className="text-base font-bold text-[var(--tge-text-primary)]">
                                 {formatConfidence(candidate.confidence_score)}
                               </div>
-                              <div className="mt-1 text-xs text-gray-500">
+                              <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                                 {candidate.confirmed_entity_source_id
                                   ? "Evidence linked"
                                   : "Candidate"}
@@ -1039,7 +1057,7 @@ export default function SourceMatchCandidatesClient({
                                 {candidate.match_reason || "-"}
                               </div>
                               {candidate.article_country_candidates.length > 0 ? (
-                                <div className="mt-2 text-gray-500">
+                                <div className="mt-2 text-[var(--tge-governance-muted-text)]">
                                   Article countries:{" "}
                                   {candidate.article_country_candidates.join(", ")}
                                 </div>
@@ -1060,8 +1078,8 @@ export default function SourceMatchCandidatesClient({
                                 <div
                                   className={
                                     compactRows
-                                      ? "mt-2 line-clamp-2 border border-amber-200 bg-amber-50 px-2 py-1.5 text-[11px] font-medium leading-4 text-amber-900"
-                                      : "mt-2 border border-amber-200 bg-amber-50 px-2 py-2 text-[11px] font-medium leading-4 text-amber-900"
+                                      ? "mt-2 line-clamp-2 border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 py-1.5 text-[11px] font-medium leading-4 text-[var(--tge-governance-attention-text)]"
+                                      : "mt-2 border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 py-2 text-[11px] font-medium leading-4 text-[var(--tge-governance-attention-text)]"
                                   }
                                 >
                                   This source has{" "}
@@ -1071,9 +1089,9 @@ export default function SourceMatchCandidatesClient({
                                 </div>
                               ) : null}
                             </td>
-                            <td className={`${cellClassName} text-gray-700`}>
+                            <td className={`${cellClassName} text-[var(--tge-governance-neutral-text)]`}>
                               {formatDate(candidate.generated_at)}
-                              <div className="mt-1 text-xs text-gray-500">
+                              <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                                 {candidate.generated_by}
                               </div>
                             </td>
@@ -1086,7 +1104,10 @@ export default function SourceMatchCandidatesClient({
 
             {candidates.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-10 text-center text-sm text-gray-500">
+                <td
+                  colSpan={7}
+                  className="px-5 py-10 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                >
                   No match candidates fit the current filters.
                 </td>
               </tr>
