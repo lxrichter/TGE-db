@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className="bg-[#f5f5f5] text-[#1f2937]"
+        className="bg-[var(--tge-surface-page)] text-[var(--tge-text-primary)]"
         suppressHydrationWarning
       >
         <SessionProviderClient>
