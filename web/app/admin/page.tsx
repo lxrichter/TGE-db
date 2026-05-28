@@ -35,6 +35,22 @@ import { getUserSummary } from "@/lib/db/users";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const adminClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  header:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3 md:px-6 md:py-4",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  routeLink:
+    "rounded-sm border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-2 text-sm font-semibold text-[var(--tge-text-primary)] transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-card)]",
+  successPanel:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]",
+};
+
 function SectionCard({
   id,
   title,
@@ -47,11 +63,11 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="border border-gray-200 bg-white scroll-mt-24">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3 md:px-6 md:py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+    <section id={id} className={`scroll-mt-24 ${adminClass.panel}`}>
+      <div className={adminClass.header}>
+        <h2 className={`text-xl font-bold ${adminClass.title}`}>{title}</h2>
         {description ? (
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
+          <p className={`mt-1 text-sm ${adminClass.muted}`}>{description}</p>
         ) : null}
       </div>
       <div className="px-5 py-5 md:px-6">{children}</div>
@@ -69,7 +85,7 @@ function TocLink({
   return (
     <a
       href={href}
-      className="rounded-sm border border-[#d9e6c3] bg-[#f3f8ea] px-4 py-2 text-sm font-semibold text-[#1f2937] transition hover:border-[#8dc63f] hover:bg-[#e9f3d8]"
+      className={adminClass.routeLink}
     >
       {label}
     </a>
@@ -86,13 +102,13 @@ function WorkflowBox({
   text: string;
 }) {
   return (
-    <div className="flex items-center gap-4 border border-gray-200 bg-[#fafafa] px-4 py-4">
-      <div className="min-w-[28px] text-3xl font-bold leading-none text-[#8dc63f]">
+    <div className={`flex items-center gap-4 px-4 py-4 ${adminClass.panelSubtle}`}>
+      <div className="min-w-[28px] text-3xl font-bold leading-none text-[var(--tge-brand-green)]">
         {step}
       </div>
       <div>
-        <div className="text-sm font-bold text-[#1f2937]">{title}</div>
-        <div className="text-xs text-gray-500">{text}</div>
+        <div className={`text-sm font-bold ${adminClass.title}`}>{title}</div>
+        <div className={`text-xs ${adminClass.muted}`}>{text}</div>
       </div>
     </div>
   );
@@ -108,10 +124,10 @@ function RuleCard({
   examples: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] p-4">
-      <div className="text-sm font-bold text-[#1f2937]">{title}</div>
-      <div className="mt-1 text-sm text-gray-600">{subtitle}</div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{examples}</div>
+    <div className={`${adminClass.panelSubtle} p-4`}>
+      <div className={`text-sm font-bold ${adminClass.title}`}>{title}</div>
+      <div className={`mt-1 text-sm ${adminClass.body}`}>{subtitle}</div>
+      <div className={`mt-2 text-xs leading-5 ${adminClass.muted}`}>{examples}</div>
     </div>
   );
 }
@@ -176,14 +192,14 @@ function GovernanceMetric({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${adminClass.panelSubtle} px-4 py-4`}>
+      <div className={`text-xs font-semibold uppercase tracking-wide ${adminClass.muted}`}>
         {label}
       </div>
-      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+      <div className={`mt-2 text-3xl font-bold leading-none ${adminClass.title}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${adminClass.muted}`}>{note}</div>
     </div>
   );
 }
@@ -196,9 +212,9 @@ function GovernanceRule({
   text: string;
 }) {
   return (
-    <div className="border border-[#d7e8bf] bg-[#f5faef] px-4 py-3">
-      <div className="text-sm font-bold text-[#1f2937]">{title}</div>
-      <div className="mt-1 text-xs leading-5 text-gray-600">{text}</div>
+    <div className={`${adminClass.successPanel} px-4 py-3`}>
+      <div className={`text-sm font-bold ${adminClass.title}`}>{title}</div>
+      <div className={`mt-1 text-xs leading-5 ${adminClass.body}`}>{text}</div>
     </div>
   );
 }
