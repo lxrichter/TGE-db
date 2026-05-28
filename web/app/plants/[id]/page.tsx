@@ -58,7 +58,7 @@ function renderLinkedText(value: any) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#8dc63f] underline hover:text-[#6aa32f]"
+            className={plantDetailClass.brandLink}
           >
             {url}
           </a>
@@ -79,11 +79,11 @@ function Row({
 }) {
   return (
     <div
-      className="grid grid-cols-1 gap-1 border-b border-gray-200 py-1.5 md:gap-3"
+      className="grid grid-cols-1 gap-1 border-b border-[var(--tge-governance-neutral-border)] py-1.5 md:gap-3"
       style={{ gridTemplateColumns: `minmax(0, ${labelWidth}) minmax(0, 1fr)` }}
     >
-      <div className="text-[12px] font-semibold text-gray-700">{label}</div>
-      <div className="break-words text-[12px] text-gray-600">
+      <div className="text-[12px] font-semibold text-[var(--tge-governance-neutral-text)]">{label}</div>
+      <div className={`break-words text-[12px] ${plantDetailClass.body}`}>
         {isValidElement(value) ? value : renderLinkedText(value)}
       </div>
     </div>
@@ -101,10 +101,10 @@ function SummaryItem({
 }) {
   return (
     <div className={className}>
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={`text-[10px] font-semibold uppercase tracking-wide ${plantDetailClass.muted}`}>
         {label}
       </div>
-      <div className="mt-1 text-[17px] font-semibold leading-snug text-[#1f2937]">
+      <div className={`mt-1 text-[17px] font-semibold leading-snug ${plantDetailClass.title}`}>
         {value ?? "NA"}
       </div>
     </div>
@@ -176,6 +176,27 @@ function formatDisplayDate(value: string | null | undefined) {
   return value.slice(0, 10);
 }
 
+const plantDetailClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  sectionHeader:
+    "flex min-h-[48px] items-center border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-medium text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  brandLink: "text-[var(--tge-brand-green-dark)] underline hover:text-[var(--tge-brand-green)]",
+  utilityButton:
+    "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+  tableHead: "bg-[var(--tge-surface-card)]",
+  tableHeaderCell: "px-5 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]",
+  tableRow: "border-b border-[var(--tge-governance-neutral-border)] hover:bg-[var(--tge-surface-subtle)]",
+  tableCell: "px-5 py-2.5 align-top text-[var(--tge-text-secondary)]",
+};
+
 function TabSection({
   title,
   children,
@@ -184,9 +205,9 @@ function TabSection({
   children: ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-        <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+    <section className={plantDetailClass.panel}>
+      <div className={plantDetailClass.sectionHeader}>
+        <h2 className={`text-lg font-bold leading-none ${plantDetailClass.title}`}>
           {title}
         </h2>
       </div>
@@ -409,9 +430,9 @@ function PrimaryCompaniesCompact({ rows }: { rows: PlantCompanyRow[] }) {
   const grouped = groupPrimaryCompanies(rows);
 
   return (
-    <div className="border border-gray-200 bg-[#fafafa]">
-      <div className="border-b border-gray-200 px-5 py-2.5">
-        <h3 className="text-[14px] font-bold text-[#1f2937]">
+    <div className={plantDetailClass.panelSubtle}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-2.5">
+        <h3 className={`text-[14px] font-bold ${plantDetailClass.title}`}>
           Primary Companies
         </h3>
       </div>
@@ -421,10 +442,10 @@ function PrimaryCompaniesCompact({ rows }: { rows: PlantCompanyRow[] }) {
           {grouped.map((group) => (
             <div
               key={group.roleName}
-              className="grid items-start border-b border-gray-200 py-1.5"
+              className="grid items-start border-b border-[var(--tge-governance-neutral-border)] py-1.5"
               style={{ gridTemplateColumns: "140px minmax(0,1fr)" }}
             >
-              <div className="text-[11px] font-semibold uppercase text-gray-500">
+              <div className={`text-[11px] font-semibold uppercase ${plantDetailClass.muted}`}>
                 {group.roleName}
               </div>
 
@@ -433,13 +454,13 @@ function PrimaryCompaniesCompact({ rows }: { rows: PlantCompanyRow[] }) {
                   <span key={`${item.company_id}-${idx}`} className="text-[13px]">
                     <Link
                       href={`/companies/${item.company_id}`}
-                      className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                      className={plantDetailClass.link}
                     >
                       {item.company_name}
                     </Link>
 
                     {item.role_detail && (
-                      <span className="ml-1 text-[11px] text-gray-500">
+                      <span className={`ml-1 text-[11px] ${plantDetailClass.muted}`}>
                         ({item.role_detail})
                       </span>
                     )}
@@ -464,12 +485,12 @@ function SecondaryCompaniesCompact({
   return (
     <div className="space-y-3">
       {groups.map((group) => (
-        <section key={group.groupName} className="border border-gray-200 bg-white">
-          <div className="flex items-center justify-between border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
-            <h3 className="text-[15px] font-bold text-[#1f2937]">
+        <section key={group.groupName} className={plantDetailClass.panel}>
+          <div className="flex items-center justify-between border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
+            <h3 className={`text-[15px] font-bold ${plantDetailClass.title}`}>
               {group.groupName}
             </h3>
-            <span className="text-xs font-semibold text-gray-500">
+            <span className={`text-xs font-semibold ${plantDetailClass.muted}`}>
               {group.items.length}
             </span>
           </div>
@@ -482,32 +503,32 @@ function SecondaryCompaniesCompact({
                 <col className="w-[18%]" />
                 <col className="w-[32%]" />
               </colgroup>
-              <thead className="bg-white">
-                <tr className="border-b border-gray-200">
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Company</th>
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Role</th>
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Share %</th>
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Role Detail</th>
+              <thead className={plantDetailClass.tableHead}>
+                <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                  <th className={plantDetailClass.tableHeaderCell}>Company</th>
+                  <th className={plantDetailClass.tableHeaderCell}>Role</th>
+                  <th className={plantDetailClass.tableHeaderCell}>Share %</th>
+                  <th className={plantDetailClass.tableHeaderCell}>Role Detail</th>
                 </tr>
               </thead>
               <tbody>
                 {group.items.map((row) => (
-                  <tr key={row.company_plant_link_id} className="border-b border-gray-200">
-                    <td className="px-5 py-2.5 text-gray-700 align-top">
+                  <tr key={row.company_plant_link_id} className={plantDetailClass.tableRow}>
+                    <td className={plantDetailClass.tableCell}>
                       <Link
                         href={`/companies/${row.company_id}`}
-                        className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                        className={plantDetailClass.link}
                       >
                         {row.company_name || "NA"}
                       </Link>
                     </td>
-                    <td className="px-5 py-2.5 text-gray-600 align-top">
+                    <td className={plantDetailClass.tableCell}>
                       {row.role || "NA"}
                     </td>
-                    <td className="px-5 py-2.5 text-gray-600 align-top">
+                    <td className={plantDetailClass.tableCell}>
                       {row.ownership_share ?? "NA"}
                     </td>
-                    <td className="px-5 py-2.5 text-gray-600 align-top">
+                    <td className={plantDetailClass.tableCell}>
                       {row.role_detail || "NA"}
                     </td>
                   </tr>
@@ -525,17 +546,17 @@ function OtherCompaniesCompact({ rows }: { rows: PlantCompanyRow[] }) {
   if (!rows.length) return null;
 
   return (
-    <details className="border border-gray-200 bg-[#fafafa]">
+    <details className={plantDetailClass.panelSubtle}>
       <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3">
-        <span className="text-[15px] font-bold text-[#1f2937]">
+        <span className={`text-[15px] font-bold ${plantDetailClass.title}`}>
           Other Companies
         </span>
-        <span className="text-xs font-semibold text-gray-500">
+        <span className={`text-xs font-semibold ${plantDetailClass.muted}`}>
           {rows.length}
         </span>
       </summary>
 
-      <div className="overflow-x-auto border-t border-gray-200">
+      <div className="overflow-x-auto border-t border-[var(--tge-governance-neutral-border)]">
         <table className="min-w-full table-fixed text-left text-[12px]">
           <colgroup>
             <col className="w-[30%]" />
@@ -543,32 +564,32 @@ function OtherCompaniesCompact({ rows }: { rows: PlantCompanyRow[] }) {
             <col className="w-[18%]" />
             <col className="w-[32%]" />
           </colgroup>
-          <thead className="bg-white">
-            <tr className="border-b border-gray-200">
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Company</th>
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Role</th>
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Share %</th>
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Role Detail</th>
+          <thead className={plantDetailClass.tableHead}>
+            <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+              <th className={plantDetailClass.tableHeaderCell}>Company</th>
+              <th className={plantDetailClass.tableHeaderCell}>Role</th>
+              <th className={plantDetailClass.tableHeaderCell}>Share %</th>
+              <th className={plantDetailClass.tableHeaderCell}>Role Detail</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.company_plant_link_id} className="border-b border-gray-200">
-                <td className="px-5 py-2.5 text-gray-700 align-top">
+              <tr key={row.company_plant_link_id} className={plantDetailClass.tableRow}>
+                <td className={plantDetailClass.tableCell}>
                   <Link
                     href={`/companies/${row.company_id}`}
-                    className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                    className={plantDetailClass.link}
                   >
                     {row.company_name || "NA"}
                   </Link>
                 </td>
-                <td className="px-5 py-2.5 text-gray-600 align-top">
+                <td className={plantDetailClass.tableCell}>
                   {row.role || "NA"}
                 </td>
-                <td className="px-5 py-2.5 text-gray-600 align-top">
+                <td className={plantDetailClass.tableCell}>
                   {row.ownership_share ?? "NA"}
                 </td>
-                <td className="px-5 py-2.5 text-gray-600 align-top">
+                <td className={plantDetailClass.tableCell}>
                   {row.role_detail || "NA"}
                 </td>
               </tr>
@@ -594,8 +615,7 @@ export default async function PlantDetailPage({
   const userCanEdit = canEdit(currentRole);
   const userCanApprove = canApprove(currentRole);
 
-  const utilityButtonClass =
-    "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-gray-300 bg-white px-3 py-1 text-[11px] font-semibold leading-none text-gray-700 transition hover:bg-gray-50";
+  const utilityButtonClass = plantDetailClass.utilityButton;
 
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
@@ -652,11 +672,11 @@ export default async function PlantDetailPage({
     return (
       <>
         <main className="screen-only space-y-6">
-          <div className="border border-gray-200 bg-white p-8">
-            <p className="text-base text-gray-700">Plant not found.</p>
+          <div className={`${plantDetailClass.panel} p-8`}>
+            <p className={`text-base ${plantDetailClass.body}`}>Plant not found.</p>
             <Link
               href="/plants"
-              className="mt-4 inline-block text-sm text-[#8dc63f]"
+              className={`mt-4 inline-block text-sm ${plantDetailClass.brandLink}`}
             >
               ← Back to plants
             </Link>
@@ -735,29 +755,29 @@ export default async function PlantDetailPage({
         <div>
           <Link
             href="/plants"
-            className="text-sm font-medium text-[#8dc63f] hover:underline"
+            className="text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
           >
             ← Back to plants
           </Link>
         </div>
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-[#8dc63f] px-6 py-6">
+        <section className={plantDetailClass.panel}>
+          <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
               <div className="max-w-5xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                   Plant Profile
                 </p>
 
-                <h1 className="mt-2 text-4xl font-bold tracking-tight text-[#1f2937] xl:text-5xl">
+                <h1 className={`mt-2 text-4xl font-bold tracking-tight xl:text-5xl ${plantDetailClass.title}`}>
                   {plant.plant_name || "NA"}
                 </h1>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <div className={`mt-3 flex flex-wrap items-center gap-2 text-sm ${plantDetailClass.body}`}>
                   <span>{plant.country || "NA"}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[var(--tge-governance-muted-border)]">|</span>
                   <span>{plant.region || "NA"}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[var(--tge-governance-muted-border)]">|</span>
                   <span>{plant.location_text || "NA"}</span>
                 </div>
 
@@ -791,7 +811,7 @@ export default async function PlantDetailPage({
             </div>
           </div>
 
-          <div className="border-t border-gray-200 bg-[#fafafa] px-6 py-4">
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-4">
             <div className="grid grid-cols-2 gap-x-6 gap-y-5 xl:grid-cols-[120px_140px_180px_minmax(240px,1.4fr)_120px]">
               <SummaryItem label="Plant ID" value={displayValue(plant.plant_id)} />
               <SummaryItem
@@ -812,13 +832,13 @@ export default async function PlantDetailPage({
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_460px]">
-          <section className="border border-gray-200 bg-white">
-            <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-              <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+          <section className={plantDetailClass.panel}>
+            <div className={plantDetailClass.sectionHeader}>
+              <h2 className={`text-lg font-bold leading-none ${plantDetailClass.title}`}>
                 Description
               </h2>
             </div>
-            <div className="px-5 py-4 text-[13px] leading-6 text-gray-600">
+            <div className={`px-5 py-4 text-[13px] leading-6 ${plantDetailClass.body}`}>
               {plant.edited_description ? (
                 <p>{plant.edited_description}</p>
               ) : (
@@ -832,7 +852,7 @@ export default async function PlantDetailPage({
           </section>
 
           <div className="space-y-6">
-            <section className="bg-white">
+            <section className="bg-[var(--tge-surface-card)]">
               <DetailMap
                 title={plant.plant_name || "Plant"}
                 latitude={latitude}
@@ -848,9 +868,9 @@ export default async function PlantDetailPage({
         {(primaryCompanies.length > 0 ||
           secondaryGroups.length > 0 ||
           otherCompanies.length > 0) && (
-          <section className="border border-gray-200 bg-white">
-            <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-              <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+          <section className={plantDetailClass.panel}>
+            <div className={plantDetailClass.sectionHeader}>
+              <h2 className={`text-lg font-bold leading-none ${plantDetailClass.title}`}>
                 Companies
               </h2>
             </div>
@@ -865,8 +885,8 @@ export default async function PlantDetailPage({
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_460px]">
           <div className="space-y-6">
-            <section className="border border-gray-200 bg-white">
-              <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-1">
+            <section className={plantDetailClass.panel}>
+              <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-1">
                 <div className="flex flex-wrap">
                   {tabs.map((tab) => {
                     const isActive = activeTab === tab.key;
@@ -875,10 +895,10 @@ export default async function PlantDetailPage({
                         key={tab.key}
                         href={`/plants/${id}?tab=${tab.key}`}
                         scroll={false}
-                        className={`border-r border-gray-200 px-3 py-2.5 text-[12px] font-semibold ${
+                        className={`border-r border-[var(--tge-governance-neutral-border)] px-3 py-2.5 text-[12px] font-semibold ${
                           isActive
-                            ? "bg-white text-[#1f2937]"
-                            : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)]"
+                            : "text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-governance-neutral-bg)]"
                         }`}
                       >
                         {tab.label}
@@ -891,7 +911,7 @@ export default async function PlantDetailPage({
               <div className="p-0">
                 {activeTab === "ownership-location" && (
                   <TabSection title="Location & Legacy Fields">
-                    <p className="mb-4 text-sm text-gray-600">
+                    <p className={`mb-4 text-sm ${plantDetailClass.body}`}>
                       Structured company participation is shown in the Companies section above.
                       The fields below are legacy text fields kept during transition and should
                       not be treated as the long-term source of truth.
@@ -1005,9 +1025,9 @@ export default async function PlantDetailPage({
           </div>
 
           <div className="space-y-6">
-            <section className="border border-gray-200 bg-white">
-              <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-                <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+            <section className={plantDetailClass.panel}>
+              <div className={plantDetailClass.sectionHeader}>
+                <h2 className={`text-lg font-bold leading-none ${plantDetailClass.title}`}>
                   Metadata & Review
                 </h2>
               </div>
@@ -1067,9 +1087,9 @@ export default async function PlantDetailPage({
           owner={plant.owner_operator}
         />
 
-        <section className="border border-gray-200 bg-white">
-          <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-            <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+        <section className={plantDetailClass.panel}>
+          <div className={plantDetailClass.sectionHeader}>
+            <h2 className={`text-lg font-bold leading-none ${plantDetailClass.title}`}>
               Sources & Notes
             </h2>
           </div>
