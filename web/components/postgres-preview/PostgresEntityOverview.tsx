@@ -32,44 +32,44 @@ function toneClass(tone: OverviewTone = "neutral") {
   switch (tone) {
     case "operating":
     case "success":
-      return "border-l-[#3f8f2f] bg-[#fbfdf8]";
+      return "border-l-[var(--tge-lifecycle-operating-border)] bg-[var(--tge-lifecycle-operating-bg)]";
     case "pipeline":
-      return "border-l-[#2f6f9f] bg-[#f8fbfd]";
+      return "border-l-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)]";
     case "ecosystem":
-      return "border-l-[#5b6b7f] bg-[#fafafa]";
+      return "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
     case "market":
-      return "border-l-[#b58900] bg-[#fffdf5]";
+      return "border-l-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)]";
     case "prospect":
-      return "border-l-slate-300 bg-slate-50";
+      return "border-l-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)]";
     case "exploration":
-      return "border-l-blue-300 bg-blue-50";
+      return "border-l-[var(--tge-lifecycle-exploration-border)] bg-[var(--tge-lifecycle-exploration-bg)]";
     case "pre_feasibility":
-      return "border-l-violet-300 bg-violet-50";
+      return "border-l-[var(--tge-lifecycle-pre-feasibility-border)] bg-[var(--tge-lifecycle-pre-feasibility-bg)]";
     case "feasibility":
-      return "border-l-teal-300 bg-teal-50";
+      return "border-l-[var(--tge-lifecycle-feasibility-border)] bg-[var(--tge-lifecycle-feasibility-bg)]";
     case "construction":
-      return "border-l-[#4f7f1f] bg-[#fbfdf8]";
+      return "border-l-[var(--tge-lifecycle-construction-border)] bg-[var(--tge-lifecycle-construction-bg)]";
     case "danger":
     case "cancelled":
-      return "border-l-red-300 bg-red-50";
+      return "border-l-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)]";
     case "muted":
     case "retired":
-      return "border-l-gray-300 bg-gray-50";
+      return "border-l-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)]";
     case "attention":
     case "pilot":
-      return "border-l-amber-300 bg-amber-50";
+      return "border-l-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)]";
     case "info":
-      return "border-l-blue-300 bg-blue-50";
+      return "border-l-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)]";
     case "neutral":
     default:
-      return "border-l-gray-200 bg-white";
+      return "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
   }
 }
 
 function overviewItemClass(tone?: OverviewTone) {
-  return `border border-l-4 border-gray-200 ${toneClass(
+  return `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass(
     tone
-  )} px-3 py-3 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]`;
+  )} px-3 py-3 transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]`;
 }
 
 function MaybeLink({
@@ -131,18 +131,18 @@ export default function PostgresEntityOverview({
       : "grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6";
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:px-5">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:px-5">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
             {label}
           </div>
-          <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-600">
+          <h2 className="mt-1 text-lg font-bold text-[var(--tge-text-primary)]">{title}</h2>
+          <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--tge-text-secondary)]">
             {description}
           </p>
         </div>
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
           {bucketsTitle}
         </span>
       </div>
@@ -154,20 +154,20 @@ export default function PostgresEntityOverview({
             href={metric.href}
             className={overviewItemClass(metric.tone)}
           >
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
               {metric.label}
             </div>
-            <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+            <div className="mt-2 text-2xl font-bold leading-none text-[var(--tge-text-primary)]">
               {metric.value}
             </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className="mt-2 text-xs leading-5 text-[var(--tge-text-secondary)]">
               {metric.note}
             </div>
           </MaybeLink>
         ))}
       </div>
 
-      <div className="border-t border-gray-100 px-4 py-3 sm:px-5">
+      <div className="border-t border-[var(--tge-governance-neutral-border)] px-4 py-3 sm:px-5">
         <div className={bucketContainerClass}>
           {buckets.map((bucket) => (
             <MaybeLink
@@ -179,35 +179,35 @@ export default function PostgresEntityOverview({
                   : ""
               }`}
             >
-              <div className="line-clamp-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className="line-clamp-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
                 {bucket.label}
               </div>
               {bucketValuePriority === "capacity" &&
               bucket.capacityMwe !== undefined ? (
                 <>
-                  <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+                  <div className="mt-2 text-2xl font-bold leading-none text-[var(--tge-text-primary)]">
                     {formatMw(bucket.capacityMwe)}
-                    <span className="ml-1 text-sm font-semibold text-gray-500">
+                    <span className="ml-1 text-sm font-semibold text-[var(--tge-text-secondary)]">
                       MWe
                     </span>
                   </div>
-                  <div className="mt-2 text-xs leading-5 text-gray-600">
+                  <div className="mt-2 text-xs leading-5 text-[var(--tge-text-secondary)]">
                     {formatCount(bucket.count)} {bucketEntityLabel}
                   </div>
                 </>
               ) : (
                 <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-xl font-bold leading-none text-[#1f2937]">
+                  <span className="text-xl font-bold leading-none text-[var(--tge-text-primary)]">
                     {formatCount(bucket.count)}
                   </span>
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
                     {bucketEntityLabel}
                   </span>
                 </div>
               )}
               {bucketValuePriority === "count" &&
               bucket.capacityMwe !== undefined ? (
-                <div className="mt-1 text-xs leading-5 text-gray-600">
+                <div className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
                   {formatMw(bucket.capacityMwe)} MWe
                 </div>
               ) : null}
