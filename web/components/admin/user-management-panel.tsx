@@ -599,17 +599,19 @@ export default function UserManagementPanel({
         </section>
 
         <section className="space-y-6">
-          <section id="add-user" className="border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#1f2937]">Add User</h2>
-              <p className="mt-1 text-sm text-gray-500">
+          <section id="add-user" className={userAdminClass.panel}>
+            <div className={`${userAdminClass.header} px-6 py-4`}>
+              <h2 className={`text-xl font-bold ${userAdminClass.title}`}>
+                Add User
+              </h2>
+              <p className={`mt-1 text-sm ${userAdminClass.muted}`}>
                 Create a new internal user with a temporary password.
               </p>
             </div>
 
             <form onSubmit={handleCreateUser} className="space-y-4 px-5 py-5">
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Name
                 </label>
                 <input
@@ -617,12 +619,12 @@ export default function UserManagementPanel({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Email
                 </label>
                 <input
@@ -630,12 +632,12 @@ export default function UserManagementPanel({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Temporary Password
                 </label>
                 <input
@@ -643,12 +645,12 @@ export default function UserManagementPanel({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Role
                 </label>
                 <select
@@ -656,7 +658,7 @@ export default function UserManagementPanel({
                   onChange={(e) =>
                     setRole(e.target.value as CanonicalUserRole)
                   }
-                  className="w-full border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 >
                   {ROLE_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -667,13 +669,13 @@ export default function UserManagementPanel({
               </div>
 
               {error ? (
-                <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm text-[var(--tge-governance-danger-text)]">
                   {error}
                 </div>
               ) : null}
 
               {success ? (
-                <div className="border border-[#d6e8b5] bg-[#f4faea] px-4 py-3 text-sm text-[#4d6b16]">
+                <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm text-[var(--tge-governance-success-text)]">
                   {success}
                 </div>
               ) : null}
@@ -689,27 +691,27 @@ export default function UserManagementPanel({
             </form>
           </section>
 
-          <section className="border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#1f2937]">
+          <section className={userAdminClass.panel}>
+            <div className={`${userAdminClass.header} px-6 py-4`}>
+              <h2 className={`text-xl font-bold ${userAdminClass.title}`}>
                 Role Reference
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className={`mt-1 text-sm ${userAdminClass.muted}`}>
                 MVP role logic used across the platform.
               </p>
             </div>
 
-            <div className="overflow-x-auto border-b border-gray-200">
+            <div className="overflow-x-auto border-b border-[var(--tge-governance-neutral-border)]">
               <table className="min-w-full text-sm">
-                <thead className="bg-white text-left text-[11px] uppercase tracking-wide text-gray-500">
+                <thead className="bg-[var(--tge-surface-card)] text-left text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                   <tr>
-                    <th className="border-b border-gray-200 px-4 py-3 font-semibold">
+                    <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-3 font-semibold">
                       Capability
                     </th>
                     {ROLE_OPTIONS.map((option) => (
                       <th
                         key={option.value}
-                        className="border-b border-gray-200 px-4 py-3 font-semibold"
+                        className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-3 font-semibold"
                       >
                         {option.label}
                       </th>
@@ -718,14 +720,14 @@ export default function UserManagementPanel({
                 </thead>
                 <tbody>
                   {ROLE_PERMISSION_ROWS.map((row) => (
-                    <tr key={row.capability} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-3 font-medium text-[#1f2937]">
+                    <tr key={row.capability} className="hover:bg-[var(--tge-surface-subtle)]">
+                      <td className={`border-b border-[var(--tge-governance-neutral-border)] px-4 py-3 font-medium ${userAdminClass.title}`}>
                         {row.capability}
                       </td>
                       {ROLE_OPTIONS.map((option) => (
                         <td
                           key={option.value}
-                          className="border-b border-gray-100 px-4 py-3"
+                          className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-3"
                         >
                           <RolePermissionValue value={row[option.value]} />
                         </td>
@@ -736,13 +738,17 @@ export default function UserManagementPanel({
               </table>
             </div>
 
-            <div className="space-y-2 px-5 py-4 text-sm leading-6 text-gray-600">
+            <div className={`space-y-2 px-5 py-4 text-sm leading-6 ${userAdminClass.body}`}>
               {ROLE_OPTIONS.map((option, index) => (
                 <div
                   key={option.value}
-                  className={index < ROLE_OPTIONS.length - 1 ? "border-b border-gray-200 pb-2" : ""}
+                  className={
+                    index < ROLE_OPTIONS.length - 1
+                      ? "border-b border-[var(--tge-governance-neutral-border)] pb-2"
+                      : ""
+                  }
                 >
-                  <span className="font-semibold text-[#1f2937]">
+                  <span className={`font-semibold ${userAdminClass.title}`}>
                     {option.label}:
                   </span>{" "}
                   {option.description}
