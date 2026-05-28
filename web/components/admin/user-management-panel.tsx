@@ -109,6 +109,10 @@ const userAdminClass = {
     "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
   secondaryButton:
     "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-secondary)] transition hover:bg-[var(--tge-surface-subtle)] disabled:cursor-not-allowed disabled:opacity-45",
+  successButton:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)] transition hover:bg-[var(--tge-surface-subtle)] disabled:cursor-not-allowed disabled:opacity-60",
+  dangerButton:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)] transition hover:bg-[var(--tge-surface-subtle)] disabled:cursor-not-allowed disabled:opacity-60",
 };
 
 function RolePermissionValue({ value }: { value: string }) {
@@ -487,19 +491,21 @@ export default function UserManagementPanel({
                   return (
                     <tr
                       key={user.user_id}
-                      className={`border-b border-gray-200 last:border-b-0 ${
-                        user.is_active === 0 ? "bg-gray-50" : "bg-white"
+                      className={`border-b border-[var(--tge-governance-neutral-border)] last:border-b-0 ${
+                        user.is_active === 0
+                          ? "bg-[var(--tge-surface-subtle)]"
+                          : "bg-[var(--tge-surface-card)]"
                       }`}
                     >
-                      <td className="px-6 py-4 text-sm font-medium text-[#1f2937]">
+                      <td className={`px-6 py-4 text-sm font-medium ${userAdminClass.title}`}>
                         {user.name}
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className={`px-6 py-4 text-sm ${userAdminClass.body}`}>
                         {user.email}
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className={`px-6 py-4 text-sm ${userAdminClass.body}`}>
                         <select
                           value={user.role}
                           disabled={user.is_active === 0 || isPending}
@@ -509,7 +515,7 @@ export default function UserManagementPanel({
                               e.target.value as CanonicalUserRole
                             )
                           }
-                          className="min-w-[140px] border border-gray-300 bg-white px-3 py-2 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                          className={`min-w-[140px] px-3 py-2 text-sm ${userAdminClass.input}`}
                         >
                           {ROLE_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
@@ -529,7 +535,7 @@ export default function UserManagementPanel({
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 text-sm text-gray-500">
+                      <td className={`px-6 py-4 text-sm ${userAdminClass.muted}`}>
                         {formatDate(user.created_at)}
                       </td>
 
@@ -540,13 +546,13 @@ export default function UserManagementPanel({
                               type="button"
                               onClick={() => openEditModal(user)}
                               disabled={isPending}
-                              className="inline-flex h-[30px] min-w-[68px] items-center justify-center border border-gray-300 bg-white px-3 text-[12px] font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              className={`inline-flex h-[30px] min-w-[68px] items-center justify-center px-3 text-[12px] font-semibold ${userAdminClass.secondaryButton}`}
                             >
                               Edit
                             </button>
 
                             {isCurrentUser ? (
-                              <span className="text-[12px] font-medium text-gray-400">
+                              <span className={`text-[12px] font-medium ${userAdminClass.muted}`}>
                                 Current user
                               </span>
                             ) : (
@@ -554,7 +560,7 @@ export default function UserManagementPanel({
                                 type="button"
                                 onClick={() => setDeactivateUserId(user.user_id)}
                                 disabled={isPending}
-                                className="inline-flex h-[30px] min-w-[92px] items-center justify-center border border-red-200 bg-red-50 px-3 text-[12px] font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                className={`inline-flex h-[30px] min-w-[92px] items-center justify-center px-3 text-[12px] font-semibold ${userAdminClass.dangerButton}`}
                               >
                                 Deactivate
                               </button>
@@ -565,7 +571,7 @@ export default function UserManagementPanel({
                             type="button"
                             onClick={() => setReactivateUserId(user.user_id)}
                             disabled={isPending}
-                            className="inline-flex h-[30px] min-w-[92px] items-center justify-center border border-[#b7df72] bg-[#eef8dc] px-3 text-[12px] font-semibold text-[#2e6b1f] transition hover:bg-[#e2f2c7] disabled:cursor-not-allowed disabled:opacity-60"
+                            className={`inline-flex h-[30px] min-w-[92px] items-center justify-center px-3 text-[12px] font-semibold ${userAdminClass.successButton}`}
                           >
                             Reactivate
                           </button>
@@ -579,7 +585,7 @@ export default function UserManagementPanel({
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-6 py-8 text-center text-sm text-gray-500"
+                      className={`px-6 py-8 text-center text-sm ${userAdminClass.muted}`}
                     >
                       {users.length === 0
                         ? "No users found."
