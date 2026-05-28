@@ -2,25 +2,15 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth/auth";
+import {
+  DEVELOPER_ANALYSIS_ATTRIBUTION_RULE,
+  DEVELOPER_ANALYSIS_ROLE_LABELS,
+  isDeveloperAnalysisRole,
+} from "@/lib/analysis/developer-attribution";
 import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const DEVELOPER_ROLE_LABELS = [
-  "Developer",
-  "Co-Developer",
-  "Project Sponsor",
-  "Lead Developer",
-];
-
-const DEVELOPER_ROLE_KEYS = new Set([
-  "developer",
-  "co-developer",
-  "co developer",
-  "project sponsor",
-  "lead developer",
-]);
 
 type DeveloperLinkRow = {
   company_id: string;
@@ -84,13 +74,6 @@ type ProjectQaRow = {
   roles: string[];
 };
 
-function normalizeRole(value: string | null) {
-  return String(value || "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .toLowerCase();
-}
-
 function toNumber(value: unknown) {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : null;
@@ -134,12 +117,10 @@ export async function GET() {
         ON c.company_id = cpl.company_id
     `)) as DeveloperLinkRow[];
 
-    const developerLinks = links.filter((row) =>
-      DEVELOPER_ROLE_KEYS.has(normalizeRole(row.role))
-    );
+    const developerLinks = links.filter((row) => isDeveloperAnalysisRole(row.role));
 
     const excludedLinks = links.filter(
-      (row) => !DEVELOPER_ROLE_KEYS.has(normalizeRole(row.role))
+      (row) => !isDeveloperAnalysisRole(row.role)
     );
     const excludedRoleCount = excludedLinks.length;
     const excludedRoles = new Map<string, RoleAccumulator>();
@@ -389,9 +370,8 @@ export async function GET() {
 
     return NextResponse.json({
       summary: {
-        roles_counted: DEVELOPER_ROLE_LABELS,
-        attribution_rule:
-          "Single developer receives 100%. Multiple developers use valid link weights where all are present; otherwise project MWe is split equally among developer links.",
+        roles_counted: DEVELOPER_ANALYSIS_ROLE_LABELS,
+        attribution_rule: DEVELOPER_ANALYSIS_ATTRIBUTION_RULE,
         developer_link_count: developerLinks.length,
         excluded_non_developer_role_count: excludedRoleCount,
         linked_project_count: projects.size,
