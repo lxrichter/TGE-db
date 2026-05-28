@@ -31,12 +31,19 @@ export function AnalysisModuleHero({
 }) {
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
         <Link
           href="/analysis"
           className="text-sm font-semibold text-[#8dc63f] hover:underline"
         >
           ← Back to Analysis Workspace
+        </Link>
+        <span className="text-gray-300">|</span>
+        <Link
+          href={`/analysis/modules/${module.id}`}
+          className="text-sm font-semibold text-gray-500 hover:text-[#4f7f1f] hover:underline"
+        >
+          View module definition
         </Link>
       </div>
 
