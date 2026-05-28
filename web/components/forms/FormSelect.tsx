@@ -26,7 +26,7 @@ export default function FormSelect({
     <div>
       <label
         htmlFor={name}
-        className="mb-1 flex items-center text-sm font-medium text-gray-700"
+        className="mb-1 flex items-center text-sm font-medium text-[var(--tge-governance-neutral-text)]"
       >
         <span>{label}</span>
         {helpText ? <FieldHelp title={label} content={helpText} /> : null}
@@ -41,10 +41,10 @@ export default function FormSelect({
           disabled={disabled}
           className={`w-full appearance-none rounded-none border px-3 py-2 pr-8 text-sm leading-[1.25rem] outline-none ${
             error
-              ? "border-red-500 bg-red-50"
+              ? "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)]"
               : disabled
-              ? "border-gray-300 bg-gray-100 text-gray-500"
-              : "border-gray-300 bg-white focus:border-[#8dc63f] focus:ring-2 focus:ring-[#dff0bf]"
+              ? "border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-neutral-bg)] text-[var(--tge-governance-muted-text)]"
+              : "border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] focus:border-[var(--tge-brand-green)] focus:ring-2 focus:ring-[var(--tge-governance-success-border)]"
           }`}
         >
           {options.map((option) => (
@@ -57,13 +57,15 @@ export default function FormSelect({
           ))}
         </select>
 
-        <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+        <div className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-[var(--tge-governance-muted-text)]">
           ▼
         </div>
       </div>
 
       {error ? (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className="mt-1 text-xs text-[var(--tge-governance-danger-text)]">
+          {error}
+        </p>
       ) : null}
     </div>
   );

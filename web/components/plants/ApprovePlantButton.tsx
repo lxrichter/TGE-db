@@ -38,7 +38,7 @@ export default function ApprovePlantButton({
       type="button"
       onClick={handleApprove}
       disabled={submitting}
-      className="inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-green-400 bg-green-100 px-3 py-1 text-[11px] font-semibold leading-none text-green-800 transition hover:bg-green-200 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-success-text)] transition hover:border-[var(--tge-brand-green)] disabled:cursor-not-allowed disabled:opacity-60"
       title="Approve this plant"
     >
       {submitting ? "Approving..." : "Approve"}
