@@ -87,7 +87,7 @@ export default function PromoteProjectButton({
           Already Promoted
         </ActionButton>
 
-        <div className="border border-gray-300 bg-gray-50 p-4 text-sm text-gray-600 shadow-sm">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] p-4 text-sm text-[var(--tge-text-secondary)] shadow-sm">
           <div className="space-y-2">
             <p>This project has already been promoted to a plant.</p>
             {promotedPlantId ? (
@@ -116,34 +116,34 @@ export default function PromoteProjectButton({
       </ActionButton>
 
       {isOpen && (
-        <div className="border border-gray-300 bg-white p-5 shadow-sm">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] p-5 shadow-sm">
           <div className="space-y-4">
-            <p className="text-sm leading-6 text-gray-700">
+            <p className="text-sm leading-6 text-[var(--tge-governance-neutral-text)]">
               This will create a new plant record from this project.
             </p>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]">
                   New Plant ID
                 </label>
                 <input
                   type="text"
                   value={plantIdPreview}
                   readOnly
-                  className="w-full border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-600 outline-none"
+                  className="w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-2 text-sm text-[var(--tge-text-secondary)] outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]">
                   Plant Name
                 </label>
                 <input
                   type="text"
                   value={plantName}
                   onChange={(e) => setPlantName(e.target.value)}
-                  className="w-full border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                  className="w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
                 />
               </div>
             </div>
@@ -170,12 +170,14 @@ export default function PromoteProjectButton({
               </ActionButton>
             </div>
 
-            <div className="text-[11px] leading-5 text-gray-500">
+            <div className="text-[11px] leading-5 text-[var(--tge-governance-muted-text)]">
               Plant ID is assigned automatically to the next available safe Plant ID. Existing Plant IDs will not be overwritten.
             </div>
 
             {message ? (
-              <div className="text-sm font-medium text-gray-700">{message}</div>
+              <div className="text-sm font-medium text-[var(--tge-governance-neutral-text)]">
+                {message}
+              </div>
             ) : null}
           </div>
         </div>
