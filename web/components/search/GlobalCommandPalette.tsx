@@ -190,6 +190,14 @@ const adminCommands: CommandItem[] = [
   },
   {
     type: "command",
+    key: "design-readiness",
+    group: "Platform / Admin",
+    label: "Open Design Readiness",
+    note: "Review role entry points, semantic color language, and design-phase decisions.",
+    href: "/admin#design-readiness",
+  },
+  {
+    type: "command",
     key: "admin-users",
     group: "Platform / Admin",
     label: "Manage Users",
