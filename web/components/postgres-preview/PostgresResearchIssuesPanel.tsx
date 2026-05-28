@@ -228,43 +228,46 @@ export default function PostgresResearchIssuesPanel({
   const startsOpen = issues.length > 0 || showCreate || Boolean(error || message);
 
   return (
-    <details className="border border-gray-200 bg-white" open={startsOpen}>
+    <details
+      className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]"
+      open={startsOpen}
+    >
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
             Research Ops Issues
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             Open persistent research issues linked to this entity. Generated
             missing-data queues remain visible in Research Ops.
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap md:justify-end">
-          <span className="inline-flex h-9 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+          <span className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             {issues.length} open issue{issues.length === 1 ? "" : "s"}
           </span>
-          <span className="inline-flex h-9 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700">
+          <span className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             {startsOpen ? "Open" : "Expand"}
           </span>
         </div>
       </summary>
 
-      <div className="space-y-5 border-t border-gray-200 px-5 py-5">
+      <div className="space-y-5 border-t border-[var(--tge-governance-neutral-border)] px-5 py-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs leading-5 text-gray-500">
+          <p className="text-xs leading-5 text-[var(--tge-governance-muted-text)]">
             Persistent issues are human/team-created follow-ups. Generated queues
             remain managed from Research Ops.
           </p>
           <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
             <Link
-              className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
               href="/postgres-preview/research-ops"
             >
               Open Research Ops
             </Link>
             {canManageIssues ? (
               <button
-                className="h-9 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+                className="h-9 w-full border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] sm:w-auto"
                 type="button"
                 onClick={() => setShowCreate((current) => !current)}
               >
@@ -274,53 +277,53 @@ export default function PostgresResearchIssuesPanel({
           </div>
         </div>
         {canManageIssues ? null : (
-          <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
+          <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-4 py-3 text-sm text-[var(--tge-text-secondary)]">
             Issue creation requires editor/admin permissions.
           </div>
         )}
 
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]">
             {error}
           </div>
         ) : null}
         {message ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]">
             {message}
           </div>
         ) : null}
 
         {issues.length > 0 ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Open Issues
               </div>
-              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+              <div className="mt-1 text-2xl font-bold text-[var(--tge-text-primary)]">
                 {issues.length}
               </div>
             </div>
-            <div className="border border-red-100 bg-red-50 px-4 py-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
+            <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-danger-text)]">
                 Critical
               </div>
-              <div className="mt-1 text-2xl font-bold text-red-800">
+              <div className="mt-1 text-2xl font-bold text-[var(--tge-governance-danger-text)]">
                 {criticalIssueCount}
               </div>
             </div>
-            <div className="border border-blue-100 bg-blue-50 px-4 py-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+            <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
                 Field-Linked
               </div>
-              <div className="mt-1 text-2xl font-bold text-blue-800">
+              <div className="mt-1 text-2xl font-bold text-[var(--tge-governance-info-text)]">
                 {fieldLinkedIssueCount}
               </div>
             </div>
-            <div className="border border-[#d9eac2] bg-[#f5faee] px-4 py-3">
-              <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-success-text)]">
                 Assigned
               </div>
-              <div className="mt-1 text-2xl font-bold text-[#3f6f19]">
+              <div className="mt-1 text-2xl font-bold text-[var(--tge-governance-success-text)]">
                 {assignedIssueCount}
               </div>
             </div>
@@ -328,12 +331,12 @@ export default function PostgresResearchIssuesPanel({
         ) : null}
 
         {showCreate && canManageIssues ? (
-          <div className="space-y-4 border border-gray-200 bg-[#fbfbfb] px-4 py-4">
+          <div className="space-y-4 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4">
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
-              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Issue Type
                 <select
-                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  className="h-10 min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
                   value={issueTypeCode}
                   onChange={(event) => setIssueTypeCode(event.target.value)}
                 >
@@ -344,10 +347,10 @@ export default function PostgresResearchIssuesPanel({
                   ))}
                 </select>
               </label>
-              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Title
                 <input
-                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  className="h-10 min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
                   placeholder="Short operational issue title"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
@@ -356,19 +359,19 @@ export default function PostgresResearchIssuesPanel({
             </div>
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
-              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Linked Field
                 <input
-                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  className="h-10 min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
                   placeholder="Optional, e.g. source, capacity, coordinates"
                   value={linkedField}
                   onChange={(event) => setLinkedField(event.target.value)}
                 />
               </label>
-              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Note
                 <input
-                  className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+                  className="h-10 min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
                   placeholder="Optional research context"
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
@@ -377,17 +380,17 @@ export default function PostgresResearchIssuesPanel({
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <label className="inline-flex h-9 items-center justify-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 sm:justify-start">
+              <label className="inline-flex h-9 items-center justify-center gap-2 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] sm:justify-start">
                 <input
                   checked={assignToSelf}
-                  className="h-4 w-4 accent-[#8dc63f]"
+                  className="h-4 w-4 accent-[var(--tge-brand-green)]"
                   type="checkbox"
                   onChange={(event) => setAssignToSelf(event.target.checked)}
                 />
                 Assign to me
               </label>
               <button
-                className="h-10 w-full border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                className="h-10 w-full border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-5 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 disabled={saving || !issueTypeCode || !title.trim()}
                 type="button"
                 onClick={createIssue}
@@ -399,10 +402,10 @@ export default function PostgresResearchIssuesPanel({
         ) : null}
 
         {canManageIssues && issues.length > 0 ? (
-          <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Resolution / Status Note
             <input
-              className="mt-1 h-10 w-full border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              className="mt-1 h-10 w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
               placeholder="Optional note used when resolving or dismissing an issue"
               value={statusNote}
               onChange={(event) => setStatusNote(event.target.value)}
@@ -411,13 +414,13 @@ export default function PostgresResearchIssuesPanel({
         ) : null}
 
         {issues.length === 0 ? (
-          <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
+          <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-4 py-3 text-sm text-[var(--tge-text-secondary)]">
             No open persistent research issues are linked to this record.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-[1080px] table-fixed text-left text-sm">
-              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 <tr>
                   <th className="w-[15%] px-4 py-3 font-semibold">Type</th>
                   <th className="w-[29%] px-4 py-3 font-semibold">Issue</th>
@@ -428,30 +431,33 @@ export default function PostgresResearchIssuesPanel({
                   <th className="w-[10%] px-4 py-3 font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
                 {issues.map((issue) => {
                   const savingThis = savingIssueId === issue.research_ops_issue_id;
 
                   return (
-                    <tr key={issue.research_ops_issue_id} className="align-top">
-                      <td className="px-4 py-3 text-gray-700">
+                    <tr
+                      key={issue.research_ops_issue_id}
+                      className="align-top hover:bg-[var(--tge-surface-subtle)]"
+                    >
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         {issue.issue_type_label}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-[#1f2937]">
+                        <div className="font-semibold text-[var(--tge-text-primary)]">
                           {issue.title}
                         </div>
                         {issue.description ? (
-                          <div className="mt-1 text-xs leading-5 text-gray-500">
+                          <div className="mt-1 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
                             {issue.description}
                           </div>
                         ) : null}
-                        <div className="mt-1 text-xs text-gray-500">
+                        <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                           {issue.issue_status_label}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex min-h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+                        <span className="inline-flex min-h-7 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
                           {formatLinkedField(issue.linked_field)}
                         </span>
                       </td>
@@ -464,10 +470,10 @@ export default function PostgresResearchIssuesPanel({
                           {issue.severity}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         {canManageIssues ? (
                           <select
-                            className="h-8 w-full min-w-0 border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#8dc63f] disabled:cursor-not-allowed disabled:opacity-60"
+                            className="h-8 w-full min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)] outline-none focus:border-[var(--tge-brand-green)] disabled:cursor-not-allowed disabled:opacity-60"
                             disabled={savingThis}
                             value={issue.assigned_to_user_id || ""}
                             onChange={(event) =>
@@ -485,14 +491,14 @@ export default function PostgresResearchIssuesPanel({
                           issue.assigned_to_name || "-"
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         {formatDate(issue.updated_at)}
                       </td>
                       <td className="px-4 py-3">
                         {canManageIssues ? (
                           <div className="grid grid-cols-1 gap-2">
                             <button
-                              className="h-8 border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="h-8 border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-info-text)] hover:bg-[var(--tge-governance-info-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                               disabled={
                                 savingThis ||
                                 issue.issue_status_code === "in_progress"
@@ -509,7 +515,7 @@ export default function PostgresResearchIssuesPanel({
                               {savingThis ? "Saving..." : "Start"}
                             </button>
                             <button
-                              className="h-8 border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                              className="h-8 border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                               disabled={savingThis}
                               type="button"
                               onClick={() =>
@@ -522,7 +528,7 @@ export default function PostgresResearchIssuesPanel({
                               Resolve
                             </button>
                             <button
-                              className="h-8 border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="h-8 border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                               disabled={savingThis}
                               type="button"
                               onClick={() =>
@@ -536,7 +542,7 @@ export default function PostgresResearchIssuesPanel({
                             </button>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-[var(--tge-governance-muted-text)]">
                             Open in Research Ops
                           </span>
                         )}
