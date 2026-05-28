@@ -62,10 +62,10 @@ const actionGroupMeta: Record<
 
 function actionLinkClass(action: PostgresRecordAction) {
   const base =
-    "block border px-3 py-3 text-left transition hover:border-[#8dc63f] hover:bg-[#f3f8ec]";
+    "block border px-3 py-3 text-left transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]";
 
   return `${base} ${actionToneClasses[action.tone]} ${
-    action.primary ? "ring-2 ring-[#8dc63f]/20" : ""
+    action.primary ? "ring-2 ring-[var(--tge-governance-success-border)]" : ""
   }`;
 }
 
@@ -77,26 +77,26 @@ export function PostgresNextRequiredActionStrip({
   modeLabel?: string;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
       <div className="grid gap-4 px-5 py-4 lg:grid-cols-[220px_minmax(0,1fr)_auto] lg:items-center">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
             Next Required Action
           </div>
-          <div className="mt-1 text-sm font-bold text-[#1f2937]">{modeLabel}</div>
+          <div className="mt-1 text-sm font-bold text-[var(--tge-text-primary)]">{modeLabel}</div>
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <PostgresStatusBadge value={action.tone} />
-            <h2 className="text-base font-bold text-[#1f2937]">{action.label}</h2>
+            <h2 className="text-base font-bold text-[var(--tge-text-primary)]">{action.label}</h2>
           </div>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             {action.detail}
           </p>
         </div>
         <Link
           href={action.href}
-          className="inline-flex min-h-9 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+          className="inline-flex min-h-9 w-full items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] sm:w-auto"
         >
           Open
         </Link>
@@ -126,14 +126,14 @@ export default function PostgresRecordActionHub({
     .filter((group) => group.actions.length > 0);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
             Operational Focus
           </div>
-          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+          <h2 className="mt-2 text-xl font-bold text-[var(--tge-text-primary)]">{title}</h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             {description}
           </p>
         </div>
@@ -150,7 +150,7 @@ export default function PostgresRecordActionHub({
           />
           <Link
             href="/postgres-preview/research-ops"
-            className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="inline-flex h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           >
             Research Ops
           </Link>
@@ -163,19 +163,19 @@ export default function PostgresRecordActionHub({
 
           return (
             <section
-              className="border border-gray-200 bg-[#fafafa] px-3 py-3"
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-3"
               key={group}
             >
               <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                     {meta.eyebrow}
                   </div>
-                  <h3 className="mt-1 text-sm font-bold text-[#1f2937]">
+                  <h3 className="mt-1 text-sm font-bold text-[var(--tge-text-primary)]">
                     {meta.title}
                   </h3>
                 </div>
-                <p className="max-w-2xl text-xs leading-5 text-gray-500">
+                <p className="max-w-2xl text-xs leading-5 text-[var(--tge-text-secondary)]">
                   {meta.description}
                 </p>
               </div>
@@ -186,10 +186,10 @@ export default function PostgresRecordActionHub({
                     className={actionLinkClass(action)}
                     href={action.href}
                   >
-                    <div className="text-sm font-bold text-[#1f2937]">
+                    <div className="text-sm font-bold text-[var(--tge-text-primary)]">
                       {action.label}
                     </div>
-                    <div className="mt-1.5 text-xs leading-5 text-gray-600">
+                    <div className="mt-1.5 text-xs leading-5 text-[var(--tge-text-secondary)]">
                       {action.detail}
                     </div>
                   </Link>
