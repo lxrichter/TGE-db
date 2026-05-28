@@ -230,6 +230,34 @@ function formatDisplayDate(value: string) {
   return value.slice(0, 10);
 }
 
+const editFormClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-sm",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  attentionPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] shadow-sm",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 md:px-5",
+  attentionHeader:
+    "border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3 md:px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  label: "mb-1 block text-sm font-medium text-[var(--tge-text-primary)]",
+  checkboxLabel: "flex items-center gap-2 text-sm text-[var(--tge-text-secondary)]",
+  input:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)] focus:ring-2 focus:ring-[var(--tge-governance-success-border)]",
+  disabledInput:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-subtle)] text-[var(--tge-governance-muted-text)]",
+  errorInput:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-text-primary)] ring-2 ring-[var(--tge-governance-danger-border)]",
+  link:
+    "font-medium text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  secondaryButton:
+    "inline-flex items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-medium text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+};
+
 type FormSectionProps = {
   title: React.ReactNode;
   children: React.ReactNode;
@@ -245,25 +273,17 @@ function FormSection({
 
   return (
     <section
-      className={
-        isAmber
-          ? "border border-amber-200 bg-amber-50/60 shadow-sm"
-          : "border border-gray-200 bg-white shadow-sm"
-      }
+      className={isAmber ? editFormClass.attentionPanel : editFormClass.panel}
     >
       <div
-        className={
-          isAmber
-            ? "border-b border-amber-200 bg-amber-100 px-4 py-3 md:px-5"
-            : "border-b border-gray-200 bg-[#f3f4f6] px-4 py-3 md:px-5"
-        }
+        className={isAmber ? editFormClass.attentionHeader : editFormClass.sectionHeader}
       >
         <h2
-          className={
+          className={`text-base font-semibold md:text-lg ${
             isAmber
-              ? "text-base font-semibold text-amber-900 md:text-lg"
-              : "text-base font-semibold text-[#1f2937] md:text-lg"
-          }
+              ? "text-[var(--tge-governance-attention-text)]"
+              : editFormClass.title
+          }`}
         >
           {title}
         </h2>
@@ -715,7 +735,7 @@ export default function EditPlantPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
-        <p className="text-sm text-gray-600">Loading plant…</p>
+        <p className={`text-sm ${editFormClass.body}`}>Loading plant…</p>
       </div>
     );
   }
@@ -723,13 +743,13 @@ export default function EditPlantPage() {
   if (error && !form.plant_id) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
-        <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] p-4 text-sm text-[var(--tge-governance-danger-text)]">
           {error}
         </div>
         <div className="mt-4">
           <Link
             href="/plants"
-            className="text-sm font-medium text-blue-600 hover:underline"
+            className="text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
           >
             Back to plants
           </Link>
@@ -744,10 +764,10 @@ export default function EditPlantPage() {
     <div className="mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
       <div className="mb-5 flex flex-col gap-4 md:mb-6 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-[#1f2937] md:text-2xl">
+          <h1 className={`text-xl font-semibold tracking-tight md:text-2xl ${editFormClass.title}`}>
             Edit Plant
           </h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className={`mt-1 text-sm ${editFormClass.body}`}>
             Update plant details safely. Plant ID and promotion-origin fields are locked.
           </p>
         </div>
@@ -760,7 +780,7 @@ export default function EditPlantPage() {
                 router.push(`/plants/${plantId}`);
               }
             }}
-            className="inline-flex items-center justify-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            className={editFormClass.secondaryButton}
           >
             Cancel
           </button>
@@ -775,14 +795,14 @@ export default function EditPlantPage() {
         </div>
       </div>
 
-      <div className="mb-6 border border-gray-200 bg-white p-4 shadow-sm md:mb-8 md:p-6">
+      <div className={`mb-6 p-4 md:mb-8 md:p-6 ${editFormClass.panel}`}>
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <ReviewStatusBadge value={form.review_status} />
           <ResearchStatusBadge value={form.research_status} />
         </div>
 
         {pendingReview && (
-          <div className="mb-4 border border-rose-300 bg-rose-100 px-4 py-3 text-sm font-semibold text-rose-800">
+          <div className="mb-4 border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3 text-sm font-semibold text-[var(--tge-governance-attention-text)]">
             Pending review — this record was recently updated and requires validation before approval.
           </div>
         )}
@@ -817,13 +837,13 @@ export default function EditPlantPage() {
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6 md:space-y-8">
         {error && (
-          <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] p-4 text-sm text-[var(--tge-governance-danger-text)]">
             {error}
           </div>
         )}
 
         <FormSection title="Core Identification">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${editFormClass.body}`}>
             Keep core plant naming here. Company roles such as owner, operator, developer,
             investor, or JV partner should be managed through structured company links rather
             than free text.
@@ -1063,7 +1083,7 @@ export default function EditPlantPage() {
         </FormSection>
 
         <FormSection title="Plant / Technology / Commercial">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${editFormClass.body}`}>
             Use this section for technical and commercial plant information.
             Company participation should be managed through structured company links.
           </p>
@@ -1112,13 +1132,13 @@ export default function EditPlantPage() {
           title={
             <>
               Linked Companies
-              <span className="ml-3 text-xs font-normal text-gray-500">
+              <span className={`ml-3 text-xs font-normal ${editFormClass.muted}`}>
                 Roles & ownership participation
               </span>
             </>
           }
         >
-          <div className="mb-6 rounded border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600 md:mb-8">
+          <div className={`mb-6 p-4 text-xs md:mb-8 ${editFormClass.panelSubtle} ${editFormClass.body}`}>
             <ul className="space-y-1">
               <li>• Use for Owner, Operator, Operator Power, Operator Steam, Developer, Resource Owner, Investor, EPC, Drilling, Turbine Supplier, Supplier, Consultant, and O&amp;M Contractor</li>
               <li>• Use Operator for integrated operation</li>
@@ -1130,33 +1150,33 @@ export default function EditPlantPage() {
           </div>
 
           <div className="mb-6">
-            <h3 className="mb-2 text-sm font-semibold text-gray-800">Add Company</h3>
+            <h3 className={`mb-2 text-sm font-semibold ${editFormClass.title}`}>Add Company</h3>
 
             <div className="mb-4 flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
               <a
                 href="/companies/new"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-[#8dc63f] underline"
+                className="font-medium text-[var(--tge-brand-green-dark)] underline"
               >
                 + Add New Company
               </a>
-              <span className="text-gray-500">
+              <span className={editFormClass.muted}>
                 Create company if missing, then return here to link it.
               </span>
             </div>
 
-            <p className="mb-4 text-xs text-gray-500">
+            <p className={`mb-4 text-xs ${editFormClass.muted}`}>
               Use Operator only for normal integrated operation. Use Operator Power and Operator Steam only where operation is split.
             </p>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={editFormClass.label}>
                   Company *
                 </label>
                 <select
-                  className="w-full border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className={`w-full px-3 py-2 text-sm ${editFormClass.input}`}
                   value={plantCompanyLinkForm.company_id}
                   onChange={(e) => {
                     setPlantCompanyLinkForm((prev) => ({
@@ -1179,11 +1199,11 @@ export default function EditPlantPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={editFormClass.label}>
                   Role *
                 </label>
                 <select
-                  className="w-full border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className={`w-full px-3 py-2 text-sm ${editFormClass.input}`}
                   value={plantCompanyLinkForm.role}
                   onChange={(e) => {
                     setPlantCompanyLinkForm((prev) => ({
@@ -1203,11 +1223,11 @@ export default function EditPlantPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={editFormClass.label}>
                   Role Detail
                 </label>
                 <input
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className={`w-full px-3 py-2 text-sm ${editFormClass.input}`}
                   value={plantCompanyLinkForm.role_detail}
                   onChange={(e) => {
                     setPlantCompanyLinkForm((prev) => ({
@@ -1217,25 +1237,25 @@ export default function EditPlantPage() {
                     markUnsavedChanges();
                   }}
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className={`mt-1 text-xs ${editFormClass.muted}`}>
                   Use for more specific scope only, e.g. steamfield management, power plant O&amp;M, drilling campaign, turbine supply, financing, or engineering.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="mb-4 rounded border border-gray-200 p-4">
-            <h3 className="mb-3 text-sm font-semibold text-gray-800">
+          <div className={`mb-4 p-4 ${editFormClass.panelSubtle}`}>
+            <h3 className={`mb-3 text-sm font-semibold ${editFormClass.title}`}>
               Ownership / Additional Details
             </h3>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={editFormClass.label}>
                   Ownership / Economic Share (%)
                 </label>
                 <input
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className={`w-full px-3 py-2 text-sm ${editFormClass.input}`}
                   value={plantCompanyLinkForm.ownership_share}
                   onChange={(e) => {
                     setPlantCompanyLinkForm((prev) => ({
@@ -1245,17 +1265,17 @@ export default function EditPlantPage() {
                     markUnsavedChanges();
                   }}
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className={`mt-1 text-xs ${editFormClass.muted}`}>
                   Use mainly for Owner, and where relevant Investor. Leave blank for Operator, Operator Power, Operator Steam, EPC, drilling, supplier, consultant, O&amp;M Contractor, and similar service roles.
                 </p>
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className={editFormClass.label}>
                   Notes
                 </label>
                 <input
-                  className="w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className={`w-full px-3 py-2 text-sm ${editFormClass.input}`}
                   value={plantCompanyLinkForm.notes}
                   onChange={(e) => {
                     setPlantCompanyLinkForm((prev) => ({
@@ -1268,7 +1288,7 @@ export default function EditPlantPage() {
               </div>
 
               <div className="flex flex-col justify-end">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className={editFormClass.checkboxLabel}>
                   <input
                     type="checkbox"
                     checked={plantCompanyLinkForm.is_primary}
@@ -1282,7 +1302,7 @@ export default function EditPlantPage() {
                   />
                   Set as primary linked company
                 </label>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className={`mt-1 text-xs ${editFormClass.muted}`}>
                   Main company reference for this plant (not limited to ownership).
                 </p>
               </div>
@@ -1304,48 +1324,48 @@ export default function EditPlantPage() {
             <div
               className={`mb-4 rounded px-3 py-2 text-sm font-medium ${
                 linkCompanyMessage.toLowerCase().includes("success")
-                  ? "border border-green-200 bg-green-50 text-green-700"
-                  : "border border-red-200 bg-red-50 text-red-700"
+                  ? "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]"
+                  : "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]"
               }`}
             >
               {linkCompanyMessage}
             </div>
           )}
 
-          <div className="mt-6 overflow-x-auto border border-gray-200">
+          <div className="mt-6 overflow-x-auto border border-[var(--tge-governance-neutral-border)]">
             <table className="min-w-full table-fixed text-left text-[12px]">
-              <thead className="bg-[#f7f7f7]">
-                <tr className="border-b border-gray-200">
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Company</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Role</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Role Detail</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Ownership %</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Primary</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Action</th>
+              <thead className="bg-[var(--tge-surface-subtle)]">
+                <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                  <th className="px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]">Company</th>
+                  <th className="px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]">Role</th>
+                  <th className="px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]">Role Detail</th>
+                  <th className="px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]">Ownership %</th>
+                  <th className="px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]">Primary</th>
+                  <th className="px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]">Action</th>
                 </tr>
               </thead>
 
               <tbody>
                 {existingCompanyLinks.map((row) => (
-                  <tr key={row.company_plant_link_id} className="border-b border-gray-200">
+                  <tr key={row.company_plant_link_id} className="border-b border-[var(--tge-governance-neutral-border)]">
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/companies/${row.company_id}`}
-                        className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                        className={editFormClass.link}
                       >
                         {row.company_name || row.company_id}
                       </Link>
                     </td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.role || "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.role_detail || "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.ownership_share ?? "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.is_primary ? "Yes" : "NA"}</td>
+                    <td className={`px-4 py-2.5 ${editFormClass.body}`}>{row.role || "NA"}</td>
+                    <td className={`px-4 py-2.5 ${editFormClass.body}`}>{row.role_detail || "NA"}</td>
+                    <td className={`px-4 py-2.5 ${editFormClass.body}`}>{row.ownership_share ?? "NA"}</td>
+                    <td className={`px-4 py-2.5 ${editFormClass.body}`}>{row.is_primary ? "Yes" : "NA"}</td>
                     <td className="px-4 py-2.5">
                       <button
                         type="button"
                         onClick={() => deletePlantCompanyLink(row.company_plant_link_id)}
                         disabled={deletingCompanyLinkId === row.company_plant_link_id}
-                        className="border border-red-300 px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50 disabled:opacity-50"
+                        className="border border-[var(--tge-governance-danger-border)] px-2 py-1 text-[11px] font-medium text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:opacity-50"
                       >
                         {deletingCompanyLinkId === row.company_plant_link_id
                           ? "Deleting..."
@@ -1357,7 +1377,7 @@ export default function EditPlantPage() {
 
                 {existingCompanyLinks.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-gray-500">
+                    <td colSpan={6} className={`px-4 py-6 text-center text-sm ${editFormClass.muted}`}>
                       No linked companies yet. Add participants above.
                     </td>
                   </tr>
@@ -1377,7 +1397,7 @@ export default function EditPlantPage() {
                 onChange={handleChange}
                 rows={4}
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${editFormClass.muted}`}>
                 Enter one link per line.
               </p>
             </div>
@@ -1394,7 +1414,7 @@ export default function EditPlantPage() {
 
         <FormSection title="Lifecycle / Promotion Origin" tone="amber">
           <div className="space-y-4">
-            <p className="text-sm text-amber-900">
+            <p className="text-sm text-[var(--tge-governance-attention-text)]">
               Relevant only if this plant was created by promoting a project.
             </p>
 
@@ -1414,7 +1434,7 @@ export default function EditPlantPage() {
             </div>
 
             {form.promoted_from_project_id && (
-              <p className="text-sm text-amber-900">
+              <p className="text-sm text-[var(--tge-governance-attention-text)]">
                 Source project:{" "}
                 <Link
                   href={`/projects/${form.promoted_from_project_id}`}
@@ -1445,7 +1465,7 @@ export default function EditPlantPage() {
                   router.push(`/plants/${plantId}`);
                 }
               }}
-              className="inline-flex items-center justify-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              className={editFormClass.secondaryButton}
             >
               Cancel
             </button>
@@ -1467,11 +1487,11 @@ function ReviewMetaItem({
   value: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-4 py-3">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${editFormClass.panelSubtle} px-4 py-3`}>
+      <div className={`text-[11px] font-semibold uppercase tracking-wide ${editFormClass.muted}`}>
         {label}
       </div>
-      <div className="mt-1 text-sm font-medium text-[#1f2937]">{value || "NA"}</div>
+      <div className={`mt-1 text-sm font-medium ${editFormClass.title}`}>{value || "NA"}</div>
     </div>
   );
 }
@@ -1497,7 +1517,7 @@ function Input({
 }: InputProps) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor={name} className={editFormClass.label}>
         {label}
       </label>
       <input
@@ -1509,14 +1529,14 @@ function Input({
         required={required}
         className={`w-full border px-3 py-2 text-sm outline-none ${
           error
-            ? "border-red-500 bg-red-50 ring-2 ring-red-100"
+            ? editFormClass.errorInput
             : disabled
-            ? "border-gray-300 bg-gray-100 text-gray-500"
-            : "border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            ? editFormClass.disabledInput
+            : editFormClass.input
         }`}
       />
       {error ? (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className="mt-1 text-xs text-[var(--tge-governance-danger-text)]">{error}</p>
       ) : null}
     </div>
   );
@@ -1533,7 +1553,7 @@ type TextareaProps = {
 function Textarea({ label, name, value, onChange, rows = 5 }: TextareaProps) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor={name} className={editFormClass.label}>
         {label}
       </label>
       <textarea
@@ -1542,7 +1562,7 @@ function Textarea({ label, name, value, onChange, rows = 5 }: TextareaProps) {
         value={value}
         onChange={onChange}
         rows={rows}
-        className="w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className={`w-full px-3 py-2 text-sm ${editFormClass.input}`}
       />
     </div>
   );
