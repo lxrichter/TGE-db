@@ -43,7 +43,27 @@ async function safeJson(res: Response) {
 }
 
 function inputClass() {
-  return "min-h-10 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
+  return "min-h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
+}
+
+function primaryActionClass() {
+  return "h-10 self-end border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60";
+}
+
+function checkboxShellClass() {
+  return "flex min-h-10 items-center justify-center gap-2 self-end border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-semibold text-[var(--tge-governance-neutral-text)] xl:justify-start";
+}
+
+function tableHeadClass() {
+  return "bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+}
+
+function tableBodyClass() {
+  return "divide-y divide-[var(--tge-governance-muted-border)]";
+}
+
+function entityLinkClass() {
+  return "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline";
 }
 
 function Field({
@@ -62,26 +82,26 @@ function Field({
   workflow?: boolean;
 }) {
   return (
-    <label className="flex flex-col gap-2 border border-transparent px-3 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <label className="flex flex-col gap-2 border border-transparent px-3 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
       <span className="flex flex-wrap items-center gap-2">
         {label}
         {required ? (
-          <span className="border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-800">
+          <span className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-danger-text)]">
             Required
           </span>
         ) : null}
         {important ? (
-          <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+          <span className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-attention-text)]">
             Important
           </span>
         ) : null}
         {approvalSensitive ? (
-          <span className="border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
+          <span className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-info-text)]">
             Approval Field
           </span>
         ) : null}
         {workflow ? (
-          <span className="border border-gray-200 bg-[#f7f7f7] px-1.5 py-0.5 text-[10px] font-bold text-gray-700">
+          <span className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-neutral-text)]">
             Workflow
           </span>
         ) : null}
@@ -126,50 +146,52 @@ function RelationshipGovernanceNotice({
       : "Use the percentage field only when the source supports a project or plant participation share.";
 
   return (
-    <details className="group border border-blue-100 bg-blue-50/60">
+    <details className="group border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)]">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 marker:hidden">
         <div className="max-w-sm">
-          <h4 className="text-xs font-bold uppercase tracking-wide text-blue-900">
+          <h4 className="text-xs font-bold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
             {title}
           </h4>
-          <p className="mt-1 text-sm leading-6 text-blue-800">
+          <p className="mt-1 text-sm leading-6 text-[var(--tge-governance-info-text)]">
             Structured roles, shares, and evidence rules. Expand only when
             guidance is needed.
           </p>
         </div>
-        <span className="shrink-0 border border-blue-200 bg-white px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-blue-800">
+        <span className="shrink-0 border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
           Details
         </span>
       </summary>
-      <div className="border-t border-blue-100 px-4 py-3">
+      <div className="border-t border-[var(--tge-governance-info-border)] px-4 py-3">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-sm">
-            <p className="text-sm leading-6 text-blue-800">
+            <p className="text-sm leading-6 text-[var(--tge-governance-info-text)]">
               These links feed analytics, Research Ops, profile pages, and
               exports. Removing one does not delete the underlying project,
               plant, or company record.
             </p>
           </div>
           <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-3">
-            <div className="border border-blue-100 bg-white/70 px-3 py-2">
-              <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+            <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
                 {primaryLabel}
               </div>
-              <p className="mt-1 text-xs leading-5 text-blue-800">
+              <p className="mt-1 text-xs leading-5 text-[var(--tge-governance-info-text)]">
                 {primaryText}
               </p>
             </div>
-            <div className="border border-blue-100 bg-white/70 px-3 py-2">
-              <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+            <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
                 {shareLabel}
               </div>
-              <p className="mt-1 text-xs leading-5 text-blue-800">{shareText}</p>
+              <p className="mt-1 text-xs leading-5 text-[var(--tge-governance-info-text)]">
+                {shareText}
+              </p>
             </div>
-            <div className="border border-blue-100 bg-white/70 px-3 py-2">
-              <div className="text-[11px] font-bold uppercase tracking-wide text-blue-900">
+            <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-3 py-2">
+              <div className="text-[11px] font-bold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
                 Evidence And Notes
               </div>
-              <p className="mt-1 text-xs leading-5 text-blue-800">
+              <p className="mt-1 text-xs leading-5 text-[var(--tge-governance-info-text)]">
                 Evidence should support important links. Notes explain
                 uncertainty or context, but do not replace structured
                 relationship data.
@@ -192,10 +214,12 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+          {title}
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
           {description}
         </p>
       </div>
@@ -214,12 +238,12 @@ function Notice({
   return (
     <>
       {error ? (
-        <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]">
           {error}
         </div>
       ) : null}
       {message ? (
-        <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+        <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]">
           {message}
         </div>
       ) : null}
@@ -305,7 +329,7 @@ function RoleOptions({
 
 function RoleBadge({ role }: { role: string | null }) {
   return (
-    <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+    <span className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
       {role || "unknown"}
     </span>
   );
@@ -403,7 +427,7 @@ function RelationshipEvidenceLinker({
 
   if (sourceOptions.length === 0) {
     return (
-      <div className="mt-2 text-[11px] font-medium leading-4 text-amber-700">
+      <div className="mt-2 text-[11px] font-medium leading-4 text-[var(--tge-governance-attention-text)]">
         Add record source first
       </div>
     );
@@ -412,7 +436,7 @@ function RelationshipEvidenceLinker({
   if (!expanded) {
     return (
       <button
-        className="mt-2 min-h-7 border border-gray-200 bg-white px-2 text-[11px] font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+        className="mt-2 min-h-7 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
         type="button"
         onClick={() => setExpanded(true)}
       >
@@ -423,11 +447,11 @@ function RelationshipEvidenceLinker({
 
   return (
     <form
-      className="mt-2 space-y-2 border border-gray-200 bg-[#fafafa] p-2"
+      className="mt-2 space-y-2 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] p-2"
       onSubmit={handleSubmit}
     >
       <select
-        className="min-h-8 w-full border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+        className="min-h-8 w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-xs font-medium text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
         value={selectedSourceId}
         onChange={(event) => setSourceId(event.target.value)}
       >
@@ -439,14 +463,14 @@ function RelationshipEvidenceLinker({
       </select>
       <div className="grid grid-cols-2 gap-2">
         <button
-          className="min-h-8 border border-[#8dc63f] bg-white px-2 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f1f8e8] disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-8 border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-2 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] disabled:cursor-not-allowed disabled:opacity-60"
           disabled={saving || !selectedSourceId}
           type="submit"
         >
           {saving ? "Linking..." : "Save"}
         </button>
         <button
-          className="min-h-8 border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+          className="min-h-8 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 text-xs font-semibold text-[var(--tge-text-secondary)] hover:bg-[var(--tge-surface-subtle)]"
           type="button"
           onClick={() => {
             setExpanded(false);
@@ -457,10 +481,12 @@ function RelationshipEvidenceLinker({
         </button>
       </div>
       {error ? (
-        <div className="text-[11px] font-medium leading-4 text-red-700">{error}</div>
+        <div className="text-[11px] font-medium leading-4 text-[var(--tge-governance-danger-text)]">
+          {error}
+        </div>
       ) : null}
       {message ? (
-        <div className="text-[11px] font-medium leading-4 text-[#3f6f19]">
+        <div className="text-[11px] font-medium leading-4 text-[var(--tge-governance-success-text)]">
           {message}
         </div>
       ) : null}
@@ -480,17 +506,19 @@ function RelationshipSummaryTile({
   status?: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
+    <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
       <div className="flex items-start justify-between gap-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
           {label}
         </div>
         {status ? <PostgresStatusBadge value={status} /> : null}
       </div>
-      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+      <div className="mt-2 text-2xl font-bold leading-none text-[var(--tge-text-primary)]">
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className="mt-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
+        {note}
+      </div>
     </div>
   );
 }
@@ -601,7 +629,7 @@ function RemoveButton({
 }) {
   return (
     <button
-      className="h-8 border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+      className="h-8 border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:cursor-not-allowed disabled:opacity-60"
       disabled={disabled}
       type="button"
       onClick={onClick}
@@ -768,16 +796,16 @@ export function ProjectCompanyLinksPanel({
           />
         </Field>
         <button
-          className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+          className={primaryActionClass()}
           disabled={saving}
           type="submit"
         >
           {saving ? "Saving..." : "Add Role"}
         </button>
-        <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 xl:justify-start">
+        <label className={checkboxShellClass()}>
           <input
             checked={form.is_primary}
-            className="h-4 w-4 accent-[#8dc63f]"
+            className="h-4 w-4 accent-[var(--tge-brand-green)]"
             type="checkbox"
             onChange={(event) =>
               setForm((prev) => ({ ...prev, is_primary: event.target.checked }))
@@ -800,7 +828,7 @@ export function ProjectCompanyLinksPanel({
 
       <div className="overflow-x-auto">
         <table className="min-w-[1120px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={tableHeadClass()}>
             <tr>
               <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Role</th>
@@ -810,34 +838,37 @@ export function ProjectCompanyLinksPanel({
               <th className="w-[12%] px-4 py-3 font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={tableBodyClass()}>
             {links.map((link) => (
-              <tr key={link.company_project_link_id} className="align-top">
+              <tr
+                key={link.company_project_link_id}
+                className="align-top hover:bg-[var(--tge-surface-subtle)]"
+              >
                 <td className="px-4 py-3">
                   <Link
                     href={`/postgres-preview/companies/${link.company_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={entityLinkClass()}
                   >
                     {link.company_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     {link.legacy_company_id || link.company_id}
                   </div>
                 </td>
                 <td className="px-4 py-3">
                   <RoleBadge role={link.role_label || link.role_code} />
                   {link.is_primary ? (
-                    <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                    <div className="mt-2 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                       Primary
                     </div>
                   ) : null}
                   {link.role_detail ? (
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                       {link.role_detail}
                     </div>
                   ) : null}
                 </td>
-                <td className="px-4 py-3 text-gray-700">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {formatPercent(link.ownership_share)}
                 </td>
                 <td className="px-4 py-3">
@@ -849,7 +880,9 @@ export function ProjectCompanyLinksPanel({
                     targetType="company_project_link"
                   />
                 </td>
-                <td className="px-4 py-3 text-gray-700">{link.notes || "-"}</td>
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
+                  {link.notes || "-"}
+                </td>
                 <td className="px-4 py-3">
                   <RemoveButton
                     disabled={saving}
@@ -860,7 +893,10 @@ export function ProjectCompanyLinksPanel({
             ))}
             {links.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td
+                  colSpan={6}
+                  className="px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                >
                   No structured company roles linked yet.
                 </td>
               </tr>
@@ -1035,16 +1071,16 @@ export function OperatingAssetCompanyLinksPanel({
           />
         </Field>
         <button
-          className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+          className={primaryActionClass()}
           disabled={saving}
           type="submit"
         >
           {saving ? "Saving..." : "Add Role"}
         </button>
-        <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 xl:justify-start">
+        <label className={checkboxShellClass()}>
           <input
             checked={form.is_primary}
-            className="h-4 w-4 accent-[#8dc63f]"
+            className="h-4 w-4 accent-[var(--tge-brand-green)]"
             type="checkbox"
             onChange={(event) =>
               setForm((prev) => ({ ...prev, is_primary: event.target.checked }))
@@ -1067,7 +1103,7 @@ export function OperatingAssetCompanyLinksPanel({
 
       <div className="overflow-x-auto">
         <table className="min-w-[1120px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={tableHeadClass()}>
             <tr>
               <th className="w-[24%] px-4 py-3 font-semibold">Company</th>
               <th className="w-[16%] px-4 py-3 font-semibold">Role</th>
@@ -1077,34 +1113,37 @@ export function OperatingAssetCompanyLinksPanel({
               <th className="w-[12%] px-4 py-3 font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={tableBodyClass()}>
             {links.map((link) => (
-              <tr key={link.company_operating_asset_link_id} className="align-top">
+              <tr
+                key={link.company_operating_asset_link_id}
+                className="align-top hover:bg-[var(--tge-surface-subtle)]"
+              >
                 <td className="px-4 py-3">
                   <Link
                     href={`/postgres-preview/companies/${link.company_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={entityLinkClass()}
                   >
                     {link.company_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     {link.legacy_company_id || link.company_id}
                   </div>
                 </td>
                 <td className="px-4 py-3">
                   <RoleBadge role={link.role_label || link.role_code} />
                   {link.is_primary ? (
-                    <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                    <div className="mt-2 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                       Primary
                     </div>
                   ) : null}
                   {link.role_detail ? (
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                       {link.role_detail}
                     </div>
                   ) : null}
                 </td>
-                <td className="px-4 py-3 text-gray-700">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {formatPercent(link.ownership_share)}
                 </td>
                 <td className="px-4 py-3">
@@ -1116,7 +1155,9 @@ export function OperatingAssetCompanyLinksPanel({
                     targetType="company_operating_asset_link"
                   />
                 </td>
-                <td className="px-4 py-3 text-gray-700">{link.notes || "-"}</td>
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
+                  {link.notes || "-"}
+                </td>
                 <td className="px-4 py-3">
                   <RemoveButton
                     disabled={saving}
@@ -1129,7 +1170,10 @@ export function OperatingAssetCompanyLinksPanel({
             ))}
             {links.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td
+                  colSpan={6}
+                  className="px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                >
                   No structured company roles linked yet.
                 </td>
               </tr>
@@ -1280,7 +1324,7 @@ function CompanyProjectPortfolio({
           />
         </Field>
         <button
-          className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+          className={primaryActionClass()}
           disabled={saving}
           type="submit"
         >
@@ -1290,17 +1334,20 @@ function CompanyProjectPortfolio({
 
       <div className="overflow-x-auto">
         <table className="min-w-[1120px] table-fixed text-left text-sm">
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={tableBodyClass()}>
             {links.map((link) => (
-              <tr key={link.company_project_link_id} className="align-top">
+              <tr
+                key={link.company_project_link_id}
+                className="align-top hover:bg-[var(--tge-surface-subtle)]"
+              >
                 <td className="w-[34%] px-4 py-3">
                   <Link
                     href={`/postgres-preview/projects/${link.project_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={entityLinkClass()}
                   >
                     {link.project_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     {link.country || "-"}
                   </div>
                 </td>
@@ -1318,10 +1365,10 @@ function CompanyProjectPortfolio({
                     targetType="company_project_link"
                   />
                 </td>
-                <td className="w-[18%] px-4 py-3 text-gray-700">
+                <td className="w-[18%] px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {formatPercent(link.ownership_share)}
                 </td>
-                <td className="w-[16%] px-4 py-3 text-gray-700">
+                <td className="w-[16%] px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {link.is_primary ? "Primary" : "-"}
                 </td>
                 <td className="w-[10%] px-4 py-3">
@@ -1334,7 +1381,10 @@ function CompanyProjectPortfolio({
             ))}
             {links.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                >
                   No linked projects yet.
                 </td>
               </tr>
@@ -1497,7 +1547,7 @@ function CompanyAssetPortfolio({
           />
         </Field>
         <button
-          className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+          className={primaryActionClass()}
           disabled={saving}
           type="submit"
         >
@@ -1507,20 +1557,20 @@ function CompanyAssetPortfolio({
 
       <div className="overflow-x-auto">
         <table className="min-w-[1120px] table-fixed text-left text-sm">
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={tableBodyClass()}>
             {links.map((link) => (
               <tr
                 key={link.company_operating_asset_link_id}
-                className="align-top"
+                className="align-top hover:bg-[var(--tge-surface-subtle)]"
               >
                 <td className="w-[34%] px-4 py-3">
                   <Link
                     href={`/postgres-preview/operating-assets/${link.operating_asset_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={entityLinkClass()}
                   >
                     {link.asset_name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     {link.country || "-"}
                   </div>
                 </td>
@@ -1538,10 +1588,10 @@ function CompanyAssetPortfolio({
                     targetType="company_operating_asset_link"
                   />
                 </td>
-                <td className="w-[18%] px-4 py-3 text-gray-700">
+                <td className="w-[18%] px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {formatPercent(link.ownership_share)}
                 </td>
-                <td className="w-[16%] px-4 py-3 text-gray-700">
+                <td className="w-[16%] px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {link.is_primary ? "Primary" : "-"}
                 </td>
                 <td className="w-[10%] px-4 py-3">
@@ -1556,7 +1606,10 @@ function CompanyAssetPortfolio({
             ))}
             {links.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                >
                   No linked plants yet.
                 </td>
               </tr>
@@ -1714,7 +1767,7 @@ export function CompanyRelationshipPanel({
 
       <div className="grid grid-cols-1 gap-6 2xl:grid-cols-2">
         <div className="space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Project Roles
           </h3>
           <CompanyProjectPortfolio
@@ -1725,7 +1778,7 @@ export function CompanyRelationshipPanel({
           />
         </div>
         <div className="space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Plant Roles
           </h3>
           <CompanyAssetPortfolio
@@ -1737,8 +1790,8 @@ export function CompanyRelationshipPanel({
         </div>
       </div>
 
-      <div className="border-t border-gray-200 pt-5">
-        <h3 className="text-sm font-bold uppercase tracking-wide text-gray-500">
+      <div className="border-t border-[var(--tge-governance-neutral-border)] pt-5">
+        <h3 className="text-sm font-bold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
           Company Relationships
         </h3>
         <div className="mt-4 space-y-4">
@@ -1800,10 +1853,10 @@ export function CompanyRelationshipPanel({
                 }
               />
             </Field>
-            <label className="flex min-h-10 items-center justify-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 xl:justify-start">
+            <label className={checkboxShellClass()}>
               <input
                 checked={form.is_current}
-                className="h-4 w-4 accent-[#8dc63f]"
+                className="h-4 w-4 accent-[var(--tge-brand-green)]"
                 type="checkbox"
                 onChange={(event) =>
                   setForm((prev) => ({
@@ -1815,7 +1868,7 @@ export function CompanyRelationshipPanel({
               Current
             </label>
             <button
-              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              className={primaryActionClass()}
               disabled={saving || relatedCompanyOptions.length === 0}
               type="submit"
             >
@@ -1836,7 +1889,7 @@ export function CompanyRelationshipPanel({
 
           <div className="overflow-x-auto">
             <table className="min-w-[1180px] table-fixed text-left text-sm">
-              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <thead className={tableHeadClass()}>
                 <tr>
                   <th className="w-[23%] px-4 py-3 font-semibold">From</th>
                   <th className="w-[23%] px-4 py-3 font-semibold">To</th>
@@ -1847,16 +1900,16 @@ export function CompanyRelationshipPanel({
                   <th className="w-[7%] px-4 py-3 font-semibold">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className={tableBodyClass()}>
                 {relationships.map((relationship) => (
                   <tr
                     key={relationship.company_relationship_id}
-                    className="align-top"
+                    className="align-top hover:bg-[var(--tge-surface-subtle)]"
                   >
                     <td className="px-4 py-3">
                       <Link
                         href={`/postgres-preview/companies/${relationship.company_id_from}`}
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={entityLinkClass()}
                       >
                         {relationship.company_name_from}
                       </Link>
@@ -1864,7 +1917,7 @@ export function CompanyRelationshipPanel({
                     <td className="px-4 py-3">
                       <Link
                         href={`/postgres-preview/companies/${relationship.company_id_to}`}
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={entityLinkClass()}
                       >
                         {relationship.company_name_to}
                       </Link>
@@ -1877,7 +1930,7 @@ export function CompanyRelationshipPanel({
                         }
                       />
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                       {formatPercent(relationship.ownership_percentage)}
                     </td>
                     <td className="px-4 py-3">
@@ -1891,7 +1944,7 @@ export function CompanyRelationshipPanel({
                         targetType="company_relationship"
                       />
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
+                    <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                       {relationship.is_current ? "Yes" : "No"}
                     </td>
                     <td className="px-4 py-3">
@@ -1908,7 +1961,7 @@ export function CompanyRelationshipPanel({
                   <tr>
                     <td
                       colSpan={7}
-                      className="px-4 py-8 text-center text-sm text-gray-500"
+                      className="px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]"
                     >
                       No company relationships linked yet.
                     </td>
