@@ -22,6 +22,13 @@ export type AnalysisModule = {
   dataPrerequisites?: string[];
 };
 
+export type AnalysisDefinitionProtocolStep = {
+  step: string;
+  title: string;
+  description: string;
+  output: string;
+};
+
 export const analysisStatusLabels: Record<AnalysisModuleStatus, string> = {
   live: "Live",
   definition_next: "Define Next",
@@ -63,6 +70,44 @@ export const analysisCategoryDescriptions: Record<
   resource: "Hydrothermal, EGS, AGS, superhot, and related taxonomy views.",
   operations: "Direct-use, wellfield, heat, and operating-context analysis.",
 };
+
+export const analysisDefinitionProtocol: AnalysisDefinitionProtocolStep[] = [
+  {
+    step: "1",
+    title: "Scope",
+    description:
+      "Define the user question, target audience, and whether the module is subscriber-facing, internal, or governance-only.",
+    output: "Module purpose and visibility",
+  },
+  {
+    step: "2",
+    title: "Source Basis",
+    description:
+      "Confirm which structured tables, linked relationships, source evidence, and controlled vocabularies feed the analysis.",
+    output: "Source fields and joins",
+  },
+  {
+    step: "3",
+    title: "Measures",
+    description:
+      "Define counts, MWe, MWth, ownership weighting, operator attribution, confidence rules, and missing-data treatment.",
+    output: "Metric and weighting rules",
+  },
+  {
+    step: "4",
+    title: "Segments",
+    description:
+      "Confirm country, TGE region, WB region, technology, phase/status, company role, and use-category drilldowns.",
+    output: "Filters and drilldowns",
+  },
+  {
+    step: "5",
+    title: "Governance",
+    description:
+      "Decide readiness thresholds, evidence warnings, export rules, and how unresolved data quality issues should appear.",
+    output: "Release and review rules",
+  },
+];
 
 export const analysisModules: AnalysisModule[] = [
   {

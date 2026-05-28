@@ -4,6 +4,7 @@ import {
   analysisCategoryDescriptions,
   analysisCategoryLabels,
   analysisCategoryOrder,
+  analysisDefinitionProtocol,
   analysisModules,
   analysisModulesByCategory,
   analysisModulesByStatus,
@@ -260,6 +261,42 @@ function AnalysisDomainSummary() {
   );
 }
 
+function AnalysisDefinitionProtocol() {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
+        <h2 className="text-lg font-semibold text-[#1f2937]">
+          Module Definition Protocol
+        </h2>
+        <p className="mt-1 text-[13px] leading-5 text-gray-600">
+          Standard checklist before a future analysis module becomes a live
+          page. This keeps new benchmark views consistent and avoids hidden
+          weighting or source assumptions.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-5">
+        {analysisDefinitionProtocol.map((item) => (
+          <div key={item.step} className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="flex items-center gap-3">
+              <div className="flex size-8 items-center justify-center border border-[#b9d98b] bg-[#f1f8e8] text-sm font-bold text-[#3f6f19]">
+                {item.step}
+              </div>
+              <h3 className="text-sm font-bold text-[#1f2937]">{item.title}</h3>
+            </div>
+            <p className="mt-3 text-xs leading-5 text-gray-600">
+              {item.description}
+            </p>
+            <div className="mt-3 border-t border-gray-200 pt-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {item.output}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function AnalysisPage() {
   const liveModules = analysisModulesByStatus("live");
   const definitionNextModules = analysisModulesByStatus("definition_next");
@@ -291,6 +328,8 @@ export default function AnalysisPage() {
       </section>
 
       <AnalysisDomainSummary />
+
+      <AnalysisDefinitionProtocol />
 
       <section className="border border-gray-200 bg-white">
         <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
