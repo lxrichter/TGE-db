@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import ActionButton from "@/components/ui/ActionButton";
 import {
   ROLE_OPTIONS,
@@ -15,6 +15,9 @@ type SafeUser = {
   is_active: number;
   created_at: string;
 };
+
+type RoleFilter = CanonicalUserRole | "all";
+type StatusFilter = "all" | "active" | "inactive";
 
 function statusLabel(isActive: number) {
   return isActive === 1 ? "Active" : "Inactive";
@@ -37,6 +40,10 @@ function formatDate(dateString?: string) {
   }).format(new Date(dateString));
 }
 
+function roleLabel(role: CanonicalUserRole) {
+  return ROLE_OPTIONS.find((option) => option.value === role)?.label || role;
+}
+
 export default function UserManagementPanel({
   initialUsers,
   currentUserEmail,
@@ -46,6 +53,9 @@ export default function UserManagementPanel({
 }) {
   const [users, setUsers] = useState<SafeUser[]>(initialUsers);
   const [isPending, startTransition] = useTransition();
+  const [userSearch, setUserSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -61,6 +71,35 @@ export default function UserManagementPanel({
   const [editName, setEditName] = useState("");
   const [editRole, setEditRole] = useState<CanonicalUserRole>("researcher");
   const [editPassword, setEditPassword] = useState("");
+
+  const filteredUsers = useMemo(() => {
+    const query = userSearch.trim().toLowerCase();
+
+    return users.filter((user) => {
+      const matchesSearch =
+        !query ||
+        [user.name, user.email, user.role, roleLabel(user.role)]
+          .map((value) => String(value ?? "").toLowerCase())
+          .some((value) => value.includes(query));
+
+      const matchesRole = roleFilter === "all" || user.role === roleFilter;
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "active" && user.is_active === 1) ||
+        (statusFilter === "inactive" && user.is_active === 0);
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [roleFilter, statusFilter, userSearch, users]);
+
+  const hasActiveFilters =
+    userSearch.trim() !== "" || roleFilter !== "all" || statusFilter !== "all";
+
+  function clearUserFilters() {
+    setUserSearch("");
+    setRoleFilter("all");
+    setStatusFilter("all");
+  }
 
   async function refreshUsers() {
     const res = await fetch("/api/admin/users", { cache: "no-store" });
@@ -263,6 +302,72 @@ export default function UserManagementPanel({
             </p>
           </div>
 
+          <div className="border-b border-gray-200 bg-white px-5 py-4">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_170px_150px_auto]">
+              <div>
+                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  Search Users
+                </label>
+                <input
+                  type="search"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Name, email, or role..."
+                  className="h-[38px] w-full border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#8dc63f]"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  Role
+                </label>
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value as RoleFilter)}
+                  className="h-[38px] w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                >
+                  <option value="all">All roles</option>
+                  {ROLE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+                  className="h-[38px] w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                >
+                  <option value="all">All status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+
+              <div className="flex items-end">
+                <button
+                  type="button"
+                  onClick={clearUserFilters}
+                  disabled={!hasActiveFilters}
+                  className="inline-flex h-[38px] w-full items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45 lg:w-auto"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-3 text-xs font-medium text-gray-500">
+              Showing {filteredUsers.length.toLocaleString()} of{" "}
+              {users.length.toLocaleString()} users
+            </div>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse">
               <thead>
@@ -289,7 +394,7 @@ export default function UserManagementPanel({
               </thead>
 
               <tbody>
-                {users.map((user) => {
+                {filteredUsers.map((user) => {
                   const isCurrentUser =
                     currentUserEmail &&
                     user.email.toLowerCase() === currentUserEmail.toLowerCase();
@@ -385,13 +490,15 @@ export default function UserManagementPanel({
                   );
                 })}
 
-                {users.length === 0 && (
+                {filteredUsers.length === 0 && (
                   <tr>
                     <td
                       colSpan={6}
                       className="px-6 py-8 text-center text-sm text-gray-500"
                     >
-                      No users found.
+                      {users.length === 0
+                        ? "No users found."
+                        : "No users match the current filters."}
                     </td>
                   </tr>
                 )}
