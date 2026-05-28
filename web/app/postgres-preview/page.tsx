@@ -18,7 +18,7 @@ import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectio
 import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import { authOptions } from "@/lib/auth/auth";
-import { canManageUsers } from "@/lib/auth/roles";
+import { canManageUsers, canManageVocabularies } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -419,6 +419,7 @@ export default async function PostgresPreviewPage() {
   const session = await getServerSession(authOptions);
   const role = (session?.user as { role?: string | null } | undefined)?.role;
   const showUserAdmin = canManageUsers(role);
+  const showVocabularyAdmin = canManageVocabularies(role);
   const data = await getPreviewData();
 
   return (
@@ -621,6 +622,14 @@ export default async function PostgresPreviewPage() {
                   href="/admin/users"
                   label="Platform / Admin"
                   title="User Administration"
+                />
+              ) : null}
+              {showVocabularyAdmin ? (
+                <WorkAreaCard
+                  description="Govern controlled terms for lifecycle phases, review states, source types, evidence workflows, and future badge semantics."
+                  href="/admin/vocabularies"
+                  label="Platform / Admin"
+                  title="Vocabulary Governance"
                 />
               ) : null}
             </section>
