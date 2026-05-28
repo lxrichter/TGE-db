@@ -16,10 +16,29 @@ import {
 } from "@/lib/analysis/modules";
 
 const statusTone: Record<AnalysisModuleStatus, string> = {
-  live: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  definition_next: "border-amber-200 bg-amber-50 text-amber-800",
-  planned: "border-gray-200 bg-[#f7f7f7] text-gray-600",
+  live: "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]",
+  definition_next:
+    "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
+  planned:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] text-[var(--tge-governance-neutral-text)]",
 };
+
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const subtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const linkActionClass =
+  "text-sm font-semibold text-[var(--tge-brand-green-dark)]";
+const inactiveActionClass =
+  "text-sm font-semibold text-[var(--tge-governance-muted-text)]";
+const chipClass =
+  "inline-flex min-h-[24px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]";
 
 function formatCount(value: number) {
   return value.toLocaleString();
@@ -30,12 +49,12 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
   const href = isLive ? module.href! : `/analysis/modules/${module.id}`;
   const cardContent = (
     <>
-      <div className="flex flex-col gap-3 border-b border-gray-200 bg-[#f7f7f7] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className={`flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between ${panelHeaderClass}`}>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className={eyebrowClass}>
             {module.category.replaceAll("_", " ")}
           </div>
-          <h3 className="mt-1 text-lg font-semibold text-[#1f2937]">
+          <h3 className={`mt-1 text-lg font-semibold ${titleTextClass}`}>
             {module.title}
           </h3>
         </div>
@@ -47,28 +66,28 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
       </div>
 
       <div className="space-y-4 px-5 py-4">
-        <p className="text-[13px] leading-6 text-gray-600">
+        <p className={`text-[13px] leading-6 ${bodyTextClass}`}>
           {module.description}
         </p>
 
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={eyebrowClass}>
             Source basis
           </div>
-          <p className="mt-1 text-[13px] leading-5 text-[#1f2937]">
+          <p className={`mt-1 text-[13px] leading-5 ${titleTextClass}`}>
             {module.sourceBasis}
           </p>
         </div>
 
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={eyebrowClass}>
             Primary measures
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {module.primaryMeasures.map((measure) => (
               <span
                 key={measure}
-                className="inline-flex min-h-[24px] items-center border border-gray-200 bg-[#fafafa] px-2 text-xs font-semibold text-gray-700"
+                className={chipClass}
               >
                 {measure}
               </span>
@@ -77,20 +96,20 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
         </div>
 
         {module.nextDefinition ? (
-          <div className="border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+          <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-3 py-2 text-xs leading-5 text-[var(--tge-governance-attention-text)]">
             {module.nextDefinition}
           </div>
         ) : null}
 
         {module.definitionQuestions?.length || module.dataPrerequisites?.length ? (
-          <details className="border border-gray-200 bg-[#fafafa] px-3 py-2 text-xs text-gray-700">
-            <summary className="cursor-pointer font-semibold text-[#1f2937]">
+          <details className={`${subtleCardClass} px-3 py-2 text-xs ${bodyTextClass}`}>
+            <summary className={`cursor-pointer font-semibold ${titleTextClass}`}>
               Definition checklist
             </summary>
 
             {module.definitionQuestions?.length ? (
               <div className="mt-3">
-                <div className="font-semibold uppercase tracking-wide text-gray-500">
+                <div className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                   Questions to resolve
                 </div>
                 <ul className="mt-2 space-y-1.5">
@@ -105,7 +124,7 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
 
             {module.dataPrerequisites?.length ? (
               <div className="mt-3">
-                <div className="font-semibold uppercase tracking-wide text-gray-500">
+                <div className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                   Data prerequisites
                 </div>
                 <ul className="mt-2 space-y-1.5">
@@ -121,9 +140,7 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
         ) : null}
 
         <div
-          className={`text-sm font-semibold ${
-            isLive ? "text-[#4f7f1f]" : "text-gray-400"
-          }`}
+          className={isLive ? linkActionClass : inactiveActionClass}
         >
           {isLive ? "Open analysis" : "Review module definition"}
         </div>
@@ -134,7 +151,7 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
   return (
     <Link
       href={href}
-      className="block border border-gray-200 bg-white transition hover:border-[#8dc63f] hover:shadow-sm"
+      className="block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] transition hover:border-[var(--tge-brand-green)] hover:shadow-sm"
     >
       {cardContent}
     </Link>
@@ -170,16 +187,18 @@ function StatusSummary() {
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-3 text-sm text-gray-700 sm:grid-cols-2 xl:grid-cols-4">
+    <div className={`grid grid-cols-1 gap-3 text-sm ${bodyTextClass} sm:grid-cols-2 xl:grid-cols-4`}>
       {cards.map((card) => (
-        <div key={card.label} className="border border-gray-200 bg-white px-4 py-3">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        <div key={card.label} className={`${panelClass} px-4 py-3`}>
+          <div className={eyebrowClass}>
             {card.label}
           </div>
-          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+          <div className={`mt-1 text-2xl font-bold ${titleTextClass}`}>
             {typeof card.value === "number" ? formatCount(card.value) : card.value}
           </div>
-          <div className="mt-1 text-xs text-gray-500">{card.note}</div>
+          <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+            {card.note}
+          </div>
         </div>
       ))}
     </div>
@@ -188,12 +207,12 @@ function StatusSummary() {
 
 function AnalysisDomainSummary() {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
-        <h2 className="text-lg font-semibold text-[#1f2937]">
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-5 py-3`}>
+        <h2 className={`text-lg font-semibold ${titleTextClass}`}>
           Analysis Domains
         </h2>
-        <p className="mt-1 text-[13px] leading-5 text-gray-600">
+        <p className={`mt-1 text-[13px] leading-5 ${bodyTextClass}`}>
           Domain map for adding future analysis pages without blurring live
           analysis, definition work, and longer-term backlog.
         </p>
@@ -213,35 +232,35 @@ function AnalysisDomainSummary() {
           ).length;
 
           return (
-            <div key={category} className="border border-gray-200 bg-[#fafafa] p-4">
+            <div key={category} className={`${subtleCardClass} p-4`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <div className={eyebrowClass}>
                     Domain
                   </div>
-                  <h3 className="mt-1 text-base font-bold text-[#1f2937]">
+                  <h3 className={`mt-1 text-base font-bold ${titleTextClass}`}>
                     {analysisCategoryLabels[category]}
                   </h3>
                 </div>
-                <span className="inline-flex min-h-[24px] items-center border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-700">
+                <span className="inline-flex min-h-[24px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
                   {modules.length} modules
                 </span>
               </div>
 
-              <p className="mt-2 text-[13px] leading-5 text-gray-600">
+              <p className={`mt-2 text-[13px] leading-5 ${bodyTextClass}`}>
                 {analysisCategoryDescriptions[category]}
               </p>
 
               <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
-                <div className="border border-[#b9d98b] bg-[#f1f8e8] px-2 py-1.5 text-[#3f6f19]">
+                <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-2 py-1.5 text-[var(--tge-governance-success-text)]">
                   <div className="font-bold">{liveCount}</div>
                   <div>Live</div>
                 </div>
-                <div className="border border-amber-200 bg-amber-50 px-2 py-1.5 text-amber-800">
+                <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 py-1.5 text-[var(--tge-governance-attention-text)]">
                   <div className="font-bold">{definitionCount}</div>
                   <div>Define</div>
                 </div>
-                <div className="border border-gray-200 bg-white px-2 py-1.5 text-gray-600">
+                <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1.5 text-[var(--tge-governance-neutral-text)]">
                   <div className="font-bold">{plannedCount}</div>
                   <div>Planned</div>
                 </div>
@@ -256,12 +275,12 @@ function AnalysisDomainSummary() {
 
 function AnalysisDefinitionProtocol() {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
-        <h2 className="text-lg font-semibold text-[#1f2937]">
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-5 py-3`}>
+        <h2 className={`text-lg font-semibold ${titleTextClass}`}>
           Module Definition Protocol
         </h2>
-        <p className="mt-1 text-[13px] leading-5 text-gray-600">
+        <p className={`mt-1 text-[13px] leading-5 ${bodyTextClass}`}>
           Standard checklist before a future analysis module becomes a live
           page. This keeps new benchmark views consistent and avoids hidden
           weighting or source assumptions.
@@ -270,17 +289,19 @@ function AnalysisDefinitionProtocol() {
 
       <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-5">
         {analysisDefinitionProtocol.map((item) => (
-          <div key={item.step} className="border border-gray-200 bg-[#fafafa] p-4">
+          <div key={item.step} className={`${subtleCardClass} p-4`}>
             <div className="flex items-center gap-3">
-              <div className="flex size-8 items-center justify-center border border-[#b9d98b] bg-[#f1f8e8] text-sm font-bold text-[#3f6f19]">
+              <div className="flex size-8 items-center justify-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-sm font-bold text-[var(--tge-governance-success-text)]">
                 {item.step}
               </div>
-              <h3 className="text-sm font-bold text-[#1f2937]">{item.title}</h3>
+              <h3 className={`text-sm font-bold ${titleTextClass}`}>
+                {item.title}
+              </h3>
             </div>
-            <p className="mt-3 text-xs leading-5 text-gray-600">
+            <p className={`mt-3 text-xs leading-5 ${bodyTextClass}`}>
               {item.description}
             </p>
-            <div className="mt-3 border-t border-gray-200 pt-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className="mt-3 border-t border-[var(--tge-governance-neutral-border)] pt-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               {item.output}
             </div>
           </div>
@@ -292,15 +313,15 @@ function AnalysisDefinitionProtocol() {
 
 function AnalysisGovernanceQaPattern() {
   return (
-    <section className="border border-amber-200 bg-white">
-      <div className="border-b border-amber-200 bg-amber-50 px-5 py-3">
-        <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-3">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-attention-text)]">
           Governance QA
         </div>
-        <h2 className="mt-1 text-lg font-semibold text-[#1f2937]">
+        <h2 className={`mt-1 text-lg font-semibold ${titleTextClass}`}>
           Analysis Governance Pattern
         </h2>
-        <p className="mt-1 max-w-5xl text-[13px] leading-5 text-amber-900">
+        <p className="mt-1 max-w-5xl text-[13px] leading-5 text-[var(--tge-governance-attention-text)]">
           Every analysis module should expose the data-quality and attribution
           gaps that could distort interpretation. This keeps the platform in
           logic-validation mode until the underlying records are strong enough
@@ -312,19 +333,19 @@ function AnalysisGovernanceQaPattern() {
         {analysisGovernanceQaCategories.map((category) => (
           <div
             key={category.title}
-            className="border border-gray-200 bg-[#fafafa] p-4"
+            className={`${subtleCardClass} p-4`}
           >
-            <h3 className="text-sm font-bold text-[#1f2937]">
+            <h3 className={`text-sm font-bold ${titleTextClass}`}>
               {category.title}
             </h3>
-            <p className="mt-2 text-[13px] leading-5 text-gray-600">
+            <p className={`mt-2 text-[13px] leading-5 ${bodyTextClass}`}>
               {category.description}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {category.examples.map((example) => (
                 <span
                   key={example}
-                  className="inline-flex min-h-[24px] items-center border border-amber-200 bg-white px-2 text-[11px] font-semibold text-amber-800"
+                  className="inline-flex min-h-[24px] items-center border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] px-2 text-[11px] font-semibold text-[var(--tge-governance-attention-text)]"
                 >
                   {example}
                 </span>
@@ -344,16 +365,16 @@ export default function AnalysisPage() {
 
   return (
     <main className="space-y-6">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-6 py-6">
+      <section className={panelClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6">
           <div className="max-w-5xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
               Analysis
             </p>
-            <h1 className="mt-2 text-4xl font-bold tracking-tight text-[#1f2937] xl:text-5xl">
+            <h1 className={`mt-2 text-4xl font-bold tracking-tight ${titleTextClass} xl:text-5xl`}>
               Analysis Workspace
             </h1>
-            <p className="mt-3 max-w-5xl text-base leading-7 text-gray-600">
+            <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
               Derived intelligence views built from the geothermal plants,
               projects, companies, and relationship tables. This workspace now
               acts as the registry for live analysis pages and the backlog for
@@ -362,7 +383,7 @@ export default function AnalysisPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#fafafa] px-6 py-4">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-4">
           <StatusSummary />
         </div>
       </section>
@@ -373,12 +394,12 @@ export default function AnalysisPage() {
 
       <AnalysisGovernanceQaPattern />
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
-          <h2 className="text-lg font-semibold text-[#1f2937]">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-5 py-3`}>
+          <h2 className={`text-lg font-semibold ${titleTextClass}`}>
             Live Analysis Modules
           </h2>
-          <p className="mt-1 text-[13px] leading-5 text-gray-600">
+          <p className={`mt-1 text-[13px] leading-5 ${bodyTextClass}`}>
             These pages are active and can be reviewed now. They should set the
             pattern for future analysis pages: snapshot first, benchmark tables
             second, drilldowns and supporting detail below.
@@ -392,12 +413,12 @@ export default function AnalysisPage() {
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
-          <h2 className="text-lg font-semibold text-[#1f2937]">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-5 py-3`}>
+          <h2 className={`text-lg font-semibold ${titleTextClass}`}>
             Next Modules To Define
           </h2>
-          <p className="mt-1 text-[13px] leading-5 text-gray-600">
+          <p className={`mt-1 text-[13px] leading-5 ${bodyTextClass}`}>
             These should be scoped before implementation so role grouping,
             source fields, and weighting logic are clear.
           </p>
@@ -410,12 +431,12 @@ export default function AnalysisPage() {
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
-          <h2 className="text-lg font-semibold text-[#1f2937]">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-5 py-3`}>
+          <h2 className={`text-lg font-semibold ${titleTextClass}`}>
             Planned Analysis Backlog
           </h2>
-          <p className="mt-1 text-[13px] leading-5 text-gray-600">
+          <p className={`mt-1 text-[13px] leading-5 ${bodyTextClass}`}>
             Future analysis pages stay visible here without becoming active
             navigation until the source data and aggregation rules are ready.
           </p>
@@ -428,15 +449,15 @@ export default function AnalysisPage() {
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
-          <h2 className="text-lg font-semibold text-[#1f2937]">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-5 py-3`}>
+          <h2 className={`text-lg font-semibold ${titleTextClass}`}>
             Analysis Page Pattern
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-4 px-5 py-5 text-[13px] leading-6 text-gray-600 md:grid-cols-4">
+        <div className={`grid grid-cols-1 gap-4 px-5 py-5 text-[13px] leading-6 ${bodyTextClass} md:grid-cols-4`}>
           <div>
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+            <div className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               1. Snapshot
             </div>
             <p className="mt-1">
@@ -444,7 +465,7 @@ export default function AnalysisPage() {
             </p>
           </div>
           <div>
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+            <div className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               2. Benchmark
             </div>
             <p className="mt-1">
@@ -452,7 +473,7 @@ export default function AnalysisPage() {
             </p>
           </div>
           <div>
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+            <div className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               3. Drilldown
             </div>
             <p className="mt-1">
@@ -460,7 +481,7 @@ export default function AnalysisPage() {
             </p>
           </div>
           <div>
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+            <div className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               4. Governance
             </div>
             <p className="mt-1">
