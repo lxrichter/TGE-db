@@ -113,6 +113,20 @@ function formatCode(value: string | null) {
     .replace(/\bcod\b/gi, "COD");
 }
 
+const sourceDetailCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const sourceDetailSubtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const sourceDetailEyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const sourceDetailTitleClass = "font-bold text-[var(--tge-text-primary)]";
+const sourceDetailMutedTextClass = "text-[var(--tge-governance-muted-text)]";
+const sourceDetailBodyTextClass = "text-[var(--tge-text-secondary)]";
+const sourceDetailLinkClass =
+  "font-semibold text-[var(--tge-brand-green-dark)] hover:underline";
+const sourceDetailSecondaryButtonClass =
+  "inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+
 function lifecycleStateLabel(state: LifecycleState) {
   if (state === "complete") {
     return "Complete";
@@ -174,33 +188,33 @@ function WorkflowStep({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="inline-flex h-7 min-w-7 items-center justify-center border border-[#b9d98b] bg-[#f1f8e8] px-2 text-xs font-bold text-[#3f6f19]">
+    <div className={`${sourceDetailCardClass} px-4 py-4`}>
+      <div className="inline-flex h-7 min-w-7 items-center justify-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-2 text-xs font-bold text-[var(--tge-governance-success-text)]">
         {step}
       </div>
-      <div className="mt-3 text-sm font-bold text-[#1f2937]">{title}</div>
-      <p className="mt-2 text-xs leading-5 text-gray-500">{note}</p>
+      <div className={`mt-3 text-sm ${sourceDetailTitleClass}`}>{title}</div>
+      <p className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
+        {note}
+      </p>
     </div>
   );
 }
 
 function SourceGovernanceDetails() {
   return (
-    <details className="border border-gray-200 bg-white">
+    <details className={sourceDetailCardClass}>
       <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Governance Model
-          </div>
-          <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+          <div className={sourceDetailEyebrowClass}>Governance Model</div>
+          <h2 className={`mt-1 text-base ${sourceDetailTitleClass}`}>
             Source Record -&gt; Review -&gt; Evidence Link -&gt; Candidate
           </h2>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
           Expand
         </span>
       </summary>
-      <div className="grid grid-cols-1 gap-3 border-t border-gray-200 px-5 py-5 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 border-t border-[var(--tge-governance-neutral-border)] px-5 py-5 md:grid-cols-4">
         <WorkflowStep
           step="1"
           title="Source Record"
@@ -238,34 +252,34 @@ function StatusTile({
   tone?: PostgresStatusTone;
 }) {
   const accents: Record<PostgresStatusTone, string> = {
-    success: "border-l-[#8dc63f]",
-    attention: "border-l-amber-300",
-    danger: "border-l-red-300",
-    info: "border-l-blue-300",
-    neutral: "border-l-gray-300",
-    muted: "border-l-gray-200",
-    prospect: "border-l-slate-300",
-    exploration: "border-l-blue-300",
-    pre_feasibility: "border-l-violet-300",
-    feasibility: "border-l-teal-300",
-    construction: "border-l-[#8dc63f]",
-    operating: "border-l-[#3f8f2f]",
-    cancelled: "border-l-red-300",
-    retired: "border-l-gray-300",
-    pilot: "border-l-amber-300",
+    success: "border-l-[var(--tge-status-bar-success)]",
+    attention: "border-l-[var(--tge-status-bar-attention)]",
+    danger: "border-l-[var(--tge-status-bar-danger)]",
+    info: "border-l-[var(--tge-status-bar-info)]",
+    neutral: "border-l-[var(--tge-status-bar-neutral)]",
+    muted: "border-l-[var(--tge-status-bar-muted)]",
+    prospect: "border-l-[var(--tge-lifecycle-prospect-border)]",
+    exploration: "border-l-[var(--tge-lifecycle-exploration-border)]",
+    pre_feasibility: "border-l-[var(--tge-status-bar-pre-feasibility)]",
+    feasibility: "border-l-[var(--tge-status-bar-feasibility)]",
+    construction: "border-l-[var(--tge-status-bar-success)]",
+    operating: "border-l-[var(--tge-status-bar-operating)]",
+    cancelled: "border-l-[var(--tge-status-bar-danger)]",
+    retired: "border-l-[var(--tge-lifecycle-retired-border)]",
+    pilot: "border-l-[var(--tge-status-bar-attention)]",
   };
 
   return (
     <div
-      className={`border border-l-4 border-gray-200 bg-white px-4 py-4 ${accents[tone]}`}
+      className={`border border-l-4 border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 ${accents[tone]}`}
     >
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </div>
-      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+      <div className={sourceDetailEyebrowClass}>{label}</div>
+      <div className={`mt-2 text-2xl leading-none ${sourceDetailTitleClass}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
+        {note}
+      </div>
     </div>
   );
 }
@@ -276,35 +290,41 @@ function SourceLifecyclePanel({ steps }: { steps: LifecycleStep[] }) {
   ).length;
 
   return (
-    <details className="border border-gray-200 bg-white" open={activeStepCount > 0}>
+    <details className={sourceDetailCardClass} open={activeStepCount > 0}>
       <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-lg font-bold text-[#1f2937]">Source Lifecycle</h2>
-            <p className="mt-2 text-sm leading-6 text-gray-600">
+            <h2 className={`text-lg ${sourceDetailTitleClass}`}>
+              Source Lifecycle
+            </h2>
+            <p className={`mt-2 text-sm leading-6 ${sourceDetailBodyTextClass}`}>
               Current operational state from governed source entry through
               reviewed evidence and controlled AI-assisted updates.
             </p>
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
             {activeStepCount > 0
               ? `${formatCount(activeStepCount)} active`
               : "Expand"}
           </span>
         </div>
       </summary>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-[var(--tge-governance-muted-border)]">
         {steps.map((step, index) => (
           <div
             key={step.title}
             className="grid gap-3 px-5 py-4 sm:grid-cols-[32px_1fr_auto] sm:items-start"
           >
-            <div className="flex h-8 w-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] text-xs font-bold text-gray-600">
+            <div className="flex h-8 w-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] text-xs font-bold text-[var(--tge-governance-neutral-text)]">
               {index + 1}
             </div>
             <div>
-              <div className="font-semibold text-[#1f2937]">{step.title}</div>
-              <p className="mt-1 text-xs leading-5 text-gray-500">{step.note}</p>
+              <div className="font-semibold text-[var(--tge-text-primary)]">
+                {step.title}
+              </div>
+              <p className={`mt-1 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
+                {step.note}
+              </p>
             </div>
             <LifecycleBadge state={step.state} />
           </div>
@@ -322,11 +342,11 @@ function DetailField({
   value: React.ReactNode;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
+    <div className={`${sourceDetailCardClass} px-4 py-4`}>
+      <div className={sourceDetailEyebrowClass}>{label}</div>
+      <div className="mt-2 text-sm leading-6 text-[var(--tge-text-primary)]">
+        {value || "-"}
       </div>
-      <div className="mt-2 text-sm leading-6 text-[#1f2937]">{value || "-"}</div>
     </div>
   );
 }
@@ -347,22 +367,22 @@ function Section({
   children: React.ReactNode;
 }) {
   const className = id
-    ? "scroll-mt-6 border border-gray-200 bg-white"
-    : "border border-gray-200 bg-white";
+    ? `scroll-mt-6 ${sourceDetailCardClass}`
+    : sourceDetailCardClass;
 
   if (collapsible) {
     return (
       <details id={id} className={className} open={defaultOpen}>
-        <summary className="flex cursor-pointer list-none flex-col gap-2 border-b border-gray-200 px-5 py-4 marker:hidden sm:flex-row sm:items-start sm:justify-between">
+        <summary className="flex cursor-pointer list-none flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 marker:hidden sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+            <h2 className={`text-lg ${sourceDetailTitleClass}`}>{title}</h2>
             {description ? (
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+              <p className={`mt-1 max-w-3xl text-sm leading-6 ${sourceDetailBodyTextClass}`}>
                 {description}
               </p>
             ) : null}
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
             Expand / collapse
           </span>
         </summary>
@@ -373,10 +393,10 @@ function Section({
 
   return (
     <section id={id} className={className}>
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className={`text-lg ${sourceDetailTitleClass}`}>{title}</h2>
         {description ? (
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className={`mt-1 max-w-3xl text-sm leading-6 ${sourceDetailBodyTextClass}`}>
             {description}
           </p>
         ) : null}
@@ -446,14 +466,14 @@ function SourceSupportsPanel({
   }, {});
 
   return (
-    <section id="source-supports" className="scroll-mt-6 border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
+    <section id="source-supports" className={`scroll-mt-6 ${sourceDetailCardClass}`}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <h2 className="text-lg font-bold text-[#1f2937]">
+            <h2 className={`text-lg ${sourceDetailTitleClass}`}>
               What This Source Supports
             </h2>
-            <p className="mt-2 text-sm leading-6 text-gray-600">
+            <p className={`mt-2 text-sm leading-6 ${sourceDetailBodyTextClass}`}>
               Confirmed evidence relationships. This is the core bridge between
               source governance and geothermal entities.
             </p>
@@ -477,11 +497,11 @@ function SourceSupportsPanel({
 
       {links.length === 0 ? (
         <div className="px-5 py-5">
-          <div className="border border-dashed border-amber-200 bg-amber-50 px-5 py-5">
-            <div className="font-semibold text-amber-900">
+          <div className="border border-dashed border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+            <div className="font-semibold text-[var(--tge-governance-attention-text)]">
               No confirmed evidence links yet
             </div>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
               This source exists as a governed source, but it does not yet
               support a specific project, plant, or company. Review
               article match candidates or add an evidence link before using it
@@ -493,37 +513,35 @@ function SourceSupportsPanel({
         <div className="grid gap-4 px-5 py-5 xl:grid-cols-[1fr_260px]">
           <div className="grid gap-3 md:grid-cols-3">
             {groups.map((group) => (
-              <div key={group.code} className="border border-gray-200 bg-[#fbfbfb]">
-                <div className="border-b border-gray-200 px-4 py-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                    {group.label}
-                  </div>
-                  <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+              <div key={group.code} className={sourceDetailSubtleCardClass}>
+                <div className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-3">
+                  <div className={sourceDetailEyebrowClass}>{group.label}</div>
+                  <div className="mt-1 text-2xl font-bold text-[var(--tge-text-primary)]">
                     {formatCount(group.links.length)}
                   </div>
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-[var(--tge-governance-muted-border)]">
                   {group.links.slice(0, 4).map((link) => (
                     <div key={link.entity_source_id} className="px-4 py-3">
                       <Link
                         href={entityHref(link)}
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className="font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                       >
                         {link.entity_name || "Unnamed entity"}
                       </Link>
-                      <div className="mt-1 text-xs leading-5 text-gray-500">
+                      <div className={`mt-1 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
                         {link.country || "No country"} ·{" "}
                         {formatCode(link.linked_field)}
                       </div>
                     </div>
                   ))}
                   {group.links.length === 0 ? (
-                    <div className="px-4 py-4 text-sm text-gray-500">
+                    <div className={`px-4 py-4 text-sm ${sourceDetailMutedTextClass}`}>
                       No confirmed links.
                     </div>
                   ) : null}
                   {group.links.length > 4 ? (
-                    <div className="px-4 py-3 text-xs font-semibold text-gray-500">
+                    <div className={`px-4 py-3 text-xs font-semibold ${sourceDetailMutedTextClass}`}>
                       +{formatCount(group.links.length - 4)} more in linked
                       evidence table
                     </div>
@@ -533,8 +551,8 @@ function SourceSupportsPanel({
             ))}
           </div>
 
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-            <div className="text-sm font-bold text-[#1f2937]">
+          <div className={`${sourceDetailSubtleCardClass} px-4 py-4`}>
+            <div className={`text-sm ${sourceDetailTitleClass}`}>
               Evidence Confidence
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -546,7 +564,7 @@ function SourceSupportsPanel({
                 />
               ))}
             </div>
-            <div className="mt-4 border-t border-gray-200 pt-4 text-xs leading-5 text-gray-500">
+            <div className={`mt-4 border-t border-[var(--tge-governance-neutral-border)] pt-4 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
               {formatCount(primaryEvidenceCount)} primary evidence link
               {primaryEvidenceCount === 1 ? "" : "s"} marked. Confidence labels
               describe the evidence relationship, separate from the source
@@ -677,10 +695,14 @@ function LinkedEntityMobileField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div
+        className={`text-[10px] font-semibold uppercase tracking-wide ${sourceDetailMutedTextClass}`}
+      >
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className="mt-1 min-w-0 text-sm text-[var(--tge-governance-neutral-text)]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -688,18 +710,18 @@ function LinkedEntityMobileField({
 function LinkedEntityTable({ links }: { links: SourceLink[] }) {
   return (
     <>
-      <div className="divide-y divide-gray-100 border border-gray-200 lg:hidden">
+      <div className="divide-y divide-[var(--tge-governance-muted-border)] border border-[var(--tge-governance-neutral-border)] lg:hidden">
         {links.map((link) => (
           <article key={link.entity_source_id} className="px-4 py-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <Link
-                  className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  className="font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                   href={entityHref(link)}
                 >
                   {link.entity_name || "Unnamed entity"}
                 </Link>
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={`mt-1 text-xs ${sourceDetailMutedTextClass}`}>
                   {link.legacy_id || link.entity_id}
                 </div>
               </div>
@@ -718,26 +740,26 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                 {link.country || "-"}
               </LinkedEntityMobileField>
               <LinkedEntityMobileField label="Evidence">
-                <div className="font-medium text-[#1f2937]">
+                <div className="font-medium text-[var(--tge-text-primary)]">
                   {formatCode(link.evidence_type)}
                 </div>
                 {link.evidence_note ? (
-                  <div className="mt-2 text-xs leading-5 text-gray-500">
+                  <div className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
                     {link.evidence_note}
                   </div>
                 ) : null}
               </LinkedEntityMobileField>
               <LinkedEntityMobileField label="Claim / Value">
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <div className={`text-xs font-semibold uppercase tracking-wide ${sourceDetailMutedTextClass}`}>
                   {formatCode(link.linked_field)}
                 </div>
                 {link.extracted_value ? (
-                  <div className="mt-1 font-semibold text-[#1f2937]">
+                  <div className="mt-1 font-semibold text-[var(--tge-text-primary)]">
                     {link.extracted_value}
                   </div>
                 ) : null}
                 {link.claim_text ? (
-                  <div className="mt-2 text-xs leading-5 text-gray-500">
+                  <div className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
                     {link.claim_text}
                   </div>
                 ) : null}
@@ -749,7 +771,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                   tone={confidenceStatusTone(link.confidence_status_code)}
                 />
                 {link.is_primary_evidence ? (
-                  <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                  <div className="mt-2 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                     Primary evidence
                   </div>
                 ) : null}
@@ -762,7 +784,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
         ))}
 
         {links.length === 0 ? (
-          <div className="px-4 py-8 text-center text-sm text-gray-500">
+          <div className={`px-4 py-8 text-center text-sm ${sourceDetailMutedTextClass}`}>
             This source is not linked to a project, plant, or company yet.
           </div>
         ) : null}
@@ -770,7 +792,7 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
 
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1080px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
               <th className="w-[14%] px-4 py-3 font-semibold">Entity</th>
               <th className="w-[24%] px-4 py-3 font-semibold">Record</th>
@@ -781,45 +803,50 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
               <th className="w-[9%] px-4 py-3 font-semibold">Updated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
             {links.map((link) => (
-              <tr key={link.entity_source_id} className="align-top">
-                <td className="px-4 py-3 text-gray-700">
+              <tr
+                key={link.entity_source_id}
+                className="align-top hover:bg-[var(--tge-surface-subtle)]"
+              >
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {entityTypeLabel(link.entity_type)}
                 </td>
                 <td className="px-4 py-3">
                   <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className="font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                     href={entityHref(link)}
                   >
                     {link.entity_name || "Unnamed entity"}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={`mt-1 text-xs ${sourceDetailMutedTextClass}`}>
                     {link.legacy_id || link.entity_id}
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-700">{link.country || "-"}</td>
-                <td className="px-4 py-3 text-gray-700">
-                  <div className="font-medium text-[#1f2937]">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
+                  {link.country || "-"}
+                </td>
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
+                  <div className="font-medium text-[var(--tge-text-primary)]">
                     {formatCode(link.evidence_type)}
                   </div>
                   {link.evidence_note ? (
-                    <div className="mt-2 text-xs leading-5 text-gray-500">
+                    <div className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
                       {link.evidence_note}
                     </div>
                   ) : null}
                 </td>
-                <td className="px-4 py-3 text-gray-700">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
+                  <div className={`text-xs font-semibold uppercase tracking-wide ${sourceDetailMutedTextClass}`}>
                     {formatCode(link.linked_field)}
                   </div>
                   {link.extracted_value ? (
-                    <div className="mt-1 font-semibold text-[#1f2937]">
+                    <div className="mt-1 font-semibold text-[var(--tge-text-primary)]">
                       {link.extracted_value}
                     </div>
                   ) : null}
                   {link.claim_text ? (
-                    <div className="mt-2 text-xs leading-5 text-gray-500">
+                    <div className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
                       {link.claim_text}
                     </div>
                   ) : null}
@@ -831,12 +858,12 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
                     tone={confidenceStatusTone(link.confidence_status_code)}
                   />
                   {link.is_primary_evidence ? (
-                    <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                    <div className="mt-2 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                       Primary evidence
                     </div>
                   ) : null}
                 </td>
-                <td className="px-4 py-3 text-gray-700">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {formatDateTime(link.updated_at)}
                 </td>
               </tr>
@@ -844,7 +871,10 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
 
             {links.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                <td
+                  colSpan={7}
+                  className={`px-4 py-8 text-center text-sm ${sourceDetailMutedTextClass}`}
+                >
                   This source is not linked to a project, plant, or company yet.
                 </td>
               </tr>
@@ -858,13 +888,17 @@ function LinkedEntityTable({ links }: { links: SourceLink[] }) {
 
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+      <h2 className="text-lg font-bold text-[var(--tge-governance-attention-text)]">
+        PostgreSQL Not Connected
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
         This source profile reads from Railway PostgreSQL. Run the app through
         Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL` locally.
       </p>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className="mt-3 text-xs text-[var(--tge-governance-attention-text)]">
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -881,7 +915,7 @@ export default async function SourceDetailPage({
     return (
       <main className="space-y-6">
         <SetupNotice error={data.error} />
-        <Link href="/sources" className="text-sm font-semibold text-[#4f7f1f]">
+        <Link href="/sources" className={sourceDetailLinkClass}>
           Back to Sources / Documents
         </Link>
       </main>
@@ -891,11 +925,13 @@ export default async function SourceDetailPage({
   if (!data.source) {
     return (
       <main className="space-y-6">
-        <section className="border border-gray-200 bg-white p-8">
-          <p className="text-base text-gray-700">Source not found.</p>
+        <section className={`${sourceDetailCardClass} p-8`}>
+          <p className="text-base text-[var(--tge-governance-neutral-text)]">
+            Source not found.
+          </p>
           <Link
             href="/sources"
-            className="mt-4 inline-block text-sm font-semibold text-[#4f7f1f]"
+            className={`mt-4 inline-block text-sm ${sourceDetailLinkClass}`}
           >
             Back to Sources / Documents
           </Link>
@@ -1015,23 +1051,23 @@ export default async function SourceDetailPage({
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={sourceDetailCardClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
           <Link
             href="/sources"
-            className="text-sm font-semibold text-[#4f7f1f] hover:underline"
+            className={sourceDetailLinkClass}
           >
             Back to Sources / Documents
           </Link>
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Source Profile
               </p>
-              <h1 className="mt-3 max-w-5xl text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="mt-3 max-w-5xl text-4xl font-bold tracking-tight text-[var(--tge-text-primary)]">
                 {sourceTitle}
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className="mt-4 max-w-4xl text-base leading-7 text-[var(--tge-text-secondary)]">
                 Operational evidence workspace for source metadata, credibility
                 review, entity links, extracted fact candidates, and audited
                 field suggestions.
@@ -1053,7 +1089,7 @@ export default async function SourceDetailPage({
               />
               <Link
                 href={`/sources/${source.source_id}/edit`}
-                className="inline-flex min-h-[28px] items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={sourceDetailSecondaryButtonClass}
               >
                 Edit Source
               </Link>
@@ -1206,7 +1242,7 @@ export default async function SourceDetailPage({
                     href={source.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="break-all font-semibold text-[#4f7f1f] hover:underline"
+                    className={`break-all ${sourceDetailLinkClass}`}
                   >
                     {source.url}
                   </a>
@@ -1255,7 +1291,7 @@ export default async function SourceDetailPage({
                     href={source.attachment_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="break-all font-semibold text-[#4f7f1f] hover:underline"
+                    className={`break-all ${sourceDetailLinkClass}`}
                   >
                     {source.attachment_url}
                   </a>
@@ -1285,23 +1321,29 @@ export default async function SourceDetailPage({
           collapsible
           defaultOpen={false}
         >
-          <div className="mb-4 grid gap-3 text-sm text-gray-600 lg:grid-cols-3">
-            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-              <div className="font-semibold text-[#1f2937]">Evidence link</div>
+          <div className={`mb-4 grid gap-3 text-sm ${sourceDetailBodyTextClass} lg:grid-cols-3`}>
+            <div className={`${sourceDetailSubtleCardClass} px-4 py-3`}>
+              <div className="font-semibold text-[var(--tge-text-primary)]">
+                Evidence link
+              </div>
               <p className="mt-1 text-xs leading-5">
                 A confirmed relationship between this source and a database
                 record. It does not automatically change fields.
               </p>
             </div>
-            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-              <div className="font-semibold text-[#1f2937]">Claim context</div>
+            <div className={`${sourceDetailSubtleCardClass} px-4 py-3`}>
+              <div className="font-semibold text-[var(--tge-text-primary)]">
+                Claim context
+              </div>
               <p className="mt-1 text-xs leading-5">
                 Linked field, extracted value, and evidence note explain what the
                 source supports.
               </p>
             </div>
-            <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-              <div className="font-semibold text-[#1f2937]">Primary evidence</div>
+            <div className={`${sourceDetailSubtleCardClass} px-4 py-3`}>
+              <div className="font-semibold text-[var(--tge-text-primary)]">
+                Primary evidence
+              </div>
               <p className="mt-1 text-xs leading-5">
                 Primary evidence can later drive export readiness and confidence
                 scoring.
