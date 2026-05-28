@@ -54,6 +54,35 @@ export const DEFAULT_PREVIEW_PAGE_SIZE = 100;
 
 export const PREVIEW_PAGE_SIZE_OPTIONS = [50, 100, 250];
 
+const previewListClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  title: "text-[var(--tge-text-primary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  body: "text-[var(--tge-text-secondary)]",
+  tableHead:
+    "bg-[var(--tge-surface-subtle)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  mobileDivider: "divide-y divide-[var(--tge-governance-muted-border)]",
+  primaryAction:
+    "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]",
+  secondaryAction:
+    "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  outlineAction:
+    "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]",
+  formInput:
+    "mt-2 h-10 w-full border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  chip:
+    "inline-flex min-h-8 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]",
+  activeChip:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:border-[var(--tge-brand-green)] sm:justify-start",
+  entityLink:
+    "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  meta: "mt-1 text-xs text-[var(--tge-governance-muted-text)]",
+  rowText: "text-[var(--tge-governance-neutral-text)]",
+};
+
 export function parsePreviewListPage(value: string | undefined) {
   const parsed = Number(value || "1");
 
@@ -121,7 +150,7 @@ export function previewFilterOptionLabel(
 }
 
 function EmptyValue() {
-  return <span className="text-gray-400">-</span>;
+  return <span className="text-[var(--tge-governance-muted-text)]">-</span>;
 }
 
 function MetricValue({
@@ -155,10 +184,14 @@ type RowIssue = {
 };
 
 const rowIssueToneClass: Record<RowIssueTone, string> = {
-  critical: "border-red-200 bg-white text-red-700",
-  important: "border-amber-200 bg-white text-amber-800",
-  workflow: "border-blue-100 bg-white text-blue-700",
-  useful: "border-gray-200 bg-white text-gray-600",
+  critical:
+    "border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-danger-text)]",
+  important:
+    "border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-attention-text)]",
+  workflow:
+    "border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-info-text)]",
+  useful:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-text-secondary)]",
 };
 
 function hasText(value: string | null | undefined) {
@@ -218,7 +251,7 @@ function IssueBadges({
   if (issues.length === 0) {
     return (
       <span
-        className={`inline-flex items-center border border-[#cfe5ad] bg-white font-semibold text-[#4f7f1f] ${
+        className={`inline-flex items-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-brand-green-dark)] ${
           compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
         }`}
       >
@@ -241,7 +274,7 @@ function IssueBadges({
           return (
             <Link
               key={`${issue.tone}-${issue.label}`}
-              className={`${className} hover:border-[#8dc63f] hover:text-[#4f7f1f]`}
+              className={`${className} hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]`}
               href={quickViewHref({
                 basePath: pagination.basePath,
                 density: pagination.density,
@@ -265,7 +298,7 @@ function IssueBadges({
       })}
       {remainingCount > 0 ? (
         <span
-          className={`inline-flex items-center border border-gray-200 bg-white font-semibold text-gray-500 ${
+          className={`inline-flex items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-governance-muted-text)] ${
             compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
           }`}
         >
@@ -285,10 +318,12 @@ function MobileField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className="mt-1 min-w-0 text-sm text-[var(--tge-governance-neutral-text)]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -308,11 +343,11 @@ function MobileEntityCard({
     <article className="px-4 py-4 sm:px-5">
       <Link
         href={href}
-        className="block line-clamp-2 font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+        className={`block line-clamp-2 ${previewListClass.entityLink}`}
       >
         {name}
       </Link>
-      <div className="mt-1 text-xs text-gray-500">{meta}</div>
+      <div className={previewListClass.meta}>{meta}</div>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">{children}</div>
     </article>
   );
@@ -350,14 +385,14 @@ function CompanyActivitySummary({
     <div className="min-w-0">
       <div className="flex flex-wrap gap-1.5">
         <span
-          className={`inline-flex items-center border border-blue-100 bg-white font-semibold text-blue-700 ${
+          className={`inline-flex items-center border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-governance-info-text)] ${
             compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
           }`}
         >
           {formatCount(company.project_link_count)} projects
         </span>
         <span
-          className={`inline-flex items-center border border-[#d7e8bf] bg-white font-semibold text-[#4f7f1f] ${
+          className={`inline-flex items-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-brand-green-dark)] ${
             compact ? "h-6 px-1.5 text-[11px]" : "h-7 px-2 text-xs"
           }`}
         >
@@ -365,7 +400,7 @@ function CompanyActivitySummary({
         </span>
       </div>
       <div
-        className={`mt-1 min-w-0 text-gray-500 ${
+        className={`mt-1 min-w-0 text-[var(--tge-governance-muted-text)] ${
           compact ? "text-[11px]" : "text-xs"
         }`}
       >
@@ -764,55 +799,55 @@ export function PostgresPreviewListContext({
 
   return (
     <>
-      <section className="border border-gray-200 bg-white">
+      <section className={previewListClass.panel}>
         <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={previewListClass.label}>
               Current View
             </div>
-            <div className="mt-1 text-lg font-bold text-[#1f2937]">
+            <div className={`mt-1 text-lg font-bold ${previewListClass.title}`}>
               {activeViewLabel}
             </div>
-            <div className="mt-1 text-xs leading-5 text-gray-500">
+            <div className={`mt-1 text-xs leading-5 ${previewListClass.muted}`}>
               {activeFilterSummaryLabel(activeFilters)}
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={previewListClass.label}>
               Results
             </div>
-            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+            <div className={`mt-1 text-sm font-semibold ${previewListClass.title}`}>
               {total === 0
                 ? `No matching ${entityLabel}`
                 : `Showing ${formatCount(start)}-${formatCount(
                     end
                   )} of ${formatCount(total)} matching ${entityLabel}`}
             </div>
-            <div className="mt-1 text-xs leading-5 text-gray-500">
+            <div className={`mt-1 text-xs leading-5 ${previewListClass.muted}`}>
               Page {formatCount(page)} · {formatCount(pageSize)} items per page
             </div>
           </div>
           <div className="flex flex-col gap-2 lg:items-end">
             <Link
-              className="inline-flex h-10 w-full items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+              className={`${previewListClass.outlineAction} w-full sm:w-auto`}
               href={exportHref}
             >
               Export Current Filters
             </Link>
-            <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
+            <div className={`text-xs leading-5 ${previewListClass.muted} lg:max-w-xs lg:text-right`}>
               Export includes the current search and filter state, not just this
               page.
             </div>
           </div>
         </div>
         {activeFilters.length > 0 ? (
-          <div className="flex flex-col gap-2 border-t border-gray-200 px-5 py-3 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col gap-2 border-t border-[var(--tge-governance-neutral-border)] px-5 py-3 sm:flex-row sm:flex-wrap">
             {activeFilters.map((filter) => (
               <span
                 key={`${filter.label}-${filter.value}`}
-                className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
+                className={previewListClass.chip}
               >
-                <span className="text-gray-500">{filter.label}:</span>
+                <span className={previewListClass.muted}>{filter.label}:</span>
                 <span className="ml-1">{filter.value}</span>
               </span>
             ))}
@@ -843,12 +878,12 @@ export function PostgresPreviewQuickViews({
   views: PreviewQuickView[];
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-4 py-3">
-        <h2 className="text-base font-bold text-[#1f2937]">
+    <section className={previewListClass.panel}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-3">
+        <h2 className={`text-base font-bold ${previewListClass.title}`}>
           Quick Operational Views
         </h2>
-        <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-500">
+        <p className={`mt-1 max-w-3xl text-xs leading-5 ${previewListClass.muted}`}>
           Reusable filter presets for common research and data-quality work.
           These are static MVP views; user/team saved views can build on this
           pattern later.
@@ -866,8 +901,8 @@ export function PostgresPreviewQuickViews({
               key={view.label}
               className={`border px-3 py-2.5 text-left ${
                 active
-                  ? "border-[#8dc63f] bg-[#f3f8ec]"
-                  : "border-gray-200 bg-white hover:border-[#8dc63f] hover:bg-[#fbfff7]"
+                  ? "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]"
+                  : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-subtle)]"
               }`}
               href={quickViewHref({
                 basePath,
@@ -878,12 +913,12 @@ export function PostgresPreviewQuickViews({
             >
               <div
                 className={`text-sm font-bold ${
-                  active ? "text-[#4f7f1f]" : "text-[#1f2937]"
+                  active ? "text-[var(--tge-brand-green-dark)]" : previewListClass.title
                 }`}
               >
                 {view.label}
               </div>
-              <div className="mt-1 line-clamp-2 text-xs leading-5 text-gray-500">
+              <div className={`mt-1 line-clamp-2 text-xs leading-5 ${previewListClass.muted}`}>
                 {view.description}
               </div>
             </Link>
@@ -950,7 +985,7 @@ export function PostgresPreviewListFilters({
   const activeCount = activeFilters.length;
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className={previewListClass.panel}>
       <form
         action={basePath}
         className="grid grid-cols-1 gap-4 px-5 py-5 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.4fr)_repeat(5,minmax(145px,1fr))_auto]"
@@ -962,11 +997,11 @@ export function PostgresPreviewListFilters({
           <input name="density" type="hidden" value={density} />
         ) : null}
         <label className="block">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <span className={previewListClass.label}>
             Search
           </span>
           <input
-            className="mt-2 h-10 w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+            className={previewListClass.formInput}
             defaultValue={search || ""}
             name="search"
             placeholder="Name, ID, country, group..."
@@ -974,11 +1009,11 @@ export function PostgresPreviewListFilters({
         </label>
         {selects.map((select) => (
           <label key={select.name} className="block">
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <span className={previewListClass.label}>
               {select.label}
             </span>
             <select
-              className="mt-2 h-10 w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+              className={previewListClass.formInput}
               defaultValue={select.value || ""}
               name={select.name}
             >
@@ -993,24 +1028,24 @@ export function PostgresPreviewListFilters({
         ))}
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:items-end">
           <button
-            className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+            className={previewListClass.primaryAction}
             type="submit"
           >
             Apply
           </button>
           <Link
-            className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className={previewListClass.secondaryAction}
             href={basePath}
           >
             Reset
           </Link>
         </div>
       </form>
-      <div className="border-t border-gray-200 px-5 py-3">
+      <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-3">
         {activeCount > 0 ? (
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <span className={`${previewListClass.chip} uppercase tracking-wide ${previewListClass.muted}`}>
                 {formatCount(activeCount)} active filter
                 {activeCount === 1 ? "" : "s"}
               </span>
@@ -1018,16 +1053,16 @@ export function PostgresPreviewListFilters({
                 <Link
                   key={filter.key}
                   href={filter.href}
-                  className="inline-flex min-h-8 items-center justify-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f] sm:justify-start"
+                  className={previewListClass.activeChip}
                 >
-                  <span className="text-gray-500">{filter.label}:</span>
+                  <span className={previewListClass.muted}>{filter.label}:</span>
                   <span className="ml-1">{filter.value}</span>
-                  <span className="ml-2 text-gray-400">x</span>
+                  <span className={`ml-2 ${previewListClass.muted}`}>x</span>
                 </Link>
               ))}
             </div>
             <Link
-              className="inline-flex h-8 w-full items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] lg:w-auto"
+              className="inline-flex h-8 w-full items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] lg:w-auto"
               href={filterStateHref({
                 basePath,
                 pageSize,
@@ -1039,7 +1074,7 @@ export function PostgresPreviewListFilters({
             </Link>
           </div>
         ) : (
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className={`text-xs font-semibold uppercase tracking-wide ${previewListClass.muted}`}>
             No active filters
           </div>
         )}
@@ -1078,10 +1113,10 @@ function PaginationControls({
   const isLastPage = pagination.page * pagination.pageSize >= pagination.total;
 
   return (
-    <div className="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 text-sm text-gray-600 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-3 border-t border-[var(--tge-governance-neutral-border)] px-5 py-4 text-sm text-[var(--tge-text-secondary)] lg:flex-row lg:items-center lg:justify-between">
       <div>{rangeLabel(pagination, count)}</div>
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
-        <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <span className={`inline-flex h-9 items-center px-3 ${previewListClass.chip} uppercase tracking-wide`}>
           Density
         </span>
         <Link
@@ -1091,8 +1126,8 @@ function PaginationControls({
           })}
           className={`inline-flex h-9 items-center justify-center border px-3 text-xs font-semibold ${
             pagination.density === "comfortable"
-              ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
-              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              ? "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-brand-green-dark)]"
+              : "border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           }`}
         >
           Comfortable
@@ -1101,13 +1136,13 @@ function PaginationControls({
           href={previewTableHref(pagination, { density: "compact", page: 1 })}
           className={`inline-flex h-9 items-center justify-center border px-3 text-xs font-semibold ${
             pagination.density === "compact"
-              ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
-              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              ? "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-brand-green-dark)]"
+              : "border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           }`}
         >
           Compact
         </Link>
-        <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <span className={`inline-flex h-9 items-center px-3 ${previewListClass.chip} uppercase tracking-wide`}>
           Items
         </span>
         {PREVIEW_PAGE_SIZE_OPTIONS.map((pageSize) => (
@@ -1116,8 +1151,8 @@ function PaginationControls({
             href={previewTableHref(pagination, { pageSize, page: 1 })}
             className={`inline-flex h-9 items-center justify-center border px-3 text-xs font-semibold ${
               pagination.pageSize === pageSize
-                ? "border-[#8dc63f] bg-[#f3f8ec] text-[#4f7f1f]"
-                : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                ? "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-brand-green-dark)]"
+                : "border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
             }`}
           >
             {pageSize}
@@ -1130,13 +1165,13 @@ function PaginationControls({
           aria-disabled={isFirstPage}
           className={`inline-flex h-9 items-center justify-center border px-3 text-sm font-semibold ${
             isFirstPage
-              ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
-              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              ? "pointer-events-none border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]"
+              : "border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           }`}
         >
           Previous
         </Link>
-        <span className="inline-flex h-9 items-center border border-gray-200 px-3 text-sm font-semibold text-gray-500">
+        <span className="inline-flex h-9 items-center border border-[var(--tge-governance-neutral-border)] px-3 text-sm font-semibold text-[var(--tge-governance-muted-text)]">
           Page {formatCount(pagination.page)}
         </span>
         <Link
@@ -1144,8 +1179,8 @@ function PaginationControls({
           aria-disabled={isLastPage}
           className={`inline-flex h-9 items-center justify-center border px-3 text-sm font-semibold ${
             isLastPage
-              ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
-              : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              ? "pointer-events-none border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]"
+              : "border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           }`}
         >
           Next
@@ -1164,9 +1199,12 @@ function tableHeadClass(density: PreviewTableDensity) {
 }
 
 function tableRowClass(index: number) {
-  const stripeClass = index % 2 === 0 ? "bg-white" : "bg-[#fcfcfb]";
+  const stripeClass =
+    index % 2 === 0
+      ? "bg-[var(--tge-surface-card)]"
+      : "bg-[var(--tge-governance-muted-bg)]";
 
-  return `align-top ${stripeClass} transition-colors hover:bg-[#f3f8ec]`;
+  return `align-top ${stripeClass} transition-colors hover:bg-[var(--tge-governance-success-bg)]`;
 }
 
 function SectionHeader({
@@ -1188,9 +1226,9 @@ function SectionHeader({
       : `${formatCount(count)} items`;
 
   return (
-    <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
-      <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-      <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:flex-row md:items-center md:justify-between">
+      <h2 className={`text-lg font-bold ${previewListClass.title}`}>{title}</h2>
+      <span className={`text-xs font-semibold uppercase tracking-wide ${previewListClass.muted}`}>
         {countLabel}
       </span>
     </div>
@@ -1199,17 +1237,17 @@ function SectionHeader({
 
 export function PostgresPreviewSetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+      <h2 className="text-lg font-bold text-[var(--tge-governance-attention-text)]">PostgreSQL Not Connected</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
         This preview reads from the Railway PostgreSQL database. Run the app
         through Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL`
         locally.
       </p>
-      <pre className="mt-4 overflow-x-auto bg-white px-4 py-3 text-xs text-gray-700">
+      <pre className="mt-4 overflow-x-auto bg-[var(--tge-surface-card)] px-4 py-3 text-xs text-[var(--tge-governance-neutral-text)]">
         railway run --service Postgres -- npm --prefix web run dev
       </pre>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className="mt-3 text-xs text-[var(--tge-governance-attention-text)]">Error: {error}</p>
     </section>
   );
 }
@@ -1226,17 +1264,17 @@ export function PostgresPreviewListHeader({
   actions: HeaderAction[];
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+    <section className={previewListClass.panel}>
+      <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
           {eyebrow}
         </p>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+            <h1 className={`text-3xl font-bold tracking-tight sm:text-4xl ${previewListClass.title}`}>
               {title}
             </h1>
-            <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+            <p className={`mt-3 max-w-4xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 ${previewListClass.body}`}>
               {description}
             </p>
           </div>
@@ -1249,8 +1287,8 @@ export function PostgresPreviewListHeader({
                   key={`${action.href}-${action.label}`}
                   className={
                     isPrimary
-                      ? "inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
-                      : "inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      ? previewListClass.outlineAction
+                      : previewListClass.secondaryAction
                   }
                   href={action.href}
                 >
@@ -1280,14 +1318,14 @@ export function ProjectsPreviewTable({
   const compact = density === "compact";
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className={previewListClass.panel}>
       <SectionHeader
         title="Projects"
         count={projects.length}
         total={total}
         pagination={pagination}
       />
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className={`${previewListClass.mobileDivider} lg:hidden`}>
         {projects.map((project) => {
           const issues = projectRowIssues(project);
 
@@ -1300,7 +1338,7 @@ export function ProjectsPreviewTable({
             >
               <MobileField label="Country / Region">
                 {project.country || <EmptyValue />}
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={previewListClass.meta}>
                   {project.region || <EmptyValue />}
                 </div>
               </MobileField>
@@ -1315,7 +1353,7 @@ export function ProjectsPreviewTable({
                   value={project.electric_capacity_mwe}
                   suffix="MWe"
                 />
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={previewListClass.meta}>
                   <MetricValue
                     value={project.thermal_capacity_mwth}
                     suffix="MWth"
@@ -1337,7 +1375,7 @@ export function ProjectsPreviewTable({
       </div>
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1180px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={previewListClass.tableHead}>
             <tr>
               <th className={`w-[24%] ${headClass} font-semibold`}>Name</th>
               <th className={`w-[10%] ${headClass} font-semibold`}>Use</th>
@@ -1349,7 +1387,7 @@ export function ProjectsPreviewTable({
               <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={previewListClass.mobileDivider}>
             {projects.map((project, index) => {
               const issues = projectRowIssues(project);
 
@@ -1361,15 +1399,15 @@ export function ProjectsPreviewTable({
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/projects/${project.project_id}`}
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={previewListClass.entityLink}
                     >
                       {project.project_name}
                     </Link>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={previewListClass.meta}>
                       {project.legacy_project_id || "No legacy ID"}
                     </div>
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     {project.primary_use_type_code}
                   </td>
                   <td className={cellClass}>
@@ -1378,19 +1416,19 @@ export function ProjectsPreviewTable({
                       value={project.lifecycle_phase_code}
                     />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     {project.country || <EmptyValue />}
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={previewListClass.meta}>
                       {project.region || <EmptyValue />}
                     </div>
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     <MetricValue
                       value={project.electric_capacity_mwe}
                       suffix="MWe"
                     />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     <MetricValue
                       value={project.thermal_capacity_mwth}
                       suffix="MWth"
@@ -1434,14 +1472,14 @@ export function OperatingAssetsPreviewTable({
   const compact = density === "compact";
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className={previewListClass.panel}>
       <SectionHeader
         title="Plants"
         count={operatingAssets.length}
         total={total}
         pagination={pagination}
       />
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className={`${previewListClass.mobileDivider} lg:hidden`}>
         {operatingAssets.map((asset) => {
           const issues = operatingAssetRowIssues(asset);
 
@@ -1454,7 +1492,7 @@ export function OperatingAssetsPreviewTable({
             >
               <MobileField label="Country / Region">
                 {asset.country || <EmptyValue />}
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={previewListClass.meta}>
                   {asset.region || <EmptyValue />}
                 </div>
               </MobileField>
@@ -1469,7 +1507,7 @@ export function OperatingAssetsPreviewTable({
                   value={asset.electric_capacity_mwe}
                   suffix="MWe"
                 />
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={previewListClass.meta}>
                   <MetricValue
                     value={asset.electric_capacity_running_mwe}
                     suffix="MWe"
@@ -1491,7 +1529,7 @@ export function OperatingAssetsPreviewTable({
       </div>
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1180px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={previewListClass.tableHead}>
             <tr>
               <th className={`w-[24%] ${headClass} font-semibold`}>Name</th>
               <th className={`w-[10%] ${headClass} font-semibold`}>Use</th>
@@ -1503,7 +1541,7 @@ export function OperatingAssetsPreviewTable({
               <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={previewListClass.mobileDivider}>
             {operatingAssets.map((asset, index) => {
               const issues = operatingAssetRowIssues(asset);
 
@@ -1515,15 +1553,15 @@ export function OperatingAssetsPreviewTable({
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={previewListClass.entityLink}
                     >
                       {asset.asset_name}
                     </Link>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={previewListClass.meta}>
                       {asset.legacy_plant_id || "No legacy ID"}
                     </div>
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     {asset.primary_use_type_code}
                   </td>
                   <td className={cellClass}>
@@ -1532,19 +1570,19 @@ export function OperatingAssetsPreviewTable({
                       value={asset.lifecycle_phase_code}
                     />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     {asset.country || <EmptyValue />}
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={previewListClass.meta}>
                       {asset.region || <EmptyValue />}
                     </div>
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     <MetricValue
                       value={asset.electric_capacity_mwe}
                       suffix="MWe"
                     />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     <MetricValue
                       value={asset.electric_capacity_running_mwe}
                       suffix="MWe"
@@ -1591,14 +1629,14 @@ export function CompaniesPreviewTable({
   const compact = density === "compact";
 
   return (
-    <section className="border border-gray-200 bg-white">
+    <section className={previewListClass.panel}>
       <SectionHeader
         title="Companies"
         count={companies.length}
         total={total}
         pagination={pagination}
       />
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className={`${previewListClass.mobileDivider} lg:hidden`}>
         {companies.map((company) => {
           const issues = companyRowIssues(company);
 
@@ -1613,7 +1651,7 @@ export function CompaniesPreviewTable({
                 <div className="line-clamp-1">
                   {company.company_type_primary_code || <EmptyValue />}
                 </div>
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={previewListClass.meta}>
                   {company.entity_type_code || <EmptyValue />}
                 </div>
               </MobileField>
@@ -1635,7 +1673,7 @@ export function CompaniesPreviewTable({
       </div>
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1040px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={previewListClass.tableHead}>
             <tr>
               <th className={`w-[25%] ${headClass} font-semibold`}>Name</th>
               <th className={`w-[16%] ${headClass} font-semibold`}>
@@ -1647,7 +1685,7 @@ export function CompaniesPreviewTable({
               <th className={`w-[20%] ${headClass} font-semibold`}>Issues</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={previewListClass.mobileDivider}>
             {companies.map((company, index) => {
               const issues = companyRowIssues(company);
 
@@ -1659,24 +1697,24 @@ export function CompaniesPreviewTable({
                   <td className={cellClass}>
                     <Link
                       href={`/postgres-preview/companies/${company.company_id}`}
-                      className="block line-clamp-2 font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={`block line-clamp-2 ${previewListClass.entityLink}`}
                     >
                       {company.company_name}
                     </Link>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={previewListClass.meta}>
                       {company.legacy_company_id || "No legacy ID"}
                     </div>
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     <ClampedText value={company.company_type_primary_code} />
-                    <div className="mt-1 line-clamp-1 text-xs text-gray-500">
+                    <div className={`mt-1 line-clamp-1 text-xs ${previewListClass.muted}`}>
                       {company.entity_type_code || <EmptyValue />}
                     </div>
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     {company.headquarters_country || <EmptyValue />}
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${previewListClass.rowText}`}>
                     <CompanyActivitySummary compact={compact} company={company} />
                   </td>
                   <td className={cellClass}>
