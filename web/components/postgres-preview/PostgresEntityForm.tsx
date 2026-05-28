@@ -77,6 +77,16 @@ const formClass = {
     "inline-flex h-9 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
   outlineButton:
     "inline-flex h-8 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]",
+  compactSecondaryButton:
+    "inline-flex h-8 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  disabledAction:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-muted-text)]",
+  workflowCard:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4",
+  workflowPreview:
+    "mt-3 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-xs leading-5 text-[var(--tge-text-secondary)]",
+  infoGrid:
+    "mb-5 grid grid-cols-1 gap-3 border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-4 py-3 text-xs leading-5 text-[var(--tge-governance-info-text)] xl:grid-cols-3",
   successNotice:
     "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]",
   dangerNotice:
@@ -1692,37 +1702,37 @@ function ProjectWorkflowBridge({
         mode={mode}
       />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Evidence / Source
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Source URL, source title, date, source type, linked field, extracted
             value, claim text, and confidence note are managed as evidence links.
           </p>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             {evidenceHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={evidenceHref}
               >
                 Add / Review Project Evidence
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add evidence
               </span>
             )}
             <Link
-              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className={formClass.compactSecondaryButton}
               href={sourceCreateHref}
             >
               New Source
             </Link>
           </div>
           {project ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {sourceCount} linked evidence record{sourceCount === 1 ? "" : "s"}
               </div>
               {sourcePreview.length > 0 ? (
@@ -1736,7 +1746,7 @@ function ProjectWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No evidence links yet.
                 </div>
               )}
@@ -1744,11 +1754,11 @@ function ProjectWorkflowBridge({
           ) : null}
         </div>
 
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Related Companies
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Developer, owner, operator, investor, offtaker, supplier, and other
             company roles are structured relationship records, not free-text
             project fields.
@@ -1756,20 +1766,20 @@ function ProjectWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={relationshipsHref}
               >
                 Add Company Roles
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add company roles
               </span>
             )}
           </div>
           {project ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {companyLinkCount} structured company role
                 {companyLinkCount === 1 ? "" : "s"}
               </div>
@@ -1778,12 +1788,12 @@ function ProjectWorkflowBridge({
                   {companyPreview.map((link) => (
                     <li key={link.company_project_link_id}>
                       <Link
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={`font-semibold ${formClass.title} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                         href={`/postgres-preview/companies/${link.company_id}`}
                       >
                         {link.company_name}
                       </Link>
-                      <div className="truncate text-gray-500">
+                      <div className={`truncate ${formClass.muted}`}>
                         {link.role_label || link.role_code}
                         {link.ownership_share !== null
                           ? ` / ${link.ownership_share}%`
@@ -1793,7 +1803,7 @@ function ProjectWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No company roles linked yet.
                 </div>
               )}
@@ -1801,31 +1811,31 @@ function ProjectWorkflowBridge({
           ) : null}
         </div>
 
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Related Plant
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Linked plant, promotion, expansion, and historical
             project-to-plant relationships stay in the project detail workflow.
           </p>
           <div className="mt-3">
             {linkedAssetHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={linkedAssetHref}
               >
                 Review Related Plants
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to link plants
               </span>
             )}
           </div>
           {project ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {promotedAssetCount} linked plant promotion
                 {promotedAssetCount === 1 ? "" : "s"}
               </div>
@@ -1834,12 +1844,12 @@ function ProjectWorkflowBridge({
                   {promotedAssetPreview.map((asset) => (
                     <li key={asset.operating_asset_id}>
                       <Link
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={`font-semibold ${formClass.title} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                         href={`/postgres-preview/operating-assets/${asset.operating_asset_id}`}
                       >
                         {asset.asset_name}
                       </Link>
-                      <div className="truncate text-gray-500">
+                      <div className={`truncate ${formClass.muted}`}>
                         {asset.link_type}
                         {asset.country ? ` / ${asset.country}` : ""}
                       </div>
@@ -1847,7 +1857,7 @@ function ProjectWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No linked plant yet.
                 </div>
               )}
@@ -1856,7 +1866,7 @@ function ProjectWorkflowBridge({
         </div>
       </div>
       {mode === "create" ? (
-        <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
+        <p className={formClass.infoNotice}>
           For new records, save the draft first. The saved detail page then
           exposes evidence, company-role, Research Ops, and promotion workflows
           against the new project ID.
@@ -1931,37 +1941,37 @@ function AssetWorkflowBridge({
         mode={mode}
       />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Evidence / Source
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Source URL, source title, date, source type, linked field, extracted
             value, claim text, and confidence note are managed as evidence links.
           </p>
           <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             {evidenceHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={evidenceHref}
               >
                 Add / Review Plant Evidence
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add evidence
               </span>
             )}
             <Link
-              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className={formClass.compactSecondaryButton}
               href={sourceCreateHref}
             >
               New Source
             </Link>
           </div>
           {asset ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {sourceCount} linked evidence record{sourceCount === 1 ? "" : "s"}
               </div>
               {sourcePreview.length > 0 ? (
@@ -1973,7 +1983,7 @@ function AssetWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No evidence links yet.
                 </div>
               )}
@@ -1981,11 +1991,11 @@ function AssetWorkflowBridge({
           ) : null}
         </div>
 
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Related Companies
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Owner, operator, developer, turbine supplier, EPC, drilling
             contractor, direct-use operator, and offtaker roles are structured
             relationship records, not free-text plant fields.
@@ -1993,20 +2003,20 @@ function AssetWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={relationshipsHref}
               >
                 Add Company Roles
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add company roles
               </span>
             )}
           </div>
           {asset ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {companyLinkCount} structured company role
                 {companyLinkCount === 1 ? "" : "s"}
               </div>
@@ -2015,12 +2025,12 @@ function AssetWorkflowBridge({
                   {companyPreview.map((link) => (
                     <li key={link.company_operating_asset_link_id}>
                       <Link
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={`font-semibold ${formClass.title} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                         href={`/postgres-preview/companies/${link.company_id}`}
                       >
                         {link.company_name}
                       </Link>
-                      <div className="truncate text-gray-500">
+                      <div className={`truncate ${formClass.muted}`}>
                         {link.role_label || link.role_code}
                         {link.ownership_share !== null
                           ? ` / ${link.ownership_share}%`
@@ -2030,7 +2040,7 @@ function AssetWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No owner/operator/company roles linked yet.
                 </div>
               )}
@@ -2038,38 +2048,38 @@ function AssetWorkflowBridge({
           ) : null}
         </div>
 
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Originating Project / Units
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Originating project, expansion, unit, plant group, field group, and
             promotion history stay in the saved plant detail workflow.
           </p>
           <div className="mt-3">
             {linkedProjectHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={linkedProjectHref}
               >
                 Review Plant Workflow
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to link projects or units
               </span>
             )}
           </div>
           {asset ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {originatingProject || asset.promoted_from_project_id
                   ? "Originating project linked"
                   : "No originating project link yet"}
               </div>
               {originatingProject ? (
                 <Link
-                  className="mt-1 block truncate font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  className={`mt-1 block truncate font-semibold ${formClass.title} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                   href={`/postgres-preview/projects/${originatingProject.project_id}`}
                 >
                   {originatingProject.project_name}
@@ -2083,7 +2093,7 @@ function AssetWorkflowBridge({
         </div>
       </div>
       {mode === "create" ? (
-        <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
+        <p className={formClass.infoNotice}>
           For new records, save the draft first. The saved detail page then
           exposes evidence, owner/operator, Research Ops, and linked-project or
           unit workflows against the new plant ID.
@@ -2175,11 +2185,11 @@ function CompanyWorkflowBridge({
         mode={mode}
       />
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Evidence / Source
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Company website, reports, filings, TGE articles, stakeholder notes,
             and ownership evidence are governed source links, not pasted into
             category fields.
@@ -2187,26 +2197,26 @@ function CompanyWorkflowBridge({
           <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
             {evidenceHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={evidenceHref}
               >
                 Add / Review Company Evidence
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add evidence
               </span>
             )}
             <Link
-              className="inline-flex h-8 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className={formClass.compactSecondaryButton}
               href={sourceCreateHref}
             >
               New Source
             </Link>
           </div>
           {company ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {sourceCount} linked evidence record{sourceCount === 1 ? "" : "s"}
               </div>
               {sourcePreview.length > 0 ? (
@@ -2220,7 +2230,7 @@ function CompanyWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No evidence links yet.
                 </div>
               )}
@@ -2228,11 +2238,11 @@ function CompanyWorkflowBridge({
           ) : null}
         </div>
 
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Roles On Projects / Plants
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Primary business identity describes the company&apos;s dominant market
             position. Developer, owner, operator, supplier, investor, and
             offtaker remain structured roles on specific projects or
@@ -2241,20 +2251,20 @@ function CompanyWorkflowBridge({
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={relationshipsHref}
               >
                 Add Project / Plant Roles
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add roles
               </span>
             )}
           </div>
           {company ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 {activityRoleCount} structured activity role
                 {activityRoleCount === 1 ? "" : "s"}
               </div>
@@ -2269,17 +2279,17 @@ function CompanyWorkflowBridge({
                   {activityPreview.map((link) => (
                     <li key={link.key}>
                       <Link
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={`font-semibold ${formClass.title} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                         href={link.href}
                       >
                         {link.name}
                       </Link>
-                      <div className="truncate text-gray-500">{link.meta}</div>
+                      <div className={`truncate ${formClass.muted}`}>{link.meta}</div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <div className="mt-2 text-gray-500">
+                <div className={`mt-2 ${formClass.muted}`}>
                   No project or plant roles linked yet.
                 </div>
               )}
@@ -2287,38 +2297,38 @@ function CompanyWorkflowBridge({
           ) : null}
         </div>
 
-        <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className={formClass.workflowCard}>
+          <h3 className={`text-sm font-bold ${formClass.title}`}>
             Group / Ownership Structure
           </h3>
-          <p className="mt-2 text-xs leading-5 text-gray-600">
+          <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
             Parent, subsidiary, affiliate, JV, shareholder, acquisition, and SPV
             relationships are managed as company-to-company relationship records.
           </p>
           <div className="mt-3">
             {relationshipsHref ? (
               <Link
-                className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={formClass.outlineButton}
                 href={relationshipsHref}
               >
                 Review Company Structure
               </Link>
             ) : (
-              <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-500">
+              <span className={formClass.disabledAction}>
                 Save first to add relationships
               </span>
             )}
           </div>
           {company ? (
-            <div className="mt-3 border border-gray-200 bg-white px-3 py-2 text-xs leading-5 text-gray-600">
-              <div className="font-semibold text-[#1f2937]">
+            <div className={formClass.workflowPreview}>
+              <div className={`font-semibold ${formClass.title}`}>
                 Current identity
               </div>
               <div className="mt-1">
                 {company.company_type_primary_code || "No primary identity"} /{" "}
                 {company.entity_type_code || "No record type"}
               </div>
-              <div className="mt-2 font-semibold text-[#1f2937]">
+              <div className={`mt-2 font-semibold ${formClass.title}`}>
                 {companyRelationshipCount} company relationship
                 {companyRelationshipCount === 1 ? "" : "s"}
               </div>
@@ -2331,7 +2341,7 @@ function CompanyWorkflowBridge({
                     >
                       {relationship.company_name_from} /{" "}
                       {relationship.company_name_to}
-                      <div className="text-gray-500">
+                      <div className={formClass.muted}>
                         {relationship.relationship_type_label ||
                           relationship.relationship_type_code}
                         {relationship.is_current ? " / current" : ""}
@@ -2340,7 +2350,7 @@ function CompanyWorkflowBridge({
                   ))}
                 </ul>
               ) : (
-                <div className="mt-1 text-gray-500">
+                <div className={`mt-1 ${formClass.muted}`}>
                   No ownership/group relationships linked yet.
                 </div>
               )}
@@ -2349,7 +2359,7 @@ function CompanyWorkflowBridge({
         </div>
       </div>
       {mode === "create" ? (
-        <p className="mt-4 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-900">
+        <p className={formClass.infoNotice}>
           For new records, save the company draft first. The saved detail page
           then exposes evidence, project/plant roles, ownership, group, and JV
           relationship workflows against the new company ID.
@@ -3377,7 +3387,7 @@ export function PostgresCompanyForm({
       />
 
       <Section title="Identity And Classification">
-        <div className="mb-5 grid grid-cols-1 gap-3 border border-blue-100 bg-blue-50 px-4 py-3 text-xs leading-5 text-blue-950 xl:grid-cols-3">
+        <div className={formClass.infoGrid}>
           <div>
             <div className="font-bold uppercase tracking-wide">Record Type</div>
             <p className="mt-1">
