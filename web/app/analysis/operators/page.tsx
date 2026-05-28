@@ -17,12 +17,29 @@ type OwnerRow = {
   summed_ownership_share: number;
 };
 
+type OwnerSummary = {
+  roles_counted: string[];
+  owner_link_count: number;
+  links_with_ownership_share: number;
+  links_missing_ownership_share: number;
+  links_missing_installed_mw: number;
+  included_plant_count: number;
+};
+
 type OperatorRow = {
   rank: number;
   company_id: string;
   company_name: string;
   plant_count: number;
   operated_mw: number;
+};
+
+type OperatorSummary = {
+  roles_counted: string[];
+  operator_link_count: number;
+  linked_plant_count: number;
+  links_missing_installed_mw: number;
+  included_plant_count: number;
 };
 
 function formatNumber(value: number, digits = 1) {
@@ -52,9 +69,45 @@ function StatCard({
   );
 }
 
+function CoverageCard({
+  title,
+  items,
+}: {
+  title: string;
+  items: { label: string; value: string | number; tone?: "default" | "warning" }[];
+}) {
+  return (
+    <div className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
+        <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
+      </div>
+      <div className="grid grid-cols-1 gap-3 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.label}>
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              {item.label}
+            </div>
+            <div
+              className={`mt-1 text-lg font-bold ${
+                item.tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+              }`}
+            >
+              {item.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function OperatorAnalysisPage() {
   const [owners, setOwners] = useState<OwnerRow[]>([]);
+  const [ownerSummary, setOwnerSummary] = useState<OwnerSummary | null>(null);
   const [operators, setOperators] = useState<OperatorRow[]>([]);
+  const [operatorSummary, setOperatorSummary] = useState<OperatorSummary | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -81,7 +134,9 @@ export default function OperatorAnalysisPage() {
         }
 
         setOwners(Array.isArray(ownersJson.rows) ? ownersJson.rows : []);
+        setOwnerSummary(ownersJson.summary || null);
         setOperators(Array.isArray(operatorsJson.rows) ? operatorsJson.rows : []);
+        setOperatorSummary(operatorsJson.summary || null);
       } catch (err: any) {
         console.error(err);
         setError(err.message || "Failed to load analysis.");
@@ -108,28 +163,28 @@ export default function OperatorAnalysisPage() {
           { value: formatNumber(totalOperatorMw), label: "Operator MWe" },
         ]}
       >
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
-            <StatCard
-              label="Owners"
-              value={owners.length}
-              help="Companies with weighted owner MWe"
-            />
-            <StatCard
-              label="Owner MWe"
-              value={formatNumber(totalOwnerMw)}
-              help="Weighted by ownership share"
-            />
-            <StatCard
-              label="Operators"
-              value={operators.length}
-              help="Companies linked as operator"
-            />
-            <StatCard
-              label="Operator MWe"
-              value={formatNumber(totalOperatorMw)}
-              help="Full installed MWe attributed"
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
+          <StatCard
+            label="Owners"
+            value={owners.length}
+            help="Companies with weighted owner MWe"
+          />
+          <StatCard
+            label="Owner MWe"
+            value={formatNumber(totalOwnerMw)}
+            help="Weighted by ownership share"
+          />
+          <StatCard
+            label="Operators"
+            value={operators.length}
+            help="Companies linked as operator"
+          />
+          <StatCard
+            label="Operator MWe"
+            value={formatNumber(totalOperatorMw)}
+            help="Role-attributed installed MWe"
+          />
+        </div>
       </AnalysisModuleHero>
 
       {loading ? (
@@ -146,6 +201,79 @@ export default function OperatorAnalysisPage() {
 
       {!loading && !error ? (
         <>
+          <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <CoverageCard
+              title="Owner Data Coverage"
+              items={[
+                {
+                  label: "Roles counted",
+                  value: ownerSummary?.roles_counted.join(", ") || "Owner",
+                },
+                {
+                  label: "Owner links",
+                  value: ownerSummary?.owner_link_count ?? 0,
+                },
+                {
+                  label: "Weighted links",
+                  value: ownerSummary?.links_with_ownership_share ?? 0,
+                },
+                {
+                  label: "Missing ownership %",
+                  value: ownerSummary?.links_missing_ownership_share ?? 0,
+                  tone: ownerSummary?.links_missing_ownership_share
+                    ? "warning"
+                    : "default",
+                },
+                {
+                  label: "Missing plant MWe",
+                  value: ownerSummary?.links_missing_installed_mw ?? 0,
+                  tone: ownerSummary?.links_missing_installed_mw
+                    ? "warning"
+                    : "default",
+                },
+                {
+                  label: "Plants included",
+                  value: ownerSummary?.included_plant_count ?? 0,
+                },
+              ]}
+            />
+
+            <CoverageCard
+              title="Operator Data Coverage"
+              items={[
+                {
+                  label: "Roles counted",
+                  value:
+                    operatorSummary?.roles_counted.join(", ") ||
+                    "Operator, Operator Power, Operator Steam",
+                },
+                {
+                  label: "Operator links",
+                  value: operatorSummary?.operator_link_count ?? 0,
+                },
+                {
+                  label: "Linked plants",
+                  value: operatorSummary?.linked_plant_count ?? 0,
+                },
+                {
+                  label: "Missing plant MWe",
+                  value: operatorSummary?.links_missing_installed_mw ?? 0,
+                  tone: operatorSummary?.links_missing_installed_mw
+                    ? "warning"
+                    : "default",
+                },
+                {
+                  label: "Plants included",
+                  value: operatorSummary?.included_plant_count ?? 0,
+                },
+                {
+                  label: "Attribution rule",
+                  value: "Full plant MWe",
+                },
+              ]}
+            />
+          </section>
+
           <section className="border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
               <h2 className="text-xl font-bold text-[#1f2937]">
@@ -153,6 +281,8 @@ export default function OperatorAnalysisPage() {
               </h2>
               <p className="mt-1 text-sm text-gray-500">
                 Weighted owner ranking using installed MWe × ownership share.
+                Only links with an ownership share and plant installed MWe are
+                included.
               </p>
             </div>
 
@@ -162,9 +292,9 @@ export default function OperatorAnalysisPage() {
                   <tr>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold"># Plants</th>
+                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Linked Plants</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MWe</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Ownership % Sum</th>
+                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Owner Share % Sum</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -203,7 +333,8 @@ export default function OperatorAnalysisPage() {
                 Top Operators by MWe
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                Operator ranking based on full installed MWe for plants linked as Operator.
+                Operator ranking based on full installed MWe for plants linked
+                as Operator, Operator Power, or Operator Steam.
               </p>
             </div>
 
@@ -213,7 +344,7 @@ export default function OperatorAnalysisPage() {
                   <tr>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold"># Plants</th>
+                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Linked Plants</th>
                     <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Operated MWe</th>
                   </tr>
                 </thead>
