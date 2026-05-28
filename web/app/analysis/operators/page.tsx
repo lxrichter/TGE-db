@@ -46,6 +46,28 @@ type OperatorSummary = {
   included_plant_count: number;
 };
 
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const subtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const tableHeadClass =
+  "bg-[var(--tge-governance-neutral-bg)] text-left uppercase tracking-wide text-[var(--tge-governance-neutral-text)]";
+const tableHeadCellClass =
+  "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2 text-[12px] font-semibold";
+const tableRowClass = "hover:bg-[var(--tge-surface-subtle)]";
+const tableCellClass =
+  "border-b border-[var(--tge-governance-muted-border)] px-4 py-2 text-[13px]";
+const emptyCellClass =
+  "px-4 py-8 text-center text-[13px] text-[var(--tge-governance-muted-text)]";
+const linkClass =
+  "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]";
+
 function formatNumber(value: number, digits = 1) {
   return Number(value || 0).toLocaleString(undefined, {
     minimumFractionDigits: digits,
@@ -63,12 +85,14 @@ function StatCard({
   help: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-5 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${subtleCardClass} px-5 py-4`}>
+      <div className={eyebrowClass}>
         {label}
       </div>
-      <div className="mt-1 text-3xl font-bold text-[#1f2937]">{value}</div>
-      <div className="mt-1 text-xs text-gray-500">{help}</div>
+      <div className={`mt-1 text-3xl font-bold ${titleTextClass}`}>{value}</div>
+      <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+        {help}
+      </div>
     </div>
   );
 }
@@ -81,19 +105,21 @@ function CoverageCard({
   items: { label: string; value: string | number; tone?: "default" | "warning" }[];
 }) {
   return (
-    <div className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
-        <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
+    <div className={panelClass}>
+      <div className={`${panelHeaderClass} px-4 py-3`}>
+        <h3 className={`text-sm font-bold ${titleTextClass}`}>{title}</h3>
       </div>
       <div className="grid grid-cols-1 gap-3 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <div key={item.label}>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={eyebrowClass}>
               {item.label}
             </div>
             <div
               className={`mt-1 text-lg font-bold ${
-                item.tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+                item.tone === "warning"
+                  ? "text-[var(--tge-governance-attention-text)]"
+                  : titleTextClass
               }`}
             >
               {item.value}
@@ -117,18 +143,20 @@ function GovernanceMetric({
   tone?: "default" | "warning";
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-3">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${panelClass} px-4 py-3`}>
+      <div className={eyebrowClass}>
         {label}
       </div>
       <div
         className={`mt-1 text-xl font-bold ${
-          tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+          tone === "warning"
+            ? "text-[var(--tge-governance-attention-text)]"
+            : titleTextClass
         }`}
       >
         {value}
       </div>
-      <p className="mt-1 text-xs leading-5 text-gray-600">{note}</p>
+      <p className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>{note}</p>
     </div>
   );
 }
@@ -171,12 +199,12 @@ function GovernanceReadinessPanel({
           />
         </div>
 
-        <div className="border border-amber-200 bg-white">
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3">
-            <h3 className="text-sm font-bold text-[#1f2937]">
+        <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)]">
+          <div className="border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3">
+            <h3 className={`text-sm font-bold ${titleTextClass}`}>
               Cleanup Routing
             </h3>
-            <p className="mt-1 text-xs leading-5 text-amber-900">
+            <p className="mt-1 text-xs leading-5 text-[var(--tge-governance-attention-text)]">
               Resolve ownership shares, plant capacity, and role separation in
               the operational workspaces.
             </p>
@@ -190,7 +218,7 @@ function GovernanceReadinessPanel({
               <Link
                 key={route.label}
                 href={route.href}
-                className="border border-gray-200 bg-[#fafafa] px-3 py-2 text-xs font-semibold text-[#1f2937] transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
+                className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--tge-text-primary)] transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
               >
                 {route.label}
               </Link>
@@ -289,14 +317,14 @@ export default function OperatorAnalysisPage() {
       </AnalysisModuleHero>
 
       {loading ? (
-        <section className="border border-gray-200 bg-white px-6 py-8">
-          <p className="text-sm text-gray-600">Loading analysis...</p>
+        <section className={`${panelClass} px-6 py-8`}>
+          <p className={`text-sm ${bodyTextClass}`}>Loading analysis...</p>
         </section>
       ) : null}
 
       {error ? (
-        <section className="border border-red-200 bg-red-50 px-6 py-4">
-          <p className="text-sm text-red-700">{error}</p>
+        <section className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-6 py-4">
+          <p className="text-sm text-[var(--tge-governance-danger-text)]">{error}</p>
         </section>
       ) : null}
 
@@ -380,12 +408,12 @@ export default function OperatorAnalysisPage() {
             operatorSummary={operatorSummary}
           />
 
-          <section className="border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#1f2937]">
+          <section className={panelClass}>
+            <div className={`${panelHeaderClass} px-6 py-4`}>
+              <h2 className={`text-xl font-bold ${titleTextClass}`}>
                 Top Owners by MWe
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
                 Weighted owner ranking using installed MWe × ownership share.
                 Only links with an ownership share and plant installed MWe are
                 included.
@@ -394,36 +422,36 @@ export default function OperatorAnalysisPage() {
 
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+                <thead className={tableHeadClass}>
                   <tr>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Linked Plants</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MWe</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Owner Share % Sum</th>
+                    <th className={tableHeadCellClass}>#</th>
+                    <th className={tableHeadCellClass}>Company</th>
+                    <th className={tableHeadCellClass}>Linked Plants</th>
+                    <th className={tableHeadCellClass}>Attributed MWe</th>
+                    <th className={tableHeadCellClass}>Owner Share % Sum</th>
                   </tr>
                 </thead>
                 <tbody>
                   {owners.map((row) => (
-                    <tr key={row.company_id} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.rank}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                    <tr key={row.company_id} className={tableRowClass}>
+                      <td className={tableCellClass}>{row.rank}</td>
+                      <td className={tableCellClass}>
                         <Link
                           href={`/companies/${row.company_id}`}
-                          className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className={linkClass}
                         >
                           {row.company_name}
                         </Link>
                       </td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.plant_count}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{formatNumber(row.attributed_mw)}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{formatNumber(row.summed_ownership_share, 1)}</td>
+                      <td className={tableCellClass}>{row.plant_count}</td>
+                      <td className={tableCellClass}>{formatNumber(row.attributed_mw)}</td>
+                      <td className={tableCellClass}>{formatNumber(row.summed_ownership_share, 1)}</td>
                     </tr>
                   ))}
 
                   {owners.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-[13px] text-gray-500">
+                      <td colSpan={5} className={emptyCellClass}>
                         No owner analysis found.
                       </td>
                     </tr>
@@ -433,12 +461,12 @@ export default function OperatorAnalysisPage() {
             </div>
           </section>
 
-          <section className="border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#1f2937]">
+          <section className={panelClass}>
+            <div className={`${panelHeaderClass} px-6 py-4`}>
+              <h2 className={`text-xl font-bold ${titleTextClass}`}>
                 Top Operators by MWe
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
                 Operator ranking based on full installed MWe for plants linked
                 as Operator, Operator Power, or Operator Steam.
               </p>
@@ -446,34 +474,34 @@ export default function OperatorAnalysisPage() {
 
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+                <thead className={tableHeadClass}>
                   <tr>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Linked Plants</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Operated MWe</th>
+                    <th className={tableHeadCellClass}>#</th>
+                    <th className={tableHeadCellClass}>Company</th>
+                    <th className={tableHeadCellClass}>Linked Plants</th>
+                    <th className={tableHeadCellClass}>Operated MWe</th>
                   </tr>
                 </thead>
                 <tbody>
                   {operators.map((row) => (
-                    <tr key={row.company_id} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.rank}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                    <tr key={row.company_id} className={tableRowClass}>
+                      <td className={tableCellClass}>{row.rank}</td>
+                      <td className={tableCellClass}>
                         <Link
                           href={`/companies/${row.company_id}`}
-                          className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className={linkClass}
                         >
                           {row.company_name}
                         </Link>
                       </td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.plant_count}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{formatNumber(row.operated_mw)}</td>
+                      <td className={tableCellClass}>{row.plant_count}</td>
+                      <td className={tableCellClass}>{formatNumber(row.operated_mw)}</td>
                     </tr>
                   ))}
 
                   {operators.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-gray-500">
+                      <td colSpan={4} className={emptyCellClass}>
                         No operator analysis found.
                       </td>
                     </tr>
