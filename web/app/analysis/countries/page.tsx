@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+
+import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
+import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
 import { slugify } from "@/lib/slug";
+
+const countryMarketsModule = getRequiredAnalysisModule("country-markets");
 
 type CountrySummaryRow = {
   country: string;
@@ -232,67 +237,22 @@ export default function CountriesAnalysisPage() {
   if (!data) {
     return (
       <main className="space-y-8">
-          <div className="mb-4">
-          <Link
-            href="/analysis"
-            className="text-sm font-semibold text-[#8dc63f] hover:underline"
-          >
-            ← Back to Analysis Workspace
-          </Link>
-          </div>
-        
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-              Analysis
-            </p>
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Country Market Analysis
-            </h1>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
-              Loading analysis…
-            </p>
-          </div>
-        </section>
+        <AnalysisModuleHero loading module={countryMarketsModule} />
       </main>
     );
   }
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
-          <div className="max-w-5xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-              Analysis
-            </p>
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Country Market Analysis
-            </h1>
-            <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
-              Country-market geothermal analysis derived from the plants and
-              projects database, including installed MWe, planned MWe, TGE region,
-              and project phase distribution.
-            </p>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-4">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700">
-            <span className="font-semibold uppercase tracking-wide text-gray-500">
-              Scope
-            </span>
-            <span>{kpis.countries} Country Markets</span>
-            <span className="text-gray-300">|</span>
-            <span>{kpis.regions} Regions</span>
-            <span className="text-gray-300">|</span>
-            <span>{formatNumber(kpis.installed)} MWe Installed</span>
-            <span className="text-gray-300">|</span>
-            <span>{formatNumber(kpis.planned)} MWe Planned</span>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-200 bg-[#fafafa] px-8 py-5">
+      <AnalysisModuleHero
+        module={countryMarketsModule}
+        scopeItems={[
+          { value: kpis.countries, label: "Country Markets" },
+          { value: kpis.regions, label: "Regions" },
+          { value: `${formatNumber(kpis.installed)} MWe`, label: "Installed" },
+          { value: `${formatNumber(kpis.planned)} MWe`, label: "Planned" },
+        ]}
+      >
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-6">
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
@@ -354,8 +314,7 @@ export default function CountriesAnalysisPage() {
               <div className="mt-1 text-xs text-gray-500">Projects included</div>
             </div>
           </div>
-        </div>
-      </section>
+      </AnalysisModuleHero>
 
       <section className="border border-gray-200 bg-white">
         <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">

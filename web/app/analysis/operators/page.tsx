@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
+import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
+
+const ownersOperatorsModule = getRequiredAnalysisModule("owners-operators");
+
 type OwnerRow = {
   rank: number;
   company_id: string;
@@ -93,35 +98,16 @@ export default function OperatorAnalysisPage() {
 
   return (
     <main className="space-y-8">
-      <div className="mb-4">
-          <Link
-            href="/analysis"
-            className="text-sm font-semibold text-[#8dc63f] hover:underline"
-          >
-            ← Back to Analysis Workspace
-          </Link>
-          </div>
-
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
-          <div className="max-w-5xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
-              Analysis
-            </p>
-
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
-              Owners & Operators
-            </h1>
-
-            <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
-              First internal ranking view based on structured company-to-plant links.
-              Owners are weighted by ownership share. Operators are counted on full
-              installed MWe where the company is linked as Operator.
-            </p>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-200 bg-[#fafafa] px-8 py-5">
+      <AnalysisModuleHero
+        loading={loading}
+        module={ownersOperatorsModule}
+        scopeItems={[
+          { value: owners.length, label: "Owner rows" },
+          { value: formatNumber(totalOwnerMw), label: "Owner MWe" },
+          { value: operators.length, label: "Operator rows" },
+          { value: formatNumber(totalOperatorMw), label: "Operator MWe" },
+        ]}
+      >
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
             <StatCard
               label="Owners"
@@ -144,8 +130,7 @@ export default function OperatorAnalysisPage() {
               help="Full installed MWe attributed"
             />
           </div>
-        </div>
-      </section>
+      </AnalysisModuleHero>
 
       {loading ? (
         <section className="border border-gray-200 bg-white px-6 py-8">

@@ -181,3 +181,16 @@ export function analysisModulesByStatus(status: AnalysisModuleStatus) {
   return analysisModules.filter((module) => module.status === status);
 }
 
+export function getAnalysisModule(id: string) {
+  return analysisModules.find((module) => module.id === id);
+}
+
+export function getRequiredAnalysisModule(id: string) {
+  const module = getAnalysisModule(id);
+
+  if (!module) {
+    throw new Error(`Missing analysis module definition: ${id}`);
+  }
+
+  return module;
+}
