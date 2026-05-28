@@ -32,7 +32,9 @@ function NavItem({
       href={href}
       prefetch={prefetch}
       className={`relative inline-flex h-[44px] items-center text-[15px] font-medium transition ${
-        isActive ? "text-white" : "text-white/90 hover:text-[var(--tge-brand-green)]"
+        isActive
+          ? "text-[var(--tge-header-text)]"
+          : "text-[var(--tge-header-text-soft)] hover:text-[var(--tge-brand-green)]"
       }`}
     >
       <span>{label}</span>
@@ -55,10 +57,10 @@ function NavGroup({
   return (
     <div
       className={`flex shrink-0 flex-col gap-1 ${
-        isFirst ? "" : "border-l border-white/15 pl-4"
+        isFirst ? "" : "border-l border-[var(--tge-header-group-divider)] pl-4"
       }`}
     >
-      <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-white/45">
+      <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[var(--tge-header-text-faint)]">
         {label}
       </div>
       <div className="flex items-center gap-4">{children}</div>
@@ -139,7 +141,7 @@ export default function AppHeaderShell({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-[var(--tge-brand-green)] bg-[var(--tge-brand-dark)] text-white shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-[var(--tge-brand-green)] bg-[var(--tge-brand-dark)] text-[var(--tge-header-text)] shadow-sm">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-8 px-8 py-4">
           <div className="flex min-w-0 items-center gap-5">
             <img
@@ -148,13 +150,13 @@ export default function AppHeaderShell({
               className="h-10 w-auto shrink-0"
             />
 
-            <div className="h-10 w-px bg-white/25" />
+            <div className="h-10 w-px bg-[var(--tge-header-divider)]" />
 
             <div className="min-w-0">
-              <div className="truncate text-[15px] font-semibold leading-tight text-white">
+              <div className="truncate text-[15px] font-semibold leading-tight text-[var(--tge-header-text)]">
                 Geothermal Intelligence Platform
               </div>
-              <div className="mt-1 truncate text-[13px] text-white/60">
+              <div className="mt-1 truncate text-[13px] text-[var(--tge-header-text-muted)]">
                 ThinkGeoEnergy - Research, evidence, markets, and governance
               </div>
             </div>

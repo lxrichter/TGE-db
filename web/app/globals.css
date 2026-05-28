@@ -13,6 +13,12 @@
   --tge-brand-green-dark: #3f6f19;
   --tge-brand-dark: #2a2a2a;
   --tge-brand-muted: #5e6b52;
+  --tge-header-text: #ffffff;
+  --tge-header-text-soft: rgba(255, 255, 255, 0.9);
+  --tge-header-text-muted: rgba(255, 255, 255, 0.6);
+  --tge-header-text-faint: rgba(255, 255, 255, 0.45);
+  --tge-header-divider: rgba(255, 255, 255, 0.25);
+  --tge-header-group-divider: rgba(255, 255, 255, 0.15);
   --tge-surface-page: #f7f7f7;
   --tge-surface-card: #ffffff;
   --tge-surface-subtle: #fafafa;
