@@ -53,6 +53,50 @@ type AssetWorkflowPreview = {
   } | null;
 };
 
+const formClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  label:
+    "text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  smallLabel:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  eyebrow:
+    "text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  input:
+    "min-h-10 scroll-mt-24 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  derived:
+    "min-h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-2 text-sm font-semibold text-[var(--tge-governance-neutral-text)]",
+  sectionToggle:
+    "w-full shrink-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] sm:w-auto",
+  primaryButton:
+    "h-10 border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60",
+  secondaryButton:
+    "inline-flex h-9 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  outlineButton:
+    "inline-flex h-8 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]",
+  successNotice:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]",
+  dangerNotice:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]",
+  attentionNotice:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3 text-sm leading-6 text-[var(--tge-governance-attention-text)]",
+  infoNotice:
+    "border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-4 py-3 text-xs leading-5 text-[var(--tge-governance-info-text)]",
+  neutralChip:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--tge-governance-muted-text)]",
+  successChip:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--tge-governance-success-text)]",
+  dangerChip:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--tge-governance-danger-text)]",
+  attentionChip:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--tge-governance-attention-text)]",
+  workflowChip:
+    "border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--tge-governance-info-text)]",
+};
+
 function toInputValue(value: string | number | null | undefined) {
   if (value === null || value === undefined) {
     return "";
@@ -93,7 +137,7 @@ function getApiError(json: unknown, fallback: string) {
 }
 
 function inputClass() {
-  return "min-h-10 scroll-mt-24 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
+  return formClass.input;
 }
 
 function normalizeComparisonValue(value: string | undefined) {
@@ -267,42 +311,42 @@ function Field({
 
   return (
     <label
-      className={`flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 ${
+      className={`flex flex-col gap-2 ${formClass.label} ${
         changed
-          ? "border border-amber-200 bg-amber-50 px-3 py-3"
+          ? "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-3 py-3"
           : "border border-transparent"
       }`}
     >
       <span className="flex flex-wrap items-center gap-2">
         <span>{label}</span>
         {required ? (
-          <span className="border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+          <span className={formClass.dangerChip}>
             Required
           </span>
         ) : null}
         {important ? (
-          <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+          <span className={formClass.attentionChip}>
             Important
           </span>
         ) : null}
         {approvalSensitive ? (
-          <span className="border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-800">
+          <span className={formClass.workflowChip}>
             Approval Field
           </span>
         ) : null}
         {toneLabel ? (
-          <span className="border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-gray-600">
+          <span className={formClass.neutralChip}>
             {toneLabel}
           </span>
         ) : null}
         {changed ? (
-          <span className="border border-amber-300 bg-white px-1.5 py-0.5 text-[10px] font-semibold text-amber-800">
+          <span className={formClass.attentionChip}>
             Edited
           </span>
         ) : null}
       </span>
       {help ? (
-        <span className="text-[11px] font-medium normal-case leading-4 tracking-normal text-gray-500">
+        <span className={`text-[11px] font-medium normal-case leading-4 tracking-normal ${formClass.muted}`}>
           {help}
         </span>
       ) : null}
@@ -496,13 +540,13 @@ function CountryReferenceSelect({
         ))}
       </select>
       {hasUnmatchedCountryText ? (
-        <span className="text-[11px] leading-4 text-amber-700">
+        <span className="text-[11px] leading-4 text-[var(--tge-governance-attention-text)]">
           This legacy country text is not yet linked to the canonical country
           reference. Selecting a country will auto-fill ISO3, TGE region, and
           World Bank region.
         </span>
       ) : selectedCountry ? (
-        <span className="text-[11px] leading-4 text-gray-500">
+        <span className={`text-[11px] leading-4 ${formClass.muted}`}>
           ISO3 {selectedCountry.iso3} · regions are derived from the country
           reference.
         </span>
@@ -513,7 +557,7 @@ function CountryReferenceSelect({
 
 function DerivedGeographyField({ value }: { value?: string }) {
   return (
-    <div className="min-h-10 border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-700">
+    <div className={formClass.derived}>
       {value || "Auto-filled after country selection"}
     </div>
   );
@@ -528,13 +572,13 @@ function Section({
 }) {
   return (
     <details
-      className="group scroll-mt-6 border border-gray-200 bg-white"
+      className={`group scroll-mt-6 ${formClass.panel}`}
       id={sectionAnchorId(title)}
       open
     >
-      <summary className="flex cursor-pointer list-none flex-col gap-3 border-b border-gray-200 px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <span className="w-full shrink-0 border border-gray-200 bg-[#fafafa] px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-gray-600 sm:w-auto">
+      <summary className="flex cursor-pointer list-none flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
+        <h2 className={`text-lg font-bold ${formClass.title}`}>{title}</h2>
+        <span className={formClass.sectionToggle}>
           Toggle
         </span>
       </summary>
@@ -614,65 +658,65 @@ function FormWorkflowRail({
     changeState?.approvalSensitiveChangedFieldNames.length || 0;
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-4 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+    <section className={formClass.panel}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-4">
+        <p className={formClass.eyebrow}>
           Workflow Summary
         </p>
-        <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+        <h2 className={`mt-1 text-base font-bold ${formClass.title}`}>
           {entityLabel} edit guide
         </h2>
-        <p className="mt-2 text-xs leading-5 text-gray-600">
+        <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>
           Save drafts freely. Resolve critical blockers before review,
           approval, export-ready use, or promotion workflows.
         </p>
       </div>
       <div className="space-y-4 px-4 py-4">
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="border border-red-100 bg-white px-3 py-2">
-            <div className="text-lg font-bold text-red-800">{criticalCount}</div>
-            <div className="font-semibold text-gray-700">Critical</div>
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 py-2">
+            <div className="text-lg font-bold text-[var(--tge-governance-danger-text)]">{criticalCount}</div>
+            <div className="font-semibold text-[var(--tge-governance-neutral-text)]">Critical</div>
           </div>
-          <div className="border border-amber-100 bg-white px-3 py-2">
-            <div className="text-lg font-bold text-amber-800">{importantCount}</div>
-            <div className="font-semibold text-gray-700">Important</div>
+          <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] px-3 py-2">
+            <div className="text-lg font-bold text-[var(--tge-governance-attention-text)]">{importantCount}</div>
+            <div className="font-semibold text-[var(--tge-governance-neutral-text)]">Important</div>
           </div>
-          <div className="border border-blue-100 bg-white px-3 py-2">
-            <div className="text-lg font-bold text-blue-800">{workflowCount}</div>
-            <div className="font-semibold text-gray-700">Workflow</div>
+          <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-3 py-2">
+            <div className="text-lg font-bold text-[var(--tge-governance-info-text)]">{workflowCount}</div>
+            <div className="font-semibold text-[var(--tge-governance-neutral-text)]">Workflow</div>
           </div>
-          <div className="border border-gray-200 bg-[#fafafa] px-3 py-2">
-            <div className="text-lg font-bold text-[#1f2937]">{changedCount}</div>
-            <div className="font-semibold text-gray-700">Edited</div>
+          <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-2">
+            <div className={`text-lg font-bold ${formClass.title}`}>{changedCount}</div>
+            <div className="font-semibold text-[var(--tge-governance-neutral-text)]">Edited</div>
           </div>
         </div>
 
         {approvalChangedCount > 0 ? (
-          <div className="border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900">
+          <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-3 py-2 text-xs leading-5 text-[var(--tge-governance-attention-text)]">
             {approvalChangedCount} approval-sensitive field
             {approvalChangedCount === 1 ? "" : "s"} edited. Approved records
             should be re-reviewed before export-ready use.
           </div>
         ) : null}
 
-        <div className="border-t border-gray-200 pt-4">
-          <div className="text-xs font-bold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] pt-4">
+          <div className={`text-xs font-bold uppercase tracking-wide ${formClass.muted}`}>
             Actions
           </div>
-          <p className="mt-1 text-xs leading-5 text-gray-600">
+          <p className={`mt-1 text-xs leading-5 ${formClass.body}`}>
             Same save action as the bottom form button; review and approval stay
             separate.
           </p>
           <div className="mt-3 grid gap-2">
             <button
-              className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              className={formClass.primaryButton}
               disabled={saving}
               type="submit"
             >
               {saving ? "Saving..." : "Save Draft / Staging Record"}
             </button>
             <Link
-              className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className={formClass.secondaryButton}
               href={backHref}
             >
               Cancel
@@ -682,8 +726,8 @@ function FormWorkflowRail({
             <div
               className={`mt-3 border px-3 py-2 text-xs leading-5 ${
                 error
-                  ? "border-red-200 bg-red-50 text-red-800"
-                  : "border-green-200 bg-green-50 text-green-800"
+                  ? "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]"
+                  : "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]"
               }`}
             >
               {error || message}
@@ -692,12 +736,12 @@ function FormWorkflowRail({
         </div>
 
         <nav className="space-y-1">
-          <div className="text-xs font-bold uppercase tracking-wide text-gray-500">
+          <div className={`text-xs font-bold uppercase tracking-wide ${formClass.muted}`}>
             Sections
           </div>
           {sections.map((section) => (
             <a
-              className="block border border-transparent px-2 py-1.5 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:bg-[#f3f8ec] hover:text-[#4f7f1f]"
+              className="block border border-transparent px-2 py-1.5 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] hover:text-[var(--tge-brand-green-dark)]"
               href={`#${sectionAnchorId(section)}`}
               key={section}
             >
@@ -722,7 +766,7 @@ function FormNotice({
   return (
     <>
       {error ? (
-        <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <div className={formClass.dangerNotice}>
           <div>{error}</div>
           {errorIssues.length > 0 ? (
             <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5">
@@ -734,7 +778,7 @@ function FormNotice({
         </div>
       ) : null}
       {message ? (
-        <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+        <div className={formClass.successNotice}>
           {message}
         </div>
       ) : null}
@@ -757,14 +801,14 @@ function hasAnyValue(form: EntityFormValues, names: string[]) {
 
 function issueTone(severity: FormReadinessIssue["severity"]) {
   if (severity === "critical") {
-    return "border-red-200 bg-white text-red-800";
+    return "border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-danger-text)]";
   }
 
   if (severity === "important") {
-    return "border-amber-200 bg-white text-amber-900";
+    return "border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-attention-text)]";
   }
 
-  return "border-blue-200 bg-white text-blue-900";
+  return "border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-info-text)]";
 }
 
 function issueMeaning(severity: FormReadinessIssue["severity"]) {
@@ -789,9 +833,9 @@ function ReadinessMeaningCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-3 py-2.5">
+    <div className={`${formClass.panel} px-3 py-2.5`}>
       <PostgresStatusBadge domain="severity" label={label} value={severity} />
-      <p className="mt-2 text-xs leading-5 text-gray-600">{children}</p>
+      <p className={`mt-2 text-xs leading-5 ${formClass.body}`}>{children}</p>
     </div>
   );
 }
@@ -932,25 +976,25 @@ function FormReadinessPanel({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+    <section className={formClass.panel}>
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">Form Readiness</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <h2 className={`text-lg font-bold ${formClass.title}`}>Form Readiness</h2>
+          <p className={`mt-2 max-w-3xl text-sm leading-6 ${formClass.body}`}>
             Live guidance for this staging {entityLabel}. Drafts can still be
             saved while critical and important gaps remain; review, approval,
             and export-ready actions apply stricter checks.
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-3 md:flex md:flex-wrap md:justify-end">
-          <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+          <span className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             {criticalCount} critical
           </span>
-          <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+          <span className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             {importantCount} important
           </span>
           {changeState ? (
-            <span className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800">
+            <span className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-attention-text)]">
               {changedCount} edited
             </span>
           ) : null}
@@ -973,18 +1017,18 @@ function FormReadinessPanel({
         </div>
 
         {issueActionError ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className={formClass.dangerNotice}>
             {issueActionError}
           </div>
         ) : null}
         {issueActionMessage ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className={formClass.successNotice}>
             {issueActionMessage}
           </div>
         ) : null}
 
         {changeState && changedCount > 0 ? (
-          <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+          <div className={formClass.attentionNotice}>
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <span className="font-semibold">
@@ -1007,13 +1051,13 @@ function FormReadinessPanel({
                     {approvalSensitiveFields.slice(0, 8).map((fieldName) => (
                       <span
                         key={fieldName}
-                        className="border border-amber-200 bg-white px-2 py-1 text-xs font-semibold text-amber-900"
+                        className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-xs font-semibold text-[var(--tge-governance-attention-text)]"
                       >
                         {formatFieldLabel(fieldName)}
                       </span>
                     ))}
                     {approvalSensitiveFields.length > 8 ? (
-                      <span className="border border-amber-200 bg-white px-2 py-1 text-xs font-semibold text-amber-900">
+                      <span className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-xs font-semibold text-[var(--tge-governance-attention-text)]">
                         +{approvalSensitiveFields.length - 8} more
                       </span>
                     ) : null}
@@ -1022,7 +1066,7 @@ function FormReadinessPanel({
               </div>
               {issueContext && approvalSensitiveFields.length > 0 ? (
                 <button
-                  className="h-9 shrink-0 border border-amber-300 bg-white px-3 text-xs font-semibold text-amber-900 hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="h-9 shrink-0 border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                   disabled={Boolean(creatingIssueKey)}
                   type="button"
                   onClick={createEditedFieldsIssue}
@@ -1037,7 +1081,7 @@ function FormReadinessPanel({
         ) : null}
 
         {issues.length === 0 ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className={formClass.successNotice}>
             No form-level gaps detected. Source/evidence and company-role links
             are still checked in their separate workflows.
           </div>
@@ -1067,7 +1111,7 @@ function FormReadinessPanel({
                     <div className="grid shrink-0 grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                       {fieldHref ? (
                         <a
-                          className="inline-flex h-8 items-center justify-center border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white"
+                          className="inline-flex h-8 items-center justify-center border border-current bg-[var(--tge-surface-card)]/70 px-3 text-xs font-semibold hover:bg-[var(--tge-surface-card)]"
                           href={fieldHref}
                         >
                           Go To Field
@@ -1075,7 +1119,7 @@ function FormReadinessPanel({
                       ) : null}
                       {issueContext ? (
                         <button
-                          className="h-8 border border-current bg-white/70 px-3 text-xs font-semibold hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                          className="h-8 border border-current bg-[var(--tge-surface-card)]/70 px-3 text-xs font-semibold hover:bg-[var(--tge-surface-card)] disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={Boolean(creatingIssueKey)}
                           type="button"
                           onClick={() =>
@@ -1416,21 +1460,21 @@ function FormActions({
   backHref: string;
 }) {
   return (
-    <div className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm leading-6 text-gray-600">
+    <div className={`flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between ${formClass.panel}`}>
+      <p className={`text-sm leading-6 ${formClass.body}`}>
         Save writes a governed draft even when non-critical fields are
         incomplete. Submit/review, approval, export-ready status, source links,
         company relationships, and promotion workflows stay governed separately.
       </p>
       <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-2 sm:flex sm:flex-wrap">
         <Link
-          className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          className={formClass.secondaryButton.replace("h-9", "h-10")}
           href={backHref}
         >
           Cancel
         </Link>
         <button
-          className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+          className={`${formClass.primaryButton} px-5`}
           disabled={saving}
           type="submit"
         >
@@ -1505,20 +1549,20 @@ function WorkflowQuickActions({
     .filter((group) => group.actions.length > 0);
 
   return (
-    <div className="mb-3 border border-blue-100 bg-blue-50 px-3 py-3">
+    <div className="mb-3 border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 py-3">
       <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
         <div>
-          <h3 className="text-sm font-bold text-blue-950">
+          <h3 className="text-sm font-bold text-[var(--tge-governance-info-text)]">
             Post-save workflow actions
           </h3>
-          <p className="mt-1 text-[11px] leading-5 text-blue-900">
+          <p className="mt-1 text-[11px] leading-5 text-[var(--tge-governance-info-text)]">
             {saved
               ? `Move this ${entityLabel.toLowerCase()} from draft editing into evidence, relationships, and review.`
               : `Save the ${entityLabel.toLowerCase()} draft first to unlock evidence, relationships, and review workspaces.`}
           </p>
         </div>
         {mode === "create" ? (
-          <span className="inline-flex min-h-7 items-center justify-center border border-blue-200 bg-white px-2 text-[11px] font-semibold uppercase tracking-wide text-blue-900">
+          <span className="inline-flex min-h-7 items-center justify-center border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
             Save first
           </span>
         ) : null}
@@ -1529,19 +1573,19 @@ function WorkflowQuickActions({
 
           return (
             <section
-              className="border border-blue-100 bg-white/50 px-2.5 py-2.5"
+              className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)]/50 px-2.5 py-2.5"
               key={group}
             >
               <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-blue-700">
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-governance-info-text)]">
                     {meta.eyebrow}
                   </div>
-                  <h4 className="mt-1 text-xs font-bold text-blue-950">
+                  <h4 className="mt-1 text-xs font-bold text-[var(--tge-governance-info-text)]">
                     {meta.title}
                   </h4>
                 </div>
-                <p className="max-w-xl text-[11px] leading-5 text-blue-800">
+                <p className="max-w-xl text-[11px] leading-5 text-[var(--tge-governance-info-text)]">
                   {meta.description}
                 </p>
               </div>
@@ -1549,23 +1593,23 @@ function WorkflowQuickActions({
                 {groupActions.map((action) =>
                   action.href ? (
                     <Link
-                      className="border border-blue-200 bg-white px-2.5 py-1.5 text-[11px] leading-5 text-blue-950 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-2.5 py-1.5 text-[11px] leading-5 text-[var(--tge-governance-info-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                       href={action.href}
                       key={action.label}
                     >
                       <div className="font-bold">{action.label}</div>
-                      <div className="mt-0.5 text-blue-800">
+                      <div className="mt-0.5 text-[var(--tge-governance-info-text)]">
                         {action.description}
                       </div>
                     </Link>
                   ) : (
                     <div
-                      className="border border-blue-100 bg-white/70 px-2.5 py-1.5 text-[11px] leading-5 text-blue-700 opacity-70"
+                      className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)]/70 px-2.5 py-1.5 text-[11px] leading-5 text-[var(--tge-governance-info-text)] opacity-70"
                       key={action.label}
                     >
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-bold">{action.label}</span>
-                        <span className="border border-blue-100 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700">
+                        <span className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
                           After Save
                         </span>
                       </div>
