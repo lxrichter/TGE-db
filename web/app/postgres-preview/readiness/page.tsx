@@ -105,6 +105,57 @@ function formatFileSize(value: number) {
   })} MB`;
 }
 
+const readinessClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8",
+  sectionHeader:
+    "flex flex-col gap-4 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 lg:flex-row lg:items-end lg:justify-between",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  neutral: "text-[var(--tge-governance-neutral-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  smallLabel:
+    "text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  action:
+    "inline-flex h-10 w-full items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto",
+  warningPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5",
+  warningText: "text-[var(--tge-governance-attention-text)]",
+  progressTrack:
+    "h-1.5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]",
+  gateRow:
+    "flex flex-col gap-3 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-3 md:flex-row md:items-center md:justify-between",
+  details:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  detailsBodyMobile:
+    "divide-y divide-[var(--tge-governance-muted-border)] border-t border-[var(--tge-governance-neutral-border)] lg:hidden",
+  detailsBodyDesktop:
+    "hidden overflow-x-auto border-t border-[var(--tge-governance-neutral-border)] lg:block",
+  neutralBadge:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] text-[var(--tge-governance-neutral-text)]",
+  neutralBadgeSolid:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  tableDivider: "divide-y divide-[var(--tge-governance-muted-border)]",
+  tableRow:
+    "align-top transition-colors hover:bg-[var(--tge-governance-success-bg)]",
+  tableCell: "px-5 py-4 text-[var(--tge-governance-neutral-text)]",
+  tableLink:
+    "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  gapLink:
+    "inline-flex h-7 items-center border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-attention-text)] hover:underline",
+  inlineLink:
+    "text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+  criticalText: "text-[var(--tge-governance-danger-text)]",
+};
+
 function StatTile({
   label,
   value,
@@ -117,7 +168,8 @@ function StatTile({
   tone?: "neutral" | "good" | "warning" | "critical";
 }) {
   const toneClass = {
-    neutral: "border-gray-200 bg-white text-[#1f2937]",
+    neutral:
+      "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)]",
     good: postgresStatusToneClass("success"),
     warning: postgresStatusToneClass("attention"),
     critical: postgresStatusToneClass("danger"),
@@ -143,11 +195,11 @@ function MigrationRehearsalPanel({
 }) {
   if (!migration) {
     return (
-      <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-        <h2 className="text-lg font-bold text-amber-900">
+      <section className={readinessClass.warningPanel}>
+        <h2 className={`text-lg font-bold ${readinessClass.warningText}`}>
           Migration Rehearsal
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+        <p className={`mt-2 max-w-3xl text-sm leading-6 ${readinessClass.warningText}`}>
           No live SQLite migration rehearsal run is recorded in PostgreSQL yet.
           Before internal replacement, run a fresh backup import, transform, and
           validation pass.
@@ -162,13 +214,13 @@ function MigrationRehearsalPanel({
     migration.error_warning_count === 0;
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-end lg:justify-between">
+    <section className={readinessClass.panel}>
+      <div className={readinessClass.sectionHeader}>
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${readinessClass.title}`}>
             Latest Migration Rehearsal
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className={`mt-1 text-sm leading-6 ${readinessClass.body}`}>
             Latest recorded live SQLite import, transform, and validation pass.
           </p>
         </div>
@@ -184,45 +236,45 @@ function MigrationRehearsalPanel({
       </div>
       <div className="grid gap-3 px-5 py-5 md:grid-cols-2 lg:grid-cols-4">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={readinessClass.label}>
             Run
           </div>
-          <div className="mt-1 font-semibold text-[#1f2937]">
+          <div className={`mt-1 font-semibold ${readinessClass.title}`}>
             {migration.run_label}
           </div>
-          <div className="mt-1 text-xs text-gray-500">{migration.status}</div>
+          <div className={`mt-1 text-xs ${readinessClass.muted}`}>{migration.status}</div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={readinessClass.label}>
             Source Backup
           </div>
-          <div className="mt-1 font-semibold text-[#1f2937]">
+          <div className={`mt-1 font-semibold ${readinessClass.title}`}>
             {migration.source_database_file_name || "not recorded"}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className={`mt-1 text-xs ${readinessClass.muted}`}>
             {formatFileSize(migration.source_database_size_bytes)}
           </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={readinessClass.label}>
             Validation
           </div>
-          <div className="mt-1 font-semibold text-[#1f2937]">
+          <div className={`mt-1 font-semibold ${readinessClass.title}`}>
             {formatCount(migration.validation_pass_count)} pass ·{" "}
             {formatCount(migration.validation_fail_count)} fail
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className={`mt-1 text-xs ${readinessClass.muted}`}>
             {formatCount(migration.warning_count)} warning rows
           </div>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={readinessClass.label}>
             Completed
           </div>
-          <div className="mt-1 font-semibold text-[#1f2937]">
+          <div className={`mt-1 font-semibold ${readinessClass.title}`}>
             {formatDate(migration.validation_completed_at)}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className={`mt-1 text-xs ${readinessClass.muted}`}>
             Transform {formatDate(migration.transform_completed_at)}
           </div>
         </div>
@@ -236,7 +288,7 @@ function ProgressBar({ value }: { value: number }) {
   const barClass = postgresStatusBarClass("success");
 
   return (
-    <div className="h-1.5 overflow-hidden bg-gray-100">
+    <div className={readinessClass.progressTrack}>
       <div className={`h-full ${barClass}`} style={{ width: `${bounded}%` }} />
     </div>
   );
@@ -266,10 +318,10 @@ function GateRow({
   }[status];
 
   return (
-    <div className="flex flex-col gap-3 border border-gray-200 bg-white px-4 py-3 md:flex-row md:items-center md:justify-between">
+    <div className={readinessClass.gateRow}>
       <div>
-        <div className="font-semibold text-[#1f2937]">{label}</div>
-        <div className="mt-1 text-xs leading-5 text-gray-500">{detail}</div>
+        <div className={`font-semibold ${readinessClass.title}`}>{label}</div>
+        <div className={`mt-1 text-xs leading-5 ${readinessClass.muted}`}>{detail}</div>
       </div>
       <span
         className={`inline-flex h-7 shrink-0 items-center border px-2 text-xs font-semibold ${statusClass}`}
@@ -289,10 +341,10 @@ function ReadinessMobileField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={readinessClass.smallLabel}>
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className={`mt-1 min-w-0 text-sm ${readinessClass.neutral}`}>{children}</div>
     </div>
   );
 }
@@ -317,13 +369,13 @@ function ReadinessTable({
   const startsOpen = criticalIssueCount > 0;
 
   return (
-    <details className="border border-gray-200 bg-white" open={startsOpen}>
+    <details className={readinessClass.details} open={startsOpen}>
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${readinessClass.title}`}>
             Entity Readiness Signals
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className={`mt-1 text-sm leading-6 ${readinessClass.body}`}>
             Cutover worklist by entity family, with counts linking back to
             filtered staging pages.
           </p>
@@ -342,7 +394,7 @@ function ReadinessTable({
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
               openIssueCount > 0
                 ? postgresStatusToneClass("attention")
-                : "border-gray-200 bg-[#f7f7f7] text-gray-600"
+                : readinessClass.neutralBadge
             }`}
           >
             {formatCount(openIssueCount)} open issues
@@ -351,18 +403,18 @@ function ReadinessTable({
             className={`inline-flex min-h-8 items-center justify-center border px-3 text-xs font-semibold uppercase tracking-wide ${
               sourceGapCount > 0
                 ? postgresStatusToneClass("attention")
-                : "border-gray-200 bg-[#f7f7f7] text-gray-600"
+                : readinessClass.neutralBadge
             }`}
           >
             {formatCount(sourceGapCount)} source gaps
           </span>
-          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={readinessClass.neutralBadgeSolid}>
             {startsOpen ? "Open" : "Expand"}
           </span>
         </div>
       </summary>
 
-      <div className="divide-y divide-gray-100 border-t border-gray-200 lg:hidden">
+      <div className={readinessClass.detailsBodyMobile}>
         {entities.map((entity) => {
           const coverage = share(
             entity.approved_or_export_ready_count,
@@ -378,19 +430,19 @@ function ReadinessTable({
           return (
             <article key={entity.entity_type} className="px-4 py-4 sm:px-5">
               <Link
-                className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                className={readinessClass.tableLink}
                 href={entityPath(entity.entity_type)}
               >
                 {entity.label}
               </Link>
-              <div className="mt-1 text-xs text-gray-500">
+              <div className={`mt-1 text-xs ${readinessClass.muted}`}>
                 {formatCount(entity.record_count)} items · Updated{" "}
                 {formatDate(entity.latest_update_at)}
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <ReadinessMobileField label="Readiness">
-                  <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
+                  <div className={`flex items-center justify-between gap-3 text-xs ${readinessClass.neutral}`}>
                     <span>{formatPercent(coverage)}</span>
                     <span>
                       {formatCount(entity.approved_or_export_ready_count)} ready
@@ -399,7 +451,7 @@ function ReadinessTable({
                   <div className="mt-2">
                     <ProgressBar value={coverage} />
                   </div>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={`mt-1 text-xs ${readinessClass.muted}`}>
                     {formatCount(entity.draft_or_validation_count)} draft /
                     validation
                   </div>
@@ -407,13 +459,13 @@ function ReadinessTable({
                 <ReadinessMobileField label="Source / Link Gaps">
                   <div className="flex flex-wrap gap-2">
                     <Link
-                      className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                      className={readinessClass.gapLink}
                       href={missingPath(entity.entity_type, "source")}
                     >
                       {formatCount(entity.missing_source_count)} source
                     </Link>
                     <Link
-                      className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                      className={readinessClass.gapLink}
                       href={missingPath(entity.entity_type, "company_link")}
                     >
                       {formatCount(entity.missing_company_link_count)} links
@@ -422,7 +474,7 @@ function ReadinessTable({
                 </ReadinessMobileField>
                 <ReadinessMobileField label="Core Gaps">
                   {formatCount(coreGaps)} total
-                  <div className="mt-1 text-xs leading-5 text-gray-500">
+                  <div className={`mt-1 text-xs leading-5 ${readinessClass.muted}`}>
                     {formatCount(entity.missing_country_count)} country ·{" "}
                     {formatCount(entity.missing_country_reference_count)} geo ref ·{" "}
                     {formatCount(entity.missing_use_or_status_count)} class ·{" "}
@@ -432,7 +484,7 @@ function ReadinessTable({
                 </ReadinessMobileField>
                 <ReadinessMobileField label="Issues">
                   {formatCount(entity.open_issue_count)} open
-                  <div className="mt-1 text-xs text-red-600">
+                  <div className={`mt-1 text-xs ${readinessClass.criticalText}`}>
                     {formatCount(entity.critical_issue_count)} critical
                   </div>
                 </ReadinessMobileField>
@@ -442,9 +494,9 @@ function ReadinessTable({
         })}
       </div>
 
-      <div className="hidden overflow-x-auto border-t border-gray-200 lg:block">
+      <div className={readinessClass.detailsBodyDesktop}>
         <table className="min-w-[920px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={readinessClass.tableHead}>
             <tr>
               <th className="w-[22%] px-5 py-3 font-semibold">Area</th>
               <th className="w-[24%] px-5 py-3 font-semibold">Readiness</th>
@@ -453,7 +505,7 @@ function ReadinessTable({
               <th className="w-[14%] px-5 py-3 font-semibold">Open</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={readinessClass.tableDivider}>
             {entities.map((entity) => {
               const coverage = share(
                 entity.approved_or_export_ready_count,
@@ -469,24 +521,24 @@ function ReadinessTable({
               return (
                 <tr
                   key={entity.entity_type}
-                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                  className={readinessClass.tableRow}
                 >
                   <td className="px-5 py-4">
                     <Link
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={readinessClass.tableLink}
                       href={entityPath(entity.entity_type)}
                     >
                       {entity.label}
                     </Link>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${readinessClass.muted}`}>
                       {formatCount(entity.record_count)} items
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${readinessClass.muted}`}>
                       Updated {formatDate(entity.latest_update_at)}
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
+                    <div className={`flex items-center justify-between gap-3 text-xs ${readinessClass.neutral}`}>
                       <span>{formatPercent(coverage)}</span>
                       <span>
                         {formatCount(entity.approved_or_export_ready_count)} ready
@@ -495,30 +547,30 @@ function ReadinessTable({
                     <div className="mt-2">
                       <ProgressBar value={coverage} />
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${readinessClass.muted}`}>
                       {formatCount(entity.draft_or_validation_count)} draft /
                       validation
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${readinessClass.muted}`}>
                       {formatCount(entity.needs_update_count)} need re-review
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={readinessClass.tableCell}>
                     <div className="flex flex-wrap gap-2">
                       <Link
-                        className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                        className={readinessClass.gapLink}
                         href={missingPath(entity.entity_type, "source")}
                       >
                         {formatCount(entity.missing_source_count)} source
                       </Link>
                       <Link
-                        className="inline-flex h-7 items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-700 hover:underline"
+                        className={readinessClass.gapLink}
                         href={missingPath(entity.entity_type, "company_link")}
                       >
                         {formatCount(entity.missing_company_link_count)} links
                       </Link>
                     </div>
-                    <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
+                    <div className={`mt-2 line-clamp-2 text-xs leading-5 ${readinessClass.muted}`}>
                       {formatCount(coreGaps)} core gaps:{" "}
                       {formatCount(entity.missing_country_count)} country ·{" "}
                       {formatCount(entity.missing_country_reference_count)} geo ref ·{" "}
@@ -527,15 +579,15 @@ function ReadinessTable({
                       {formatCount(entity.missing_coordinates_count)} coords
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={readinessClass.tableCell}>
                     <div>{formatCount(entity.open_issue_count)} open</div>
-                    <div className="mt-1 text-xs text-red-600">
+                    <div className={`mt-1 text-xs ${readinessClass.criticalText}`}>
                       {formatCount(entity.critical_issue_count)} critical
                     </div>
                   </td>
                   <td className="px-5 py-4">
                     <Link
-                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      className={readinessClass.inlineLink}
                       href={entityPath(entity.entity_type)}
                     >
                       Worklist
@@ -580,17 +632,17 @@ export default async function PostgresReadinessPage() {
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={readinessClass.panel}>
+        <div className={readinessClass.hero}>
+          <p className={readinessClass.kicker}>
             Cutover Governance
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className={`text-3xl font-bold tracking-tight sm:text-4xl ${readinessClass.title}`}>
                 Replacement Readiness
               </h1>
-              <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
+              <p className={`mt-4 max-w-4xl text-sm leading-6 sm:text-base sm:leading-7 ${readinessClass.body}`}>
                 Live operational signals for deciding when the PostgreSQL
                 platform is ready to replace the current internal SQLite site.
                 This is a cutover-planning view, not the final executive
@@ -599,13 +651,13 @@ export default async function PostgresReadinessPage() {
             </div>
             <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <Link
-                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+                className={readinessClass.action}
                 href="/postgres-preview"
               >
                 Back to Command Center
               </Link>
               <Link
-                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+                className={readinessClass.action}
                 href="/postgres-preview/research-ops"
               >
                 Research Ops
