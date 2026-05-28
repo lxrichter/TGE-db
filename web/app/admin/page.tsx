@@ -2,6 +2,13 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 import ActionButton from "@/components/ui/ActionButton";
+import {
+  analysisCategoryLabels,
+  analysisCategoryOrder,
+  analysisModules,
+  analysisModulesByCategory,
+  analysisModulesByStatus,
+} from "@/lib/analysis/modules";
 import { ARTICLE_FACT_TYPE_DEFINITIONS } from "@/lib/articleFactTypeDefinitions";
 import { authOptions } from "@/lib/auth/auth";
 import {
@@ -186,6 +193,88 @@ function GovernanceRule({
   );
 }
 
+function AnalysisRegistryOverview() {
+  const liveCount = analysisModulesByStatus("live").length;
+  const definitionCount = analysisModulesByStatus("definition_next").length;
+  const plannedCount = analysisModulesByStatus("planned").length;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <GovernanceMetric
+          label="Analysis Modules"
+          value={analysisModules.length}
+          note="Live, definition, and planned modules"
+        />
+        <GovernanceMetric
+          label="Live"
+          value={liveCount}
+          note="Available in the analysis workspace"
+        />
+        <GovernanceMetric
+          label="Define Next"
+          value={definitionCount}
+          note="Needs scope before implementation"
+        />
+        <GovernanceMetric
+          label="Planned"
+          value={plannedCount}
+          note="Visible backlog for future analysis"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="border border-gray-200 bg-[#fafafa] p-4">
+          <div className="text-sm font-bold text-[#1f2937]">
+            Domain Coverage
+          </div>
+          <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
+            {analysisCategoryOrder.map((category) => {
+              const modules = analysisModulesByCategory(category);
+              const live = modules.filter(
+                (module) => module.status === "live"
+              ).length;
+              const definition = modules.filter(
+                (module) => module.status === "definition_next"
+              ).length;
+              const planned = modules.filter(
+                (module) => module.status === "planned"
+              ).length;
+
+              return (
+                <div key={category} className="border border-gray-200 bg-white px-3 py-2">
+                  <div className="text-xs font-bold text-[#1f2937]">
+                    {analysisCategoryLabels[category]}
+                  </div>
+                  <div className="mt-1 text-[11px] text-gray-500">
+                    {live} live · {definition} define · {planned} planned
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <GovernanceRule
+            title="Analysis pages need definition before build"
+            text="New analysis modules should define source basis, primary measures, weighting logic, and data prerequisites before becoming live."
+          />
+          <GovernanceRule
+            title="Design doctrine should map to modules"
+            text="The design phase can style live modules consistently because each analysis page now belongs to a governed domain."
+          />
+          <div className="flex flex-wrap items-center gap-3 border border-gray-200 bg-[#fafafa] px-4 py-3">
+            <ActionButton href="/analysis" variant="primary">
+              Open Analysis Workspace
+            </ActionButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FaqItem({
   question,
   children,
@@ -281,6 +370,7 @@ export default async function AdminPage() {
             {isUserManager ? <TocLink href="#access" label="User Access" /> : null}
             <TocLink href="#workflow" label="Workflow" />
             <TocLink href="#governance" label="Governance" />
+            <TocLink href="#analysis-registry" label="Analysis Registry" />
             <TocLink href="#classification" label="Company Logic" />
             <TocLink href="#linking" label="Linking Rules" />
             <TocLink href="#company-link-roles" label="Company Link Roles" />
@@ -399,6 +489,14 @@ export default async function AdminPage() {
             Error: {governanceSnapshot.error}
           </div>
         )}
+      </SectionCard>
+
+      <SectionCard
+        id="analysis-registry"
+        title="Analysis Registry Governance"
+        description="Admin overview of live analysis pages, definition-next modules, and future benchmark domains."
+      >
+        <AnalysisRegistryOverview />
       </SectionCard>
 
       <SectionCard
