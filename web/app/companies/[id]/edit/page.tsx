@@ -250,10 +250,30 @@ const companyEditClass = {
   errorText: "text-[var(--tge-governance-danger-text)]",
   successPanel:
     "border-l-4 border-l-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]",
+  attentionPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
+  primaryButton:
+    "bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] transition hover:bg-[var(--tge-brand-green-dark)] disabled:opacity-50",
   secondaryButton:
     "inline-flex items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-medium text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+  smallButton:
+    "border border-[var(--tge-border-strong)] px-2 py-1 text-[11px] font-medium text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]",
+  smallDangerButton:
+    "border border-[var(--tge-governance-danger-border)] px-2 py-1 text-[11px] font-medium text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)]",
   outlineSuccessButton:
     "border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--tge-brand-green-dark)] transition hover:bg-[var(--tge-governance-success-bg)] disabled:opacity-50",
+  tableWrap: "overflow-x-auto border border-[var(--tge-governance-neutral-border)]",
+  tableHead: "bg-[var(--tge-surface-subtle)]",
+  tableHeaderCell: "px-4 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]",
+  tableRow: "border-b border-[var(--tge-governance-neutral-border)] hover:bg-[var(--tge-surface-subtle)]",
+  tableCell: "px-4 py-2.5 text-[var(--tge-text-secondary)]",
+  tableMutedCell: "px-4 py-2.5 font-mono text-[11px] text-[var(--tge-governance-muted-text)]",
+  tableLink:
+    "font-medium text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  messageSuccess:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 py-2 text-sm font-medium text-[var(--tge-governance-success-text)]",
+  messageDanger:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-3 py-2 text-sm font-medium text-[var(--tge-governance-danger-text)]",
 };
 
 function ReviewStatusBadge({ value }: { value: string }) {
@@ -1931,15 +1951,15 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Linked Projects">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Link this company to projects using structured asset-level roles. Use Operator for integrated operation. Use Operator Power and Operator Steam only where operation is split. Do not add generic Operator if split operator roles are already used. Use Ownership % mainly for Owner, and where relevant Investor.
           </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
             <div className="xl:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">Project *</label>
+              <label className={companyEditClass.blockLabel}>Project *</label>
               <select
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
                 value={linkProjectForm.project_id}
                 onChange={(e) => {
                   setLinkProjectForm((prev) => ({
@@ -1960,9 +1980,9 @@ export default function EditCompanyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Role *</label>
+              <label className={companyEditClass.blockLabel}>Role *</label>
               <select
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
                 value={linkProjectForm.role}
                 onChange={(e) => {
                   setLinkProjectForm((prev) => ({
@@ -2025,7 +2045,7 @@ export default function EditCompanyPage() {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-gray-700">
+            <label className={`flex items-center gap-2 text-sm ${companyEditClass.body}`}>
               <input
                 type="checkbox"
                 checked={linkProjectForm.is_primary}
@@ -2044,7 +2064,7 @@ export default function EditCompanyPage() {
               type="button"
               onClick={editingProjectLinkId ? updateProjectLink : addProjectLink}
               disabled={isLinkingProject}
-              className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              className={companyEditClass.primaryButton}
             >
               {isLinkingProject
                 ? editingProjectLinkId
@@ -2059,7 +2079,7 @@ export default function EditCompanyPage() {
               <button
                 type="button"
                 onClick={cancelEditProjectLink}
-                className="border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className={companyEditClass.secondaryButton}
               >
                 Cancel Edit
               </button>
@@ -2067,18 +2087,18 @@ export default function EditCompanyPage() {
 
             {linkProjectMessage ? (
               <div
-                className={`rounded px-3 py-2 text-sm font-medium ${
+                className={
                   linkProjectMessage.toLowerCase().includes("success")
-                    ? "border border-green-200 bg-green-50 text-green-700"
-                    : "border border-red-200 bg-red-50 text-red-700"
-                }`}
+                    ? companyEditClass.messageSuccess
+                    : companyEditClass.messageDanger
+                }
               >
                 {linkProjectMessage}
               </div>
             ) : null}
           </div>
 
-          <div className="mt-6 overflow-x-auto border border-gray-200">
+          <div className={`mt-6 ${companyEditClass.tableWrap}`}>
             <table className="min-w-full table-fixed text-left text-[12px]">
               <colgroup>
                 <col className="w-[12%]" />
@@ -2089,48 +2109,48 @@ export default function EditCompanyPage() {
                 <col className="w-[8%]" />
                 <col className="w-[18%]" />
               </colgroup>
-              <thead className="bg-[#f7f7f7]">
-                <tr className="border-b border-gray-200">
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Project ID</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Project Name</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Role</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Role Detail</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Ownership %</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Primary</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Action</th>
+              <thead className={companyEditClass.tableHead}>
+                <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                  <th className={companyEditClass.tableHeaderCell}>Project ID</th>
+                  <th className={companyEditClass.tableHeaderCell}>Project Name</th>
+                  <th className={companyEditClass.tableHeaderCell}>Role</th>
+                  <th className={companyEditClass.tableHeaderCell}>Role Detail</th>
+                  <th className={companyEditClass.tableHeaderCell}>Ownership %</th>
+                  <th className={companyEditClass.tableHeaderCell}>Primary</th>
+                  <th className={companyEditClass.tableHeaderCell}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {projectLinks.map((row) => (
-                  <tr key={row.company_project_link_id} className="border-b border-gray-200">
-                    <td className="px-4 py-2.5 font-mono text-[11px] text-gray-500">
+                  <tr key={row.company_project_link_id} className={companyEditClass.tableRow}>
+                    <td className={companyEditClass.tableMutedCell}>
                       {row.project_id}
                     </td>
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/projects/${row.project_id}`}
-                        className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                        className={companyEditClass.tableLink}
                       >
                         {row.project_name || row.project_id}
                       </Link>
                     </td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.role || "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.role_detail || "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.ownership_share ?? "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.is_primary ? "Yes" : "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.role || "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.role_detail || "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.ownership_share ?? "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.is_primary ? "Yes" : "NA"}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => startEditProjectLink(row)}
-                          className="border border-gray-300 px-2 py-1 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
+                          className={companyEditClass.smallButton}
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => deleteProjectLink(row.company_project_link_id)}
-                          className="border border-red-300 px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50"
+                          className={companyEditClass.smallDangerButton}
                         >
                           Delete
                         </button>
@@ -2141,7 +2161,7 @@ export default function EditCompanyPage() {
 
                 {projectLinks.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-6 text-center text-sm text-gray-500">
+                    <td colSpan={7} className={`px-4 py-6 text-center text-sm ${companyEditClass.muted}`}>
                       No project links yet.
                     </td>
                   </tr>
@@ -2152,15 +2172,15 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Linked Plants">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Link this company to plants using structured asset-level roles. Use Operator for integrated operation. Use Operator Power and Operator Steam only where operation is split. Do not add generic Operator if split operator roles are already used. Use Ownership % mainly for Owner, and where relevant Investor.
           </p>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-6">
             <div className="xl:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">Plant *</label>
+              <label className={companyEditClass.blockLabel}>Plant *</label>
               <select
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
                 value={linkPlantForm.plant_id}
                 onChange={(e) => {
                   setLinkPlantForm((prev) => ({
@@ -2181,9 +2201,9 @@ export default function EditCompanyPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Role *</label>
+              <label className={companyEditClass.blockLabel}>Role *</label>
               <select
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
                 value={linkPlantForm.role}
                 onChange={(e) => {
                   setLinkPlantForm((prev) => ({
@@ -2246,7 +2266,7 @@ export default function EditCompanyPage() {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-gray-700">
+            <label className={`flex items-center gap-2 text-sm ${companyEditClass.body}`}>
               <input
                 type="checkbox"
                 checked={linkPlantForm.is_primary}
@@ -2265,7 +2285,7 @@ export default function EditCompanyPage() {
               type="button"
               onClick={editingPlantLinkId ? updatePlantLink : addPlantLink}
               disabled={isLinkingPlant}
-              className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              className={companyEditClass.primaryButton}
             >
               {isLinkingPlant
                 ? editingPlantLinkId
@@ -2280,7 +2300,7 @@ export default function EditCompanyPage() {
               <button
                 type="button"
                 onClick={cancelEditPlantLink}
-                className="border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className={companyEditClass.secondaryButton}
               >
                 Cancel Edit
               </button>
@@ -2288,18 +2308,18 @@ export default function EditCompanyPage() {
 
             {linkPlantMessage ? (
               <div
-                className={`rounded px-3 py-2 text-sm font-medium ${
+                className={
                   linkPlantMessage.toLowerCase().includes("success")
-                    ? "border border-green-200 bg-green-50 text-green-700"
-                    : "border border-red-200 bg-red-50 text-red-700"
-                }`}
+                    ? companyEditClass.messageSuccess
+                    : companyEditClass.messageDanger
+                }
               >
                 {linkPlantMessage}
               </div>
             ) : null}
           </div>
 
-          <div className="mt-6 overflow-x-auto border border-gray-200">
+          <div className={`mt-6 ${companyEditClass.tableWrap}`}>
             <table className="min-w-full table-fixed text-left text-[12px]">
               <colgroup>
                 <col className="w-[12%]" />
@@ -2310,48 +2330,48 @@ export default function EditCompanyPage() {
                 <col className="w-[8%]" />
                 <col className="w-[18%]" />
               </colgroup>
-              <thead className="bg-[#f7f7f7]">
-                <tr className="border-b border-gray-200">
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Plant ID</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Plant Name</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Role</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Role Detail</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Ownership %</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Primary</th>
-                  <th className="px-4 py-2.5 font-semibold text-gray-700">Action</th>
+              <thead className={companyEditClass.tableHead}>
+                <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                  <th className={companyEditClass.tableHeaderCell}>Plant ID</th>
+                  <th className={companyEditClass.tableHeaderCell}>Plant Name</th>
+                  <th className={companyEditClass.tableHeaderCell}>Role</th>
+                  <th className={companyEditClass.tableHeaderCell}>Role Detail</th>
+                  <th className={companyEditClass.tableHeaderCell}>Ownership %</th>
+                  <th className={companyEditClass.tableHeaderCell}>Primary</th>
+                  <th className={companyEditClass.tableHeaderCell}>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {plantLinks.map((row) => (
-                  <tr key={row.company_plant_link_id} className="border-b border-gray-200">
-                    <td className="px-4 py-2.5 font-mono text-[11px] text-gray-500">
+                  <tr key={row.company_plant_link_id} className={companyEditClass.tableRow}>
+                    <td className={companyEditClass.tableMutedCell}>
                       {row.plant_id}
                     </td>
                     <td className="px-4 py-2.5">
                       <Link
                         href={`/plants/${row.plant_id}`}
-                        className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                        className={companyEditClass.tableLink}
                       >
                         {row.plant_name || row.plant_id}
                       </Link>
                     </td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.role || "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.role_detail || "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.ownership_share ?? "NA"}</td>
-                    <td className="px-4 py-2.5 text-gray-600">{row.is_primary ? "Yes" : "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.role || "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.role_detail || "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.ownership_share ?? "NA"}</td>
+                    <td className={companyEditClass.tableCell}>{row.is_primary ? "Yes" : "NA"}</td>
                     <td className="px-4 py-2.5">
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => startEditPlantLink(row)}
-                          className="border border-gray-300 px-2 py-1 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
+                          className={companyEditClass.smallButton}
                         >
                           Edit
                         </button>
                         <button
                           type="button"
                           onClick={() => deletePlantLink(row.company_plant_link_id)}
-                          className="border border-red-300 px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50"
+                          className={companyEditClass.smallDangerButton}
                         >
                           Delete
                         </button>
@@ -2362,7 +2382,7 @@ export default function EditCompanyPage() {
 
                 {plantLinks.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-6 text-center text-sm text-gray-500">
+                    <td colSpan={7} className={`px-4 py-6 text-center text-sm ${companyEditClass.muted}`}>
                       No plant links yet.
                     </td>
                   </tr>
@@ -2373,13 +2393,13 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Company Relationships">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Record company-to-company relationships here, such as parent, subsidiary, affiliate,
             investor, or shareholder relationships. Do not use this section for project or plant
             participation roles.
           </p>
 
-          <div className="mb-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className={`mb-4 px-4 py-3 text-sm ${companyEditClass.attentionPanel}`}>
             <div className="font-semibold">How to use relationship direction</div>
             <div className="mt-1 space-y-1 text-xs md:text-sm">
               <div>
@@ -2400,11 +2420,11 @@ export default function EditCompanyPage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className={companyEditClass.blockLabel}>
                 Related Company
               </label>
               <select
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
                 value={relationshipForm.company_id_to}
                 onChange={(e) => {
                   setRelationshipForm((prev) => ({
@@ -2424,7 +2444,7 @@ export default function EditCompanyPage() {
                     </option>
                   ))}
               </select>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${companyEditClass.muted}`}>
                 The current company is intentionally excluded to prevent self-links.
               </p>
             </div>
@@ -2476,7 +2496,7 @@ export default function EditCompanyPage() {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-sm text-gray-700">
+            <label className={`flex items-center gap-2 text-sm ${companyEditClass.body}`}>
               <input
                 type="checkbox"
                 checked={relationshipForm.is_current}
@@ -2495,7 +2515,7 @@ export default function EditCompanyPage() {
               type="button"
               onClick={editingRelationshipId ? updateRelationship : addCompanyRelationship}
               disabled={isLinkingRelationship}
-              className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              className={companyEditClass.primaryButton}
             >
               {isLinkingRelationship
                 ? editingRelationshipId
@@ -2510,7 +2530,7 @@ export default function EditCompanyPage() {
               <button
                 type="button"
                 onClick={cancelEditRelationship}
-                className="border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className={companyEditClass.secondaryButton}
               >
                 Cancel Edit
               </button>
@@ -2518,11 +2538,11 @@ export default function EditCompanyPage() {
 
             {relationshipMessage ? (
               <div
-                className={`rounded px-3 py-2 text-sm font-medium ${
+                className={
                   relationshipMessage.toLowerCase().includes("success")
-                    ? "border border-green-200 bg-green-50 text-green-700"
-                    : "border border-red-200 bg-red-50 text-red-700"
-                }`}
+                    ? companyEditClass.messageSuccess
+                    : companyEditClass.messageDanger
+                }
               >
                 {relationshipMessage}
               </div>
@@ -2530,8 +2550,8 @@ export default function EditCompanyPage() {
           </div>
 
           <div className="mt-6 grid gap-6 xl:grid-cols-2">
-            <div className="overflow-x-auto border border-gray-200">
-              <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-2.5 text-sm font-semibold text-gray-700">
+            <div className={companyEditClass.tableWrap}>
+              <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-2.5 text-sm font-semibold text-[var(--tge-governance-neutral-text)]">
                 Outgoing Relationships
               </div>
               <table className="min-w-full table-fixed text-left text-[12px]">
@@ -2542,39 +2562,39 @@ export default function EditCompanyPage() {
                   <col className="w-[14%]" />
                   <col className="w-[18%]" />
                 </colgroup>
-                <thead className="bg-[#f7f7f7]">
-                  <tr className="border-b border-gray-200">
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Relationship</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Related Company</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Ownership</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Current</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Action</th>
+                <thead className={companyEditClass.tableHead}>
+                  <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                    <th className={companyEditClass.tableHeaderCell}>Relationship</th>
+                    <th className={companyEditClass.tableHeaderCell}>Related Company</th>
+                    <th className={companyEditClass.tableHeaderCell}>Ownership</th>
+                    <th className={companyEditClass.tableHeaderCell}>Current</th>
+                    <th className={companyEditClass.tableHeaderCell}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {outgoingRelationships.map((row) => (
-                    <tr key={row.company_relationship_id} className="border-b border-gray-200">
-                      <td className="px-4 py-2.5 text-gray-600">
+                    <tr key={row.company_relationship_id} className={companyEditClass.tableRow}>
+                      <td className={companyEditClass.tableCell}>
                         {row.relationship_type || "NA"}
                       </td>
                       <td className="px-4 py-2.5">
                         {row.related_company_id ? (
                           <Link
                             href={`/companies/${row.related_company_id}`}
-                            className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                            className={companyEditClass.tableLink}
                           >
                             {row.related_company_name || row.related_company_id}
                           </Link>
                         ) : (
-                          <span className="text-gray-600">
+                          <span className={companyEditClass.body}>
                             {row.related_company_name || "NA"}
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-2.5 text-gray-600">
+                      <td className={companyEditClass.tableCell}>
                         {row.ownership_percentage ?? "NA"}
                       </td>
-                      <td className="px-4 py-2.5 text-gray-600">
+                      <td className={companyEditClass.tableCell}>
                         {row.is_current ? "Yes" : "No"}
                       </td>
                       <td className="px-4 py-2.5">
@@ -2582,14 +2602,14 @@ export default function EditCompanyPage() {
                           <button
                             type="button"
                             onClick={() => startEditRelationship(row)}
-                            className="border border-gray-300 px-2 py-1 text-[11px] font-medium text-gray-700 hover:bg-gray-50"
+                            className={companyEditClass.smallButton}
                           >
                             Edit
                           </button>
                           <button
                             type="button"
                             onClick={() => deleteRelationship(row.company_relationship_id)}
-                            className="border border-red-300 px-2 py-1 text-[11px] font-medium text-red-700 hover:bg-red-50"
+                            className={companyEditClass.smallDangerButton}
                           >
                             Delete
                           </button>
@@ -2600,7 +2620,7 @@ export default function EditCompanyPage() {
 
                   {outgoingRelationships.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
+                      <td colSpan={5} className={`px-4 py-6 text-center text-sm ${companyEditClass.muted}`}>
                         No outgoing relationships yet.
                       </td>
                     </tr>
@@ -2609,8 +2629,8 @@ export default function EditCompanyPage() {
               </table>
             </div>
 
-            <div className="overflow-x-auto border border-gray-200">
-              <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-2.5 text-sm font-semibold text-gray-700">
+            <div className={companyEditClass.tableWrap}>
+              <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-2.5 text-sm font-semibold text-[var(--tge-governance-neutral-text)]">
                 Incoming Relationships
               </div>
               <table className="min-w-full table-fixed text-left text-[12px]">
@@ -2621,42 +2641,42 @@ export default function EditCompanyPage() {
                   <col className="w-[14%]" />
                   <col className="w-[18%]" />
                 </colgroup>
-                <thead className="bg-[#f7f7f7]">
-                  <tr className="border-b border-gray-200">
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Relationship</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Related Company</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Ownership</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Current</th>
-                    <th className="px-4 py-2.5 font-semibold text-gray-700">Action</th>
+                <thead className={companyEditClass.tableHead}>
+                  <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                    <th className={companyEditClass.tableHeaderCell}>Relationship</th>
+                    <th className={companyEditClass.tableHeaderCell}>Related Company</th>
+                    <th className={companyEditClass.tableHeaderCell}>Ownership</th>
+                    <th className={companyEditClass.tableHeaderCell}>Current</th>
+                    <th className={companyEditClass.tableHeaderCell}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {incomingRelationships.map((row) => (
-                    <tr key={row.company_relationship_id} className="border-b border-gray-200">
-                      <td className="px-4 py-2.5 text-gray-600">
+                    <tr key={row.company_relationship_id} className={companyEditClass.tableRow}>
+                      <td className={companyEditClass.tableCell}>
                         {row.relationship_type || "NA"}
                       </td>
                       <td className="px-4 py-2.5">
                         {row.related_company_id ? (
                           <Link
                             href={`/companies/${row.related_company_id}`}
-                            className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                            className={companyEditClass.tableLink}
                           >
                             {row.related_company_name || row.related_company_id}
                           </Link>
                         ) : (
-                          <span className="text-gray-600">
+                          <span className={companyEditClass.body}>
                             {row.related_company_name || "NA"}
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-2.5 text-gray-600">
+                      <td className={companyEditClass.tableCell}>
                         {row.ownership_percentage ?? "NA"}
                       </td>
-                      <td className="px-4 py-2.5 text-gray-600">
+                      <td className={companyEditClass.tableCell}>
                         {row.is_current ? "Yes" : "No"}
                       </td>
-                      <td className="px-4 py-2.5 text-gray-500">
+                      <td className={`px-4 py-2.5 ${companyEditClass.muted}`}>
                         Manage from source company
                       </td>
                     </tr>
@@ -2664,7 +2684,7 @@ export default function EditCompanyPage() {
 
                   {incomingRelationships.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-500">
+                      <td colSpan={5} className={`px-4 py-6 text-center text-sm ${companyEditClass.muted}`}>
                         No incoming relationships yet.
                       </td>
                     </tr>
