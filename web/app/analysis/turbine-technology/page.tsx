@@ -93,19 +93,19 @@ type SupplierChartItem = {
 };
 
 const TECH_COLORS: Record<TechChartKey, string> = {
-  "Back Pressure": "#1f4e79",
-  "B-ORC": "#4aa34a",
-  Flash: "#7cc95f",
-  "Dry Steam": "#c6dfb8",
-  Other: "#c9c9c9",
+  "Back Pressure": "var(--tge-chart-technology-back-pressure)",
+  "B-ORC": "var(--tge-chart-technology-binary-orc)",
+  Flash: "var(--tge-chart-technology-flash)",
+  "Dry Steam": "var(--tge-chart-technology-dry-steam)",
+  Other: "var(--tge-chart-technology-other)",
 };
 
 const SUPPLIER_CHART_COLORS = [
-  "#1f4e79",
-  "#4aa34a",
-  "#7cc95f",
-  "#c6dfb8",
-  "#c9c9c9",
+  "var(--tge-chart-technology-back-pressure)",
+  "var(--tge-chart-technology-binary-orc)",
+  "var(--tge-chart-technology-flash)",
+  "var(--tge-chart-technology-dry-steam)",
+  "var(--tge-chart-technology-other)",
 ];
 
 const CHART_DARK_TEXT = "var(--tge-text-primary)";

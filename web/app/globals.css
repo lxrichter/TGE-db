@@ -86,6 +86,12 @@
   --tge-status-bar-pre-feasibility: #a78bfa;
   --tge-status-bar-feasibility: #2dd4bf;
 
+  --tge-chart-technology-back-pressure: #1f4e79;
+  --tge-chart-technology-binary-orc: #4aa34a;
+  --tge-chart-technology-flash: #7cc95f;
+  --tge-chart-technology-dry-steam: #c6dfb8;
+  --tge-chart-technology-other: #c9c9c9;
+
   --tge-map-marker-plant: #64a542;
   --tge-map-marker-project: #e8a56c;
   --tge-map-marker-stroke: #ffffff;
