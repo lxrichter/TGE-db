@@ -44,11 +44,14 @@ function MapFilterGroup({
   defaultOpen?: boolean;
 }) {
   return (
-    <details className="border-t border-gray-200 pt-2" open={defaultOpen}>
-      <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-wide text-gray-500 marker:hidden">
+    <details
+      className="border-t border-[var(--tge-governance-neutral-border)] pt-2"
+      open={defaultOpen}
+    >
+      <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] marker:hidden">
         {title}
         {note ? (
-          <span className="ml-2 normal-case tracking-normal text-gray-400">
+          <span className="ml-2 normal-case tracking-normal text-[var(--tge-governance-muted-text)]">
             {note}
           </span>
         ) : null}
@@ -66,12 +69,12 @@ function FutureFilterRow({
   values: string[];
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-2.5 py-2">
+    <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2.5 py-2">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
           {label}
         </span>
-        <span className="border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+        <span className="border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
           Planned
         </span>
       </div>
@@ -79,7 +82,7 @@ function FutureFilterRow({
         {values.map((value) => (
           <span
             key={value}
-            className="inline-flex min-h-6 items-center border border-gray-200 bg-white px-2 text-[11px] font-semibold text-gray-500"
+            className="inline-flex min-h-6 items-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-2 text-[11px] font-semibold text-[var(--tge-governance-muted-text)]"
           >
             {value}
           </span>
@@ -89,8 +92,21 @@ function FutureFilterRow({
   );
 }
 
+function cssToken(name: string, fallback: string) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
+    fallback
+  );
+}
+
 function markerColor(type: "plant" | "project") {
-  return type === "project" ? "#E8A56C" : "#64A542";
+  return type === "project"
+    ? cssToken("--tge-map-marker-project", "#e8a56c")
+    : cssToken("--tge-map-marker-plant", "#64a542");
 }
 
 function popupAccentClass(type: "plant" | "project") {
@@ -130,25 +146,35 @@ function popupPhaseBadgeStyle(phase: string) {
     "display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:4px 12px;font-size:11px;font-weight:600;line-height:1;border:1px solid transparent;";
 
   if (normalized.includes("prospect")) {
-    style += "background:#94a3b8;border-color:#94a3b8;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-prospect-bg);border-color:var(--tge-lifecycle-prospect-border);color:var(--tge-lifecycle-prospect-text);";
   } else if (normalized.includes("exploration")) {
-    style += "background:#f59e0b;border-color:#f59e0b;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-exploration-bg);border-color:var(--tge-lifecycle-exploration-border);color:var(--tge-lifecycle-exploration-text);";
   } else if (normalized.includes("pre-feasibility")) {
-    style += "background:#84cc16;border-color:#84cc16;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-pre-feasibility-bg);border-color:var(--tge-lifecycle-pre-feasibility-border);color:var(--tge-lifecycle-pre-feasibility-text);";
   } else if (normalized.includes("feasibility")) {
-    style += "background:#3b82f6;border-color:#3b82f6;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-feasibility-bg);border-color:var(--tge-lifecycle-feasibility-border);color:var(--tge-lifecycle-feasibility-text);";
   } else if (normalized.includes("construction")) {
-    style += "background:#14b8a6;border-color:#14b8a6;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-construction-bg);border-color:var(--tge-lifecycle-construction-border);color:var(--tge-lifecycle-construction-text);";
   } else if (normalized.includes("operating")) {
-    style += "background:#8dc63f;border-color:#8dc63f;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-operating-bg);border-color:var(--tge-lifecycle-operating-border);color:var(--tge-lifecycle-operating-text);";
   } else if (normalized.includes("stalled")) {
-    style += "background:#f97316;border-color:#f97316;color:#ffffff;";
+    style +=
+      "background:var(--tge-governance-attention-bg);border-color:var(--tge-governance-attention-border);color:var(--tge-governance-attention-text);";
   } else if (normalized.includes("cancelled")) {
-    style += "background:#dc2626;border-color:#dc2626;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-cancelled-bg);border-color:var(--tge-lifecycle-cancelled-border);color:var(--tge-lifecycle-cancelled-text);";
   } else if (normalized.includes("tbd")) {
-    style += "background:#f1f5f9;border-color:#e2e8f0;color:#475569;";
+    style +=
+      "background:var(--tge-governance-muted-bg);border-color:var(--tge-governance-muted-border);color:var(--tge-governance-muted-text);";
   } else {
-    style += "background:#e2e8f0;border-color:#cbd5e1;color:#475569;";
+    style +=
+      "background:var(--tge-governance-neutral-bg);border-color:var(--tge-governance-neutral-border);color:var(--tge-governance-neutral-text);";
   }
 
   return style;
@@ -398,7 +424,7 @@ export default function GroupedMap({
 
         const circle = L.circleMarker([lat, lng], {
           radius: 6,
-          color: "#ffffff",
+          color: cssToken("--tge-map-marker-stroke", "#ffffff"),
           weight: 1.5,
           fillColor: markerColor(item.type),
           fillOpacity: 1,
@@ -516,11 +542,11 @@ export default function GroupedMap({
     : "h-[620px] w-full sm:h-[760px]";
   const filterPanelVisible = showFilterPanel;
   const filterPanelClass = isExpandedMap
-    ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[288px]"
-    : "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-gray-200 bg-white shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[260px]";
+    ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[288px]"
+    : "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[260px]";
 
   return (
-    <div className="relative border border-gray-200 bg-white">
+    <div className="relative border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
       <div ref={mapRef} className={mapHeightClass} />
 
       <div className="pointer-events-none absolute inset-0 z-[1000]">
@@ -532,14 +558,14 @@ export default function GroupedMap({
               setIsExpandedMap(nextExpandedState);
               setShowFilterPanel(!nextExpandedState);
             }}
-            className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold text-[var(--tge-governance-neutral-text)] shadow-sm hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           >
             {isExpandedMap ? "Standard Mode" : "Expanded Map"}
           </button>
           <button
             type="button"
             onClick={() => setShowFilterPanel((current) => !current)}
-            className="border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-sm hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold text-[var(--tge-governance-neutral-text)] shadow-sm hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           >
             {showFilterPanel ? "Hide Filters" : "Show Filters"}
           </button>
@@ -547,13 +573,13 @@ export default function GroupedMap({
 
         {filterPanelVisible ? (
           <div className={filterPanelClass}>
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-3 py-2.5">
+          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 py-2.5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-wide text-[#1f2937]">
+                <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--tge-text-primary)]">
                   Spatial Filters
                 </h2>
-                <p className="mt-1 text-[11px] leading-4 text-gray-500">
+                <p className="mt-1 text-[11px] leading-4 text-[var(--tge-governance-muted-text)]">
                   Filter coordinate-confirmed projects and plants.
                 </p>
               </div>
@@ -561,7 +587,7 @@ export default function GroupedMap({
                 <button
                   type="button"
                   onClick={() => setShowFilterPanel(false)}
-                  className="shrink-0 border border-gray-300 bg-white px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  className="shrink-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                 >
                   Hide
                 </button>
@@ -572,7 +598,7 @@ export default function GroupedMap({
           <div className="space-y-2 px-3 py-2.5">
             <MapFilterGroup note="visible markers" title="Layers">
               <div className="space-y-1.5 text-sm">
-                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-2.5 py-1.5">
+                <label className="flex items-center justify-between border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2.5 py-1.5">
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -581,12 +607,12 @@ export default function GroupedMap({
                     />
                     <span>Plants</span>
                   </div>
-                  <span className="font-semibold text-[#64A542]">
+                  <span className="font-semibold text-[var(--tge-map-marker-plant)]">
                     {data.plants.length}
                   </span>
                 </label>
 
-                <label className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-2.5 py-1.5">
+                <label className="flex items-center justify-between border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2.5 py-1.5">
                   <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -595,7 +621,7 @@ export default function GroupedMap({
                     />
                     <span>Projects</span>
                   </div>
-                  <span className="font-semibold text-[#E8A56C]">
+                  <span className="font-semibold text-[var(--tge-map-marker-project)]">
                     {data.projects.length}
                   </span>
                 </label>
@@ -605,13 +631,13 @@ export default function GroupedMap({
             <MapFilterGroup note="market scope" title="Geography">
               <div className="space-y-1.5">
                 <label className="block">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                     {countryFilterLabel}
                   </span>
                   <select
                     value={countryFilter}
                     onChange={(e) => setCountryFilter(e.target.value)}
-                    className="mt-1 w-full border border-gray-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
+                    className="mt-1 w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2.5 py-1.5 text-sm outline-none focus:border-[var(--tge-brand-green)]"
                   >
                     {countryOptions.map((country) => (
                       <option key={country} value={country}>
@@ -622,13 +648,13 @@ export default function GroupedMap({
                 </label>
 
                 <label className="block">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                     {regionFilterLabel}
                   </span>
                   <select
                     value={regionFilter}
                     onChange={(e) => setRegionFilter(e.target.value)}
-                    className="mt-1 w-full border border-gray-300 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#8dc63f]"
+                    className="mt-1 w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2.5 py-1.5 text-sm outline-none focus:border-[var(--tge-brand-green)]"
                   >
                     {regionOptions.map((region) => (
                       <option key={region} value={region}>
@@ -668,8 +694,8 @@ export default function GroupedMap({
                   onClick={() => setViewMode("map")}
                   className={`flex-1 border px-3 py-1.5 text-xs font-semibold ${
                     viewMode === "map"
-                      ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
-                      : "border-gray-300 bg-white text-gray-700"
+                      ? "border-[var(--tge-brand-dark)] bg-[var(--tge-brand-dark)] text-[var(--tge-surface-card)]"
+                      : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)]"
                   }`}
                 >
                   Terrain
@@ -680,8 +706,8 @@ export default function GroupedMap({
                   onClick={() => setViewMode("satellite")}
                   className={`flex-1 border px-3 py-1.5 text-xs font-semibold ${
                     viewMode === "satellite"
-                      ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
-                      : "border-gray-300 bg-white text-gray-700"
+                      ? "border-[var(--tge-brand-dark)] bg-[var(--tge-brand-dark)] text-[var(--tge-surface-card)]"
+                      : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)]"
                   }`}
                 >
                   Satellite
@@ -690,7 +716,7 @@ export default function GroupedMap({
             </MapFilterGroup>
 
             <MapFilterGroup defaultOpen={false} title="Map Notes">
-              <div className="space-y-2 text-xs text-gray-600">
+              <div className="space-y-2 text-xs text-[var(--tge-text-secondary)]">
                 <p>
                   One marker per <strong>Plant Group</strong> or{" "}
                   <strong>Project Group</strong>. Coordinates use average group
@@ -699,14 +725,14 @@ export default function GroupedMap({
                 <div className="flex items-center gap-2">
                   <span
                     className="inline-block h-3 w-3"
-                    style={{ backgroundColor: "#64A542" }}
+                    style={{ backgroundColor: "var(--tge-map-marker-plant)" }}
                   />
                   <span>Plants</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span
                     className="inline-block h-3 w-3"
-                    style={{ backgroundColor: "#E8A56C" }}
+                    style={{ backgroundColor: "var(--tge-map-marker-project)" }}
                   />
                   <span>Projects</span>
                 </div>
