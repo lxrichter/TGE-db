@@ -121,6 +121,26 @@ const emptyForm: CompanyFormData = {
   edited_description: "Initial company record created",
 };
 
+const formClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 md:px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  label: "mb-1 flex items-center text-sm font-medium text-[var(--tge-text-primary)]",
+  blockLabel: "mb-1 block text-sm font-medium text-[var(--tge-text-primary)]",
+  input:
+    "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  disabledInput:
+    "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-subtle)] text-[var(--tge-governance-muted-text)]",
+  errorInput:
+    "rounded-none border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-text-primary)] ring-2 ring-[var(--tge-governance-danger-border)]",
+  helperPanel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+};
+
 async function safeJson(res: Response) {
   try {
     const text = await res.text();
@@ -284,16 +304,16 @@ export default function NewCompanyPage() {
     <div className="mx-auto max-w-7xl px-4 py-5 md:px-6 md:py-8">
       <div className="mb-5 flex flex-col gap-4 md:mb-8 md:flex-row md:items-start md:justify-between md:gap-6">
         <div className="max-w-3xl space-y-3">
-          <h1 className="text-2xl font-bold tracking-tight text-[#1f2937] md:text-3xl">
+          <h1 className={`text-2xl font-bold tracking-tight md:text-3xl ${formClass.title}`}>
             New Company
           </h1>
 
-          <p className="text-sm text-gray-600">
+          <p className={`text-sm ${formClass.body}`}>
             Create a new company profile.
           </p>
 
-          <div className="border-l-4 border-l-[#8dc63f] bg-[#f6fbef] px-4 py-3 md:px-5">
-            <p className="text-sm leading-relaxed text-[#1f2937]">
+          <div className="border-l-4 border-l-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-4 py-3 md:px-5">
+            <p className={`text-sm leading-relaxed ${formClass.title}`}>
               <span className="font-semibold">Workflow:</span>{" "}
               {COMPANY_FIELD_HELP.workflowNew}
             </p>
@@ -309,13 +329,13 @@ export default function NewCompanyPage() {
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6">
         {error ? (
-          <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] p-4 text-sm text-[var(--tge-governance-danger-text)]">
             {error}
           </div>
         ) : null}
 
         <Section title="Core Identification">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Enter the legal company identity and standard naming fields used
             across the database.
           </p>
@@ -357,7 +377,7 @@ export default function NewCompanyPage() {
         </Section>
 
         <Section title="Web & External Presence">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Add official public links and core external references for the company.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -377,7 +397,7 @@ export default function NewCompanyPage() {
         </Section>
 
         <Section title="Entity & Classification">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Use this section to describe what the company broadly is. Do not use
             it for project- or plant-specific participation such as owner,
             operator, EPC, drilling, investor, or supplier roles — those are
@@ -403,7 +423,7 @@ export default function NewCompanyPage() {
             />
 
             <div>
-              <label className="mb-1 flex items-center text-sm font-medium text-gray-700">
+              <label className={formClass.label}>
                 <span>Secondary Types</span>
                 <FieldHelp
                   title="Secondary Types"
@@ -425,8 +445,8 @@ export default function NewCompanyPage() {
                   }));
                 }}
                 className={`min-h-[180px] w-full rounded-none border px-3 py-2 text-sm outline-none md:min-h-[220px] ${fieldErrors.company_type_secondary
-                  ? "border-red-500 bg-red-50 ring-2 ring-red-100"
-                  : "border-gray-300 bg-white focus:border-[#8dc63f]"
+                  ? formClass.errorInput
+                  : formClass.input
                   }`}
               >
                 {COMPANY_TYPE_SECONDARY_GROUPS.map((group) => (
@@ -441,12 +461,12 @@ export default function NewCompanyPage() {
               </select>
 
               {fieldErrors.company_type_secondary ? (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-xs text-[var(--tge-governance-danger-text)]">
                   {fieldErrors.company_type_secondary}
                 </p>
               ) : null}
 
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${formClass.muted}`}>
                 Hold Ctrl/Cmd to select multiple. Maximum 3 selections. Use for
                 capabilities, not asset-level roles.
               </p>
@@ -456,7 +476,7 @@ export default function NewCompanyPage() {
                   {form.company_type_secondary.map((item) => (
                     <span
                       key={item}
-                      className="inline-flex border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-700"
+                      className="inline-flex border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-1 text-xs text-[var(--tge-governance-neutral-text)]"
                     >
                       {item}
                     </span>
@@ -505,7 +525,7 @@ export default function NewCompanyPage() {
             />
 
             <div>
-              <label className="mb-1 flex items-center text-sm font-medium text-gray-700">
+              <label className={formClass.label}>
                 <span>Is Group Parent</span>
                 <FieldHelp
                   title="Is Group Parent"
@@ -516,7 +536,7 @@ export default function NewCompanyPage() {
               <select
                 value={form.parent_company_id ? "0" : "1"}
                 disabled
-                className="w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-500"
+                className={`w-full px-3 py-2 text-sm ${formClass.disabledInput}`}
               >
                 {YES_NO_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -529,20 +549,20 @@ export default function NewCompanyPage() {
         </Section>
 
         <Section title="Group / Parent Structure">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Use this section only for company-to-company hierarchy and reporting
             structure. Do not use it for project or plant participation roles.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className={formClass.blockLabel}>
                 Parent Company
               </label>
               <select
                 name="parent_company_id"
                 value={form.parent_company_id}
                 onChange={handleChange}
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${formClass.input}`}
               >
                 <option value="">Select parent company...</option>
                 {companyOptions.map((option) => (
@@ -555,20 +575,20 @@ export default function NewCompanyPage() {
                 ))}
               </select>
 
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${formClass.muted}`}>
                 If no parent is selected, this company is treated as the top-level entity.
               </p>
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className={formClass.blockLabel}>
                 Ultimate Parent Company
               </label>
               <select
                 name="ultimate_parent_company_id"
                 value={form.ultimate_parent_company_id}
                 onChange={handleChange}
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${formClass.input}`}
               >
                 <option value="">Select ultimate parent...</option>
                 {companyOptions.map((option) => (
@@ -613,7 +633,7 @@ export default function NewCompanyPage() {
         </Section>
 
         <Section title="Headquarters & Geography">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Record the company’s main geographic base and reporting regions.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -647,7 +667,7 @@ export default function NewCompanyPage() {
         </Section>
 
         <Section title="Strategic / Market Focus">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Capture the company’s focus areas, capabilities, and market footprint
             in concise narrative form.
           </p>
@@ -682,7 +702,7 @@ export default function NewCompanyPage() {
         </Section>
 
         <Section title="Research & Editorial">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Use this section for research notes, editorial context, and internal tracking.
           </p>
           <div className="space-y-4">
@@ -746,9 +766,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3 md:px-5">
-        <h2 className="text-base font-semibold text-[#1f2937] md:text-lg">
+    <section className={formClass.panel}>
+      <div className={formClass.sectionHeader}>
+        <h2 className={`text-base font-semibold md:text-lg ${formClass.title}`}>
           {title}
         </h2>
       </div>
@@ -782,10 +802,7 @@ function Input({
 }: InputProps) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="mb-1 flex items-center text-sm font-medium text-gray-700"
-      >
+      <label htmlFor={name} className={formClass.label}>
         <span>{label}</span>
         {helpContent ? (
           <FieldHelp title={helpTitle || label} content={helpContent} />
@@ -799,15 +816,15 @@ function Input({
         disabled={disabled}
         required={required}
         className={`w-full rounded-none border px-3 py-2 text-sm outline-none ${error
-          ? "border-red-500 bg-red-50 ring-2 ring-red-100"
+          ? formClass.errorInput
           : disabled
-            ? "border-gray-300 bg-gray-100 text-gray-500"
-            : "border-gray-300 bg-white focus:border-[#8dc63f]"
+            ? formClass.disabledInput
+            : formClass.input
           }`}
       />
 
       {error ? (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className="mt-1 text-xs text-[var(--tge-governance-danger-text)]">{error}</p>
       ) : null}
     </div>
   );
@@ -832,10 +849,7 @@ function Textarea({
 }: TextareaProps) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="mb-1 block text-sm font-medium text-gray-700"
-      >
+      <label htmlFor={name} className={formClass.blockLabel}>
         {label}
       </label>
       <textarea
@@ -846,8 +860,8 @@ function Textarea({
         rows={rows}
         disabled={disabled}
         className={`w-full rounded-none border px-3 py-2 text-sm outline-none ${disabled
-          ? "border-gray-300 bg-gray-100 text-gray-500"
-          : "border-gray-300 bg-white focus:border-[#8dc63f]"
+          ? formClass.disabledInput
+          : formClass.input
           }`}
       />
     </div>
