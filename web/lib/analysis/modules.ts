@@ -18,6 +18,8 @@ export type AnalysisModule = {
   sourceBasis: string;
   primaryMeasures: string[];
   nextDefinition?: string;
+  definitionQuestions?: string[];
+  dataPrerequisites?: string[];
 };
 
 export const analysisStatusLabels: Record<AnalysisModuleStatus, string> = {
@@ -97,6 +99,16 @@ export const analysisModules: AnalysisModule[] = [
     ],
     nextDefinition:
       "Confirm which relationship roles count as developer, co-developer, resource owner, or sponsor.",
+    definitionQuestions: [
+      "Which company-to-project roles count as developer, co-developer, resource owner, sponsor, or public agency?",
+      "Should planned MWe be fully attributed to every developer link, or weighted when a role/share field exists?",
+      "Should construction-stage projects be separated from earlier pipeline phases in the primary ranking?",
+    ],
+    dataPrerequisites: [
+      "Normalized company-to-project role vocabulary",
+      "Project phase and planned MWe coverage",
+      "Country and TGE region references for market drilldowns",
+    ],
   },
   {
     id: "company-role-analysis",
@@ -114,6 +126,16 @@ export const analysisModules: AnalysisModule[] = [
     ],
     nextDefinition:
       "Define role grouping rules so similar roles roll up consistently across projects and plants.",
+    definitionQuestions: [
+      "Which roles should be grouped under developer, operator, owner, EPC, drilling, supplier, investor, utility, and public agency?",
+      "Should project roles and plant roles appear in one combined view or separate benchmark tabs?",
+      "Which role groups should count MWe and which should only count linked profiles or activity footprint?",
+    ],
+    dataPrerequisites: [
+      "Normalized role group taxonomy",
+      "Evidence-linked company-to-project and company-to-plant relationships",
+      "Consistent plant installed MWe and project planned MWe fields",
+    ],
   },
   {
     id: "project-phase-analysis",
@@ -128,6 +150,16 @@ export const analysisModules: AnalysisModule[] = [
       "Project count",
       "Phase share",
       "Source gaps",
+    ],
+    definitionQuestions: [
+      "Which project phases should be part of the public-facing lifecycle vocabulary?",
+      "Should Prospect/TBD be shown as Prospect, Unknown, or excluded from strategic pipeline charts?",
+      "Which phases should be considered export-ready without additional review?",
+    ],
+    dataPrerequisites: [
+      "Normalized project phase values",
+      "Project planned MWe coverage",
+      "Project evidence/source readiness indicators",
     ],
   },
   {
@@ -144,6 +176,16 @@ export const analysisModules: AnalysisModule[] = [
       "Record count",
       "Country footprint",
     ],
+    definitionQuestions: [
+      "Which resource categories should be first-class filters: hydrothermal, EGS, AGS, closed-loop, superhot, or other?",
+      "Should resource type be allowed at both project and plant level?",
+      "How should unknown or mixed resource systems be shown in analysis tables?",
+    ],
+    dataPrerequisites: [
+      "Resource type taxonomy",
+      "Project and plant resource type coverage",
+      "Country and TGE region references for aggregation",
+    ],
   },
   {
     id: "direct-use-analysis",
@@ -159,6 +201,16 @@ export const analysisModules: AnalysisModule[] = [
       "Country footprint",
       "Source coverage",
     ],
+    definitionQuestions: [
+      "Which heat-use categories should be first-class: district heating, industrial heat, agriculture, cooling, balneology, or other?",
+      "Should heat projects and heat plants be analyzed together or separated like power projects and plants?",
+      "Which MWth and annual heat-output fields are reliable enough for benchmark views?",
+    ],
+    dataPrerequisites: [
+      "Normalized geothermal use category",
+      "MWth and heat-output coverage",
+      "Evidence/source confidence for direct-use records",
+    ],
   },
   {
     id: "wellfield-analysis",
@@ -173,6 +225,16 @@ export const analysisModules: AnalysisModule[] = [
       "Production wells",
       "Reinjection wells",
       "Depth indicators",
+    ],
+    definitionQuestions: [
+      "Which well metrics should be mandatory for the first analysis: total wells, production wells, reinjection wells, or drilling depth?",
+      "Should well counts be tied to projects, plants, fields, or all three depending on source context?",
+      "How should historic, planned, and currently active wells be separated?",
+    ],
+    dataPrerequisites: [
+      "Wellfield field normalization",
+      "Unit and depth standardization",
+      "Evidence references for well counts and drilling indicators",
     ],
   },
 ];

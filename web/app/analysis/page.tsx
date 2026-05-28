@@ -75,6 +75,44 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
           </div>
         ) : null}
 
+        {module.definitionQuestions?.length || module.dataPrerequisites?.length ? (
+          <details className="border border-gray-200 bg-[#fafafa] px-3 py-2 text-xs text-gray-700">
+            <summary className="cursor-pointer font-semibold text-[#1f2937]">
+              Definition checklist
+            </summary>
+
+            {module.definitionQuestions?.length ? (
+              <div className="mt-3">
+                <div className="font-semibold uppercase tracking-wide text-gray-500">
+                  Questions to resolve
+                </div>
+                <ul className="mt-2 space-y-1.5">
+                  {module.definitionQuestions.map((question) => (
+                    <li key={question} className="leading-5">
+                      {question}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {module.dataPrerequisites?.length ? (
+              <div className="mt-3">
+                <div className="font-semibold uppercase tracking-wide text-gray-500">
+                  Data prerequisites
+                </div>
+                <ul className="mt-2 space-y-1.5">
+                  {module.dataPrerequisites.map((prerequisite) => (
+                    <li key={prerequisite} className="leading-5">
+                      {prerequisite}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </details>
+        ) : null}
+
         <div
           className={`text-sm font-semibold ${
             isLive ? "text-[#4f7f1f]" : "text-gray-400"
