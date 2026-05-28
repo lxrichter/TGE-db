@@ -85,6 +85,22 @@ const exportBlockingQueueKeys = new Set<ResearchOpsQueueKey>([
   "suspected_duplicates",
 ]);
 
+const opsClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  eyebrow:
+    "text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  primaryButton:
+    "inline-flex h-9 w-full items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] sm:w-auto",
+  secondaryButton:
+    "inline-flex h-9 w-full items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto",
+};
+
 const queueGroupDefinitions: Array<{
   key: QueueGroupKey;
   title: string;
@@ -859,12 +875,12 @@ function SectionIntro({
   description: string;
 }) {
   return (
-    <section className="border border-gray-200 bg-white px-5 py-5">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+    <section className={`${opsClass.panel} px-5 py-5`}>
+      <div className={opsClass.eyebrow}>
         {eyebrow}
       </div>
-      <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{title}</h2>
-      <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+      <h2 className={`mt-2 text-xl font-bold ${opsClass.title}`}>{title}</h2>
+      <p className={`mt-2 max-w-4xl text-sm leading-6 ${opsClass.body}`}>
         {description}
       </p>
     </section>
@@ -905,23 +921,23 @@ function DisclosurePanel({
   return (
     <section
       id={id}
-      className={id ? "scroll-mt-6 border border-gray-200 bg-white" : "border border-gray-200 bg-white"}
+      className={id ? `scroll-mt-6 ${opsClass.panel}` : opsClass.panel}
     >
       <button
-        className="flex w-full flex-col gap-2 border-b border-gray-200 px-5 py-5 text-left md:flex-row md:items-start md:justify-between"
+        className="flex w-full flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-5 text-left md:flex-row md:items-start md:justify-between"
         type="button"
         onClick={toggleOpen}
       >
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <div className={opsClass.eyebrow}>
             {eyebrow}
           </div>
-          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+          <h2 className={`mt-2 text-xl font-bold ${opsClass.title}`}>{title}</h2>
+          <p className={`mt-2 max-w-4xl text-sm leading-6 ${opsClass.body}`}>
             {description}
           </p>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
           {isOpen ? "Collapse" : "Expand"}
         </span>
       </button>
@@ -963,10 +979,14 @@ function OperationalStatusBar({
   }>;
 }) {
   const toneClasses = {
-    critical: "border-red-200 bg-red-50 text-red-800",
-    important: "border-amber-200 bg-amber-50 text-amber-800",
-    workflow: "border-blue-200 bg-blue-50 text-blue-800",
-    neutral: "border-gray-200 bg-white text-[#1f2937]",
+    critical:
+      "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]",
+    important:
+      "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
+    workflow:
+      "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]",
+    neutral:
+      "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)]",
   };
 
   return (
@@ -974,13 +994,13 @@ function OperationalStatusBar({
       {metrics.map((metric) => {
         const content = (
           <>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               {metric.label}
             </div>
-            <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+            <div className={`mt-2 text-3xl font-bold leading-none ${opsClass.title}`}>
               {formatCount(metric.value)}
             </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
               {metric.note}
             </div>
           </>
@@ -990,7 +1010,7 @@ function OperationalStatusBar({
           return (
             <button
               key={metric.label}
-              className={`min-h-[112px] border px-4 py-4 text-left hover:border-[#8dc63f] hover:bg-[#f3f8ec] ${toneClasses[metric.tone]}`}
+              className={`min-h-[112px] border px-4 py-4 text-left hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] ${toneClasses[metric.tone]}`}
               type="button"
               onClick={metric.onClick}
             >
@@ -1026,59 +1046,59 @@ function MyWorkPanel({
   const previewIssues = assignedToMe.slice(0, 5);
 
   return (
-    <section id="my-work" className="scroll-mt-6 border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+    <section id="my-work" className={`scroll-mt-6 ${opsClass.panel}`}>
+      <div className="flex flex-col gap-4 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <div className={opsClass.eyebrow}>
             Human / Team Work
           </div>
-          <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+          <h2 className={`mt-2 text-xl font-bold ${opsClass.title}`}>
             My Work / Team Work
           </h2>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600">
+          <p className={`mt-2 max-w-4xl text-sm leading-6 ${opsClass.body}`}>
             Persistent human-created issues stay separate from generated system
             queues. This is the lightweight assignment layer until formal task
             objects are introduced.
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 text-center sm:grid-cols-3 lg:w-auto">
-          <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
-            <div className="text-2xl font-bold text-[#1f2937]">
+          <div className={`${opsClass.panelSubtle} px-3 py-3`}>
+            <div className={`text-2xl font-bold ${opsClass.title}`}>
               {formatCount(assignedToMe.length)}
             </div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Mine
             </div>
           </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
-            <div className="text-2xl font-bold text-[#1f2937]">
+          <div className={`${opsClass.panelSubtle} px-3 py-3`}>
+            <div className={`text-2xl font-bold ${opsClass.title}`}>
               {formatCount(unassigned.length)}
             </div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Unassigned
             </div>
           </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-3 py-3">
-            <div className="text-2xl font-bold text-[#1f2937]">
+          <div className={`${opsClass.panelSubtle} px-3 py-3`}>
+            <div className={`text-2xl font-bold ${opsClass.title}`}>
               {formatCount(issues.length)}
             </div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Team Open
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-3 sm:flex-row sm:flex-wrap sm:items-center">
         <button
-          className="h-9 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] sm:w-auto"
+          className={opsClass.primaryButton}
           type="button"
           onClick={() => scrollToPageSection("persistent-issues")}
         >
           Review Persistent Issues
         </button>
         <button
-          className="h-9 w-full border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+          className={opsClass.secondaryButton}
           type="button"
           onClick={() => scrollToPageSection("system-queue-groups")}
         >
@@ -1087,18 +1107,18 @@ function MyWorkPanel({
       </div>
 
       {!currentUser ? (
-        <div className="px-5 py-4 text-sm leading-6 text-gray-600">
+        <div className={`px-5 py-4 text-sm leading-6 ${opsClass.body}`}>
           No mapped PostgreSQL user was found for the current session. Assignment
           totals will become personal once the signed-in user maps to
           `app_users`.
         </div>
       ) : previewIssues.length === 0 ? (
-        <div className="px-5 py-4 text-sm leading-6 text-gray-600">
+        <div className={`px-5 py-4 text-sm leading-6 ${opsClass.body}`}>
           No open persistent issues are assigned to{" "}
           {currentUser.name || "the current user"}.
         </div>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-[var(--tge-governance-neutral-border)]">
           {previewIssues.map((issue) => {
             const href = issueHref(issue);
 
@@ -1112,17 +1132,17 @@ function MyWorkPanel({
                     <SeverityBadge severity={issue.severity} />
                     <StatusBadge value={issue.issue_status_label} />
                   </div>
-                  <div className="mt-2 font-semibold text-[#1f2937]">
+                  <div className={`mt-2 font-semibold ${opsClass.title}`}>
                     {issue.title}
                   </div>
-                  <div className="mt-1 text-sm text-gray-600">
+                  <div className={`mt-1 text-sm ${opsClass.body}`}>
                     {issue.name} · {issue.country || "No country"} ·{" "}
                     {issue.issue_type_label}
                   </div>
                 </div>
                 {href ? (
                   <Link
-                    className="inline-flex h-9 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+                    className={opsClass.secondaryButton}
                     href={href}
                   >
                     Open Record
