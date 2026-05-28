@@ -47,6 +47,25 @@ async function readJson(res: Response) {
   }
 }
 
+const vocabClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  header:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  selectedNav: "bg-[var(--tge-governance-success-bg)] text-[var(--tge-text-primary)]",
+  navItem:
+    "bg-[var(--tge-surface-card)] text-[var(--tge-text-secondary)] hover:bg-[var(--tge-surface-subtle)]",
+  successPanel:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]",
+  dangerPanel:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]",
+};
+
 export default function VocabularyManagementPanel({
   initialGroups,
 }: {
@@ -252,14 +271,16 @@ export default function VocabularyManagementPanel({
 
   return (
     <section className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-      <aside className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-4">
-          <h2 className="text-lg font-bold text-[#1f2937]">Vocabulary Groups</h2>
-          <p className="mt-1 text-sm text-gray-500">
+      <aside className={vocabClass.panel}>
+        <div className={`${vocabClass.header} px-5 py-4`}>
+          <h2 className={`text-lg font-bold ${vocabClass.title}`}>
+            Vocabulary Groups
+          </h2>
+          <p className={`mt-1 text-sm ${vocabClass.muted}`}>
             Admin-only governance surface for active controlled terms.
           </p>
         </div>
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-[var(--tge-governance-neutral-border)]">
           {groups.map((group) => {
             const selected = group.key === activeGroup.key;
 
@@ -267,9 +288,7 @@ export default function VocabularyManagementPanel({
               <button
                 key={group.key}
                 className={`block w-full px-5 py-4 text-left ${
-                  selected
-                    ? "bg-[#f3f8ec] text-[#1f2937]"
-                    : "bg-white text-gray-700 hover:bg-[#fbfff7]"
+                  selected ? vocabClass.selectedNav : vocabClass.navItem
                 }`}
                 type="button"
                 onClick={() => {
@@ -282,7 +301,7 @@ export default function VocabularyManagementPanel({
                 }}
               >
                 <span className="block text-sm font-bold">{group.title}</span>
-                <span className="mt-1 block text-xs text-gray-500">
+                <span className={`mt-1 block text-xs ${vocabClass.muted}`}>
                   {group.items.length} term{group.items.length === 1 ? "" : "s"}
                 </span>
               </button>
@@ -292,52 +311,52 @@ export default function VocabularyManagementPanel({
       </aside>
 
       <section className="space-y-5">
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-[#8dc63f] px-6 py-5">
+        <section className={vocabClass.panel}>
+          <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-5">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-[#1f2937]">
+                <h2 className={`text-2xl font-bold ${vocabClass.title}`}>
                   {activeGroup.title}
                 </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+                <p className={`mt-2 max-w-3xl text-sm leading-6 ${vocabClass.body}`}>
                   {activeGroup.description}
                 </p>
               </div>
-              <span className="inline-flex h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+              <span className={`inline-flex h-8 items-center px-3 text-xs font-semibold uppercase tracking-wide ${vocabClass.successPanel}`}>
                 Admin controlled
               </span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 border-t border-gray-200 bg-[#fafafa] px-5 py-4 md:grid-cols-4">
-            <div className="border border-gray-200 bg-white px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className="grid grid-cols-2 gap-3 border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-4 md:grid-cols-4">
+            <div className={`${vocabClass.panel} px-4 py-3`}>
+              <div className={`text-[11px] font-semibold uppercase tracking-wide ${vocabClass.muted}`}>
                 Total Terms
               </div>
-              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-2xl font-bold ${vocabClass.title}`}>
                 {activeGroup.items.length.toLocaleString()}
               </div>
             </div>
-            <div className="border border-[#b7df72] bg-[#eef8dc] px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#4d6b16]">
+            <div className={`${vocabClass.successPanel} px-4 py-3`}>
+              <div className="text-[11px] font-semibold uppercase tracking-wide">
                 Active
               </div>
-              <div className="mt-1 text-2xl font-bold text-[#2e6b1f]">
+              <div className="mt-1 text-2xl font-bold">
                 {activeTermCount.toLocaleString()}
               </div>
             </div>
-            <div className="border border-gray-200 bg-white px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`${vocabClass.panel} px-4 py-3`}>
+              <div className={`text-[11px] font-semibold uppercase tracking-wide ${vocabClass.muted}`}>
                 Inactive
               </div>
-              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-2xl font-bold ${vocabClass.title}`}>
                 {inactiveTermCount.toLocaleString()}
               </div>
             </div>
-            <div className="border border-gray-200 bg-white px-4 py-3">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`${vocabClass.panel} px-4 py-3`}>
+              <div className={`text-[11px] font-semibold uppercase tracking-wide ${vocabClass.muted}`}>
                 Visible
               </div>
-              <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-2xl font-bold ${vocabClass.title}`}>
                 {filteredItems.length.toLocaleString()}
               </div>
             </div>
@@ -345,12 +364,12 @@ export default function VocabularyManagementPanel({
         </section>
 
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className={`px-4 py-3 text-sm font-medium ${vocabClass.dangerPanel}`}>
             {error}
           </div>
         ) : null}
         {message ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className={`px-4 py-3 text-sm font-medium ${vocabClass.successPanel}`}>
             {message}
           </div>
         ) : null}
