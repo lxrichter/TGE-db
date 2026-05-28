@@ -114,6 +114,22 @@ type CompanyTab =
   | "relationships"
   | "notes";
 
+const companyDetailClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  header:
+    "flex min-h-[48px] items-center border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  link:
+    "underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
+  utilityButton:
+    "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+};
+
 function StatusBadge({ value }: { value: string | null }) {
   const text = value || "NA";
   const normalized = text.toLowerCase();
@@ -121,13 +137,17 @@ function StatusBadge({ value }: { value: string | null }) {
   let classes = "inline-flex border px-2 py-0.5 text-[11px] font-semibold ";
 
   if (normalized.includes("done")) {
-    classes += "border-green-200 bg-green-50 text-green-700";
+    classes +=
+      "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]";
   } else if (normalized.includes("progress")) {
-    classes += "border-blue-200 bg-blue-50 text-blue-700";
+    classes +=
+      "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]";
   } else if (normalized.includes("need")) {
-    classes += "border-red-200 bg-red-50 text-red-700";
+    classes +=
+      "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]";
   } else {
-    classes += "border-gray-200 bg-gray-50 text-gray-700";
+    classes +=
+      "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] text-[var(--tge-governance-neutral-text)]";
   }
 
   return <span className={classes}>{text}</span>;
@@ -183,13 +203,13 @@ function renderLinkedText(value: any) {
   const text = value ? String(value).trim() : "";
 
   if (!text || text === "NA") {
-    return <span className="text-gray-700">NA</span>;
+    return <span className={companyDetailClass.body}>NA</span>;
   }
 
   const urls = extractLinks(text);
 
   if (!urls.length) {
-    return <span className="text-gray-700">{text}</span>;
+    return <span className={companyDetailClass.body}>{text}</span>;
   }
 
   return (
@@ -200,7 +220,7 @@ function renderLinkedText(value: any) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#8dc63f] underline hover:text-[#6aa32f]"
+            className="text-[var(--tge-brand-green-dark)] underline hover:text-[var(--tge-brand-green)]"
           >
             {url}
           </a>
@@ -219,10 +239,10 @@ function SummaryItem({
 }) {
   return (
     <div>
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={`text-[10px] font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
         {label}
       </div>
-      <div className="mt-1 text-[28px] font-bold leading-none text-[#1f2937]">
+      <div className={`mt-1 text-[28px] font-bold leading-none ${companyDetailClass.title}`}>
         {value ?? "NA"}
       </div>
     </div>
@@ -242,18 +262,18 @@ function DetailLine({
 
   return (
     <div className="text-[13px] leading-6">
-      <span className="font-semibold text-gray-800">{label}: </span>
+      <span className={`font-semibold ${companyDetailClass.title}`}>{label}: </span>
       {isLink && text !== "NA" ? (
         <a
           href={text}
           target="_blank"
           rel="noopener noreferrer"
-          className="underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+          className={companyDetailClass.link}
         >
           {text}
         </a>
       ) : (
-        <span className="text-gray-700">{text}</span>
+        <span className={companyDetailClass.body}>{text}</span>
       )}
     </div>
   );
@@ -270,8 +290,8 @@ function DetailBlock({
 
   return (
     <div>
-      <div className="font-semibold text-gray-800">{label}</div>
-      <div className="mt-1 whitespace-pre-wrap text-[13px] leading-6 text-gray-700">
+      <div className={`font-semibold ${companyDetailClass.title}`}>{label}</div>
+      <div className={`mt-1 whitespace-pre-wrap text-[13px] leading-6 ${companyDetailClass.body}`}>
         {extractLinks(text).length > 0 ? renderLinkedText(text) : text || "NA"}
       </div>
     </div>
@@ -286,9 +306,9 @@ function TabSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-        <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+    <section className={companyDetailClass.panel}>
+      <div className={companyDetailClass.header}>
+        <h2 className={`text-lg font-bold leading-none ${companyDetailClass.title}`}>
           {title}
         </h2>
       </div>
@@ -299,7 +319,7 @@ function TabSection({
 
 function CompactRoleCards({ roles }: { roles: Role[] }) {
   if (roles.length === 0) {
-    return <div className="text-sm text-gray-500">No role records available.</div>;
+    return <div className={`text-sm ${companyDetailClass.muted}`}>No role records available.</div>;
   }
 
   return (
@@ -307,17 +327,17 @@ function CompactRoleCards({ roles }: { roles: Role[] }) {
       {roles.map((role) => (
         <div
           key={role.company_role_id}
-          className="border border-gray-200 bg-[#fafafa] px-4 py-3"
+          className={`${companyDetailClass.panelSubtle} px-4 py-3`}
         >
-          <div className="text-[14px] font-semibold text-[#1f2937]">
+          <div className={`text-[14px] font-semibold ${companyDetailClass.title}`}>
             {role.role_type || "NA"}
             {role.role_subtype ? ` · ${role.role_subtype}` : ""}
           </div>
-          <div className="mt-1 text-[12px] text-gray-600">
+          <div className={`mt-1 text-[12px] ${companyDetailClass.body}`}>
             Scope: {role.role_scope || "NA"} | Status: {role.role_status || "NA"}
           </div>
           {role.notes ? (
-            <div className="mt-1 text-[12px] text-gray-500">{role.notes}</div>
+            <div className={`mt-1 text-[12px] ${companyDetailClass.muted}`}>{role.notes}</div>
           ) : null}
         </div>
       ))}
@@ -400,7 +420,7 @@ export default function CompanyDetailPage() {
     useState<SortDirection>("asc");
 
   const utilityButtonClass =
-    "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-gray-300 bg-white px-3 py-1 text-[11px] font-semibold leading-none text-gray-700 transition hover:bg-gray-50";
+    companyDetailClass.utilityButton;
 
   useEffect(() => {
     if (!id) return;
@@ -637,7 +657,7 @@ export default function CompanyDetailPage() {
   if (loading) {
     return (
       <main className="screen-only space-y-6">
-        <section className="border border-gray-200 bg-white px-6 py-6 text-sm text-gray-700">
+        <section className={`px-6 py-6 text-sm ${companyDetailClass.body} ${companyDetailClass.panel}`}>
           Loading company...
         </section>
       </main>
@@ -648,8 +668,8 @@ export default function CompanyDetailPage() {
     return (
       <>
         <main className="screen-only space-y-6">
-          <section className="border border-gray-200 bg-white px-6 py-6">
-            <h1 className="text-2xl font-bold text-[#1f2937]">Company not found</h1>
+          <section className={`px-6 py-6 ${companyDetailClass.panel}`}>
+            <h1 className={`text-2xl font-bold ${companyDetailClass.title}`}>Company not found</h1>
           </section>
         </main>
 
@@ -701,27 +721,27 @@ export default function CompanyDetailPage() {
         <div>
           <Link
             href="/companies"
-            className="text-sm font-medium text-[#8dc63f] hover:underline"
+            className="text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
           >
             ← Back to companies
           </Link>
         </div>
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-[#8dc63f] px-6 py-6">
+        <section className={companyDetailClass.panel}>
+          <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6">
             <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
               <div className="max-w-5xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                   Company Profile
                 </p>
-                <h1 className="mt-2 text-4xl font-bold tracking-tight text-[#1f2937] xl:text-5xl">
+                <h1 className={`mt-2 text-4xl font-bold tracking-tight ${companyDetailClass.title} xl:text-5xl`}>
                   {company.company_name || company.company_id}
                 </h1>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <div className={`mt-3 flex flex-wrap items-center gap-2 text-sm ${companyDetailClass.body}`}>
                   <span>{company.headquarters_country || "NA"}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[var(--tge-governance-muted-border)]">|</span>
                   <span>{company.region || "NA"}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[var(--tge-governance-muted-border)]">|</span>
                   <span>{company.company_type_primary || "NA"}</span>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
@@ -746,7 +766,7 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-200 bg-[#fafafa] px-6 py-4">
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-4">
             <div className="grid grid-cols-2 gap-x-6 gap-y-5 xl:grid-cols-4">
               {statCards.map((card) => (
                 <SummaryItem key={card.label} label={card.label} value={card.value} />
@@ -756,16 +776,16 @@ export default function CompanyDetailPage() {
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_420px]">
-          <div className="border border-gray-200 bg-white">
-            <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-              <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+          <div className={companyDetailClass.panel}>
+            <div className={companyDetailClass.header}>
+              <h2 className={`text-lg font-bold leading-none ${companyDetailClass.title}`}>
                 Company Overview
               </h2>
             </div>
 
             <div className="grid grid-cols-1 gap-6 px-5 py-4 xl:grid-cols-2">
               <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                <h3 className={`mb-3 text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
                   Core Company Information
                 </h3>
                 <div className="grid grid-cols-1 gap-x-8 gap-y-2 md:grid-cols-2">
@@ -794,7 +814,7 @@ export default function CompanyDetailPage() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                <h3 className={`mb-3 text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
                   Group / Parent Structure
                 </h3>
                 <div className="grid grid-cols-1 gap-y-2">
@@ -818,9 +838,9 @@ export default function CompanyDetailPage() {
             </div>
           </div>
 
-          <div className="border border-gray-200 bg-white">
-            <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-              <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+          <div className={companyDetailClass.panel}>
+            <div className={companyDetailClass.header}>
+              <h2 className={`text-lg font-bold leading-none ${companyDetailClass.title}`}>
                 Focus & Scope
               </h2>
             </div>
@@ -839,8 +859,8 @@ export default function CompanyDetailPage() {
           </div>
         </section>
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-1">
+        <section className={companyDetailClass.panel}>
+          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-1">
             <div className="flex flex-wrap">
               {[
                 { key: "overview", label: "Overview" },
@@ -856,10 +876,10 @@ export default function CompanyDetailPage() {
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTab(tab.key as CompanyTab)}
-                    className={`border-r border-gray-200 px-3 py-2.5 text-[12px] font-semibold ${
+                    className={`border-r border-[var(--tge-governance-neutral-border)] px-3 py-2.5 text-[12px] font-semibold ${
                       isActive
-                        ? "bg-white text-[#1f2937]"
-                        : "text-gray-600 hover:bg-gray-100"
+                        ? "bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)]"
+                        : "text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-governance-neutral-bg)]"
                     }`}
                   >
                     {tab.label}
@@ -874,7 +894,7 @@ export default function CompanyDetailPage() {
               <TabSection title="Overview">
                 <div className="grid gap-6 xl:grid-cols-2">
                   <div>
-                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                    <h3 className={`mb-3 text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
                       Roles & Capabilities
                     </h3>
                     <CompactRoleCards roles={data.roles} />
@@ -882,58 +902,58 @@ export default function CompanyDetailPage() {
 
                   <div className="space-y-6">
                     <div>
-                      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                      <h3 className={`mb-3 text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
                         Connections
                       </h3>
 
                       <div className="grid grid-cols-1 gap-3">
                         <button
                           onClick={() => setActiveTab("projects")}
-                          className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-4 py-3 text-left hover:border-[#8dc63f] hover:bg-white"
+                          className="flex items-center justify-between border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 text-left hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-card)]"
                         >
                           <div>
-                            <div className="text-[13px] font-semibold text-[#1f2937]">
+                            <div className={`text-[13px] font-semibold ${companyDetailClass.title}`}>
                               Linked Projects
                             </div>
-                            <div className="text-[12px] text-gray-500">
+                            <div className={`text-[12px] ${companyDetailClass.muted}`}>
                               View all project relationships
                             </div>
                           </div>
-                          <div className="text-lg font-bold text-[#1f2937]">
+                          <div className={`text-lg font-bold ${companyDetailClass.title}`}>
                             {data.project_links.length}
                           </div>
                         </button>
 
                         <button
                           onClick={() => setActiveTab("plants")}
-                          className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-4 py-3 text-left hover:border-[#8dc63f] hover:bg-white"
+                          className="flex items-center justify-between border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 text-left hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-card)]"
                         >
                           <div>
-                            <div className="text-[13px] font-semibold text-[#1f2937]">
+                            <div className={`text-[13px] font-semibold ${companyDetailClass.title}`}>
                               Linked Plants
                             </div>
-                            <div className="text-[12px] text-gray-500">
+                            <div className={`text-[12px] ${companyDetailClass.muted}`}>
                               View all plant relationships
                             </div>
                           </div>
-                          <div className="text-lg font-bold text-[#1f2937]">
+                          <div className={`text-lg font-bold ${companyDetailClass.title}`}>
                             {data.plant_links.length}
                           </div>
                         </button>
 
                         <button
                           onClick={() => setActiveTab("relationships")}
-                          className="flex items-center justify-between border border-gray-200 bg-[#fafafa] px-4 py-3 text-left hover:border-[#8dc63f] hover:bg-white"
+                          className="flex items-center justify-between border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 text-left hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-card)]"
                         >
                           <div>
-                            <div className="text-[13px] font-semibold text-[#1f2937]">
+                            <div className={`text-[13px] font-semibold ${companyDetailClass.title}`}>
                               Related Companies
                             </div>
-                            <div className="text-[12px] text-gray-500">
+                            <div className={`text-[12px] ${companyDetailClass.muted}`}>
                               Ownership & partnerships
                             </div>
                           </div>
-                          <div className="text-lg font-bold text-[#1f2937]">
+                          <div className={`text-lg font-bold ${companyDetailClass.title}`}>
                             {data.relationships_outgoing.length +
                               data.relationships_incoming.length}
                           </div>
