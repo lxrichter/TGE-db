@@ -207,25 +207,40 @@ type ExecutiveKpiTone =
   | "governance"
   | "evidence";
 
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)]";
+const subtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const linkActionClass =
+  "text-[var(--tge-brand-green-dark)] hover:text-[var(--tge-brand-green-dark)]";
+const dashboardHoverClass =
+  "transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]";
+
 function getExecutiveKpiToneClass(tone: ExecutiveKpiTone) {
   switch (tone) {
     case "operating":
-      return "border-l-[#3f8f2f] bg-[#fbfdf8]";
+      return "border-l-[var(--tge-status-bar-operating)] bg-[var(--tge-governance-success-bg)]";
     case "pipeline":
-      return "border-l-[#2f6f9f] bg-[#f8fbfd]";
+      return "border-l-[var(--tge-governance-info-text)] bg-[var(--tge-governance-info-bg)]";
     case "market":
-      return "border-l-[#b58900] bg-[#fffdf5]";
+      return "border-l-[var(--tge-status-bar-attention)] bg-[var(--tge-governance-attention-bg)]";
     case "ecosystem":
-      return "border-l-[#5b6b7f] bg-[#fafafa]";
+      return "border-l-[var(--tge-governance-neutral-text)] bg-[var(--tge-surface-subtle)]";
     case "direct-use":
-      return "border-l-[#8a6f2a] bg-[#fffdf6]";
+      return "border-l-[var(--tge-ai-suggested-text)] bg-[var(--tge-ai-suggested-bg)]";
     case "governance":
-      return "border-l-[#b45309] bg-[#fffaf4]";
+      return "border-l-[var(--tge-governance-attention-text)] bg-[var(--tge-governance-attention-bg)]";
     case "evidence":
-      return "border-l-[#4f7f1f] bg-[#fbfdf8]";
+      return "border-l-[var(--tge-brand-green-dark)] bg-[var(--tge-governance-success-bg)]";
     case "neutral":
     default:
-      return "border-l-gray-200 bg-white";
+      return "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
   }
 }
 
@@ -247,20 +262,20 @@ function ExecutiveKpi({
   const toneClass = getExecutiveKpiToneClass(tone);
   const frameClass =
     prominence === "executive"
-      ? `border border-l-4 border-gray-200 ${toneClass} px-5 py-5 sm:min-h-[148px] sm:px-6 sm:py-6`
-      : `border border-l-4 border-gray-200 ${toneClass} px-4 py-4`;
+      ? `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-5 py-5 sm:min-h-[148px] sm:px-6 sm:py-6`
+      : `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-4 py-4`;
   const valueClass =
     prominence === "executive"
-      ? "mt-4 text-4xl font-bold leading-none text-[#1f2937] sm:text-[2.85rem]"
-      : "mt-3 text-2xl font-bold leading-none text-[#1f2937] sm:text-3xl";
+      ? `mt-4 text-4xl font-bold leading-none ${titleTextClass} sm:text-[2.85rem]`
+      : `mt-3 text-2xl font-bold leading-none ${titleTextClass} sm:text-3xl`;
   const noteClass =
     prominence === "executive"
-      ? "mt-3 text-sm leading-6 text-gray-600"
-      : "mt-2 text-xs leading-5 text-gray-500";
+      ? `mt-3 text-sm leading-6 ${bodyTextClass}`
+      : "mt-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]";
 
   const content = (
     <>
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={eyebrowClass}>
         {label}
       </div>
       <div className={valueClass}>{value}</div>
@@ -272,7 +287,7 @@ function ExecutiveKpi({
     return (
       <Link
         href={href}
-        className={`${frameClass} transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]`}
+        className={`${frameClass} ${dashboardHoverClass}`}
       >
         {content}
       </Link>
@@ -298,21 +313,21 @@ function IntelligenceCard({
   return (
     <Link
       href={href}
-      className="border border-gray-200 bg-white px-5 py-5 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      className={`${panelClass} px-5 py-5 ${dashboardHoverClass}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={eyebrowClass}>
             {label}
           </div>
-          <h3 className="mt-2 text-lg font-bold text-[#1f2937]">{title}</h3>
+          <h3 className={`mt-2 text-lg font-bold ${titleTextClass}`}>{title}</h3>
         </div>
-        <span className="shrink-0 border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+        <span className="shrink-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
           {meta}
         </span>
       </div>
-      <p className="mt-3 text-sm leading-6 text-gray-600">{description}</p>
-      <div className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+      <p className={`mt-3 text-sm leading-6 ${bodyTextClass}`}>{description}</p>
+      <div className={`mt-4 text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}>
         Open
       </div>
     </Link>
@@ -325,23 +340,23 @@ function MarketSignalTable({
   analysis: PostgresPreviewAnalysisSummary;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
+    <section className={panelClass}>
+      <div className={`flex flex-col gap-2 px-5 py-4 md:flex-row md:items-center md:justify-between ${panelHeaderClass}`}>
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">Top Market Signals</h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <h2 className={`text-lg font-bold ${titleTextClass}`}>Top Market Signals</h2>
+          <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
             Highest-capacity market signals from the current intelligence layer.
           </p>
         </div>
         <Link
           href="/postgres-preview/markets"
-          className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:bg-[#f3f8ec]"
+          className="inline-flex h-9 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
         >
           Open Markets
         </Link>
       </div>
 
-      <div className="divide-y divide-gray-100 md:hidden">
+      <div className="divide-y divide-[var(--tge-governance-muted-border)] md:hidden">
         {analysis.topCountries.slice(0, 5).map((country) => (
           <Link
             key={country.country}
@@ -350,8 +365,8 @@ function MarketSignalTable({
             )}#market-rankings`}
             className="block px-5 py-4"
           >
-            <div className="font-semibold text-[#1f2937]">{country.country}</div>
-            <div className="mt-2 grid grid-cols-2 gap-3 text-xs text-gray-600">
+            <div className={`font-semibold ${titleTextClass}`}>{country.country}</div>
+            <div className={`mt-2 grid grid-cols-2 gap-3 text-xs ${bodyTextClass}`}>
               <span>{formatMw(country.operating_installed_mwe)} MWe operating</span>
               <span>{formatMw(country.project_pipeline_mwe)} MWe pipeline</span>
               <span>{formatCount(country.active_project_count)} active projects</span>
@@ -363,7 +378,7 @@ function MarketSignalTable({
 
       <div className="hidden overflow-x-auto md:block">
         <table className="min-w-[760px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
               <th className="w-[24%] px-5 py-3 font-semibold">Market</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Operating MWe</th>
@@ -372,12 +387,12 @@ function MarketSignalTable({
               <th className="w-[22%] px-5 py-3 font-semibold">Evidence Signal</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
             {analysis.topCountries.slice(0, 5).map((country) => (
               <tr key={country.country} className="align-top">
                 <td className="px-5 py-4">
                   <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={`font-semibold ${titleTextClass} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
                     href={`/postgres-preview/markets?country=${encodeURIComponent(
                       country.country
                     )}#market-rankings`}
@@ -385,19 +400,19 @@ function MarketSignalTable({
                     {country.country}
                   </Link>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`px-5 py-4 ${bodyTextClass}`}>
                   {formatMw(country.operating_installed_mwe)} MWe
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`px-5 py-4 ${bodyTextClass}`}>
                   {formatMw(country.project_pipeline_mwe)} MWe
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`px-5 py-4 ${bodyTextClass}`}>
                   {formatCount(country.active_project_count)}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={`px-5 py-4 ${bodyTextClass}`}>
                   <div>{formatCount(country.missing_source_count)} source gaps</div>
                   <Link
-                    className="mt-2 inline-flex text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
+                    className={`mt-2 inline-flex text-xs font-semibold uppercase tracking-wide ${linkActionClass} hover:underline`}
                     href={`/postgres-preview/markets?country=${encodeURIComponent(
                       country.country
                     )}#market-rankings`}
@@ -429,12 +444,12 @@ function BucketOverview({
   const maxCount = Math.max(...visibleBuckets.map((bucket) => bucket.record_count), 1);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+    <section className={panelClass}>
+      <div className={`flex items-center justify-between px-5 py-4 ${panelHeaderClass}`}>
+        <h2 className={`text-lg font-bold ${titleTextClass}`}>{title}</h2>
         <Link
           href={href}
-          className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]"
+          className={`text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}
         >
           Analysis
         </Link>
@@ -445,19 +460,19 @@ function BucketOverview({
             ? postgresStatusBarClass(
                 postgresStatusTone(bucket.bucket_code, "lifecycle")
               )
-            : "bg-[#8dc63f]";
+            : "bg-[var(--tge-status-bar-success)]";
 
           return (
             <div key={bucket.bucket_code}>
               <div className="flex items-center justify-between gap-4 text-sm">
-                <span className="font-semibold text-[#1f2937]">
+                <span className={`font-semibold ${titleTextClass}`}>
                   {formatBucketLabel(bucket.bucket_code)}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-[var(--tge-governance-muted-text)]">
                   {formatCount(bucket.record_count)} items
                 </span>
               </div>
-              <div className="mt-2 h-2 bg-gray-100">
+              <div className="mt-2 h-2 bg-[var(--tge-governance-neutral-bg)]">
                 <div
                   className={`h-2 ${barClass}`}
                   style={{
@@ -511,19 +526,19 @@ function RecentIntelligenceSignals() {
   ];
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-center md:justify-between">
+    <section className={panelClass}>
+      <div className={`flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between ${panelHeaderClass}`}>
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${titleTextClass}`}>
             Recent Intelligence Signals
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
             Compact placeholder for future source-backed market pulse items.
           </p>
         </div>
         <Link
           href="/sources"
-          className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+          className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
         >
           Evidence Backbone
         </Link>
@@ -534,15 +549,17 @@ function RecentIntelligenceSignals() {
           <Link
             key={signal.category}
             href={signal.href}
-            className="border border-gray-200 bg-[#f7f7f7] px-4 py-4 transition hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+            className={`${subtleCardClass} px-4 py-4 ${dashboardHoverClass}`}
           >
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
               {signal.category}
             </div>
-            <h3 className="mt-2 text-sm font-bold leading-5 text-[#1f2937]">
+            <h3 className={`mt-2 text-sm font-bold leading-5 ${titleTextClass}`}>
               {signal.title}
             </h3>
-            <p className="mt-2 text-xs leading-5 text-gray-600">{signal.detail}</p>
+            <p className={`mt-2 text-xs leading-5 ${bodyTextClass}`}>
+              {signal.detail}
+            </p>
           </Link>
         ))}
       </div>
@@ -576,10 +593,10 @@ function OperationalPulse({
   );
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">Operational Pulse</h2>
-        <p className="mt-1 text-sm leading-6 text-gray-600">
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-5 py-4`}>
+        <h2 className={`text-lg font-bold ${titleTextClass}`}>Operational Pulse</h2>
+        <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
           High-level research and governance health without turning the dashboard
           into the work queue.
         </p>
@@ -613,7 +630,7 @@ function OperationalPulse({
       </div>
 
       {!staging.ok ? (
-        <div className="border-t border-amber-200 bg-amber-50 px-5 py-4 text-sm leading-6 text-amber-900">
+        <div className="border-t border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-4 text-sm leading-6 text-[var(--tge-governance-attention-text)]">
           Platform intelligence signals are unavailable right now. The dashboard is
           showing legacy SQLite counters where possible. Error: {staging.error}
         </div>
@@ -658,17 +675,17 @@ export default async function HomePage() {
 
   return (
     <main className="space-y-7 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
+      <section className={panelClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 ThinkGeoEnergy Intelligence
               </p>
-              <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937] sm:text-5xl">
+              <h1 className={`mt-3 text-4xl font-bold tracking-tight ${titleTextClass} sm:text-5xl`}>
                 Geothermal Intelligence Dashboard
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8">
+              <p className={`mt-4 max-w-4xl text-base leading-7 ${bodyTextClass} sm:text-lg sm:leading-8`}>
                 Executive view of global geothermal market signals, pipeline
                 momentum, evidence health, and operational readiness across the
                 evolving PostgreSQL intelligence platform.
@@ -689,24 +706,24 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-5 py-4 sm:px-8">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700">
-            <span className="font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-4 sm:px-8">
+          <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm ${bodyTextClass}`}>
+            <span className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               Dashboard Scope
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Market signals</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${titleTextClass}`}>Market signals</span>
+              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
               operating, pipeline, direct-use
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Evidence</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${titleTextClass}`}>Evidence</span>
+              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
               source-aware governance
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Operational work</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${titleTextClass}`}>Operational work</span>
+              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
               routed to Research Ops
             </span>
           </div>
