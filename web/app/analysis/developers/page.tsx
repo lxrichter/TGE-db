@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import {
+  AnalysisGovernanceQaSection,
+  AnalysisQaTable,
+} from "@/components/analysis/AnalysisGovernanceQa";
 import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
 import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
 
@@ -198,55 +202,31 @@ function SegmentTable({
 
 function RoleDistributionTable({ rows }: { rows: ExcludedRoleRow[] }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">
-          Excluded Role Distribution
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Relationship roles intentionally excluded from developer attribution.
-        </p>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
-            <tr>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Role</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Links</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Projects</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Companies</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.role} className="hover:bg-gray-50">
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
-                  {row.role}
-                </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.link_count}
-                </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.project_count}
-                </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.company_count}
-                </td>
-              </tr>
-            ))}
-
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-gray-500">
-                  No excluded role rows found.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <AnalysisQaTable
+      title="Excluded Role Distribution"
+      description="Relationship roles intentionally excluded from developer attribution."
+      headers={["Role", "Links", "Projects", "Companies"]}
+      emptyMessage="No excluded role rows found."
+      colSpan={4}
+      isEmpty={rows.length === 0}
+    >
+      {rows.map((row) => (
+        <tr key={row.role} className="hover:bg-gray-50">
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+            {row.role}
+          </td>
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.link_count}
+          </td>
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.project_count}
+          </td>
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.company_count}
+          </td>
+        </tr>
+      ))}
+    </AnalysisQaTable>
   );
 }
 
@@ -261,72 +241,49 @@ function ProjectQaTable({
   rows: ProjectQaRow[];
   showMw?: boolean;
 }) {
+  const headers = showMw
+    ? ["Project", "Country", "Phase", "Project MWe", "Developers", "Roles"]
+    : ["Project", "Country", "Phase", "Developers", "Roles"];
+
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-sm text-gray-500">{description}</p>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
-            <tr>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Project</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Country</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Phase</th>
-              {showMw ? (
-                <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Project MWe</th>
-              ) : null}
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Developers</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Roles</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr key={row.project_id} className="hover:bg-gray-50">
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
-                  <Link
-                    href={`/projects/${row.project_id}`}
-                    className="underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
-                  >
-                    {row.project_name}
-                  </Link>
-                </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.country || "-"}
-                </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.phase || "-"}
-                </td>
-                {showMw ? (
-                  <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                    {row.project_mw === null ? "-" : formatNumber(row.project_mw)}
-                  </td>
-                ) : null}
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.developer_names.join(", ")}
-                </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
-                  {row.roles.join(", ")}
-                </td>
-              </tr>
-            ))}
-
-            {rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={showMw ? 6 : 5}
-                  className="px-4 py-8 text-center text-[13px] text-gray-500"
-                >
-                  No project QA rows found.
-                </td>
-              </tr>
-            ) : null}
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <AnalysisQaTable
+      title={title}
+      description={description}
+      headers={headers}
+      emptyMessage="No project QA rows found."
+      colSpan={headers.length}
+      isEmpty={rows.length === 0}
+    >
+      {rows.map((row) => (
+        <tr key={row.project_id} className="hover:bg-gray-50">
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+            <Link
+              href={`/projects/${row.project_id}`}
+              className="underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+            >
+              {row.project_name}
+            </Link>
+          </td>
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.country || "-"}
+          </td>
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.phase || "-"}
+          </td>
+          {showMw ? (
+            <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+              {row.project_mw === null ? "-" : formatNumber(row.project_mw)}
+            </td>
+          ) : null}
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.developer_names.join(", ")}
+          </td>
+          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            {row.roles.join(", ")}
+          </td>
+        </tr>
+      ))}
+    </AnalysisQaTable>
   );
 }
 
@@ -516,22 +473,10 @@ export default function DeveloperAnalysisPage() {
             />
           </section>
 
-          <section className="space-y-4">
-            <div className="border border-gray-200 bg-white px-6 py-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6b8f2a]">
-                Governance QA
-              </div>
-              <h2 className="mt-1 text-xl font-bold text-[#1f2937]">
-                Developer Attribution Readiness
-              </h2>
-              <p className="mt-1 max-w-5xl text-sm leading-6 text-gray-600">
-                These checks keep the current output in logic-validation mode.
-                Rankings should not be treated as market-complete until project
-                MWe, developer-role links, and co-developer attribution weights
-                are normalized.
-              </p>
-            </div>
-
+          <AnalysisGovernanceQaSection
+            title="Developer Attribution Readiness"
+            description="These checks keep the current output in logic-validation mode. Rankings should not be treated as market-complete until project MWe, developer-role links, and co-developer attribution weights are normalized."
+          >
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <RoleDistributionTable rows={excludedRoleRows} />
               <ProjectQaTable
@@ -547,7 +492,7 @@ export default function DeveloperAnalysisPage() {
               description="Developer-linked projects excluded from MWe attribution until a project capacity value is available."
               rows={missingMwProjects}
             />
-          </section>
+          </AnalysisGovernanceQaSection>
 
           <section className="border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
