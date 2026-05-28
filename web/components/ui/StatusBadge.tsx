@@ -11,15 +11,23 @@ export type StatusBadgeTone =
   | "neutralSoft";
 
 const toneClasses: Record<StatusBadgeTone, string> = {
-  neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-  success: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  info: "border-blue-200 bg-blue-50 text-blue-800",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
-  danger: "border-red-200 bg-red-50 text-red-700",
+  neutral:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] text-[var(--tge-governance-neutral-text)]",
+  success:
+    "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]",
+  info:
+    "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]",
+  warning:
+    "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
+  danger:
+    "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]",
 
-  successSoft: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  warningSoft: "border-amber-200 bg-amber-50 text-amber-800",
-  neutralSoft: "border-gray-200 bg-[#f7f7f7] text-gray-700",
+  successSoft:
+    "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]",
+  warningSoft:
+    "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
+  neutralSoft:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] text-[var(--tge-governance-neutral-text)]",
 };
 
 type StatusBadgeProps = {
