@@ -44,6 +44,28 @@ type SortKey =
 
 type ViewMode = "active" | "promoted" | "all";
 
+const projectsClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  metricLabel:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  input:
+    "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  tableHead:
+    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2",
+  tableCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5",
+  link:
+    "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
+  primaryPill:
+    "inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-brand-green-dark)]",
+};
+
 function ResearchStatusBadge({ value }: { value: string | null }) {
   const raw = (value || "").trim();
   const normalized = raw.toLowerCase();
@@ -103,18 +125,18 @@ function LifecycleBadge({
     return promotedPlantId ? (
       <Link
         href={`/plants/${promotedPlantId}`}
-        className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-semibold leading-none text-blue-700 hover:underline"
+        className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-info-text)] hover:underline"
       >
         Promoted → {promotedPlantId}
       </Link>
     ) : (
-      <span className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-blue-200 bg-blue-50 px-3 py-1 text-[11px] font-semibold leading-none text-blue-700">
+      <span className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-info-text)]">
         Promoted
       </span>
     );
   }
 
-  return <span className="text-gray-400">Active</span>;
+  return <span className={projectsClass.muted}>Active</span>;
 }
 
 function SortableHeader({
@@ -139,7 +161,7 @@ function SortableHeader({
       className="flex items-center gap-1 text-left font-semibold"
     >
       <span>{label}</span>
-      <span className="text-[10px] text-gray-400">
+      <span className={`text-[10px] ${projectsClass.muted}`}>
         {active ? (sortDirection === "asc" ? "▲" : "▼") : "↕"}
       </span>
     </button>
@@ -454,17 +476,17 @@ const userCanExport = canExport(currentRole);
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={projectsClass.panel}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
           <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Projects
               </p>
-              <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className={`mt-3 text-5xl font-bold tracking-tight ${projectsClass.title}`}>
                 Geothermal Projects Database
               </h1>
-              <p className="mt-4 max-w-4xl text-lg leading-8 text-gray-600">
+              <p className={`mt-4 max-w-4xl text-lg leading-8 ${projectsClass.body}`}>
                 Internal overview of geothermal projects and prospects with linked detail
                 pages, development status, research tracking, and future edit/review workflows.
               </p>
@@ -481,7 +503,7 @@ const userCanExport = canExport(currentRole);
                 <button
                   type="button"
                   onClick={() => setIsExportModalOpen(true)}
-                  className="inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-medium text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
                 >
                   Export Excel
                 </button>
@@ -496,52 +518,52 @@ const userCanExport = canExport(currentRole);
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-5">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5">
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className={projectsClass.metricLabel}>
                 Projects
               </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-3xl font-bold ${projectsClass.title}`}>
                 {formatCount(stats.count)}
               </div>
-              <div className="mt-1 text-xs text-gray-500">
+              <div className={`mt-1 text-xs ${projectsClass.muted}`}>
                 Current project entries in selected view
               </div>
             </div>
 
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className={projectsClass.metricLabel}>
                 Planned Installed Capacity
               </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-3xl font-bold ${projectsClass.title}`}>
                 {formatMw(stats.totalCapacity, 1)}
               </div>
-              <div className="mt-1 text-xs text-gray-500">
+              <div className={`mt-1 text-xs ${projectsClass.muted}`}>
                 Sum of planned installed capacity in selected view
               </div>
             </div>
 
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className={projectsClass.metricLabel}>
                 Countries Covered
               </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-3xl font-bold ${projectsClass.title}`}>
                 {formatCount(stats.countries)}
               </div>
-              <div className="mt-1 text-xs text-gray-500">
+              <div className={`mt-1 text-xs ${projectsClass.muted}`}>
                 Distinct countries
               </div>
             </div>
 
             <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+              <div className={projectsClass.metricLabel}>
                 Need Info
               </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
+              <div className={`mt-1 text-3xl font-bold ${projectsClass.title}`}>
                 {formatCount(stats.needInfo)}
               </div>
-              <div className="mt-1 text-xs text-gray-500">
+              <div className={`mt-1 text-xs ${projectsClass.muted}`}>
                 Projects still flagged for research follow-up
               </div>
             </div>
@@ -550,12 +572,12 @@ const userCanExport = canExport(currentRole);
       </section>
 
       {stats.phaseOverview.length > 0 && (
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 px-6 py-4">
-            <h2 className="text-xl font-bold text-[#1f2937]">
+        <section className={projectsClass.panel}>
+          <div className={`${projectsClass.sectionHeader} px-6 py-4`}>
+            <h2 className={`text-xl font-bold ${projectsClass.title}`}>
               Phase Overview
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className={`mt-1 text-sm ${projectsClass.muted}`}>
               Distribution of projects and associated planned MWe by development phase.
             </p>
           </div>
@@ -565,21 +587,21 @@ const userCanExport = canExport(currentRole);
               {stats.phaseOverview.map((item) => (
                 <div
                   key={item.phase}
-                  className="min-w-[170px] flex-1 border border-gray-200 bg-[#fafafa] px-4 py-3"
+                  className="min-w-[170px] flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3"
                 >
                   <div className="mb-2">
                     <PhaseBadge value={item.phase} />
                   </div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <div className={projectsClass.metricLabel}>
                     Planned MWe
                   </div>
-                  <div className="text-2xl font-bold text-[#1f2937]">
+                  <div className={`text-2xl font-bold ${projectsClass.title}`}>
                     {formatMw(item.mw, 1)}
                   </div>
-                  <div className="mt-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <div className={`mt-2 ${projectsClass.metricLabel}`}>
                     Projects
                   </div>
-                  <div className="text-sm font-semibold text-[#1f2937]">
+                  <div className={`text-sm font-semibold ${projectsClass.title}`}>
                     {formatCount(item.count)}
                   </div>
                 </div>
@@ -589,26 +611,26 @@ const userCanExport = canExport(currentRole);
         </section>
       )}
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={projectsClass.panel}>
+        <div className={`${projectsClass.sectionHeader} px-6 py-4`}>
+          <h2 className={`text-xl font-bold ${projectsClass.title}`}>
             Project Overview Table
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${projectsClass.muted}`}>
             Search projects, filter by view and country, and click a column header to sort.
           </p>
         </div>
 
-        <div className="space-y-3 border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
+        <div className="space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 View
               </label>
               <select
                 value={viewMode}
                 onChange={(e) => setViewMode(e.target.value as ViewMode)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-4 py-2 text-sm ${projectsClass.input}`}
               >
                 <option value="active">Active Projects</option>
                 <option value="promoted">Promoted / Archived Projects</option>
@@ -617,13 +639,13 @@ const userCanExport = canExport(currentRole);
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Country
               </label>
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-4 py-2 text-sm ${projectsClass.input}`}
               >
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
@@ -634,13 +656,13 @@ const userCanExport = canExport(currentRole);
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Project Phase
               </label>
               <select
                 value={phaseFilter}
                 onChange={(e) => setPhaseFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-4 py-2 text-sm ${projectsClass.input}`}
               >
                 {phaseOptions.map((phase) => (
                   <option key={phase} value={phase}>
@@ -651,13 +673,13 @@ const userCanExport = canExport(currentRole);
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 Research Status
               </label>
               <select
                 value={researchStatusFilter}
                 onChange={(e) => setResearchStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-4 py-2 text-sm ${projectsClass.input}`}
               >
                 {researchStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -673,12 +695,12 @@ const userCanExport = canExport(currentRole);
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by ID, name, country, owner/operator, phase, technology, research status, review status, promoted plant..."
-            className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+            className={`w-full px-4 py-2 text-sm ${projectsClass.input}`}
           />
         </div>
 
         <div className="px-6 pt-3">
-          <p className="text-xs text-gray-500">
+          <p className={`text-xs ${projectsClass.muted}`}>
             Scroll horizontally to view all columns.
           </p>
         </div>
@@ -699,10 +721,10 @@ const userCanExport = canExport(currentRole);
                 {userCanEdit && <col className="w-[100px]" />}
               </colgroup>
 
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className="bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]">
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">Project ID</th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>Project ID</th>
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Name"
                       column="project_name"
@@ -711,7 +733,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Country"
                       column="country"
@@ -720,7 +742,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Owner / Operator"
                       column="owner_operator"
@@ -729,7 +751,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Planned Installed Capacity"
                       column="installed_capacity_mw"
@@ -738,7 +760,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Phase"
                       column="project_phase"
@@ -747,7 +769,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Technology"
                       column="plant_technology"
@@ -756,7 +778,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Research Status"
                       column="research_status"
@@ -765,7 +787,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className="border-b border-gray-200 px-4 py-2">
+                  <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Review Status"
                       column="review_status"
@@ -775,32 +797,32 @@ const userCanExport = canExport(currentRole);
                     />
                   </th>
                   {userCanEdit && (
-                    <th className="border-b border-gray-200 px-4 py-2">Action</th>
+                    <th className={projectsClass.tableHead}>Action</th>
                   )}
                 </tr>
               </thead>
 
               <tbody>
                 {filteredAndSorted.map((project) => (
-                  <tr key={project.project_id} className="hover:bg-gray-50">
-                    <td className="border-b border-gray-100 px-4 py-2.5 font-mono text-xs text-gray-500">
+                  <tr key={project.project_id} className="hover:bg-[var(--tge-surface-subtle)]">
+                    <td className={`${projectsClass.tableCell} font-mono text-xs ${projectsClass.muted}`}>
                       {project.project_id}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5">
+                    <td className={projectsClass.tableCell}>
                       <Link
                         href={`/projects/${project.project_id}`}
-                        className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                        className={projectsClass.link}
                       >
                         {project.project_name || "NA"}
                       </Link>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       {project.country ? (
                         <Link
                           href={`/markets/countries/${slugify(project.country)}`}
-                          className="underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className="underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]"
                         >
                           {project.country}
                         </Link>
@@ -809,40 +831,40 @@ const userCanExport = canExport(currentRole);
                       )}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       <div className="max-w-[220px] break-words">
                         {project.owner_operator || "NA"}
                       </div>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       {project.installed_capacity_mw !== null &&
                       project.installed_capacity_mw !== undefined
                         ? formatMw(project.installed_capacity_mw, 1)
                         : "NA"}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5">
+                    <td className={projectsClass.tableCell}>
                       <PhaseBadge value={project.project_phase} />
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       {project.plant_technology || "NA"}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5">
+                    <td className={projectsClass.tableCell}>
                       <ResearchStatusBadge value={project.research_status} />
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5">
+                    <td className={projectsClass.tableCell}>
                       <ReviewStatusBadge value={project.review_status} />
                     </td>
 
                     {userCanEdit && (
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={projectsClass.tableCell}>
                         <Link
                           href={`/projects/${project.project_id}/edit`}
-                          className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[#8dc63f] bg-[#8dc63f] px-3 py-1 text-[11px] font-semibold leading-none text-white hover:border-[#79b12f] hover:bg-[#79b12f]"
+                          className={projectsClass.primaryPill}
                         >
                           Edit
                         </Link>
@@ -855,7 +877,7 @@ const userCanExport = canExport(currentRole);
                   <tr>
                     <td
                       colSpan={userCanEdit ? 10 : 9}
-                      className="px-4 py-8 text-center text-sm text-gray-500"
+                      className={`px-4 py-8 text-center text-sm ${projectsClass.muted}`}
                     >
                       No projects found for the current search / filters.
                     </td>
