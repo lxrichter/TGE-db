@@ -1,11 +1,16 @@
 import Link from "next/link";
 
 import {
+  analysisCategoryDescriptions,
+  analysisCategoryLabels,
+  analysisCategoryOrder,
   analysisModules,
+  analysisModulesByCategory,
   analysisModulesByStatus,
   analysisStatusDescriptions,
   analysisStatusLabels,
   type AnalysisModule,
+  type AnalysisModuleCategory,
   type AnalysisModuleStatus,
 } from "@/lib/analysis/modules";
 
@@ -187,6 +192,74 @@ function StatusSummary() {
   );
 }
 
+function AnalysisDomainSummary() {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
+        <h2 className="text-lg font-semibold text-[#1f2937]">
+          Analysis Domains
+        </h2>
+        <p className="mt-1 text-[13px] leading-5 text-gray-600">
+          Domain map for adding future analysis pages without blurring live
+          analysis, definition work, and longer-term backlog.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
+        {analysisCategoryOrder.map((category: AnalysisModuleCategory) => {
+          const modules = analysisModulesByCategory(category);
+          const liveCount = modules.filter(
+            (module) => module.status === "live"
+          ).length;
+          const definitionCount = modules.filter(
+            (module) => module.status === "definition_next"
+          ).length;
+          const plannedCount = modules.filter(
+            (module) => module.status === "planned"
+          ).length;
+
+          return (
+            <div key={category} className="border border-gray-200 bg-[#fafafa] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                    Domain
+                  </div>
+                  <h3 className="mt-1 text-base font-bold text-[#1f2937]">
+                    {analysisCategoryLabels[category]}
+                  </h3>
+                </div>
+                <span className="inline-flex min-h-[24px] items-center border border-gray-200 bg-white px-2 text-xs font-semibold text-gray-700">
+                  {modules.length} modules
+                </span>
+              </div>
+
+              <p className="mt-2 text-[13px] leading-5 text-gray-600">
+                {analysisCategoryDescriptions[category]}
+              </p>
+
+              <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                <div className="border border-[#b9d98b] bg-[#f1f8e8] px-2 py-1.5 text-[#3f6f19]">
+                  <div className="font-bold">{liveCount}</div>
+                  <div>Live</div>
+                </div>
+                <div className="border border-amber-200 bg-amber-50 px-2 py-1.5 text-amber-800">
+                  <div className="font-bold">{definitionCount}</div>
+                  <div>Define</div>
+                </div>
+                <div className="border border-gray-200 bg-white px-2 py-1.5 text-gray-600">
+                  <div className="font-bold">{plannedCount}</div>
+                  <div>Planned</div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function AnalysisPage() {
   const liveModules = analysisModulesByStatus("live");
   const definitionNextModules = analysisModulesByStatus("definition_next");
@@ -216,6 +289,8 @@ export default function AnalysisPage() {
           <StatusSummary />
         </div>
       </section>
+
+      <AnalysisDomainSummary />
 
       <section className="border border-gray-200 bg-white">
         <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">

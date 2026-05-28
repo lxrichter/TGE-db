@@ -34,6 +34,36 @@ export const analysisStatusDescriptions: Record<AnalysisModuleStatus, string> = 
   planned: "Future analysis module once source fields and roll-up logic are ready.",
 };
 
+export const analysisCategoryOrder: AnalysisModuleCategory[] = [
+  "market",
+  "technology",
+  "company_roles",
+  "pipeline",
+  "resource",
+  "operations",
+];
+
+export const analysisCategoryLabels: Record<AnalysisModuleCategory, string> = {
+  market: "Markets",
+  technology: "Technology",
+  company_roles: "Company Roles",
+  pipeline: "Project Pipeline",
+  resource: "Resource Types",
+  operations: "Operations",
+};
+
+export const analysisCategoryDescriptions: Record<
+  AnalysisModuleCategory,
+  string
+> = {
+  market: "Country, region, and market benchmark views.",
+  technology: "Plant technology, turbine, and equipment analysis.",
+  company_roles: "Owners, operators, developers, suppliers, and investors.",
+  pipeline: "Project phase, development velocity, and pipeline depth.",
+  resource: "Hydrothermal, EGS, AGS, superhot, and related taxonomy views.",
+  operations: "Direct-use, wellfield, heat, and operating-context analysis.",
+};
+
 export const analysisModules: AnalysisModule[] = [
   {
     id: "country-markets",
@@ -241,6 +271,10 @@ export const analysisModules: AnalysisModule[] = [
 
 export function analysisModulesByStatus(status: AnalysisModuleStatus) {
   return analysisModules.filter((module) => module.status === status);
+}
+
+export function analysisModulesByCategory(category: AnalysisModuleCategory) {
+  return analysisModules.filter((module) => module.category === category);
 }
 
 export function getAnalysisModule(id: string) {
