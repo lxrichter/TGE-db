@@ -200,6 +200,60 @@ function SegmentTable({
   );
 }
 
+function QaCleanupRoutes() {
+  const routes = [
+    {
+      title: "Research Ops",
+      description:
+        "Route missing MWe, equal-split attribution, and role cleanup into operational review.",
+      href: "/postgres-preview/research-ops",
+    },
+    {
+      title: "Project Records",
+      description:
+        "Open project profiles to fix project MWe, phase, and source-backed capacity fields.",
+      href: "/projects",
+    },
+    {
+      title: "Company Links",
+      description:
+        "Review developer roles separately from ownership, operator, investor, and supplier links.",
+      href: "/companies",
+    },
+  ];
+
+  return (
+    <section className="border border-amber-200 bg-white">
+      <div className="border-b border-amber-200 bg-amber-50 px-5 py-3">
+        <h3 className="text-sm font-bold text-[#1f2937]">
+          Cleanup Routing
+        </h3>
+        <p className="mt-1 text-[13px] leading-5 text-amber-900">
+          QA findings should become researcher work, not silent caveats in the
+          ranking output.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-3">
+        {routes.map((route) => (
+          <Link
+            key={route.title}
+            href={route.href}
+            className="block border border-gray-200 bg-[#fafafa] px-4 py-3 transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
+          >
+            <div className="text-sm font-bold text-[#1f2937]">
+              {route.title}
+            </div>
+            <p className="mt-1 text-xs leading-5 text-gray-600">
+              {route.description}
+            </p>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function RoleDistributionTable({ rows }: { rows: ExcludedRoleRow[] }) {
   return (
     <AnalysisQaTable
@@ -477,6 +531,8 @@ export default function DeveloperAnalysisPage() {
             title="Developer Attribution Readiness"
             description="These checks keep the current output in logic-validation mode. Rankings should not be treated as market-complete until project MWe, developer-role links, and co-developer attribution weights are normalized."
           >
+            <QaCleanupRoutes />
+
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               <RoleDistributionTable rows={excludedRoleRows} />
               <ProjectQaTable
