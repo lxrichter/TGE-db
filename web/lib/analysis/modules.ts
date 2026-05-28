@@ -29,6 +29,12 @@ export type AnalysisDefinitionProtocolStep = {
   output: string;
 };
 
+export type AnalysisGovernanceQaCategory = {
+  title: string;
+  description: string;
+  examples: string[];
+};
+
 export const analysisStatusLabels: Record<AnalysisModuleStatus, string> = {
   live: "Live",
   definition_next: "Define Next",
@@ -106,6 +112,68 @@ export const analysisDefinitionProtocol: AnalysisDefinitionProtocolStep[] = [
     description:
       "Decide readiness thresholds, evidence warnings, export rules, and how unresolved data quality issues should appear.",
     output: "Release and review rules",
+  },
+];
+
+export const analysisGovernanceQaCategories: AnalysisGovernanceQaCategory[] = [
+  {
+    title: "Missing Measures",
+    description:
+      "Rows excluded or weakened because the required MWe, MWth, count, date, or status field is missing.",
+    examples: [
+      "Developer-linked projects missing MWe",
+      "Plants missing installed MWe",
+    ],
+  },
+  {
+    title: "Attribution Fallbacks",
+    description:
+      "Records included through fallback logic because complete weights or confidence fields are not available yet.",
+    examples: [
+      "Equal split among co-developers",
+      "Unweighted operator exposure",
+    ],
+  },
+  {
+    title: "Excluded Relationships",
+    description:
+      "Relationship roles intentionally excluded so analytical meaning remains narrow and explainable.",
+    examples: [
+      "Operators excluded from developer rankings",
+      "Suppliers excluded from ownership views",
+    ],
+  },
+  {
+    title: "Normalization Gaps",
+    description:
+      "Values that need controlled vocabulary cleanup before they can safely drive public-facing analysis.",
+    examples: [
+      "Legacy role names",
+      "Invalid plant statuses",
+      "Unclassified roles",
+      "Unmapped technologies",
+    ],
+  },
+  {
+    title: "Legacy Import Issues",
+    description:
+      "Imported data patterns that need review before a module can be treated as market-complete.",
+    examples: [
+      "Duplicate companies",
+      "Orphan relationships",
+      "Multiple conflicting roles",
+      "Legacy imported roles",
+    ],
+  },
+  {
+    title: "Confidence & Readiness",
+    description:
+      "Module-specific indicators that show whether an output is logic-valid, internally usable, or ready for subscriber-facing use.",
+    examples: [
+      "Logic-validation mode",
+      "Source coverage warnings",
+      "Export readiness blockers",
+    ],
   },
 ];
 

@@ -5,6 +5,7 @@ import {
   analysisCategoryLabels,
   analysisCategoryOrder,
   analysisDefinitionProtocol,
+  analysisGovernanceQaCategories,
   analysisModules,
   analysisModulesByCategory,
   analysisModulesByStatus,
@@ -289,6 +290,53 @@ function AnalysisDefinitionProtocol() {
   );
 }
 
+function AnalysisGovernanceQaPattern() {
+  return (
+    <section className="border border-amber-200 bg-white">
+      <div className="border-b border-amber-200 bg-amber-50 px-5 py-3">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+          Governance QA
+        </div>
+        <h2 className="mt-1 text-lg font-semibold text-[#1f2937]">
+          Analysis Governance Pattern
+        </h2>
+        <p className="mt-1 max-w-5xl text-[13px] leading-5 text-amber-900">
+          Every analysis module should expose the data-quality and attribution
+          gaps that could distort interpretation. This keeps the platform in
+          logic-validation mode until the underlying records are strong enough
+          for market-grade use.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
+        {analysisGovernanceQaCategories.map((category) => (
+          <div
+            key={category.title}
+            className="border border-gray-200 bg-[#fafafa] p-4"
+          >
+            <h3 className="text-sm font-bold text-[#1f2937]">
+              {category.title}
+            </h3>
+            <p className="mt-2 text-[13px] leading-5 text-gray-600">
+              {category.description}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {category.examples.map((example) => (
+                <span
+                  key={example}
+                  className="inline-flex min-h-[24px] items-center border border-amber-200 bg-white px-2 text-[11px] font-semibold text-amber-800"
+                >
+                  {example}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function AnalysisPage() {
   const liveModules = analysisModulesByStatus("live");
   const definitionNextModules = analysisModulesByStatus("definition_next");
@@ -322,6 +370,8 @@ export default function AnalysisPage() {
       <AnalysisDomainSummary />
 
       <AnalysisDefinitionProtocol />
+
+      <AnalysisGovernanceQaPattern />
 
       <section className="border border-gray-200 bg-white">
         <div className="border-b border-gray-200 bg-[#f3f4f6] px-5 py-3">
