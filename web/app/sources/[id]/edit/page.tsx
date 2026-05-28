@@ -34,14 +34,18 @@ async function getSourceEditData(id: string): Promise<SourceEditData> {
 
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+      <h2 className="text-lg font-bold text-[var(--tge-governance-attention-text)]">
+        PostgreSQL Not Connected
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
         Source editing currently writes to Railway PostgreSQL. Run the app
         through Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL`
         locally.
       </p>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className="mt-3 text-xs text-[var(--tge-governance-attention-text)]">
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -56,21 +60,21 @@ export default async function EditSourcePage({
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
           <Link
             href={`/sources/${id}`}
-            className="text-sm font-semibold text-[#4f7f1f] hover:underline"
+            className="text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:underline"
           >
             Back to Source Profile
           </Link>
-          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
             Sources / Documents
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--tge-text-primary)]">
             Edit Source
           </h1>
-          <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+          <p className="mt-4 max-w-4xl text-base leading-7 text-[var(--tge-text-secondary)]">
             Edit source metadata and manage entity-level evidence links for the
             governed source backbone.
           </p>
@@ -105,11 +109,13 @@ export default async function EditSourcePage({
       {!data.ok ? (
         <SetupNotice error={data.error} />
       ) : !data.source ? (
-        <section className="border border-gray-200 bg-white p-8">
-          <p className="text-base text-gray-700">Source not found.</p>
+        <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] p-8">
+          <p className="text-base text-[var(--tge-governance-neutral-text)]">
+            Source not found.
+          </p>
           <Link
             href="/sources"
-            className="mt-4 inline-block text-sm font-semibold text-[#4f7f1f]"
+            className="mt-4 inline-block text-sm font-semibold text-[var(--tge-brand-green-dark)]"
           >
             Back to Sources / Documents
           </Link>
