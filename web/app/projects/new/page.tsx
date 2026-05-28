@@ -104,6 +104,27 @@ const emptyForm: ProjectFormData = {
   research_status: "Need Info",
 };
 
+const formClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-sm",
+  attentionPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] shadow-sm",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 md:px-5",
+  attentionHeader:
+    "border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3 md:px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  label: "mb-1 block text-sm font-medium text-[var(--tge-text-primary)]",
+  input:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)] focus:ring-2 focus:ring-[var(--tge-governance-success-border)]",
+  disabledInput:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-subtle)] text-[var(--tge-governance-muted-text)]",
+  errorInput:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-text-primary)] ring-2 ring-[var(--tge-governance-danger-border)]",
+};
+
 type FormSectionProps = {
   title: React.ReactNode;
   children: React.ReactNode;
@@ -119,25 +140,15 @@ function FormSection({
 
   return (
     <section
-      className={
-        isAmber
-          ? "border border-amber-200 bg-amber-50/60 shadow-sm"
-          : "border border-gray-200 bg-white shadow-sm"
-      }
+      className={isAmber ? formClass.attentionPanel : formClass.panel}
     >
       <div
-        className={
-          isAmber
-            ? "border-b border-amber-200 bg-amber-100 px-4 py-3 md:px-5"
-            : "border-b border-gray-200 bg-[#f3f4f6] px-4 py-3 md:px-5"
-        }
+        className={isAmber ? formClass.attentionHeader : formClass.sectionHeader}
       >
         <h2
-          className={
-            isAmber
-              ? "text-base font-semibold text-amber-900 md:text-lg"
-              : "text-base font-semibold text-[#1f2937] md:text-lg"
-          }
+          className={`text-base font-semibold md:text-lg ${
+            isAmber ? "text-[var(--tge-governance-attention-text)]" : formClass.title
+          }`}
         >
           {title}
         </h2>
@@ -266,10 +277,10 @@ export default function NewProjectPage() {
     <div className="mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
       <div className="mb-5 flex flex-col gap-4 md:mb-6 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-[#1f2937] md:text-2xl">
+          <h1 className={`text-xl font-semibold tracking-tight md:text-2xl ${formClass.title}`}>
             New Project
           </h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className={`mt-1 text-sm ${formClass.body}`}>
             Create a new geothermal project record.
           </p>
         </div>
@@ -289,8 +300,8 @@ export default function NewProjectPage() {
         </div>
       </div>
 
-      <div className="mb-6 border border-gray-200 bg-white p-4 shadow-sm md:mb-8 md:p-5">
-        <div className="space-y-2 text-sm text-gray-700">
+      <div className={`mb-6 p-4 md:mb-8 md:p-5 ${formClass.panel}`}>
+        <div className={`space-y-2 text-sm ${formClass.body}`}>
           <p>
             New records are saved with system-managed metadata automatically.
             After creation, the project can be reviewed and approved through the
@@ -305,13 +316,13 @@ export default function NewProjectPage() {
 
       <form onSubmit={handleSubmit} noValidate className="space-y-6 md:space-y-8">
         {error && (
-          <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] p-4 text-sm text-[var(--tge-governance-danger-text)]">
             {error}
           </div>
         )}
 
         <FormSection title="Core Identification">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Keep core project naming here. Company roles such as owner, operator,
             developer, investor, or JV partner should be managed through
             structured company links after the project is created.
@@ -549,7 +560,7 @@ export default function NewProjectPage() {
         </FormSection>
 
         <FormSection title="Plant / Technology / Commercial">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${formClass.body}`}>
             Use this section for technical and commercial project information.
             Company participation should be managed through structured company
             links after creation.
@@ -599,18 +610,18 @@ export default function NewProjectPage() {
           title={
             <>
               Linked Companies
-              <span className="ml-3 text-xs font-normal text-gray-500">
+              <span className={`ml-3 text-xs font-normal ${formClass.muted}`}>
                 Added after creation
               </span>
             </>
           }
         >
-          <div className="rounded border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
+          <div className={`border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] p-4 text-sm ${formClass.body}`}>
             <p className="mb-3">
               Company links are added after the project has been created.
             </p>
 
-            <ul className="space-y-1 text-sm text-gray-700">
+            <ul className={`space-y-1 text-sm ${formClass.body}`}>
               <li>• Save the project first</li>
               <li>
                 • Then use the edit page to link owners, developers, investors,
@@ -634,7 +645,7 @@ export default function NewProjectPage() {
                 onChange={handleChange}
                 rows={4}
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${formClass.muted}`}>
                 Enter one link per line.
               </p>
             </div>
@@ -684,10 +695,7 @@ function Input({
 }: InputProps) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="mb-1 block text-sm font-medium text-gray-700"
-      >
+      <label htmlFor={name} className={formClass.label}>
         {label}
       </label>
       <input
@@ -699,15 +707,15 @@ function Input({
         required={required}
         className={`w-full border px-3 py-2 text-sm outline-none ${
           error
-            ? "border-red-500 bg-red-50 ring-2 ring-red-100"
+            ? formClass.errorInput
             : disabled
-            ? "border-gray-300 bg-gray-100 text-gray-500"
-            : "border-gray-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            ? formClass.disabledInput
+            : formClass.input
         }`}
       />
 
       {error ? (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className="mt-1 text-xs text-[var(--tge-governance-danger-text)]">{error}</p>
       ) : null}
     </div>
   );
@@ -724,10 +732,7 @@ type TextareaProps = {
 function Textarea({ label, name, value, onChange, rows = 5 }: TextareaProps) {
   return (
     <div>
-      <label
-        htmlFor={name}
-        className="mb-1 block text-sm font-medium text-gray-700"
-      >
+      <label htmlFor={name} className={formClass.label}>
         {label}
       </label>
       <textarea
@@ -736,7 +741,7 @@ function Textarea({ label, name, value, onChange, rows = 5 }: TextareaProps) {
         value={value}
         onChange={onChange}
         rows={rows}
-        className="w-full border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+        className={`w-full px-3 py-2 text-sm ${formClass.input}`}
       />
     </div>
   );
