@@ -113,6 +113,22 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+const sourceCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const sourceSubtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const sourceEyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const sourceTitleClass = "font-bold text-[var(--tge-text-primary)]";
+const sourceMutedTextClass = "text-[var(--tge-governance-muted-text)]";
+const sourceBodyTextClass = "text-[var(--tge-text-secondary)]";
+const sourcePrimaryButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
+const sourceSecondaryButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+const sourceInputClass =
+  "h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
+
 function StatTile({
   label,
   value,
@@ -123,14 +139,14 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </div>
-      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+    <div className={`${sourceCardClass} px-4 py-4`}>
+      <div className={sourceEyebrowClass}>{label}</div>
+      <div className={`mt-2 text-3xl leading-none ${sourceTitleClass}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${sourceMutedTextClass}`}>
+        {note}
+      </div>
     </div>
   );
 }
@@ -152,23 +168,27 @@ function OperationCard({
     <>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            {label}
-          </div>
-          <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+          <div className={sourceEyebrowClass}>{label}</div>
+          <div className={`mt-2 text-2xl leading-none ${sourceTitleClass}`}>
             {value}
           </div>
         </div>
         {href ? (
-          <span className="text-xs font-semibold text-[#4f7f1f]">Open</span>
+          <span className="text-xs font-semibold text-[var(--tge-brand-green-dark)]">
+            Open
+          </span>
         ) : null}
       </div>
-      <div className="mt-3 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-3 text-xs leading-5 ${sourceMutedTextClass}`}>
+        {note}
+      </div>
     </>
   );
 
   const className = `border px-4 py-4 transition ${postgresStatusToneClass(tone)} ${
-    href ? "hover:border-[#8dc63f] hover:bg-[#fbfdf8]" : ""
+    href
+      ? "hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
+      : ""
   }`;
 
   if (href) {
@@ -207,35 +227,33 @@ function WorkflowStrip() {
   ];
 
   return (
-    <details className="border border-gray-200 bg-white">
+    <details className={sourceCardClass}>
       <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            Governance Model
-          </div>
-          <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+          <div className={sourceEyebrowClass}>Governance Model</div>
+          <h2 className={`mt-1 text-base ${sourceTitleClass}`}>
             Source Record -&gt; Review -&gt; Evidence Link -&gt; Candidate
           </h2>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
           Expand
         </span>
       </summary>
-      <div className="grid grid-cols-1 gap-2 border-t border-gray-200 px-5 py-5 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-2 border-t border-[var(--tge-governance-neutral-border)] px-5 py-5 md:grid-cols-4">
         {steps.map((item) => (
           <div
             key={item.step}
-            className="border border-gray-200 bg-[#fbfbfb] px-4 py-4"
+            className={`${sourceSubtleCardClass} px-4 py-4`}
           >
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 items-center justify-center border border-gray-300 bg-white text-xs font-bold text-[#1f2937]">
+              <span className="inline-flex h-6 w-6 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-xs font-bold text-[var(--tge-text-primary)]">
                 {item.step}
               </span>
-              <span className="text-xs font-bold uppercase tracking-wide text-[#1f2937]">
+              <span className="text-xs font-bold uppercase tracking-wide text-[var(--tge-text-primary)]">
                 {item.label}
               </span>
             </div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`mt-2 text-xs leading-5 ${sourceMutedTextClass}`}>
               {item.note}
             </div>
           </div>
@@ -259,12 +277,14 @@ function SelectFilter({
   allLabel: string;
 }) {
   return (
-    <label className="flex min-w-0 flex-1 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <label
+      className={`flex min-w-0 flex-1 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}
+    >
       {label}
       <select
         name={name}
         defaultValue={value || ""}
-        className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+        className={sourceInputClass}
       >
         <option value="">{allLabel}</option>
         {options.map((option) => (
@@ -366,16 +386,14 @@ function SourcesListContext({
 }) {
   return (
     <>
-      <section className="border border-gray-200 bg-white">
+      <section className={sourceCardClass}>
         <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-              Current View
-            </div>
-            <div className="mt-1 text-lg font-bold text-[#1f2937]">
+            <div className={sourceEyebrowClass}>Current View</div>
+            <div className={`mt-1 text-lg ${sourceTitleClass}`}>
               {sourceViewLabel(activeFilters)}
             </div>
-            <div className="mt-1 text-xs leading-5 text-gray-500">
+            <div className={`mt-1 text-xs leading-5 ${sourceMutedTextClass}`}>
               {activeFilters.length === 0
                 ? "No active filters"
                 : `${formatCount(activeFilters.length)} active filter${
@@ -384,56 +402,52 @@ function SourcesListContext({
             </div>
           </div>
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-              Results
-            </div>
-            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+            <div className={sourceEyebrowClass}>Results</div>
+            <div className="mt-1 text-sm font-semibold text-[var(--tge-text-primary)]">
               Showing {formatCount(shownCount)} of {formatCount(total)} matching
               governed sources
             </div>
-            <div className="mt-1 text-xs leading-5 text-gray-500">
+            <div className={`mt-1 text-xs leading-5 ${sourceMutedTextClass}`}>
               Source table currently shows the first {formatCount(shownCount)} sources.
             </div>
           </div>
-          <div className="text-xs leading-5 text-gray-500 lg:max-w-xs lg:text-right">
+          <div className={`text-xs leading-5 ${sourceMutedTextClass} lg:max-w-xs lg:text-right`}>
             Source export is not enabled yet. For now, exports remain available on
             project, plant, company, Research Ops, and candidate-review
             workflows where explicit export routes exist.
           </div>
         </div>
         {activeFilters.length > 0 ? (
-          <div className="flex flex-col gap-2 border-t border-gray-200 px-5 py-3 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col gap-2 border-t border-[var(--tge-governance-neutral-border)] px-5 py-3 sm:flex-row sm:flex-wrap">
             {activeFilters.map((filter) => (
               <span
                 key={`${filter.label}-${filter.value}`}
-                className="inline-flex min-h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700"
+                className="inline-flex min-h-8 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]"
               >
-                <span className="text-gray-500">{filter.label}:</span>
+                <span className={sourceMutedTextClass}>{filter.label}:</span>
                 <span className="ml-1">{filter.value}</span>
               </span>
             ))}
           </div>
         ) : null}
       </section>
-      <details className="border border-gray-200 bg-white">
+      <details className={sourceCardClass}>
         <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-              Status Language
-            </div>
-            <h2 className="mt-1 text-base font-bold text-[#1f2937]">
+            <div className={sourceEyebrowClass}>Status Language</div>
+            <h2 className={`mt-1 text-base ${sourceTitleClass}`}>
               Source Status Meaning
             </h2>
-            <p className="mt-1 max-w-3xl text-xs leading-5 text-gray-500">
+            <p className={`mt-1 max-w-3xl text-xs leading-5 ${sourceMutedTextClass}`}>
               Badge help for credibility, visibility, confidence, and review
               states.
             </p>
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
             Show badge guide
           </span>
         </summary>
-        <div className="border-t border-gray-200">
+        <div className="border-t border-[var(--tge-governance-neutral-border)]">
           <PostgresStatusLegend
             compact
             description="Sources use badges to separate source credibility, visibility restrictions, match confidence, and human review status."
@@ -460,39 +474,43 @@ function DisclosureSection({
   children: React.ReactNode;
 }) {
   return (
-    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+    <details className={sourceCardClass} open={defaultOpen}>
       <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-            {label}
-          </div>
-          <h2 className="mt-1 text-lg font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+          <div className={sourceEyebrowClass}>{label}</div>
+          <h2 className={`mt-1 text-lg ${sourceTitleClass}`}>{title}</h2>
+          <p className={`mt-1 max-w-3xl text-sm leading-6 ${sourceBodyTextClass}`}>
             {description}
           </p>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
           Expand / collapse
         </span>
       </summary>
-      <div className="border-t border-gray-200 px-5 py-5">{children}</div>
+      <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-5">
+        {children}
+      </div>
     </details>
   );
 }
 
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+      <h2 className="text-lg font-bold text-[var(--tge-governance-attention-text)]">
+        PostgreSQL Not Connected
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
         Sources / Documents currently reads from Railway PostgreSQL. Run the app
         through Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL`
         locally.
       </p>
-      <pre className="mt-4 overflow-x-auto bg-white px-4 py-3 text-xs text-gray-700">
+      <pre className="mt-4 overflow-x-auto bg-[var(--tge-surface-card)] px-4 py-3 text-xs text-[var(--tge-governance-neutral-text)]">
         railway run --service Postgres -- npm --prefix web run dev
       </pre>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className="mt-3 text-xs text-[var(--tge-governance-attention-text)]">
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -506,10 +524,14 @@ function SourceMobileField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div
+        className={`text-[10px] font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}
+      >
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className="mt-1 min-w-0 text-sm text-[var(--tge-governance-neutral-text)]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -522,27 +544,27 @@ function SourcesTable({
   total: number;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-bold text-[#1f2937]">Governed Sources</h2>
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <section className={sourceCardClass}>
+      <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className={`text-lg ${sourceTitleClass}`}>Governed Sources</h2>
+        <span className={`text-xs font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}>
           Showing {formatCount(sources.length)} of {formatCount(total)} matching
         </span>
       </div>
 
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className="divide-y divide-[var(--tge-governance-muted-border)] lg:hidden">
         {sources.map((source) => (
           <article key={source.source_id} className="px-4 py-4 sm:px-5">
             <Link
               href={`/sources/${source.source_id}`}
-              className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+              className="font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
             >
               {source.title ||
                 source.url ||
                 source.source_reference ||
                 "Untitled source"}
             </Link>
-            <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+            <div className={`mt-1 line-clamp-2 break-all text-xs ${sourceMutedTextClass}`}>
               {source.url || source.source_reference || "No URL or reference added"}
             </div>
 
@@ -567,7 +589,7 @@ function SourcesTable({
                   value={source.credibility_status_code}
                 />
                 {source.duplicate_source_flag ? (
-                  <div className="mt-2 text-xs font-semibold text-red-700">
+                  <div className="mt-2 text-xs font-semibold text-[var(--tge-governance-danger-text)]">
                     Duplicate flag
                   </div>
                 ) : null}
@@ -580,7 +602,7 @@ function SourcesTable({
               </SourceMobileField>
               <SourceMobileField label="Updated">
                 {formatDate(source.updated_at)}
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={`mt-1 text-xs ${sourceMutedTextClass}`}>
                   by {source.reviewed_by_name || source.added_by_name || "unknown"}
                 </div>
               </SourceMobileField>
@@ -589,7 +611,7 @@ function SourcesTable({
         ))}
 
         {sources.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-gray-500">
+          <div className={`px-5 py-10 text-center text-sm ${sourceMutedTextClass}`}>
             No governed sources match the current filters. The source model
             and reference data are in place; source entry is ready for review
             workflow expansion.
@@ -599,7 +621,7 @@ function SourcesTable({
 
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1080px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
               <th className="w-[28%] px-5 py-3 font-semibold">Source</th>
               <th className="w-[14%] px-5 py-3 font-semibold">Type</th>
@@ -610,21 +632,24 @@ function SourcesTable({
               <th className="w-[12%] px-5 py-3 font-semibold">Updated</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
             {sources.map((source) => (
-              <tr key={source.source_id} className="align-top">
+              <tr
+                key={source.source_id}
+                className="align-top hover:bg-[var(--tge-surface-subtle)]"
+              >
                 <td className="px-5 py-4">
                   <Link
                     href={`/sources/${source.source_id}`}
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className="font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                   >
                     {source.title || source.url || source.source_reference || "Untitled source"}
                   </Link>
-                  <div className="mt-1 line-clamp-2 text-xs text-gray-500">
+                  <div className={`mt-1 line-clamp-2 text-xs ${sourceMutedTextClass}`}>
                     {source.url || source.source_reference || "No URL or reference added"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
                   {source.source_type_label || source.source_type_code}
                 </td>
                 <td className="px-5 py-4">
@@ -644,20 +669,20 @@ function SourcesTable({
                     value={source.credibility_status_code}
                   />
                   {source.duplicate_source_flag ? (
-                    <div className="mt-2 text-xs font-semibold text-red-700">
+                    <div className="mt-2 text-xs font-semibold text-[var(--tge-governance-danger-text)]">
                       Duplicate flag
                     </div>
                   ) : null}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
                   {source.country || "-"}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
                   {formatCount(source.linked_entity_count)}
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
                   {formatDate(source.updated_at)}
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={`mt-1 text-xs ${sourceMutedTextClass}`}>
                     by {source.reviewed_by_name || source.added_by_name || "unknown"}
                   </div>
                 </td>
@@ -666,7 +691,10 @@ function SourcesTable({
 
             {sources.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-10 text-center text-sm text-gray-500">
+                <td
+                  colSpan={7}
+                  className={`px-5 py-10 text-center text-sm ${sourceMutedTextClass}`}
+                >
                   No governed sources match the current filters. The source
                   model and reference data are in place; source entry is ready
                   for review workflow expansion.
@@ -711,17 +739,17 @@ export default async function SourcesPage({
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={sourceCardClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
             Sources / Documents
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] sm:text-4xl">
                 Evidence Backbone
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)] sm:mt-4 sm:text-base sm:leading-7">
                 Governed sources, evidence links, credibility, and visibility
                 controls. This page is the working surface for validation and
                 future AI-ready source management.
@@ -729,19 +757,19 @@ export default async function SourcesPage({
             </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={sourceSecondaryButtonClass}
                 href="/sources/facts"
               >
                 Review Article Facts
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={sourceSecondaryButtonClass}
                 href="/sources/matches"
               >
                 Review Article Matches
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={sourceSecondaryButtonClass}
                 href="/sources/new"
               >
                 Add Source
@@ -955,13 +983,15 @@ export default async function SourcesPage({
                 {filters.quality ? (
                   <input type="hidden" name="quality" value={filters.quality} />
                 ) : null}
-                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <label
+                  className={`flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}
+                >
                   Search
                   <input
                     name="search"
                     defaultValue={filters.search || ""}
                     placeholder="Title, URL, publisher, country..."
-                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                    className={sourceInputClass}
                   />
                 </label>
 
@@ -990,31 +1020,31 @@ export default async function SourcesPage({
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
                   <button
                     type="submit"
-                    className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+                    className={sourcePrimaryButtonClass}
                   >
                     Apply
                   </button>
                   <Link
                     href="/sources"
-                    className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className={sourceSecondaryButtonClass}
                   >
                     Reset
                   </Link>
                 </div>
               </form>
               {activeOperationalFilters.length > 0 ? (
-                <div className="mt-4 flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap">
+                <div className="mt-4 flex flex-col gap-2 border-t border-[var(--tge-governance-muted-border)] pt-4 sm:flex-row sm:flex-wrap">
                   {activeOperationalFilters.map((label) => (
                     <span
                       key={label}
-                      className="inline-flex min-h-[28px] items-center border border-amber-200 bg-amber-50 px-2 text-xs font-semibold text-amber-800"
+                      className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-attention-text)]"
                     >
                       {label}
                     </span>
                   ))}
                   <Link
                     href="/sources"
-                    className="inline-flex min-h-[28px] items-center border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                   >
                     Clear operational filters
                   </Link>
