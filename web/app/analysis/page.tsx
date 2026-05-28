@@ -8,7 +8,6 @@ import {
   analysisModules,
   analysisModulesByCategory,
   analysisModulesByStatus,
-  analysisStatusDescriptions,
   analysisStatusLabels,
   type AnalysisModule,
   type AnalysisModuleCategory,
@@ -27,6 +26,7 @@ function formatCount(value: number) {
 
 function ModuleCard({ module }: { module: AnalysisModule }) {
   const isLive = module.status === "live" && module.href;
+  const href = isLive ? module.href! : `/analysis/modules/${module.id}`;
   const cardContent = (
     <>
       <div className="flex flex-col gap-3 border-b border-gray-200 bg-[#f7f7f7] px-5 py-4 sm:flex-row sm:items-start sm:justify-between">
@@ -124,27 +124,19 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
             isLive ? "text-[#4f7f1f]" : "text-gray-400"
           }`}
         >
-          {isLive ? "Open analysis" : analysisStatusDescriptions[module.status]}
+          {isLive ? "Open analysis" : "Review module definition"}
         </div>
       </div>
     </>
   );
 
-  if (isLive) {
-    return (
-      <Link
-        href={module.href!}
-        className="block border border-gray-200 bg-white transition hover:border-[#8dc63f] hover:shadow-sm"
-      >
-        {cardContent}
-      </Link>
-    );
-  }
-
   return (
-    <article className="block border border-gray-200 bg-white">
+    <Link
+      href={href}
+      className="block border border-gray-200 bg-white transition hover:border-[#8dc63f] hover:shadow-sm"
+    >
       {cardContent}
-    </article>
+    </Link>
   );
 }
 
