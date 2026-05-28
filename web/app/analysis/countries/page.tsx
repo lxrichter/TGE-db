@@ -43,6 +43,28 @@ type CountriesApiResponse = {
 
 type SortDirection = "asc" | "desc";
 
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const tableHeadClass =
+  "bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]";
+const tableHeadCellClass =
+  "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2";
+const tableRowClass = "hover:bg-[var(--tge-surface-subtle)]";
+const tableCellClass =
+  "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5";
+const tablePrimaryCellClass = `${tableCellClass} font-medium`;
+const tableStrongCellClass = `${tableCellClass} font-semibold`;
+const emptyCellClass =
+  "px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]";
+const linkClass =
+  "text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]";
+
 function SectionCard({
   title,
   description,
@@ -53,11 +75,13 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-6 py-4`}>
+        <h2 className={`text-xl font-bold ${titleTextClass}`}>{title}</h2>
         {description ? (
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
+          <p className={`mt-1 text-sm ${bodyTextClass}`}>
+            {description}
+          </p>
         ) : null}
       </div>
       <div>{children}</div>
@@ -90,7 +114,7 @@ function SortableHeader({
       className="flex items-center gap-1 text-left font-semibold"
     >
       <span>{label}</span>
-      <span className="text-[10px] text-gray-400">
+      <span className="text-[10px] text-[var(--tge-governance-muted-text)]">
         {active ? (direction === "asc" ? "▲" : "▼") : "↕"}
       </span>
     </button>
@@ -126,6 +150,26 @@ function sortRows<T extends Record<string, any>>(
   });
 
   return sorted;
+}
+
+function HeroMetric({
+  label,
+  value,
+  help,
+}: {
+  label: string;
+  value: string | number;
+  help: string;
+}) {
+  return (
+    <div>
+      <div className={eyebrowClass}>{label}</div>
+      <div className={`mt-1 text-3xl font-bold ${titleTextClass}`}>{value}</div>
+      <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+        {help}
+      </div>
+    </div>
+  );
 }
 
 export default function CountriesAnalysisPage() {
@@ -253,77 +297,48 @@ export default function CountriesAnalysisPage() {
           { value: `${formatNumber(kpis.planned)} MWe`, label: "Planned" },
         ]}
       >
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-6">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Country Markets
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.countries}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Country markets in analysis</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Regions
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.regions}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">TGE regional groups</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Installed MWe
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatNumber(kpis.installed)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Plant installed capacity</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Planned MWe
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatNumber(kpis.planned)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Project planned capacity</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Plants
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.plants}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Plants included</div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Projects
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {kpis.projects}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">Projects included</div>
-            </div>
-          </div>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-6">
+          <HeroMetric
+            label="Country Markets"
+            value={kpis.countries}
+            help="Country markets in analysis"
+          />
+          <HeroMetric
+            label="Regions"
+            value={kpis.regions}
+            help="TGE regional groups"
+          />
+          <HeroMetric
+            label="Installed MWe"
+            value={formatNumber(kpis.installed)}
+            help="Plant installed capacity"
+          />
+          <HeroMetric
+            label="Planned MWe"
+            value={formatNumber(kpis.planned)}
+            help="Project planned capacity"
+          />
+          <HeroMetric
+            label="Plants"
+            value={kpis.plants}
+            help="Plants included"
+          />
+          <HeroMetric
+            label="Projects"
+            value={kpis.projects}
+            help="Projects included"
+          />
+        </div>
       </AnalysisModuleHero>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-6 py-3`}>
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search country, region, MWe, plants, projects, phases..."
-            className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+            className="w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
           />
         </div>
       </section>
@@ -334,9 +349,9 @@ export default function CountriesAnalysisPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Market"
                     active={countrySortKey === "country"}
@@ -352,7 +367,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="TGE Region"
                     active={countrySortKey === "region"}
@@ -368,7 +383,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Installed MWe"
                     active={countrySortKey === "installed_mw"}
@@ -384,7 +399,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Planned MWe"
                     active={countrySortKey === "planned_mw"}
@@ -400,7 +415,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="# Plants"
                     active={countrySortKey === "plant_count"}
@@ -416,7 +431,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="# Projects"
                     active={countrySortKey === "project_count"}
@@ -436,33 +451,33 @@ export default function CountriesAnalysisPage() {
             </thead>
             <tbody>
               {countryRows.map((row) => (
-                <tr key={row.country} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.country} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     <Link
                       href={`/markets/countries/${slugify(row.country)}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.country}
                     </Link>
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     <Link
                       href={`/markets/regions/${slugify(row.region)}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.region}
                     </Link>
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.installed_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.planned_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.plant_count, 0)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.project_count, 0)}
                   </td>
                 </tr>
@@ -472,7 +487,7 @@ export default function CountriesAnalysisPage() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching country markets found.
                   </td>
@@ -489,9 +504,9 @@ export default function CountriesAnalysisPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="TGE Region"
                     active={regionSortKey === "region"}
@@ -507,7 +522,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Installed MWe"
                     active={regionSortKey === "installed_mw"}
@@ -523,7 +538,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="# Plants"
                     active={regionSortKey === "plant_count"}
@@ -539,7 +554,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="# Markets"
                     active={regionSortKey === "country_count"}
@@ -559,22 +574,22 @@ export default function CountriesAnalysisPage() {
             </thead>
             <tbody>
               {regionRows.map((row) => (
-                <tr key={row.region} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.region} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     <Link
                       href={`/markets/regions/${slugify(row.region)}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.region}
                     </Link>
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.installed_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.plant_count, 0)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.country_count, 0)}
                   </td>
                 </tr>
@@ -584,7 +599,7 @@ export default function CountriesAnalysisPage() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching regions found.
                   </td>
@@ -601,9 +616,9 @@ export default function CountriesAnalysisPage() {
       >
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+            <thead className={tableHeadClass}>
               <tr>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Market"
                     active={phaseSortKey === "country"}
@@ -619,7 +634,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="TGE Region"
                     active={phaseSortKey === "region"}
@@ -635,7 +650,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Exploration MWe"
                     active={phaseSortKey === "exploration_mw"}
@@ -651,7 +666,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Feasibility MWe"
                     active={phaseSortKey === "feasibility_mw"}
@@ -667,7 +682,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Construction MWe"
                     active={phaseSortKey === "construction_mw"}
@@ -683,7 +698,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Other / TBD MWe"
                     active={phaseSortKey === "other_mw"}
@@ -699,7 +714,7 @@ export default function CountriesAnalysisPage() {
                     }
                   />
                 </th>
-                <th className="border-b border-gray-200 px-4 py-2">
+                <th className={tableHeadCellClass}>
                   <SortableHeader
                     label="Total Planned MWe"
                     active={phaseSortKey === "total_planned_mw"}
@@ -719,36 +734,36 @@ export default function CountriesAnalysisPage() {
             </thead>
             <tbody>
               {phaseRows.map((row) => (
-                <tr key={row.country} className="hover:bg-gray-50">
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-medium">
+                <tr key={row.country} className={tableRowClass}>
+                  <td className={tablePrimaryCellClass}>
                     <Link
                       href={`/markets/countries/${slugify(row.country)}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.country}
                     </Link>
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     <Link
                       href={`/markets/regions/${slugify(row.region)}`}
-                      className="text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                      className={linkClass}
                     >
                       {row.region}
                     </Link>
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.exploration_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.feasibility_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.construction_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5">
+                  <td className={tableCellClass}>
                     {formatNumber(row.other_mw)}
                   </td>
-                  <td className="border-b border-gray-100 px-4 py-2.5 font-semibold">
+                  <td className={tableStrongCellClass}>
                     {formatNumber(row.total_planned_mw)}
                   </td>
                 </tr>
@@ -758,7 +773,7 @@ export default function CountriesAnalysisPage() {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={emptyCellClass}
                   >
                     No matching phase results found.
                   </td>
