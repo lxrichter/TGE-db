@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { AnalysisGovernanceQaSection } from "@/components/analysis/AnalysisGovernanceQa";
 import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
 import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
 
@@ -98,6 +99,103 @@ function CoverageCard({
         ))}
       </div>
     </div>
+  );
+}
+
+function GovernanceMetric({
+  label,
+  value,
+  note,
+  tone = "default",
+}: {
+  label: string;
+  value: string | number;
+  note: string;
+  tone?: "default" | "warning";
+}) {
+  return (
+    <div className="border border-gray-200 bg-white px-4 py-3">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </div>
+      <div
+        className={`mt-1 text-xl font-bold ${
+          tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+        }`}
+      >
+        {value}
+      </div>
+      <p className="mt-1 text-xs leading-5 text-gray-600">{note}</p>
+    </div>
+  );
+}
+
+function GovernanceReadinessPanel({
+  ownerSummary,
+  operatorSummary,
+}: {
+  ownerSummary: OwnerSummary | null;
+  operatorSummary: OperatorSummary | null;
+}) {
+  const ownerMissingShare = ownerSummary?.links_missing_ownership_share ?? 0;
+  const ownerMissingMw = ownerSummary?.links_missing_installed_mw ?? 0;
+  const operatorMissingMw = operatorSummary?.links_missing_installed_mw ?? 0;
+
+  return (
+    <AnalysisGovernanceQaSection
+      title="Ownership And Operator Readiness"
+      description="These checks keep owner and operator rankings transparent. Ownership attribution depends on explicit ownership share and plant MWe; operator attribution remains a separate full-plant-MWe view."
+    >
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_0.8fr]">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <GovernanceMetric
+            label="Missing ownership %"
+            value={ownerMissingShare}
+            note="Owner links excluded from weighted MW until ownership share is available."
+            tone={ownerMissingShare ? "warning" : "default"}
+          />
+          <GovernanceMetric
+            label="Owner links missing MWe"
+            value={ownerMissingMw}
+            note="Owner links excluded until the linked plant has installed MWe."
+            tone={ownerMissingMw ? "warning" : "default"}
+          />
+          <GovernanceMetric
+            label="Operator links missing MWe"
+            value={operatorMissingMw}
+            note="Operator links excluded from operated MWe until plant capacity is known."
+            tone={operatorMissingMw ? "warning" : "default"}
+          />
+        </div>
+
+        <div className="border border-amber-200 bg-white">
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-3">
+            <h3 className="text-sm font-bold text-[#1f2937]">
+              Cleanup Routing
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-amber-900">
+              Resolve ownership shares, plant capacity, and role separation in
+              the operational workspaces.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-3 xl:grid-cols-1">
+            {[
+              { label: "Research Ops", href: "/postgres-preview/research-ops" },
+              { label: "Plant Records", href: "/plants" },
+              { label: "Company Links", href: "/companies" },
+            ].map((route) => (
+              <Link
+                key={route.label}
+                href={route.href}
+                className="border border-gray-200 bg-[#fafafa] px-3 py-2 text-xs font-semibold text-[#1f2937] transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
+              >
+                {route.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </AnalysisGovernanceQaSection>
   );
 }
 
@@ -273,6 +371,11 @@ export default function OperatorAnalysisPage() {
               ]}
             />
           </section>
+
+          <GovernanceReadinessPanel
+            ownerSummary={ownerSummary}
+            operatorSummary={operatorSummary}
+          />
 
           <section className="border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
