@@ -14,6 +14,22 @@ type RegionSummary = {
   sourceGaps: number;
 };
 
+const regionalRoutesClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] px-5 py-4",
+  card:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4",
+  metric:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-2",
+  routeLink:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+};
+
 function regionParamName(kind: RegionKind) {
   return kind === "tge" ? "tge_region" : "wb_region";
 }
@@ -98,52 +114,52 @@ export default function PostgresRegionalWorklistRoutes({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-sm leading-6 text-gray-600">{description}</p>
+    <section className={regionalRoutesClass.panel}>
+      <div className={regionalRoutesClass.sectionHeader}>
+        <h2 className={`text-lg font-bold ${regionalRoutesClass.title}`}>{title}</h2>
+        <p className={`mt-1 text-sm leading-6 ${regionalRoutesClass.body}`}>{description}</p>
       </div>
       <div className="grid gap-3 px-5 py-5 md:grid-cols-2 xl:grid-cols-4">
         {regions.map((region) => (
           <article
             key={`${region.kind}-${region.name}`}
-            className="border border-gray-200 bg-[#f7f7f7] px-4 py-4"
+            className={regionalRoutesClass.card}
           >
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-[10px] font-semibold uppercase tracking-wide ${regionalRoutesClass.muted}`}>
               {region.kind === "tge" ? "TGE Region" : "World Bank Region"}
             </div>
-            <h3 className="mt-2 text-base font-bold text-[#1f2937]">
+            <h3 className={`mt-2 text-base font-bold ${regionalRoutesClass.title}`}>
               {region.name}
             </h3>
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="border border-gray-200 bg-white px-2 py-2">
-                <div className="font-semibold text-[#1f2937]">
+              <div className={regionalRoutesClass.metric}>
+                <div className={`font-semibold ${regionalRoutesClass.title}`}>
                   {formatMw(region.operatingMwe)} MWe
                 </div>
-                <div className="mt-1 text-gray-500">operating</div>
+                <div className={`mt-1 ${regionalRoutesClass.muted}`}>operating</div>
               </div>
-              <div className="border border-gray-200 bg-white px-2 py-2">
-                <div className="font-semibold text-[#1f2937]">
+              <div className={regionalRoutesClass.metric}>
+                <div className={`font-semibold ${regionalRoutesClass.title}`}>
                   {formatMw(region.pipelineMwe)} MWe
                 </div>
-                <div className="mt-1 text-gray-500">pipeline</div>
+                <div className={`mt-1 ${regionalRoutesClass.muted}`}>pipeline</div>
               </div>
-              <div className="border border-gray-200 bg-white px-2 py-2">
-                <div className="font-semibold text-[#1f2937]">
+              <div className={regionalRoutesClass.metric}>
+                <div className={`font-semibold ${regionalRoutesClass.title}`}>
                   {formatCount(region.countryCount)}
                 </div>
-                <div className="mt-1 text-gray-500">markets</div>
+                <div className={`mt-1 ${regionalRoutesClass.muted}`}>markets</div>
               </div>
-              <div className="border border-gray-200 bg-white px-2 py-2">
-                <div className="font-semibold text-[#1f2937]">
+              <div className={regionalRoutesClass.metric}>
+                <div className={`font-semibold ${regionalRoutesClass.title}`}>
                   {formatCount(region.sourceGaps)}
                 </div>
-                <div className="mt-1 text-gray-500">source gaps</div>
+                <div className={`mt-1 ${regionalRoutesClass.muted}`}>source gaps</div>
               </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold">
               <Link
-                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={regionalRoutesClass.routeLink}
                 href={regionHref({
                   path: "/postgres-preview/markets",
                   kind: region.kind,
@@ -154,7 +170,7 @@ export default function PostgresRegionalWorklistRoutes({
                 Markets
               </Link>
               <Link
-                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={regionalRoutesClass.routeLink}
                 href={regionHref({
                   path: "/postgres-preview/analysis",
                   kind: region.kind,
@@ -164,7 +180,7 @@ export default function PostgresRegionalWorklistRoutes({
                 Analysis
               </Link>
               <Link
-                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={regionalRoutesClass.routeLink}
                 href={regionHref({
                   path: "/postgres-preview/map",
                   kind: region.kind,
@@ -174,7 +190,7 @@ export default function PostgresRegionalWorklistRoutes({
                 Map
               </Link>
               <Link
-                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={regionalRoutesClass.routeLink}
                 href={regionHref({
                   path: "/postgres-preview/projects",
                   kind: region.kind,
@@ -184,7 +200,7 @@ export default function PostgresRegionalWorklistRoutes({
                 Projects
               </Link>
               <Link
-                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={regionalRoutesClass.routeLink}
                 href={regionHref({
                   path: "/postgres-preview/operating-assets",
                   kind: region.kind,
@@ -194,7 +210,7 @@ export default function PostgresRegionalWorklistRoutes({
                 Plants
               </Link>
               <Link
-                className="border border-gray-200 bg-white px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={regionalRoutesClass.routeLink}
                 href={regionHref({
                   path: "/postgres-preview/companies",
                   kind: region.kind,
