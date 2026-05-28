@@ -59,10 +59,12 @@ export default function ExportExcelModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-3xl border border-gray-200 bg-white shadow-xl">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-4">
-          <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-1 text-sm text-gray-500">
+      <div className="w-full max-w-3xl border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl">
+        <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-4">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+            {title}
+          </h2>
+          <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
             Select the columns to include in the Excel export.
           </p>
         </div>
@@ -72,14 +74,14 @@ export default function ExportExcelModal({
             <button
               type="button"
               onClick={selectAll}
-              className="border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1 text-xs font-medium text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
             >
               Select All
             </button>
             <button
               type="button"
               onClick={resetDefault}
-              className="border border-gray-300 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1 text-xs font-medium text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
             >
               Reset Default
             </button>
@@ -89,7 +91,7 @@ export default function ExportExcelModal({
             {columns.map((column) => (
               <label
                 key={column.key}
-                className="flex items-center gap-3 border border-gray-200 px-3 py-2 text-sm"
+                className="flex items-center gap-3 border border-[var(--tge-governance-neutral-border)] px-3 py-2 text-sm text-[var(--tge-text-secondary)]"
               >
                 <input
                   type="checkbox"
@@ -102,8 +104,8 @@ export default function ExportExcelModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-gray-200 px-5 py-4">
-          <div className="text-sm text-gray-500">
+        <div className="flex items-center justify-between border-t border-[var(--tge-governance-neutral-border)] px-5 py-4">
+          <div className="text-sm text-[var(--tge-governance-muted-text)]">
             {selectedKeys.length} column{selectedKeys.length === 1 ? "" : "s"} selected
           </div>
 
@@ -111,7 +113,7 @@ export default function ExportExcelModal({
             <button
               type="button"
               onClick={onClose}
-              className="border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-medium text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
             >
               Cancel
             </button>
@@ -119,7 +121,7 @@ export default function ExportExcelModal({
               type="button"
               onClick={handleExport}
               disabled={exporting || selectedKeys.length === 0}
-              className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              className="bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:opacity-50"
             >
               {exporting ? "Exporting..." : "Download Excel"}
             </button>
