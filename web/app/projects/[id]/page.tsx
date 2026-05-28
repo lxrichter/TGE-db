@@ -59,7 +59,7 @@ function renderLinkedText(value: any) {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#8dc63f] underline hover:text-[#6aa32f]"
+            className={projectDetailClass.brandLink}
           >
             {url}
           </a>
@@ -80,11 +80,11 @@ function Row({
 }) {
   return (
     <div
-      className="grid grid-cols-1 gap-1 border-b border-gray-200 py-1.5 md:gap-3"
+      className="grid grid-cols-1 gap-1 border-b border-[var(--tge-governance-neutral-border)] py-1.5 md:gap-3"
       style={{ gridTemplateColumns: `minmax(0, ${labelWidth}) minmax(0, 1fr)` }}
     >
-      <div className="text-[12px] font-semibold text-gray-700">{label}</div>
-      <div className="break-words text-[12px] text-gray-600">
+      <div className="text-[12px] font-semibold text-[var(--tge-governance-neutral-text)]">{label}</div>
+      <div className={`break-words text-[12px] ${projectDetailClass.body}`}>
         {isValidElement(value) ? value : renderLinkedText(value)}
       </div>
     </div>
@@ -102,10 +102,10 @@ function SummaryItem({
 }) {
   return (
     <div className={className}>
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={`text-[10px] font-semibold uppercase tracking-wide ${projectDetailClass.muted}`}>
         {label}
       </div>
-      <div className="mt-1 text-[17px] font-semibold leading-snug text-[#1f2937]">
+      <div className={`mt-1 text-[17px] font-semibold leading-snug ${projectDetailClass.title}`}>
         {value ?? "NA"}
       </div>
     </div>
@@ -177,6 +177,27 @@ function formatDisplayDate(value: string | null | undefined) {
   return value.slice(0, 10);
 }
 
+const projectDetailClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  sectionHeader:
+    "flex min-h-[48px] items-center border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-medium text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  brandLink: "text-[var(--tge-brand-green-dark)] underline hover:text-[var(--tge-brand-green)]",
+  utilityButton:
+    "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+  tableHead: "bg-[var(--tge-surface-card)]",
+  tableHeaderCell: "px-5 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]",
+  tableRow: "border-b border-[var(--tge-governance-neutral-border)] hover:bg-[var(--tge-surface-subtle)]",
+  tableCell: "px-5 py-2.5 align-top text-[var(--tge-text-secondary)]",
+};
+
 function TabSection({
   title,
   children,
@@ -185,9 +206,9 @@ function TabSection({
   children: ReactNode;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-        <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+    <section className={projectDetailClass.panel}>
+      <div className={projectDetailClass.sectionHeader}>
+        <h2 className={`text-lg font-bold leading-none ${projectDetailClass.title}`}>
           {title}
         </h2>
       </div>
@@ -409,9 +430,9 @@ function PrimaryCompaniesCompact({ rows }: { rows: ProjectCompanyRow[] }) {
   const grouped = groupPrimaryCompanies(rows);
 
   return (
-    <div className="border border-gray-200 bg-[#fafafa]">
-      <div className="border-b border-gray-200 px-5 py-2.5">
-        <h3 className="text-[14px] font-bold text-[#1f2937]">
+    <div className={projectDetailClass.panelSubtle}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-2.5">
+        <h3 className={`text-[14px] font-bold ${projectDetailClass.title}`}>
           Primary Companies
         </h3>
       </div>
@@ -421,10 +442,10 @@ function PrimaryCompaniesCompact({ rows }: { rows: ProjectCompanyRow[] }) {
           {grouped.map((group) => (
             <div
               key={group.roleName}
-              className="grid items-start border-b border-gray-200 py-1.5"
+              className="grid items-start border-b border-[var(--tge-governance-neutral-border)] py-1.5"
               style={{ gridTemplateColumns: "140px minmax(0,1fr)" }}
             >
-              <div className="text-[11px] font-semibold uppercase text-gray-500">
+              <div className={`text-[11px] font-semibold uppercase ${projectDetailClass.muted}`}>
                 {group.roleName}
               </div>
 
@@ -433,13 +454,13 @@ function PrimaryCompaniesCompact({ rows }: { rows: ProjectCompanyRow[] }) {
                   <span key={`${item.company_id}-${idx}`} className="text-[13px]">
                     <Link
                       href={`/companies/${item.company_id}`}
-                      className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                      className={projectDetailClass.link}
                     >
                       {item.company_name}
                     </Link>
 
                     {item.role_detail && (
-                      <span className="ml-1 text-[11px] text-gray-500">
+                      <span className={`ml-1 text-[11px] ${projectDetailClass.muted}`}>
                         ({item.role_detail})
                       </span>
                     )}
@@ -464,12 +485,12 @@ function SecondaryCompaniesCompact({
   return (
     <div className="space-y-3">
       {groups.map((group) => (
-        <section key={group.groupName} className="border border-gray-200 bg-white">
-          <div className="flex items-center justify-between border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
-            <h3 className="text-[15px] font-bold text-[#1f2937]">
+        <section key={group.groupName} className={projectDetailClass.panel}>
+          <div className="flex items-center justify-between border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
+            <h3 className={`text-[15px] font-bold ${projectDetailClass.title}`}>
               {group.groupName}
             </h3>
-            <span className="text-xs font-semibold text-gray-500">
+            <span className={`text-xs font-semibold ${projectDetailClass.muted}`}>
               {group.items.length}
             </span>
           </div>
@@ -482,32 +503,32 @@ function SecondaryCompaniesCompact({
                 <col className="w-[22%]" />
                 <col className="w-[22%]" />
               </colgroup>
-              <thead className="bg-white">
-                <tr className="border-b border-gray-200">
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Company</th>
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Role</th>
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Share %</th>
-                  <th className="px-5 py-2.5 font-semibold text-gray-700">Role Detail</th>
+              <thead className={projectDetailClass.tableHead}>
+                <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+                  <th className={projectDetailClass.tableHeaderCell}>Company</th>
+                  <th className={projectDetailClass.tableHeaderCell}>Role</th>
+                  <th className={projectDetailClass.tableHeaderCell}>Share %</th>
+                  <th className={projectDetailClass.tableHeaderCell}>Role Detail</th>
                 </tr>
               </thead>
               <tbody>
                 {group.items.map((row) => (
-                  <tr key={row.company_project_link_id} className="border-b border-gray-200">
-                    <td className="px-5 py-2.5 text-gray-700 align-top">
+                  <tr key={row.company_project_link_id} className={projectDetailClass.tableRow}>
+                    <td className={projectDetailClass.tableCell}>
                       <Link
                         href={`/companies/${row.company_id}`}
-                        className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                        className={projectDetailClass.link}
                       >
                         {row.company_name || "NA"}
                       </Link>
                     </td>
-                    <td className="px-5 py-2.5 text-gray-600 align-top">
+                    <td className={projectDetailClass.tableCell}>
                       {row.role || "NA"}
                     </td>
-                    <td className="px-5 py-2.5 text-gray-600 align-top">
+                    <td className={projectDetailClass.tableCell}>
                       {row.ownership_share ?? "NA"}
                     </td>
-                    <td className="px-5 py-2.5 text-gray-600 align-top">
+                    <td className={projectDetailClass.tableCell}>
                       {row.role_detail || "NA"}
                     </td>
                   </tr>
@@ -525,17 +546,17 @@ function OtherCompaniesCompact({ rows }: { rows: ProjectCompanyRow[] }) {
   if (!rows.length) return null;
 
   return (
-    <details className="border border-gray-200 bg-[#fafafa]">
+    <details className={projectDetailClass.panelSubtle}>
       <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3">
-        <span className="text-[15px] font-bold text-[#1f2937]">
+        <span className={`text-[15px] font-bold ${projectDetailClass.title}`}>
           Other Companies
         </span>
-        <span className="text-xs font-semibold text-gray-500">
+        <span className={`text-xs font-semibold ${projectDetailClass.muted}`}>
           {rows.length}
         </span>
       </summary>
 
-      <div className="overflow-x-auto border-t border-gray-200">
+      <div className="overflow-x-auto border-t border-[var(--tge-governance-neutral-border)]">
         <table className="min-w-full table-fixed text-left text-[12px]">
           <colgroup>
             <col className="w-[34%]" />
@@ -543,32 +564,32 @@ function OtherCompaniesCompact({ rows }: { rows: ProjectCompanyRow[] }) {
             <col className="w-[22%]" />
             <col className="w-[22%]" />
           </colgroup>
-          <thead className="bg-white">
-            <tr className="border-b border-gray-200">
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Company</th>
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Role</th>
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Share %</th>
-              <th className="px-5 py-2.5 font-semibold text-gray-700">Role Detail</th>
+          <thead className={projectDetailClass.tableHead}>
+            <tr className="border-b border-[var(--tge-governance-neutral-border)]">
+              <th className={projectDetailClass.tableHeaderCell}>Company</th>
+              <th className={projectDetailClass.tableHeaderCell}>Role</th>
+              <th className={projectDetailClass.tableHeaderCell}>Share %</th>
+              <th className={projectDetailClass.tableHeaderCell}>Role Detail</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.company_project_link_id} className="border-b border-gray-200">
-                <td className="px-5 py-2.5 text-gray-700 align-top">
+              <tr key={row.company_project_link_id} className={projectDetailClass.tableRow}>
+                <td className={projectDetailClass.tableCell}>
                   <Link
                     href={`/companies/${row.company_id}`}
-                    className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                    className={projectDetailClass.link}
                   >
                     {row.company_name || "NA"}
                   </Link>
                 </td>
-                <td className="px-5 py-2.5 text-gray-600 align-top">
+                <td className={projectDetailClass.tableCell}>
                   {row.role || "NA"}
                 </td>
-                <td className="px-5 py-2.5 text-gray-600 align-top">
+                <td className={projectDetailClass.tableCell}>
                   {row.ownership_share ?? "NA"}
                 </td>
-                <td className="px-5 py-2.5 text-gray-600 align-top">
+                <td className={projectDetailClass.tableCell}>
                   {row.role_detail || "NA"}
                 </td>
               </tr>
@@ -594,8 +615,7 @@ export default async function ProjectDetailPage({
   const userCanEdit = canEdit(currentRole);
   const userCanApprove = canApprove(currentRole);
 
-  const utilityButtonClass =
-    "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-gray-300 bg-white px-3 py-1 text-[11px] font-semibold leading-none text-gray-700 transition hover:bg-gray-50";
+  const utilityButtonClass = projectDetailClass.utilityButton;
 
   const { id } = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
@@ -652,11 +672,11 @@ export default async function ProjectDetailPage({
     return (
       <>
         <main className="screen-only space-y-6">
-          <div className="border border-gray-200 bg-white p-8">
-            <p className="text-base text-gray-700">Project not found.</p>
+          <div className={`${projectDetailClass.panel} p-8`}>
+            <p className={`text-base ${projectDetailClass.body}`}>Project not found.</p>
             <Link
               href="/projects"
-              className="mt-4 inline-block text-sm text-[#8dc63f]"
+              className={`mt-4 inline-block text-sm ${projectDetailClass.brandLink}`}
             >
               ← Back to projects
             </Link>
@@ -735,29 +755,29 @@ export default async function ProjectDetailPage({
         <div>
           <Link
             href="/projects"
-            className="text-sm font-medium text-[#8dc63f] hover:underline"
+            className="text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
           >
             ← Back to projects
           </Link>
         </div>
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-[#8dc63f] px-6 py-6">
+        <section className={projectDetailClass.panel}>
+          <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6">
             <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
               <div className="max-w-5xl">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                   Project Profile
                 </p>
 
-                <h1 className="mt-2 text-4xl font-bold tracking-tight text-[#1f2937] xl:text-5xl">
+                <h1 className={`mt-2 text-4xl font-bold tracking-tight xl:text-5xl ${projectDetailClass.title}`}>
                   {project.project_name || "NA"}
                 </h1>
 
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <div className={`mt-3 flex flex-wrap items-center gap-2 text-sm ${projectDetailClass.body}`}>
                   <span>{project.country || "NA"}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[var(--tge-governance-muted-border)]">|</span>
                   <span>{project.region || "NA"}</span>
-                  <span className="text-gray-300">|</span>
+                  <span className="text-[var(--tge-governance-muted-border)]">|</span>
                   <span>{project.location_text || "NA"}</span>
                 </div>
 
@@ -798,7 +818,7 @@ export default async function ProjectDetailPage({
             </div>
           </div>
 
-          <div className="border-t border-gray-200 bg-[#fafafa] px-6 py-4">
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-4">
             <div className="grid grid-cols-2 gap-x-6 gap-y-5 xl:grid-cols-[120px_160px_180px_minmax(240px,1.4fr)_140px]">
               <SummaryItem
                 label="Project ID"
@@ -825,13 +845,13 @@ export default async function ProjectDetailPage({
         </section>
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_460px]">
-          <section className="border border-gray-200 bg-white">
-            <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-              <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+          <section className={projectDetailClass.panel}>
+            <div className={projectDetailClass.sectionHeader}>
+              <h2 className={`text-lg font-bold leading-none ${projectDetailClass.title}`}>
                 Description
               </h2>
             </div>
-            <div className="px-5 py-4 text-[13px] leading-6 text-gray-600">
+            <div className={`px-5 py-4 text-[13px] leading-6 ${projectDetailClass.body}`}>
               {project.edited_description ? (
                 <p>{project.edited_description}</p>
               ) : (
@@ -845,7 +865,7 @@ export default async function ProjectDetailPage({
           </section>
 
           <div className="space-y-6">
-            <section className="bg-white">
+            <section className="bg-[var(--tge-surface-card)]">
               <DetailMap
                 title={project.project_name || "Project"}
                 latitude={latitude}
@@ -861,9 +881,9 @@ export default async function ProjectDetailPage({
         {(primaryCompanies.length > 0 ||
           secondaryGroups.length > 0 ||
           otherCompanies.length > 0) && (
-          <section className="border border-gray-200 bg-white">
-            <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-              <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+          <section className={projectDetailClass.panel}>
+            <div className={projectDetailClass.sectionHeader}>
+              <h2 className={`text-lg font-bold leading-none ${projectDetailClass.title}`}>
                 Companies
               </h2>
             </div>
@@ -878,8 +898,8 @@ export default async function ProjectDetailPage({
 
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_460px]">
           <div className="space-y-6">
-            <section className="border border-gray-200 bg-white">
-              <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-1">
+            <section className={projectDetailClass.panel}>
+              <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-1">
                 <div className="flex flex-wrap">
                   {tabs.map((tab) => {
                     const isActive = activeTab === tab.key;
@@ -888,10 +908,10 @@ export default async function ProjectDetailPage({
                         key={tab.key}
                         href={`/projects/${id}?tab=${tab.key}`}
                         scroll={false}
-                        className={`border-r border-gray-200 px-3 py-2.5 text-[12px] font-semibold ${
+                        className={`border-r border-[var(--tge-governance-neutral-border)] px-3 py-2.5 text-[12px] font-semibold ${
                           isActive
-                            ? "bg-white text-[#1f2937]"
-                            : "text-gray-600 hover:bg-gray-100"
+                            ? "bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)]"
+                            : "text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-governance-neutral-bg)]"
                         }`}
                       >
                         {tab.label}
@@ -904,7 +924,7 @@ export default async function ProjectDetailPage({
               <div className="p-0">
                 {activeTab === "ownership-location" && (
                   <TabSection title="Location & Legacy Fields">
-                    <p className="mb-4 text-sm text-gray-600">
+                    <p className={`mb-4 text-sm ${projectDetailClass.body}`}>
                       Structured company participation is shown in the Companies section above. The fields below are legacy text fields kept during transition and should not be treated as the long-term source of truth.
                     </p>
                     <Row label="Project ID" value={project.project_id} />
@@ -1028,9 +1048,9 @@ export default async function ProjectDetailPage({
           </div>
 
           <div className="space-y-6">
-            <section className="border border-gray-200 bg-white">
-              <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-                <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+            <section className={projectDetailClass.panel}>
+              <div className={projectDetailClass.sectionHeader}>
+                <h2 className={`text-lg font-bold leading-none ${projectDetailClass.title}`}>
                   Metadata & Review
                 </h2>
               </div>
@@ -1090,9 +1110,9 @@ export default async function ProjectDetailPage({
           owner={project.owner_operator}
         />
 
-        <section className="border border-gray-200 bg-white">
-          <div className="flex min-h-[48px] items-center border-b border-gray-200 bg-[#f7f7f7] px-5">
-            <h2 className="text-lg font-bold leading-none text-[#1f2937]">
+        <section className={projectDetailClass.panel}>
+          <div className={projectDetailClass.sectionHeader}>
+            <h2 className={`text-lg font-bold leading-none ${projectDetailClass.title}`}>
               Sources & Notes
             </h2>
           </div>
