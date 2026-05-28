@@ -27,7 +27,7 @@ type ActionButtonProps = ButtonProps | LinkProps;
 function getVariantClasses(variant: Variant) {
   switch (variant) {
     case 'primary':
-      return 'bg-[var(--tge-brand-green)] text-white hover:opacity-90';
+      return 'bg-[var(--tge-brand-green)] text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]';
     case 'danger':
       return 'border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)]';
     case 'secondary':
