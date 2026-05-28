@@ -71,6 +71,31 @@ type SegmentRow = {
   attributed_mw: number;
 };
 
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const subtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const tableHeadClass =
+  "bg-[var(--tge-governance-neutral-bg)] text-left uppercase tracking-wide text-[var(--tge-governance-neutral-text)]";
+const tableHeadCellClass =
+  "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2 text-[12px] font-semibold";
+const tableRowClass = "hover:bg-[var(--tge-surface-subtle)]";
+const tableCellClass =
+  "border-b border-[var(--tge-governance-muted-border)] px-4 py-2 text-[13px]";
+const tablePrimaryCellClass = `${tableCellClass} font-semibold text-[var(--tge-text-primary)]`;
+const emptyCellClass =
+  "px-4 py-8 text-center text-[13px] text-[var(--tge-governance-muted-text)]";
+const linkClass =
+  "underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]";
+const tagClass =
+  "inline-flex min-h-[22px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)]";
+
 function formatNumber(value: number, digits = 1) {
   return Number(value || 0).toLocaleString(undefined, {
     minimumFractionDigits: digits,
@@ -88,12 +113,16 @@ function StatCard({
   help: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-5 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${subtleCardClass} px-5 py-4`}>
+      <div className={eyebrowClass}>
         {label}
       </div>
-      <div className="mt-1 text-3xl font-bold text-[#1f2937]">{value}</div>
-      <div className="mt-1 text-xs text-gray-500">{help}</div>
+      <div className={`mt-1 text-3xl font-bold ${titleTextClass}`}>
+        {value}
+      </div>
+      <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+        {help}
+      </div>
     </div>
   );
 }
@@ -106,19 +135,21 @@ function CoverageCard({
   items: { label: string; value: string | number; tone?: "default" | "warning" }[];
 }) {
   return (
-    <div className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
-        <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
+    <div className={panelClass}>
+      <div className={`${panelHeaderClass} px-4 py-3`}>
+        <h3 className={`text-sm font-bold ${titleTextClass}`}>{title}</h3>
       </div>
       <div className="grid grid-cols-1 gap-3 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
           <div key={item.label}>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={eyebrowClass}>
               {item.label}
             </div>
             <div
               className={`mt-1 text-lg font-bold ${
-                item.tone === "warning" ? "text-amber-700" : "text-[#1f2937]"
+                item.tone === "warning"
+                  ? "text-[var(--tge-governance-attention-text)]"
+                  : titleTextClass
               }`}
             >
               {item.value}
@@ -138,9 +169,9 @@ function MethodCard({
   text: string;
 }) {
   return (
-    <div className="border border-[#d7e8bf] bg-[#f5faef] px-4 py-3">
-      <div className="text-sm font-bold text-[#1f2937]">{title}</div>
-      <div className="mt-1 text-xs leading-5 text-gray-600">{text}</div>
+    <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3">
+      <div className={`text-sm font-bold ${titleTextClass}`}>{title}</div>
+      <div className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>{text}</div>
     </div>
   );
 }
@@ -155,35 +186,37 @@ function SegmentTable({
   rows: SegmentRow[];
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
-        <p className="mt-1 text-sm text-gray-500">{description}</p>
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-6 py-4`}>
+        <h2 className={`text-xl font-bold ${titleTextClass}`}>{title}</h2>
+        <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
+          {description}
+        </p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full">
-          <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+          <thead className={tableHeadClass}>
             <tr>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Segment</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MWe</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Projects</th>
-              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Developers</th>
+              <th className={tableHeadCellClass}>Segment</th>
+              <th className={tableHeadCellClass}>Attributed MWe</th>
+              <th className={tableHeadCellClass}>Projects</th>
+              <th className={tableHeadCellClass}>Developers</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.label} className="hover:bg-gray-50">
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+              <tr key={row.label} className={tableRowClass}>
+                <td className={tablePrimaryCellClass}>
                   {row.label}
                 </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                <td className={tableCellClass}>
                   {formatNumber(row.attributed_mw)}
                 </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                <td className={tableCellClass}>
                   {row.project_count}
                 </td>
-                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                <td className={tableCellClass}>
                   {row.developer_count}
                 </td>
               </tr>
@@ -191,7 +224,7 @@ function SegmentTable({
 
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-gray-500">
+                <td colSpan={4} className={emptyCellClass}>
                   No segment data found.
                 </td>
               </tr>
@@ -223,12 +256,12 @@ function QaCleanupRoutes() {
   ];
 
   return (
-    <section className="border border-amber-200 bg-white">
-      <div className="border-b border-amber-200 bg-amber-50 px-5 py-3">
-        <h3 className="text-sm font-bold text-[#1f2937]">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-3">
+        <h3 className={`text-sm font-bold ${titleTextClass}`}>
           Cleanup Routing
         </h3>
-        <p className="mt-1 text-[13px] leading-5 text-amber-900">
+        <p className="mt-1 text-[13px] leading-5 text-[var(--tge-governance-attention-text)]">
           QA findings should become researcher work, not silent caveats in the
           ranking output.
         </p>
@@ -239,12 +272,12 @@ function QaCleanupRoutes() {
           <Link
             key={route.label}
             href={route.href}
-            className="block border border-gray-200 bg-[#fafafa] px-4 py-3 transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
+            className="block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
           >
-            <div className="text-sm font-bold text-[#1f2937]">
+            <div className={`text-sm font-bold ${titleTextClass}`}>
               {route.label}
             </div>
-            <p className="mt-1 text-xs leading-5 text-gray-600">
+            <p className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>
               {route.description}
             </p>
           </Link>
@@ -265,17 +298,17 @@ function RoleDistributionTable({ rows }: { rows: ExcludedRoleRow[] }) {
       isEmpty={rows.length === 0}
     >
       {rows.map((row) => (
-        <tr key={row.role} className="hover:bg-gray-50">
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+        <tr key={row.role} className={tableRowClass}>
+          <td className={tablePrimaryCellClass}>
             {row.role}
           </td>
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.link_count}
           </td>
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.project_count}
           </td>
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.company_count}
           </td>
         </tr>
@@ -309,30 +342,30 @@ function ProjectQaTable({
       isEmpty={rows.length === 0}
     >
       {rows.map((row) => (
-        <tr key={row.project_id} className="hover:bg-gray-50">
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+        <tr key={row.project_id} className={tableRowClass}>
+          <td className={tablePrimaryCellClass}>
             <Link
               href={`/projects/${row.project_id}`}
-              className="underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+              className={linkClass}
             >
               {row.project_name}
             </Link>
           </td>
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.country || "-"}
           </td>
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.phase || "-"}
           </td>
           {showMw ? (
-            <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+            <td className={tableCellClass}>
               {row.project_mw === null ? "-" : formatNumber(row.project_mw)}
             </td>
           ) : null}
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.developer_names.join(", ")}
           </td>
-          <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+          <td className={tableCellClass}>
             {row.roles.join(", ")}
           </td>
         </tr>
@@ -443,14 +476,16 @@ export default function DeveloperAnalysisPage() {
       </AnalysisModuleHero>
 
       {loading ? (
-        <section className="border border-gray-200 bg-white px-6 py-8">
-          <p className="text-sm text-gray-600">Loading analysis...</p>
+        <section className={`${panelClass} px-6 py-8`}>
+          <p className={`text-sm ${bodyTextClass}`}>Loading analysis...</p>
         </section>
       ) : null}
 
       {error ? (
-        <section className="border border-red-200 bg-red-50 px-6 py-4">
-          <p className="text-sm text-red-700">{error}</p>
+        <section className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-6 py-4">
+          <p className="text-sm text-[var(--tge-governance-danger-text)]">
+            {error}
+          </p>
         </section>
       ) : null}
 
@@ -550,12 +585,12 @@ export default function DeveloperAnalysisPage() {
             />
           </AnalysisGovernanceQaSection>
 
-          <section className="border border-gray-200 bg-white">
-            <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#1f2937]">
+          <section className={panelClass}>
+            <div className={`${panelHeaderClass} px-6 py-4`}>
+              <h2 className={`text-xl font-bold ${titleTextClass}`}>
                 Top Developers by Attributed MWe
               </h2>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
                 Project MWe is attributed to developer-role companies using
                 project link weights where available; otherwise it is split
                 equally among developer links on the project.
@@ -564,43 +599,47 @@ export default function DeveloperAnalysisPage() {
 
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+                <thead className={tableHeadClass}>
                   <tr>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">#</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Company</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MWe</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Linked Projects</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Countries</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Weighted</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Equal Split</th>
-                    <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Roles</th>
+                    <th className={tableHeadCellClass}>#</th>
+                    <th className={tableHeadCellClass}>Company</th>
+                    <th className={tableHeadCellClass}>Attributed MWe</th>
+                    <th className={tableHeadCellClass}>Linked Projects</th>
+                    <th className={tableHeadCellClass}>Countries</th>
+                    <th className={tableHeadCellClass}>Weighted</th>
+                    <th className={tableHeadCellClass}>Equal Split</th>
+                    <th className={tableHeadCellClass}>Roles</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row) => (
-                    <tr key={row.company_id} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.rank}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                    <tr key={row.company_id} className={tableRowClass}>
+                      <td className={tableCellClass}>{row.rank}</td>
+                      <td className={tableCellClass}>
                         <Link
                           href={`/companies/${row.company_id}`}
-                          className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className={`font-medium text-[var(--tge-text-primary)] ${linkClass}`}
                         >
                           {row.company_name}
                         </Link>
                       </td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+                      <td className={tablePrimaryCellClass}>
                         {formatNumber(row.attributed_mw)}
                       </td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.project_count}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.country_count}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.weighted_project_count}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">{row.equal_split_project_count}</td>
-                      <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                      <td className={tableCellClass}>{row.project_count}</td>
+                      <td className={tableCellClass}>{row.country_count}</td>
+                      <td className={tableCellClass}>
+                        {row.weighted_project_count}
+                      </td>
+                      <td className={tableCellClass}>
+                        {row.equal_split_project_count}
+                      </td>
+                      <td className={tableCellClass}>
                         <div className="flex flex-wrap gap-1">
                           {row.roles.map((role) => (
                             <span
                               key={role}
-                              className="inline-flex min-h-[22px] items-center border border-gray-200 bg-[#fafafa] px-2 text-[11px] font-semibold text-gray-600"
+                              className={tagClass}
                             >
                               {role}
                             </span>
@@ -612,7 +651,7 @@ export default function DeveloperAnalysisPage() {
 
                   {rows.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-[13px] text-gray-500">
+                      <td colSpan={8} className={emptyCellClass}>
                         No developer analysis found.
                       </td>
                     </tr>
