@@ -47,26 +47,26 @@ function getApiError(json: unknown, fallback: string) {
 
 function statusTone(code: string) {
   if (code === "approved" || code === "credible") {
-    return "border-[#8dc63f] bg-[#8dc63f] text-white hover:bg-[#78ad35]";
+    return "border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-white hover:opacity-90";
   }
 
   if (code === "export_ready") {
-    return "border-[#4f7f1f] bg-[#4f7f1f] text-white hover:bg-[#436e1a]";
+    return "border-[var(--tge-brand-green-dark)] bg-[var(--tge-brand-green-dark)] text-white hover:opacity-90";
   }
 
   if (code === "needs_update" || code === "weak" || code === "outdated") {
-    return "border-amber-200 bg-white text-amber-800 hover:bg-amber-50";
+    return "border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)]";
   }
 
   if (code === "archived" || code === "rejected") {
-    return "border-red-200 bg-white text-red-700 hover:bg-red-50";
+    return "border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)]";
   }
 
   if (code === "validation" || code === "needs_review") {
-    return "border-blue-200 bg-white text-blue-800 hover:bg-blue-50";
+    return "border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-info-text)] hover:bg-[var(--tge-governance-info-bg)]";
   }
 
-  return "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]";
+  return "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
 }
 
 function actionLabel(option: PostgresStatusOption) {
@@ -202,11 +202,11 @@ export default function PostgresReviewStatusActions({
   const startsOpen = reviewPanelStartsOpen(currentStatus) || Boolean(error || message);
 
   return (
-    <details className="border border-gray-200 bg-white" open={startsOpen}>
+    <details className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]" open={startsOpen}>
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">{title}</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             {description ||
               `Move this ${entityLabel(
                 entityType
@@ -214,17 +214,17 @@ export default function PostgresReviewStatusActions({
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
-          <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+          <span className="inline-flex min-h-[28px] items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             Current: {currentStatus || "not set"}
           </span>
-          <span className="inline-flex min-h-[28px] items-center justify-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+          <span className="inline-flex min-h-[28px] items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             {startsOpen ? "Open" : "Expand actions"}
           </span>
         </div>
       </summary>
-      <div className="space-y-4 border-t border-gray-200 px-5 py-5">
+      <div className="space-y-4 border-t border-[var(--tge-governance-neutral-border)] px-5 py-5">
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]">
             <div>{error}</div>
             {errorIssues.length > 0 ? (
               <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5">
@@ -236,15 +236,15 @@ export default function PostgresReviewStatusActions({
           </div>
         ) : null}
         {message ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]">
             {message}
           </div>
         ) : null}
 
-        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
           Change Note
           <textarea
-            className="mt-1 min-h-[72px] w-full resize-y border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+            className="mt-1 min-h-[72px] w-full resize-y border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
             placeholder="Optional reason, e.g. source checked, moved back after edit, approved for internal use"
             value={eventNote}
             onChange={(event) => setEventNote(event.target.value)}
