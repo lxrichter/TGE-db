@@ -137,6 +137,83 @@ function buildFlags(row: PlantRow) {
   return flags;
 }
 
+const researchOpsPlantClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+  dangerHero:
+    "border-l-4 border-l-[var(--tge-governance-danger-text)] px-8 py-8",
+  strip:
+    "border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  dangerKicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-governance-danger-text)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] px-6 py-4",
+  filterShell:
+    "space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3",
+  label:
+    "mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  input:
+    "w-full border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  tableHeaderCell:
+    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2",
+  tableRow:
+    "hover:bg-[var(--tge-surface-subtle)]",
+  tableCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-[var(--tge-governance-neutral-text)]",
+  tableMutedCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 font-mono text-xs text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
+  editLink:
+    "inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-brand-green-dark)]",
+  activeCard:
+    "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]",
+  inactiveCard:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] hover:bg-[var(--tge-surface-subtle)]",
+  activityButton:
+    "inline-flex min-w-[32px] items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-2 py-1 text-xs font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] hover:text-[var(--tge-brand-green-dark)]",
+  flag:
+    "inline-flex border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-0.5 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)]",
+};
+
+function OpsStatCard({
+  label,
+  value,
+  active,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`cursor-pointer border p-3 text-left transition ${
+        active ? researchOpsPlantClass.activeCard : researchOpsPlantClass.inactiveCard
+      }`}
+    >
+      <div className={`text-[11px] font-semibold uppercase tracking-wide ${researchOpsPlantClass.muted}`}>
+        {label}
+      </div>
+      <div className={`mt-1 text-3xl font-bold ${researchOpsPlantClass.title}`}>
+        {formatCount(value)}
+      </div>
+    </button>
+  );
+}
+
 type EditorActivityRow = {
   userKey: string;
   displayName: string;
@@ -484,15 +561,15 @@ if (editorFilter) {
   if (!userCanAccessResearchOps) {
     return (
       <main className="space-y-8">
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-red-500 px-8 py-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-red-600">
+        <section className={researchOpsPlantClass.panel}>
+          <div className={researchOpsPlantClass.dangerHero}>
+            <p className={researchOpsPlantClass.dangerKicker}>
               Research Ops / Plants
             </p>
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+            <h1 className={`mt-3 text-5xl font-bold tracking-tight ${researchOpsPlantClass.title}`}>
               Access Restricted
             </h1>
-            <p className="mt-4 max-w-3xl text-lg leading-8 text-gray-600">
+            <p className={`mt-4 max-w-3xl text-lg leading-8 ${researchOpsPlantClass.body}`}>
               Plants Ops is available only to editors and administrators.
             </p>
             <div className="mt-6">
@@ -511,23 +588,23 @@ if (editorFilter) {
       <div className="px-2">
         <Link
           href="/research-ops"
-          className="inline-flex items-center text-sm font-medium text-[#8dc63f] hover:underline"
+          className="inline-flex items-center text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
         >
           ← Back to Research Ops Dashboard
         </Link>
       </div>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={researchOpsPlantClass.panel}>
+        <div className={researchOpsPlantClass.hero}>
           <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <p className={researchOpsPlantClass.kicker}>
                 Research Ops / Plants
               </p>
-              <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className={`mt-3 text-5xl font-bold tracking-tight ${researchOpsPlantClass.title}`}>
                 Plant Research Operations
               </h1>
-              <p className="mt-4 max-w-4xl text-lg leading-8 text-gray-600">
+              <p className={`mt-4 max-w-4xl text-lg leading-8 ${researchOpsPlantClass.body}`}>
                 Operational queue for missing plant data, research follow-up,
                 review workflow, and promoted-from-project visibility.
               </p>
@@ -547,145 +624,26 @@ if (editorFilter) {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-5">
+        <div className={researchOpsPlantClass.strip}>
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-            <div
-              onClick={() => setOpsPreset("all")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "all"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Total Plants
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.total)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("pending_review")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "pending_review"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Pending Review
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.pendingReview)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("need_info")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "need_info"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Need Info
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.needInfo)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_coordinates")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_coordinates"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Coordinates
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingCoordinates)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_mw")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_mw"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing MWe
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingMw)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_source")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_source"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Source
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingSource)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_operator")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_operator"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Operator / Owner
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingOperator)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("promoted_from_project")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "promoted_from_project"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Promoted from Project
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.promotedFromProject)}
-              </div>
-            </div>
+            <OpsStatCard label="Total Plants" value={stats.total} active={opsPreset === "all"} onClick={() => setOpsPreset("all")} />
+            <OpsStatCard label="Pending Review" value={stats.pendingReview} active={opsPreset === "pending_review"} onClick={() => setOpsPreset("pending_review")} />
+            <OpsStatCard label="Need Info" value={stats.needInfo} active={opsPreset === "need_info"} onClick={() => setOpsPreset("need_info")} />
+            <OpsStatCard label="Missing Coordinates" value={stats.missingCoordinates} active={opsPreset === "missing_coordinates"} onClick={() => setOpsPreset("missing_coordinates")} />
+            <OpsStatCard label="Missing MWe" value={stats.missingMw} active={opsPreset === "missing_mw"} onClick={() => setOpsPreset("missing_mw")} />
+            <OpsStatCard label="Missing Source" value={stats.missingSource} active={opsPreset === "missing_source"} onClick={() => setOpsPreset("missing_source")} />
+            <OpsStatCard label="Missing Operator / Owner" value={stats.missingOperator} active={opsPreset === "missing_operator"} onClick={() => setOpsPreset("missing_operator")} />
+            <OpsStatCard label="Promoted from Project" value={stats.promotedFromProject} active={opsPreset === "promoted_from_project"} onClick={() => setOpsPreset("promoted_from_project")} />
           </div>
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={researchOpsPlantClass.panel}>
+        <div className={researchOpsPlantClass.sectionHeader}>
+          <h2 className={`text-xl font-bold ${researchOpsPlantClass.title}`}>
             Editor Activity
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${researchOpsPlantClass.muted}`}>
             Overview of record creation, updates, approvals, and workflow concentration by user. Click a number to filter the table below.
           </p>
         </div>
@@ -693,71 +651,71 @@ if (editorFilter) {
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className={researchOpsPlantClass.tableHead}>
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">User</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Created</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Updated</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Approved</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Pending</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Need Info</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>User</th>
+                  <th className={`${researchOpsPlantClass.tableHeaderCell} text-center`}>Created</th>
+                  <th className={`${researchOpsPlantClass.tableHeaderCell} text-center`}>Updated</th>
+                  <th className={`${researchOpsPlantClass.tableHeaderCell} text-center`}>Approved</th>
+                  <th className={`${researchOpsPlantClass.tableHeaderCell} text-center`}>Pending</th>
+                  <th className={`${researchOpsPlantClass.tableHeaderCell} text-center`}>Need Info</th>
                 </tr>
               </thead>
 
               <tbody>
                 {editorActivity.map((row) => (
-                  <tr key={row.userKey} className="hover:bg-gray-50">
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-sm text-gray-700">
+                  <tr key={row.userKey} className={researchOpsPlantClass.tableRow}>
+                    <td className={`${researchOpsPlantClass.tableCell} text-sm`}>
                       {row.userKey === String((session?.user as { id?: string } | undefined)?.id || "").trim()
                         ? String((session?.user as { name?: string } | undefined)?.name || row.displayName || row.userKey || "NA")
                         : row.displayName || row.userKey || "NA"}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsPlantClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "created" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsPlantClass.activityButton}
                       >
                         {row.created}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsPlantClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "updated" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsPlantClass.activityButton}
                       >
                         {row.updated}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsPlantClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "approved" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsPlantClass.activityButton}
                       >
                         {row.approved}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsPlantClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "pending" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsPlantClass.activityButton}
                       >
                         {row.pendingReview}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsPlantClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "need_info" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsPlantClass.activityButton}
                       >
                         {row.needInfo}
                       </button>
@@ -767,7 +725,7 @@ if (editorFilter) {
 
                 {editorActivity.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={6} className={`px-4 py-8 text-center text-sm ${researchOpsPlantClass.muted}`}>
                       No editor activity available.
                     </td>
                   </tr>
@@ -779,8 +737,8 @@ if (editorFilter) {
       </section>
 
       {editorFilter && (
-        <div className="flex items-center justify-between rounded border border-[#8dc63f] bg-[#f3f9e8] px-4 py-3 text-sm">
-          <div className="text-[#1f2937]">
+        <div className="flex items-center justify-between border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm">
+          <div className={researchOpsPlantClass.title}>
             Editor filter active:
             <span className="ml-2 font-semibold">
               {editorFilter.user === String((session?.user as { id?: string } | undefined)?.id || "").trim()
@@ -791,33 +749,33 @@ if (editorFilter) {
           <button
             type="button"
             onClick={() => setEditorFilter(null)}
-            className="font-medium text-[#1f2937] underline"
+            className="font-medium text-[var(--tge-text-primary)] underline"
           >
             Clear
           </button>
         </div>
       )}
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={researchOpsPlantClass.panel}>
+        <div className={researchOpsPlantClass.sectionHeader}>
+          <h2 className={`text-xl font-bold ${researchOpsPlantClass.title}`}>
             Plant Ops Queue
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${researchOpsPlantClass.muted}`}>
             Filter operationally relevant plants and jump directly into editing.
           </p>
         </div>
 
-        <div className="space-y-3 border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
+        <div className={researchOpsPlantClass.filterShell}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsPlantClass.label}>
                 Ops Preset
               </label>
               <select
                 value={opsPreset}
                 onChange={(e) => setOpsPreset(e.target.value as OpsPreset)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsPlantClass.input}
               >
                 <option value="all">All</option>
                 <option value="pending_review">Pending Review</option>
@@ -832,13 +790,13 @@ if (editorFilter) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsPlantClass.label}>
                 Country
               </label>
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsPlantClass.input}
               >
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
@@ -849,13 +807,13 @@ if (editorFilter) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsPlantClass.label}>
                 Plant Status
               </label>
               <select
                 value={phaseFilter}
                 onChange={(e) => setPhaseFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsPlantClass.input}
               >
                 {phaseOptions.map((phase) => (
                   <option key={phase} value={phase}>
@@ -866,13 +824,13 @@ if (editorFilter) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsPlantClass.label}>
                 Research Status
               </label>
               <select
                 value={researchStatusFilter}
                 onChange={(e) => setResearchStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsPlantClass.input}
               >
                 {researchStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -883,13 +841,13 @@ if (editorFilter) {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsPlantClass.label}>
                 Review Status
               </label>
               <select
                 value={reviewStatusFilter}
                 onChange={(e) => setReviewStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsPlantClass.input}
               >
                 {reviewStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -905,12 +863,12 @@ if (editorFilter) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by ID, name, country, operator, status, source..."
-            className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+            className={researchOpsPlantClass.input}
           />
         </div>
 
         <div className="px-6 pt-3">
-          <p className="text-xs text-gray-500">
+          <p className={`text-xs ${researchOpsPlantClass.muted}`}>
             Scroll horizontally to view all columns.
           </p>
         </div>
@@ -931,18 +889,18 @@ if (editorFilter) {
                 <col className="w-[100px]" />
               </colgroup>
 
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className={researchOpsPlantClass.tableHead}>
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">Plant ID</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Name</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Country</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Plant Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Owner / Operator</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Installed MWe</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Research Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Review Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Ops Flags</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Action</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Plant ID</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Name</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Country</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Plant Status</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Owner / Operator</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Installed MWe</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Research Status</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Review Status</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Ops Flags</th>
+                  <th className={researchOpsPlantClass.tableHeaderCell}>Action</th>
                 </tr>
               </thead>
 
@@ -951,67 +909,67 @@ if (editorFilter) {
                   const flags = buildFlags(plant);
 
                   return (
-                    <tr key={plant.plant_id} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-2.5 font-mono text-xs text-gray-500">
+                    <tr key={plant.plant_id} className={researchOpsPlantClass.tableRow}>
+                      <td className={researchOpsPlantClass.tableMutedCell}>
                         {plant.plant_id}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <Link
                           href={`/plants/${plant.plant_id}`}
-                          className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className={researchOpsPlantClass.link}
                         >
                           {plant.plant_name || "NA"}
                         </Link>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsPlantClass.tableCell}>
                         {plant.country || "NA"}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <PhaseBadge value={normalizePlantPhase(plant.project_phase)} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <div className="max-w-[220px] break-words">
                           {plant.owner_operator || "NA"}
                         </div>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsPlantClass.tableCell}>
                         {formatMw(plant.installed_capacity_mw, 1)}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <ResearchStatusBadge value={plant.research_status} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <ReviewStatusBadge value={plant.review_status} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <div className="flex flex-wrap gap-2">
                           {flags.length > 0 ? (
                             flags.map((flag) => (
                               <span
                                 key={`${plant.plant_id}-${flag}`}
-                                className="inline-flex border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-semibold text-gray-700"
+                                className={researchOpsPlantClass.flag}
                               >
                                 {flag}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-gray-400">—</span>
+                            <span className={`text-xs ${researchOpsPlantClass.muted}`}>—</span>
                           )}
                         </div>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsPlantClass.tableCell}>
                         <Link
                           href={`/plants/${plant.plant_id}/edit`}
-                          className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[#8dc63f] bg-[#8dc63f] px-3 py-1 text-[11px] font-semibold leading-none text-white hover:border-[#79b12f] hover:bg-[#79b12f]"
+                          className={researchOpsPlantClass.editLink}
                         >
                           Edit
                         </Link>
@@ -1024,7 +982,7 @@ if (editorFilter) {
                   <tr>
                     <td
                       colSpan={10}
-                      className="px-4 py-8 text-center text-sm text-gray-500"
+                      className={`px-4 py-8 text-center text-sm ${researchOpsPlantClass.muted}`}
                     >
                       No plant records found for the current operational filters.
                     </td>
