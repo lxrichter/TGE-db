@@ -227,33 +227,33 @@ function Field({
 }) {
   const toneClass =
     tone === "critical"
-      ? "border-red-200 bg-red-50 text-red-800"
+      ? "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]"
       : tone === "workflow"
-        ? "border-blue-200 bg-blue-50 text-blue-800"
-        : "border-amber-200 bg-amber-50 text-amber-800";
+        ? "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]"
+        : "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]";
 
   return (
     <label
       className={`flex flex-col gap-2 border px-3 py-3 text-xs font-semibold uppercase tracking-wide ${
         changed
-          ? "border-amber-300 bg-amber-50/60 text-gray-600"
-          : "border-transparent text-gray-500"
+          ? "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-text-secondary)]"
+          : "border-transparent text-[var(--tge-governance-muted-text)]"
       }`}
     >
       <span className="flex flex-wrap items-center gap-2">
         {label}
         {required ? (
-          <span className="border border-red-200 bg-red-50 px-1.5 py-0.5 text-[10px] font-bold text-red-800">
+          <span className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-danger-text)]">
             Required
           </span>
         ) : null}
         {important ? (
-          <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">
+          <span className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-attention-text)]">
             Important
           </span>
         ) : null}
         {approvalSensitive ? (
-          <span className="border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
+          <span className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--tge-governance-info-text)]">
             Approval Field
           </span>
         ) : null}
@@ -269,7 +269,27 @@ function Field({
 }
 
 function inputClass() {
-  return "min-h-10 border border-gray-300 bg-white px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]";
+  return "min-h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
+}
+
+function primaryActionClass() {
+  return "border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60";
+}
+
+function secondaryActionClass() {
+  return "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+}
+
+function successNoticeClass() {
+  return "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]";
+}
+
+function dangerNoticeClass() {
+  return "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]";
+}
+
+function infoNoticeClass() {
+  return "border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]";
 }
 
 function TextInput({
@@ -336,21 +356,23 @@ function Section({
 
   if (collapsible) {
     return (
-      <section className="border border-gray-200 bg-white">
+      <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
         <button
-          className="flex w-full flex-col gap-2 border-b border-gray-200 px-5 py-4 text-left sm:flex-row sm:items-start sm:justify-between"
+          className="flex w-full flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 text-left sm:flex-row sm:items-start sm:justify-between"
           type="button"
           onClick={() => setIsOpen((current) => !current)}
         >
           <div>
-            <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+            <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+              {title}
+            </h2>
             {description ? (
-              <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
                 {description}
               </p>
             ) : null}
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
             {isOpen ? "Collapse" : "Expand"}
           </span>
         </button>
@@ -360,11 +382,13 @@ function Section({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+          {title}
+        </h2>
         {description ? (
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             {description}
           </p>
         ) : null}
@@ -386,35 +410,35 @@ function FactTypeDefinitionCard({
   }
 
   return (
-    <div className="border border-[#d7e8bf] bg-[#f5faef] px-4 py-3">
-      <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+    <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3">
+      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-success-text)]">
         Fact Type Definition
       </div>
-      <div className="mt-2 text-sm font-bold text-[#1f2937]">
+      <div className="mt-2 text-sm font-bold text-[var(--tge-text-primary)]">
         {definition.label}
       </div>
-      <p className="mt-1 text-xs leading-5 text-gray-600">
+      <p className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
         {definition.purpose}
       </p>
-      <p className="mt-2 text-xs font-semibold leading-5 text-gray-700">
+      <p className="mt-2 text-xs font-semibold leading-5 text-[var(--tge-governance-neutral-text)]">
         {definition.reviewQuestion}
       </p>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Accept When
           </div>
-          <ul className="mt-1 space-y-1 text-xs leading-5 text-gray-600">
+          <ul className="mt-1 space-y-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
             {definition.accept.slice(0, 2).map((item) => (
               <li key={item}>- {item}</li>
             ))}
           </ul>
         </div>
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Avoid Mixing With
           </div>
-          <ul className="mt-1 space-y-1 text-xs leading-5 text-gray-600">
+          <ul className="mt-1 space-y-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
             {definition.reject.slice(0, 2).map((item) => (
               <li key={item}>- {item}</li>
             ))}
@@ -528,65 +552,67 @@ function FormReadinessPanel({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">Source Readiness</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+          Source Readiness
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
           This panel keeps source metadata, credibility review, and evidence
           governance visible while editing. It does not apply extracted facts to
           entity records.
         </p>
       </div>
       <div className="grid grid-cols-1 gap-3 px-5 py-5 md:grid-cols-4">
-        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Required Checks
           </div>
-          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+          <div className="mt-1 text-2xl font-bold text-[var(--tge-text-primary)]">
             {issues.length === 0 ? "Ready" : issues.length}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
             {issues.length === 0 ? "No blocking form issues" : "items need attention"}
           </div>
         </div>
-        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Edited Fields
           </div>
-          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+          <div className="mt-1 text-2xl font-bold text-[var(--tge-text-primary)]">
             {changedCount}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
             highlighted in this form
           </div>
         </div>
-        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Approval Fields
           </div>
-          <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+          <div className="mt-1 text-2xl font-bold text-[var(--tge-text-primary)]">
             {approvalSensitiveCount}
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
             edited metadata/evidence fields
           </div>
         </div>
         <div
           className={`border px-4 py-3 ${
             reviewedSourceWillNeedReview
-              ? "border-amber-200 bg-amber-50"
-              : "border-[#d9eac2] bg-[#f5faee]"
+              ? "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)]"
+              : "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]"
           }`}
         >
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Review Impact
           </div>
-          <div className="mt-1 text-sm font-bold text-[#1f2937]">
+          <div className="mt-1 text-sm font-bold text-[var(--tge-text-primary)]">
             {reviewedSourceWillNeedReview
               ? "Returns to Needs Review"
               : "No review downgrade"}
           </div>
-          <div className="mt-1 text-xs leading-5 text-gray-600">
+          <div className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
             {reviewedSourceWillNeedReview
               ? "Saving governed metadata changes on a reviewed source will move credibility back to needs_review."
               : "Current changes do not trigger an automatic credibility reset."}
@@ -594,20 +620,20 @@ function FormReadinessPanel({
         </div>
       </div>
       {issueActionError || issueActionMessage || canCreateSourceIssue ? (
-        <div className="space-y-3 border-t border-gray-200 px-5 py-4">
+        <div className="space-y-3 border-t border-[var(--tge-governance-neutral-border)] px-5 py-4">
           {issueActionError ? (
-            <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            <div className={`px-4 py-3 text-sm font-medium ${dangerNoticeClass()}`}>
               {issueActionError}
             </div>
           ) : null}
           {issueActionMessage ? (
-            <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+            <div className={`px-4 py-3 text-sm font-medium ${successNoticeClass()}`}>
               {issueActionMessage}
             </div>
           ) : null}
           {canCreateSourceIssue ? (
             <button
-              className="h-9 border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+              className={`h-9 px-4 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${secondaryActionClass()}`}
               disabled={creatingIssue}
               type="button"
               onClick={createSourceReviewIssue}
@@ -618,11 +644,11 @@ function FormReadinessPanel({
         </div>
       ) : null}
       {issues.length > 0 ? (
-        <div className="border-t border-gray-200 px-5 py-4">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-4">
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Validation Notes
           </div>
-          <ul className="mt-2 space-y-1 text-sm text-gray-700">
+          <ul className="mt-2 space-y-1 text-sm text-[var(--tge-governance-neutral-text)]">
             {issues.map((issue) => (
               <li key={issue}>- {issue}</li>
             ))}
@@ -766,31 +792,31 @@ function SourceLinkManager({
     <Section title="Linked Evidence">
       <div className="space-y-5">
         {linkError ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className={`px-4 py-3 text-sm font-medium ${dangerNoticeClass()}`}>
             {linkError}
           </div>
         ) : null}
         {linkMessage ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className={`px-4 py-3 text-sm font-medium ${successNoticeClass()}`}>
             {linkMessage}
           </div>
         ) : null}
 
-        <div className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-800">
+        <div className={`px-4 py-3 text-sm leading-6 ${infoNoticeClass()}`}>
           Evidence links are governed relationships between this source and a
           record. Creating a link does not update project, plant, or
           company fields; it only creates reviewed evidence context for later
           confirmation and audited field updates.
         </div>
 
-        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             Quick Fact Type
           </div>
           <div className="mt-3 space-y-3">
             {factPresetGroups.map((group) => (
               <div key={group.category}>
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                   {group.label}
                 </div>
                 <div className="mt-1 flex flex-wrap gap-2">
@@ -803,8 +829,8 @@ function SourceLinkManager({
                         key={preset.evidenceType}
                         className={`border px-3 py-1.5 text-xs font-semibold ${
                           selected
-                            ? "border-[#8dc63f] bg-[#edf7df] text-[#4f7f1f]"
-                            : "border-gray-200 bg-white text-gray-700 hover:border-[#8dc63f]"
+                            ? "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-brand-green-dark)]"
+                            : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)]"
                         }`}
                         type="button"
                         onClick={() => applyFactTypePreset(preset)}
@@ -817,7 +843,7 @@ function SourceLinkManager({
               </div>
             ))}
           </div>
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
             Presets fill the fact/evidence type and linked field only. They do
             not confirm or apply extracted facts.
           </p>
@@ -924,10 +950,10 @@ function SourceLinkManager({
             />
           </Field>
 
-          <label className="flex min-h-10 items-center gap-2 self-end border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700">
+          <label className="flex min-h-10 items-center gap-2 self-end border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-semibold text-[var(--tge-governance-neutral-text)]">
             <input
               checked={linkForm.is_primary_evidence}
-              className="h-4 w-4 accent-[#8dc63f]"
+              className="h-4 w-4 accent-[var(--tge-brand-green)]"
               type="checkbox"
               onChange={(event) =>
                 setLinkForm((prev) => ({
@@ -940,7 +966,7 @@ function SourceLinkManager({
           </label>
 
           <button
-            className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+            className={`h-10 self-end px-4 text-sm font-semibold ${primaryActionClass()}`}
             disabled={savingLink}
             type="submit"
           >
@@ -982,7 +1008,7 @@ function SourceLinkManager({
 
         <div className="overflow-x-auto">
           <table className="min-w-full table-fixed text-left text-sm">
-            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+            <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               <tr>
                 <th className="w-[14%] px-4 py-3 font-semibold">Entity</th>
                 <th className="w-[21%] px-4 py-3 font-semibold">Record</th>
@@ -993,40 +1019,43 @@ function SourceLinkManager({
                 <th className="w-[10%] px-4 py-3 font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
               {source.links.map((link) => (
-                <tr key={link.entity_source_id} className="align-top">
-                  <td className="px-4 py-3 text-gray-700">
+                <tr
+                  key={link.entity_source_id}
+                  className="align-top hover:bg-[var(--tge-surface-subtle)]"
+                >
+                  <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                     {formatEntityType(link.entity_type)}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-[#1f2937]">
+                    <div className="font-semibold text-[var(--tge-text-primary)]">
                       {link.entity_name || "Unnamed entity"}
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                       {link.legacy_id || link.entity_id}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                     {link.evidence_type || "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                     {link.linked_field || "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                     {link.extracted_value || "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                     {link.confidence_status_code}
                     {link.is_primary_evidence ? (
-                      <div className="mt-2 text-xs font-semibold text-[#4f7f1f]">
+                      <div className="mt-2 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                         Primary
                       </div>
                     ) : null}
                   </td>
                   <td className="px-4 py-3">
                     <button
-                      className="h-8 border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="h-8 border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                       disabled={savingLink}
                       type="button"
                       onClick={() => handleDeleteLink(link.entity_source_id)}
@@ -1039,7 +1068,10 @@ function SourceLinkManager({
 
               {source.links.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-sm text-gray-500">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                  >
                     No linked entities yet.
                   </td>
                 </tr>
@@ -1144,17 +1176,17 @@ export default function SourceForm({
   return (
     <div className="space-y-6">
       {error ? (
-        <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <div className={`px-4 py-3 text-sm font-medium ${dangerNoticeClass()}`}>
           {error}
         </div>
       ) : null}
       {message ? (
-        <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+        <div className={`px-4 py-3 text-sm font-medium ${successNoticeClass()}`}>
           {message}
         </div>
       ) : null}
       {mode === "create" && initialLinkTarget ? (
-        <div className="border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-800">
+        <div className={`px-4 py-3 text-sm leading-6 ${infoNoticeClass()}`}>
           This source will be linked to{" "}
           <span className="font-semibold">{initialLinkTarget.label}</span> after
           creation.
@@ -1342,13 +1374,13 @@ export default function SourceForm({
             <label
               className={`flex min-h-10 items-center gap-2 self-end border px-3 text-sm font-semibold ${
                 changeState.changedFields.has("duplicate_source_flag")
-                  ? "border-amber-300 bg-amber-50 text-amber-800"
-                  : "border-gray-300 bg-white text-gray-700"
+                  ? "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]"
+                  : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)]"
               }`}
             >
               <input
                 checked={form.duplicate_source_flag}
-                className="h-4 w-4 accent-[#8dc63f]"
+                className="h-4 w-4 accent-[var(--tge-brand-green)]"
                 type="checkbox"
                 onChange={(event) =>
                   setForm((prev) => ({
@@ -1359,7 +1391,7 @@ export default function SourceForm({
               />
               Duplicate suspected
               {changeState.changedFields.has("duplicate_source_flag") ? (
-                <span className="border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                <span className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--tge-governance-attention-text)]">
                   Edited
                 </span>
               ) : null}
@@ -1429,7 +1461,7 @@ export default function SourceForm({
 
         <div className="flex flex-wrap items-center gap-3">
           <button
-            className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+            className={`inline-flex h-10 items-center justify-center px-5 text-sm font-semibold ${primaryActionClass()}`}
             disabled={saving}
             type="submit"
           >
@@ -1437,7 +1469,7 @@ export default function SourceForm({
           </button>
           <Link
             href={source ? `/sources/${source.source_id}` : "/sources"}
-            className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className={`inline-flex h-10 items-center justify-center px-5 text-sm font-semibold ${secondaryActionClass()}`}
           >
             Cancel
           </Link>
