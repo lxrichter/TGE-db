@@ -42,6 +42,72 @@ type RegionSummary = {
   sourceGaps: number;
 };
 
+const marketClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  neutral: "text-[var(--tge-governance-neutral-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  smallLabel:
+    "text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  statTile:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+  metaBadge:
+    "inline-flex min-h-6 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+  tableLink:
+    "text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+  strongLink:
+    "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  compactAction:
+    "border border-[var(--tge-governance-neutral-border)] px-2 py-1 text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  action:
+    "inline-flex h-10 w-full items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto",
+  details:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  summaryBorder:
+    "border-b border-[var(--tge-governance-neutral-border)]",
+  dividerBorder: "border-[var(--tge-governance-neutral-border)]",
+  mobileDivider:
+    "divide-y divide-[var(--tge-governance-muted-border)]",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  tableHeadPlain:
+    "bg-[var(--tge-governance-neutral-bg)] text-[11px] tracking-wide text-[var(--tge-governance-muted-text)]",
+  tableDivider: "divide-y divide-[var(--tge-governance-muted-border)]",
+  tableCell: "px-5 py-4 text-[var(--tge-governance-neutral-text)]",
+  tableSmallCell:
+    "px-5 py-4 text-xs leading-5 text-[var(--tge-governance-neutral-text)]",
+  neutralBadge:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  neutralBadgeSolid:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  smallBadge:
+    "inline-flex min-h-7 shrink-0 items-center self-start border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  valueBadge:
+    "inline-flex min-h-7 shrink-0 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]",
+  metricBox:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 py-2",
+  track:
+    "mt-2 h-1.5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]",
+  trackTight:
+    "mt-1 h-1.5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]",
+  hoverRow:
+    "align-top transition-colors hover:bg-[var(--tge-governance-success-bg)]",
+  activeFilter:
+    "flex flex-col gap-3 border border-[var(--tge-brand-green-light)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm text-[var(--tge-brand-green-dark)] sm:flex-row sm:items-center sm:justify-between",
+  primaryTaxonomy:
+    "inline-flex min-h-7 items-center self-start border border-[var(--tge-brand-green-light)] bg-[var(--tge-governance-success-bg)] px-2 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] sm:self-auto",
+};
+
 async function getCountriesData(): Promise<CountriesData> {
   try {
     const countries = await listPostgresCountryMarketSummaries();
@@ -133,14 +199,14 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={marketClass.statTile}>
+      <div className={marketClass.label}>
         {label}
       </div>
-      <div className="mt-2 text-xl font-bold leading-none text-[#1f2937] sm:text-2xl">
+      <div className={`mt-2 text-xl font-bold leading-none sm:text-2xl ${marketClass.title}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${marketClass.muted}`}>{note}</div>
     </div>
   );
 }
@@ -158,13 +224,13 @@ function CoverageBar({
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 text-xs text-gray-600">
+      <div className={`flex items-center justify-between gap-3 text-xs ${marketClass.neutral}`}>
         <span>{approvedShare}% reviewed</span>
         <span>
           {formatCount(approved)} / {formatCount(total)}
         </span>
       </div>
-      <div className="mt-2 h-1.5 overflow-hidden bg-gray-100">
+      <div className={marketClass.track}>
         <div
           className={`h-full ${barClass}`}
           style={{ width: `${approvedShare}%` }}
@@ -183,10 +249,10 @@ function MobileMarketField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={marketClass.smallLabel}>
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className={`mt-1 min-w-0 text-sm ${marketClass.neutral}`}>{children}</div>
     </div>
   );
 }
@@ -209,7 +275,7 @@ function CountryReferenceMeta({
       {values.map((value) => (
         <span
           key={value}
-          className="inline-flex min-h-6 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-[10px] font-semibold uppercase tracking-wide text-gray-500"
+          className={marketClass.metaBadge}
         >
           {value}
         </span>
@@ -230,25 +296,25 @@ function CountryWorklistLinks({
   return (
     <div className="mt-2 flex flex-wrap gap-3 text-xs">
       <Link
-        className="font-semibold text-[#4f7f1f] hover:underline"
+        className={marketClass.link}
         href={countryQueryHref("/postgres-preview/analysis", country)}
       >
         Analysis
       </Link>
       <Link
-        className="font-semibold text-[#4f7f1f] hover:underline"
+        className={marketClass.link}
         href={countryQueryHref("/postgres-preview/map", country)}
       >
         Map
       </Link>
       <Link
-        className="font-semibold text-[#4f7f1f] hover:underline"
+        className={marketClass.link}
         href={countryWorklistHref("/postgres-preview/projects", country, query)}
       >
         Projects
       </Link>
       <Link
-        className="font-semibold text-[#4f7f1f] hover:underline"
+        className={marketClass.link}
         href={countryWorklistHref(
           "/postgres-preview/operating-assets",
           country,
@@ -258,7 +324,7 @@ function CountryWorklistLinks({
         Plants
       </Link>
       <Link
-        className="font-semibold text-[#4f7f1f] hover:underline"
+        className={marketClass.link}
         href={countryWorklistHref("/postgres-preview/companies", country, query)}
       >
         Companies
@@ -339,18 +405,18 @@ function RegionCard({ region }: { region: RegionSummary }) {
   );
 
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
+    <div className={`${marketClass.panel} px-4 py-4`}>
       <Link
-        className="block hover:text-[#4f7d20]"
+        className="block hover:text-[var(--tge-brand-green-dark)]"
         href={marketRegionHref(region.kind, region.name)}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+            <div className={marketClass.label}>
               {region.kind === "tge" ? "TGE Region" : "World Bank Region"}
             </div>
-            <div className="mt-1 font-bold text-[#1f2937]">{region.name}</div>
-            <div className="mt-2 text-xs leading-5 text-gray-500">
+            <div className={`mt-1 font-bold ${marketClass.title}`}>{region.name}</div>
+            <div className={`mt-2 text-xs leading-5 ${marketClass.muted}`}>
               {formatCount(region.countryCount)} markets ·{" "}
               {formatCount(region.recordCount)} market items
             </div>
@@ -363,22 +429,22 @@ function RegionCard({ region }: { region: RegionSummary }) {
         </div>
       </Link>
       <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-        <div className="border border-gray-200 bg-[#f7f7f7] px-2 py-2">
-          <div className="font-semibold text-[#1f2937]">
+        <div className={marketClass.metricBox}>
+          <div className={`font-semibold ${marketClass.title}`}>
             {formatMw(region.operatingMwe)} MWe
           </div>
-          <div className="mt-1 text-gray-500">operating</div>
+          <div className={`mt-1 ${marketClass.muted}`}>operating</div>
         </div>
-        <div className="border border-gray-200 bg-[#f7f7f7] px-2 py-2">
-          <div className="font-semibold text-[#1f2937]">
+        <div className={marketClass.metricBox}>
+          <div className={`font-semibold ${marketClass.title}`}>
             {formatMw(region.pipelineMwe)} MWe
           </div>
-          <div className="mt-1 text-gray-500">pipeline</div>
+          <div className={`mt-1 ${marketClass.muted}`}>pipeline</div>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold">
         <Link
-          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          className={marketClass.compactAction}
           href={regionWorklistHref(
             "/postgres-preview/analysis",
             region.kind,
@@ -388,7 +454,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
           Analysis
         </Link>
         <Link
-          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          className={marketClass.compactAction}
           href={regionWorklistHref(
             "/postgres-preview/map",
             region.kind,
@@ -398,7 +464,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
           Map
         </Link>
         <Link
-          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          className={marketClass.compactAction}
           href={regionWorklistHref(
             "/postgres-preview/projects",
             region.kind,
@@ -408,7 +474,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
           Projects
         </Link>
         <Link
-          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          className={marketClass.compactAction}
           href={regionWorklistHref(
             "/postgres-preview/operating-assets",
             region.kind,
@@ -418,7 +484,7 @@ function RegionCard({ region }: { region: RegionSummary }) {
           Plants
         </Link>
         <Link
-          className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+          className={marketClass.compactAction}
           href={regionWorklistHref(
             "/postgres-preview/companies",
             region.kind,
@@ -447,13 +513,13 @@ function RegionCapacityBars({
   return (
     <div className="space-y-2">
       <div>
-        <div className="flex items-center justify-between gap-3 text-[11px] text-gray-500">
+        <div className={`flex items-center justify-between gap-3 text-[11px] ${marketClass.muted}`}>
           <span>Operating</span>
-          <span className="font-semibold text-[#1f2937]">
+          <span className={`font-semibold ${marketClass.title}`}>
             {formatMw(region.operatingMwe)} MWe
           </span>
         </div>
-        <div className="mt-1 h-1.5 overflow-hidden bg-gray-100">
+        <div className={marketClass.trackTight}>
           <div
             className={`h-full ${postgresStatusBarClass("operating")}`}
             style={{
@@ -464,13 +530,13 @@ function RegionCapacityBars({
         </div>
       </div>
       <div>
-        <div className="flex items-center justify-between gap-3 text-[11px] text-gray-500">
+        <div className={`flex items-center justify-between gap-3 text-[11px] ${marketClass.muted}`}>
           <span>Pipeline</span>
-          <span className="font-semibold text-[#1f2937]">
+          <span className={`font-semibold ${marketClass.title}`}>
             {formatMw(region.pipelineMwe)} MWe
           </span>
         </div>
-        <div className="mt-1 h-1.5 overflow-hidden bg-gray-100">
+        <div className={marketClass.trackTight}>
           <div
             className={`h-full ${postgresStatusBarClass("info")}`}
             style={{
@@ -491,34 +557,34 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
   );
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-end sm:justify-between">
+    <section className={marketClass.panel}>
+      <div className={`flex flex-col gap-2 ${marketClass.summaryBorder} px-4 py-3 sm:flex-row sm:items-end sm:justify-between`}>
         <div>
-          <h3 className="text-sm font-bold text-[#1f2937]">
+          <h3 className={`text-sm font-bold ${marketClass.title}`}>
             TGE Regional Intelligence Overview
           </h3>
-          <p className="mt-1 text-xs leading-5 text-gray-500">
+          <p className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
             Primary market-intelligence regions for geothermal reporting,
             benchmarking, and future regional profile pages.
           </p>
         </div>
-        <span className="inline-flex min-h-7 items-center self-start border border-[#b9d98b] bg-[#f1f8e8] px-2 text-xs font-semibold uppercase tracking-wide text-[#3f6f19] sm:self-auto">
+        <span className={marketClass.primaryTaxonomy}>
           Primary taxonomy
         </span>
       </div>
 
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className={`${marketClass.tableDivider} lg:hidden`}>
         {regions.map((region) => (
           <article key={region.name} className="px-4 py-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <Link
-                  className="font-semibold text-[#1f2937] hover:text-[#4f7d20] hover:underline"
+                  className={marketClass.strongLink}
                   href={marketRegionHref(region.kind, region.name)}
                 >
                   {region.name}
                 </Link>
-                <div className="mt-1 text-xs leading-5 text-gray-500">
+                <div className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
                   {formatCount(region.countryCount)} markets ·{" "}
                   {formatCount(region.recordCount)} market items
                 </div>
@@ -536,7 +602,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
             </div>
             <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-semibold">
               <Link
-                className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+                className={marketClass.compactAction}
                 href={regionWorklistHref(
                   "/postgres-preview/analysis",
                   region.kind,
@@ -546,7 +612,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 Analysis
               </Link>
               <Link
-                className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+                className={marketClass.compactAction}
                 href={regionWorklistHref(
                   "/postgres-preview/projects",
                   region.kind,
@@ -556,7 +622,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 Projects
               </Link>
               <Link
-                className="border border-gray-200 px-2 py-1 text-gray-600 hover:border-[#8dc63f] hover:text-[#4f7d20]"
+                className={marketClass.compactAction}
                 href={regionWorklistHref(
                   "/postgres-preview/operating-assets",
                   region.kind,
@@ -572,7 +638,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
 
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[900px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={marketClass.tableHead}>
             <tr>
               <th className="w-[24%] px-5 py-3 font-semibold">Region</th>
               <th className="w-[16%] px-5 py-3 font-semibold">Coverage</th>
@@ -583,24 +649,24 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
               <th className="w-[14%] px-5 py-3 font-semibold">Open</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={marketClass.tableDivider}>
             {regions.map((region) => (
               <tr
                 key={region.name}
-                className="align-top transition-colors hover:bg-[#fbfdf8]"
+                className={marketClass.hoverRow}
               >
                 <td className="px-5 py-4">
                   <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7d20] hover:underline"
+                    className={marketClass.strongLink}
                     href={marketRegionHref(region.kind, region.name)}
                   >
                     {region.name}
                   </Link>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={`mt-1 text-xs ${marketClass.muted}`}>
                     TGE regional market view
                   </div>
                 </td>
-                <td className="px-5 py-4 text-xs leading-5 text-gray-600">
+                <td className={marketClass.tableSmallCell}>
                   {formatCount(region.countryCount)} markets
                   <br />
                   {formatCount(region.recordCount)} market items
@@ -623,7 +689,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                 <td className="px-5 py-4">
                   <div className="grid gap-1 text-xs font-semibold">
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={regionWorklistHref(
                         "/postgres-preview/analysis",
                         region.kind,
@@ -633,7 +699,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                       Analysis
                     </Link>
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={regionWorklistHref(
                         "/postgres-preview/projects",
                         region.kind,
@@ -643,7 +709,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                       Projects
                     </Link>
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={regionWorklistHref(
                         "/postgres-preview/operating-assets",
                         region.kind,
@@ -653,7 +719,7 @@ function TgeRegionOverview({ regions }: { regions: RegionSummary[] }) {
                       Plants
                     </Link>
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={regionWorklistHref(
                         "/postgres-preview/map",
                         region.kind,
@@ -685,22 +751,22 @@ function RegionDrilldownLayer({
     <div className="space-y-4">
       <TgeRegionOverview regions={tgeRegions} />
 
-      <details className="border border-gray-200 bg-white">
+      <details className={marketClass.details}>
         <summary className="flex cursor-pointer list-none flex-col gap-2 px-4 py-3 marker:hidden sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h3 className="text-sm font-bold text-[#1f2937]">
+            <h3 className={`text-sm font-bold ${marketClass.title}`}>
               World Bank Region Reference
             </h3>
-            <p className="mt-1 text-xs leading-5 text-gray-500">
+            <p className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
               Secondary taxonomy for donor reporting and external benchmarking.
               TGE regions remain the primary market-intelligence view.
             </p>
           </div>
-          <span className="inline-flex min-h-7 shrink-0 items-center self-start border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={marketClass.smallBadge}>
             Secondary taxonomy
           </span>
         </summary>
-        <div className="grid gap-3 border-t border-gray-200 p-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className={`grid gap-3 border-t ${marketClass.dividerBorder} p-4 md:grid-cols-2 xl:grid-cols-3`}>
           {wbRegions.map((region) => (
             <RegionCard key={region.name} region={region} />
           ))}
@@ -731,17 +797,19 @@ function CountryQueueCard({
   defaultOpen?: boolean;
 }) {
   return (
-    <details className="border border-gray-200 bg-white" open={defaultOpen}>
-      <summary className="flex cursor-pointer list-none flex-col gap-2 border-b border-gray-200 px-4 py-3 marker:hidden sm:flex-row sm:items-start sm:justify-between">
+    <details className={marketClass.details} open={defaultOpen}>
+      <summary className={`flex cursor-pointer list-none flex-col gap-2 ${marketClass.summaryBorder} px-4 py-3 marker:hidden sm:flex-row sm:items-start sm:justify-between`}>
         <div>
-          <h3 className="text-sm font-bold text-[#1f2937]">{title}</h3>
-          <p className="mt-1 text-xs leading-5 text-gray-500">{description}</p>
+          <h3 className={`text-sm font-bold ${marketClass.title}`}>{title}</h3>
+          <p className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
+            {description}
+          </p>
         </div>
-        <span className="inline-flex min-h-7 shrink-0 items-center self-start border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+        <span className={marketClass.smallBadge}>
           {formatCount(countries.length)} markets
         </span>
       </summary>
-      <div className="divide-y divide-gray-100">
+      <div className={marketClass.tableDivider}>
         {countries.length > 0 ? (
           countries.map((country) => {
             const item = metric(country);
@@ -750,15 +818,15 @@ function CountryQueueCard({
               <div key={country.country} className="px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="font-semibold text-[#1f2937]">
+                    <div className={`font-semibold ${marketClass.title}`}>
                       {country.country}
                     </div>
                     <CountryReferenceMeta country={country} />
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${marketClass.muted}`}>
                       {item.note}
                     </div>
                   </div>
-                  <span className="inline-flex min-h-7 shrink-0 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+                  <span className={marketClass.valueBadge}>
                     {item.value}
                   </span>
                 </div>
@@ -767,7 +835,7 @@ function CountryQueueCard({
             );
           })
         ) : (
-          <div className="px-4 py-6 text-sm text-gray-500">{emptyLabel}</div>
+          <div className={`px-4 py-6 text-sm ${marketClass.muted}`}>{emptyLabel}</div>
         )}
       </div>
     </details>
@@ -886,7 +954,7 @@ function MarketSignalBar({
         : postgresStatusBarClass("attention");
 
   return (
-    <div className="mt-2 h-1.5 overflow-hidden bg-gray-100">
+    <div className={marketClass.track}>
       <div
         className={`h-full ${barClass}`}
         style={{ width: width > 0 ? `${width}%` : "0%" }}
@@ -924,37 +992,37 @@ function MarketRankingsLayer({
   );
 
   return (
-    <details className="border border-gray-200 bg-white" open>
+    <details className={marketClass.details} open>
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${marketClass.title}`}>
             Market Rankings
           </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
+          <p className={`mt-1 text-sm leading-6 ${marketClass.body}`}>
             Top markets by combined operating and pipeline capacity, with source
             gaps kept visible as governance context.
           </p>
         </div>
-        <span className="inline-flex min-h-8 w-fit items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+        <span className={`${marketClass.neutralBadge} w-fit`}>
           {formatCount(rankedMarkets.length)} markets
         </span>
       </summary>
 
-      <div className="divide-y divide-gray-100 border-t border-gray-200 lg:hidden">
+      <div className={`${marketClass.mobileDivider} border-t ${marketClass.dividerBorder} lg:hidden`}>
         {rankedMarkets.map((country, index) => (
           <article key={country.country} className="px-4 py-4 sm:px-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <div className={marketClass.label}>
                   #{index + 1}
                 </div>
-                <div className="mt-1 font-semibold text-[#1f2937]">
+                <div className={`mt-1 font-semibold ${marketClass.title}`}>
                   {country.country}
                 </div>
                 <CountryReferenceMeta country={country} />
               </div>
               <Link
-                className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                className={marketClass.tableLink}
                 href={countryQueryHref(
                   "/postgres-preview/analysis",
                   country.country
@@ -965,7 +1033,7 @@ function MarketRankingsLayer({
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <MobileMarketField label="Operating">
-                <div className="font-semibold text-[#1f2937]">
+                <div className={`font-semibold ${marketClass.title}`}>
                   {formatMw(country.operating_installed_mwe)} MWe
                 </div>
                 <MarketSignalBar
@@ -975,7 +1043,7 @@ function MarketRankingsLayer({
                 />
               </MobileMarketField>
               <MobileMarketField label="Pipeline">
-                <div className="font-semibold text-[#1f2937]">
+                <div className={`font-semibold ${marketClass.title}`}>
                   {formatMw(country.project_pipeline_mwe)} MWe
                 </div>
                 <MarketSignalBar
@@ -990,7 +1058,7 @@ function MarketRankingsLayer({
                 {formatCount(country.operating_asset_active_count)} active plants
               </MobileMarketField>
               <MobileMarketField label="Source Gaps">
-                <div className="font-semibold text-[#1f2937]">
+                <div className={`font-semibold ${marketClass.title}`}>
                   {formatCount(country.missing_source_count)}
                 </div>
                 <MarketSignalBar
@@ -1004,9 +1072,9 @@ function MarketRankingsLayer({
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto border-t border-gray-200 lg:block">
+      <div className={`hidden overflow-x-auto border-t ${marketClass.dividerBorder} lg:block`}>
         <table className="min-w-[960px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] tracking-wide text-gray-500">
+          <thead className={marketClass.tableHeadPlain}>
             <tr>
               <th className="w-[20%] px-5 py-3 font-semibold">Market</th>
               <th className="w-[21%] px-5 py-3 font-semibold">Operating MWe</th>
@@ -1016,23 +1084,23 @@ function MarketRankingsLayer({
               <th className="w-[10%] px-5 py-3 font-semibold">Open</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={marketClass.tableDivider}>
             {rankedMarkets.map((country, index) => (
               <tr
                 key={country.country}
-                className="align-top transition-colors hover:bg-[#fbfdf8]"
+                className={marketClass.hoverRow}
               >
                 <td className="px-5 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <div className={marketClass.label}>
                     #{index + 1}
                   </div>
-                  <div className="mt-1 font-semibold text-[#1f2937]">
+                  <div className={`mt-1 font-semibold ${marketClass.title}`}>
                     {country.country}
                   </div>
                   <CountryReferenceMeta country={country} />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  <div className="font-semibold text-[#1f2937]">
+                <td className={marketClass.tableCell}>
+                  <div className={`font-semibold ${marketClass.title}`}>
                     {formatMw(country.operating_installed_mwe)} MWe
                   </div>
                   <MarketSignalBar
@@ -1041,8 +1109,8 @@ function MarketRankingsLayer({
                     value={country.operating_installed_mwe}
                   />
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  <div className="font-semibold text-[#1f2937]">
+                <td className={marketClass.tableCell}>
+                  <div className={`font-semibold ${marketClass.title}`}>
                     {formatMw(country.project_pipeline_mwe)} MWe
                   </div>
                   <MarketSignalBar
@@ -1051,7 +1119,7 @@ function MarketRankingsLayer({
                     value={country.project_pipeline_mwe}
                   />
                 </td>
-                <td className="px-5 py-4 text-xs leading-5 text-gray-600">
+                <td className={marketClass.tableSmallCell}>
                   {formatCount(country.active_project_count)} active projects
                   <br />
                   {formatCount(country.operating_asset_active_count)} active plants
@@ -1075,7 +1143,7 @@ function MarketRankingsLayer({
                 <td className="px-5 py-4">
                   <div className="grid gap-1 text-xs font-semibold">
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/analysis",
                         country.country
@@ -1084,7 +1152,7 @@ function MarketRankingsLayer({
                       Analysis
                     </Link>
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/map",
                         country.country
@@ -1093,7 +1161,7 @@ function MarketRankingsLayer({
                       Map
                     </Link>
                     <Link
-                      className="text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/projects",
                         country.country
@@ -1123,19 +1191,19 @@ function CountryMarketsTable({
   );
 
   return (
-    <details className="border border-gray-200 bg-white">
+    <details className={marketClass.details}>
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${marketClass.title}`}>
             Full Market Worklist
           </h2>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className={`mt-1 text-sm ${marketClass.body}`}>
             Detailed market rows. Click counts to open filtered
             project, plant, or company worklists.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap lg:justify-end">
-          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={marketClass.neutralBadge}>
             {formatCount(countries.length)} markets
           </span>
           <span
@@ -1147,22 +1215,22 @@ function CountryMarketsTable({
           >
             {formatCount(sourceGapCount)} source gaps
           </span>
-          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={marketClass.neutralBadgeSolid}>
             Expand
           </span>
         </div>
       </summary>
 
-      <div className="divide-y divide-gray-100 border-t border-gray-200 lg:hidden">
+      <div className={`${marketClass.mobileDivider} border-t ${marketClass.dividerBorder} lg:hidden`}>
         {countries.map((country) => (
           <article key={country.country} className="px-4 py-4 sm:px-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="font-semibold text-[#1f2937]">
+                <div className={`font-semibold ${marketClass.title}`}>
                   {country.country}
                 </div>
                 <CountryReferenceMeta country={country} />
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={`mt-1 text-xs ${marketClass.muted}`}>
                   {formatCount(
                     country.project_count +
                       country.operating_asset_count +
@@ -1170,7 +1238,7 @@ function CountryMarketsTable({
                   )}{" "}
                   linked items
                 </div>
-                <div className="mt-1 text-xs text-gray-500">
+                <div className={`mt-1 text-xs ${marketClass.muted}`}>
                   Updated {formatDate(country.latest_update_at)}
                 </div>
               </div>
@@ -1189,7 +1257,7 @@ function CountryMarketsTable({
               <MobileMarketField label="Linked Work">
                 <div className="grid gap-1 text-xs">
                   <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={marketClass.strongLink}
                     href={countryQueryHref(
                       "/postgres-preview/projects",
                       country.country
@@ -1197,11 +1265,11 @@ function CountryMarketsTable({
                   >
                     {formatCount(country.project_count)} projects
                   </Link>
-                  <span className="text-gray-500">
+                  <span className={marketClass.muted}>
                     {formatCount(country.active_project_count)} active
                   </span>
                   <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={marketClass.strongLink}
                     href={countryQueryHref(
                       "/postgres-preview/operating-assets",
                       country.country
@@ -1209,11 +1277,11 @@ function CountryMarketsTable({
                   >
                     {formatCount(country.operating_asset_count)} plants
                   </Link>
-                  <span className="text-gray-500">
+                  <span className={marketClass.muted}>
                     {formatCount(country.operating_asset_active_count)} active
                   </span>
                   <Link
-                    className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                    className={marketClass.strongLink}
                     href={countryQueryHref(
                       "/postgres-preview/companies",
                       country.country
@@ -1224,24 +1292,24 @@ function CountryMarketsTable({
                 </div>
               </MobileMarketField>
               <MobileMarketField label="Electric">
-                <div className="font-semibold text-[#1f2937]">
+                <div className={`font-semibold ${marketClass.title}`}>
                   {formatMw(country.operating_installed_mwe)} MWe operating
                 </div>
-                <div className="mt-1 text-xs leading-5 text-gray-500">
+                <div className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
                   {formatMw(country.operating_running_mwe)} MWe running
                   <br />
                   {formatMw(country.project_pipeline_mwe)} MWe pipeline
                 </div>
               </MobileMarketField>
               <MobileMarketField label="Direct Use / Thermal">
-                <div className="font-semibold text-[#1f2937]">
+                <div className={`font-semibold ${marketClass.title}`}>
                   {formatCount(
                     country.direct_use_project_count +
                       country.direct_use_asset_count
                   )}{" "}
                   direct-use items
                 </div>
-                <div className="mt-1 text-xs leading-5 text-gray-500">
+                <div className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
                   {formatMw(
                     country.project_thermal_mwth +
                       country.operating_thermal_mwth
@@ -1258,7 +1326,7 @@ function CountryMarketsTable({
               <MobileMarketField label="Open">
                 <div className="flex flex-wrap gap-3">
                   <Link
-                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    className={marketClass.tableLink}
                     href={countryQueryHref(
                       "/postgres-preview/analysis",
                       country.country
@@ -1267,7 +1335,7 @@ function CountryMarketsTable({
                     Analysis
                   </Link>
                   <Link
-                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    className={marketClass.tableLink}
                     href={countryQueryHref(
                       "/postgres-preview/map",
                       country.country
@@ -1276,7 +1344,7 @@ function CountryMarketsTable({
                     Map
                   </Link>
                   <Link
-                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    className={marketClass.tableLink}
                     href={countryQueryHref(
                       "/postgres-preview/projects",
                       country.country
@@ -1285,7 +1353,7 @@ function CountryMarketsTable({
                     Projects
                   </Link>
                   <Link
-                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    className={marketClass.tableLink}
                     href={countryQueryHref(
                       "/postgres-preview/operating-assets",
                       country.country
@@ -1294,7 +1362,7 @@ function CountryMarketsTable({
                     Plants
                   </Link>
                   <Link
-                    className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                    className={marketClass.tableLink}
                     href={countryQueryHref(
                       "/postgres-preview/companies",
                       country.country
@@ -1309,9 +1377,9 @@ function CountryMarketsTable({
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto border-t border-gray-200 lg:block">
+      <div className={`hidden overflow-x-auto border-t ${marketClass.dividerBorder} lg:block`}>
         <table className="min-w-[980px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className={marketClass.tableHead}>
             <tr>
               <th className="w-[20%] px-5 py-3 font-semibold">Market</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Linked Work</th>
@@ -1328,15 +1396,15 @@ function CountryMarketsTable({
               <th className="w-[14%] px-5 py-3 font-semibold">Open</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={marketClass.tableDivider}>
             {countries.map((country) => (
               <tr key={country.country} className="align-top">
                 <td className="px-5 py-4">
-                  <div className="font-semibold text-[#1f2937]">
+                  <div className={`font-semibold ${marketClass.title}`}>
                     {country.country}
                   </div>
                   <CountryReferenceMeta country={country} />
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={`mt-1 text-xs ${marketClass.muted}`}>
                     {formatCount(
                       country.project_count +
                         country.operating_asset_count +
@@ -1344,14 +1412,14 @@ function CountryMarketsTable({
                     )}{" "}
                     linked items
                   </div>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className={`mt-1 text-xs ${marketClass.muted}`}>
                     Updated {formatDate(country.latest_update_at)}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
+                <td className={marketClass.tableCell}>
                   <div className="grid gap-2 text-xs">
                     <Link
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={marketClass.strongLink}
                       href={countryQueryHref(
                         "/postgres-preview/projects",
                         country.country
@@ -1359,11 +1427,11 @@ function CountryMarketsTable({
                     >
                       {formatCount(country.project_count)} projects
                     </Link>
-                    <span className="text-gray-500">
+                    <span className={marketClass.muted}>
                       {formatCount(country.active_project_count)} active
                     </span>
                     <Link
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={marketClass.strongLink}
                       href={countryQueryHref(
                         "/postgres-preview/operating-assets",
                         country.country
@@ -1371,11 +1439,11 @@ function CountryMarketsTable({
                     >
                       {formatCount(country.operating_asset_count)} plants
                     </Link>
-                    <span className="text-gray-500">
+                    <span className={marketClass.muted}>
                       {formatCount(country.operating_asset_active_count)} active
                     </span>
                     <Link
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={marketClass.strongLink}
                       href={countryQueryHref(
                         "/postgres-preview/companies",
                         country.country
@@ -1385,25 +1453,25 @@ function CountryMarketsTable({
                     </Link>
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  <div className="font-semibold text-[#1f2937]">
+                <td className={marketClass.tableCell}>
+                  <div className={`font-semibold ${marketClass.title}`}>
                     {formatMw(country.operating_installed_mwe)} MWe operating
                   </div>
-                  <div className="mt-1 text-xs leading-5 text-gray-500">
+                  <div className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
                     {formatMw(country.operating_running_mwe)} MWe running
                     <br />
                     {formatMw(country.project_pipeline_mwe)} MWe pipeline
                   </div>
                 </td>
-                <td className="px-5 py-4 text-gray-700">
-                  <div className="font-semibold text-[#1f2937]">
+                <td className={marketClass.tableCell}>
+                  <div className={`font-semibold ${marketClass.title}`}>
                     {formatCount(
                       country.direct_use_project_count +
                         country.direct_use_asset_count
                     )}{" "}
                     direct-use items
                   </div>
-                  <div className="mt-1 text-xs leading-5 text-gray-500">
+                  <div className={`mt-1 text-xs leading-5 ${marketClass.muted}`}>
                     {formatMw(
                       country.project_thermal_mwth +
                         country.operating_thermal_mwth
@@ -1431,7 +1499,7 @@ function CountryMarketsTable({
                 <td className="px-5 py-4">
                   <div className="grid gap-1">
                     <Link
-                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/analysis",
                         country.country
@@ -1440,7 +1508,7 @@ function CountryMarketsTable({
                       Analysis
                     </Link>
                     <Link
-                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/map",
                         country.country
@@ -1449,7 +1517,7 @@ function CountryMarketsTable({
                       Map
                     </Link>
                     <Link
-                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/projects",
                         country.country
@@ -1458,7 +1526,7 @@ function CountryMarketsTable({
                       Projects
                     </Link>
                     <Link
-                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/operating-assets",
                         country.country
@@ -1467,7 +1535,7 @@ function CountryMarketsTable({
                       Plants
                     </Link>
                     <Link
-                      className="text-xs font-semibold text-[#4f7f1f] hover:underline"
+                      className={marketClass.tableLink}
                       href={countryQueryHref(
                         "/postgres-preview/companies",
                         country.country
@@ -1539,17 +1607,17 @@ export default async function PostgresCountryMarketsPage({
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={marketClass.panel}>
+        <div className={marketClass.hero}>
+          <p className={marketClass.kicker}>
             Market Intelligence
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className={`text-3xl font-bold tracking-tight sm:text-4xl ${marketClass.title}`}>
                 Markets
               </h1>
-              <p className="mt-4 max-w-4xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7">
+              <p className={`mt-4 max-w-4xl text-sm leading-6 sm:text-base sm:leading-7 ${marketClass.body}`}>
                 Market intelligence layer for regional and country-market
                 drilldowns, filtered worklists, and
                 replacement-readiness checks. TGE regions are the primary market
@@ -1559,13 +1627,13 @@ export default async function PostgresCountryMarketsPage({
             </div>
             <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap">
               <Link
-                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+                className={marketClass.action}
                 href="/postgres-preview"
               >
                 Back to Command Center
               </Link>
               <Link
-                className="inline-flex h-10 w-full items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+                className={marketClass.action}
                 href="/postgres-preview/research-ops"
               >
                 Research Ops
@@ -1643,13 +1711,13 @@ export default async function PostgresCountryMarketsPage({
             />
 
             {activeFilterLabel ? (
-              <div className="flex flex-col gap-3 border border-[#b9d98b] bg-[#f7fbf1] px-4 py-3 text-sm text-[#365f16] sm:flex-row sm:items-center sm:justify-between">
+              <div className={marketClass.activeFilter}>
                 <div>
                   <span className="font-semibold">Active market filter:</span>{" "}
                   {activeFilterLabel}
                 </div>
                 <Link
-                  className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f] hover:underline"
+                  className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] hover:underline"
                   href="/postgres-preview/markets#market-rankings"
                 >
                   Clear Market Filter
