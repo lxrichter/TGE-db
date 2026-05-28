@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
 import ActionButton from "@/components/ui/ActionButton";
+import PostgresStatusLegend from "@/components/postgres-preview/PostgresStatusLegend";
 import {
   analysisCategoryLabels,
   analysisCategoryOrder,
@@ -16,6 +17,11 @@ import {
   canManageUsers,
   canManageVocabularies,
 } from "@/lib/auth/roles";
+import {
+  designAudienceEntryPoints,
+  designReadinessPriorities,
+  semanticDesignRules,
+} from "@/lib/design-readiness";
 import { SOURCE_FACT_TYPE_PRESETS } from "@/lib/sourceFactTypePresets";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 import { listArticleFactCandidateStatusOptions } from "@/lib/services/article-facts";
@@ -275,6 +281,74 @@ function AnalysisRegistryOverview() {
   );
 }
 
+function DesignReadinessOverview() {
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
+        {designAudienceEntryPoints.map((entry) => (
+          <div key={entry.audience} className="border border-gray-200 bg-[#fafafa] p-4">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {entry.audience}
+            </div>
+            <div className="mt-2 text-lg font-bold text-[#1f2937]">
+              {entry.defaultEntry}
+            </div>
+            <p className="mt-2 text-xs leading-5 text-gray-600">
+              {entry.designGoal}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {entry.primaryPages.map((page) => (
+                <span
+                  key={page}
+                  className="border border-gray-200 bg-white px-2 py-1 text-[11px] font-semibold text-gray-600"
+                >
+                  {page}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <PostgresStatusLegend
+        compact
+        description="These meanings should become design-system rules, not one-off page styling."
+        groups={["lifecycle", "review", "severity", "source", "confidence"]}
+        title="Current Semantic Status Language"
+      />
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
+        {semanticDesignRules.map((rule) => (
+          <div key={rule.label} className="border border-gray-200 bg-white px-4 py-3">
+            <div className="text-sm font-bold text-[#1f2937]">{rule.label}</div>
+            <p className="mt-1 text-xs leading-5 text-gray-600">
+              {rule.meaning}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+        {designReadinessPriorities.map((priority) => (
+          <div key={priority.title} className="border border-gray-200 bg-[#fafafa] p-4">
+            <h3 className="text-sm font-bold text-[#1f2937]">
+              {priority.title}
+            </h3>
+            <p className="mt-2 text-xs leading-5 text-gray-600">
+              {priority.description}
+            </p>
+            <ul className="mt-3 space-y-1.5 text-xs leading-5 text-gray-500">
+              {priority.decisions.map((decision) => (
+                <li key={decision}>{decision}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function FaqItem({
   question,
   children,
@@ -371,6 +445,7 @@ export default async function AdminPage() {
             <TocLink href="#workflow" label="Workflow" />
             <TocLink href="#governance" label="Governance" />
             <TocLink href="#analysis-registry" label="Analysis Registry" />
+            <TocLink href="#design-readiness" label="Design Readiness" />
             <TocLink href="#classification" label="Company Logic" />
             <TocLink href="#linking" label="Linking Rules" />
             <TocLink href="#company-link-roles" label="Company Link Roles" />
@@ -497,6 +572,14 @@ export default async function AdminPage() {
         description="Admin overview of live analysis pages, definition-next modules, and future benchmark domains."
       >
         <AnalysisRegistryOverview />
+      </SectionCard>
+
+      <SectionCard
+        id="design-readiness"
+        title="Design Readiness"
+        description="Bridge between the functional platform and the upcoming visual design doctrine."
+      >
+        <DesignReadinessOverview />
       </SectionCard>
 
       <SectionCard
