@@ -47,6 +47,8 @@ const adminClass = {
   muted: "text-[var(--tge-governance-muted-text)]",
   routeLink:
     "rounded-sm border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-2 text-sm font-semibold text-[var(--tge-text-primary)] transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-card)]",
+  chip:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-text-secondary)]",
   successPanel:
     "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]",
 };
@@ -250,8 +252,8 @@ function AnalysisRegistryOverview() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="border border-gray-200 bg-[#fafafa] p-4">
-          <div className="text-sm font-bold text-[#1f2937]">
+        <div className={`${adminClass.panelSubtle} p-4`}>
+          <div className={`text-sm font-bold ${adminClass.title}`}>
             Domain Coverage
           </div>
           <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3">
@@ -268,11 +270,11 @@ function AnalysisRegistryOverview() {
               ).length;
 
               return (
-                <div key={category} className="border border-gray-200 bg-white px-3 py-2">
-                  <div className="text-xs font-bold text-[#1f2937]">
+                <div key={category} className={`${adminClass.panel} px-3 py-2`}>
+                  <div className={`text-xs font-bold ${adminClass.title}`}>
                     {analysisCategoryLabels[category]}
                   </div>
-                  <div className="mt-1 text-[11px] text-gray-500">
+                  <div className={`mt-1 text-[11px] ${adminClass.muted}`}>
                     {live} live · {definition} define · {planned} planned
                   </div>
                 </div>
@@ -290,7 +292,7 @@ function AnalysisRegistryOverview() {
             title="Design doctrine should map to modules"
             text="The design phase can style live modules consistently because each analysis page now belongs to a governed domain."
           />
-          <div className="flex flex-wrap items-center gap-3 border border-gray-200 bg-[#fafafa] px-4 py-3">
+          <div className={`flex flex-wrap items-center gap-3 px-4 py-3 ${adminClass.panelSubtle}`}>
             <ActionButton href="/analysis" variant="primary">
               Open Analysis Workspace
             </ActionButton>
@@ -349,22 +351,19 @@ function DesignReadinessOverview() {
     <div className="space-y-5">
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
         {designAudienceEntryPoints.map((entry) => (
-          <div key={entry.audience} className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div key={entry.audience} className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${adminClass.muted}`}>
               {entry.audience}
             </div>
-            <div className="mt-2 text-lg font-bold text-[#1f2937]">
+            <div className={`mt-2 text-lg font-bold ${adminClass.title}`}>
               {entry.defaultEntry}
             </div>
-            <p className="mt-2 text-xs leading-5 text-gray-600">
+            <p className={`mt-2 text-xs leading-5 ${adminClass.body}`}>
               {entry.designGoal}
             </p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {entry.primaryPages.map((page) => (
-                <span
-                  key={page}
-                  className="border border-gray-200 bg-white px-2 py-1 text-[11px] font-semibold text-gray-600"
-                >
+                <span key={page} className={adminClass.chip}>
                   {page}
                 </span>
               ))}
@@ -380,36 +379,33 @@ function DesignReadinessOverview() {
         title="Current Semantic Status Language"
       />
 
-      <div className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+      <div className={adminClass.panel}>
+        <div className={adminClass.header}>
+          <h3 className={`text-sm font-bold ${adminClass.title}`}>
             Navigation Architecture
           </h3>
-          <p className="mt-1 text-xs leading-5 text-gray-500">
+          <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
             Doctrine-aligned grouping for the current top nav and future
             left-side navigation.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-3 p-4 xl:grid-cols-3">
           {platformNavigationGroups.map((group) => (
-            <div key={group.id} className="border border-gray-200 bg-[#fafafa] p-4">
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div key={group.id} className={`${adminClass.panelSubtle} p-4`}>
+              <div className={`text-xs font-semibold uppercase tracking-wide ${adminClass.muted}`}>
                 {group.label}
               </div>
-              <h4 className="mt-2 text-sm font-bold text-[#1f2937]">
+              <h4 className={`mt-2 text-sm font-bold ${adminClass.title}`}>
                 {group.doctrineLayer}
               </h4>
-              <p className="mt-2 text-xs leading-5 text-gray-600">
+              <p className={`mt-2 text-xs leading-5 ${adminClass.body}`}>
                 {group.designIntent}
               </p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {group.items
                   .filter((item) => item.showInHeader)
                   .map((item) => (
-                    <span
-                      key={item.key}
-                      className="border border-gray-200 bg-white px-2 py-1 text-[11px] font-semibold text-gray-600"
-                    >
+                    <span key={item.key} className={adminClass.chip}>
                       {item.label}
                     </span>
                   ))}
@@ -421,44 +417,46 @@ function DesignReadinessOverview() {
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         {semanticDesignRules.map((rule) => (
-          <div key={rule.label} className="border border-gray-200 bg-white px-4 py-3">
-            <div className="text-sm font-bold text-[#1f2937]">{rule.label}</div>
-            <p className="mt-1 text-xs leading-5 text-gray-600">
+          <div key={rule.label} className={`${adminClass.panel} px-4 py-3`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>
+              {rule.label}
+            </div>
+            <p className={`mt-1 text-xs leading-5 ${adminClass.body}`}>
               {rule.meaning}
             </p>
           </div>
         ))}
       </div>
 
-      <div className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
-          <h3 className="text-sm font-bold text-[#1f2937]">
+      <div className={adminClass.panel}>
+        <div className={adminClass.header}>
+          <h3 className={`text-sm font-bold ${adminClass.title}`}>
             Semantic Token Foundation
           </h3>
-          <p className="mt-1 text-xs leading-5 text-gray-500">
+          <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
             First implementation layer from the doctrine: semantic CSS tokens
             before broad visual redesign.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2 xl:grid-cols-4">
           {designTokenGroups.map((group) => (
-            <div key={group.title} className="border border-gray-200 bg-[#fafafa] p-4">
-              <h4 className="text-sm font-bold text-[#1f2937]">
+            <div key={group.title} className={`${adminClass.panelSubtle} p-4`}>
+              <h4 className={`text-sm font-bold ${adminClass.title}`}>
                 {group.title}
               </h4>
-              <p className="mt-1 text-xs leading-5 text-gray-500">
+              <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
                 {group.description}
               </p>
               <div className="mt-3 space-y-2">
                 {group.tokens.map((token) => (
                   <div
                     key={`${group.title}-${token.name}`}
-                    className="border border-gray-200 bg-white px-3 py-2"
+                    className={`${adminClass.panel} px-3 py-2`}
                   >
-                    <div className="text-xs font-bold text-[#1f2937]">
+                    <div className={`text-xs font-bold ${adminClass.title}`}>
                       {token.name}
                     </div>
-                    <div className="mt-0.5 font-mono text-[11px] text-gray-500">
+                    <div className={`mt-0.5 font-mono text-[11px] ${adminClass.muted}`}>
                       {token.cssVariable}
                     </div>
                   </div>
@@ -555,14 +553,14 @@ function DesignReadinessOverview() {
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
         {designReadinessPriorities.map((priority) => (
-          <div key={priority.title} className="border border-gray-200 bg-[#fafafa] p-4">
-            <h3 className="text-sm font-bold text-[#1f2937]">
+          <div key={priority.title} className={`${adminClass.panelSubtle} p-4`}>
+            <h3 className={`text-sm font-bold ${adminClass.title}`}>
               {priority.title}
             </h3>
-            <p className="mt-2 text-xs leading-5 text-gray-600">
+            <p className={`mt-2 text-xs leading-5 ${adminClass.body}`}>
               {priority.description}
             </p>
-            <ul className="mt-3 space-y-1.5 text-xs leading-5 text-gray-500">
+            <ul className={`mt-3 space-y-1.5 text-xs leading-5 ${adminClass.muted}`}>
               {priority.decisions.map((decision) => (
                 <li key={decision}>{decision}</li>
               ))}
@@ -586,22 +584,22 @@ function FaqItem({
   return (
     <details
       open={defaultOpen}
-      className="group border border-gray-200 bg-white open:bg-[#fcfcfc]"
+      className={`group ${adminClass.panel} open:bg-[var(--tge-surface-page)]`}
     >
       <summary className="cursor-pointer list-none px-4 py-3 md:px-5 md:py-4">
         <div className="flex items-center justify-between gap-4">
-          <h3 className="flex items-center gap-2 text-[15px] font-bold text-[#1f2937]">
+          <h3 className={`flex items-center gap-2 text-[15px] font-bold ${adminClass.title}`}>
             {question}
-            <span className="text-lg font-bold leading-none text-[#8dc63f] group-open:hidden">
+            <span className="text-lg font-bold leading-none text-[var(--tge-brand-green)] group-open:hidden">
               +
             </span>
-            <span className="hidden text-lg font-bold leading-none text-[#8dc63f] group-open:inline">
+            <span className="hidden text-lg font-bold leading-none text-[var(--tge-brand-green)] group-open:inline">
               −
             </span>
           </h3>
         </div>
       </summary>
-      <div className="border-t border-gray-200 px-4 py-3 text-sm leading-7 text-gray-600 md:px-5 md:py-4">
+      <div className={`border-t border-[var(--tge-governance-neutral-border)] px-4 py-3 text-sm leading-7 ${adminClass.body} md:px-5 md:py-4`}>
         {children}
       </div>
     </details>
