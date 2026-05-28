@@ -128,6 +128,13 @@ const companyDetailClass = {
     "underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
   utilityButton:
     "inline-flex min-h-[32px] items-center justify-center whitespace-nowrap border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+  input:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  label: "mb-1 block text-sm font-semibold text-[var(--tge-text-primary)]",
+  primaryButton:
+    "bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] transition hover:bg-[var(--tge-brand-green-dark)] disabled:opacity-50",
+  tableHead: "px-5 py-2.5 font-semibold text-[var(--tge-governance-neutral-text)]",
+  tableRowBorder: "border-b border-[var(--tge-governance-neutral-border)]",
 };
 
 function StatusBadge({ value }: { value: string | null }) {
@@ -967,15 +974,15 @@ export default function CompanyDetailPage() {
 
             {activeTab === "projects" && (
               <TabSection title="Linked Projects">
-                <div className="border border-gray-200 bg-[#fafafa] px-5 py-4">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-600">
+                <div className={`${companyDetailClass.panelSubtle} px-5 py-4`}>
+                  <h3 className={`text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
                     Add Project Link
                   </h3>
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
                     <div className="xl:col-span-2">
-                      <label className="mb-1 block text-sm font-semibold">Project</label>
+                      <label className={companyDetailClass.label}>Project</label>
                       <select
-                        className="w-full border border-gray-300 bg-white px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkProjectForm.project_id}
                         onChange={(e) =>
                           setLinkProjectForm((prev) => ({
@@ -994,9 +1001,9 @@ export default function CompanyDetailPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-semibold">Role</label>
+                      <label className={companyDetailClass.label}>Role</label>
                       <input
-                        className="w-full border border-gray-300 px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkProjectForm.role}
                         onChange={(e) =>
                           setLinkProjectForm((prev) => ({ ...prev, role: e.target.value }))
@@ -1005,9 +1012,9 @@ export default function CompanyDetailPage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-semibold">Role Detail</label>
+                      <label className={companyDetailClass.label}>Role Detail</label>
                       <input
-                        className="w-full border border-gray-300 px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkProjectForm.role_detail}
                         onChange={(e) =>
                           setLinkProjectForm((prev) => ({
@@ -1019,9 +1026,9 @@ export default function CompanyDetailPage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-semibold">Notes</label>
+                      <label className={companyDetailClass.label}>Notes</label>
                       <input
-                        className="w-full border border-gray-300 px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkProjectForm.notes}
                         onChange={(e) =>
                           setLinkProjectForm((prev) => ({ ...prev, notes: e.target.value }))
@@ -1031,7 +1038,7 @@ export default function CompanyDetailPage() {
                     </div>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-4">
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <label className={`flex items-center gap-2 text-sm ${companyDetailClass.body}`}>
                       <input
                         type="checkbox"
                         checked={linkProjectForm.is_primary}
@@ -1048,26 +1055,26 @@ export default function CompanyDetailPage() {
                       type="button"
                       onClick={addProjectLink}
                       disabled={isLinkingProject}
-                      className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                      className={companyDetailClass.primaryButton}
                     >
                       {isLinkingProject ? "Adding..." : "Add Project Link"}
                     </button>
                     {linkProjectMessage ? (
-                      <div className="text-sm font-medium text-[#1f2937]">
+                      <div className={`text-sm font-medium ${companyDetailClass.title}`}>
                         {linkProjectMessage}
                       </div>
                     ) : null}
                   </div>
                 </div>
 
-                <div className="mt-4 border border-gray-200">
-                  <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
+                <div className={`mt-4 ${companyDetailClass.panel}`}>
+                  <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
                     <input
                       type="text"
                       value={projectSearch}
                       onChange={(e) => setProjectSearch(e.target.value)}
                       placeholder="Search by project ID, project name, role..."
-                      className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                      className={`w-full px-4 py-2 text-sm ${companyDetailClass.input}`}
                     />
                   </div>
 
@@ -1080,9 +1087,9 @@ export default function CompanyDetailPage() {
                         <col className="w-[26%]" />
                         <col className="w-[12%]" />
                       </colgroup>
-                      <thead className="bg-white">
-                        <tr className="border-b border-gray-200">
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                      <thead className="bg-[var(--tge-surface-card)]">
+                        <tr className={companyDetailClass.tableRowBorder}>
+                          <th className={companyDetailClass.tableHead}>
                             <button
                               type="button"
                               onClick={() => toggleProjectSort("project_id")}
@@ -1090,7 +1097,7 @@ export default function CompanyDetailPage() {
                               Project ID
                             </button>
                           </th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                          <th className={companyDetailClass.tableHead}>
                             <button
                               type="button"
                               onClick={() => toggleProjectSort("project_name")}
@@ -1098,34 +1105,34 @@ export default function CompanyDetailPage() {
                               Project Name
                             </button>
                           </th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">Role</th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                          <th className={companyDetailClass.tableHead}>Role</th>
+                          <th className={companyDetailClass.tableHead}>
                             Role Detail
                           </th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                          <th className={companyDetailClass.tableHead}>
                             Primary
                           </th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredProjects.map((row) => (
-                          <tr key={row.company_project_link_id} className="border-b border-gray-200">
-                            <td className="px-5 py-2.5 font-mono text-[11px] text-gray-500">
+                          <tr key={row.company_project_link_id} className={companyDetailClass.tableRowBorder}>
+                            <td className={`px-5 py-2.5 font-mono text-[11px] ${companyDetailClass.muted}`}>
                               {row.project_id}
                             </td>
                             <td className="px-5 py-2.5">
                               <Link
                                 href={`/projects/${row.project_id}`}
-                                className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                                className="font-medium text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                               >
                                 {row.project_name || row.project_id}
                               </Link>
                             </td>
-                            <td className="px-5 py-2.5 text-gray-600">{row.role || "NA"}</td>
-                            <td className="px-5 py-2.5 text-gray-600">
+                            <td className={`px-5 py-2.5 ${companyDetailClass.body}`}>{row.role || "NA"}</td>
+                            <td className={`px-5 py-2.5 ${companyDetailClass.body}`}>
                               {row.role_detail || "NA"}
                             </td>
-                            <td className="px-5 py-2.5 text-gray-600">
+                            <td className={`px-5 py-2.5 ${companyDetailClass.body}`}>
                               {row.is_primary ? "Yes" : "NA"}
                             </td>
                           </tr>
@@ -1134,7 +1141,7 @@ export default function CompanyDetailPage() {
                           <tr>
                             <td
                               colSpan={5}
-                              className="px-5 py-8 text-center text-sm text-gray-500"
+                              className={`px-5 py-8 text-center text-sm ${companyDetailClass.muted}`}
                             >
                               No matching linked project records found.
                             </td>
@@ -1149,15 +1156,15 @@ export default function CompanyDetailPage() {
 
             {activeTab === "plants" && (
               <TabSection title="Linked Plants">
-                <div className="border border-gray-200 bg-[#fafafa] px-5 py-4">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-600">
+                <div className={`${companyDetailClass.panelSubtle} px-5 py-4`}>
+                  <h3 className={`text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}>
                     Add Plant Link
                   </h3>
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
                     <div className="xl:col-span-2">
-                      <label className="mb-1 block text-sm font-semibold">Plant</label>
+                      <label className={companyDetailClass.label}>Plant</label>
                       <select
-                        className="w-full border border-gray-300 bg-white px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkPlantForm.plant_id}
                         onChange={(e) =>
                           setLinkPlantForm((prev) => ({
@@ -1176,9 +1183,9 @@ export default function CompanyDetailPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-semibold">Role</label>
+                      <label className={companyDetailClass.label}>Role</label>
                       <input
-                        className="w-full border border-gray-300 px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkPlantForm.role}
                         onChange={(e) =>
                           setLinkPlantForm((prev) => ({ ...prev, role: e.target.value }))
@@ -1187,9 +1194,9 @@ export default function CompanyDetailPage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-semibold">Role Detail</label>
+                      <label className={companyDetailClass.label}>Role Detail</label>
                       <input
-                        className="w-full border border-gray-300 px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkPlantForm.role_detail}
                         onChange={(e) =>
                           setLinkPlantForm((prev) => ({
@@ -1201,9 +1208,9 @@ export default function CompanyDetailPage() {
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm font-semibold">Notes</label>
+                      <label className={companyDetailClass.label}>Notes</label>
                       <input
-                        className="w-full border border-gray-300 px-3 py-2 text-sm"
+                        className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                         value={linkPlantForm.notes}
                         onChange={(e) =>
                           setLinkPlantForm((prev) => ({ ...prev, notes: e.target.value }))
@@ -1213,7 +1220,7 @@ export default function CompanyDetailPage() {
                     </div>
                   </div>
                   <div className="mt-4 flex flex-wrap items-center gap-4">
-                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                    <label className={`flex items-center gap-2 text-sm ${companyDetailClass.body}`}>
                       <input
                         type="checkbox"
                         checked={linkPlantForm.is_primary}
@@ -1230,26 +1237,26 @@ export default function CompanyDetailPage() {
                       type="button"
                       onClick={addPlantLink}
                       disabled={isLinkingPlant}
-                      className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                      className={companyDetailClass.primaryButton}
                     >
                       {isLinkingPlant ? "Adding..." : "Add Plant Link"}
                     </button>
                     {linkPlantMessage ? (
-                      <div className="text-sm font-medium text-[#1f2937]">
+                      <div className={`text-sm font-medium ${companyDetailClass.title}`}>
                         {linkPlantMessage}
                       </div>
                     ) : null}
                   </div>
                 </div>
 
-                <div className="mt-4 border border-gray-200">
-                  <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
+                <div className={`mt-4 ${companyDetailClass.panel}`}>
+                  <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
                     <input
                       type="text"
                       value={plantSearch}
                       onChange={(e) => setPlantSearch(e.target.value)}
                       placeholder="Search by plant ID, plant name, role..."
-                      className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                      className={`w-full px-4 py-2 text-sm ${companyDetailClass.input}`}
                     />
                   </div>
 
@@ -1262,9 +1269,9 @@ export default function CompanyDetailPage() {
                         <col className="w-[26%]" />
                         <col className="w-[12%]" />
                       </colgroup>
-                      <thead className="bg-white">
-                        <tr className="border-b border-gray-200">
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                      <thead className="bg-[var(--tge-surface-card)]">
+                        <tr className={companyDetailClass.tableRowBorder}>
+                          <th className={companyDetailClass.tableHead}>
                             <button
                               type="button"
                               onClick={() => togglePlantSort("plant_id")}
@@ -1272,7 +1279,7 @@ export default function CompanyDetailPage() {
                               Plant ID
                             </button>
                           </th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                          <th className={companyDetailClass.tableHead}>
                             <button
                               type="button"
                               onClick={() => togglePlantSort("plant_name")}
@@ -1280,34 +1287,34 @@ export default function CompanyDetailPage() {
                               Plant Name
                             </button>
                           </th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">Role</th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                          <th className={companyDetailClass.tableHead}>Role</th>
+                          <th className={companyDetailClass.tableHead}>
                             Role Detail
                           </th>
-                          <th className="px-5 py-2.5 font-semibold text-gray-700">
+                          <th className={companyDetailClass.tableHead}>
                             Primary
                           </th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredPlants.map((row) => (
-                          <tr key={row.company_plant_link_id} className="border-b border-gray-200">
-                            <td className="px-5 py-2.5 font-mono text-[11px] text-gray-500">
+                          <tr key={row.company_plant_link_id} className={companyDetailClass.tableRowBorder}>
+                            <td className={`px-5 py-2.5 font-mono text-[11px] ${companyDetailClass.muted}`}>
                               {row.plant_id}
                             </td>
                             <td className="px-5 py-2.5">
                               <Link
                                 href={`/plants/${row.plant_id}`}
-                                className="font-medium text-[#1f2937] hover:text-[#8dc63f] hover:underline"
+                                className="font-medium text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                               >
                                 {row.plant_name || row.plant_id}
                               </Link>
                             </td>
-                            <td className="px-5 py-2.5 text-gray-600">{row.role || "NA"}</td>
-                            <td className="px-5 py-2.5 text-gray-600">
+                            <td className={`px-5 py-2.5 ${companyDetailClass.body}`}>{row.role || "NA"}</td>
+                            <td className={`px-5 py-2.5 ${companyDetailClass.body}`}>
                               {row.role_detail || "NA"}
                             </td>
-                            <td className="px-5 py-2.5 text-gray-600">
+                            <td className={`px-5 py-2.5 ${companyDetailClass.body}`}>
                               {row.is_primary ? "Yes" : "NA"}
                             </td>
                           </tr>
@@ -1316,7 +1323,7 @@ export default function CompanyDetailPage() {
                           <tr>
                             <td
                               colSpan={5}
-                              className="px-5 py-8 text-center text-sm text-gray-500"
+                              className={`px-5 py-8 text-center text-sm ${companyDetailClass.muted}`}
                             >
                               No matching linked plant records found.
                             </td>
