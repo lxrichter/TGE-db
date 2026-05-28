@@ -12,11 +12,44 @@ export type CountryRow = {
   project_count: number;
 };
 
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const eyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const brandLinkClass =
+  "text-[var(--tge-brand-green-dark)] hover:underline";
+
 function formatNumber(value: number, digits = 1) {
   return Number(value || 0).toLocaleString(undefined, {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
+}
+
+function MarketMetric({
+  label,
+  value,
+  note,
+}: {
+  label: string;
+  value: string | number;
+  note: string;
+}) {
+  return (
+    <div>
+      <div className={eyebrowClass}>{label}</div>
+      <div className={`mt-1 text-3xl font-bold ${titleTextClass}`}>
+        {value}
+      </div>
+      <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
+        {note}
+      </div>
+    </div>
+  );
 }
 
 export default async function MarketsCountriesPage() {
@@ -105,24 +138,24 @@ export default async function MarketsCountriesPage() {
       <div className="mb-4">
         <Link
           href="/markets"
-          className="text-sm font-semibold text-[#8dc63f] hover:underline"
+          className={`text-sm font-semibold ${brandLinkClass}`}
         >
           ← Back to Markets
         </Link>
       </div>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={panelClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
           <div className="max-w-5xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
               Markets
             </p>
 
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+            <h1 className={`mt-3 text-5xl font-bold tracking-tight ${titleTextClass}`}>
               Country Markets
             </h1>
 
-            <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
+            <p className={`mt-4 max-w-5xl text-lg leading-8 ${bodyTextClass}`}>
               Country-market overview pages derived from TGE’s geothermal
               plants and projects databases, covering installed capacity,
               operating capacity, project pipeline, and structured market profiles.
@@ -130,92 +163,58 @@ export default async function MarketsCountriesPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-4">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700">
-            <span className="font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-4">
+          <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm ${bodyTextClass}`}>
+            <span className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               Scope
             </span>
             <span>{countries.length} Markets</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-[var(--tge-governance-muted-border)]">|</span>
             <span>{regionSet.size} Regions</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-[var(--tge-governance-muted-border)]">|</span>
             <span>{totalPlants} Plants</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-[var(--tge-governance-muted-border)]">|</span>
             <span>{totalProjects} Projects</span>
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#fafafa] px-8 py-5">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5">
           <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-5">
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Markets
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {countries.length}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Country-market pages
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Installed Capacity
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatNumber(totalInstalled)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Total plant installed MWe
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Operating Capacity
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatNumber(totalOperating)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Total plant operating MWe
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Planned Capacity
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatNumber(totalPlanned)}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Total project planned MWe
-              </div>
-            </div>
-
-            <div>
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Projects
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {totalProjects}
-              </div>
-              <div className="mt-1 text-xs text-gray-500">
-                Development pipeline projects
-              </div>
-            </div>
+            <MarketMetric
+              label="Markets"
+              value={countries.length}
+              note="Country-market pages"
+            />
+            <MarketMetric
+              label="Installed Capacity"
+              value={formatNumber(totalInstalled)}
+              note="Total plant installed MWe"
+            />
+            <MarketMetric
+              label="Operating Capacity"
+              value={formatNumber(totalOperating)}
+              note="Total plant operating MWe"
+            />
+            <MarketMetric
+              label="Planned Capacity"
+              value={formatNumber(totalPlanned)}
+              note="Total project planned MWe"
+            />
+            <MarketMetric
+              label="Projects"
+              value={totalProjects}
+              note="Development pipeline projects"
+            />
           </div>
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={panelClass}>
+        <div className={`${panelHeaderClass} px-6 py-4`}>
+          <h2 className={`text-xl font-bold ${titleTextClass}`}>
             Country Market Overview
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${bodyTextClass}`}>
             Browse country market pages with installed and operating capacity,
             project pipeline, and linked detail pages.
           </p>

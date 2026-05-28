@@ -1,5 +1,13 @@
 import Link from "next/link";
 
+const panelClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const panelHeaderClass =
+  "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const titleTextClass = "text-[var(--tge-text-primary)]";
+const bodyTextClass = "text-[var(--tge-text-secondary)]";
+const brandLinkClass = "text-[var(--tge-brand-green-dark)]";
+
 function MarketCard({
   title,
   text,
@@ -12,15 +20,15 @@ function MarketCard({
   return (
     <Link
       href={href}
-      className="block border border-gray-200 bg-white transition hover:border-[#8dc63f]"
+      className="block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
     >
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-        <h2 className="text-2xl font-bold text-[#1f2937]">{title}</h2>
+      <div className={`${panelHeaderClass} px-6 py-4`}>
+        <h2 className={`text-2xl font-bold ${titleTextClass}`}>{title}</h2>
       </div>
 
       <div className="px-6 py-6">
-        <p className="text-sm leading-7 text-gray-600">{text}</p>
-        <div className="mt-5 text-sm font-semibold text-[#8dc63f]">
+        <p className={`text-sm leading-7 ${bodyTextClass}`}>{text}</p>
+        <div className={`mt-5 text-sm font-semibold ${brandLinkClass}`}>
           Open {title} →
         </div>
       </div>
@@ -31,16 +39,16 @@ function MarketCard({
 export default function MarketsPage() {
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={panelClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
           <div className="max-w-5xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
               Markets
             </p>
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+            <h1 className={`mt-3 text-5xl font-bold tracking-tight ${titleTextClass}`}>
               Markets
             </h1>
-            <p className="mt-4 max-w-5xl text-lg leading-8 text-gray-600">
+            <p className={`mt-4 max-w-5xl text-lg leading-8 ${bodyTextClass}`}>
               Internal geothermal market intelligence pages for country markets
               and TGE regions, combining operating plants, development pipeline,
               maps, and structured database intelligence.
@@ -48,19 +56,19 @@ export default function MarketsPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-4">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700">
-            <span className="font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-4">
+          <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm ${bodyTextClass}`}>
+            <span className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               Scope
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Country Markets</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${titleTextClass}`}>Country Markets</span>
+              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
               capacity, phases, maps, plants, projects
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Regional Pages</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${titleTextClass}`}>Regional Pages</span>
+              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
               aggregation, comparison, operator landscape
             </span>
           </div>
