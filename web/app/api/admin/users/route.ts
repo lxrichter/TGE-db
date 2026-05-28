@@ -12,6 +12,7 @@ import {
   deactivateUser,
   getUserById,
   listUsers,
+  reactivateUser,
   updateUserDetails,
   updateUserRole,
 } from "@/lib/db/users";
@@ -139,6 +140,18 @@ export async function PATCH(req: NextRequest) {
 
       return NextResponse.json({ error: message }, { status: 400 });
     }
+  }
+
+  if (mode === "reactivate") {
+    const targetUser = await getUserById(userId);
+
+    if (!targetUser) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    await reactivateUser(userId);
+
+    return NextResponse.json({ success: true });
   }
 
   if (!nextRole) {

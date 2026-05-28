@@ -55,6 +55,7 @@ export default function UserManagementPanel({
   const [success, setSuccess] = useState("");
 
   const [deactivateUserId, setDeactivateUserId] = useState<string | null>(null);
+  const [reactivateUserId, setReactivateUserId] = useState<string | null>(null);
 
   const [editingUser, setEditingUser] = useState<SafeUser | null>(null);
   const [editName, setEditName] = useState("");
@@ -220,6 +221,37 @@ export default function UserManagementPanel({
     });
   }
 
+  async function confirmReactivate() {
+    if (!reactivateUserId) return;
+
+    setError("");
+    setSuccess("");
+
+    startTransition(async () => {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mode: "reactivate",
+          userId: reactivateUserId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Could not reactivate user.");
+        return;
+      }
+
+      setSuccess("User reactivated.");
+      setReactivateUserId(null);
+      await refreshUsers();
+    });
+  }
+
   return (
     <>
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.75fr]">
@@ -339,7 +371,14 @@ export default function UserManagementPanel({
                             )}
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">Inactive</span>
+                          <button
+                            type="button"
+                            onClick={() => setReactivateUserId(user.user_id)}
+                            disabled={isPending}
+                            className="inline-flex h-[30px] min-w-[92px] items-center justify-center border border-[#b7df72] bg-[#eef8dc] px-3 text-[12px] font-semibold text-[#2e6b1f] transition hover:bg-[#e2f2c7] disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            Reactivate
+                          </button>
                         )}
                       </td>
                     </tr>
@@ -612,6 +651,51 @@ export default function UserManagementPanel({
                 className="inline-flex h-[40px] items-center justify-center border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isPending ? "Deactivating..." : "Deactivate User"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {reactivateUserId ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-4">
+          <div className="w-full max-w-[520px] border border-gray-200 bg-white shadow-xl">
+            <div className="border-b border-gray-200 bg-[#f5faef] px-6 py-4">
+              <h2 className="text-xl font-bold text-[#2e6b1f]">
+                Reactivate User
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                This restores login access for the selected user account.
+              </p>
+            </div>
+
+            <div className="space-y-4 px-6 py-5 text-sm leading-6 text-gray-600">
+              <p>
+                The user will be able to sign in again with their current
+                password once reactivated.
+              </p>
+              <p>
+                If the password should be changed, reactivate first and then use
+                Edit to set a new temporary password.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
+              <button
+                type="button"
+                onClick={() => setReactivateUserId(null)}
+                className="inline-flex h-[40px] items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmReactivate}
+                disabled={isPending}
+                className="inline-flex h-[40px] items-center justify-center border border-[#b7df72] bg-[#eef8dc] px-4 text-sm font-semibold text-[#2e6b1f] transition hover:bg-[#e2f2c7] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isPending ? "Reactivating..." : "Reactivate User"}
               </button>
             </div>
           </div>

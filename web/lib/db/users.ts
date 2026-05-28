@@ -252,3 +252,16 @@ export async function deactivateUser(userId: string): Promise<void> {
     userId
   );
 }
+
+export async function reactivateUser(userId: string): Promise<void> {
+  const db = await getDb();
+
+  await db.run(
+    `
+    UPDATE users
+    SET is_active = 1
+    WHERE user_id = ?
+    `,
+    userId
+  );
+}
