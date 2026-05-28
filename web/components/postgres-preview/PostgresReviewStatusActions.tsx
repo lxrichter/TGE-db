@@ -47,11 +47,11 @@ function getApiError(json: unknown, fallback: string) {
 
 function statusTone(code: string) {
   if (code === "approved" || code === "credible") {
-    return "border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-white hover:opacity-90";
+    return "border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-[var(--tge-surface-card)] hover:opacity-90";
   }
 
   if (code === "export_ready") {
-    return "border-[var(--tge-brand-green-dark)] bg-[var(--tge-brand-green-dark)] text-white hover:opacity-90";
+    return "border-[var(--tge-brand-green-dark)] bg-[var(--tge-brand-green-dark)] text-[var(--tge-surface-card)] hover:opacity-90";
   }
 
   if (code === "needs_update" || code === "weak" || code === "outdated") {

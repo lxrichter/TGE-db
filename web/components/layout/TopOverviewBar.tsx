@@ -55,7 +55,7 @@ export default function TopOverviewBar({
                   href={action.href}
                   className={
                     action.variant === "primary"
-                      ? "bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                      ? "bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] transition hover:opacity-90"
                       : "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-governance-neutral-bg)]"
                   }
                 >
