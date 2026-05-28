@@ -93,6 +93,60 @@ async function getAnalysisData(
   }
 }
 
+const analysisClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  neutral: "text-[var(--tge-governance-neutral-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  smallLabel:
+    "text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  statTile:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+  metaBadge:
+    "inline-flex min-h-6 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  details:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  neutralBadge:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  neutralBadgeSolid:
+    "inline-flex min-h-8 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  dividerMobile:
+    "divide-y divide-[var(--tge-governance-muted-border)] border-t border-[var(--tge-governance-neutral-border)] md:hidden",
+  desktopTable:
+    "hidden overflow-x-auto border-t border-[var(--tge-governance-neutral-border)] md:block",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-[11px] tracking-wide text-[var(--tge-governance-muted-text)]",
+  tableHeadUpper:
+    "bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  tableDivider: "divide-y divide-[var(--tge-governance-muted-border)]",
+  tableCell: "px-5 py-4 text-[var(--tge-governance-neutral-text)]",
+  tableStrong:
+    "px-5 py-4 font-semibold text-[var(--tge-text-primary)]",
+  track:
+    "h-1.5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]",
+  defaultBar: "bg-[var(--tge-brand-green)]",
+  activeContext:
+    "mt-4 inline-flex min-h-8 items-center border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]",
+  filteredPanel:
+    "border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-5 py-4",
+  filteredKicker:
+    "text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]",
+  action:
+    "inline-flex h-10 items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  smallAction:
+    "inline-flex min-h-9 items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  inlineLink:
+    "text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+};
+
 function StatTile({
   label,
   value,
@@ -103,14 +157,14 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={analysisClass.statTile}>
+      <div className={analysisClass.label}>
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+      <div className={`mt-2 text-2xl font-bold leading-none ${analysisClass.title}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${analysisClass.muted}`}>{note}</div>
     </div>
   );
 }
@@ -124,10 +178,10 @@ function MobileAnalysisField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className={analysisClass.smallLabel}>
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className={`mt-1 min-w-0 text-sm ${analysisClass.neutral}`}>{children}</div>
     </div>
   );
 }
@@ -154,7 +208,7 @@ function AnalysisCountryMeta({
       {values.map((value) => (
         <span
           key={value}
-          className="inline-flex min-h-6 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-[10px] font-semibold uppercase tracking-wide text-gray-500"
+          className={analysisClass.metaBadge}
         >
           {value}
         </span>
@@ -215,25 +269,29 @@ function BucketTable({
   );
 
   return (
-    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+    <details className={analysisClass.details} open={defaultOpen}>
       <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">{description}</p>
+          <h2 className={`text-lg font-bold ${analysisClass.title}`}>
+            {title}
+          </h2>
+          <p className={`mt-1 text-sm leading-6 ${analysisClass.body}`}>
+            {description}
+          </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
-          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={analysisClass.neutralBadge}>
             {formatCount(recordCount)} {countSummaryLabel}
           </span>
-          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={analysisClass.neutralBadgeSolid}>
             {formatMw(electricCapacity)} MWe
           </span>
-          <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className={analysisClass.neutralBadgeSolid}>
             {defaultOpen ? "Open" : "Expand"}
           </span>
         </div>
       </summary>
-      <div className="divide-y divide-gray-100 border-t border-gray-200 md:hidden">
+      <div className={analysisClass.dividerMobile}>
         {buckets.map((bucket) => {
           const share = Math.round(
             (bucket.electric_capacity_mwe / maxElectric) * 100
@@ -244,11 +302,11 @@ function BucketTable({
               ? postgresStatusBarClass(
                   postgresStatusTone(bucket.bucket_code, "lifecycle")
                 )
-              : "bg-[#8dc63f]");
+              : analysisClass.defaultBar);
 
           return (
             <article key={bucket.bucket_code} className="px-4 py-4">
-              <div className="font-semibold text-[#1f2937]">
+              <div className={`font-semibold ${analysisClass.title}`}>
                 {formatBucketLabel(bucket)}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -262,7 +320,7 @@ function BucketTable({
                   {formatMw(bucket.thermal_capacity_mwth)} MWth
                 </MobileAnalysisField>
                 <MobileAnalysisField label="Relative Share">
-                  <div className="h-1.5 overflow-hidden bg-gray-100">
+                  <div className={analysisClass.track}>
                     <div
                       className={`h-full ${barClass}`}
                       style={{ width: `${share}%` }}
@@ -274,9 +332,9 @@ function BucketTable({
           );
         })}
       </div>
-      <div className="hidden overflow-x-auto border-t border-gray-200 md:block">
+      <div className={analysisClass.desktopTable}>
         <table className="min-w-[820px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] tracking-wide text-gray-500">
+          <thead className={analysisClass.tableHead}>
             <tr>
               <th className="w-[26%] px-5 py-3 font-semibold">
                 {segmentHeader}
@@ -289,7 +347,7 @@ function BucketTable({
               <th className="w-[34%] px-5 py-3 font-semibold">Share</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className={analysisClass.tableDivider}>
             {buckets.map((bucket) => {
               const share = Math.round(
                 (bucket.electric_capacity_mwe / maxElectric) * 100
@@ -300,24 +358,24 @@ function BucketTable({
                   ? postgresStatusBarClass(
                       postgresStatusTone(bucket.bucket_code, "lifecycle")
                     )
-                  : "bg-[#8dc63f]");
+                  : analysisClass.defaultBar);
 
               return (
                 <tr key={bucket.bucket_code}>
-                  <td className="px-5 py-4 font-semibold text-[#1f2937]">
+                  <td className={analysisClass.tableStrong}>
                     {formatBucketLabel(bucket)}
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={analysisClass.tableCell}>
                     {formatCount(bucket.record_count)}
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={analysisClass.tableCell}>
                     {formatMw(bucket.electric_capacity_mwe)} MWe
                   </td>
-                  <td className="px-5 py-4 text-gray-700">
+                  <td className={analysisClass.tableCell}>
                     {formatMw(bucket.thermal_capacity_mwth)} MWth
                   </td>
                   <td className="px-5 py-4">
-                    <div className="h-1.5 overflow-hidden bg-gray-100">
+                    <div className={analysisClass.track}>
                       <div
                         className={`h-full ${barClass}`}
                         style={{ width: `${share}%` }}
@@ -367,36 +425,36 @@ export default async function PostgresAnalysisPreviewPage({
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={analysisClass.panel}>
+        <div className={analysisClass.hero}>
+          <p className={analysisClass.kicker}>
             Intelligence Preview
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className={`text-4xl font-bold tracking-tight ${analysisClass.title}`}>
                 Analysis
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className={`mt-4 max-w-4xl text-base leading-7 ${analysisClass.body}`}>
                 First PostgreSQL-backed analytical overview for replacement
                 readiness: market capacity, lifecycle, operating status, and
                 use-type distribution.
               </p>
               {activeGeographyLabel ? (
-                <div className="mt-4 inline-flex min-h-8 items-center border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                <div className={analysisClass.activeContext}>
                   Active analysis view: {activeGeographyLabel}
                 </div>
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={analysisClass.action}
                 href="/postgres-preview"
               >
                 Back to Command Center
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={analysisClass.action}
                 href={geographyHref("/postgres-preview/markets", filters)}
               >
                 Markets
@@ -456,19 +514,19 @@ export default async function PostgresAnalysisPreviewPage({
           />
 
           {activeGeographyLabel ? (
-            <section className="border border-[#8dc63f] bg-[#fbfdf8] px-5 py-4">
+            <section className={analysisClass.filteredPanel}>
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                  <div className={analysisClass.filteredKicker}>
                     Filtered Analysis Context
                   </div>
-                  <p className="mt-1 text-sm leading-6 text-gray-700">
+                  <p className={`mt-1 text-sm leading-6 ${analysisClass.neutral}`}>
                     {activeGeographyLabel} is applied to benchmark buckets,
                     market rows, and downstream worklist routes.
                   </p>
                 </div>
                 <Link
-                  className="inline-flex min-h-9 items-center justify-center border border-gray-300 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                  className={analysisClass.smallAction}
                   href="/postgres-preview/analysis"
                 >
                   Clear Filter
@@ -558,137 +616,143 @@ export default async function PostgresAnalysisPreviewPage({
               tone="governance"
             />
 
-            <details className="border border-gray-200 bg-white">
-            <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-[#1f2937]">
-                  Top Markets
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-gray-600">
-                  Highest combined operating plus pipeline MWe from the
-                  PostgreSQL market aggregation.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
-                <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                  {formatCount(summary.topCountries.length)} markets
-                </span>
-                <span className="inline-flex min-h-8 items-center justify-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-600">
-                  Expand
-                </span>
-              </div>
-            </summary>
-            <div className="border-t border-gray-200">
-              <div className="divide-y divide-gray-100 md:hidden">
-                {summary.topCountries.map((country) => (
-                  <article key={country.country} className="px-4 py-4">
-                    <div className="font-semibold text-[#1f2937]">
-                      {country.country}
-                    </div>
-                    <AnalysisCountryMeta
-                      iso3={country.iso3}
-                      tgeRegion={country.tge_region}
-                      wbRegion={country.wb_region}
-                    />
-                    <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                      <MobileAnalysisField label="Operating">
-                        {formatMw(country.operating_installed_mwe)} MWe
-                      </MobileAnalysisField>
-                      <MobileAnalysisField label="Pipeline">
-                        {formatMw(country.project_pipeline_mwe)} MWe
-                      </MobileAnalysisField>
-                      <MobileAnalysisField label="Linked Work">
-                        {formatCount(
-                          country.project_count +
-                            country.operating_asset_count +
-                            country.company_count
-                        )}
-                      </MobileAnalysisField>
-                      <MobileAnalysisField label="Open">
-                        <Link
-                          className="text-xs font-semibold text-[#4f7f1f] hover:underline"
-                          href={`/postgres-preview/projects?country=${encodeURIComponent(
-                            country.country
-                          )}`}
-                        >
-                          Project worklist
-                        </Link>
-                        <Link
-                          className="text-xs font-semibold text-[#4f7f1f] hover:underline"
-                          href={`/postgres-preview/map?country=${encodeURIComponent(
-                            country.country
-                          )}`}
-                        >
-                          Map
-                        </Link>
-                      </MobileAnalysisField>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div className="hidden overflow-x-auto md:block">
-                <table className="min-w-[820px] table-fixed text-left text-sm">
-                <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
-                  <tr>
-                    <th className="w-[28%] px-5 py-3 font-semibold">Market</th>
-                    <th className="w-[18%] px-5 py-3 font-semibold">
-                      Operating
-                    </th>
-                    <th className="w-[18%] px-5 py-3 font-semibold">
-                      Pipeline
-                    </th>
-                    <th className="w-[18%] px-5 py-3 font-semibold">Linked Work</th>
-                    <th className="w-[18%] px-5 py-3 font-semibold">Open</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
+            <details className={analysisClass.details}>
+              <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
+                <div>
+                  <h2 className={`text-lg font-bold ${analysisClass.title}`}>
+                    Top Markets
+                  </h2>
+                  <p className={`mt-1 text-sm leading-6 ${analysisClass.body}`}>
+                    Highest combined operating plus pipeline MWe from the
+                    PostgreSQL market aggregation.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap md:justify-end">
+                  <span className={analysisClass.neutralBadge}>
+                    {formatCount(summary.topCountries.length)} markets
+                  </span>
+                  <span className={analysisClass.neutralBadgeSolid}>
+                    Expand
+                  </span>
+                </div>
+              </summary>
+              <div className={`border-t border-[var(--tge-governance-neutral-border)]`}>
+                <div className={`${analysisClass.tableDivider} md:hidden`}>
                   {summary.topCountries.map((country) => (
-                    <tr key={country.country}>
-                      <td className="px-5 py-4 font-semibold text-[#1f2937]">
-                        <div>{country.country}</div>
-                        <AnalysisCountryMeta
-                          iso3={country.iso3}
-                          tgeRegion={country.tge_region}
-                          wbRegion={country.wb_region}
-                        />
-                      </td>
-                      <td className="px-5 py-4 text-gray-700">
-                        {formatMw(country.operating_installed_mwe)} MWe
-                      </td>
-                      <td className="px-5 py-4 text-gray-700">
-                        {formatMw(country.project_pipeline_mwe)} MWe
-                      </td>
-                      <td className="px-5 py-4 text-gray-700">
-                        {formatCount(
-                          country.project_count +
-                            country.operating_asset_count +
-                            country.company_count
-                        )}
-                      </td>
-                      <td className="px-5 py-4">
-                        <Link
-                          className="text-xs font-semibold text-[#4f7f1f] hover:underline"
-                          href={`/postgres-preview/projects?country=${encodeURIComponent(
-                            country.country
-                          )}`}
-                        >
-                          Project worklist
-                        </Link>
-                        <Link
-                          className="mt-2 block text-xs font-semibold text-[#4f7f1f] hover:underline"
-                          href={`/postgres-preview/map?country=${encodeURIComponent(
-                            country.country
-                          )}`}
-                        >
-                          Map
-                        </Link>
-                      </td>
-                    </tr>
+                    <article key={country.country} className="px-4 py-4">
+                      <div className={`font-semibold ${analysisClass.title}`}>
+                        {country.country}
+                      </div>
+                      <AnalysisCountryMeta
+                        iso3={country.iso3}
+                        tgeRegion={country.tge_region}
+                        wbRegion={country.wb_region}
+                      />
+                      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                        <MobileAnalysisField label="Operating">
+                          {formatMw(country.operating_installed_mwe)} MWe
+                        </MobileAnalysisField>
+                        <MobileAnalysisField label="Pipeline">
+                          {formatMw(country.project_pipeline_mwe)} MWe
+                        </MobileAnalysisField>
+                        <MobileAnalysisField label="Linked Work">
+                          {formatCount(
+                            country.project_count +
+                              country.operating_asset_count +
+                              country.company_count
+                          )}
+                        </MobileAnalysisField>
+                        <MobileAnalysisField label="Open">
+                          <Link
+                            className={analysisClass.inlineLink}
+                            href={`/postgres-preview/projects?country=${encodeURIComponent(
+                              country.country
+                            )}`}
+                          >
+                            Project worklist
+                          </Link>
+                          <Link
+                            className={analysisClass.inlineLink}
+                            href={`/postgres-preview/map?country=${encodeURIComponent(
+                              country.country
+                            )}`}
+                          >
+                            Map
+                          </Link>
+                        </MobileAnalysisField>
+                      </div>
+                    </article>
                   ))}
-                </tbody>
-                </table>
+                </div>
+                <div className="hidden overflow-x-auto md:block">
+                  <table className="min-w-[820px] table-fixed text-left text-sm">
+                    <thead className={analysisClass.tableHeadUpper}>
+                      <tr>
+                        <th className="w-[28%] px-5 py-3 font-semibold">
+                          Market
+                        </th>
+                        <th className="w-[18%] px-5 py-3 font-semibold">
+                          Operating
+                        </th>
+                        <th className="w-[18%] px-5 py-3 font-semibold">
+                          Pipeline
+                        </th>
+                        <th className="w-[18%] px-5 py-3 font-semibold">
+                          Linked Work
+                        </th>
+                        <th className="w-[18%] px-5 py-3 font-semibold">
+                          Open
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className={analysisClass.tableDivider}>
+                      {summary.topCountries.map((country) => (
+                        <tr key={country.country}>
+                          <td className={analysisClass.tableStrong}>
+                            <div>{country.country}</div>
+                            <AnalysisCountryMeta
+                              iso3={country.iso3}
+                              tgeRegion={country.tge_region}
+                              wbRegion={country.wb_region}
+                            />
+                          </td>
+                          <td className={analysisClass.tableCell}>
+                            {formatMw(country.operating_installed_mwe)} MWe
+                          </td>
+                          <td className={analysisClass.tableCell}>
+                            {formatMw(country.project_pipeline_mwe)} MWe
+                          </td>
+                          <td className={analysisClass.tableCell}>
+                            {formatCount(
+                              country.project_count +
+                                country.operating_asset_count +
+                                country.company_count
+                            )}
+                          </td>
+                          <td className="px-5 py-4">
+                            <Link
+                              className={analysisClass.inlineLink}
+                              href={`/postgres-preview/projects?country=${encodeURIComponent(
+                                country.country
+                              )}`}
+                            >
+                              Project worklist
+                            </Link>
+                            <Link
+                              className={`${analysisClass.inlineLink} mt-2 block`}
+                              href={`/postgres-preview/map?country=${encodeURIComponent(
+                                country.country
+                              )}`}
+                            >
+                              Map
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
             </details>
           </section>
         </>
