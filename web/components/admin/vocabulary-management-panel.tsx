@@ -57,6 +57,14 @@ const vocabClass = {
   title: "text-[var(--tge-text-primary)]",
   body: "text-[var(--tge-text-secondary)]",
   muted: "text-[var(--tge-governance-muted-text)]",
+  label:
+    "flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  input:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  secondaryButton:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-secondary)] hover:bg-[var(--tge-surface-subtle)] disabled:cursor-not-allowed disabled:opacity-45",
+  primaryButton:
+    "border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60",
   selectedNav: "bg-[var(--tge-governance-success-bg)] text-[var(--tge-text-primary)]",
   navItem:
     "bg-[var(--tge-surface-card)] text-[var(--tge-text-secondary)] hover:bg-[var(--tge-surface-subtle)]",
@@ -374,19 +382,21 @@ export default function VocabularyManagementPanel({
           </div>
         ) : null}
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
-            <h3 className="text-lg font-bold text-[#1f2937]">Term Filters</h3>
-            <p className="mt-1 text-sm text-gray-500">
+        <section className={vocabClass.panel}>
+          <div className={`${vocabClass.header} px-5 py-3`}>
+            <h3 className={`text-lg font-bold ${vocabClass.title}`}>
+              Term Filters
+            </h3>
+            <p className={`mt-1 text-sm ${vocabClass.muted}`}>
               Search and filter the selected vocabulary group before editing.
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 px-5 py-4 lg:grid-cols-[minmax(0,1fr)_160px_auto]">
-            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <label className={vocabClass.label}>
               Search Terms
               <input
-                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                className={`h-10 px-3 text-sm font-medium normal-case tracking-normal ${vocabClass.input}`}
                 placeholder="Code, label, description, metadata..."
                 type="search"
                 value={termSearch}
@@ -394,10 +404,10 @@ export default function VocabularyManagementPanel({
               />
             </label>
 
-            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <label className={vocabClass.label}>
               Status
               <select
-                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                className={`h-10 px-3 text-sm font-medium normal-case tracking-normal ${vocabClass.input}`}
                 value={termStatusFilter}
                 onChange={(event) =>
                   setTermStatusFilter(
@@ -412,7 +422,7 @@ export default function VocabularyManagementPanel({
             </label>
 
             <button
-              className="h-10 self-end border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45"
+              className={`h-10 self-end px-4 text-sm font-semibold ${vocabClass.secondaryButton}`}
               disabled={!hasTermFilters}
               type="button"
               onClick={clearTermFilters}
@@ -422,10 +432,12 @@ export default function VocabularyManagementPanel({
           </div>
         </section>
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-4">
-            <h3 className="text-lg font-bold text-[#1f2937]">Add Term</h3>
-            <p className="mt-1 text-sm text-gray-500">
+        <section className={vocabClass.panel}>
+          <div className={`${vocabClass.header} px-5 py-4`}>
+            <h3 className={`text-lg font-bold ${vocabClass.title}`}>
+              Add Term
+            </h3>
+            <p className={`mt-1 text-sm ${vocabClass.muted}`}>
               Codes are stable identifiers. Use lowercase letters, numbers, and
               underscores only.
             </p>
@@ -434,20 +446,20 @@ export default function VocabularyManagementPanel({
             className="grid grid-cols-1 gap-4 px-5 py-5 lg:grid-cols-[180px_minmax(180px,1fr)_120px_140px] xl:grid-cols-[180px_minmax(180px,1fr)_minmax(220px,1fr)_120px_140px]"
             onSubmit={createItem}
           >
-            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <label className={vocabClass.label}>
               Code
               <input
-                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                className={`h-10 px-3 text-sm font-medium normal-case tracking-normal ${vocabClass.input}`}
                 value={newItem.code}
                 onChange={(event) =>
                   setNewItem((current) => ({ ...current, code: event.target.value }))
                 }
               />
             </label>
-            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <label className={vocabClass.label}>
               Label
               <input
-                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                className={`h-10 px-3 text-sm font-medium normal-case tracking-normal ${vocabClass.input}`}
                 value={newItem.label}
                 onChange={(event) =>
                   setNewItem((current) => ({ ...current, label: event.target.value }))
@@ -455,10 +467,10 @@ export default function VocabularyManagementPanel({
               />
             </label>
             {activeGroup.hasDescription ? (
-              <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <label className={vocabClass.label}>
                 Description
                 <input
-                  className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  className={`h-10 px-3 text-sm font-medium normal-case tracking-normal ${vocabClass.input}`}
                   value={newItem.description}
                   onChange={(event) =>
                     setNewItem((current) => ({
@@ -469,10 +481,10 @@ export default function VocabularyManagementPanel({
                 />
               </label>
             ) : null}
-            <label className="flex flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <label className={vocabClass.label}>
               Sort
               <input
-                className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                className={`h-10 px-3 text-sm font-medium normal-case tracking-normal ${vocabClass.input}`}
                 inputMode="numeric"
                 value={newItem.sortOrder}
                 onChange={(event) =>
@@ -484,7 +496,7 @@ export default function VocabularyManagementPanel({
               />
             </label>
             <button
-              className="h-10 self-end border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+              className={`h-10 self-end px-4 text-sm font-semibold ${vocabClass.primaryButton}`}
               disabled={isPending}
               type="submit"
             >
@@ -493,9 +505,9 @@ export default function VocabularyManagementPanel({
           </form>
         </section>
 
-        <section className="overflow-x-auto border border-gray-200 bg-white">
+        <section className={`overflow-x-auto ${vocabClass.panel}`}>
           <table className="min-w-[980px] table-fixed text-left text-sm">
-            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+            <thead className="bg-[var(--tge-surface-subtle)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               <tr>
                 <th className="w-[18%] px-4 py-3 font-semibold">Code</th>
                 <th className="w-[24%] px-4 py-3 font-semibold">Label</th>
@@ -514,18 +526,18 @@ export default function VocabularyManagementPanel({
                 <th className="w-[10%] px-4 py-3 font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[var(--tge-governance-neutral-border)]">
               {filteredItems.map((item) => {
                 const editable = getEditable(item);
 
                 return (
                   <tr key={item.code} className="align-top">
-                    <td className="px-4 py-3 font-mono text-xs text-gray-700">
+                    <td className={`px-4 py-3 font-mono text-xs ${vocabClass.body}`}>
                       {item.code}
                     </td>
                     <td className="px-4 py-3">
                       <input
-                        className="h-9 w-full border border-gray-300 bg-white px-2 text-sm font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                        className={`h-9 w-full px-2 text-sm font-medium ${vocabClass.input}`}
                         value={editable.label}
                         onChange={(event) =>
                           setEditable(item.code, { label: event.target.value })
@@ -535,7 +547,7 @@ export default function VocabularyManagementPanel({
                     {activeGroup.hasDescription ? (
                       <td className="px-4 py-3">
                         <input
-                          className="h-9 w-full border border-gray-300 bg-white px-2 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                          className={`h-9 w-full px-2 text-sm ${vocabClass.input}`}
                           value={editable.description}
                           onChange={(event) =>
                             setEditable(item.code, {
@@ -546,13 +558,13 @@ export default function VocabularyManagementPanel({
                       </td>
                     ) : null}
                     {activeGroup.metadataColumns.map((column) => (
-                      <td key={column.column} className="px-4 py-3 text-gray-700">
+                      <td key={column.column} className={`px-4 py-3 ${vocabClass.body}`}>
                         {formatMetadataValue(item.metadata[column.column])}
                       </td>
                     ))}
                     <td className="px-4 py-3">
                       <input
-                        className="h-9 w-full border border-gray-300 bg-white px-2 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                        className={`h-9 w-full px-2 text-sm ${vocabClass.input}`}
                         inputMode="numeric"
                         value={editable.sortOrder}
                         onChange={(event) =>
@@ -561,10 +573,10 @@ export default function VocabularyManagementPanel({
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <label className="inline-flex h-9 items-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700">
+                      <label className={`inline-flex h-9 items-center gap-2 px-3 text-xs font-semibold ${vocabClass.secondaryButton}`}>
                         <input
                           checked={editable.isActive}
-                          className="h-4 w-4 accent-[#8dc63f]"
+                          className="h-4 w-4 accent-[var(--tge-brand-green)]"
                           type="checkbox"
                           onChange={(event) =>
                             setEditable(item.code, {
@@ -577,7 +589,7 @@ export default function VocabularyManagementPanel({
                     </td>
                     <td className="px-4 py-3">
                       <button
-                        className="h-9 border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60"
+                        className="h-9 border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-success-text)] hover:bg-[var(--tge-governance-success-bg)] disabled:cursor-not-allowed disabled:opacity-60"
                         disabled={isPending}
                         type="button"
                         onClick={() => saveItem(item)}
@@ -591,7 +603,7 @@ export default function VocabularyManagementPanel({
               {filteredItems.length === 0 ? (
                 <tr>
                   <td
-                    className="px-4 py-8 text-center text-sm text-gray-500"
+                    className={`px-4 py-8 text-center text-sm ${vocabClass.muted}`}
                     colSpan={
                       5 +
                       activeGroup.metadataColumns.length +
