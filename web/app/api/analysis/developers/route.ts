@@ -59,6 +59,13 @@ type DeveloperAccumulator = {
   primary_link_count: number;
 };
 
+type SegmentAccumulator = {
+  label: string;
+  projectIds: Set<string>;
+  developerIds: Set<string>;
+  attributed_mw: number;
+};
+
 function normalizeRole(value: string | null) {
   return String(value || "")
     .trim()
@@ -135,6 +142,8 @@ export async function GET() {
     }
 
     const developers = new Map<string, DeveloperAccumulator>();
+    const countrySegments = new Map<string, SegmentAccumulator>();
+    const phaseSegments = new Map<string, SegmentAccumulator>();
     let weightedProjectCount = 0;
     let equalSplitProjectCount = 0;
     let projectsMissingMw = 0;
@@ -188,6 +197,7 @@ export async function GET() {
         const share = useWeightedSplit
           ? Number(weights[index] ?? 0) / weightTotal
           : equalShare;
+        const attributedMw = projectMw * share;
 
         developer.projectIds.add(project.project_id);
         if (project.country) {
@@ -196,7 +206,7 @@ export async function GET() {
         if (link.role) {
           developer.roles.add(link.role);
         }
-        developer.attributed_mw += projectMw * share;
+        developer.attributed_mw += attributedMw;
         developer.full_project_mw += projectMw;
         developer.primary_link_count += Number(link.is_primary || 0) ? 1 : 0;
 
@@ -209,6 +219,34 @@ export async function GET() {
         }
 
         developers.set(companyId, developer);
+
+        const countryLabel = project.country || "Unknown";
+        const countrySegment =
+          countrySegments.get(countryLabel) ||
+          ({
+            label: countryLabel,
+            projectIds: new Set<string>(),
+            developerIds: new Set<string>(),
+            attributed_mw: 0,
+          } satisfies SegmentAccumulator);
+        countrySegment.projectIds.add(project.project_id);
+        countrySegment.developerIds.add(companyId);
+        countrySegment.attributed_mw += attributedMw;
+        countrySegments.set(countryLabel, countrySegment);
+
+        const phaseLabel = project.phase || "Unknown";
+        const phaseSegment =
+          phaseSegments.get(phaseLabel) ||
+          ({
+            label: phaseLabel,
+            projectIds: new Set<string>(),
+            developerIds: new Set<string>(),
+            attributed_mw: 0,
+          } satisfies SegmentAccumulator);
+        phaseSegment.projectIds.add(project.project_id);
+        phaseSegment.developerIds.add(companyId);
+        phaseSegment.attributed_mw += attributedMw;
+        phaseSegments.set(phaseLabel, phaseSegment);
       }
     }
 
@@ -238,6 +276,23 @@ export async function GET() {
         ...row,
       }));
 
+    const segmentRows = (segments: Map<string, SegmentAccumulator>) =>
+      Array.from(segments.values())
+        .map((segment) => ({
+          label: segment.label,
+          project_count: segment.projectIds.size,
+          developer_count: segment.developerIds.size,
+          attributed_mw: round(segment.attributed_mw),
+        }))
+        .filter((segment) => segment.attributed_mw > 0)
+        .sort((a, b) => {
+          if (b.attributed_mw !== a.attributed_mw) {
+            return b.attributed_mw - a.attributed_mw;
+          }
+
+          return a.label.localeCompare(b.label);
+        });
+
     return NextResponse.json({
       summary: {
         roles_counted: DEVELOPER_ROLE_LABELS,
@@ -255,6 +310,8 @@ export async function GET() {
         equal_split_link_count: equalSplitLinkCount,
       },
       rows,
+      countryRows: segmentRows(countrySegments),
+      phaseRows: segmentRows(phaseSegments),
     });
   } catch (error) {
     console.error("Error in /api/analysis/developers:", error);

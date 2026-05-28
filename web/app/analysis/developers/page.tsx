@@ -36,6 +36,13 @@ type DeveloperSummary = {
   equal_split_link_count: number;
 };
 
+type SegmentRow = {
+  label: string;
+  project_count: number;
+  developer_count: number;
+  attributed_mw: number;
+};
+
 function formatNumber(value: number, digits = 1) {
   return Number(value || 0).toLocaleString(undefined, {
     minimumFractionDigits: digits,
@@ -110,8 +117,68 @@ function MethodCard({
   );
 }
 
+function SegmentTable({
+  title,
+  description,
+  rows,
+}: {
+  title: string;
+  description: string;
+  rows: SegmentRow[];
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
+        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+        <p className="mt-1 text-sm text-gray-500">{description}</p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+            <tr>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Segment</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Attributed MWe</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Projects</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Developers</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.label} className="hover:bg-gray-50">
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+                  {row.label}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {formatNumber(row.attributed_mw)}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.project_count}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.developer_count}
+                </td>
+              </tr>
+            ))}
+
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-gray-500">
+                  No segment data found.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 export default function DeveloperAnalysisPage() {
   const [rows, setRows] = useState<DeveloperRow[]>([]);
+  const [countryRows, setCountryRows] = useState<SegmentRow[]>([]);
+  const [phaseRows, setPhaseRows] = useState<SegmentRow[]>([]);
   const [summary, setSummary] = useState<DeveloperSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -132,6 +199,8 @@ export default function DeveloperAnalysisPage() {
         }
 
         setRows(Array.isArray(json.rows) ? json.rows : []);
+        setCountryRows(Array.isArray(json.countryRows) ? json.countryRows : []);
+        setPhaseRows(Array.isArray(json.phaseRows) ? json.phaseRows : []);
         setSummary(json.summary || null);
       } catch (err: any) {
         console.error(err);
@@ -252,6 +321,19 @@ export default function DeveloperAnalysisPage() {
                 text="Development attribution is intentionally separate from ownership attribution and operating attribution."
               />
             </div>
+          </section>
+
+          <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <SegmentTable
+              title="Developer Exposure by Country"
+              description="Attributed project MWe grouped by country market."
+              rows={countryRows.slice(0, 12)}
+            />
+            <SegmentTable
+              title="Developer Exposure by Project Phase"
+              description="Attributed project MWe grouped by current project phase."
+              rows={phaseRows}
+            />
           </section>
 
           <section className="border border-gray-200 bg-white">
