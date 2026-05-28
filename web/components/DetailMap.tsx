@@ -15,8 +15,21 @@ type DetailMapProps = {
 
 type ViewMode = "map" | "satellite";
 
+function cssToken(name: string, fallback: string) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
+    fallback
+  );
+}
+
 function markerColor(type: "plant" | "project") {
-  return type === "plant" ? "#64A542" : "#E8A56C";
+  return type === "plant"
+    ? cssToken("--tge-map-marker-plant", "#64a542")
+    : cssToken("--tge-map-marker-project", "#e8a56c");
 }
 
 function popupAccentClass(type: "plant" | "project") {
@@ -32,25 +45,35 @@ function popupPhaseBadgeClass(value: string | null) {
     "display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:4px 12px;font-size:11px;font-weight:600;line-height:1;border:1px solid transparent;";
 
   if (normalized.includes("prospect")) {
-    classes += "background:#94a3b8;border-color:#94a3b8;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-prospect-bg);border-color:var(--tge-lifecycle-prospect-border);color:var(--tge-lifecycle-prospect-text);";
   } else if (normalized.includes("exploration")) {
-    classes += "background:#f59e0b;border-color:#f59e0b;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-exploration-bg);border-color:var(--tge-lifecycle-exploration-border);color:var(--tge-lifecycle-exploration-text);";
   } else if (normalized.includes("pre-feasibility")) {
-    classes += "background:#84cc16;border-color:#84cc16;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-pre-feasibility-bg);border-color:var(--tge-lifecycle-pre-feasibility-border);color:var(--tge-lifecycle-pre-feasibility-text);";
   } else if (normalized.includes("feasibility")) {
-    classes += "background:#3b82f6;border-color:#3b82f6;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-feasibility-bg);border-color:var(--tge-lifecycle-feasibility-border);color:var(--tge-lifecycle-feasibility-text);";
   } else if (normalized.includes("construction")) {
-    classes += "background:#14b8a6;border-color:#14b8a6;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-construction-bg);border-color:var(--tge-lifecycle-construction-border);color:var(--tge-lifecycle-construction-text);";
   } else if (normalized.includes("operating")) {
-    classes += "background:#8dc63f;border-color:#8dc63f;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-operating-bg);border-color:var(--tge-lifecycle-operating-border);color:var(--tge-lifecycle-operating-text);";
   } else if (normalized.includes("stalled")) {
-    classes += "background:#f97316;border-color:#f97316;color:#ffffff;";
+    classes +=
+      "background:var(--tge-governance-attention-bg);border-color:var(--tge-governance-attention-border);color:var(--tge-governance-attention-text);";
   } else if (normalized.includes("tbd")) {
-    classes += "background:#f1f5f9;border-color:#e2e8f0;color:#475569;";
+    classes +=
+      "background:var(--tge-governance-muted-bg);border-color:var(--tge-governance-muted-border);color:var(--tge-governance-muted-text);";
   } else if (normalized.includes("cancelled")) {
-    classes += "background:#dc2626;border-color:#dc2626;color:#ffffff;";
+    classes +=
+      "background:var(--tge-lifecycle-cancelled-bg);border-color:var(--tge-lifecycle-cancelled-border);color:var(--tge-lifecycle-cancelled-text);";
   } else {
-    classes += "background:#e2e8f0;border-color:#cbd5e1;color:#475569;";
+    classes +=
+      "background:var(--tge-governance-neutral-bg);border-color:var(--tge-governance-neutral-border);color:var(--tge-governance-neutral-text);";
   }
 
   return classes;
@@ -160,7 +183,7 @@ export default function DetailMap({
 
       markerRef.current = L.circleMarker([lat, lng], {
         radius: 7,
-        color: "#ffffff",
+        color: cssToken("--tge-map-marker-stroke", "#ffffff"),
         weight: 1.5,
         fillColor: markerColor(type),
         fillOpacity: 1,
@@ -227,8 +250,8 @@ export default function DetailMap({
 
   if (!hasCoordinates) {
     return (
-      <div className="border border-gray-200 bg-white">
-        <div className="flex min-h-[220px] items-center justify-center px-6 py-8 text-sm text-gray-500">
+      <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+        <div className="flex min-h-[220px] items-center justify-center px-6 py-8 text-sm text-[var(--tge-governance-muted-text)]">
           No coordinates available.
         </div>
       </div>
@@ -237,16 +260,19 @@ export default function DetailMap({
 
   return (
     <div className="w-full">
-      <div ref={mapRef} className={`border border-gray-200 ${className}`} />
+      <div
+        ref={mapRef}
+        className={`border border-[var(--tge-governance-neutral-border)] ${className}`}
+      />
 
-      <div className="flex justify-end gap-2 border-x border-b border-gray-200 bg-white px-3 py-2">
+      <div className="flex justify-end gap-2 border-x border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2">
         <button
           type="button"
           onClick={() => setViewMode("map")}
           className={`border px-3 py-1.5 text-xs font-semibold transition ${
             viewMode === "map"
-              ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
-              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              ? "border-[var(--tge-brand-dark)] bg-[var(--tge-brand-dark)] text-[var(--tge-surface-card)]"
+              : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
           }`}
         >
           Map
@@ -257,8 +283,8 @@ export default function DetailMap({
           onClick={() => setViewMode("satellite")}
           className={`border px-3 py-1.5 text-xs font-semibold transition ${
             viewMode === "satellite"
-              ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
-              : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              ? "border-[var(--tge-brand-dark)] bg-[var(--tge-brand-dark)] text-[var(--tge-surface-card)]"
+              : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
           }`}
         >
           Satellite
