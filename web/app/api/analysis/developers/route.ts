@@ -66,6 +66,24 @@ type SegmentAccumulator = {
   attributed_mw: number;
 };
 
+type RoleAccumulator = {
+  role: string;
+  link_count: number;
+  projectIds: Set<string>;
+  companyIds: Set<string>;
+};
+
+type ProjectQaRow = {
+  project_id: string;
+  project_name: string;
+  country: string | null;
+  phase: string | null;
+  project_mw: number | null;
+  developer_count: number;
+  developer_names: string[];
+  roles: string[];
+};
+
 function normalizeRole(value: string | null) {
   return String(value || "")
     .trim()
@@ -120,7 +138,29 @@ export async function GET() {
       DEVELOPER_ROLE_KEYS.has(normalizeRole(row.role))
     );
 
-    const excludedRoleCount = links.length - developerLinks.length;
+    const excludedLinks = links.filter(
+      (row) => !DEVELOPER_ROLE_KEYS.has(normalizeRole(row.role))
+    );
+    const excludedRoleCount = excludedLinks.length;
+    const excludedRoles = new Map<string, RoleAccumulator>();
+
+    for (const link of excludedLinks) {
+      const role = link.role?.trim() || "Unspecified";
+      const row =
+        excludedRoles.get(role) ||
+        ({
+          role,
+          link_count: 0,
+          projectIds: new Set<string>(),
+          companyIds: new Set<string>(),
+        } satisfies RoleAccumulator);
+
+      row.link_count += 1;
+      row.projectIds.add(link.project_id);
+      row.companyIds.add(link.company_id);
+      excludedRoles.set(role, row);
+    }
+
     const projects = new Map<string, ProjectGroup>();
 
     for (const link of developerLinks) {
@@ -149,12 +189,33 @@ export async function GET() {
     let projectsMissingMw = 0;
     let weightedLinkCount = 0;
     let equalSplitLinkCount = 0;
+    let singleDeveloperProjectCount = 0;
+    let multiDeveloperWeightedProjectCount = 0;
+    let multiDeveloperEqualSplitProjectCount = 0;
+    const missingMwProjects: ProjectQaRow[] = [];
+    const equalSplitProjects: ProjectQaRow[] = [];
+
+    const qaRowForProject = (project: ProjectGroup): ProjectQaRow => ({
+      project_id: project.project_id,
+      project_name: project.project_name,
+      country: project.country,
+      phase: project.phase,
+      project_mw: toNumber(project.project_mw),
+      developer_count: project.links.length,
+      developer_names: project.links
+        .map((link) => link.company_name || link.company_id)
+        .sort(),
+      roles: Array.from(
+        new Set(project.links.map((link) => link.role || "Unspecified"))
+      ).sort(),
+    });
 
     for (const project of projects.values()) {
       const projectMw = toNumber(project.project_mw);
 
       if (projectMw === null || projectMw <= 0) {
         projectsMissingMw += 1;
+        missingMwProjects.push(qaRowForProject(project));
         continue;
       }
 
@@ -172,8 +233,15 @@ export async function GET() {
 
       if (useWeightedSplit) {
         weightedProjectCount += 1;
+        multiDeveloperWeightedProjectCount += 1;
       } else {
         equalSplitProjectCount += 1;
+        if (project.links.length > 1) {
+          multiDeveloperEqualSplitProjectCount += 1;
+          equalSplitProjects.push(qaRowForProject(project));
+        } else {
+          singleDeveloperProjectCount += 1;
+        }
       }
 
       for (const [index, link] of project.links.entries()) {
@@ -292,6 +360,32 @@ export async function GET() {
 
           return a.label.localeCompare(b.label);
         });
+    const excludedRoleRows = Array.from(excludedRoles.values())
+      .map((role) => ({
+        role: role.role,
+        link_count: role.link_count,
+        project_count: role.projectIds.size,
+        company_count: role.companyIds.size,
+      }))
+      .sort((a, b) => {
+        if (b.link_count !== a.link_count) {
+          return b.link_count - a.link_count;
+        }
+
+        return a.role.localeCompare(b.role);
+      });
+
+    const projectQaRows = (rowsToSort: ProjectQaRow[]) =>
+      rowsToSort.sort((a, b) => {
+        const aMw = toNumber(a.project_mw) || 0;
+        const bMw = toNumber(b.project_mw) || 0;
+
+        if (bMw !== aMw) {
+          return bMw - aMw;
+        }
+
+        return a.project_name.localeCompare(b.project_name);
+      });
 
     return NextResponse.json({
       summary: {
@@ -306,12 +400,21 @@ export async function GET() {
         projects_missing_mw: projectsMissingMw,
         weighted_project_count: weightedProjectCount,
         equal_split_project_count: equalSplitProjectCount,
+        single_developer_project_count: singleDeveloperProjectCount,
+        multi_developer_weighted_project_count: multiDeveloperWeightedProjectCount,
+        multi_developer_equal_split_project_count:
+          multiDeveloperEqualSplitProjectCount,
         weighted_link_count: weightedLinkCount,
         equal_split_link_count: equalSplitLinkCount,
       },
       rows,
       countryRows: segmentRows(countrySegments),
       phaseRows: segmentRows(phaseSegments),
+      qa: {
+        excludedRoleRows,
+        equalSplitProjects: projectQaRows(equalSplitProjects).slice(0, 25),
+        missingMwProjects: projectQaRows(missingMwProjects).slice(0, 25),
+      },
     });
   } catch (error) {
     console.error("Error in /api/analysis/developers:", error);

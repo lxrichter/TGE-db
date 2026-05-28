@@ -32,8 +32,29 @@ type DeveloperSummary = {
   projects_missing_mw: number;
   weighted_project_count: number;
   equal_split_project_count: number;
+  single_developer_project_count: number;
+  multi_developer_weighted_project_count: number;
+  multi_developer_equal_split_project_count: number;
   weighted_link_count: number;
   equal_split_link_count: number;
+};
+
+type ExcludedRoleRow = {
+  role: string;
+  link_count: number;
+  project_count: number;
+  company_count: number;
+};
+
+type ProjectQaRow = {
+  project_id: string;
+  project_name: string;
+  country: string | null;
+  phase: string | null;
+  project_mw: number | null;
+  developer_count: number;
+  developer_names: string[];
+  roles: string[];
 };
 
 type SegmentRow = {
@@ -175,10 +196,147 @@ function SegmentTable({
   );
 }
 
+function RoleDistributionTable({ rows }: { rows: ExcludedRoleRow[] }) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
+        <h2 className="text-xl font-bold text-[#1f2937]">
+          Excluded Role Distribution
+        </h2>
+        <p className="mt-1 text-sm text-gray-500">
+          Relationship roles intentionally excluded from developer attribution.
+        </p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+            <tr>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Role</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Links</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Projects</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Companies</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.role} className="hover:bg-gray-50">
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+                  {row.role}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.link_count}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.project_count}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.company_count}
+                </td>
+              </tr>
+            ))}
+
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-[13px] text-gray-500">
+                  No excluded role rows found.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function ProjectQaTable({
+  title,
+  description,
+  rows,
+  showMw,
+}: {
+  title: string;
+  description: string;
+  rows: ProjectQaRow[];
+  showMw?: boolean;
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
+        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+        <p className="mt-1 text-sm text-gray-500">{description}</p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-100 text-left uppercase tracking-wide text-gray-600">
+            <tr>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Project</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Country</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Phase</th>
+              {showMw ? (
+                <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Project MWe</th>
+              ) : null}
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Developers</th>
+              <th className="border-b border-gray-200 px-4 py-2 text-[12px] font-semibold">Roles</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.project_id} className="hover:bg-gray-50">
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px] font-semibold text-[#1f2937]">
+                  <Link
+                    href={`/projects/${row.project_id}`}
+                    className="underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                  >
+                    {row.project_name}
+                  </Link>
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.country || "-"}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.phase || "-"}
+                </td>
+                {showMw ? (
+                  <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                    {row.project_mw === null ? "-" : formatNumber(row.project_mw)}
+                  </td>
+                ) : null}
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.developer_names.join(", ")}
+                </td>
+                <td className="border-b border-gray-100 px-4 py-2 text-[13px]">
+                  {row.roles.join(", ")}
+                </td>
+              </tr>
+            ))}
+
+            {rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={showMw ? 6 : 5}
+                  className="px-4 py-8 text-center text-[13px] text-gray-500"
+                >
+                  No project QA rows found.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 export default function DeveloperAnalysisPage() {
   const [rows, setRows] = useState<DeveloperRow[]>([]);
   const [countryRows, setCountryRows] = useState<SegmentRow[]>([]);
   const [phaseRows, setPhaseRows] = useState<SegmentRow[]>([]);
+  const [excludedRoleRows, setExcludedRoleRows] = useState<ExcludedRoleRow[]>([]);
+  const [equalSplitProjects, setEqualSplitProjects] = useState<ProjectQaRow[]>([]);
+  const [missingMwProjects, setMissingMwProjects] = useState<ProjectQaRow[]>([]);
   const [summary, setSummary] = useState<DeveloperSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -201,6 +359,21 @@ export default function DeveloperAnalysisPage() {
         setRows(Array.isArray(json.rows) ? json.rows : []);
         setCountryRows(Array.isArray(json.countryRows) ? json.countryRows : []);
         setPhaseRows(Array.isArray(json.phaseRows) ? json.phaseRows : []);
+        setExcludedRoleRows(
+          Array.isArray(json.qa?.excludedRoleRows)
+            ? json.qa.excludedRoleRows
+            : []
+        );
+        setEqualSplitProjects(
+          Array.isArray(json.qa?.equalSplitProjects)
+            ? json.qa.equalSplitProjects
+            : []
+        );
+        setMissingMwProjects(
+          Array.isArray(json.qa?.missingMwProjects)
+            ? json.qa.missingMwProjects
+            : []
+        );
         setSummary(json.summary || null);
       } catch (err: any) {
         console.error(err);
@@ -297,6 +470,13 @@ export default function DeveloperAnalysisPage() {
                   value: summary?.equal_split_project_count ?? 0,
                 },
                 {
+                  label: "Multi-dev equal split",
+                  value: summary?.multi_developer_equal_split_project_count ?? 0,
+                  tone: summary?.multi_developer_equal_split_project_count
+                    ? "warning"
+                    : "default",
+                },
+                {
                   label: "Missing project MWe",
                   value: summary?.projects_missing_mw ?? 0,
                   tone: summary?.projects_missing_mw ? "warning" : "default",
@@ -333,6 +513,39 @@ export default function DeveloperAnalysisPage() {
               title="Developer Exposure by Project Phase"
               description="Attributed project MWe grouped by current project phase."
               rows={phaseRows}
+            />
+          </section>
+
+          <section className="space-y-4">
+            <div className="border border-gray-200 bg-white px-6 py-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6b8f2a]">
+                Governance QA
+              </div>
+              <h2 className="mt-1 text-xl font-bold text-[#1f2937]">
+                Developer Attribution Readiness
+              </h2>
+              <p className="mt-1 max-w-5xl text-sm leading-6 text-gray-600">
+                These checks keep the current output in logic-validation mode.
+                Rankings should not be treated as market-complete until project
+                MWe, developer-role links, and co-developer attribution weights
+                are normalized.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              <RoleDistributionTable rows={excludedRoleRows} />
+              <ProjectQaTable
+                title="Multi-Developer Equal-Split Projects"
+                description="Projects using equal split because complete positive attribution weights are not yet available."
+                rows={equalSplitProjects}
+                showMw
+              />
+            </div>
+
+            <ProjectQaTable
+              title="Developer-Linked Projects Missing MWe"
+              description="Developer-linked projects excluded from MWe attribution until a project capacity value is available."
+              rows={missingMwProjects}
             />
           </section>
 
