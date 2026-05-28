@@ -28,6 +28,34 @@ type MapSearchParams = {
   wb_region?: string;
 };
 
+const mapClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  neutral: "text-[var(--tge-governance-neutral-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  stat:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+  action:
+    "inline-flex h-10 items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
+  activeBadge:
+    "mt-4 inline-flex min-h-8 items-center border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]",
+  workflowCard:
+    "block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
+  scope:
+    "border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-8 py-4",
+  separator: "mx-2 text-[var(--tge-governance-muted-border)]",
+  softNotice:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-4 py-3 text-xs leading-5 text-[var(--tge-governance-neutral-text)]",
+};
+
 function cleanParam(value: string | undefined) {
   return value?.trim() || undefined;
 }
@@ -110,14 +138,14 @@ function MapStatCard({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={mapClass.stat}>
+      <div className={mapClass.label}>
         {label}
       </div>
-      <div className="mt-2 text-2xl font-bold leading-none text-[#1f2937]">
+      <div className={`mt-2 text-2xl font-bold leading-none ${mapClass.title}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${mapClass.muted}`}>{note}</div>
     </div>
   );
 }
@@ -138,13 +166,13 @@ function MapWorkflowCard({
   return (
     <Link
       href={href}
-      className="block border border-gray-200 bg-white px-4 py-4 hover:border-[#8dc63f] hover:bg-[#fbfdf8]"
+      className={mapClass.workflowCard}
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="text-sm font-bold text-[#1f2937]">{title}</div>
+        <div className={`text-sm font-bold ${mapClass.title}`}>{title}</div>
         <PostgresStatusBadge label={label} tone={tone} value={label} />
       </div>
-      <p className="mt-2 text-xs leading-5 text-gray-600">{description}</p>
+      <p className={`mt-2 text-xs leading-5 ${mapClass.body}`}>{description}</p>
     </Link>
   );
 }
@@ -162,36 +190,36 @@ export default async function PostgresPreviewMapPage({
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={mapClass.panel}>
+        <div className={mapClass.hero}>
+          <p className={mapClass.kicker}>
             Spatial Intelligence
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className={`text-4xl font-bold tracking-tight ${mapClass.title}`}>
                 Map
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-gray-600">
+              <p className={`mt-4 max-w-4xl text-base leading-7 ${mapClass.body}`}>
                 Coordinate-confirmed spatial intelligence for projects and
                 plants. Projects and plants without coordinates stay in
                 Research Ops queues.
               </p>
               {activeGeographyLabel ? (
-                <div className="mt-4 inline-flex min-h-8 items-center border border-[#8dc63f] bg-[#f3f8ec] px-3 text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+                <div className={mapClass.activeBadge}>
                   Active view: {activeGeographyLabel}
                 </div>
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={mapClass.action}
                 href="/postgres-preview"
               >
                 Back to Command Center
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={mapClass.action}
                 href="/postgres-preview/research-ops"
               >
                 Research Ops
@@ -200,31 +228,31 @@ export default async function PostgresPreviewMapPage({
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-4">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700">
-            <span className="font-semibold uppercase tracking-wide text-gray-500">
+        <div className={mapClass.scope}>
+          <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm ${mapClass.neutral}`}>
+            <span className={`font-semibold uppercase tracking-wide ${mapClass.muted}`}>
               Map Scope
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Source</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${mapClass.title}`}>Source</span>
+              <span className={mapClass.separator}>|</span>
               Current platform data
             </span>
             <span>
-              <span className="font-medium text-[#1f2937]">Layers</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${mapClass.title}`}>Layers</span>
+              <span className={mapClass.separator}>|</span>
               Projects and Plants
             </span>
             {activeGeographyLabel ? (
               <span>
-                <span className="font-medium text-[#1f2937]">Geography</span>
-                <span className="mx-2 text-gray-300">|</span>
+                <span className={`font-medium ${mapClass.title}`}>Geography</span>
+                <span className={mapClass.separator}>|</span>
                 {activeGeographyLabel}
               </span>
             ) : null}
             <span>
-              <span className="font-medium text-[#1f2937]">Missing Coordinates</span>
-              <span className="mx-2 text-gray-300">|</span>
+              <span className={`font-medium ${mapClass.title}`}>Missing Coordinates</span>
+              <span className={mapClass.separator}>|</span>
               Managed in Research Ops
             </span>
           </div>
@@ -308,8 +336,8 @@ export default async function PostgresPreviewMapPage({
             />
           </section>
         ) : (
-          <section className="border border-gray-200 bg-[#fbfbfb] px-4 py-3 text-xs leading-5 text-gray-600">
-            <span className="font-semibold text-[#1f2937]">
+          <section className={mapClass.softNotice}>
+            <span className={`font-semibold ${mapClass.title}`}>
               Map summary unavailable.
             </span>{" "}
             The map can still load from the API; check local PostgreSQL
