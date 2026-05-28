@@ -25,8 +25,8 @@ function statusLabel(isActive: number) {
 
 function statusClasses(isActive: number) {
   return isActive === 1
-    ? "border border-[#b7df72] bg-[#eef8dc] text-[#2e6b1f]"
-    : "border border-gray-300 bg-gray-100 text-gray-500";
+    ? "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]"
+    : "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] text-[var(--tge-governance-muted-text)]";
 }
 
 function formatDate(dateString?: string) {
@@ -95,6 +95,22 @@ const ROLE_PERMISSION_ROWS: {
   },
 ];
 
+const userAdminClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  header:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  label:
+    "mb-1 block text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  input:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  secondaryButton:
+    "border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-secondary)] transition hover:bg-[var(--tge-surface-subtle)] disabled:cursor-not-allowed disabled:opacity-45",
+};
+
 function RolePermissionValue({ value }: { value: string }) {
   const isAllowed = value === "Yes";
 
@@ -102,8 +118,8 @@ function RolePermissionValue({ value }: { value: string }) {
     <span
       className={
         isAllowed
-          ? "inline-flex min-w-[44px] justify-center border border-[#b7df72] bg-[#eef8dc] px-2 py-1 text-[11px] font-semibold text-[#2e6b1f]"
-          : "inline-flex min-w-[44px] justify-center border border-gray-200 bg-gray-50 px-2 py-1 text-[11px] font-semibold text-gray-500"
+          ? "inline-flex min-w-[44px] justify-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-governance-success-text)]"
+          : "inline-flex min-w-[44px] justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-governance-muted-text)]"
       }
     >
       {value}
@@ -361,18 +377,20 @@ export default function UserManagementPanel({
   return (
     <>
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1.35fr_0.75fr]">
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-            <h2 className="text-xl font-bold text-[#1f2937]">Current Users</h2>
-            <p className="mt-1 text-sm text-gray-500">
+        <section className={userAdminClass.panel}>
+          <div className={`${userAdminClass.header} px-6 py-4`}>
+            <h2 className={`text-xl font-bold ${userAdminClass.title}`}>
+              Current Users
+            </h2>
+            <p className={`mt-1 text-sm ${userAdminClass.muted}`}>
               Active and inactive users currently stored in the platform.
             </p>
           </div>
 
-          <div className="border-b border-gray-200 bg-white px-5 py-4">
+          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-5 py-4">
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_170px_150px_auto]">
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Search Users
                 </label>
                 <input
@@ -380,18 +398,18 @@ export default function UserManagementPanel({
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Name, email, or role..."
-                  className="h-[38px] w-full border border-gray-300 bg-white px-3 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`h-[38px] w-full px-3 text-sm ${userAdminClass.input}`}
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Role
                 </label>
                 <select
                   value={roleFilter}
                   onChange={(e) => setRoleFilter(e.target.value as RoleFilter)}
-                  className="h-[38px] w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  className={`h-[38px] w-full px-3 text-sm ${userAdminClass.input}`}
                 >
                   <option value="all">All roles</option>
                   {ROLE_OPTIONS.map((option) => (
@@ -403,13 +421,13 @@ export default function UserManagementPanel({
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Status
                 </label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                  className="h-[38px] w-full border border-gray-300 bg-white px-3 text-sm text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  className={`h-[38px] w-full px-3 text-sm ${userAdminClass.input}`}
                 >
                   <option value="all">All status</option>
                   <option value="active">Active</option>
@@ -422,14 +440,14 @@ export default function UserManagementPanel({
                   type="button"
                   onClick={clearUserFilters}
                   disabled={!hasActiveFilters}
-                  className="inline-flex h-[38px] w-full items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-45 lg:w-auto"
+                  className={`inline-flex h-[38px] w-full items-center justify-center px-3 text-sm font-semibold lg:w-auto ${userAdminClass.secondaryButton}`}
                 >
                   Clear
                 </button>
               </div>
             </div>
 
-            <div className="mt-3 text-xs font-medium text-gray-500">
+            <div className={`mt-3 text-xs font-medium ${userAdminClass.muted}`}>
               Showing {filteredUsers.length.toLocaleString()} of{" "}
               {users.length.toLocaleString()} users
             </div>
@@ -438,23 +456,23 @@ export default function UserManagementPanel({
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse">
               <thead>
-                <tr className="border-b border-gray-200 bg-white text-left">
-                  <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <tr className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-left">
+                  <th className={`px-6 py-3 text-[11px] font-semibold uppercase tracking-wide ${userAdminClass.muted}`}>
                     Name
                   </th>
-                  <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <th className={`px-6 py-3 text-[11px] font-semibold uppercase tracking-wide ${userAdminClass.muted}`}>
                     Email
                   </th>
-                  <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <th className={`px-6 py-3 text-[11px] font-semibold uppercase tracking-wide ${userAdminClass.muted}`}>
                     Role
                   </th>
-                  <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <th className={`px-6 py-3 text-[11px] font-semibold uppercase tracking-wide ${userAdminClass.muted}`}>
                     Status
                   </th>
-                  <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <th className={`px-6 py-3 text-[11px] font-semibold uppercase tracking-wide ${userAdminClass.muted}`}>
                     Created
                   </th>
-                  <th className="px-6 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <th className={`px-6 py-3 text-[11px] font-semibold uppercase tracking-wide ${userAdminClass.muted}`}>
                     Actions
                   </th>
                 </tr>
