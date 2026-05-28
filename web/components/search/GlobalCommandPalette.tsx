@@ -232,7 +232,7 @@ export default function GlobalCommandPalette({
   return (
     <>
       <button
-        className="h-[28px] shrink-0 border border-[#b7cf8b] bg-white px-3 text-[11px] font-semibold text-[#3f4a35] hover:bg-[#e9f3d8]"
+        className="h-[28px] shrink-0 border border-[var(--tge-governance-success-border)] bg-[var(--tge-surface-card)] px-3 text-[11px] font-semibold text-[var(--tge-brand-muted)] hover:bg-[var(--tge-governance-success-bg)]"
         type="button"
         onClick={() => setOpen(true)}
       >
@@ -241,12 +241,12 @@ export default function GlobalCommandPalette({
 
       {open ? (
         <div className="fixed inset-0 z-[100] bg-black/30 px-4 py-12">
-          <div className="mx-auto max-w-3xl border border-gray-300 bg-white shadow-xl">
-            <div className="border-b border-gray-200 px-4 py-4">
+          <div className="mx-auto max-w-3xl border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl">
+            <div className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-4">
               <div className="flex items-center gap-3">
                 <input
                   ref={inputRef}
-                  className="h-11 min-w-0 flex-1 border border-gray-300 bg-white px-4 text-sm font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                  className="h-11 min-w-0 flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-medium text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
                   placeholder="Search projects, plants, companies, sources, or commands..."
                   type="search"
                   value={query}
@@ -254,14 +254,14 @@ export default function GlobalCommandPalette({
                   onKeyDown={handleInputKeyDown}
                 />
                 <button
-                  className="h-11 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f]"
+                  className="h-11 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)]"
                   type="button"
                   onClick={closePalette}
                 >
                   Close
                 </button>
               </div>
-              <div className="mt-2 text-xs leading-5 text-gray-500">
+              <div className="mt-2 text-xs leading-5 text-[var(--tge-text-secondary)]">
                 Use arrow keys and Enter, or search for projects, plants,
                 companies, sources, markets, and operational actions.
               </div>
@@ -269,17 +269,17 @@ export default function GlobalCommandPalette({
 
             <div className="max-h-[62vh] overflow-y-auto px-3 py-3">
               {error ? (
-                <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]">
                   {error}
                 </div>
               ) : null}
 
               {loading ? (
-                <div className="px-3 py-2 text-sm text-gray-500">Searching...</div>
+                <div className="px-3 py-2 text-sm text-[var(--tge-text-secondary)]">Searching...</div>
               ) : null}
 
               {items.length === 0 && !loading ? (
-                <div className="px-3 py-8 text-center text-sm text-gray-500">
+                <div className="px-3 py-8 text-center text-sm text-[var(--tge-text-secondary)]">
                   No commands or results matched this query.
                 </div>
               ) : (
@@ -292,8 +292,8 @@ export default function GlobalCommandPalette({
                         key={item.key}
                         className={`block w-full border px-4 py-3 text-left ${
                           selected
-                            ? "border-[#8dc63f] bg-[#f5faef]"
-                            : "border-gray-200 bg-white hover:border-[#8dc63f]"
+                            ? "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]"
+                            : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green)]"
                         }`}
                         type="button"
                         onMouseEnter={() => setSelectedIndex(index)}
@@ -302,39 +302,39 @@ export default function GlobalCommandPalette({
                         {item.type === "command" ? (
                           <>
                             <div className="flex items-center justify-between gap-3">
-                              <div className="font-semibold text-[#1f2937]">
+                              <div className="font-semibold text-[var(--tge-text-primary)]">
                                 {item.label}
                               </div>
-                              <span className="border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[11px] font-semibold text-gray-600">
+                              <span className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-page)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-text-secondary)]">
                                 {item.group}
                               </span>
                             </div>
-                            <div className="mt-1 text-xs leading-5 text-gray-600">
+                            <div className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
                               {item.note}
                             </div>
                           </>
                         ) : (
                           <>
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="border border-gray-200 bg-[#f7f7f7] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+                              <span className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-page)] px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
                                 {entityTypeLabel(item.result.entity_type)}
                               </span>
                               {item.result.status_code ? (
-                                <span className="border border-[#d7e8bf] bg-[#f5faef] px-2 py-1 text-[11px] font-semibold text-[#4f7f1f]">
+                                <span className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-brand-green-dark)]">
                                   {item.result.status_code}
                                 </span>
                               ) : null}
                               {item.result.country ? (
-                                <span className="text-xs font-medium text-gray-500">
+                                <span className="text-xs font-medium text-[var(--tge-text-secondary)]">
                                   {item.result.country}
                                 </span>
                               ) : null}
                             </div>
-                            <div className="mt-2 font-semibold text-[#1f2937]">
+                            <div className="mt-2 font-semibold text-[var(--tge-text-primary)]">
                               {itemLabel(item)}
                             </div>
                             {item.result.subtitle ? (
-                              <div className="mt-1 text-xs leading-5 text-gray-600">
+                              <div className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
                                 {item.result.subtitle}
                               </div>
                             ) : null}
@@ -347,7 +347,7 @@ export default function GlobalCommandPalette({
               )}
             </div>
 
-            <div className="border-t border-gray-200 bg-[#f7f7f7] px-4 py-3 text-xs text-gray-500">
+            <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-page)] px-4 py-3 text-xs text-[var(--tge-text-secondary)]">
               Enter opens the selected item. Escape closes the palette.
             </div>
           </div>

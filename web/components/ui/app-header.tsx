@@ -32,12 +32,12 @@ function NavItem({
       href={href}
       prefetch={prefetch}
       className={`relative inline-flex h-[44px] items-center text-[15px] font-medium transition ${
-        isActive ? "text-white" : "text-white/90 hover:text-[#8dc63f]"
+        isActive ? "text-white" : "text-white/90 hover:text-[var(--tge-brand-green)]"
       }`}
     >
       <span>{label}</span>
       {isActive ? (
-        <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#8dc63f]" />
+        <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[var(--tge-brand-green)]" />
       ) : null}
     </Link>
   );
@@ -71,7 +71,7 @@ function UserContextBar({ role }: { role?: UserRole | string | null }) {
 
   if (!session?.user) {
     return (
-      <div className="border-b border-[#d6e8b5] bg-[#f3f8ea]">
+      <div className="border-b border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]">
         <div className="mx-auto flex h-[38px] max-w-[1600px] items-center justify-end px-8" />
       </div>
     );
@@ -83,20 +83,20 @@ function UserContextBar({ role }: { role?: UserRole | string | null }) {
   };
 
   return (
-    <div className="border-b border-[#d6e8b5] bg-[#f3f8ea]">
+    <div className="border-b border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]">
       <div className="mx-auto flex min-h-[38px] max-w-[1600px] flex-col gap-2 px-8 py-2 lg:flex-row lg:items-center lg:justify-between lg:py-0">
         <form
           action="/search"
           className="flex w-full max-w-lg items-center gap-2"
         >
           <input
-            className="h-[28px] min-w-0 flex-1 border border-[#b7cf8b] bg-white px-3 text-[12px] font-medium text-[#1f2937] outline-none focus:border-[#8dc63f]"
+            className="h-[28px] min-w-0 flex-1 border border-[var(--tge-governance-success-border)] bg-[var(--tge-surface-card)] px-3 text-[12px] font-medium text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
             name="q"
             placeholder="Search projects, plants, companies, sources..."
             type="search"
           />
           <button
-            className="h-[28px] border border-[#b7cf8b] bg-white px-3 text-[11px] font-semibold text-[#3f4a35] hover:bg-[#e9f3d8]"
+            className="h-[28px] border border-[var(--tge-governance-success-border)] bg-[var(--tge-surface-card)] px-3 text-[11px] font-semibold text-[var(--tge-brand-muted)] hover:bg-[var(--tge-governance-success-bg)]"
             type="submit"
           >
             Search
@@ -104,17 +104,17 @@ function UserContextBar({ role }: { role?: UserRole | string | null }) {
         </form>
         <GlobalCommandPalette role={role} />
         <div className="flex items-center gap-4 text-[12px]">
-          <span className="font-medium text-[#1f2937]">
+          <span className="font-medium text-[var(--tge-text-primary)]">
             {user.name || "User"}
           </span>
 
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#5e6b52]">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-muted)]">
             {user.role || "viewer"}
           </span>
 
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="inline-flex h-[26px] items-center justify-center border border-[#b7cf8b] bg-white px-3 text-[11px] font-medium text-[#3f4a35] transition hover:bg-[#e9f3d8]"
+            className="inline-flex h-[26px] items-center justify-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-surface-card)] px-3 text-[11px] font-medium text-[var(--tge-brand-muted)] transition hover:bg-[var(--tge-governance-success-bg)]"
           >
             Logout
           </button>
@@ -139,7 +139,7 @@ export default function AppHeaderShell({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-[#8dc63f] bg-[#2a2a2a] text-white shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-[var(--tge-brand-green)] bg-[var(--tge-brand-dark)] text-white shadow-sm">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-8 px-8 py-4">
           <div className="flex min-w-0 items-center gap-5">
             <img
