@@ -67,6 +67,22 @@ function parsePage(value: string | undefined) {
   return Math.floor(parsed);
 }
 
+const factCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const factSubtleCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
+const factEyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const factTitleClass = "font-bold text-[var(--tge-text-primary)]";
+const factMutedTextClass = "text-[var(--tge-governance-muted-text)]";
+const factBodyTextClass = "text-[var(--tge-text-secondary)]";
+const factInputClass =
+  "h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
+const factPrimaryButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
+const factSecondaryButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+
 function articleFactHref(filters: ArticleFactSearchParams, nextPage: number) {
   const params = new URLSearchParams();
 
@@ -149,14 +165,14 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </div>
-      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+    <div className={`${factCardClass} px-4 py-4`}>
+      <div className={factEyebrowClass}>{label}</div>
+      <div className={`mt-2 text-3xl leading-none ${factTitleClass}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${factMutedTextClass}`}>
+        {note}
+      </div>
     </div>
   );
 }
@@ -175,12 +191,14 @@ function SelectFilter({
   allLabel: string;
 }) {
   return (
-    <label className="flex min-w-0 flex-1 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <label
+      className={`flex min-w-0 flex-1 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${factMutedTextClass}`}
+    >
       {label}
       <select
         name={name}
         defaultValue={value || ""}
-        className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+        className={factInputClass}
       >
         <option value="">{allLabel}</option>
         {options.map((option) => (
@@ -203,11 +221,11 @@ function FactTypeTrainingCard({
 
   if (!definition) {
     return (
-      <section className="border border-gray-200 bg-white px-5 py-4">
-        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <section className={`${factCardClass} px-5 py-4`}>
+        <div className={`text-xs ${factEyebrowClass}`}>
           Fact Type Training
         </div>
-        <p className="mt-2 max-w-4xl text-sm leading-5 text-gray-600">
+        <p className={`mt-2 max-w-4xl text-sm leading-5 ${factBodyTextClass}`}>
           Filter to one fact type, review a compact sample, then tune the rule
           before expanding the archive batch.
         </p>
@@ -216,50 +234,50 @@ function FactTypeTrainingCard({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-l-4 border-l-[#8dc63f] px-5 py-4">
+    <section className={factCardClass}>
+      <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`text-xs ${factEyebrowClass}`}>
               Fact Type Training
             </div>
-            <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            <h2 className={`mt-2 text-xl ${factTitleClass}`}>
               {definition.label}
             </h2>
-            <p className="mt-2 max-w-4xl text-sm leading-5 text-gray-600">
+            <p className={`mt-2 max-w-4xl text-sm leading-5 ${factBodyTextClass}`}>
               {definition.purpose}
             </p>
           </div>
-          <div className="self-start border border-[#d7e8bf] bg-[#f5faef] px-3 py-2 text-xs font-semibold text-[#4f7f1f]">
+          <div className="self-start border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 py-2 text-xs font-semibold text-[var(--tge-governance-success-text)]">
             One-type review mode
           </div>
         </div>
 
-        <div className="mt-4 border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div className={`mt-4 ${factSubtleCardClass} px-4 py-3`}>
+          <div className={`text-xs ${factEyebrowClass}`}>
             Reviewer Question
           </div>
-          <p className="mt-2 text-sm font-semibold leading-5 text-[#1f2937]">
+          <p className="mt-2 text-sm font-semibold leading-5 text-[var(--tge-text-primary)]">
             {definition.reviewQuestion}
           </p>
         </div>
 
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-success-text)]">
               Accept When
             </h3>
-            <ul className="mt-2 space-y-1.5 text-sm leading-5 text-gray-700">
+            <ul className="mt-2 space-y-1.5 text-sm leading-5 text-[var(--tge-governance-neutral-text)]">
               {definition.accept.map((item) => (
                 <li key={item}>- {item}</li>
               ))}
             </ul>
           </div>
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-red-700">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-danger-text)]">
               Reject When
             </h3>
-            <ul className="mt-2 space-y-1.5 text-sm leading-5 text-gray-700">
+            <ul className="mt-2 space-y-1.5 text-sm leading-5 text-[var(--tge-governance-neutral-text)]">
               {definition.reject.map((item) => (
                 <li key={item}>- {item}</li>
               ))}
@@ -273,16 +291,20 @@ function FactTypeTrainingCard({
 
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+      <h2 className="text-lg font-bold text-[var(--tge-governance-attention-text)]">
+        PostgreSQL Not Connected
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
         Article fact review reads from PostgreSQL. Run the app with local
         `DATABASE_URL` or Railway PostgreSQL variables.
       </p>
-      <pre className="mt-4 overflow-x-auto bg-white px-4 py-3 text-xs text-gray-700">
+      <pre className="mt-4 overflow-x-auto bg-[var(--tge-surface-card)] px-4 py-3 text-xs text-[var(--tge-governance-neutral-text)]">
         DATABASE_URL=&quot;postgresql://lxrichter@localhost:5432/tge_local?schema=public&quot; npm run dev
       </pre>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className="mt-3 text-xs text-[var(--tge-governance-attention-text)]">
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -295,21 +317,23 @@ function FilterDisclosure({
   children: React.ReactNode;
 }) {
   return (
-    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+    <details className={factCardClass} open={defaultOpen}>
       <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg ${factTitleClass}`}>
             Fact Review Filters
           </h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className={`mt-1 max-w-3xl text-sm leading-6 ${factBodyTextClass}`}>
             Scope candidates by status, fact type, field, or search.
           </p>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
           Expand / collapse
         </span>
       </summary>
-      <div className="border-t border-gray-200 px-5 py-5">{children}</div>
+      <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-5">
+        {children}
+      </div>
     </details>
   );
 }
@@ -381,36 +405,36 @@ export default async function ArticleFactCandidatesPage({
     : [];
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={factCardClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
             Sources / Documents
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] sm:text-4xl">
                 Article Fact Review
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)] sm:mt-4 sm:text-base sm:leading-7">
                 Review compact fact candidates from local TGE markdown articles
                 before they inform human-confirmed field suggestions.
               </p>
             </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={factSecondaryButtonClass}
                 href="/sources"
               >
                 Sources
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={factSecondaryButtonClass}
                 href="/sources/matches"
               >
                 Article Matches
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={factSecondaryButtonClass}
                 href="/postgres-preview/research-ops"
               >
                 Research Ops
@@ -512,13 +536,15 @@ export default async function ArticleFactCandidatesPage({
                 {filters.sourceId ? (
                   <input type="hidden" name="sourceId" value={filters.sourceId} />
                 ) : null}
-                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <label
+                  className={`flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${factMutedTextClass}`}
+                >
                   Search
                   <input
                     name="search"
                     defaultValue={filters.search || ""}
                     placeholder="Article, reference, value, field, reason..."
-                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                    className={factInputClass}
                   />
                 </label>
 
@@ -547,13 +573,13 @@ export default async function ArticleFactCandidatesPage({
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex">
                   <button
                     type="submit"
-                    className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+                    className={factPrimaryButtonClass}
                   >
                     Apply
                   </button>
                   <Link
                     href="/sources/facts"
-                    className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className={factSecondaryButtonClass}
                   >
                     Reset
                   </Link>
@@ -582,7 +608,7 @@ export default async function ArticleFactCandidatesPage({
               canReview={data.canReview}
             />
 
-            <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+            <section className="flex flex-col gap-3 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-5 py-4 text-sm text-[var(--tge-text-secondary)] md:flex-row md:items-center md:justify-between">
               <div>
                 Showing {formatCount(data.candidates.length)} of{" "}
                 {formatCount(data.filteredCount)} matching candidates.
@@ -593,13 +619,13 @@ export default async function ArticleFactCandidatesPage({
                   aria-disabled={data.page <= 1}
                   className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
                     data.page <= 1
-                      ? "pointer-events-none border-gray-200 text-gray-300"
-                      : "border-gray-300 text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      ? "pointer-events-none border-[var(--tge-governance-muted-border)] text-[var(--tge-governance-muted-text)]"
+                      : "border-[var(--tge-governance-neutral-border)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                   }`}
                 >
                   Previous
                 </Link>
-                <span className="inline-flex h-9 items-center border border-gray-200 px-3 text-sm font-semibold text-gray-500">
+                <span className="inline-flex h-9 items-center border border-[var(--tge-governance-neutral-border)] px-3 text-sm font-semibold text-[var(--tge-governance-muted-text)]">
                   Page {formatCount(data.page)}
                 </span>
                 <Link
@@ -607,8 +633,8 @@ export default async function ArticleFactCandidatesPage({
                   aria-disabled={data.page * data.pageSize >= data.filteredCount}
                   className={`inline-flex h-9 items-center border px-3 text-sm font-semibold ${
                     data.page * data.pageSize >= data.filteredCount
-                      ? "pointer-events-none border-gray-200 text-gray-300"
-                      : "border-gray-300 text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                      ? "pointer-events-none border-[var(--tge-governance-muted-border)] text-[var(--tge-governance-muted-text)]"
+                      : "border-[var(--tge-governance-neutral-border)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                   }`}
                 >
                   Next

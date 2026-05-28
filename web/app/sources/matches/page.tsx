@@ -64,6 +64,22 @@ function parsePage(value: string | undefined) {
   return Math.floor(parsed);
 }
 
+const matchCardClass =
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+const matchEyebrowClass =
+  "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]";
+const matchTitleClass = "font-bold text-[var(--tge-text-primary)]";
+const matchMutedTextClass = "text-[var(--tge-governance-muted-text)]";
+const matchBodyTextClass = "text-[var(--tge-text-secondary)]";
+const matchInputClass =
+  "h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
+const matchPrimaryButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
+const matchSecondaryButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+const matchAttentionButtonClass =
+  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 text-sm font-semibold text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)]";
+
 function sourceMatchHref(
   filters: SourceMatchSearchParams,
   nextPage: number
@@ -137,30 +153,34 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-white px-4 py-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-        {label}
-      </div>
-      <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+    <div className={`${matchCardClass} px-4 py-4`}>
+      <div className={matchEyebrowClass}>{label}</div>
+      <div className={`mt-2 text-3xl leading-none ${matchTitleClass}`}>
         {value}
       </div>
-      <div className="mt-2 text-xs leading-5 text-gray-500">{note}</div>
+      <div className={`mt-2 text-xs leading-5 ${matchMutedTextClass}`}>
+        {note}
+      </div>
     </div>
   );
 }
 
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+      <h2 className="text-lg font-bold text-[var(--tge-governance-attention-text)]">
+        PostgreSQL Not Connected
+      </h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
         Source match review reads from Railway PostgreSQL. Run the app through
         Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL` locally.
       </p>
-      <pre className="mt-4 overflow-x-auto bg-white px-4 py-3 text-xs text-gray-700">
+      <pre className="mt-4 overflow-x-auto bg-[var(--tge-surface-card)] px-4 py-3 text-xs text-[var(--tge-governance-neutral-text)]">
         railway run --service Postgres -- npm --prefix web run dev
       </pre>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className="mt-3 text-xs text-[var(--tge-governance-attention-text)]">
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -173,20 +193,22 @@ function FilterDisclosure({
   children: React.ReactNode;
 }) {
   return (
-    <details className="border border-gray-200 bg-white" open={defaultOpen}>
+    <details className={matchCardClass} open={defaultOpen}>
       <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">Match Filters</h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+          <h2 className={`text-lg ${matchTitleClass}`}>Match Filters</h2>
+          <p className={`mt-1 max-w-3xl text-sm leading-6 ${matchBodyTextClass}`}>
             Scope article-to-entity candidates before review. The candidate
             table remains the primary work surface.
           </p>
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+        <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
           Expand / collapse
         </span>
       </summary>
-      <div className="border-t border-gray-200 px-5 py-5">{children}</div>
+      <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-5">
+        {children}
+      </div>
     </details>
   );
 }
@@ -257,17 +279,17 @@ export default async function SourceMatchCandidatesPage({
     : [];
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+      <section className={matchCardClass}>
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
             Sources / Documents
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] sm:text-4xl">
                 Article Match Review
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)] sm:mt-4 sm:text-base sm:leading-7">
                 Review generated TGE article-to-entity candidates before they
                 become evidence links. This keeps the archive import controlled,
                 auditable, and separate from automated field updates.
@@ -275,13 +297,13 @@ export default async function SourceMatchCandidatesPage({
             </div>
             <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={matchSecondaryButtonClass}
                 href="/sources"
               >
                 Sources
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={matchSecondaryButtonClass}
                 href={
                   filters.sourceId
                     ? `/sources/facts?sourceId=${filters.sourceId}`
@@ -291,7 +313,7 @@ export default async function SourceMatchCandidatesPage({
                 Article Facts
               </Link>
               <Link
-                className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                className={matchSecondaryButtonClass}
                 href="/postgres-preview/research-ops"
               >
                 Research Ops
@@ -388,22 +410,26 @@ export default async function SourceMatchCandidatesPage({
                 {filters.sourceId ? (
                   <input type="hidden" name="sourceId" value={filters.sourceId} />
                 ) : null}
-                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <label
+                  className={`flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${matchMutedTextClass}`}
+                >
                   Search
                   <input
                     name="search"
                     defaultValue={filters.search || ""}
                     placeholder="Article, entity, alias, reason..."
-                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                    className={matchInputClass}
                   />
                 </label>
 
-                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <label
+                  className={`flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${matchMutedTextClass}`}
+                >
                   Match Status
                   <select
                     name="status"
                     defaultValue={filters.status || ""}
-                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                    className={matchInputClass}
                   >
                     <option value="">All statuses</option>
                     {data.statuses.map((status) => (
@@ -414,12 +440,14 @@ export default async function SourceMatchCandidatesPage({
                   </select>
                 </label>
 
-                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <label
+                  className={`flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${matchMutedTextClass}`}
+                >
                   Entity Type
                   <select
                     name="entityType"
                     defaultValue={filters.entityType || ""}
-                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                    className={matchInputClass}
                   >
                     <option value="">All entity types</option>
                     {entityTypeOptions.map((option) => (
@@ -430,12 +458,14 @@ export default async function SourceMatchCandidatesPage({
                   </select>
                 </label>
 
-                <label className="flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <label
+                  className={`flex min-w-0 flex-col gap-2 text-xs font-semibold uppercase tracking-wide ${matchMutedTextClass}`}
+                >
                   Review Flags
                   <select
                     name="flagged"
                     defaultValue={filters.flagged || ""}
-                    className="h-10 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#1f2937] outline-none focus:border-[#8dc63f]"
+                    className={matchInputClass}
                   >
                     <option value="">All candidates</option>
                     <option value="1">Flagged only</option>
@@ -445,19 +475,19 @@ export default async function SourceMatchCandidatesPage({
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:flex">
                   <button
                     type="submit"
-                    className="inline-flex h-10 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-4 text-sm font-semibold text-white hover:bg-[#78ad35]"
+                    className={matchPrimaryButtonClass}
                   >
                     Apply
                   </button>
                   <Link
                     href="/sources/matches?flagged=1"
-                    className="inline-flex h-10 items-center justify-center border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+                    className={matchAttentionButtonClass}
                   >
                     Flagged
                   </Link>
                   <Link
                     href="/sources/matches"
-                    className="inline-flex h-10 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    className={matchSecondaryButtonClass}
                   >
                     Reset
                   </Link>
@@ -481,10 +511,10 @@ export default async function SourceMatchCandidatesPage({
 
             <SourceMatchCandidatesClient candidates={data.candidates} />
 
-            <section className="flex flex-col gap-3 border border-gray-200 bg-white px-5 py-4 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
+            <section className="flex flex-col gap-3 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-5 py-4 text-sm text-[var(--tge-text-secondary)] md:flex-row md:items-center md:justify-between">
             <div>
               Showing{" "}
-              <span className="font-semibold text-[#1f2937]">
+              <span className="font-semibold text-[var(--tge-text-primary)]">
                 {data.filteredCount === 0
                   ? 0
                   : (data.page - 1) * data.pageSize + 1}
@@ -492,7 +522,7 @@ export default async function SourceMatchCandidatesPage({
                 {Math.min(data.page * data.pageSize, data.filteredCount)}
               </span>{" "}
               of{" "}
-              <span className="font-semibold text-[#1f2937]">
+              <span className="font-semibold text-[var(--tge-text-primary)]">
                 {formatCount(data.filteredCount)}
               </span>{" "}
               filtered candidates
@@ -502,8 +532,8 @@ export default async function SourceMatchCandidatesPage({
                 aria-disabled={data.page <= 1}
                 className={`inline-flex h-9 items-center justify-center border px-4 text-sm font-semibold ${
                   data.page <= 1
-                    ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
-                    : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    ? "pointer-events-none border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]"
+                    : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                 }`}
                 href={sourceMatchHref(filters, Math.max(data.page - 1, 1))}
               >
@@ -513,8 +543,8 @@ export default async function SourceMatchCandidatesPage({
                 aria-disabled={data.page * data.pageSize >= data.filteredCount}
                 className={`inline-flex h-9 items-center justify-center border px-4 text-sm font-semibold ${
                   data.page * data.pageSize >= data.filteredCount
-                    ? "pointer-events-none border-gray-200 bg-gray-50 text-gray-400"
-                    : "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                    ? "pointer-events-none border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]"
+                    : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                 }`}
                 href={sourceMatchHref(filters, data.page + 1)}
               >
