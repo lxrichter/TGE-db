@@ -8,9 +8,11 @@ export default function DetailSection({
   children,
 }: DetailSectionProps) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">{title}</h2>
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-6 py-4">
+        <h2 className="text-xl font-bold text-[var(--tge-text-primary)]">
+          {title}
+        </h2>
       </div>
       <div className="p-6">{children}</div>
     </section>

@@ -172,9 +172,9 @@ export default function RelatedNewsCard({
   }, [name, group, country, owner, searchTerms]);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex min-h-[56px] items-center justify-between border-b border-gray-200 bg-[#f7f7f7] px-6">
-        <h2 className="text-xl font-bold leading-none text-[#1f2937]">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex min-h-[56px] items-center justify-between border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6">
+        <h2 className="text-xl font-bold leading-none text-[var(--tge-text-primary)]">
           Related News
         </h2>
 
@@ -182,7 +182,7 @@ export default function RelatedNewsCard({
           href={fullNewsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[12px] font-semibold text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+          className="text-[12px] font-semibold text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]"
         >
           View all on ThinkGeoEnergy
         </a>
@@ -190,11 +190,13 @@ export default function RelatedNewsCard({
 
       <div className="px-6 py-4">
         {loading ? (
-          <div className="text-sm text-gray-500">Loading related news…</div>
+          <div className="text-sm text-[var(--tge-governance-muted-text)]">
+            Loading related news…
+          </div>
         ) : items.length === 0 ? (
-          <div className="space-y-2 text-sm leading-6 text-gray-600">
+          <div className="space-y-2 text-sm leading-6 text-[var(--tge-text-secondary)]">
             <p>No related ThinkGeoEnergy news found.</p>
-            <p className="text-gray-500">
+            <p className="text-[var(--tge-governance-muted-text)]">
               This version searches using company name, simplified company name,
               group, owner, and related aliases.
             </p>
@@ -204,10 +206,10 @@ export default function RelatedNewsCard({
             {items.map((item) => (
               <article
                 key={`${item.url}-${item.title}`}
-                className="border-b border-gray-200 py-2.5 last:border-none"
+                className="border-b border-[var(--tge-governance-neutral-border)] py-2.5 last:border-none"
               >
                 {item.meta ? (
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                  <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                     {item.meta}
                   </div>
                 ) : null}
@@ -217,14 +219,14 @@ export default function RelatedNewsCard({
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[13px] font-semibold leading-snug text-[#1f2937] hover:text-[#8dc63f]"
+                    className="text-[13px] font-semibold leading-snug text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)]"
                   >
                     {item.title}
                   </a>
                 </div>
 
                 {item.excerpt ? (
-                  <p className="mt-1 text-[12px] leading-snug text-gray-600">
+                  <p className="mt-1 text-[12px] leading-snug text-[var(--tge-text-secondary)]">
                     {item.excerpt}
                   </p>
                 ) : null}

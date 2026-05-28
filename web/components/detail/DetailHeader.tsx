@@ -20,23 +20,23 @@ export default function DetailHeader({
   children,
 }: DetailHeaderProps) {
   return (
-    <section className="border border-gray-200 bg-white p-8">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] p-8">
       <div className="space-y-4">
-        <p className="text-sm font-semibold uppercase tracking-wide text-[#8dc63f]">
+        <p className="text-sm font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
           {typeLabel}
         </p>
 
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0">
-            <h1 className="text-4xl font-bold tracking-tight text-[#1f2937]">
+            <h1 className="text-4xl font-bold tracking-tight text-[var(--tge-text-primary)]">
               {title}
             </h1>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-gray-600">
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-[var(--tge-text-secondary)]">
               <span>{country || "NA"}</span>
-              <span className="text-gray-300">|</span>
+              <span className="text-[var(--tge-governance-muted-border)]">|</span>
               <span>{region || "NA"}</span>
-              <span className="text-gray-300">|</span>
+              <span className="text-[var(--tge-governance-muted-border)]">|</span>
               <span>{location || "NA"}</span>
             </div>
           </div>
