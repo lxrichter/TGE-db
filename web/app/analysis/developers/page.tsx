@@ -8,7 +8,10 @@ import {
   AnalysisQaTable,
 } from "@/components/analysis/AnalysisGovernanceQa";
 import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
-import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
+import {
+  analysisGovernanceCleanupRoutes,
+  getRequiredAnalysisModule,
+} from "@/lib/analysis/modules";
 
 const developerModule = getRequiredAnalysisModule("developer-analysis");
 
@@ -203,22 +206,19 @@ function SegmentTable({
 function QaCleanupRoutes() {
   const routes = [
     {
-      title: "Research Ops",
+      ...analysisGovernanceCleanupRoutes.research_ops,
       description:
         "Route missing MWe, equal-split attribution, and role cleanup into operational review.",
-      href: "/postgres-preview/research-ops",
     },
     {
-      title: "Project Records",
+      ...analysisGovernanceCleanupRoutes.projects,
       description:
         "Open project profiles to fix project MWe, phase, and source-backed capacity fields.",
-      href: "/projects",
     },
     {
-      title: "Company Links",
+      ...analysisGovernanceCleanupRoutes.companies,
       description:
         "Review developer roles separately from ownership, operator, investor, and supplier links.",
-      href: "/companies",
     },
   ];
 
@@ -237,12 +237,12 @@ function QaCleanupRoutes() {
       <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-3">
         {routes.map((route) => (
           <Link
-            key={route.title}
+            key={route.label}
             href={route.href}
             className="block border border-gray-200 bg-[#fafafa] px-4 py-3 transition hover:border-[#8dc63f] hover:bg-[#f5faef]"
           >
             <div className="text-sm font-bold text-[#1f2937]">
-              {route.title}
+              {route.label}
             </div>
             <p className="mt-1 text-xs leading-5 text-gray-600">
               {route.description}

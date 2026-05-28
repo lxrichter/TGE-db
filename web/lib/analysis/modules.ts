@@ -35,6 +35,17 @@ export type AnalysisGovernanceQaCategory = {
   examples: string[];
 };
 
+export type AnalysisGovernanceCleanupRouteKey =
+  | "research_ops"
+  | "projects"
+  | "plants"
+  | "companies";
+
+export type AnalysisGovernanceCleanupRoute = {
+  label: string;
+  href: string;
+};
+
 export const analysisStatusLabels: Record<AnalysisModuleStatus, string> = {
   live: "Live",
   definition_next: "Define Next",
@@ -176,6 +187,28 @@ export const analysisGovernanceQaCategories: AnalysisGovernanceQaCategory[] = [
     ],
   },
 ];
+
+export const analysisGovernanceCleanupRoutes: Record<
+  AnalysisGovernanceCleanupRouteKey,
+  AnalysisGovernanceCleanupRoute
+> = {
+  research_ops: {
+    label: "Research Ops",
+    href: "/postgres-preview/research-ops",
+  },
+  projects: {
+    label: "Project Records",
+    href: "/projects",
+  },
+  plants: {
+    label: "Plant Records",
+    href: "/plants",
+  },
+  companies: {
+    label: "Company Links",
+    href: "/companies",
+  },
+};
 
 export const analysisModules: AnalysisModule[] = [
   {

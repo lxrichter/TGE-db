@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { AnalysisGovernanceQaSection } from "@/components/analysis/AnalysisGovernanceQa";
 import { AnalysisModuleHero } from "@/components/analysis/AnalysisModuleHero";
-import { getRequiredAnalysisModule } from "@/lib/analysis/modules";
+import {
+  analysisGovernanceCleanupRoutes,
+  getRequiredAnalysisModule,
+} from "@/lib/analysis/modules";
 import { slugify } from "@/lib/slug";
 
 const turbineTechnologyModule = getRequiredAnalysisModule("turbine-technology");
@@ -285,9 +288,12 @@ function TechnologyGovernanceReadiness({
           </div>
           <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-3 xl:grid-cols-1">
             {[
-              { label: "Research Ops", href: "/postgres-preview/research-ops" },
-              { label: "Plant Records", href: "/plants" },
-              { label: "Technology Module", href: "/analysis/modules/turbine-technology" },
+              analysisGovernanceCleanupRoutes.research_ops,
+              analysisGovernanceCleanupRoutes.plants,
+              {
+                label: "Technology Module",
+                href: "/analysis/modules/turbine-technology",
+              },
             ].map((route) => (
               <Link
                 key={route.label}
