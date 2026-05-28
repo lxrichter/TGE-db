@@ -16,31 +16,35 @@ const statusActions: SourceStatusAction[] = [
     label: "Mark Credible",
     description: "Reviewed and usable for internal/export-ready evidence.",
     className:
-      "border-[#8dc63f] bg-[#8dc63f] text-white hover:bg-[#78ad35]",
+      "border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]",
   },
   {
     code: "weak",
     label: "Mark Weak",
     description: "Useful context, but weak or indirect evidence.",
-    className: "border-amber-200 bg-white text-amber-800 hover:bg-amber-50",
+    className:
+      "border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)]",
   },
   {
     code: "outdated",
     label: "Mark Outdated",
     description: "Stale or superseded source needing replacement.",
-    className: "border-amber-200 bg-white text-amber-800 hover:bg-amber-50",
+    className:
+      "border-[var(--tge-governance-attention-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)]",
   },
   {
     code: "rejected",
     label: "Reject",
     description: "Do not use this source as supporting evidence.",
-    className: "border-red-200 bg-white text-red-700 hover:bg-red-50",
+    className:
+      "border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)]",
   },
   {
     code: "needs_review",
     label: "Needs Review",
     description: "Return this source to the review queue.",
-    className: "border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f]",
+    className:
+      "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
   },
 ];
 
@@ -94,22 +98,24 @@ export default function SourceStatusActions({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">Editor Review Actions</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
+          Editor Review Actions
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
           Move this source through the MVP credibility workflow without editing
           the full source profile.
         </p>
       </div>
       <div className="space-y-4 px-5 py-5">
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]">
             {error}
           </div>
         ) : null}
         {message ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]">
             {message}
           </div>
         ) : null}
