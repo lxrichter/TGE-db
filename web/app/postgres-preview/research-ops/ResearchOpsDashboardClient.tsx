@@ -2293,10 +2293,10 @@ function FilterSelect({
   children: ReactNode;
 }) {
   return (
-    <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <label className={`flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
       {label}
       <select
-        className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+        className="h-10 min-w-0 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
       >
@@ -2308,7 +2308,7 @@ function FilterSelect({
 
 function EmptyQueue() {
   return (
-    <div className="border-t border-gray-100 px-5 py-5 text-sm text-gray-500">
+    <div className={`border-t px-5 py-5 text-sm ${opsClass.divider} ${opsClass.muted}`}>
       No matching items in this queue.
     </div>
   );
@@ -2333,7 +2333,7 @@ function PaginationControls({
 }) {
   if (pageCount <= 1) {
     return (
-      <div className="border-t border-gray-100 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <div className={`border-t px-5 py-3 text-xs font-semibold uppercase tracking-wide ${opsClass.divider} ${opsClass.muted}`}>
         Showing {formatCount(total)} {noun}
         {total === 1 ? "" : "s"}
       </div>
@@ -2341,25 +2341,25 @@ function PaginationControls({
   }
 
   return (
-    <div className="flex flex-col gap-3 border-t border-gray-100 px-5 py-3 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`flex flex-col gap-3 border-t px-5 py-3 text-sm md:flex-row md:items-center md:justify-between ${opsClass.divider} ${opsClass.body}`}>
+      <div className={`text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
         Showing {formatCount(pageStart)}-{formatCount(pageEnd)} of{" "}
         {formatCount(total)}
       </div>
       <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <button
-          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+          className="h-8 flex-1 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page <= 1}
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
         >
           Previous
         </button>
-        <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+        <span className="inline-flex h-8 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
           Page {formatCount(page)} / {formatCount(pageCount)}
         </span>
         <button
-          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+          className="h-8 flex-1 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
           disabled={page >= pageCount}
           type="button"
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}
@@ -2402,14 +2402,14 @@ function EntityTable({
   const headCellClass = compactRows ? "px-4 py-2" : "px-5 py-3";
   const cellClass = compactRows ? "px-4 py-2.5" : "px-5 py-4";
   const supportingTextClass = compactRows
-    ? "mt-1 line-clamp-1 text-xs text-gray-500"
-    : "mt-1 text-xs text-gray-500";
+    ? `mt-1 line-clamp-1 text-xs ${opsClass.muted}`
+    : `mt-1 text-xs ${opsClass.muted}`;
   const issueTextClass = compactRows
-    ? "mt-1 line-clamp-1 text-xs font-medium text-gray-600"
-    : "mt-2 text-xs font-medium text-gray-600";
+    ? `mt-1 line-clamp-1 text-xs font-medium ${opsClass.body}`
+    : `mt-2 text-xs font-medium ${opsClass.body}`;
   const activityTextClass = compactRows
-    ? "mt-1 line-clamp-1 text-xs font-medium text-sky-700"
-    : "mt-2 text-xs font-medium text-sky-700";
+    ? "mt-1 line-clamp-1 text-xs font-medium text-[var(--tge-governance-info-text)]"
+    : "mt-2 text-xs font-medium text-[var(--tge-governance-info-text)]";
   const actionButtonClass = compactRows
     ? "inline-flex h-7 items-center border px-2 text-[11px] font-semibold"
     : "inline-flex h-8 items-center border px-3 text-xs font-semibold";
@@ -2428,21 +2428,21 @@ function EntityTable({
         total={items.length}
         onPageChange={setPage}
       />
-      <div className="border-t border-gray-100 bg-white px-5 py-3 text-xs leading-5 text-gray-500">
+      <div className={`border-t bg-[var(--tge-surface-card)] px-5 py-3 text-xs leading-5 ${opsClass.divider} ${opsClass.muted}`}>
         The page checkbox selects only the visible rows on this page. Use{" "}
-        <span className="font-semibold text-[#1f2937]">Select Filtered</span>{" "}
+        <span className={`font-semibold ${opsClass.title}`}>Select Filtered</span>{" "}
         above when the whole filtered work set should be selected for bulk
         review.
       </div>
-      <div className="overflow-x-auto border-t border-gray-100">
+      <div className={`overflow-x-auto border-t ${opsClass.divider}`}>
         <table className="min-w-[1260px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[var(--tge-surface-subtle)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
               <th className={`w-[4%] ${headCellClass} font-semibold`}>
                 <input
                   aria-label="Select visible records on this page"
                   checked={allSelected}
-                  className="h-4 w-4 accent-[#8dc63f]"
+                  className="h-4 w-4 accent-[var(--tge-brand-green)]"
                   type="checkbox"
                   onChange={(event) =>
                     onToggleVisible(pageItems, event.target.checked)
@@ -2476,7 +2476,7 @@ function EntityTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--tge-governance-neutral-border)]">
             {pageItems.map((item) => {
               const key = recordKey(item);
               const selected = key === selectedKey;
@@ -2489,25 +2489,25 @@ function EntityTable({
                   key={key}
                   className={
                     selected
-                      ? "align-top bg-[#f3f8ec]"
-                      : "align-top transition-colors hover:bg-[#fbfdf8]"
+                      ? "align-top bg-[var(--tge-governance-success-bg)]"
+                      : "align-top transition-colors hover:bg-[var(--tge-surface-subtle)]"
                   }
                 >
                   <td className={cellClass}>
                     <input
                       aria-label={`Select ${item.name}`}
                       checked={selectedBulkKeys.has(key)}
-                      className="h-4 w-4 accent-[#8dc63f]"
+                      className="h-4 w-4 accent-[var(--tge-brand-green)]"
                       type="checkbox"
                       onChange={(event) => onToggleBulk(item, event.target.checked)}
                     />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${opsClass.body}`}>
                     <CompactCellText value={formatEntityType(item.entity_type)} />
                   </td>
                   <td className={cellClass}>
                     <CompactCellText
-                      className="font-semibold text-[#1f2937]"
+                      className={`font-semibold ${opsClass.title}`}
                       lines={2}
                       value={item.name}
                     />
@@ -2529,13 +2529,13 @@ function EntityTable({
                       />
                     ) : null}
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${opsClass.body}`}>
                     <CompactCellText value={item.country} />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${opsClass.body}`}>
                     <CompactCellText value={item.primary_use_type_code} />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${opsClass.body}`}>
                     <StatusBadge
                       domain="lifecycle"
                       value={item.lifecycle_phase_code}
@@ -2547,16 +2547,16 @@ function EntityTable({
                       value={item.review_status_code}
                     />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${opsClass.body}`}>
                     <CompactCellText value={item.last_updated_by_name} />
                   </td>
-                  <td className={`${cellClass} text-gray-700`}>
+                  <td className={`${cellClass} ${opsClass.body}`}>
                     {formatDate(item.updated_at)}
                   </td>
                   <td className={cellClass}>
                     <div className={compactRows ? "flex flex-wrap gap-1" : "flex flex-wrap gap-2"}>
                       <button
-                        className={`${actionButtonClass} border-[#8dc63f] bg-white text-[#4f7f1f] hover:bg-[#f3f8ec]`}
+                        className={`${actionButtonClass} border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]`}
                         type="button"
                         onClick={() => onSelect(item)}
                       >
@@ -2564,7 +2564,7 @@ function EntityTable({
                       </button>
                       {sourceHref ? (
                         <Link
-                          className={`${actionButtonClass} border-[#8dc63f] bg-white text-[#4f7f1f] hover:bg-[#f3f8ec]`}
+                          className={`${actionButtonClass} border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]`}
                           href={sourceHref}
                         >
                           Add Source
@@ -2572,7 +2572,7 @@ function EntityTable({
                       ) : null}
                       {href ? (
                         <Link
-                          className={`${actionButtonClass} border-gray-300 bg-white text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]`}
+                          className={`${actionButtonClass} border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]`}
                           href={href}
                         >
                           Open
@@ -2627,23 +2627,23 @@ function QueueCard({
   return (
     <section
       id={`queue-${queue.key}`}
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      className={`scroll-mt-6 ${opsClass.panel}`}
     >
       <div className="flex flex-col gap-3 px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-bold text-[#1f2937]">{queue.title}</h2>
+            <h2 className={`text-lg font-bold ${opsClass.title}`}>{queue.title}</h2>
             <SeverityBadge severity={queue.severity} />
-            <span className="inline-flex h-7 items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-600">
+            <span className="inline-flex h-7 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
               System-generated
             </span>
             {isExportBlocking ? (
-              <span className="inline-flex h-7 items-center border border-red-200 bg-red-50 px-2 text-xs font-semibold text-red-800">
+              <span className="inline-flex h-7 items-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-2 text-xs font-semibold text-[var(--tge-governance-danger-text)]">
                 Export blocker
               </span>
             ) : null}
           </div>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className={`mt-2 max-w-3xl text-sm leading-6 ${opsClass.body}`}>
             {queue.description}
           </p>
           <div className="mt-3">
@@ -2652,15 +2652,15 @@ function QueueCard({
         </div>
         <div className="flex w-full items-start justify-between gap-3 md:w-auto md:justify-end">
           <div className="text-left md:text-right">
-            <div className="text-2xl font-bold leading-none text-[#1f2937]">
+            <div className={`text-2xl font-bold leading-none ${opsClass.title}`}>
               {formatCount(queue.items.length)}
             </div>
-            <div className="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div className={`mt-1 text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               shown of {formatCount(queue.count)}
             </div>
           </div>
           <button
-            className="h-9 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
             type="button"
             onClick={onToggleCollapsed}
           >
@@ -2669,7 +2669,7 @@ function QueueCard({
         </div>
       </div>
       {collapsed ? (
-        <div className="border-t border-gray-100 px-5 py-4 text-sm leading-6 text-gray-600">
+        <div className={`border-t px-5 py-4 text-sm leading-6 ${opsClass.divider} ${opsClass.body}`}>
           Queue collapsed. {formatCount(queue.items.length)} matching row
           {queue.items.length === 1 ? "" : "s"} remain in the current filter
           state.
