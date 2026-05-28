@@ -116,6 +116,83 @@ function buildFlags(row: CompanyRow) {
   return flags;
 }
 
+const researchOpsCompanyClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+  dangerHero:
+    "border-l-4 border-l-[var(--tge-governance-danger-text)] px-8 py-8",
+  strip:
+    "border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  dangerKicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-governance-danger-text)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] px-6 py-4",
+  filterShell:
+    "space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3",
+  label:
+    "mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  input:
+    "w-full border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  tableHeaderCell:
+    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2",
+  tableRow:
+    "hover:bg-[var(--tge-surface-subtle)]",
+  tableCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-[var(--tge-governance-neutral-text)]",
+  tableMutedCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 font-mono text-xs text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
+  editLink:
+    "inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-brand-green-dark)]",
+  activeCard:
+    "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]",
+  inactiveCard:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] hover:bg-[var(--tge-surface-subtle)]",
+  activityButton:
+    "inline-flex min-w-[32px] items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-2 py-1 text-xs font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] hover:text-[var(--tge-brand-green-dark)]",
+  flag:
+    "inline-flex border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-0.5 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)]",
+};
+
+function OpsStatCard({
+  label,
+  value,
+  active,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`cursor-pointer border p-3 text-left transition ${
+        active ? researchOpsCompanyClass.activeCard : researchOpsCompanyClass.inactiveCard
+      }`}
+    >
+      <div className={`text-[11px] font-semibold uppercase tracking-wide ${researchOpsCompanyClass.muted}`}>
+        {label}
+      </div>
+      <div className={`mt-1 text-3xl font-bold ${researchOpsCompanyClass.title}`}>
+        {formatCount(value)}
+      </div>
+    </button>
+  );
+}
+
 type EditorActivityRow = {
   userKey: string;
   displayName: string;
@@ -373,15 +450,15 @@ export default function ResearchOpsCompaniesPage() {
     }
 
     function normalizeResearchStatus(value: string | null) {
-  const v = (value || "").trim().toLowerCase();
+      const v = (value || "").trim().toLowerCase();
 
-  if (!v || v === "na" || v === "n/a") return "NA";
-  if (v.includes("done")) return "Done";
-  if (v.includes("progress")) return "In Progress";
-  if (v.includes("need")) return "Need Info";
+      if (!v || v === "na" || v === "n/a") return "NA";
+      if (v.includes("done")) return "Done";
+      if (v.includes("progress")) return "In Progress";
+      if (v.includes("need")) return "Need Info";
 
-  return "NA";
-}
+      return "NA";
+    }
 
     if (researchStatusFilter !== "All Research Status") {
       filtered = filtered.filter(
@@ -483,15 +560,15 @@ export default function ResearchOpsCompaniesPage() {
   if (!userCanAccessResearchOps) {
     return (
       <main className="space-y-8">
-        <section className="border border-gray-200 bg-white">
-          <div className="border-l-4 border-l-red-500 px-8 py-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-red-600">
+        <section className={researchOpsCompanyClass.panel}>
+          <div className={researchOpsCompanyClass.dangerHero}>
+            <p className={researchOpsCompanyClass.dangerKicker}>
               Research Ops / Companies
             </p>
-            <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+            <h1 className={`mt-3 text-5xl font-bold tracking-tight ${researchOpsCompanyClass.title}`}>
               Access Restricted
             </h1>
-            <p className="mt-4 max-w-3xl text-lg leading-8 text-gray-600">
+            <p className={`mt-4 max-w-3xl text-lg leading-8 ${researchOpsCompanyClass.body}`}>
               Companies Ops is available only to editors and administrators.
             </p>
             <div className="mt-6">
@@ -510,23 +587,23 @@ export default function ResearchOpsCompaniesPage() {
       <div className="px-2">
         <Link
           href="/research-ops"
-          className="inline-flex items-center text-sm font-medium text-[#8dc63f] hover:underline"
+          className="inline-flex items-center text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
         >
           ← Back to Research Ops Dashboard
         </Link>
       </div>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={researchOpsCompanyClass.panel}>
+        <div className={researchOpsCompanyClass.hero}>
           <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <p className={researchOpsCompanyClass.kicker}>
                 Research Ops / Companies
               </p>
-              <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className={`mt-3 text-5xl font-bold tracking-tight ${researchOpsCompanyClass.title}`}>
                 Company Research Operations
               </h1>
-              <p className="mt-4 max-w-4xl text-lg leading-8 text-gray-600">
+              <p className={`mt-4 max-w-4xl text-lg leading-8 ${researchOpsCompanyClass.body}`}>
                 Operational queue for company data gaps, research follow-up,
                 review workflow, and relationship/link completeness.
               </p>
@@ -546,145 +623,26 @@ export default function ResearchOpsCompaniesPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-5">
+        <div className={researchOpsCompanyClass.strip}>
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-            <div
-              onClick={() => setOpsPreset("all")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "all"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Total Companies
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.total)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("pending_review")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "pending_review"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Pending Review
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.pendingReview)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("need_info")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "need_info"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Need Info
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.needInfo)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_primary_type")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_primary_type"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Primary Type
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingPrimaryType)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_country")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_country"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Country
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingCountry)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_source")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_source"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Source
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingSource)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_links")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_links"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                No Project / Plant Links
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingLinks)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_relationships")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_relationships"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                No Relationships
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingRelationships)}
-              </div>
-            </div>
+            <OpsStatCard label="Total Companies" value={stats.total} active={opsPreset === "all"} onClick={() => setOpsPreset("all")} />
+            <OpsStatCard label="Pending Review" value={stats.pendingReview} active={opsPreset === "pending_review"} onClick={() => setOpsPreset("pending_review")} />
+            <OpsStatCard label="Need Info" value={stats.needInfo} active={opsPreset === "need_info"} onClick={() => setOpsPreset("need_info")} />
+            <OpsStatCard label="Missing Primary Type" value={stats.missingPrimaryType} active={opsPreset === "missing_primary_type"} onClick={() => setOpsPreset("missing_primary_type")} />
+            <OpsStatCard label="Missing Country" value={stats.missingCountry} active={opsPreset === "missing_country"} onClick={() => setOpsPreset("missing_country")} />
+            <OpsStatCard label="Missing Source" value={stats.missingSource} active={opsPreset === "missing_source"} onClick={() => setOpsPreset("missing_source")} />
+            <OpsStatCard label="No Project / Plant Links" value={stats.missingLinks} active={opsPreset === "missing_links"} onClick={() => setOpsPreset("missing_links")} />
+            <OpsStatCard label="No Relationships" value={stats.missingRelationships} active={opsPreset === "missing_relationships"} onClick={() => setOpsPreset("missing_relationships")} />
           </div>
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={researchOpsCompanyClass.panel}>
+        <div className={researchOpsCompanyClass.sectionHeader}>
+          <h2 className={`text-xl font-bold ${researchOpsCompanyClass.title}`}>
             Editor Activity
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${researchOpsCompanyClass.muted}`}>
             Overview of record creation, updates, approvals, and workflow concentration by user. Click a number to filter the table below.
           </p>
         </div>
@@ -692,71 +650,71 @@ export default function ResearchOpsCompaniesPage() {
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className={researchOpsCompanyClass.tableHead}>
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">User</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Created</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Updated</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Approved</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Pending</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Need Info</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>User</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Created</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Updated</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Approved</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Pending</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Need Info</th>
                 </tr>
               </thead>
 
               <tbody>
                 {editorActivity.map((row) => (
-                  <tr key={row.userKey} className="hover:bg-gray-50">
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-sm text-gray-700">
+                  <tr key={row.userKey} className={researchOpsCompanyClass.tableRow}>
+                    <td className={`${researchOpsCompanyClass.tableCell} text-sm`}>
                       {row.userKey === String((session?.user as { id?: string } | undefined)?.id || "").trim()
                         ? String((session?.user as { name?: string } | undefined)?.name || row.displayName || row.userKey || "NA")
                         : row.displayName || row.userKey || "NA"}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsCompanyClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "created" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsCompanyClass.activityButton}
                       >
                         {row.created}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsCompanyClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "updated" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsCompanyClass.activityButton}
                       >
                         {row.updated}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsCompanyClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "approved" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsCompanyClass.activityButton}
                       >
                         {row.approved}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsCompanyClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "pending" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsCompanyClass.activityButton}
                       >
                         {row.pendingReview}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className={`${researchOpsCompanyClass.tableCell} text-center`}>
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "need_info" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsCompanyClass.activityButton}
                       >
                         {row.needInfo}
                       </button>
@@ -766,7 +724,7 @@ export default function ResearchOpsCompaniesPage() {
 
                 {editorActivity.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={6} className={`px-4 py-8 text-center text-sm ${researchOpsCompanyClass.muted}`}>
                       No editor activity available.
                     </td>
                   </tr>
@@ -778,8 +736,8 @@ export default function ResearchOpsCompaniesPage() {
       </section>
 
       {editorFilter && (
-        <div className="flex items-center justify-between rounded border border-[#8dc63f] bg-[#f3f9e8] px-4 py-3 text-sm">
-          <div className="text-[#1f2937]">
+        <div className="flex items-center justify-between border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm">
+          <div className={researchOpsCompanyClass.title}>
             Editor filter active:
             <span className="ml-2 font-semibold">
               {editorFilter.user === String((session?.user as { id?: string } | undefined)?.id || "").trim()
@@ -790,33 +748,33 @@ export default function ResearchOpsCompaniesPage() {
           <button
             type="button"
             onClick={() => setEditorFilter(null)}
-            className="font-medium text-[#1f2937] underline"
+            className="font-medium text-[var(--tge-text-primary)] underline"
           >
             Clear
           </button>
         </div>
       )}
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={researchOpsCompanyClass.panel}>
+        <div className={researchOpsCompanyClass.sectionHeader}>
+          <h2 className={`text-xl font-bold ${researchOpsCompanyClass.title}`}>
             Company Ops Queue
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${researchOpsCompanyClass.muted}`}>
             Filter operationally relevant companies and jump directly into editing.
           </p>
         </div>
 
-        <div className="space-y-3 border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
+        <div className={researchOpsCompanyClass.filterShell}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsCompanyClass.label}>
                 Ops Preset
               </label>
               <select
                 value={opsPreset}
                 onChange={(e) => setOpsPreset(e.target.value as OpsPreset)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsCompanyClass.input}
               >
                 <option value="all">All</option>
                 <option value="pending_review">Pending Review</option>
@@ -831,13 +789,13 @@ export default function ResearchOpsCompaniesPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsCompanyClass.label}>
                 Headquarters Country
               </label>
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsCompanyClass.input}
               >
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
@@ -848,13 +806,13 @@ export default function ResearchOpsCompaniesPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsCompanyClass.label}>
                 Primary Type
               </label>
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsCompanyClass.input}
               >
                 {typeOptions.map((type) => (
                   <option key={type} value={type}>
@@ -865,13 +823,13 @@ export default function ResearchOpsCompaniesPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsCompanyClass.label}>
                 Research Status
               </label>
               <select
                 value={researchStatusFilter}
                 onChange={(e) => setResearchStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsCompanyClass.input}
               >
                 {researchStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -882,13 +840,13 @@ export default function ResearchOpsCompaniesPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsCompanyClass.label}>
                 Review Status
               </label>
               <select
                 value={reviewStatusFilter}
                 onChange={(e) => setReviewStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsCompanyClass.input}
               >
                 {reviewStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -904,12 +862,12 @@ export default function ResearchOpsCompaniesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by ID, company, type, country, source, status..."
-            className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+            className={researchOpsCompanyClass.input}
           />
         </div>
 
         <div className="px-6 pt-3">
-          <p className="text-xs text-gray-500">
+          <p className={`text-xs ${researchOpsCompanyClass.muted}`}>
             Scroll horizontally to view all columns.
           </p>
         </div>
@@ -931,19 +889,19 @@ export default function ResearchOpsCompaniesPage() {
                 <col className="w-[100px]" />
               </colgroup>
 
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className={researchOpsCompanyClass.tableHead}>
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">Company ID</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Name</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Primary Type</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Country</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Related</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Projects</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Plants</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Research Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Review Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Ops Flags</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Action</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Company ID</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Name</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Primary Type</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Country</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Related</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Projects</th>
+                  <th className={`${researchOpsCompanyClass.tableHeaderCell} text-center`}>Plants</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Research Status</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Review Status</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Ops Flags</th>
+                  <th className={researchOpsCompanyClass.tableHeaderCell}>Action</th>
                 </tr>
               </thead>
 
@@ -952,69 +910,69 @@ export default function ResearchOpsCompaniesPage() {
                   const flags = buildFlags(company);
 
                   return (
-                    <tr key={company.company_id} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-2.5 font-mono text-xs text-gray-500">
+                    <tr key={company.company_id} className={researchOpsCompanyClass.tableRow}>
+                      <td className={researchOpsCompanyClass.tableMutedCell}>
                         {company.company_id}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         <Link
                           href={`/companies/${company.company_id}`}
-                          className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className={researchOpsCompanyClass.link}
                         >
                           {company.company_name || "NA"}
                         </Link>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         {company.company_type_primary || "NA"}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         {company.headquarters_country || "NA"}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-center font-medium text-gray-700">
+                      <td className={`${researchOpsCompanyClass.tableCell} text-center font-medium`}>
                         {formatCount(company.related_companies_count)}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-center font-medium text-gray-700">
+                      <td className={`${researchOpsCompanyClass.tableCell} text-center font-medium`}>
                         {formatCount(company.linked_projects_count)}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-center font-medium text-gray-700">
+                      <td className={`${researchOpsCompanyClass.tableCell} text-center font-medium`}>
                         {formatCount(company.linked_plants_count)}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         <ResearchStatusBadge value={company.research_status} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         <ReviewStatusBadge value={company.review_status} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         <div className="flex flex-wrap gap-2">
                           {flags.length > 0 ? (
                             flags.map((flag) => (
                               <span
                                 key={`${company.company_id}-${flag}`}
-                                className="inline-flex border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-semibold text-gray-700"
+                                className={researchOpsCompanyClass.flag}
                               >
                                 {flag}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-gray-400">—</span>
+                            <span className={`text-xs ${researchOpsCompanyClass.muted}`}>—</span>
                           )}
                         </div>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className={researchOpsCompanyClass.tableCell}>
                         <Link
                           href={`/companies/${company.company_id}/edit`}
-                          className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[#8dc63f] bg-[#8dc63f] px-3 py-1 text-[11px] font-semibold leading-none text-white hover:border-[#79b12f] hover:bg-[#79b12f]"
+                          className={researchOpsCompanyClass.editLink}
                         >
                           Edit
                         </Link>
@@ -1027,7 +985,7 @@ export default function ResearchOpsCompaniesPage() {
                   <tr>
                     <td
                       colSpan={11}
-                      className="px-4 py-8 text-center text-sm text-gray-500"
+                      className={`px-4 py-8 text-center text-sm ${researchOpsCompanyClass.muted}`}
                     >
                       No company records found for the current operational filters.
                     </td>
