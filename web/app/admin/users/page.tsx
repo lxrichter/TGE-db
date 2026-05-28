@@ -28,29 +28,35 @@ function AccessMetric({
 }) {
   const toneClass =
     tone === "admin"
-      ? "border-[#d7e8bf] bg-[#f5faef]"
+      ? "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]"
       : tone === "active"
-        ? "border-[#b9d98b] bg-[#f1f8e8]"
-        : "border-gray-200 bg-white";
+        ? "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]"
+        : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
 
   return (
     <div className={`border px-4 py-3 ${toneClass}`}>
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         {label}
       </div>
-      <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+      <div className="mt-1 text-2xl font-bold text-[var(--tge-text-primary)]">
         {formatCount(value)}
       </div>
-      <div className="mt-1 text-xs leading-5 text-gray-500">{note}</div>
+      <div className="mt-1 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
+        {note}
+      </div>
     </div>
   );
 }
 
 function GovernanceRule({ title, text }: { title: string; text: string }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-4 py-3">
-      <div className="text-sm font-bold text-[#1f2937]">{title}</div>
-      <div className="mt-1 text-xs leading-5 text-gray-600">{text}</div>
+    <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3">
+      <div className="text-sm font-bold text-[var(--tge-text-primary)]">
+        {title}
+      </div>
+      <div className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
+        {text}
+      </div>
     </div>
   );
 }
@@ -78,24 +84,24 @@ export default async function AdminUsersPage() {
       <div>
         <Link
           href="/admin"
-          className="inline-flex items-center gap-2 text-[15px] font-medium text-[#8dc63f] transition hover:opacity-80"
+          className="inline-flex items-center gap-2 text-[15px] font-medium text-[var(--tge-brand-green)] transition hover:text-[var(--tge-brand-green-dark)]"
         >
           <span aria-hidden="true">←</span>
           <span>Back to admin</span>
         </Link>
       </div>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-4xl">
-              <div className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <div className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Admin
               </div>
-              <h1 className="mt-3 text-4xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--tge-text-primary)]">
                 User Management
               </h1>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
+              <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--tge-text-secondary)]">
                 Manage internal platform access, review current users, and
                 assign Researcher, Editor, Senior Editor, and Admin roles.
               </p>
@@ -113,32 +119,32 @@ export default async function AdminUsersPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-4">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-700">
-            <span className="font-semibold uppercase tracking-wide text-gray-500">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-4">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[var(--tge-governance-neutral-text)]">
+            <span className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               Scope
             </span>
             <span>User List</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-[var(--tge-governance-muted-border)]">|</span>
             <span>Create Users</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-[var(--tge-governance-muted-border)]">|</span>
             <span>Role Changes</span>
-            <span className="text-gray-300">|</span>
+            <span className="text-[var(--tge-governance-muted-border)]">|</span>
             <span>Deactivation</span>
           </div>
         </div>
       </section>
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-[1.3fr_0.7fr]">
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6b8f2a]">
+        <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-success-text)]">
               Access Snapshot
             </div>
-            <h2 className="mt-1 text-lg font-bold text-[#1f2937]">
+            <h2 className="mt-1 text-lg font-bold text-[var(--tge-text-primary)]">
               Administrator User Overview
             </h2>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
               Quick visibility into active access before changing roles or
               creating new accounts.
             </p>
@@ -175,12 +181,12 @@ export default async function AdminUsersPage() {
           </div>
         </section>
 
-        <section className="border border-gray-200 bg-white">
-          <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6b8f2a]">
+        <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-success-text)]">
               Access Governance
             </div>
-            <h2 className="mt-1 text-lg font-bold text-[#1f2937]">
+            <h2 className="mt-1 text-lg font-bold text-[var(--tge-text-primary)]">
               Admin Guardrails
             </h2>
           </div>
