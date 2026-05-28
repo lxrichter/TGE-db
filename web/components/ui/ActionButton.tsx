@@ -27,12 +27,12 @@ type ActionButtonProps = ButtonProps | LinkProps;
 function getVariantClasses(variant: Variant) {
   switch (variant) {
     case 'primary':
-      return 'bg-[#8dc63f] text-white hover:opacity-90';
+      return 'bg-[var(--tge-brand-green)] text-white hover:opacity-90';
     case 'danger':
-      return 'border border-red-300 bg-white text-red-700 hover:bg-red-50';
+      return 'border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)]';
     case 'secondary':
     default:
-      return 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50';
+      return 'border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-governance-neutral-bg)]';
   }
 }
 

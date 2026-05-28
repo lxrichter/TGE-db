@@ -12,14 +12,14 @@ export default function PostgresSectionJumpNav({
   return (
     <nav
       aria-label="Page sections"
-      className="border border-gray-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur lg:sticky lg:top-0 lg:z-20"
+      className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-3 shadow-sm backdrop-blur lg:sticky lg:top-0 lg:z-20"
     >
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-text-secondary)]">
             Page Sections
           </div>
-          <div className="mt-1 text-xs text-gray-500">
+          <div className="mt-1 text-xs text-[var(--tge-text-secondary)]">
             Jump between the main operational layers on this page.
           </div>
         </div>
@@ -27,12 +27,12 @@ export default function PostgresSectionJumpNav({
           {items.map((item) => (
             <a
               key={item.href}
-              className="inline-flex min-h-9 shrink-0 flex-col justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="inline-flex min-h-9 shrink-0 flex-col justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-page)] px-3 text-xs font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
               href={item.href}
             >
               <span>{item.label}</span>
               {item.note ? (
-                <span className="mt-0.5 font-normal text-gray-500">
+                <span className="mt-0.5 font-normal text-[var(--tge-text-secondary)]">
                   {item.note}
                 </span>
               ) : null}

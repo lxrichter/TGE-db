@@ -3,21 +3,21 @@ export type PostgresHierarchyTone = "core" | "workflow" | "governance";
 function hierarchyToneClasses(tone: PostgresHierarchyTone) {
   if (tone === "core") {
     return {
-      border: "border-[#8dc63f]",
-      eyebrow: "text-[#4f7f1f]",
+      border: "border-[var(--tge-brand-green)]",
+      eyebrow: "text-[var(--tge-brand-green-dark)]",
     };
   }
 
   if (tone === "workflow") {
     return {
-      border: "border-blue-300",
-      eyebrow: "text-blue-700",
+      border: "border-[var(--tge-governance-info-border)]",
+      eyebrow: "text-[var(--tge-governance-info-text)]",
     };
   }
 
   return {
-    border: "border-gray-300",
-    eyebrow: "text-gray-600",
+    border: "border-[var(--tge-governance-neutral-border)]",
+    eyebrow: "text-[var(--tge-governance-neutral-text)]",
   };
 }
 
@@ -45,10 +45,12 @@ export default function PostgresHierarchyMarker({
           >
             {label}
           </div>
-          <h2 className="text-sm font-bold text-[#1f2937]">{title}</h2>
+          <h2 className="text-sm font-bold text-[var(--tge-text-primary)]">
+            {title}
+          </h2>
         </div>
         {description ? (
-          <p className="mt-0.5 max-w-4xl text-xs leading-5 text-gray-500">
+          <p className="mt-0.5 max-w-4xl text-xs leading-5 text-[var(--tge-text-secondary)]">
             {description}
           </p>
         ) : null}
