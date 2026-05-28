@@ -761,17 +761,19 @@ export default function UserManagementPanel({
 
       {editingUser ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-4">
-          <div className="w-full max-w-[560px] border border-gray-200 bg-white shadow-xl">
-            <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#1f2937]">Edit User</h2>
-              <p className="mt-1 text-sm text-gray-500">
+          <div className={`w-full max-w-[560px] shadow-xl ${userAdminClass.panel}`}>
+            <div className={`${userAdminClass.header} px-6 py-4`}>
+              <h2 className={`text-xl font-bold ${userAdminClass.title}`}>
+                Edit User
+              </h2>
+              <p className={`mt-1 text-sm ${userAdminClass.muted}`}>
                 Update user details and optionally reset the password.
               </p>
             </div>
 
             <form onSubmit={handleEditUser} className="space-y-4 px-6 py-5">
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Name
                 </label>
                 <input
@@ -779,24 +781,24 @@ export default function UserManagementPanel({
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   required
-                  className="w-full border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Email
                 </label>
                 <input
                   type="email"
                   value={editingUser.email}
                   disabled
-                  className="w-full border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 outline-none"
+                  className="w-full border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-2.5 text-sm text-[var(--tge-governance-muted-text)] outline-none"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Role
                 </label>
                 <select
@@ -804,7 +806,7 @@ export default function UserManagementPanel({
                   onChange={(e) =>
                     setEditRole(e.target.value as CanonicalUserRole)
                   }
-                  className="w-full border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 >
                   {ROLE_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -815,7 +817,7 @@ export default function UserManagementPanel({
               </div>
 
               <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                <label className={userAdminClass.label}>
                   Reset Password
                 </label>
                 <input
@@ -823,9 +825,9 @@ export default function UserManagementPanel({
                   value={editPassword}
                   onChange={(e) => setEditPassword(e.target.value)}
                   placeholder="Leave blank to keep current password"
-                  className="w-full border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-[#8dc63f]"
+                  className={`w-full px-4 py-2.5 text-sm ${userAdminClass.input}`}
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className={`mt-1 text-xs ${userAdminClass.muted}`}>
                   Enter a new temporary password only if you want to reset it.
                 </p>
               </div>
@@ -834,7 +836,7 @@ export default function UserManagementPanel({
                 <button
                   type="button"
                   onClick={closeEditModal}
-                  className="inline-flex h-[40px] items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                  className={`inline-flex h-[40px] items-center justify-center px-4 text-sm font-semibold ${userAdminClass.secondaryButton}`}
                 >
                   Cancel
                 </button>
@@ -855,18 +857,18 @@ export default function UserManagementPanel({
 
       {deactivateUserId ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-4">
-          <div className="w-full max-w-[520px] border border-gray-200 bg-white shadow-xl">
-            <div className="border-b border-gray-200 bg-[#fff6f6] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#7f1d1d]">
+          <div className={`w-full max-w-[520px] shadow-xl ${userAdminClass.panel}`}>
+            <div className="border-b border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-6 py-4">
+              <h2 className="text-xl font-bold text-[var(--tge-governance-danger-text)]">
                 Deactivate User
               </h2>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-[var(--tge-governance-danger-text)]">
                 This will remove login access, but historical edit information
                 will remain unchanged in the database.
               </p>
             </div>
 
-            <div className="space-y-4 px-6 py-5 text-sm leading-6 text-gray-600">
+            <div className={`space-y-4 px-6 py-5 text-sm leading-6 ${userAdminClass.body}`}>
               <p>
                 The user will no longer be able to sign in once deactivated.
               </p>
@@ -876,11 +878,11 @@ export default function UserManagementPanel({
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-end gap-3 border-t border-[var(--tge-governance-neutral-border)] px-6 py-4">
               <button
                 type="button"
                 onClick={() => setDeactivateUserId(null)}
-                className="inline-flex h-[40px] items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className={`inline-flex h-[40px] items-center justify-center px-4 text-sm font-semibold ${userAdminClass.secondaryButton}`}
               >
                 Cancel
               </button>
@@ -889,7 +891,7 @@ export default function UserManagementPanel({
                 type="button"
                 onClick={confirmDeactivate}
                 disabled={isPending}
-                className="inline-flex h-[40px] items-center justify-center border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className={`inline-flex h-[40px] items-center justify-center px-4 text-sm font-semibold ${userAdminClass.dangerButton}`}
               >
                 {isPending ? "Deactivating..." : "Deactivate User"}
               </button>
@@ -900,17 +902,17 @@ export default function UserManagementPanel({
 
       {reactivateUserId ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-4">
-          <div className="w-full max-w-[520px] border border-gray-200 bg-white shadow-xl">
-            <div className="border-b border-gray-200 bg-[#f5faef] px-6 py-4">
-              <h2 className="text-xl font-bold text-[#2e6b1f]">
+          <div className={`w-full max-w-[520px] shadow-xl ${userAdminClass.panel}`}>
+            <div className="border-b border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-6 py-4">
+              <h2 className="text-xl font-bold text-[var(--tge-governance-success-text)]">
                 Reactivate User
               </h2>
-              <p className="mt-1 text-sm text-gray-600">
+              <p className="mt-1 text-sm text-[var(--tge-governance-success-text)]">
                 This restores login access for the selected user account.
               </p>
             </div>
 
-            <div className="space-y-4 px-6 py-5 text-sm leading-6 text-gray-600">
+            <div className={`space-y-4 px-6 py-5 text-sm leading-6 ${userAdminClass.body}`}>
               <p>
                 The user will be able to sign in again with their current
                 password once reactivated.
@@ -921,11 +923,11 @@ export default function UserManagementPanel({
               </p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-end gap-3 border-t border-[var(--tge-governance-neutral-border)] px-6 py-4">
               <button
                 type="button"
                 onClick={() => setReactivateUserId(null)}
-                className="inline-flex h-[40px] items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className={`inline-flex h-[40px] items-center justify-center px-4 text-sm font-semibold ${userAdminClass.secondaryButton}`}
               >
                 Cancel
               </button>
@@ -934,7 +936,7 @@ export default function UserManagementPanel({
                 type="button"
                 onClick={confirmReactivate}
                 disabled={isPending}
-                className="inline-flex h-[40px] items-center justify-center border border-[#b7df72] bg-[#eef8dc] px-4 text-sm font-semibold text-[#2e6b1f] transition hover:bg-[#e2f2c7] disabled:cursor-not-allowed disabled:opacity-60"
+                className={`inline-flex h-[40px] items-center justify-center px-4 text-sm font-semibold ${userAdminClass.successButton}`}
               >
                 {isPending ? "Reactivating..." : "Reactivate User"}
               </button>
