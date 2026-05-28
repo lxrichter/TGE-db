@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { ReactNode } from "react";
-import { canAccessAdmin, type UserRole } from "@/lib/auth/roles";
+import { canAccessAdmin, canManageUsers, type UserRole } from "@/lib/auth/roles";
 import GlobalCommandPalette from "@/components/search/GlobalCommandPalette";
 
 function isActivePath(pathname: string, href: string) {
@@ -133,6 +133,7 @@ export default function AppHeaderShell({
   const role = (session?.user as { role?: UserRole | string | null } | undefined)
     ?.role;
   const showAdmin = canAccessAdmin(role);
+  const showUserAdmin = canManageUsers(role);
 
   return (
     <>
@@ -210,6 +211,14 @@ export default function AppHeaderShell({
                 <NavItem
                   href="/admin"
                   label="Admin"
+                  pathname={pathname}
+                  prefetch={false}
+                />
+              ) : null}
+              {showUserAdmin ? (
+                <NavItem
+                  href="/admin/users"
+                  label="Users"
                   pathname={pathname}
                   prefetch={false}
                 />

@@ -107,6 +107,12 @@ const commandShortcuts = [
   },
   {
     group: "Platform / Admin",
+    label: "Admin Users",
+    href: "/admin/users",
+    note: "Create users, assign roles, reset passwords, and deactivate access.",
+  },
+  {
+    group: "Platform / Admin",
     label: "Admin Vocabularies",
     href: "/admin/vocabularies",
     note: "Govern controlled reference terms and active taxonomy labels.",

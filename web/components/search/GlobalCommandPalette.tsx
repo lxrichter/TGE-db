@@ -190,6 +190,14 @@ const adminCommands: CommandItem[] = [
   },
   {
     type: "command",
+    key: "admin-users",
+    group: "Platform / Admin",
+    label: "Manage Users",
+    note: "Create users, assign roles, reset passwords, and deactivate access.",
+    href: "/admin/users",
+  },
+  {
+    type: "command",
     key: "admin-vocabularies",
     group: "Platform / Admin",
     label: "Manage Vocabularies",
