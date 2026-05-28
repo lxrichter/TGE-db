@@ -13,6 +13,7 @@ import { SOURCE_FACT_TYPE_PRESETS } from "@/lib/sourceFactTypePresets";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 import { listArticleFactCandidateStatusOptions } from "@/lib/services/article-facts";
 import { getSourceReferenceData } from "@/lib/services/sources";
+import { getUserSummary } from "@/lib/db/users";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -234,7 +235,10 @@ export default async function AdminPage() {
     redirect("/");
   }
 
-  const governanceSnapshot = await getGovernanceSnapshot();
+  const [governanceSnapshot, userSummary] = await Promise.all([
+    getGovernanceSnapshot(),
+    isUserManager ? getUserSummary() : Promise.resolve(null),
+  ]);
 
   return (
     <main className="space-y-8">
@@ -274,6 +278,7 @@ export default async function AdminPage() {
 
         <div className="border-t border-gray-200 bg-white px-6 py-4 md:px-8">
           <div className="flex flex-wrap gap-3">
+            {isUserManager ? <TocLink href="#access" label="User Access" /> : null}
             <TocLink href="#workflow" label="Workflow" />
             <TocLink href="#governance" label="Governance" />
             <TocLink href="#classification" label="Company Logic" />
@@ -284,6 +289,58 @@ export default async function AdminPage() {
           </div>
         </div>
       </section>
+
+      {isUserManager && userSummary ? (
+        <SectionCard
+          id="access"
+          title="Platform Access Snapshot"
+          description="Administrator-only overview of user access before managing accounts, roles, and deactivation."
+        >
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <GovernanceMetric
+              label="Total Users"
+              value={userSummary.total}
+              note="All user accounts stored in the platform"
+            />
+            <GovernanceMetric
+              label="Active Users"
+              value={userSummary.active}
+              note="Users currently able to sign in"
+            />
+            <GovernanceMetric
+              label="Admins"
+              value={userSummary.admins}
+              note="Full access including users and vocabularies"
+            />
+            <GovernanceMetric
+              label="Editors"
+              value={userSummary.editors}
+              note="Review, approval, and export-capable users"
+            />
+            <GovernanceMetric
+              label="Researchers"
+              value={userSummary.researchers}
+              note="Research, draft, and data-entry users"
+            />
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-3 xl:grid-cols-[1fr_1fr_0.75fr]">
+            <GovernanceRule
+              title="Admin-only account control"
+              text="Only administrators can add users, reset passwords, change roles, or deactivate access."
+            />
+            <GovernanceRule
+              title="Role-aware platform"
+              text="Navigation and actions increasingly separate researcher, editor, senior editor, admin, and future subscriber experiences."
+            />
+            <div className="flex items-center justify-start border border-gray-200 bg-[#fafafa] px-4 py-3 xl:justify-end">
+              <ActionButton href="/admin/users" variant="primary">
+                Manage Users
+              </ActionButton>
+            </div>
+          </div>
+        </SectionCard>
+      ) : null}
 
       <SectionCard
         id="governance"
