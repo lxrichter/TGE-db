@@ -8,17 +8,14 @@ import {
   useRef,
   useState,
 } from "react";
+import type { UserRole } from "@/lib/auth/roles";
+import { getVisiblePlatformCommandItems } from "@/lib/platform-navigation";
 import type { GlobalSearchResult } from "@/lib/services/global-search";
-
-type CommandGroup =
-  | "Intelligence / Research"
-  | "Research Operations"
-  | "Platform / Admin";
 
 type CommandItem = {
   type: "command";
   key: string;
-  group: CommandGroup;
+  group: string;
   label: string;
   note: string;
   href: string;
@@ -31,188 +28,6 @@ type ResultItem = {
 };
 
 type PaletteItem = CommandItem | ResultItem;
-
-const baseCommands: CommandItem[] = [
-  {
-    type: "command",
-    key: "dashboard",
-    group: "Intelligence / Research",
-    label: "Open Dashboard",
-    note: "Executive geothermal intelligence overview.",
-    href: "/",
-  },
-  {
-    type: "command",
-    key: "markets",
-    group: "Intelligence / Research",
-    label: "Open Markets",
-    note: "Market intelligence, country worklists, and source-gap signals.",
-    href: "/postgres-preview/markets",
-  },
-  {
-    type: "command",
-    key: "analysis",
-    group: "Intelligence / Research",
-    label: "Open Analysis",
-    note: "Cross-database benchmarking and geothermal intelligence analysis.",
-    href: "/postgres-preview/analysis",
-  },
-  {
-    type: "command",
-    key: "map",
-    group: "Intelligence / Research",
-    label: "Open Map",
-    note: "Spatial intelligence for coordinate-confirmed projects and plants.",
-    href: "/postgres-preview/map",
-  },
-  {
-    type: "command",
-    key: "projects",
-    group: "Intelligence / Research",
-    label: "Open Projects",
-    note: "Review and edit the development pipeline.",
-    href: "/postgres-preview/projects",
-  },
-  {
-    type: "command",
-    key: "operating-assets",
-    group: "Intelligence / Research",
-    label: "Open Plants",
-    note: "Review plants, units, direct-use plants, and capacity.",
-    href: "/postgres-preview/operating-assets",
-  },
-  {
-    type: "command",
-    key: "companies",
-    group: "Intelligence / Research",
-    label: "Open Companies",
-    note: "Review companies, roles, ownership, and evidence.",
-    href: "/postgres-preview/companies",
-  },
-  {
-    type: "command",
-    key: "research-ops",
-    group: "Research Operations",
-    label: "Open Research Ops",
-    note: "Queues, missing data, assignments, validation, and review actions.",
-    href: "/postgres-preview/research-ops",
-  },
-  {
-    type: "command",
-    key: "sources",
-    group: "Research Operations",
-    label: "Open Sources / Documents",
-    note: "Manage governed sources and evidence.",
-    href: "/sources",
-  },
-  {
-    type: "command",
-    key: "add-source",
-    group: "Research Operations",
-    label: "Add Source",
-    note: "Create a governed source/evidence entry.",
-    href: "/sources/new",
-  },
-  {
-    type: "command",
-    key: "article-matches",
-    group: "Research Operations",
-    label: "Review Article Matches",
-    note: "Confirm or reject article-to-entity candidates.",
-    href: "/sources/matches",
-  },
-  {
-    type: "command",
-    key: "article-facts",
-    group: "Research Operations",
-    label: "Review Article Facts",
-    note: "Train and review compact extracted article fact candidates.",
-    href: "/sources/facts",
-  },
-  {
-    type: "command",
-    key: "field-suggestions",
-    group: "Research Operations",
-    label: "Review Field Suggestions",
-    note: "Open human-confirmed AI field suggestions in Research Ops.",
-    href: "/postgres-preview/research-ops#field-suggestion-review",
-  },
-  {
-    type: "command",
-    key: "add-project",
-    group: "Research Operations",
-    label: "Add Project",
-    note: "Create a project pipeline entry.",
-    href: "/postgres-preview/projects/new",
-  },
-  {
-    type: "command",
-    key: "add-asset",
-    group: "Research Operations",
-    label: "Add Plant",
-    note: "Create a plant, unit, or direct-use plant.",
-    href: "/postgres-preview/operating-assets/new",
-  },
-  {
-    type: "command",
-    key: "add-company",
-    group: "Research Operations",
-    label: "Add Company",
-    note: "Create a company, group, supplier, operator, or investor.",
-    href: "/postgres-preview/companies/new",
-  },
-  {
-    type: "command",
-    key: "command-center",
-    group: "Platform / Admin",
-    label: "Open Command Center",
-    note: "Operational navigation across PostgreSQL staging modules.",
-    href: "/postgres-preview",
-  },
-  {
-    type: "command",
-    key: "readiness",
-    group: "Platform / Admin",
-    label: "Open Replacement Readiness",
-    note: "Cutover signals, data quality gates, and migration readiness.",
-    href: "/postgres-preview/readiness",
-  },
-];
-
-const adminCommands: CommandItem[] = [
-  {
-    type: "command",
-    key: "admin",
-    group: "Platform / Admin",
-    label: "Open Admin",
-    note: "Govern users, permissions, and platform controls.",
-    href: "/admin",
-  },
-  {
-    type: "command",
-    key: "design-readiness",
-    group: "Platform / Admin",
-    label: "Open Design Readiness",
-    note: "Review role entry points, semantic color language, and design-phase decisions.",
-    href: "/admin#design-readiness",
-  },
-  {
-    type: "command",
-    key: "admin-users",
-    group: "Platform / Admin",
-    label: "Manage Users",
-    note: "Create users, assign roles, reset passwords, and deactivate access.",
-    href: "/admin/users",
-  },
-  {
-    type: "command",
-    key: "admin-vocabularies",
-    group: "Platform / Admin",
-    label: "Manage Vocabularies",
-    note: "Edit controlled taxonomy labels, ordering, and active terms.",
-    href: "/admin/vocabularies",
-  },
-];
 
 function entityTypeLabel(value: GlobalSearchResult["entity_type"]) {
   if (value === "operating_asset") {
@@ -260,9 +75,9 @@ async function readJson(res: Response) {
 }
 
 export default function GlobalCommandPalette({
-  showAdmin,
+  role,
 }: {
-  showAdmin: boolean;
+  role?: UserRole | string | null;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -273,8 +88,16 @@ export default function GlobalCommandPalette({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const commands = useMemo(
-    () => (showAdmin ? [...baseCommands, ...adminCommands] : baseCommands),
-    [showAdmin]
+    () =>
+      getVisiblePlatformCommandItems(role).map((item) => ({
+        type: "command" as const,
+        key: item.key,
+        group: item.groupLabel,
+        label: item.commandLabel,
+        note: item.note,
+        href: item.href,
+      })),
+    [role]
   );
   const visibleCommands = useMemo(
     () => commands.filter((command) => itemMatchesQuery(command, query)).slice(0, 6),

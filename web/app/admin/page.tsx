@@ -23,6 +23,7 @@ import {
   semanticDesignRules,
 } from "@/lib/design-readiness";
 import { designTokenGroups } from "@/lib/design-tokens";
+import { platformNavigationGroups } from "@/lib/platform-navigation";
 import { SOURCE_FACT_TYPE_PRESETS } from "@/lib/sourceFactTypePresets";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 import { listArticleFactCandidateStatusOptions } from "@/lib/services/article-facts";
@@ -317,6 +318,45 @@ function DesignReadinessOverview() {
         groups={["lifecycle", "review", "severity", "source", "confidence"]}
         title="Current Semantic Status Language"
       />
+
+      <div className="border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Navigation Architecture
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-gray-500">
+            Doctrine-aligned grouping for the current top nav and future
+            left-side navigation.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 xl:grid-cols-3">
+          {platformNavigationGroups.map((group) => (
+            <div key={group.id} className="border border-gray-200 bg-[#fafafa] p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                {group.label}
+              </div>
+              <h4 className="mt-2 text-sm font-bold text-[#1f2937]">
+                {group.doctrineLayer}
+              </h4>
+              <p className="mt-2 text-xs leading-5 text-gray-600">
+                {group.designIntent}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {group.items
+                  .filter((item) => item.showInHeader)
+                  .map((item) => (
+                    <span
+                      key={item.key}
+                      className="border border-gray-200 bg-white px-2 py-1 text-[11px] font-semibold text-gray-600"
+                    >
+                      {item.label}
+                    </span>
+                  ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-5">
         {semanticDesignRules.map((rule) => (

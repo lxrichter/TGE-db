@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import type { ReactNode } from "react";
-import { canAccessAdmin, canManageUsers, type UserRole } from "@/lib/auth/roles";
+import type { UserRole } from "@/lib/auth/roles";
 import GlobalCommandPalette from "@/components/search/GlobalCommandPalette";
+import { getVisiblePlatformNavigationGroups } from "@/lib/platform-navigation";
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -65,7 +66,7 @@ function NavGroup({
   );
 }
 
-function UserContextBar({ showAdmin }: { showAdmin: boolean }) {
+function UserContextBar({ role }: { role?: UserRole | string | null }) {
   const { data: session } = useSession();
 
   if (!session?.user) {
@@ -101,7 +102,7 @@ function UserContextBar({ showAdmin }: { showAdmin: boolean }) {
             Search
           </button>
         </form>
-        <GlobalCommandPalette showAdmin={showAdmin} />
+        <GlobalCommandPalette role={role} />
         <div className="flex items-center gap-4 text-[12px]">
           <span className="font-medium text-[#1f2937]">
             {user.name || "User"}
@@ -132,8 +133,9 @@ export default function AppHeaderShell({
   const { data: session } = useSession();
   const role = (session?.user as { role?: UserRole | string | null } | undefined)
     ?.role;
-  const showAdmin = canAccessAdmin(role);
-  const showUserAdmin = canManageUsers(role);
+  const navigationGroups = getVisiblePlatformNavigationGroups(role, {
+    target: "header",
+  });
 
   return (
     <>
@@ -159,76 +161,28 @@ export default function AppHeaderShell({
           </div>
 
           <nav className="flex min-w-0 items-end gap-4 overflow-x-auto text-sm">
-            <NavGroup isFirst label="Intelligence / Research">
-              <NavItem href="/" label="Dashboard" pathname={pathname} />
-              <NavItem
-                href="/postgres-preview/markets"
-                label="Markets"
-                pathname={pathname}
-              />
-              <NavItem
-                href="/postgres-preview/analysis"
-                label="Analysis"
-                pathname={pathname}
-              />
-              <NavItem href="/postgres-preview/map" label="Map" pathname={pathname} />
-              <NavItem
-                href="/postgres-preview/projects"
-                label="Projects"
-                pathname={pathname}
-              />
-              <NavItem
-                href="/postgres-preview/operating-assets"
-                label="Plants"
-                pathname={pathname}
-              />
-              <NavItem
-                href="/postgres-preview/companies"
-                label="Companies"
-                pathname={pathname}
-              />
-            </NavGroup>
-
-            <NavGroup label="Research Operations">
-              <NavItem
-                href="/postgres-preview/research-ops"
-                label="Research Ops"
-                pathname={pathname}
-              />
-              <NavItem href="/sources" label="Sources" pathname={pathname} />
-              <NavItem href="/sources/matches" label="Matches" pathname={pathname} />
-              <NavItem href="/sources/facts" label="Facts" pathname={pathname} />
-            </NavGroup>
-
-            <NavGroup label="Platform / Admin">
-              <NavItem href="/postgres-preview" label="Command" pathname={pathname} />
-              <NavItem
-                href="/postgres-preview/readiness"
-                label="Readiness"
-                pathname={pathname}
-              />
-              {showAdmin ? (
-                <NavItem
-                  href="/admin"
-                  label="Admin"
-                  pathname={pathname}
-                  prefetch={false}
-                />
-              ) : null}
-              {showUserAdmin ? (
-                <NavItem
-                  href="/admin/users"
-                  label="Users"
-                  pathname={pathname}
-                  prefetch={false}
-                />
-              ) : null}
-            </NavGroup>
+            {navigationGroups.map((group, index) => (
+              <NavGroup
+                key={group.id}
+                isFirst={index === 0}
+                label={group.label}
+              >
+                {group.items.map((item) => (
+                  <NavItem
+                    key={item.key}
+                    href={item.href}
+                    label={item.label}
+                    pathname={pathname}
+                    prefetch={item.access ? false : true}
+                  />
+                ))}
+              </NavGroup>
+            ))}
           </nav>
         </div>
       </header>
 
-      <UserContextBar showAdmin={showAdmin} />
+      <UserContextBar role={role} />
 
       <div className="mx-auto max-w-[1600px] px-8 py-10">{children}</div>
     </>
