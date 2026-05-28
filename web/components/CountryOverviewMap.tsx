@@ -33,8 +33,21 @@ function popupAccentClass(type: "plant" | "project") {
     : "tge-map-popup tge-map-popup--project";
 }
 
+function cssToken(name: string, fallback: string) {
+  if (typeof window === "undefined") {
+    return fallback;
+  }
+
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
+    fallback
+  );
+}
+
 function markerColor(type: "plant" | "project") {
-  return type === "plant" ? "#64A542" : "#E8A56C";
+  return type === "plant"
+    ? cssToken("--tge-map-marker-plant", "#64a542")
+    : cssToken("--tge-map-marker-project", "#e8a56c");
 }
 
 function normalizePopupPhase(value: string | null, type: "plant" | "project") {
@@ -68,25 +81,35 @@ function popupPhaseBadgeStyle(phase: string) {
     "display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:4px 12px;font-size:11px;font-weight:600;line-height:1;border:1px solid transparent;";
 
   if (normalized.includes("prospect")) {
-    style += "background:#94a3b8;border-color:#94a3b8;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-prospect-bg);border-color:var(--tge-lifecycle-prospect-border);color:var(--tge-lifecycle-prospect-text);";
   } else if (normalized.includes("exploration")) {
-    style += "background:#f59e0b;border-color:#f59e0b;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-exploration-bg);border-color:var(--tge-lifecycle-exploration-border);color:var(--tge-lifecycle-exploration-text);";
   } else if (normalized.includes("pre-feasibility")) {
-    style += "background:#84cc16;border-color:#84cc16;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-pre-feasibility-bg);border-color:var(--tge-lifecycle-pre-feasibility-border);color:var(--tge-lifecycle-pre-feasibility-text);";
   } else if (normalized.includes("feasibility")) {
-    style += "background:#3b82f6;border-color:#3b82f6;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-feasibility-bg);border-color:var(--tge-lifecycle-feasibility-border);color:var(--tge-lifecycle-feasibility-text);";
   } else if (normalized.includes("construction")) {
-    style += "background:#14b8a6;border-color:#14b8a6;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-construction-bg);border-color:var(--tge-lifecycle-construction-border);color:var(--tge-lifecycle-construction-text);";
   } else if (normalized.includes("operating")) {
-    style += "background:#8dc63f;border-color:#8dc63f;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-operating-bg);border-color:var(--tge-lifecycle-operating-border);color:var(--tge-lifecycle-operating-text);";
   } else if (normalized.includes("stalled")) {
-    style += "background:#f97316;border-color:#f97316;color:#ffffff;";
+    style +=
+      "background:var(--tge-governance-attention-bg);border-color:var(--tge-governance-attention-border);color:var(--tge-governance-attention-text);";
   } else if (normalized.includes("cancelled")) {
-    style += "background:#dc2626;border-color:#dc2626;color:#ffffff;";
+    style +=
+      "background:var(--tge-lifecycle-cancelled-bg);border-color:var(--tge-lifecycle-cancelled-border);color:var(--tge-lifecycle-cancelled-text);";
   } else if (normalized.includes("tbd")) {
-    style += "background:#f1f5f9;border-color:#e2e8f0;color:#475569;";
+    style +=
+      "background:var(--tge-governance-muted-bg);border-color:var(--tge-governance-muted-border);color:var(--tge-governance-muted-text);";
   } else {
-    style += "background:#e2e8f0;border-color:#cbd5e1;color:#475569;";
+    style +=
+      "background:var(--tge-governance-neutral-bg);border-color:var(--tge-governance-neutral-border);color:var(--tge-governance-neutral-text);";
   }
 
   return style;
@@ -304,7 +327,7 @@ export default function CountryOverviewMap({
 
         L.circleMarker([lat, lng], {
           radius: 7,
-          color: "#ffffff",
+          color: cssToken("--tge-map-marker-stroke", "#ffffff"),
           weight: 1.5,
           fillColor: markerColor(point.type),
           fillOpacity: 1,
@@ -345,9 +368,11 @@ export default function CountryOverviewMap({
   }, []);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-        <h2 className="text-xl font-bold text-[#1f2937]">Country Market Map</h2>
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex items-center justify-between border-b border-[var(--tge-governance-neutral-border)] px-6 py-4">
+        <h2 className="text-xl font-bold text-[var(--tge-text-primary)]">
+          Country Market Map
+        </h2>
 
         <div className="flex gap-2">
           <button
@@ -355,8 +380,8 @@ export default function CountryOverviewMap({
             onClick={() => setViewMode("map")}
             className={`border px-3 py-1.5 text-xs font-semibold transition ${
               viewMode === "map"
-                ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
-                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                ? "border-[var(--tge-brand-dark)] bg-[var(--tge-brand-dark)] text-[var(--tge-surface-card)]"
+                : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
             }`}
           >
             Map
@@ -367,8 +392,8 @@ export default function CountryOverviewMap({
             onClick={() => setViewMode("satellite")}
             className={`border px-3 py-1.5 text-xs font-semibold transition ${
               viewMode === "satellite"
-                ? "border-[#2a2a2a] bg-[#2a2a2a] text-white"
-                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                ? "border-[var(--tge-brand-dark)] bg-[var(--tge-brand-dark)] text-[var(--tge-surface-card)]"
+                : "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
             }`}
           >
             Satellite
@@ -378,13 +403,13 @@ export default function CountryOverviewMap({
 
       <div className="p-6">
         {validPoints.length === 0 ? (
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-[var(--tge-governance-muted-text)]">
             No mapped plant or project coordinates available for {country}.
           </div>
         ) : (
           <div
             ref={mapRef}
-            className="border border-gray-200"
+            className="border border-[var(--tge-governance-neutral-border)]"
             style={{ height: "420px", width: "100%" }}
           />
         )}
