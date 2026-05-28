@@ -63,6 +63,63 @@ export async function GET() {
     FROM plants
   `);
 
+  const rawTechnologyValues = new Set<string>();
+  const rawSupplierValues = new Set<string>();
+
+  const coverage = rows.reduce(
+    (acc: any, row: any) => {
+      const technologyRaw = String(row.plant_technology ?? "").trim();
+      const supplierRaw = String(row.turbine_supplier ?? "").trim();
+      const installed = toNumber(row.installed_capacity_mw);
+      const running = toNumber(row.capacity_running_mw);
+      const units = toNumber(row.number_of_unit);
+
+      acc.plant_count += 1;
+
+      if (installed > 0) acc.plants_with_installed_mwe += 1;
+      if (running > 0) acc.plants_with_running_mwe += 1;
+      if (units > 0) acc.plants_with_unit_count += 1;
+
+      if (technologyRaw) {
+        rawTechnologyValues.add(technologyRaw);
+        acc.plants_with_technology += 1;
+
+        if (normalizeTechnology(technologyRaw) === "tbd") {
+          acc.plants_unmapped_technology += 1;
+        }
+      }
+
+      if (supplierRaw) {
+        rawSupplierValues.add(supplierRaw);
+        acc.plants_with_supplier += 1;
+      }
+
+      return acc;
+    },
+    {
+      plant_count: 0,
+      plants_with_installed_mwe: 0,
+      plants_with_running_mwe: 0,
+      plants_with_unit_count: 0,
+      plants_with_technology: 0,
+      plants_unmapped_technology: 0,
+      plants_with_supplier: 0,
+    }
+  );
+
+  coverage.plants_missing_installed_mwe =
+    coverage.plant_count - coverage.plants_with_installed_mwe;
+  coverage.plants_missing_running_mwe =
+    coverage.plant_count - coverage.plants_with_running_mwe;
+  coverage.plants_missing_unit_count =
+    coverage.plant_count - coverage.plants_with_unit_count;
+  coverage.plants_missing_technology =
+    coverage.plant_count - coverage.plants_with_technology;
+  coverage.plants_missing_supplier =
+    coverage.plant_count - coverage.plants_with_supplier;
+  coverage.technology_values_seen = rawTechnologyValues.size;
+  coverage.supplier_values_seen = rawSupplierValues.size;
+
   const totalInstalled = rows.reduce(
     (sum: number, row: any) => sum + toNumber(row.installed_capacity_mw),
     0
@@ -214,6 +271,7 @@ export async function GET() {
   `)) as SupplierByCountryRow[];
 
   return NextResponse.json({
+    coverage,
     technologyOrder: TECHNOLOGY_ORDER,
     technologySummary,
     supplierSummary,

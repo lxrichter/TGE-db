@@ -37,7 +37,25 @@ type CountryRow = {
   [key: string]: string | number;
 };
 
+type CoverageSummary = {
+  plant_count: number;
+  plants_with_installed_mwe: number;
+  plants_missing_installed_mwe: number;
+  plants_with_running_mwe: number;
+  plants_missing_running_mwe: number;
+  plants_with_unit_count: number;
+  plants_missing_unit_count: number;
+  plants_with_technology: number;
+  plants_missing_technology: number;
+  plants_unmapped_technology: number;
+  plants_with_supplier: number;
+  plants_missing_supplier: number;
+  technology_values_seen: number;
+  supplier_values_seen: number;
+};
+
 type TurbineApiResponse = {
+  coverage: CoverageSummary;
   technologyOrder: string[];
   technologySummary: TechnologySummaryRow[];
   supplierSummary: SupplierSummaryRow[];
@@ -113,6 +131,79 @@ function formatNumber(value: number, digits = 1) {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
+}
+
+function coveragePct(value: number, total: number) {
+  return total > 0 ? Math.round((value / total) * 100) : 0;
+}
+
+function CoveragePanel({
+  title,
+  description,
+  items,
+}: {
+  title: string;
+  description: string;
+  items: {
+    label: string;
+    value: number;
+    total?: number;
+    tone?: "default" | "warning";
+  }[];
+}) {
+  return (
+    <section className="border border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-[#6b8f2a]">
+          Analysis Coverage
+        </div>
+        <h2 className="mt-1 text-base font-bold text-[#1f2937]">{title}</h2>
+        <p className="mt-1 text-xs text-gray-500">{description}</p>
+      </div>
+      <div className="grid grid-cols-1 divide-y divide-gray-100 md:grid-cols-2 md:divide-x md:divide-y-0">
+        {items.map((item) => {
+          const percent =
+            typeof item.total === "number"
+              ? coveragePct(item.value, item.total)
+              : null;
+
+          return (
+            <div key={item.label} className="px-5 py-3">
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                {item.label}
+              </div>
+              <div
+                className={
+                  item.tone === "warning"
+                    ? "mt-1 text-2xl font-bold text-[#b45309]"
+                    : "mt-1 text-2xl font-bold text-[#1f2937]"
+                }
+              >
+                {formatNumber(item.value, 0)}
+              </div>
+              {percent !== null ? (
+                <div className="mt-2 h-1.5 overflow-hidden bg-gray-100">
+                  <div
+                    className={
+                      item.tone === "warning"
+                        ? "h-full bg-[#f59e0b]"
+                        : "h-full bg-[#8dc63f]"
+                    }
+                    style={{ width: `${Math.min(percent, 100)}%` }}
+                  />
+                </div>
+              ) : null}
+              {percent !== null ? (
+                <div className="mt-1 text-xs text-gray-500">
+                  {percent}% of plant rows
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function SortableHeader({
@@ -619,6 +710,7 @@ export default function TurbineTechnologyPage() {
   const kpis = useMemo(() => {
     if (!data) {
       return {
+        plants: 0,
         technologies: 0,
         suppliers: 0,
         countries: 0,
@@ -627,6 +719,7 @@ export default function TurbineTechnologyPage() {
     }
 
     return {
+      plants: data.coverage.plant_count,
       technologies: data.technologySummary.length,
       suppliers: data.supplierSummary.length,
       countries: data.technologyByCountryMw.length,
@@ -738,13 +831,24 @@ export default function TurbineTechnologyPage() {
       <AnalysisModuleHero
         module={turbineTechnologyModule}
         scopeItems={[
+          { value: kpis.plants, label: "Plants Analyzed" },
           { value: kpis.technologies, label: "Technologies" },
           { value: kpis.suppliers, label: "Suppliers" },
           { value: kpis.countries, label: "Country Markets" },
           { value: `${formatNumber(kpis.installed)} MWe`, label: "Installed" },
         ]}
       >
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-5">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                Plants Analyzed
+              </div>
+              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
+                {kpis.plants}
+              </div>
+              <div className="mt-1 text-xs text-gray-500">Plant profiles in scope</div>
+            </div>
+
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                 Technologies
@@ -786,6 +890,77 @@ export default function TurbineTechnologyPage() {
             </div>
           </div>
       </AnalysisModuleHero>
+
+      <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <CoveragePanel
+          title="Capacity & Unit Coverage"
+          description="Shows whether the plant fields needed for installed MWe, operating MWe, and unit-based averages are complete enough for analysis."
+          items={[
+            {
+              label: "With Installed MWe",
+              value: data.coverage.plants_with_installed_mwe,
+              total: data.coverage.plant_count,
+            },
+            {
+              label: "Missing Installed MWe",
+              value: data.coverage.plants_missing_installed_mwe,
+              total: data.coverage.plant_count,
+              tone: "warning",
+            },
+            {
+              label: "With Unit Count",
+              value: data.coverage.plants_with_unit_count,
+              total: data.coverage.plant_count,
+            },
+            {
+              label: "With Running MWe",
+              value: data.coverage.plants_with_running_mwe,
+              total: data.coverage.plant_count,
+            },
+            {
+              label: "Missing Running MWe",
+              value: data.coverage.plants_missing_running_mwe,
+              total: data.coverage.plant_count,
+              tone: "warning",
+            },
+            {
+              label: "Missing Unit Count",
+              value: data.coverage.plants_missing_unit_count,
+              total: data.coverage.plant_count,
+              tone: "warning",
+            },
+          ]}
+        />
+
+        <CoveragePanel
+          title="Technology & Supplier Coverage"
+          description="Flags where turbine technology and supplier fields still need cleanup before deeper benchmarking."
+          items={[
+            {
+              label: "With Technology",
+              value: data.coverage.plants_with_technology,
+              total: data.coverage.plant_count,
+            },
+            {
+              label: "Unmapped Technology",
+              value: data.coverage.plants_unmapped_technology,
+              total: data.coverage.plant_count,
+              tone: "warning",
+            },
+            {
+              label: "With Supplier",
+              value: data.coverage.plants_with_supplier,
+              total: data.coverage.plant_count,
+            },
+            {
+              label: "Missing Supplier",
+              value: data.coverage.plants_missing_supplier,
+              total: data.coverage.plant_count,
+              tone: "warning",
+            },
+          ]}
+        />
+      </section>
 
       <section className="border border-gray-200 bg-white">
         <div className="border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
