@@ -1344,21 +1344,25 @@ export default function CompanyDetailPage() {
 
             {activeTab === "relationships" && (
               <TabSection title="Relationships">
-                <div className="mb-4 border border-gray-200 bg-[#fafafa] px-4 py-3 text-sm text-gray-600">
+                <div
+                  className={`mb-4 px-4 py-3 text-sm ${companyDetailClass.body} ${companyDetailClass.panelSubtle}`}
+                >
                   Parent-company hierarchy is managed in the Company Overview under Group / Parent Structure. This tab only shows explicit relationship records such as ownership, JV, affiliate, investor, and partner relationships.
                 </div>
                 <div className="grid gap-6 xl:grid-cols-2">
-                  <div className="border border-gray-200 bg-[#fafafa] px-5 py-4">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-600">
+                  <div className={`${companyDetailClass.panelSubtle} px-5 py-4`}>
+                    <h3
+                      className={`text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}
+                    >
                       Add Company Relationship
                     </h3>
                     <div className="mt-4 grid grid-cols-1 gap-4">
                       <div>
-                        <label className="mb-1 block text-sm font-semibold">
+                        <label className={companyDetailClass.label}>
                           Related Company
                         </label>
                         <select
-                          className="w-full border border-gray-300 bg-white px-3 py-2 text-sm"
+                          className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                           value={relationshipForm.company_id_to}
                           onChange={(e) =>
                             setRelationshipForm((prev) => ({
@@ -1381,11 +1385,11 @@ export default function CompanyDetailPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-semibold">
+                        <label className={companyDetailClass.label}>
                           Relationship Type
                         </label>
                         <input
-                          className="w-full border border-gray-300 px-3 py-2 text-sm"
+                          className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                           value={relationshipForm.relationship_type}
                           onChange={(e) =>
                             setRelationshipForm((prev) => ({
@@ -1397,11 +1401,11 @@ export default function CompanyDetailPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-semibold">
+                        <label className={companyDetailClass.label}>
                           Ownership %
                         </label>
                         <input
-                          className="w-full border border-gray-300 px-3 py-2 text-sm"
+                          className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                           value={relationshipForm.ownership_percentage}
                           onChange={(e) =>
                             setRelationshipForm((prev) => ({
@@ -1413,9 +1417,9 @@ export default function CompanyDetailPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-semibold">Notes</label>
+                        <label className={companyDetailClass.label}>Notes</label>
                         <input
-                          className="w-full border border-gray-300 px-3 py-2 text-sm"
+                          className={`w-full px-3 py-2 text-sm ${companyDetailClass.input}`}
                           value={relationshipForm.notes}
                           onChange={(e) =>
                             setRelationshipForm((prev) => ({
@@ -1428,7 +1432,9 @@ export default function CompanyDetailPage() {
                       </div>
                     </div>
                     <div className="mt-4 flex flex-wrap items-center gap-4">
-                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <label
+                        className={`flex items-center gap-2 text-sm ${companyDetailClass.body}`}
+                      >
                         <input
                           type="checkbox"
                           checked={relationshipForm.is_current}
@@ -1445,12 +1451,12 @@ export default function CompanyDetailPage() {
                         type="button"
                         onClick={addCompanyRelationship}
                         disabled={isLinkingRelationship}
-                        className="bg-[#8dc63f] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                        className={companyDetailClass.primaryButton}
                       >
                         {isLinkingRelationship ? "Adding..." : "Add Relationship"}
                       </button>
                       {relationshipMessage ? (
-                        <div className="text-sm font-medium text-[#1f2937]">
+                        <div className={`text-sm font-medium ${companyDetailClass.title}`}>
                           {relationshipMessage}
                         </div>
                       ) : null}
@@ -1459,30 +1465,34 @@ export default function CompanyDetailPage() {
 
                   <div className="space-y-6">
                     <div>
-                      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                      <h3
+                        className={`mb-3 text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}
+                      >
                         Outgoing Relationships
                       </h3>
                       <div className="space-y-2">
                         {data.relationships_outgoing.length === 0 ? (
-                          <div className="text-sm text-gray-500">
+                          <div className={`text-sm ${companyDetailClass.muted}`}>
                             No outgoing relationships recorded.
                           </div>
                         ) : (
                           data.relationships_outgoing.map((row) => (
                             <div
                               key={row.company_relationship_id}
-                              className="border border-gray-200 bg-[#fafafa] px-4 py-3"
+                              className={`${companyDetailClass.panelSubtle} px-4 py-3`}
                             >
-                              <div className="text-[13px] font-semibold text-[#1f2937]">
+                              <div
+                                className={`text-[13px] font-semibold ${companyDetailClass.title}`}
+                              >
                                 {row.relationship_type || "NA"} →{" "}
                                 {row.related_company_name || row.related_company_id || "NA"}
                               </div>
-                              <div className="mt-1 text-[12px] text-gray-600">
+                              <div className={`mt-1 text-[12px] ${companyDetailClass.body}`}>
                                 Ownership: {row.ownership_percentage ?? "NA"} | Current:{" "}
                                 {row.is_current ? "Yes" : "No"}
                               </div>
                               {row.notes ? (
-                                <div className="mt-1 text-[12px] text-gray-500">
+                                <div className={`mt-1 text-[12px] ${companyDetailClass.muted}`}>
                                   {row.notes}
                                 </div>
                               ) : null}
@@ -1493,30 +1503,34 @@ export default function CompanyDetailPage() {
                     </div>
 
                     <div>
-                      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-600">
+                      <h3
+                        className={`mb-3 text-sm font-semibold uppercase tracking-wide ${companyDetailClass.muted}`}
+                      >
                         Incoming Relationships
                       </h3>
                       <div className="space-y-2">
                         {data.relationships_incoming.length === 0 ? (
-                          <div className="text-sm text-gray-500">
+                          <div className={`text-sm ${companyDetailClass.muted}`}>
                             No incoming relationships recorded.
                           </div>
                         ) : (
                           data.relationships_incoming.map((row) => (
                             <div
                               key={row.company_relationship_id}
-                              className="border border-gray-200 bg-[#fafafa] px-4 py-3"
+                              className={`${companyDetailClass.panelSubtle} px-4 py-3`}
                             >
-                              <div className="text-[13px] font-semibold text-[#1f2937]">
+                              <div
+                                className={`text-[13px] font-semibold ${companyDetailClass.title}`}
+                              >
                                 {row.related_company_name || row.related_company_id || "NA"} →{" "}
                                 {row.relationship_type || "NA"}
                               </div>
-                              <div className="mt-1 text-[12px] text-gray-600">
+                              <div className={`mt-1 text-[12px] ${companyDetailClass.body}`}>
                                 Ownership: {row.ownership_percentage ?? "NA"} | Current:{" "}
                                 {row.is_current ? "Yes" : "No"}
                               </div>
                               {row.notes ? (
-                                <div className="mt-1 text-[12px] text-gray-500">
+                                <div className={`mt-1 text-[12px] ${companyDetailClass.muted}`}>
                                   {row.notes}
                                 </div>
                               ) : null}
