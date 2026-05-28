@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import {
   analysisCategoryLabels,
   analysisDefinitionProtocol,
+  analysisGovernanceQaCategories,
   analysisModules,
   analysisStatusDescriptions,
   analysisStatusLabels,
@@ -51,6 +52,46 @@ function DetailList({ items }: { items?: string[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+function GovernanceQaChecklist() {
+  return (
+    <section className="border border-amber-200 bg-white">
+      <div className="border-b border-amber-200 bg-amber-50 px-5 py-3">
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+          Governance QA
+        </div>
+        <h2 className="mt-1 text-lg font-semibold text-[#1f2937]">
+          QA Checks To Define
+        </h2>
+        <p className="mt-1 text-[13px] leading-5 text-amber-900">
+          Confirm which quality warnings this module must expose before it is
+          treated as market-grade analysis.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
+        {analysisGovernanceQaCategories.map((category) => (
+          <div
+            key={category.title}
+            className="border border-gray-200 bg-[#fafafa] p-4"
+          >
+            <h3 className="text-sm font-bold text-[#1f2937]">
+              {category.title}
+            </h3>
+            <p className="mt-2 text-[13px] leading-5 text-gray-600">
+              {category.description}
+            </p>
+            <ul className="mt-3 space-y-1.5 text-xs leading-5 text-gray-500">
+              {category.examples.map((example) => (
+                <li key={example}>{example}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -201,6 +242,8 @@ export default async function AnalysisModuleDefinitionPage({
           <DetailList items={module.dataPrerequisites} />
         </DetailPanel>
       </div>
+
+      <GovernanceQaChecklist />
 
       <DetailPanel title="Standard Definition Protocol">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
