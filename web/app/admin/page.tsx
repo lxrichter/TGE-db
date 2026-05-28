@@ -19,8 +19,10 @@ import {
 } from "@/lib/auth/roles";
 import {
   designAudienceEntryPoints,
+  designComponentInventory,
   designReadinessPriorities,
   semanticDesignRules,
+  type DesignComponentInventoryStatus,
 } from "@/lib/design-readiness";
 import { designTokenGroups } from "@/lib/design-tokens";
 import { platformNavigationGroups } from "@/lib/platform-navigation";
@@ -283,7 +285,50 @@ function AnalysisRegistryOverview() {
   );
 }
 
+function componentInventoryStatusLabel(status: DesignComponentInventoryStatus) {
+  if (status === "token_ready") {
+    return "Token Ready";
+  }
+
+  if (status === "partial") {
+    return "Partial";
+  }
+
+  if (status === "pending") {
+    return "Pending";
+  }
+
+  return "Design Phase";
+}
+
+function componentInventoryStatusClass(status: DesignComponentInventoryStatus) {
+  if (status === "token_ready") {
+    return "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]";
+  }
+
+  if (status === "partial") {
+    return "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]";
+  }
+
+  if (status === "pending") {
+    return "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]";
+  }
+
+  return "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]";
+}
+
 function DesignReadinessOverview() {
+  const inventorySummary = {
+    tokenReady: designComponentInventory.filter(
+      (item) => item.status === "token_ready"
+    ).length,
+    partial: designComponentInventory.filter((item) => item.status === "partial")
+      .length,
+    designPhase: designComponentInventory.filter(
+      (item) => item.status === "design_phase"
+    ).length,
+  };
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-4">
@@ -402,6 +447,90 @@ function DesignReadinessOverview() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+        <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-page)] px-4 py-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-[var(--tge-text-primary)]">
+              Component Design Inventory
+            </h3>
+            <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--tge-text-secondary)]">
+              Live map of reusable UI layers before the design phase. This
+              separates token-ready foundations from areas that should be
+              handled in the visual design pass.
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 py-2">
+              <div className="text-lg font-bold leading-none text-[var(--tge-governance-success-text)]">
+                {inventorySummary.tokenReady}
+              </div>
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-success-text)]">
+                Ready
+              </div>
+            </div>
+            <div className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-3 py-2">
+              <div className="text-lg font-bold leading-none text-[var(--tge-governance-attention-text)]">
+                {inventorySummary.partial}
+              </div>
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-attention-text)]">
+                Partial
+              </div>
+            </div>
+            <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 py-2">
+              <div className="text-lg font-bold leading-none text-[var(--tge-governance-info-text)]">
+                {inventorySummary.designPhase}
+              </div>
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
+                Design
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2">
+          {designComponentInventory.map((item) => (
+            <div
+              key={item.area}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] p-4"
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-[var(--tge-text-primary)]">
+                    {item.area}
+                  </h4>
+                  <p className="mt-1 text-xs leading-5 text-[var(--tge-text-secondary)]">
+                    {item.scope}
+                  </p>
+                </div>
+                <span
+                  className={`inline-flex min-h-7 shrink-0 items-center justify-center border px-2 text-[11px] font-semibold ${componentInventoryStatusClass(
+                    item.status
+                  )}`}
+                >
+                  {componentInventoryStatusLabel(item.status)}
+                </span>
+              </div>
+              <div className="mt-3 grid gap-2 text-xs leading-5 text-[var(--tge-text-secondary)]">
+                <div>
+                  <span className="font-semibold text-[var(--tge-text-primary)]">
+                    Current:
+                  </span>{" "}
+                  {item.currentState}
+                </div>
+                <div>
+                  <span className="font-semibold text-[var(--tge-text-primary)]">
+                    Next:
+                  </span>{" "}
+                  {item.nextAction}
+                </div>
+              </div>
+              <div className="mt-3 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-text-secondary)]">
+                Priority: {item.priority}
               </div>
             </div>
           ))}

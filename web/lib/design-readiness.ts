@@ -11,6 +11,23 @@ export type DesignAudienceEntryPoint = {
   designGoal: string;
 };
 
+export type DesignComponentInventoryStatus =
+  | "token_ready"
+  | "partial"
+  | "pending"
+  | "design_phase";
+
+export type DesignComponentInventoryPriority = "high" | "medium" | "low";
+
+export type DesignComponentInventoryItem = {
+  area: string;
+  status: DesignComponentInventoryStatus;
+  priority: DesignComponentInventoryPriority;
+  scope: string;
+  currentState: string;
+  nextAction: string;
+};
+
 export const designAudienceEntryPoints: DesignAudienceEntryPoint[] = [
   {
     audience: "Subscribers",
@@ -131,5 +148,108 @@ export const semanticDesignRules = [
   {
     label: "Gray",
     meaning: "Draft, inactive, archived, historical, advisory, unknown, or neutral context.",
+  },
+];
+
+export const designComponentInventory: DesignComponentInventoryItem[] = [
+  {
+    area: "Platform Shell",
+    status: "token_ready",
+    priority: "high",
+    scope: "Header, grouped navigation, user bar, command palette",
+    currentState:
+      "Navigation architecture is centralized and shell colors now reference semantic tokens.",
+    nextAction:
+      "Use this registry when designing the future left-side navigation and role-aware entry points.",
+  },
+  {
+    area: "Shared Page Primitives",
+    status: "token_ready",
+    priority: "high",
+    scope: "Action buttons, page headers, overview bars, status badges, next-action strips",
+    currentState:
+      "Core reusable primitives have moved from hard-coded colors to semantic tokens.",
+    nextAction:
+      "Design phase can refine spacing, typography, and component proportions without changing page logic.",
+  },
+  {
+    area: "Status, Phase, Governance",
+    status: "token_ready",
+    priority: "high",
+    scope: "Lifecycle badges, review badges, governance cards, evidence snapshots",
+    currentState:
+      "Lifecycle, evidence, severity, confidence, and governance UI now share the token language.",
+    nextAction:
+      "Confirm final lifecycle and governance palette, then tune contrast and visual weight.",
+  },
+  {
+    area: "Entity Tables",
+    status: "partial",
+    priority: "high",
+    scope: "Projects, Plants, Companies list tables and quick-view cards",
+    currentState:
+      "Functionally strong, but table surfaces still include local spacing and color decisions.",
+    nextAction:
+      "Define default columns, density modes, mobile card collapse, and row-status hierarchy in design.",
+  },
+  {
+    area: "Entity Edit Forms",
+    status: "partial",
+    priority: "high",
+    scope: "Project, Plant, Company create/edit workflows, readiness rails, field states",
+    currentState:
+      "Workflow logic is mature, but required/edited/approval states need formal visual treatment.",
+    nextAction:
+      "Define form field tokens for required, edited, pending approval, blocked, and approved states.",
+  },
+  {
+    area: "Relationship Workspaces",
+    status: "partial",
+    priority: "medium",
+    scope: "Company roles, ownership links, project-plant links, relationship evidence",
+    currentState:
+      "Relationship logic is coherent, but dense relationship rows still need progressive-disclosure design.",
+    nextAction:
+      "Design compact relationship cards/tables with source status and role hierarchy built in.",
+  },
+  {
+    area: "Sources Review Layer",
+    status: "partial",
+    priority: "medium",
+    scope: "Sources, article matches, article facts, source forms, review pagination",
+    currentState:
+      "Workflow architecture is strong; review rows still need final density, grouping, and status hierarchy.",
+    nextAction:
+      "Design review-queue rows around status first, confidence second, evidence details expandable.",
+  },
+  {
+    area: "Research Ops Queues",
+    status: "partial",
+    priority: "medium",
+    scope: "Operational queues, researcher activity, persistent issues, AI review blocks",
+    currentState:
+      "Command-center hierarchy works; dense tables need compact mode and role-aware defaults.",
+    nextAction:
+      "Define queue cards, sticky subnavigation, researcher activity lens, and collapsed secondary queues.",
+  },
+  {
+    area: "Analysis Modules",
+    status: "partial",
+    priority: "medium",
+    scope: "Developer, owner/operator, turbine, country, lifecycle, benchmark pages",
+    currentState:
+      "Analysis definitions and governance QA exist; charts and ranking tables need final visual grammar.",
+    nextAction:
+      "Define analysis chart tokens, MWe/MWth hierarchy, table bars, attribution caveats, and QA treatment.",
+  },
+  {
+    area: "Map Explorer",
+    status: "design_phase",
+    priority: "medium",
+    scope: "Spatial filters, markers, popups, expanded map mode, future layers",
+    currentState:
+      "Expanded map mode and scalable filter architecture exist, but final map styling should wait for design.",
+    nextAction:
+      "Design standard vs expanded map modes, collapsible filters, marker taxonomy, and popup action hierarchy.",
   },
 ];
