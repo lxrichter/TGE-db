@@ -144,6 +144,81 @@ function buildFlags(row: ProjectRow) {
   return flags;
 }
 
+const researchOpsProjectClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+  strip:
+    "border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] px-6 py-4",
+  filterShell:
+    "space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3",
+  label:
+    "mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  input:
+    "w-full border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  tableHead:
+    "bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]",
+  tableHeaderCell:
+    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2",
+  tableRow:
+    "hover:bg-[var(--tge-surface-subtle)]",
+  tableCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-[var(--tge-governance-neutral-text)]",
+  tableMutedCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 font-mono text-xs text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
+  editLink:
+    "inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-brand-green-dark)]",
+  activeCard:
+    "border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]",
+  inactiveCard:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] hover:bg-[var(--tge-surface-subtle)]",
+  activityButton:
+    "inline-flex min-w-[32px] items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-2 py-1 text-xs font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)] hover:text-[var(--tge-brand-green-dark)]",
+  flag:
+    "inline-flex border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-0.5 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)]",
+};
+
+function OpsStatCard({
+  label,
+  value,
+  active,
+  onClick,
+}: {
+  label: string;
+  value: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`cursor-pointer border p-3 text-left transition ${
+        active ? researchOpsProjectClass.activeCard : researchOpsProjectClass.inactiveCard
+      }`}
+    >
+      <div className={`text-[11px] font-semibold uppercase tracking-wide ${researchOpsProjectClass.muted}`}>
+        {label}
+      </div>
+      <div className={`mt-1 text-3xl font-bold ${researchOpsProjectClass.title}`}>
+        {formatCount(value)}
+      </div>
+    </button>
+  );
+}
+
 type EditorActivityRow = {
   userKey: string;
   displayName: string;
@@ -489,7 +564,7 @@ export default function ResearchOpsProjectsPage() {
   if (!userCanAccessResearchOps) {
     return (
       <main className="space-y-8">
-        <section className="border border-gray-200 bg-white">
+        <section className={researchOpsProjectClass.panel}>
           
         </section>
       </main>
@@ -501,22 +576,22 @@ export default function ResearchOpsProjectsPage() {
       <div className="px-2">
           <Link
             href="/research-ops"
-            className="inline-flex items-center text-sm font-medium text-[#8dc63f] hover:underline"
+            className="inline-flex items-center text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline"
           >
             ← Back to Research Ops Dashboard
           </Link>
         </div>
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-8 py-8">
+      <section className={researchOpsProjectClass.panel}>
+        <div className={researchOpsProjectClass.hero}>
           <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+              <p className={researchOpsProjectClass.kicker}>
                 Research Ops / Projects
               </p>
-              <h1 className="mt-3 text-5xl font-bold tracking-tight text-[#1f2937]">
+              <h1 className={`mt-3 text-5xl font-bold tracking-tight ${researchOpsProjectClass.title}`}>
                 Project Research Operations
               </h1>
-              <p className="mt-4 max-w-4xl text-lg leading-8 text-gray-600">
+              <p className={`mt-4 max-w-4xl text-lg leading-8 ${researchOpsProjectClass.body}`}>
                 Operational queue for missing project data, research follow-up,
                 review workflow, and promoted-project visibility.
               </p>
@@ -536,145 +611,26 @@ export default function ResearchOpsProjectsPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-[#f7f7f7] px-8 py-5">
+        <div className={researchOpsProjectClass.strip}>
           <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-            <div
-              onClick={() => setOpsPreset("all")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "all"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Total Projects
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.total)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("pending_review")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "pending_review"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Pending Review
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.pendingReview)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("need_info")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "need_info"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Need Info
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.needInfo)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_coordinates")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_coordinates"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Coordinates
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingCoordinates)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_mw")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_mw"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing MWe
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingMw)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_source")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_source"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Source
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingSource)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("missing_operator")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "missing_operator"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Missing Operator / Owner
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.missingOperator)}
-              </div>
-            </div>
-
-            <div
-              onClick={() => setOpsPreset("promoted")}
-              className={`cursor-pointer rounded border p-3 ${
-                opsPreset === "promoted"
-                  ? "border-[#8dc63f] bg-[#f3f9e8]"
-                  : "border-gray-200 bg-white hover:bg-gray-50"
-              }`}
-            >
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                Promoted
-              </div>
-              <div className="mt-1 text-3xl font-bold text-[#1f2937]">
-                {formatCount(stats.promoted)}
-              </div>
-            </div>
+            <OpsStatCard label="Total Projects" value={stats.total} active={opsPreset === "all"} onClick={() => setOpsPreset("all")} />
+            <OpsStatCard label="Pending Review" value={stats.pendingReview} active={opsPreset === "pending_review"} onClick={() => setOpsPreset("pending_review")} />
+            <OpsStatCard label="Need Info" value={stats.needInfo} active={opsPreset === "need_info"} onClick={() => setOpsPreset("need_info")} />
+            <OpsStatCard label="Missing Coordinates" value={stats.missingCoordinates} active={opsPreset === "missing_coordinates"} onClick={() => setOpsPreset("missing_coordinates")} />
+            <OpsStatCard label="Missing MWe" value={stats.missingMw} active={opsPreset === "missing_mw"} onClick={() => setOpsPreset("missing_mw")} />
+            <OpsStatCard label="Missing Source" value={stats.missingSource} active={opsPreset === "missing_source"} onClick={() => setOpsPreset("missing_source")} />
+            <OpsStatCard label="Missing Operator / Owner" value={stats.missingOperator} active={opsPreset === "missing_operator"} onClick={() => setOpsPreset("missing_operator")} />
+            <OpsStatCard label="Promoted" value={stats.promoted} active={opsPreset === "promoted"} onClick={() => setOpsPreset("promoted")} />
           </div>
         </div>
       </section>
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={researchOpsProjectClass.panel}>
+        <div className={researchOpsProjectClass.sectionHeader}>
+          <h2 className={`text-xl font-bold ${researchOpsProjectClass.title}`}>
             Editor Activity
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${researchOpsProjectClass.muted}`}>
             Overview of record creation, updates, approvals, and workflow concentration by user. Click a number to filter the table below.
           </p>
         </div>
@@ -682,71 +638,71 @@ export default function ResearchOpsProjectsPage() {
         <div className="overflow-x-auto">
           <div className="min-w-[900px]">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className={researchOpsProjectClass.tableHead}>
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">User</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Created</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Updated</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Approved</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Pending</th>
-                  <th className="border-b border-gray-200 px-4 py-2 text-center">Need Info</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>User</th>
+                  <th className={`${researchOpsProjectClass.tableHeaderCell} text-center`}>Created</th>
+                  <th className={`${researchOpsProjectClass.tableHeaderCell} text-center`}>Updated</th>
+                  <th className={`${researchOpsProjectClass.tableHeaderCell} text-center`}>Approved</th>
+                  <th className={`${researchOpsProjectClass.tableHeaderCell} text-center`}>Pending</th>
+                  <th className={`${researchOpsProjectClass.tableHeaderCell} text-center`}>Need Info</th>
                 </tr>
               </thead>
 
               <tbody>
                 {editorActivity.map((row) => (
-                  <tr key={row.userKey} className="hover:bg-gray-50">
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-sm text-gray-700">
+                  <tr key={row.userKey} className={researchOpsProjectClass.tableRow}>
+                    <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-sm ${researchOpsProjectClass.body}`}>
                       {row.userKey === String((session?.user as { id?: string } | undefined)?.id || "").trim()
                         ? String((session?.user as { name?: string } | undefined)?.name || row.displayName || row.userKey || "NA")
                         : row.displayName || row.userKey || "NA"}
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "created" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsProjectClass.activityButton}
                       >
                         {row.created}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "updated" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsProjectClass.activityButton}
                       >
                         {row.updated}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "approved" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsProjectClass.activityButton}
                       >
                         {row.approved}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "pending" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsProjectClass.activityButton}
                       >
                         {row.pendingReview}
                       </button>
                     </td>
 
-                    <td className="border-b border-gray-100 px-4 py-2.5 text-center">
+                    <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center">
                       <button
                         type="button"
                         onClick={() => setEditorFilter({ user: row.userKey, mode: "need_info" })}
-                        className="inline-flex min-w-[32px] items-center justify-center border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-[#1f2937] hover:border-[#8dc63f] hover:bg-[#f3f9e8] hover:text-[#8dc63f]"
+                        className={researchOpsProjectClass.activityButton}
                       >
                         {row.needInfo}
                       </button>
@@ -756,7 +712,7 @@ export default function ResearchOpsProjectsPage() {
 
                 {editorActivity.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={6} className={`px-4 py-8 text-center text-sm ${researchOpsProjectClass.muted}`}>
                       No editor activity available.
                     </td>
                   </tr>
@@ -768,8 +724,8 @@ export default function ResearchOpsProjectsPage() {
       </section>
 
       {editorFilter && (
-        <div className="flex items-center justify-between rounded border border-[#8dc63f] bg-[#f3f9e8] px-4 py-3 text-sm">
-          <div className="text-[#1f2937]">
+        <div className="flex items-center justify-between border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm">
+          <div className={researchOpsProjectClass.title}>
             Editor filter active:
             <span className="ml-2 font-semibold">
               {editorFilter.user === String((session?.user as { id?: string } | undefined)?.id || "").trim()
@@ -780,33 +736,33 @@ export default function ResearchOpsProjectsPage() {
           <button
             type="button"
             onClick={() => setEditorFilter(null)}
-            className="font-medium text-[#1f2937] underline"
+            className="font-medium text-[var(--tge-text-primary)] underline"
           >
             Clear
           </button>
         </div>
       )}       
 
-      <section className="border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-xl font-bold text-[#1f2937]">
+      <section className={researchOpsProjectClass.panel}>
+        <div className={researchOpsProjectClass.sectionHeader}>
+          <h2 className={`text-xl font-bold ${researchOpsProjectClass.title}`}>
             Project Ops Queue
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className={`mt-1 text-sm ${researchOpsProjectClass.muted}`}>
             Filter operationally relevant projects and jump directly into editing.
           </p>
         </div>
 
-        <div className="space-y-3 border-b border-gray-200 bg-[#f7f7f7] px-6 py-3">
+        <div className={researchOpsProjectClass.filterShell}>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsProjectClass.label}>
                 Ops Preset
               </label>
               <select
                 value={opsPreset}
                 onChange={(e) => setOpsPreset(e.target.value as OpsPreset)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsProjectClass.input}
               >
                 <option value="all">All</option>
                 <option value="pending_review">Pending Review</option>
@@ -821,13 +777,13 @@ export default function ResearchOpsProjectsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsProjectClass.label}>
                 Country
               </label>
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsProjectClass.input}
               >
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
@@ -838,13 +794,13 @@ export default function ResearchOpsProjectsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsProjectClass.label}>
                 Phase
               </label>
               <select
                 value={phaseFilter}
                 onChange={(e) => setPhaseFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsProjectClass.input}
               >
                 {phaseOptions.map((phase) => (
                   <option key={phase} value={phase}>
@@ -855,13 +811,13 @@ export default function ResearchOpsProjectsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsProjectClass.label}>
                 Research Status
               </label>
               <select
                 value={researchStatusFilter}
                 onChange={(e) => setResearchStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsProjectClass.input}
               >
                 {researchStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -872,13 +828,13 @@ export default function ResearchOpsProjectsPage() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
+              <label className={researchOpsProjectClass.label}>
                 Review Status
               </label>
               <select
                 value={reviewStatusFilter}
                 onChange={(e) => setReviewStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={researchOpsProjectClass.input}
               >
                 {reviewStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -894,12 +850,12 @@ export default function ResearchOpsProjectsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by ID, name, country, operator, phase, source..."
-            className="w-full border border-gray-300 bg-white px-4 py-2 text-sm outline-none focus:border-[#8dc63f]"
+            className={researchOpsProjectClass.input}
           />
         </div>
 
         <div className="px-6 pt-3">
-          <p className="text-xs text-gray-500">
+          <p className={`text-xs ${researchOpsProjectClass.muted}`}>
             Scroll horizontally to view all columns.
           </p>
         </div>
@@ -920,18 +876,18 @@ export default function ResearchOpsProjectsPage() {
                 <col className="w-[100px]" />
               </colgroup>
 
-              <thead className="bg-gray-100 text-left text-xs uppercase tracking-wide text-gray-600">
+              <thead className={researchOpsProjectClass.tableHead}>
                 <tr>
-                  <th className="border-b border-gray-200 px-4 py-2">Project ID</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Name</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Country</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Phase</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Owner / Operator</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Planned MWe</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Research Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Review Status</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Ops Flags</th>
-                  <th className="border-b border-gray-200 px-4 py-2">Action</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Project ID</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Name</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Country</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Phase</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Owner / Operator</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Planned MWe</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Research Status</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Review Status</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Ops Flags</th>
+                  <th className={researchOpsProjectClass.tableHeaderCell}>Action</th>
                 </tr>
               </thead>
 
@@ -940,67 +896,67 @@ export default function ResearchOpsProjectsPage() {
                   const flags = buildFlags(project);
 
                   return (
-                    <tr key={project.project_id} className="hover:bg-gray-50">
-                      <td className="border-b border-gray-100 px-4 py-2.5 font-mono text-xs text-gray-500">
+                    <tr key={project.project_id} className={researchOpsProjectClass.tableRow}>
+                      <td className={researchOpsProjectClass.tableMutedCell}>
                         {project.project_id}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
                         <Link
                           href={`/projects/${project.project_id}`}
-                          className="font-medium text-[#1f2937] underline decoration-gray-300 underline-offset-4 hover:text-[#8dc63f]"
+                          className={researchOpsProjectClass.link}
                         >
                           {project.project_name || "NA"}
                         </Link>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsProjectClass.tableCell}>
                         {project.country || "NA"}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
                         <PhaseBadge value={project.project_phase} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsProjectClass.tableCell}>
                         <div className="max-w-[220px] break-words">
                           {project.owner_operator || "NA"}
                         </div>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5 text-gray-700">
+                      <td className={researchOpsProjectClass.tableCell}>
                         {formatMw(project.installed_capacity_mw, 1)}
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
                         <ResearchStatusBadge value={project.research_status} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
                         <ReviewStatusBadge value={project.review_status} />
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
                         <div className="flex flex-wrap gap-2">
                           {flags.length > 0 ? (
                             flags.map((flag) => (
                               <span
                                 key={`${project.project_id}-${flag}`}
-                                className="inline-flex border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-semibold text-gray-700"
+                                className={researchOpsProjectClass.flag}
                               >
                                 {flag}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-gray-400">—</span>
+                            <span className="text-xs text-[var(--tge-governance-muted-text)]">—</span>
                           )}
                         </div>
                       </td>
 
-                      <td className="border-b border-gray-100 px-4 py-2.5">
+                      <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
                         <Link
                           href={`/projects/${project.project_id}/edit`}
-                          className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[#8dc63f] bg-[#8dc63f] px-3 py-1 text-[11px] font-semibold leading-none text-white hover:border-[#79b12f] hover:bg-[#79b12f]"
+                          className={researchOpsProjectClass.editLink}
                         >
                           Edit
                         </Link>
@@ -1013,7 +969,7 @@ export default function ResearchOpsProjectsPage() {
                   <tr>
                     <td
                       colSpan={10}
-                      className="px-4 py-8 text-center text-sm text-gray-500"
+                      className={`px-4 py-8 text-center text-sm ${researchOpsProjectClass.muted}`}
                     >
                       No project records found for the current operational filters.
                     </td>
