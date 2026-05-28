@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 import {
   getPostgresPreviewSummary,
   listPostgresCountryMarketSummaries,
@@ -16,6 +17,8 @@ import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEnti
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
+import { authOptions } from "@/lib/auth/auth";
+import { canManageUsers } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -413,6 +416,9 @@ function SetupNotice({ error }: { error: string }) {
 }
 
 export default async function PostgresPreviewPage() {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as { role?: string | null } | undefined)?.role;
+  const showUserAdmin = canManageUsers(role);
   const data = await getPreviewData();
 
   return (
@@ -609,6 +615,14 @@ export default async function PostgresPreviewPage() {
                 label="Governance"
                 title="Replacement Readiness"
               />
+              {showUserAdmin ? (
+                <WorkAreaCard
+                  description="Manage internal users, roles, account status, password resets, and administrator access guardrails."
+                  href="/admin/users"
+                  label="Platform / Admin"
+                  title="User Administration"
+                />
+              ) : null}
             </section>
           </section>
 
