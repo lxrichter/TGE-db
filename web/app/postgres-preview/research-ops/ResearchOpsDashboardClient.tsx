@@ -3558,69 +3558,69 @@ function PersistentIssues({
   return (
     <section
       id="persistent-issues"
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      className={`scroll-mt-6 ${opsClass.panel}`}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${opsClass.title}`}>
             Persistent Research Issues
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className={`mt-2 max-w-3xl text-sm leading-6 ${opsClass.body}`}>
             Human-created issues and follow-ups with status, assignment, linked
             field, and audit event support.
           </p>
         </div>
-        <span className="inline-flex min-h-[28px] items-center border border-gray-200 bg-[#f7f7f7] px-2 text-xs font-semibold text-gray-700">
+        <span className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
           {formatCount(visibleIssues.length)} open
         </span>
       </div>
 
       <div className="space-y-4 px-5 py-5">
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className={opsClass.dangerNotice}>
             {error}
           </div>
         ) : null}
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className={opsClass.metricCard}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Filtered Open
             </div>
-            <div className="mt-1 text-2xl font-bold text-[#1f2937]">
+            <div className={`mt-1 text-2xl font-bold ${opsClass.title}`}>
               {formatCount(visibleIssues.length)}
             </div>
           </div>
-          <div className="border border-red-100 bg-red-50 px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-red-700">
+          <div className="border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-danger-text)]">
               Critical
             </div>
-            <div className="mt-1 text-2xl font-bold text-red-800">
+            <div className="mt-1 text-2xl font-bold text-[var(--tge-governance-danger-text)]">
               {formatCount(criticalIssueCount)}
             </div>
           </div>
-          <div className="border border-blue-100 bg-blue-50 px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+          <div className="border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-info-text)]">
               Field-Linked
             </div>
-            <div className="mt-1 text-2xl font-bold text-blue-800">
+            <div className="mt-1 text-2xl font-bold text-[var(--tge-governance-info-text)]">
               {formatCount(fieldLinkedIssueCount)}
             </div>
           </div>
-          <div className="border border-[#d9eac2] bg-[#f5faee] px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+          <div className="border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
               Assigned
             </div>
-            <div className="mt-1 text-2xl font-bold text-[#3f6f19]">
+            <div className="mt-1 text-2xl font-bold text-[var(--tge-governance-success-text)]">
               {formatCount(assignedIssueCount)}
             </div>
           </div>
         </div>
 
-        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label className={`block text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
           Resolution / Status Note
           <input
-            className="mt-1 h-10 w-full border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+            className={`mt-1 w-full ${opsClass.input}`}
             placeholder="Optional note applied when changing an issue status"
             value={eventNote}
             onChange={(event) => setEventNote(event.target.value)}
@@ -3672,14 +3672,14 @@ function PersistentIssues({
           </FilterSelect>
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
             <button
-              className="h-10 w-full border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+              className="h-10 w-full border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto"
               type="button"
               onClick={clearPersistentIssueFilters}
             >
               Clear Issue Filters
             </button>
             <button
-              className="h-10 w-full border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              className="h-10 w-full border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               disabled={visibleIssues.length === 0}
               type="button"
               onClick={exportVisibleIssues}
@@ -3687,7 +3687,7 @@ function PersistentIssues({
               Export Issues CSV
             </button>
             {currentUser ? (
-              <span className="self-center text-xs font-medium text-gray-500">
+              <span className={`self-center text-xs font-medium ${opsClass.muted}`}>
                 Current PostgreSQL user: {currentUser.name || "Current user"}
               </span>
             ) : null}
@@ -3695,13 +3695,13 @@ function PersistentIssues({
         </div>
 
         {visibleIssues.length === 0 ? (
-          <div className="border border-gray-200 bg-[#f7f7f7] px-4 py-3 text-sm text-gray-600">
+          <div className={`${opsClass.panelSubtle} px-4 py-3 text-sm ${opsClass.body}`}>
             No persistent research issues are currently open.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-[1280px] table-fixed text-left text-sm">
-              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <thead className="bg-[var(--tge-surface-subtle)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 <tr>
                   <th className="w-[13%] px-4 py-3 font-semibold">Issue</th>
                   <th className="w-[23%] px-4 py-3 font-semibold">Record</th>
@@ -3713,7 +3713,7 @@ function PersistentIssues({
                   <th className="w-[17%] px-4 py-3 font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[var(--tge-governance-neutral-border)]">
                 {visibleIssues.map((issue) => {
                   const href = issueHref(issue);
                   const saving = savingIssueId === issue.research_ops_issue_id;
@@ -3721,31 +3721,31 @@ function PersistentIssues({
                   return (
                     <tr
                       key={issue.research_ops_issue_id}
-                      className="align-top transition-colors hover:bg-[#fbfdf8]"
+                      className="align-top transition-colors hover:bg-[var(--tge-surface-subtle)]"
                     >
                       <td className="px-4 py-2.5">
                         <CompactCellText
-                          className="font-semibold text-[#1f2937]"
+                          className={`font-semibold ${opsClass.title}`}
                           value={issue.issue_type_label}
                         />
                         <CompactCellText
-                          className="mt-1 text-xs text-gray-500"
+                          className={`mt-1 text-xs ${opsClass.muted}`}
                           value={formatEntityType(issue.entity_type)}
                         />
                       </td>
                       <td className="px-4 py-2.5">
                         <CompactCellText
-                          className="font-semibold text-[#1f2937]"
+                          className={`font-semibold ${opsClass.title}`}
                           lines={2}
                           value={issue.title}
                         />
                         <CompactCellText
-                          className="mt-1 text-xs text-gray-600"
+                          className={`mt-1 text-xs ${opsClass.body}`}
                           value={issue.name}
                         />
                         {issue.description ? (
                           <CompactCellText
-                            className="mt-2 text-xs leading-5 text-gray-500"
+                            className={`mt-2 text-xs leading-5 ${opsClass.muted}`}
                             lines={2}
                             value={issue.description}
                           />
@@ -3753,7 +3753,7 @@ function PersistentIssues({
                       </td>
                       <td className="px-4 py-2.5">
                         <button
-                          className="inline-flex min-h-7 max-w-full items-center border border-gray-200 bg-[#f7f7f7] px-2 text-left text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                          className="inline-flex min-h-7 max-w-full items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 text-left text-xs font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
                           type="button"
                           title={formatLinkedField(issue.linked_field)}
                           onClick={() =>
@@ -3775,9 +3775,9 @@ function PersistentIssues({
                       <td className="px-4 py-2.5">
                         <StatusBadge value={issue.issue_status_label} />
                       </td>
-                      <td className="px-4 py-2.5 text-gray-700">
+                      <td className={`px-4 py-2.5 ${opsClass.body}`}>
                         <select
-                          className="h-8 w-full min-w-0 border border-gray-300 bg-white px-2 text-xs font-semibold text-gray-700 outline-none focus:border-[#8dc63f] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="h-8 w-full min-w-0 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-2 text-xs font-semibold text-[var(--tge-governance-neutral-text)] outline-none focus:border-[var(--tge-brand-green)] disabled:cursor-not-allowed disabled:opacity-60"
                           disabled={saving}
                           value={issue.assigned_to_user_id || ""}
                           onChange={(event) =>
@@ -3792,21 +3792,21 @@ function PersistentIssues({
                           ))}
                         </select>
                       </td>
-                      <td className="px-4 py-2.5 text-gray-700">
+                      <td className={`px-4 py-2.5 ${opsClass.body}`}>
                         {formatDate(issue.updated_at)}
                       </td>
                       <td className="px-4 py-2.5">
                         <div className="flex flex-wrap gap-1.5">
                           {href ? (
                             <Link
-                              className="inline-flex h-8 items-center border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+                              className={opsClass.compactButton}
                               href={href}
                             >
                               Open
                             </Link>
                           ) : null}
                           <button
-                            className="h-8 border border-blue-200 bg-white px-3 text-xs font-semibold text-blue-800 hover:bg-blue-50 disabled:opacity-60"
+                            className="h-8 border border-[var(--tge-governance-info-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-info-text)] hover:bg-[var(--tge-governance-info-bg)] disabled:opacity-60"
                             disabled={saving || issue.issue_status_code === "in_progress"}
                             type="button"
                             onClick={() =>
@@ -3818,7 +3818,7 @@ function PersistentIssues({
                             {saving ? "Saving..." : "In Progress"}
                           </button>
                           <button
-                            className="h-8 border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec] disabled:opacity-60"
+                            className="h-8 border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)] disabled:opacity-60"
                             disabled={saving}
                             type="button"
                             onClick={() => setIssueStatus(issue, "resolved")}
@@ -3826,7 +3826,7 @@ function PersistentIssues({
                             Resolve
                           </button>
                           <button
-                            className="h-8 border border-red-200 bg-white px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60"
+                            className="h-8 border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:opacity-60"
                             disabled={saving}
                             type="button"
                             onClick={() => setIssueStatus(issue, "dismissed")}
@@ -3910,14 +3910,14 @@ function ResearchActivitySummary({
   return (
     <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {cards.map((card) => (
-        <div key={card.label} className="border border-gray-200 bg-white px-4 py-4">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+        <div key={card.label} className={`${opsClass.panel} px-4 py-4`}>
+          <div className={`text-[11px] font-semibold uppercase tracking-wide ${opsClass.muted}`}>
             {card.label}
           </div>
-          <div className="mt-2 text-3xl font-bold leading-none text-[#1f2937]">
+          <div className={`mt-2 text-3xl font-bold leading-none ${opsClass.title}`}>
             {formatCount(card.value)}
           </div>
-          <div className="mt-2 text-xs leading-5 text-gray-500">
+          <div className={`mt-2 text-xs leading-5 ${opsClass.muted}`}>
             {card.note}
           </div>
         </div>
@@ -3943,33 +3943,33 @@ function ResearcherActivityOverview({
   return (
     <section
       id="researcher-activity"
-      className="scroll-mt-24 border border-gray-200 bg-white"
+      className={`scroll-mt-24 ${opsClass.panel}`}
     >
-      <div className="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${opsClass.title}`}>
             Researcher Activity Lens
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className={`mt-2 max-w-3xl text-sm leading-6 ${opsClass.body}`}>
             Operational visibility for validation and guidance: recent edits,
             evidence activity, assigned follow-ups, and completed issue work.
             This is context, not scoring.
           </p>
         </div>
-        <span className="inline-flex h-8 items-center self-start border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-800">
+        <span className="inline-flex h-8 items-center self-start border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-info-text)]">
           Work visibility
         </span>
       </div>
 
       {rows.length === 0 ? (
-        <div className="px-5 py-5 text-sm text-gray-500">
+        <div className={`px-5 py-5 text-sm ${opsClass.muted}`}>
           No named researcher activity is available in the current recent
           activity window.
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-[1080px] table-fixed text-left text-sm">
-            <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+            <thead className="bg-[var(--tge-surface-subtle)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               <tr>
                 <th className="w-[20%] px-4 py-3 font-semibold">Researcher</th>
                 <th className="w-[12%] px-4 py-3 font-semibold">Recent Work</th>
@@ -3980,83 +3980,83 @@ function ResearcherActivityOverview({
                 <th className="w-[16%] px-4 py-3 font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-[var(--tge-governance-neutral-border)]">
               {rows.map((row) => (
                 <tr
                   key={row.name}
-                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                  className="align-top transition-colors hover:bg-[var(--tge-surface-subtle)]"
                 >
                   <td className="px-4 py-2.5">
                     <CompactCellText
-                      className="font-semibold text-[#1f2937]"
+                      className={`font-semibold ${opsClass.title}`}
                       value={row.name}
                     />
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${opsClass.muted}`}>
                       Named recent activity
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 text-gray-700">
-                    <div className="text-lg font-bold leading-none text-[#1f2937]">
+                  <td className={`px-4 py-2.5 ${opsClass.body}`}>
+                    <div className={`text-lg font-bold leading-none ${opsClass.title}`}>
                       {formatCount(row.recentEdits)}
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${opsClass.muted}`}>
                       edited rows
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 text-xs leading-5 text-gray-600">
+                  <td className={`px-4 py-2.5 text-xs leading-5 ${opsClass.body}`}>
                     <div>
-                      <span className="font-semibold text-[#4f7f1f]">
+                      <span className="font-semibold text-[var(--tge-brand-green-dark)]">
                         {formatCount(row.approvedOrReady)}
                       </span>{" "}
                       approved / ready
                     </div>
                     <div>
-                      <span className="font-semibold text-amber-700">
+                      <span className="font-semibold text-[var(--tge-governance-attention-text)]">
                         {formatCount(row.needsReview)}
                       </span>{" "}
                       still in review
                     </div>
                     <div>
-                      <span className="font-semibold text-blue-800">
+                      <span className="font-semibold text-[var(--tge-governance-info-text)]">
                         {formatCount(row.auditedChanges)}
                       </span>{" "}
                       audited changes
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 text-xs leading-5 text-gray-600">
+                  <td className={`px-4 py-2.5 text-xs leading-5 ${opsClass.body}`}>
                     <div>
-                      <span className="font-semibold text-[#1f2937]">
+                      <span className={`font-semibold ${opsClass.title}`}>
                         {formatCount(row.assignedOpenIssues)}
                       </span>{" "}
                       open assigned
                     </div>
                     <div>
-                      <span className="font-semibold text-gray-700">
+                      <span className="font-semibold text-[var(--tge-governance-neutral-text)]">
                         {formatCount(row.createdIssues)}
                       </span>{" "}
                       created
                     </div>
                     <div>
-                      <span className="font-semibold text-[#4f7f1f]">
+                      <span className="font-semibold text-[var(--tge-brand-green-dark)]">
                         {formatCount(row.resolvedIssues)}
                       </span>{" "}
                       resolved
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 text-gray-700">
-                    <div className="text-lg font-bold leading-none text-[#1f2937]">
+                  <td className={`px-4 py-2.5 ${opsClass.body}`}>
+                    <div className={`text-lg font-bold leading-none ${opsClass.title}`}>
                       {formatCount(row.sourceUpdates)}
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className={`mt-1 text-xs ${opsClass.muted}`}>
                       evidence rows
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 text-gray-700">
+                  <td className={`px-4 py-2.5 ${opsClass.body}`}>
                     {formatDate(row.lastUpdatedAt)}
                   </td>
                   <td className="px-4 py-2.5">
                     <button
-                      className="inline-flex h-8 items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                      className="inline-flex h-8 items-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
                       type="button"
                       onClick={() => onFocusResearcher(row.name)}
                     >
@@ -4089,10 +4089,10 @@ function RecentEdits({
   onSelect: (record: ResearchOpsRecord) => void;
 }) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">Recently Edited</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+    <section className={opsClass.panel}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className={`text-lg font-bold ${opsClass.title}`}>Recently Edited</h2>
+        <p className={`mt-2 max-w-3xl text-sm leading-6 ${opsClass.body}`}>
           Latest platform edits by updated timestamp, including the
           researcher/editor field when user metadata exists.
         </p>
