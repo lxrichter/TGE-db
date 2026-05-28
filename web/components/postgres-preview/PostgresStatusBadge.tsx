@@ -37,39 +37,54 @@ export type PostgresStatusDomain =
  * operating/cancelled/retired/pilot = operating asset and lifecycle semantics
  */
 const toneClasses: Record<PostgresStatusTone, string> = {
-  success: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  attention: "border-amber-200 bg-amber-50 text-amber-800",
-  danger: "border-red-200 bg-red-50 text-red-700",
-  info: "border-blue-200 bg-blue-50 text-blue-800",
-  neutral: "border-gray-200 bg-[#f7f7f7] text-gray-700",
-  muted: "border-gray-200 bg-gray-50 text-gray-500",
-  prospect: "border-slate-200 bg-slate-50 text-slate-700",
-  exploration: "border-blue-200 bg-blue-50 text-blue-800",
-  pre_feasibility: "border-violet-200 bg-violet-50 text-violet-800",
-  feasibility: "border-teal-200 bg-teal-50 text-teal-800",
-  construction: "border-[#b9d98b] bg-[#f1f8e8] text-[#3f6f19]",
-  operating: "border-[#a9cf7a] bg-[#f1f8e8] text-[#356d1c]",
-  cancelled: "border-red-200 bg-red-50 text-red-700",
-  retired: "border-gray-200 bg-gray-50 text-gray-500",
-  pilot: "border-amber-200 bg-amber-50 text-amber-800",
+  success:
+    "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]",
+  attention:
+    "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
+  danger:
+    "border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-governance-danger-text)]",
+  info:
+    "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]",
+  neutral:
+    "border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] text-[var(--tge-governance-neutral-text)]",
+  muted:
+    "border-[var(--tge-governance-muted-border)] bg-[var(--tge-governance-muted-bg)] text-[var(--tge-governance-muted-text)]",
+  prospect:
+    "border-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)] text-[var(--tge-lifecycle-prospect-text)]",
+  exploration:
+    "border-[var(--tge-lifecycle-exploration-border)] bg-[var(--tge-lifecycle-exploration-bg)] text-[var(--tge-lifecycle-exploration-text)]",
+  pre_feasibility:
+    "border-[var(--tge-lifecycle-pre-feasibility-border)] bg-[var(--tge-lifecycle-pre-feasibility-bg)] text-[var(--tge-lifecycle-pre-feasibility-text)]",
+  feasibility:
+    "border-[var(--tge-lifecycle-feasibility-border)] bg-[var(--tge-lifecycle-feasibility-bg)] text-[var(--tge-lifecycle-feasibility-text)]",
+  construction:
+    "border-[var(--tge-lifecycle-construction-border)] bg-[var(--tge-lifecycle-construction-bg)] text-[var(--tge-lifecycle-construction-text)]",
+  operating:
+    "border-[var(--tge-lifecycle-operating-border)] bg-[var(--tge-lifecycle-operating-bg)] text-[var(--tge-lifecycle-operating-text)]",
+  cancelled:
+    "border-[var(--tge-lifecycle-cancelled-border)] bg-[var(--tge-lifecycle-cancelled-bg)] text-[var(--tge-lifecycle-cancelled-text)]",
+  retired:
+    "border-[var(--tge-lifecycle-retired-border)] bg-[var(--tge-lifecycle-retired-bg)] text-[var(--tge-lifecycle-retired-text)]",
+  pilot:
+    "border-[var(--tge-lifecycle-pilot-border)] bg-[var(--tge-lifecycle-pilot-bg)] text-[var(--tge-lifecycle-pilot-text)]",
 };
 
 const toneBarClasses: Record<PostgresStatusTone, string> = {
-  success: "bg-[#8dc63f]",
-  attention: "bg-amber-400",
-  danger: "bg-red-500",
-  info: "bg-blue-400",
-  neutral: "bg-gray-300",
-  muted: "bg-gray-300",
-  prospect: "bg-slate-300",
-  exploration: "bg-blue-400",
-  pre_feasibility: "bg-violet-400",
-  feasibility: "bg-teal-400",
-  construction: "bg-[#8dc63f]",
-  operating: "bg-[#3f8f2f]",
-  cancelled: "bg-red-500",
-  retired: "bg-gray-400",
-  pilot: "bg-amber-400",
+  success: "bg-[var(--tge-status-bar-success)]",
+  attention: "bg-[var(--tge-status-bar-attention)]",
+  danger: "bg-[var(--tge-status-bar-danger)]",
+  info: "bg-[var(--tge-status-bar-info)]",
+  neutral: "bg-[var(--tge-status-bar-neutral)]",
+  muted: "bg-[var(--tge-status-bar-muted)]",
+  prospect: "bg-[var(--tge-status-bar-muted)]",
+  exploration: "bg-[var(--tge-status-bar-info)]",
+  pre_feasibility: "bg-[var(--tge-status-bar-pre-feasibility)]",
+  feasibility: "bg-[var(--tge-status-bar-feasibility)]",
+  construction: "bg-[var(--tge-status-bar-success)]",
+  operating: "bg-[var(--tge-status-bar-operating)]",
+  cancelled: "bg-[var(--tge-status-bar-danger)]",
+  retired: "bg-[var(--tge-status-bar-muted)]",
+  pilot: "bg-[var(--tge-status-bar-attention)]",
 };
 
 const reviewStatusTones: Record<string, PostgresStatusTone> = {

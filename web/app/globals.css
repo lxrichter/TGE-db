@@ -6,6 +6,79 @@
   --foreground: #171717;
   --font-sans: var(--font-geist-sans, Arial, Helvetica, sans-serif);
   --font-mono: var(--font-geist-mono, monospace);
+
+  /* TGE semantic design tokens. These are intentionally conservative
+     placeholders for the formal design phase, not final brand colors. */
+  --tge-brand-green: #8dc63f;
+  --tge-brand-green-dark: #3f6f19;
+  --tge-brand-dark: #2a2a2a;
+  --tge-brand-muted: #5e6b52;
+  --tge-surface-page: #f7f7f7;
+  --tge-surface-card: #ffffff;
+  --tge-surface-subtle: #fafafa;
+  --tge-text-primary: #1f2937;
+  --tge-text-secondary: #6b7280;
+
+  --tge-lifecycle-prospect-bg: #f8fafc;
+  --tge-lifecycle-prospect-border: #cbd5e1;
+  --tge-lifecycle-prospect-text: #334155;
+  --tge-lifecycle-exploration-bg: #eff6ff;
+  --tge-lifecycle-exploration-border: #bfdbfe;
+  --tge-lifecycle-exploration-text: #1e40af;
+  --tge-lifecycle-pre-feasibility-bg: #f5f3ff;
+  --tge-lifecycle-pre-feasibility-border: #ddd6fe;
+  --tge-lifecycle-pre-feasibility-text: #5b21b6;
+  --tge-lifecycle-feasibility-bg: #f0fdfa;
+  --tge-lifecycle-feasibility-border: #99f6e4;
+  --tge-lifecycle-feasibility-text: #115e59;
+  --tge-lifecycle-construction-bg: #f1f8e8;
+  --tge-lifecycle-construction-border: #b9d98b;
+  --tge-lifecycle-construction-text: #3f6f19;
+  --tge-lifecycle-operating-bg: #f1f8e8;
+  --tge-lifecycle-operating-border: #a9cf7a;
+  --tge-lifecycle-operating-text: #356d1c;
+  --tge-lifecycle-pilot-bg: #fffbeb;
+  --tge-lifecycle-pilot-border: #fde68a;
+  --tge-lifecycle-pilot-text: #92400e;
+  --tge-lifecycle-retired-bg: #f9fafb;
+  --tge-lifecycle-retired-border: #e5e7eb;
+  --tge-lifecycle-retired-text: #6b7280;
+  --tge-lifecycle-cancelled-bg: #fef2f2;
+  --tge-lifecycle-cancelled-border: #fecaca;
+  --tge-lifecycle-cancelled-text: #b91c1c;
+
+  --tge-governance-success-bg: #f1f8e8;
+  --tge-governance-success-border: #b9d98b;
+  --tge-governance-success-text: #3f6f19;
+  --tge-governance-info-bg: #eff6ff;
+  --tge-governance-info-border: #bfdbfe;
+  --tge-governance-info-text: #1e40af;
+  --tge-governance-attention-bg: #fffbeb;
+  --tge-governance-attention-border: #fde68a;
+  --tge-governance-attention-text: #92400e;
+  --tge-governance-danger-bg: #fef2f2;
+  --tge-governance-danger-border: #fecaca;
+  --tge-governance-danger-text: #b91c1c;
+  --tge-governance-neutral-bg: #f7f7f7;
+  --tge-governance-neutral-border: #e5e7eb;
+  --tge-governance-neutral-text: #374151;
+  --tge-governance-muted-bg: #f9fafb;
+  --tge-governance-muted-border: #e5e7eb;
+  --tge-governance-muted-text: #6b7280;
+
+  --tge-ai-suggested-bg: #f5f3ff;
+  --tge-ai-suggested-border: #ddd6fe;
+  --tge-ai-suggested-text: #5b21b6;
+
+  --tge-status-bar-success: #8dc63f;
+  --tge-status-bar-info: #60a5fa;
+  --tge-status-bar-attention: #f59e0b;
+  --tge-status-bar-danger: #ef4444;
+  --tge-status-bar-neutral: #d1d5db;
+  --tge-status-bar-muted: #d1d5db;
+  --tge-status-bar-operating: #3f8f2f;
+  --tge-status-bar-pre-feasibility: #a78bfa;
+  --tge-status-bar-feasibility: #2dd4bf;
 }
 
 @media (prefers-color-scheme: dark) {

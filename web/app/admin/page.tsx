@@ -22,6 +22,7 @@ import {
   designReadinessPriorities,
   semanticDesignRules,
 } from "@/lib/design-readiness";
+import { designTokenGroups } from "@/lib/design-tokens";
 import { SOURCE_FACT_TYPE_PRESETS } from "@/lib/sourceFactTypePresets";
 import { getPostgresEntityFormReferenceData } from "@/lib/postgres-preview";
 import { listArticleFactCandidateStatusOptions } from "@/lib/services/article-facts";
@@ -326,6 +327,45 @@ function DesignReadinessOverview() {
             </p>
           </div>
         ))}
+      </div>
+
+      <div className="border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3">
+          <h3 className="text-sm font-bold text-[#1f2937]">
+            Semantic Token Foundation
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-gray-500">
+            First implementation layer from the doctrine: semantic CSS tokens
+            before broad visual redesign.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2 xl:grid-cols-4">
+          {designTokenGroups.map((group) => (
+            <div key={group.title} className="border border-gray-200 bg-[#fafafa] p-4">
+              <h4 className="text-sm font-bold text-[#1f2937]">
+                {group.title}
+              </h4>
+              <p className="mt-1 text-xs leading-5 text-gray-500">
+                {group.description}
+              </p>
+              <div className="mt-3 space-y-2">
+                {group.tokens.map((token) => (
+                  <div
+                    key={`${group.title}-${token.name}`}
+                    className="border border-gray-200 bg-white px-3 py-2"
+                  >
+                    <div className="text-xs font-bold text-[#1f2937]">
+                      {token.name}
+                    </div>
+                    <div className="mt-0.5 font-mono text-[11px] text-gray-500">
+                      {token.cssVariable}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
