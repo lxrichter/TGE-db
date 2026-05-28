@@ -105,10 +105,20 @@ const opsClass = {
     "inline-flex h-8 items-center justify-center border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-neutral-border)] disabled:bg-[var(--tge-surface-subtle)] disabled:text-[var(--tge-governance-muted-text)]",
   routeCard:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-4 hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
+  metricCard:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3",
   dangerPanel:
     "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)]",
   dangerCard:
     "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+  label:
+    "flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  input:
+    "h-10 min-w-0 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  successNotice:
+    "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-success-text)]",
+  dangerNotice:
+    "border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-medium text-[var(--tge-governance-danger-text)]",
   divider: "border-[var(--tge-governance-neutral-border)]",
 };
 
@@ -2705,28 +2715,28 @@ function ResearchOpsViewContext({
   onRemoveFilter: (filterKey: ActiveOperationalFilter["key"]) => void;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4 text-sm text-gray-600">
+    <div className={`${opsClass.panelSubtle} px-4 py-4 text-sm ${opsClass.body}`}>
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0">
-          <div className="font-semibold text-[#1f2937]">
+          <div className={`font-semibold ${opsClass.title}`}>
             Active Research Ops view
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {activeFilters.length > 0 ? (
               activeFilters.map((filter) => (
                 <button
-                  className="inline-flex min-h-8 items-center border border-[#d7e8bf] bg-[#f5faef] px-3 text-xs font-semibold text-[#4f7f1f] hover:border-[#8dc63f]"
+                  className="inline-flex min-h-8 items-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:border-[var(--tge-brand-green)]"
                   key={filter.key}
                   type="button"
                   onClick={() => onRemoveFilter(filter.key)}
                 >
-                  <span className="text-gray-500">{filter.label}:</span>
+                  <span className={opsClass.muted}>{filter.label}:</span>
                   <span className="ml-1">{filter.value}</span>
-                  <span className="ml-2 text-gray-400">x</span>
+                  <span className="ml-2 text-[var(--tge-governance-muted-text)]">x</span>
                 </button>
               ))
             ) : (
-              <span className="inline-flex min-h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <span className="inline-flex min-h-8 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 All generated queues
               </span>
             )}
@@ -2734,45 +2744,45 @@ function ResearchOpsViewContext({
         </div>
 
         <div className="grid min-w-0 grid-cols-1 gap-2 text-xs sm:grid-cols-3 xl:min-w-[540px]">
-          <div className="border border-gray-200 bg-white px-3 py-2">
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+          <div className={`${opsClass.panel} px-3 py-2`}>
+            <div className={`font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Queue Origin
             </div>
-            <div className="mt-1 font-semibold text-[#1f2937]">
+            <div className={`mt-1 font-semibold ${opsClass.title}`}>
               Generated staging queues
             </div>
-            <p className="mt-1 leading-5 text-gray-500">
+            <p className={`mt-1 leading-5 ${opsClass.muted}`}>
               Calculated from current platform data, separate from
               persisted human-created issues.
             </p>
           </div>
-          <div className="border border-gray-200 bg-white px-3 py-2">
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+          <div className={`${opsClass.panel} px-3 py-2`}>
+            <div className={`font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Export Scope
             </div>
-            <div className="mt-1 font-semibold text-[#1f2937]">
+            <div className={`mt-1 font-semibold ${opsClass.title}`}>
               {canReviewStatus ? "Filtered queue rows" : "Editor/Admin only"}
             </div>
-            <p className="mt-1 leading-5 text-gray-500">
+            <p className={`mt-1 leading-5 ${opsClass.muted}`}>
               CSV export contains generated queue rows matching these filters,
               not Recent Activity rows.
             </p>
           </div>
-          <div className="border border-gray-200 bg-white px-3 py-2">
-            <div className="font-semibold uppercase tracking-wide text-gray-500">
+          <div className={`${opsClass.panel} px-3 py-2`}>
+            <div className={`font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Bulk Scope
             </div>
-            <div className="mt-1 font-semibold text-[#1f2937]">
+            <div className={`mt-1 font-semibold ${opsClass.title}`}>
               {formatCount(selectedBulkCount)} selected
             </div>
-            <p className="mt-1 leading-5 text-gray-500">
+            <p className={`mt-1 leading-5 ${opsClass.muted}`}>
               Bulk status changes affect selected rows only. Filtered rows are
               not changed until selected.
             </p>
           </div>
         </div>
       </div>
-      <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <div className={`mt-3 text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
         {formatCount(filteredIssueRows)} queue rows ·{" "}
         {formatCount(filteredRecordCount)} unique items
       </div>
@@ -2910,21 +2920,21 @@ function BulkActionsPanel({
   return (
     <section
       id="bulk-review-actions"
-      className="scroll-mt-6 border border-gray-200 bg-white"
+      className={`scroll-mt-6 ${opsClass.panel}`}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className={`text-lg font-bold ${opsClass.title}`}>
             Bulk Review Actions
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className={`mt-2 max-w-3xl text-sm leading-6 ${opsClass.body}`}>
             Apply a workflow status to selected queue rows. Sources
             use source credibility states; projects, plants, and
             companies use review states.
           </p>
         </div>
         <button
-          className="h-9 w-full border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] sm:w-auto"
+          className="h-9 w-full border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)] sm:w-auto"
           type="button"
           onClick={onClearSelection}
         >
@@ -2934,39 +2944,39 @@ function BulkActionsPanel({
 
       <div className="space-y-4 px-5 py-5">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className={opsClass.metricCard}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Selection Scope
             </div>
-            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+            <div className={`mt-1 text-sm font-semibold ${opsClass.title}`}>
               {formatCount(selectedRecords.length)} selected row
               {selectedRecords.length === 1 ? "" : "s"}
             </div>
-            <p className="mt-1 text-xs leading-5 text-gray-500">
+            <p className={`mt-1 text-xs leading-5 ${opsClass.muted}`}>
               Bulk actions affect selected rows only, not every row currently
               visible in the filtered queue view.
             </p>
           </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className={opsClass.metricCard}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Active Target
             </div>
-            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+            <div className={`mt-1 text-sm font-semibold ${opsClass.title}`}>
               {activeTarget === "sources" ? "Sources" : "Projects / Plants / Companies"}
             </div>
-            <p className="mt-1 text-xs leading-5 text-gray-500">
+            <p className={`mt-1 text-xs leading-5 ${opsClass.muted}`}>
               Record statuses and source credibility states are handled
               separately to avoid mixed workflow updates.
             </p>
           </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className={opsClass.metricCard}>
+            <div className={`text-xs font-semibold uppercase tracking-wide ${opsClass.muted}`}>
               Audit Boundary
             </div>
-            <div className="mt-1 text-sm font-semibold text-[#1f2937]">
+            <div className={`mt-1 text-sm font-semibold ${opsClass.title}`}>
               Review status only
             </div>
-            <p className="mt-1 text-xs leading-5 text-gray-500">
+            <p className={`mt-1 text-xs leading-5 ${opsClass.muted}`}>
               This does not edit field values or create evidence links; those
               remain record/source workflows.
             </p>
@@ -2974,7 +2984,7 @@ function BulkActionsPanel({
         </div>
 
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className={opsClass.dangerNotice}>
             <div>{error}</div>
             {errorIssues.length > 0 ? (
               <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5">
@@ -2986,7 +2996,7 @@ function BulkActionsPanel({
           </div>
         ) : null}
         {message ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className={opsClass.successNotice}>
             {message}
           </div>
         ) : null}
@@ -3013,10 +3023,10 @@ function BulkActionsPanel({
             ))}
           </FilterSelect>
 
-          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className={opsClass.label}>
             Change Note
             <input
-              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              className={opsClass.input}
               placeholder="Optional reason applied to each selected row"
               value={eventNote}
               onChange={(event) => setEventNote(event.target.value)}
@@ -3026,7 +3036,7 @@ function BulkActionsPanel({
 
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <button
-            className="h-10 w-full border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="h-10 w-full border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-5 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={saving || !statusCode || targetRecords.length === 0}
             type="button"
             onClick={applyBulkStatus}
@@ -3037,7 +3047,7 @@ function BulkActionsPanel({
                   activeTarget === "sources" ? "Source" : "Item"
                 }${targetRecords.length === 1 ? "" : "s"}`}
           </button>
-          <div className="text-sm text-gray-600">
+          <div className={`text-sm ${opsClass.body}`}>
             {formatCount(selectedRecords.length)} unique row
             {selectedRecords.length === 1 ? "" : "s"} selected.
           </div>
@@ -3146,12 +3156,12 @@ function CreateIssuePanel({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">
+    <section className={opsClass.panel}>
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+        <h2 className={`text-lg font-bold ${opsClass.title}`}>
           Create Persistent Issue
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+        <p className={`mt-2 max-w-3xl text-sm leading-6 ${opsClass.body}`}>
           Store an operational issue, assignment, or duplicate/research follow-up
           against this record. Generated queues remain separate from these
           human-created issues.
@@ -3159,12 +3169,12 @@ function CreateIssuePanel({
       </div>
       <div className="space-y-4 px-5 py-5">
         {error ? (
-          <div className="border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          <div className={opsClass.dangerNotice}>
             {error}
           </div>
         ) : null}
         {message ? (
-          <div className="border border-[#b9d98b] bg-[#f1f8e8] px-4 py-3 text-sm font-medium text-[#3f6f19]">
+          <div className={opsClass.successNotice}>
             {message}
           </div>
         ) : null}
@@ -3182,10 +3192,10 @@ function CreateIssuePanel({
             ))}
           </FilterSelect>
 
-          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className={opsClass.label}>
             Title
             <input
-              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              className={opsClass.input}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
             />
@@ -3193,20 +3203,20 @@ function CreateIssuePanel({
         </div>
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)]">
-          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className={opsClass.label}>
             Linked Field
             <input
-              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              className={opsClass.input}
               placeholder="Optional, e.g. capacity, source, coordinates"
               value={linkedField}
               onChange={(event) => setLinkedField(event.target.value)}
             />
           </label>
 
-          <label className="flex min-w-0 flex-col gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <label className={opsClass.label}>
             Note
             <input
-              className="h-10 min-w-0 border border-gray-300 bg-white px-3 text-sm font-medium normal-case tracking-normal text-gray-800 outline-none focus:border-[#8dc63f]"
+              className={opsClass.input}
               placeholder="Optional operational context"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
@@ -3215,17 +3225,17 @@ function CreateIssuePanel({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <label className="inline-flex h-9 items-center gap-2 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700">
+          <label className="inline-flex h-9 items-center gap-2 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             <input
               checked={assignToSelf}
-              className="h-4 w-4 accent-[#8dc63f]"
+              className="h-4 w-4 accent-[var(--tge-brand-green)]"
               type="checkbox"
               onChange={(event) => setAssignToSelf(event.target.checked)}
             />
             Assign to me
           </label>
           <button
-            className="h-10 border border-[#8dc63f] bg-[#8dc63f] px-5 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-10 border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-5 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:opacity-60"
             disabled={saving || !issueTypeCode || !title.trim()}
             type="button"
             onClick={createIssue}
@@ -3264,16 +3274,16 @@ function SelectedRecordPanel({
 
   return (
     <div className="space-y-4">
-      <section className="border border-[#8dc63f] bg-[#f8fbf4] px-5 py-4">
+      <section className="border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-5 py-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-[#4f7f1f]">
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
               Selected Record
             </div>
-            <h2 className="mt-2 text-xl font-bold text-[#1f2937]">
+            <h2 className={`mt-2 text-xl font-bold ${opsClass.title}`}>
               {record.name}
             </h2>
-            <div className="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-gray-600">
+            <div className={`mt-2 flex flex-wrap gap-2 text-xs font-semibold ${opsClass.body}`}>
               <span>{formatEntityType(record.entity_type)}</span>
               <span>{record.country || "No country"}</span>
               <span>{record.primary_use_type_code || "No type"}</span>
@@ -3281,17 +3291,17 @@ function SelectedRecordPanel({
               <span>Updated by {record.last_updated_by_name || "-"}</span>
             </div>
             {"issue_label" in record ? (
-              <p className="mt-3 text-sm leading-6 text-gray-700">
+              <p className={`mt-3 text-sm leading-6 ${opsClass.body}`}>
                 {record.issue_label}
               </p>
             ) : null}
-            <p className="mt-2 break-all text-xs text-gray-500">
+            <p className={`mt-2 break-all text-xs ${opsClass.muted}`}>
               {record.entity_id}
             </p>
           </div>
           <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
             <button
-              className="h-9 border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+              className="h-9 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
               type="button"
               onClick={onClear}
             >
@@ -3299,7 +3309,7 @@ function SelectedRecordPanel({
             </button>
             {href ? (
               <Link
-                className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={opsClass.primaryButton}
                 href={href}
               >
                 Open Record
@@ -3307,7 +3317,7 @@ function SelectedRecordPanel({
             ) : null}
             {sourceHref ? (
               <Link
-                className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-white px-4 text-sm font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+                className={opsClass.primaryButton}
                 href={sourceHref}
               >
                 Add Source
