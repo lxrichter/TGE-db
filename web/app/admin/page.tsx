@@ -49,6 +49,8 @@ const adminClass = {
     "rounded-sm border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-4 py-2 text-sm font-semibold text-[var(--tge-text-primary)] transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-surface-card)]",
   chip:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[11px] font-semibold text-[var(--tge-text-secondary)]",
+  warningPanel:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]",
   successPanel:
     "border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)]",
 };
@@ -628,25 +630,25 @@ export default async function AdminPage() {
 
   return (
     <main className="space-y-8">
-      <section className="border border-gray-200 bg-white">
+      <section className={adminClass.panel}>
         <div className="grid grid-cols-1 xl:grid-cols-[1.45fr_0.9fr]">
-          <div className="border-l-4 border-l-[#8dc63f] px-6 py-6 md:px-8 md:py-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6 md:px-8 md:py-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
               ADMIN
             </p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#1f2937] md:text-4xl xl:text-[42px]">
+            <h1 className={`mt-3 text-3xl font-bold tracking-tight ${adminClass.title} md:text-4xl xl:text-[42px]`}>
               Platform Guide & Control Center
             </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-gray-600">
+            <p className={`mt-4 max-w-3xl text-base leading-7 ${adminClass.body}`}>
               Internal guide for workflow, company categorization, company link roles,
               ownership/operator logic, and relationship structure across the geothermal database.
             </p>
-            <p className="mt-3 text-sm font-semibold text-[#8dc63f]">
+            <p className="mt-3 text-sm font-semibold text-[var(--tge-brand-green)]">
               Always structure data → never describe structure in text.
             </p>
           </div>
 
-          <div className="border-t border-gray-200 bg-[#fafafa] px-6 py-6 xl:border-l xl:border-t-0">
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-6 xl:border-l xl:border-t-0">
             <div className="flex flex-wrap items-start justify-start gap-3 xl:justify-end">
               {isUserManager ? (
                 <ActionButton href="/admin/users" variant="primary">
@@ -662,7 +664,7 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        <div className="border-t border-gray-200 bg-white px-6 py-4 md:px-8">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-6 py-4 md:px-8">
           <div className="flex flex-wrap gap-3">
             {isUserManager ? <TocLink href="#access" label="User Access" /> : null}
             <TocLink href="#workflow" label="Workflow" />
@@ -721,7 +723,7 @@ export default async function AdminPage() {
               title="Role-aware platform"
               text="Navigation and actions increasingly separate researcher, editor, senior editor, admin, and future subscriber experiences."
             />
-            <div className="flex items-center justify-start border border-gray-200 bg-[#fafafa] px-4 py-3 xl:justify-end">
+            <div className={`flex items-center justify-start px-4 py-3 xl:justify-end ${adminClass.panelSubtle}`}>
               <ActionButton href="/admin/users" variant="primary">
                 Manage Users
               </ActionButton>
@@ -782,7 +784,7 @@ export default async function AdminPage() {
             </div>
           </>
         ) : (
-          <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+          <div className={`px-4 py-3 text-sm leading-6 ${adminClass.warningPanel}`}>
             PostgreSQL governance snapshot is unavailable in this environment.
             Error: {governanceSnapshot.error}
           </div>
@@ -862,7 +864,7 @@ export default async function AdminPage() {
           />
         </div>
 
-        <div className="mt-3 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className={`mt-3 px-4 py-3 text-sm ${adminClass.warningPanel}`}>
           Never use company type to describe project or plant participation. Project and plant participation should live in linked projects and linked plants.
         </div>
       </SectionCard>
@@ -873,11 +875,11 @@ export default async function AdminPage() {
         description="Use structured linking after the project or plant record exists."
       >
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-          <div className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-sm font-bold text-[#1f2937]">
+          <div className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>
               Each linked company should include
             </div>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
+            <ul className={`mt-2 list-disc space-y-1 pl-5 text-sm ${adminClass.body}`}>
               <li>Role (required)</li>
               <li>Role detail (optional)</li>
               <li>Ownership % only if there is an economic stake</li>
@@ -885,9 +887,11 @@ export default async function AdminPage() {
             </ul>
           </div>
 
-          <div className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-sm font-bold text-[#1f2937]">Quick example</div>
-            <div className="mt-2 space-y-1 text-sm text-gray-600">
+          <div className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>
+              Quick example
+            </div>
+            <div className={`mt-2 space-y-1 text-sm ${adminClass.body}`}>
               <div>Ormat → Owner</div>
               <div>Ormat → Operator</div>
               <div>Ormat → Developer</div>
@@ -904,9 +908,11 @@ export default async function AdminPage() {
         description="Structured company links are now the source of truth for owner, operator, developer, and related asset-role analytics."
       >
         <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
-          <div className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-sm font-bold text-[#1f2937]">Core asset-control roles</div>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+          <div className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>
+              Core asset-control roles
+            </div>
+            <ul className={`mt-3 list-disc space-y-1 pl-5 text-sm ${adminClass.body}`}>
               <li>Owner</li>
               <li>Operator</li>
               <li>Operator Power</li>
@@ -916,9 +922,11 @@ export default async function AdminPage() {
             </ul>
           </div>
 
-          <div className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-sm font-bold text-[#1f2937]">Financial / delivery / technical roles</div>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+          <div className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>
+              Financial / delivery / technical roles
+            </div>
+            <ul className={`mt-3 list-disc space-y-1 pl-5 text-sm ${adminClass.body}`}>
               <li>Investor</li>
               <li>EPC</li>
               <li>Drilling</li>
@@ -948,13 +956,15 @@ export default async function AdminPage() {
           />
         </div>
 
-        <div className="mt-4 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <div className={`mt-4 px-4 py-3 text-sm ${adminClass.warningPanel}`}>
           Do not add generic <strong>Operator</strong> if <strong>Operator Power</strong> and/or <strong>Operator Steam</strong> are already used for the same asset, unless there is a very specific reason.
         </div>
 
-        <div className="mt-4 border border-gray-200 bg-[#fafafa] p-4">
-          <div className="text-sm font-bold text-[#1f2937]">Transition rule</div>
-          <p className="mt-2 text-sm leading-6 text-gray-600">
+        <div className={`mt-4 p-4 ${adminClass.panelSubtle}`}>
+          <div className={`text-sm font-bold ${adminClass.title}`}>
+            Transition rule
+          </div>
+          <p className={`mt-2 text-sm leading-6 ${adminClass.body}`}>
             Legacy free-text fields such as Owner/Operator and Developer remain in the database for continuity,
             but linked company roles should now be used as the analytical source of truth for future owner,
             operator, and developer analysis.
@@ -968,9 +978,9 @@ export default async function AdminPage() {
         description="Use only for company-to-company structure."
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-sm font-bold text-[#1f2937]">Use for</div>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-gray-600">
+          <div className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>Use for</div>
+            <ul className={`mt-3 list-disc space-y-1 pl-5 text-sm ${adminClass.body}`}>
               <li>Parent / subsidiary</li>
               <li>Ownership stakes</li>
               <li>Holding structures</li>
@@ -978,9 +988,11 @@ export default async function AdminPage() {
             </ul>
           </div>
 
-          <div className="border border-gray-200 bg-[#fafafa] p-4">
-            <div className="text-sm font-bold text-[#1f2937]">Do NOT use for</div>
-            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-red-600">
+          <div className={`${adminClass.panelSubtle} p-4`}>
+            <div className={`text-sm font-bold ${adminClass.title}`}>
+              Do NOT use for
+            </div>
+            <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-[var(--tge-governance-danger-text)]">
               <li>Project roles</li>
               <li>Plant participation</li>
               <li>Owner / operator logic on a specific asset</li>
