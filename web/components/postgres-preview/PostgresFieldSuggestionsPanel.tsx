@@ -97,6 +97,18 @@ function fieldContext(candidate: PostgresFieldSuggestionCandidate) {
     : "Fills empty field";
 }
 
+function secondaryActionClass() {
+  return "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+}
+
+function summaryChipClass(tone: "neutral" | "success" = "neutral") {
+  if (tone === "success") {
+    return "inline-flex h-8 items-center border border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-success-text)]";
+  }
+
+  return "inline-flex h-8 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]";
+}
+
 function PaginationBar({
   page,
   pageCount,
@@ -114,32 +126,32 @@ function PaginationBar({
 }) {
   if (pageCount <= 1) {
     return (
-      <div className="border-b border-gray-100 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <div className="border-b border-[var(--tge-governance-muted-border)] px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         Showing {formatCount(total)} suggestion{total === 1 ? "" : "s"}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-3 text-sm text-gray-600 md:flex-row md:items-center md:justify-between">
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-muted-border)] px-5 py-3 text-sm text-[var(--tge-text-secondary)] md:flex-row md:items-center md:justify-between">
+      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         Showing {formatCount(pageStart)}-{formatCount(pageEnd)} of{" "}
         {formatCount(total)} suggestions
       </div>
       <div className="flex flex-wrap items-center gap-2 sm:justify-end">
         <button
-          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+          className={`h-8 flex-1 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none ${secondaryActionClass()}`}
           disabled={page <= 1}
           type="button"
           onClick={() => onPageChange(Math.max(1, page - 1))}
         >
           Previous
         </button>
-        <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+        <span className={summaryChipClass()}>
           Page {formatCount(page)} / {formatCount(pageCount)}
         </span>
         <button
-          className="h-8 flex-1 border border-gray-300 bg-white px-3 text-xs font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+          className={`h-8 flex-1 px-3 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none ${secondaryActionClass()}`}
           disabled={page >= pageCount}
           type="button"
           onClick={() => onPageChange(Math.min(pageCount, page + 1))}
@@ -262,14 +274,14 @@ export default function PostgresFieldSuggestionsPanel({
   const content = (
     <>
       {message ? (
-        <div className="border-b border-gray-100 px-5 py-3 text-xs leading-5 text-gray-600">
+        <div className="border-b border-[var(--tge-governance-muted-border)] px-5 py-3 text-xs leading-5 text-[var(--tge-text-secondary)]">
           {message}
         </div>
       ) : null}
 
       {candidates.length === 0 ? (
         <div className="px-5 py-5">
-          <div className="border border-dashed border-gray-300 bg-[#fbfbfb] px-4 py-5 text-sm leading-6 text-gray-600">
+          <div className="border border-dashed border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-5 text-sm leading-6 text-[var(--tge-text-secondary)]">
             No field suggestions are attached to this record yet. This is
             expected until source/article review and extraction workflows begin
             writing candidates.
@@ -291,7 +303,7 @@ export default function PostgresFieldSuggestionsPanel({
                 showEntity ? "min-w-[1120px]" : "min-w-[980px]"
               }`}
             >
-              <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+              <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 <tr>
                   {showEntity ? (
                     <th className="w-[18%] px-4 py-3 font-semibold">Record</th>
@@ -305,7 +317,7 @@ export default function PostgresFieldSuggestionsPanel({
                   <th className="w-[12%] px-4 py-3 font-semibold">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
                 {pageItems.map((candidate) => {
                   const href = sourceHref(candidate);
                   const targetHref = entityHref(candidate);
@@ -321,64 +333,66 @@ export default function PostgresFieldSuggestionsPanel({
                   return (
                     <tr
                       key={candidate.field_suggestion_candidate_id}
-                      className="align-top"
+                      className="align-top hover:bg-[var(--tge-surface-subtle)]"
                     >
                       {showEntity ? (
                         <td className="px-4 py-3">
-                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                             {entityTypeLabel(candidate.entity_type)}
                           </div>
                           <Link
                             href={targetHref}
-                            className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                            className="mt-1 block font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
                           >
                             {candidate.entity_name}
                           </Link>
-                          <div className="mt-1 text-xs text-gray-500">
+                          <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                             {candidate.country || "No country"}
                           </div>
                         </td>
                       ) : null}
-                      <td className="px-4 py-3 font-semibold text-[#1f2937]">
+                      <td className="px-4 py-3 font-semibold text-[var(--tge-text-primary)]">
                         {candidate.field_name}
-                        <div className="mt-1 text-xs font-normal text-gray-500">
+                        <div className="mt-1 text-xs font-normal text-[var(--tge-governance-muted-text)]">
                           {formatDate(candidate.generated_at)}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         {candidate.current_value || "-"}
-                        <div className="mt-2 text-xs font-semibold text-gray-500">
+                        <div className="mt-2 text-xs font-semibold text-[var(--tge-governance-muted-text)]">
                           {fieldContext(candidate)}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
-                        <span className="font-semibold text-[#1f2937]">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
+                        <span className="font-semibold text-[var(--tge-text-primary)]">
                           {candidate.suggested_value}
                         </span>
                         {candidate.suggestion_reason ? (
-                          <div className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
+                          <div className="mt-2 line-clamp-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
                             {candidate.suggestion_reason}
                           </div>
                         ) : null}
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         {href ? (
                           <Link
                             href={href}
-                            className="line-clamp-2 font-semibold text-[#4f7f1f] hover:underline"
+                            className="line-clamp-2 font-semibold text-[var(--tge-brand-green-dark)] hover:underline"
                           >
                             {candidate.source_title ||
                               candidate.source_reference ||
                               "Open source"}
                           </Link>
                         ) : (
-                          <span className="text-gray-400">No source link</span>
+                          <span className="text-[var(--tge-governance-muted-text)]">
+                            No source link
+                          </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         {formatConfidence(candidate.confidence_score)}
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                         <span
                           className={`inline-flex min-h-[24px] items-center border px-2 text-xs font-semibold ${workflowTone(
                             candidate
@@ -387,7 +401,7 @@ export default function PostgresFieldSuggestionsPanel({
                           {workflowLabel(candidate)}
                         </span>
                         {candidate.applied_at ? (
-                          <div className="mt-1 text-xs font-semibold text-[#4f7f1f]">
+                          <div className="mt-1 text-xs font-semibold text-[var(--tge-brand-green-dark)]">
                             Applied {formatDate(candidate.applied_at)}
                           </div>
                         ) : null}
@@ -403,7 +417,7 @@ export default function PostgresFieldSuggestionsPanel({
                               isApplied
                             }
                             onClick={() => submitAction(candidate, "confirm")}
-                            className="inline-flex h-8 items-center justify-center border border-blue-200 bg-blue-50 px-3 text-xs font-semibold text-blue-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 items-center justify-center border border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-info-text)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:bg-[var(--tge-governance-muted-bg)] disabled:text-[var(--tge-governance-muted-text)]"
                           >
                             Confirm
                           </button>
@@ -413,7 +427,7 @@ export default function PostgresFieldSuggestionsPanel({
                               !canReviewStatus || isBusy || !isApplyReady
                             }
                             onClick={() => submitAction(candidate, "apply")}
-                            className="inline-flex h-8 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 text-xs font-semibold text-[var(--tge-surface-card)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:bg-[var(--tge-governance-muted-bg)] disabled:text-[var(--tge-governance-muted-text)]"
                           >
                             Apply To DB
                           </button>
@@ -426,7 +440,7 @@ export default function PostgresFieldSuggestionsPanel({
                               isApplied
                             }
                             onClick={() => submitAction(candidate, "reject")}
-                            className="inline-flex h-8 items-center justify-center border border-red-200 bg-red-50 px-3 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+                            className="inline-flex h-8 items-center justify-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-danger-text)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:bg-[var(--tge-governance-muted-bg)] disabled:text-[var(--tge-governance-muted-text)]"
                           >
                             Reject
                           </button>
@@ -452,7 +466,7 @@ export default function PostgresFieldSuggestionsPanel({
       )}
 
       {!canReviewStatus ? (
-        <div className="border-t border-gray-100 px-5 py-3 text-xs leading-5 text-gray-500">
+        <div className="border-t border-[var(--tge-governance-muted-border)] px-5 py-3 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
           Review actions require editor/admin permissions.
         </div>
       ) : null}
@@ -463,36 +477,38 @@ export default function PostgresFieldSuggestionsPanel({
     return (
       <details
         id={id}
-        className={`border border-gray-200 bg-white ${
+        className={`border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] ${
           id ? "scroll-mt-6" : ""
         }`}
       >
         <summary className="flex cursor-pointer list-none flex-col gap-3 px-5 py-4 marker:hidden md:flex-row md:items-start md:justify-between">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-gray-500">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--tge-governance-muted-text)]">
               Advanced Review Layer
             </div>
-            <h2 className="mt-1 text-lg font-bold text-[#1f2937]">
+            <h2 className="mt-1 text-lg font-bold text-[var(--tge-text-primary)]">
               AI Field Suggestions
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
               No active AI review work is waiting on this record. Expand for
               applied history, rejected candidates, or future extraction output.
             </p>
           </div>
           <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
-            <span className="inline-flex h-8 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+            <span className={summaryChipClass()}>
               {formatCount(candidates.length)} total
             </span>
-            <span className="inline-flex h-8 items-center border border-[#b9d98b] bg-[#f1f8e8] px-3 text-xs font-semibold text-[#3f6f19]">
+            <span className={summaryChipClass("success")}>
               {formatCount(appliedCount)} applied
             </span>
-            <span className="inline-flex h-8 items-center border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-600">
+            <span className={summaryChipClass()}>
               Expand
             </span>
           </div>
         </summary>
-        <div className="border-t border-gray-200">{content}</div>
+        <div className="border-t border-[var(--tge-governance-neutral-border)]">
+          {content}
+        </div>
       </details>
     );
   }
@@ -500,14 +516,14 @@ export default function PostgresFieldSuggestionsPanel({
   return (
     <section
       id={id}
-      className={`border border-gray-200 bg-white ${id ? "scroll-mt-6" : ""}`}
+      className={`border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] ${id ? "scroll-mt-6" : ""}`}
     >
-      <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 md:flex-row md:items-start md:justify-between">
+      <div className="flex flex-col gap-3 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
             AI Field Suggestions
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-600">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             Reviewable field candidates for this record. Confirming a suggestion
             marks it as accepted but does NOT update the database record.
             Applying confirmed suggestions is a separate audited write step and
@@ -515,17 +531,17 @@ export default function PostgresFieldSuggestionsPanel({
           </p>
         </div>
         <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 md:w-auto md:flex md:flex-wrap">
-          <span className="inline-flex h-9 items-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold text-gray-700">
+          <span className="inline-flex h-9 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]">
             {formatCount(openCount)} open
           </span>
           {applyReadyCount > 0 ? (
-            <span className="inline-flex h-9 items-center border border-[#8dc63f] bg-[#f1f8e8] px-3 text-xs font-semibold text-[#3f6f19]">
+            <span className="inline-flex h-9 items-center border border-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-success-text)]">
               {formatCount(applyReadyCount)} ready to apply
             </span>
           ) : null}
           <Link
             href="/postgres-preview/research-ops#field-suggestion-review"
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className={`inline-flex h-9 items-center justify-center px-4 text-sm ${secondaryActionClass()}`}
           >
             Open Research Ops
           </Link>
