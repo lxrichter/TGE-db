@@ -109,12 +109,22 @@ function MobileFactField({
 }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+      <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         {label}
       </div>
-      <div className="mt-1 min-w-0 text-sm text-gray-700">{children}</div>
+      <div className="mt-1 min-w-0 text-sm text-[var(--tge-governance-neutral-text)]">
+        {children}
+      </div>
     </div>
   );
+}
+
+function secondaryActionClass() {
+  return "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+}
+
+function entityLinkClass() {
+  return "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline";
 }
 
 export default function ArticleFactCandidatesClient({
@@ -150,14 +160,14 @@ export default function ArticleFactCandidatesClient({
     selectableIds.every((candidateId) => selected.has(candidateId));
   const cellClassName = compactRows ? "px-4 py-3" : "px-4 py-4";
   const mutedLineClassName = compactRows
-    ? "mt-1 line-clamp-1 break-all text-xs text-gray-500"
-    : "mt-1 line-clamp-2 break-all text-xs text-gray-500";
+    ? "mt-1 line-clamp-1 break-all text-xs text-[var(--tge-governance-muted-text)]"
+    : "mt-1 line-clamp-2 break-all text-xs text-[var(--tge-governance-muted-text)]";
   const reasonClassName = compactRows
-    ? "mt-2 line-clamp-2 text-xs leading-5 text-gray-500"
-    : "mt-2 text-xs leading-5 text-gray-500";
+    ? "mt-2 line-clamp-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]"
+    : "mt-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]";
   const evidenceClassName = compactRows
-    ? "line-clamp-3 text-xs leading-5 text-gray-600"
-    : "text-xs leading-5 text-gray-600";
+    ? "line-clamp-3 text-xs leading-5 text-[var(--tge-text-secondary)]"
+    : "text-xs leading-5 text-[var(--tge-text-secondary)]";
 
   function toggleCandidate(candidateId: string) {
     setSelected((current) => {
@@ -235,25 +245,25 @@ export default function ArticleFactCandidatesClient({
   }
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+      <div className="flex flex-col gap-4 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 xl:flex-row xl:items-center xl:justify-between">
         <div>
-          <h2 className="text-lg font-bold text-[#1f2937]">
+          <h2 className="text-lg font-bold text-[var(--tge-text-primary)]">
             Article Fact Candidates
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-[var(--tge-governance-muted-text)]">
             Confirming keeps the candidate for governance; it does not update
             project, plant, or company fields or create evidence links.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:items-center">
-          <span className="inline-flex h-9 items-center justify-center border border-gray-200 bg-[#f7f7f7] px-3 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:col-span-2 xl:border-0 xl:bg-transparent xl:px-0">
+          <span className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] sm:col-span-2 xl:border-0 xl:bg-transparent xl:px-0">
             {selected.size} selected
           </span>
           <button
             type="button"
             onClick={() => setCompactRows((current) => !current)}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f]"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm ${secondaryActionClass()}`}
           >
             {compactRows ? "Detailed Rows" : "Compact Rows"}
           </button>
@@ -261,7 +271,7 @@ export default function ArticleFactCandidatesClient({
             type="button"
             disabled={isPending || !canReview || selected.size === 0}
             onClick={() => runAction("confirm")}
-            className="inline-flex h-9 items-center justify-center border border-[#8dc63f] bg-[#8dc63f] px-3 text-sm font-semibold text-white hover:bg-[#78ad35] disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-400"
+            className="inline-flex h-9 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:bg-[var(--tge-governance-muted-bg)] disabled:text-[var(--tge-governance-muted-text)]"
           >
             Confirm
           </button>
@@ -269,7 +279,7 @@ export default function ArticleFactCandidatesClient({
             type="button"
             disabled={isPending || !canReview || selected.size === 0}
             onClick={() => runAction("reject")}
-            className="inline-flex h-9 items-center justify-center border border-red-200 bg-white px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-danger-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-semibold text-[var(--tge-governance-danger-text)] hover:bg-[var(--tge-governance-danger-bg)] disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)]"
           >
             Reject
           </button>
@@ -277,7 +287,7 @@ export default function ArticleFactCandidatesClient({
             type="button"
             disabled={isPending || !canReview || selected.size === 0}
             onClick={() => runAction("needs_review")}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)] ${secondaryActionClass()}`}
           >
             Needs Review
           </button>
@@ -285,7 +295,7 @@ export default function ArticleFactCandidatesClient({
             type="button"
             disabled={isPending || selected.size === 0}
             onClick={clearSelection}
-            className="inline-flex h-9 items-center justify-center border border-gray-300 bg-white px-3 text-sm font-semibold text-gray-700 hover:border-[#8dc63f] hover:text-[#4f7f1f] disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+            className={`inline-flex h-9 items-center justify-center px-3 text-sm disabled:cursor-not-allowed disabled:border-[var(--tge-governance-muted-border)] disabled:text-[var(--tge-governance-muted-text)] ${secondaryActionClass()}`}
           >
             Clear
           </button>
@@ -293,7 +303,7 @@ export default function ArticleFactCandidatesClient({
       </div>
 
       {message ? (
-        <div className="border-b border-gray-200 bg-[#f7f7f7] px-5 py-3 text-sm text-gray-700">
+        <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-5 py-3 text-sm text-[var(--tge-governance-neutral-text)]">
           {message}
         </div>
       ) : null}
@@ -308,7 +318,7 @@ export default function ArticleFactCandidatesClient({
         onPageChange={setPage}
       />
 
-      <div className="divide-y divide-gray-100 lg:hidden">
+      <div className="divide-y divide-[var(--tge-governance-muted-border)] lg:hidden">
         {pageItems.map((candidate) => {
           const href = sourceHref(candidate);
           const entityHref = entitySearchHref(candidate);
@@ -338,16 +348,16 @@ export default function ArticleFactCandidatesClient({
                   {href ? (
                     <Link
                       href={href}
-                      className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                      className={entityLinkClass()}
                     >
                       {sourceLabel}
                     </Link>
                   ) : (
-                    <div className="font-semibold text-[#1f2937]">
+                    <div className="font-semibold text-[var(--tge-text-primary)]">
                       {sourceLabel}
                     </div>
                   )}
-                  <div className="mt-1 line-clamp-2 break-all text-xs text-gray-500">
+                  <div className="mt-1 line-clamp-2 break-all text-xs text-[var(--tge-governance-muted-text)]">
                     {candidate.source_reference}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2">
@@ -372,19 +382,19 @@ export default function ArticleFactCandidatesClient({
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <MobileFactField label="Fact Type / Field">
-                  <div className="font-semibold text-[#1f2937]">
+                  <div className="font-semibold text-[var(--tge-text-primary)]">
                     {formatCode(candidate.fact_type_code)}
                   </div>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     Field: {formatCode(candidate.field_name)}
                   </div>
                   {candidate.entity_label ? (
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                       Entity signal:{" "}
                       {entityHref ? (
                         <Link
                           href={entityHref}
-                          className="font-semibold text-[#4f7f1f] hover:underline"
+                          className="font-semibold text-[var(--tge-brand-green-dark)] hover:underline"
                         >
                           {candidate.entity_label}
                         </Link>
@@ -395,21 +405,21 @@ export default function ArticleFactCandidatesClient({
                   ) : null}
                 </MobileFactField>
                 <MobileFactField label="Candidate Value">
-                  <div className="font-semibold text-[#1f2937]">
+                  <div className="font-semibold text-[var(--tge-text-primary)]">
                     {valuePreview(candidate)}
                   </div>
                   {candidate.fact_reason ? (
-                    <div className="mt-2 line-clamp-3 text-xs leading-5 text-gray-500">
+                    <div className="mt-2 line-clamp-3 text-xs leading-5 text-[var(--tge-governance-muted-text)]">
                       {candidate.fact_reason}
                     </div>
                   ) : null}
                 </MobileFactField>
                 <MobileFactField label="Evidence">
-                  <div className="line-clamp-4 text-xs leading-5 text-gray-600">
+                  <div className="line-clamp-4 text-xs leading-5 text-[var(--tge-text-secondary)]">
                     {candidate.evidence_snippet || "-"}
                   </div>
                   {candidate.review_note ? (
-                    <div className="mt-2 border-l-2 border-gray-200 pl-2 text-xs text-gray-500">
+                    <div className="mt-2 border-l-2 border-[var(--tge-governance-muted-border)] pl-2 text-xs text-[var(--tge-governance-muted-text)]">
                       Review note: {candidate.review_note}
                     </div>
                   ) : null}
@@ -418,10 +428,10 @@ export default function ArticleFactCandidatesClient({
                   {candidate.reviewed_at
                     ? formatDate(candidate.reviewed_at)
                     : formatDate(candidate.generated_at)}
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     {candidate.reviewed_by_name || "candidate"}
                   </div>
-                  <div className="mt-1 text-xs text-gray-500">
+                  <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                     {candidate.review_sample_bucket ||
                       candidate.extraction_method}
                   </div>
@@ -432,7 +442,7 @@ export default function ArticleFactCandidatesClient({
         })}
 
         {candidates.length === 0 ? (
-          <div className="px-5 py-10 text-center text-sm text-gray-500">
+          <div className="px-5 py-10 text-center text-sm text-[var(--tge-governance-muted-text)]">
             No article fact candidates fit the current filters.
           </div>
         ) : null}
@@ -440,7 +450,7 @@ export default function ArticleFactCandidatesClient({
 
       <div className="hidden overflow-x-auto lg:block">
         <table className="min-w-[1320px] table-fixed text-left text-sm">
-          <thead className="bg-[#f7f7f7] text-[11px] uppercase tracking-wide text-gray-500">
+          <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
               <th className="w-[44px] px-4 py-3 font-semibold">
                 <input
@@ -459,7 +469,7 @@ export default function ArticleFactCandidatesClient({
               <th className="w-[8%] px-4 py-3 font-semibold">Reviewed</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
             {pageItems.map((candidate) => {
               const href = sourceHref(candidate);
               const entityHref = entitySearchHref(candidate);
@@ -471,7 +481,7 @@ export default function ArticleFactCandidatesClient({
               return (
                 <tr
                   key={candidate.article_fact_candidate_id}
-                  className="align-top transition-colors hover:bg-[#fbfdf8]"
+                  className="align-top transition-colors hover:bg-[var(--tge-surface-subtle)]"
                 >
                   <td className={cellClassName}>
                     <input
@@ -488,12 +498,12 @@ export default function ArticleFactCandidatesClient({
                     {href ? (
                       <Link
                         href={href}
-                        className="font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                        className={entityLinkClass()}
                       >
                         {sourceLabel}
                       </Link>
                     ) : (
-                      <div className="font-semibold text-[#1f2937]">
+                      <div className="font-semibold text-[var(--tge-text-primary)]">
                         {sourceLabel}
                       </div>
                     )}
@@ -503,8 +513,8 @@ export default function ArticleFactCandidatesClient({
                     <div
                       className={
                         compactRows
-                          ? "mt-1 text-xs text-gray-500"
-                          : "mt-2 text-xs text-gray-500"
+                          ? "mt-1 text-xs text-[var(--tge-governance-muted-text)]"
+                          : "mt-2 text-xs text-[var(--tge-governance-muted-text)]"
                       }
                     >
                       {candidate.published_date
@@ -513,19 +523,19 @@ export default function ArticleFactCandidatesClient({
                     </div>
                   </td>
                   <td className={cellClassName}>
-                    <div className="font-semibold text-[#1f2937]">
+                    <div className="font-semibold text-[var(--tge-text-primary)]">
                       {formatCode(candidate.fact_type_code)}
                     </div>
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
                       Field: {formatCode(candidate.field_name)}
                     </div>
                     {candidate.entity_label ? (
-                      <div className="mt-2 text-xs text-gray-500">
+                      <div className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
                         Entity signal:{" "}
                         {entityHref ? (
                           <Link
                             href={entityHref}
-                            className="font-semibold text-[#4f7f1f] hover:underline"
+                            className="font-semibold text-[var(--tge-brand-green-dark)] hover:underline"
                           >
                             {candidate.entity_label}
                           </Link>
@@ -536,7 +546,7 @@ export default function ArticleFactCandidatesClient({
                     ) : null}
                   </td>
                   <td className={cellClassName}>
-                    <div className="font-semibold text-[#1f2937]">
+                    <div className="font-semibold text-[var(--tge-text-primary)]">
                       {valuePreview(candidate)}
                     </div>
                     {candidate.fact_reason ? (
@@ -550,16 +560,16 @@ export default function ArticleFactCandidatesClient({
                       {candidate.evidence_snippet || "-"}
                     </div>
                     {candidate.review_note ? (
-                      <div className="mt-2 border-l-2 border-gray-200 pl-2 text-gray-500">
+                      <div className="mt-2 border-l-2 border-[var(--tge-governance-muted-border)] pl-2 text-[var(--tge-governance-muted-text)]">
                         Review note: {candidate.review_note}
                       </div>
                     ) : null}
                   </td>
                   <td className={cellClassName}>
-                    <div className="text-xl font-bold text-[#1f2937]">
+                    <div className="text-xl font-bold text-[var(--tge-text-primary)]">
                       {formatConfidence(candidate.confidence_score)}
                     </div>
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                       {candidate.review_sample_bucket || candidate.extraction_method}
                     </div>
                   </td>
@@ -569,16 +579,16 @@ export default function ArticleFactCandidatesClient({
                       label={candidate.fact_status_label}
                     />
                     {candidate.review_decision ? (
-                      <div className="mt-2 text-xs text-gray-500">
+                      <div className="mt-2 text-xs text-[var(--tge-governance-muted-text)]">
                         decision: {candidate.review_decision}
                       </div>
                     ) : null}
                   </td>
-                  <td className={`${cellClassName} text-gray-700`}>
+                  <td className={`${cellClassName} text-[var(--tge-governance-neutral-text)]`}>
                     {candidate.reviewed_at
                       ? formatDate(candidate.reviewed_at)
                       : formatDate(candidate.generated_at)}
-                    <div className="mt-1 text-xs text-gray-500">
+                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
                       {candidate.reviewed_by_name || "candidate"}
                     </div>
                   </td>
@@ -588,7 +598,10 @@ export default function ArticleFactCandidatesClient({
 
             {candidates.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-5 py-10 text-center text-sm text-gray-500">
+                <td
+                  colSpan={8}
+                  className="px-5 py-10 text-center text-sm text-[var(--tge-governance-muted-text)]"
+                >
                   No article fact candidates fit the current filters.
                 </td>
               </tr>
