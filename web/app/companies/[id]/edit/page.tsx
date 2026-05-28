@@ -229,6 +229,33 @@ function formatDisplayDate(value: unknown): string {
   return str.length >= 10 ? str.slice(0, 10) : str;
 }
 
+const companyEditClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  panelSubtle:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3 md:px-5",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  label: "mb-1 flex items-center text-sm font-medium text-[var(--tge-text-primary)]",
+  blockLabel: "mb-1 block text-sm font-medium text-[var(--tge-text-primary)]",
+  input:
+    "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  disabledInput:
+    "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-subtle)] text-[var(--tge-governance-muted-text)]",
+  errorInput:
+    "rounded-none border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] text-[var(--tge-text-primary)] ring-2 ring-[var(--tge-governance-danger-border)]",
+  errorText: "text-[var(--tge-governance-danger-text)]",
+  successPanel:
+    "border-l-4 border-l-[var(--tge-brand-green)] bg-[var(--tge-governance-success-bg)]",
+  secondaryButton:
+    "inline-flex items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-medium text-[var(--tge-governance-neutral-text)] transition hover:bg-[var(--tge-surface-subtle)]",
+  outlineSuccessButton:
+    "border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--tge-brand-green-dark)] transition hover:bg-[var(--tge-governance-success-bg)] disabled:opacity-50",
+};
+
 function ReviewStatusBadge({ value }: { value: string }) {
   const normalized = (value || "").trim().toLowerCase();
 
@@ -276,9 +303,11 @@ type SectionProps = {
 
 function Section({ title, children }: SectionProps) {
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-[#f7f7f7] px-4 py-3 md:px-5">
-        <h2 className="text-base font-semibold text-[#1f2937] md:text-lg">{title}</h2>
+    <section className={companyEditClass.panel}>
+      <div className={companyEditClass.sectionHeader}>
+        <h2 className={`text-base font-semibold md:text-lg ${companyEditClass.title}`}>
+          {title}
+        </h2>
       </div>
       <div className="px-4 py-4 md:px-5 md:py-5">{children}</div>
     </section>
@@ -312,7 +341,7 @@ function Input({
     <div>
       <label
         htmlFor={name}
-        className="mb-1 flex items-center text-sm font-medium text-gray-700"
+        className={companyEditClass.label}
       >
         <span>{label}</span>
         {helpContent ? (
@@ -326,17 +355,17 @@ function Input({
         onChange={onChange}
         disabled={disabled}
         required={required}
-        className={`w-full rounded-none border px-3 py-2 text-sm outline-none ${
+        className={`w-full px-3 py-2 text-sm ${
           error
-            ? "border-red-500 bg-red-50 ring-2 ring-red-100"
+            ? companyEditClass.errorInput
             : disabled
-            ? "border-gray-300 bg-gray-100 text-gray-500"
-            : "border-gray-300 bg-white focus:border-[#8dc63f]"
+              ? companyEditClass.disabledInput
+              : companyEditClass.input
         }`}
       />
 
       {error ? (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className={`mt-1 text-xs ${companyEditClass.errorText}`}>{error}</p>
       ) : null}
     </div>
   );
@@ -353,7 +382,7 @@ type TextareaProps = {
 function Textarea({ label, name, value, onChange, rows = 5 }: TextareaProps) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor={name} className={companyEditClass.blockLabel}>
         {label}
       </label>
       <textarea
@@ -362,7 +391,7 @@ function Textarea({ label, name, value, onChange, rows = 5 }: TextareaProps) {
         value={value}
         onChange={onChange}
         rows={rows}
-        className="w-full rounded-none border border-gray-300 px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+        className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
       />
     </div>
   );
@@ -376,11 +405,11 @@ function MetadataCard({
   value: string;
 }) {
   return (
-    <div className="border border-gray-200 bg-[#fafafa] px-4 py-4">
-      <div className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+    <div className={`${companyEditClass.panelSubtle} px-4 py-4`}>
+      <div className={`mb-2 text-[11px] font-semibold uppercase tracking-wide ${companyEditClass.muted}`}>
         {label}
       </div>
-      <div className="text-sm text-[#1f2937]">{value || "NA"}</div>
+      <div className={`text-sm ${companyEditClass.title}`}>{value || "NA"}</div>
     </div>
   );
 }
@@ -1366,7 +1395,7 @@ export default function EditCompanyPage() {
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-5 md:px-6 md:py-8">
-        <p className="text-sm text-gray-600">Loading company...</p>
+        <p className={`text-sm ${companyEditClass.body}`}>Loading company...</p>
       </div>
     );
   }
@@ -1374,11 +1403,11 @@ export default function EditCompanyPage() {
   if (error && !form.company_id) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-5 md:px-6 md:py-8">
-        <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className={`border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] p-4 text-sm ${companyEditClass.errorText}`}>
           {error}
         </div>
         <div className="mt-4">
-          <Link href="/companies" className="text-sm font-medium text-[#8dc63f] hover:underline">
+          <Link href="/companies" className="text-sm font-medium text-[var(--tge-brand-green-dark)] hover:underline">
             Back to companies
           </Link>
         </div>
@@ -1409,10 +1438,10 @@ export default function EditCompanyPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="mb-5 flex flex-col gap-4 md:mb-6 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-[#1f2937] md:text-2xl">
+            <h1 className={`text-xl font-semibold tracking-tight md:text-2xl ${companyEditClass.title}`}>
               Edit Company
             </h1>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className={`mt-1 text-sm ${companyEditClass.body}`}>
               Update company profile details and manage links to projects, plants, and related companies.
             </p>
           </div>
@@ -1423,7 +1452,7 @@ export default function EditCompanyPage() {
                 type="button"
                 onClick={handleApprove}
                 disabled={approving}
-                className="border border-[#8dc63f] bg-white px-4 py-2 text-sm font-semibold text-[#6ea62d] transition hover:bg-[#f6fbef] disabled:opacity-50"
+                className={companyEditClass.outlineSuccessButton}
               >
                 {approving ? "Approving..." : "Approve"}
               </button>
@@ -1436,7 +1465,7 @@ export default function EditCompanyPage() {
                   router.push(`/companies/${companyId}`);
                 }
               }}
-              className="inline-flex items-center justify-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              className={companyEditClass.secondaryButton}
             >
               Cancel
             </button>
@@ -1448,8 +1477,8 @@ export default function EditCompanyPage() {
         </div>
 
         {justCreated ? (
-          <div className="border-l-4 border-l-[#8dc63f] bg-[#f6fbef] px-4 py-3 md:px-5">
-            <p className="text-sm leading-relaxed text-[#1f2937]">
+          <div className={`${companyEditClass.successPanel} px-4 py-3 md:px-5`}>
+            <p className={`text-sm leading-relaxed ${companyEditClass.title}`}>
               <span className="font-semibold">Company created successfully.</span>{" "}
               You can now add linked projects, linked plants, and company relationships below.
             </p>
@@ -1457,12 +1486,12 @@ export default function EditCompanyPage() {
         ) : null}
 
         {error ? (
-          <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <div className={`border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] p-4 text-sm ${companyEditClass.errorText}`}>
             {error}
           </div>
         ) : null}
 
-        <section className="border border-gray-200 bg-white">
+        <section className={companyEditClass.panel}>
           <div className="px-4 py-4 md:px-5 md:py-5">
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <ReviewStatusBadge value={reviewStatus} />
@@ -1470,7 +1499,7 @@ export default function EditCompanyPage() {
             </div>
 
             {isPendingReview ? (
-              <div className="mb-4 border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+              <div className={`mb-4 border border-[var(--tge-governance-danger-border)] bg-[var(--tge-governance-danger-bg)] px-4 py-3 text-sm font-semibold ${companyEditClass.errorText}`}>
                 Pending review — this record was recently updated and requires validation before approval.
               </div>
             ) : null}
@@ -1487,7 +1516,7 @@ export default function EditCompanyPage() {
         </section>
 
         <Section title="Core Identification">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Enter the legal company identity and standard naming fields used across the database.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1527,7 +1556,7 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Web & External Presence">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Add official public links and core external references for the company.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1537,7 +1566,7 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Entity & Classification">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Use this section to describe what the company broadly is. Do not use it for project- or plant-specific participation such as owner, operator, EPC, drilling, investor, or supplier roles — those belong in the linked projects and plants sections below.
           </p>
 
@@ -1568,7 +1597,7 @@ export default function EditCompanyPage() {
 
             {/* SECONDARY TYPES — FIXED */}
             <div>
-              <label className="mb-1 flex items-center text-sm font-medium text-gray-700">
+              <label className={companyEditClass.label}>
                 <span>Secondary Types</span>
                 <FieldHelp
                   title="Secondary Types"
@@ -1592,8 +1621,8 @@ export default function EditCompanyPage() {
                 }}
                 className={`min-h-[180px] w-full rounded-none border px-3 py-2 text-sm outline-none md:min-h-[220px] ${
                   fieldErrors.company_type_secondary
-                    ? "border-red-500 bg-red-50 ring-2 ring-red-100"
-                    : "border-gray-300 bg-white focus:border-[#8dc63f]"
+                    ? companyEditClass.errorInput
+                    : companyEditClass.input
                 }`}
               >
                 {COMPANY_TYPE_SECONDARY_GROUPS.map((group) => (
@@ -1609,12 +1638,12 @@ export default function EditCompanyPage() {
 
               {/* INLINE ERROR */}
               {fieldErrors.company_type_secondary && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className={`mt-1 text-xs ${companyEditClass.errorText}`}>
                   {fieldErrors.company_type_secondary}
                 </p>
               )}
 
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${companyEditClass.muted}`}>
                 Hold Ctrl/Cmd to select multiple. Maximum 3 selections. Use for capabilities, not asset-level roles.
               </p>
 
@@ -1623,7 +1652,7 @@ export default function EditCompanyPage() {
                   {form.company_type_secondary.map((item) => (
                     <span
                       key={item}
-                      className="inline-flex border border-gray-300 bg-gray-50 px-2 py-1 text-xs text-gray-700"
+                      className="inline-flex border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-1 text-xs text-[var(--tge-governance-neutral-text)]"
                     >
                       {item}
                     </span>
@@ -1684,7 +1713,7 @@ export default function EditCompanyPage() {
 
             {/* GROUP PARENT */}
             <div>
-              <label className="mb-1 flex items-center text-sm font-medium text-gray-700">
+              <label className={companyEditClass.label}>
                 <span>Is Group Parent</span>
                 <FieldHelp
                   title="Is Group Parent"
@@ -1695,7 +1724,7 @@ export default function EditCompanyPage() {
               <select
                 value={form.parent_company_id ? "0" : "1"}
                 disabled
-                className="w-full rounded-none border border-gray-300 bg-gray-100 px-3 py-2 text-sm text-gray-500"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.disabledInput}`}
               >
                 {YES_NO_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -1709,19 +1738,19 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Group / Parent Structure">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Use this section only for company-to-company hierarchy and reporting structure. Do not use it for project or plant participation roles.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className={companyEditClass.blockLabel}>
                 Parent Company
               </label>
               <select
                 name="parent_company_id"
                 value={form.parent_company_id}
                 onChange={handleChange}
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
               >
                 <option value="">Select parent company...</option>
                 {companyOptions
@@ -1733,20 +1762,20 @@ export default function EditCompanyPage() {
                   ))}
               </select>
 
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={`mt-1 text-xs ${companyEditClass.muted}`}>
                 If no parent is selected, this company is treated as the top-level entity.
               </p>
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className={companyEditClass.blockLabel}>
                 Ultimate Parent Company
               </label>
               <select
                 name="ultimate_parent_company_id"
                 value={form.ultimate_parent_company_id}
                 onChange={handleChange}
-                className="w-full rounded-none border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#8dc63f]"
+                className={`w-full px-3 py-2 text-sm ${companyEditClass.input}`}
               >
                 <option value="">Select ultimate parent...</option>
                 {companyOptions
@@ -1791,7 +1820,7 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Headquarters & Geography">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Record the company’s main geographic base and reporting regions.
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -1825,7 +1854,7 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Strategic / Market Focus">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Capture the company’s focus areas, capabilities, and market footprint in concise narrative form.
           </p>
           <div className="space-y-4">
@@ -1859,7 +1888,7 @@ export default function EditCompanyPage() {
         </Section>
 
         <Section title="Research & Editorial">
-          <p className="mb-4 text-sm text-gray-600">
+          <p className={`mb-4 text-sm ${companyEditClass.body}`}>
             Use this section for research notes, editorial context, and internal tracking.
           </p>
           <div className="space-y-4">
@@ -2662,7 +2691,7 @@ export default function EditCompanyPage() {
                 type="button"
                 onClick={handleApprove}
                 disabled={approving}
-                className="border border-[#8dc63f] bg-white px-4 py-2 text-sm font-semibold text-[#6ea62d] transition hover:bg-[#f6fbef] disabled:opacity-50"
+                className={companyEditClass.outlineSuccessButton}
               >
                 {approving ? "Approving..." : "Approve"}
               </button>
@@ -2675,7 +2704,7 @@ export default function EditCompanyPage() {
                   router.push(`/companies/${companyId}`);
                 }
               }}
-              className="inline-flex items-center justify-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              className={companyEditClass.secondaryButton}
             >
               Cancel
             </button>
