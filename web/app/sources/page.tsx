@@ -169,7 +169,7 @@ function OperationCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className={sourceEyebrowClass}>{label}</div>
-          <div className={`mt-2 text-2xl leading-none ${sourceTitleClass}`}>
+          <div className={`mt-1 text-xl leading-none ${sourceTitleClass}`}>
             {value}
           </div>
         </div>
@@ -179,13 +179,13 @@ function OperationCard({
           </span>
         ) : null}
       </div>
-      <div className={`mt-3 text-xs leading-5 ${sourceMutedTextClass}`}>
+      <div className={`mt-2 text-xs leading-5 ${sourceMutedTextClass}`}>
         {note}
       </div>
     </>
   );
 
-  const className = `border px-4 py-4 transition ${postgresStatusToneClass(tone)} ${
+  const className = `border px-3.5 py-3 transition ${postgresStatusToneClass(tone)} ${
     href
       ? "hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
       : ""
@@ -375,91 +375,6 @@ function sourceViewLabel(activeFilters: Array<{ label: string; value: string }>)
   return "Custom Source View";
 }
 
-function SourcesListContext({
-  shownCount,
-  total,
-  activeFilters,
-}: {
-  shownCount: number;
-  total: number;
-  activeFilters: Array<{ label: string; value: string }>;
-}) {
-  return (
-    <>
-      <section className={sourceCardClass}>
-        <div className="grid gap-4 px-5 py-4 lg:grid-cols-[1.1fr_1fr_auto] lg:items-center">
-          <div>
-            <div className={sourceEyebrowClass}>Current View</div>
-            <div className={`mt-1 text-lg ${sourceTitleClass}`}>
-              {sourceViewLabel(activeFilters)}
-            </div>
-            <div className={`mt-1 text-xs leading-5 ${sourceMutedTextClass}`}>
-              {activeFilters.length === 0
-                ? "No active filters"
-                : `${formatCount(activeFilters.length)} active filter${
-                    activeFilters.length === 1 ? "" : "s"
-                  }`}
-            </div>
-          </div>
-          <div>
-            <div className={sourceEyebrowClass}>Results</div>
-            <div className="mt-1 text-sm font-semibold text-[var(--tge-text-primary)]">
-              Showing {formatCount(shownCount)} of {formatCount(total)} matching
-              governed sources
-            </div>
-            <div className={`mt-1 text-xs leading-5 ${sourceMutedTextClass}`}>
-              Source table currently shows the first {formatCount(shownCount)} sources.
-            </div>
-          </div>
-          <div className={`text-xs leading-5 ${sourceMutedTextClass} lg:max-w-xs lg:text-right`}>
-            Source export is not enabled yet. For now, exports remain available on
-            project, plant, company, Research Ops, and candidate-review
-            workflows where explicit export routes exist.
-          </div>
-        </div>
-        {activeFilters.length > 0 ? (
-          <div className="flex flex-col gap-2 border-t border-[var(--tge-governance-neutral-border)] px-5 py-3 sm:flex-row sm:flex-wrap">
-            {activeFilters.map((filter) => (
-              <span
-                key={`${filter.label}-${filter.value}`}
-                className="inline-flex min-h-8 items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 text-xs font-semibold text-[var(--tge-governance-neutral-text)]"
-              >
-                <span className={sourceMutedTextClass}>{filter.label}:</span>
-                <span className="ml-1">{filter.value}</span>
-              </span>
-            ))}
-          </div>
-        ) : null}
-      </section>
-      <details className={sourceCardClass}>
-        <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className={sourceEyebrowClass}>Status Language</div>
-            <h2 className={`mt-1 text-base ${sourceTitleClass}`}>
-              Source Status Meaning
-            </h2>
-            <p className={`mt-1 max-w-3xl text-xs leading-5 ${sourceMutedTextClass}`}>
-              Badge help for credibility, visibility, confidence, and review
-              states.
-            </p>
-          </div>
-          <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
-            Show badge guide
-          </span>
-        </summary>
-        <div className="border-t border-[var(--tge-governance-neutral-border)]">
-          <PostgresStatusLegend
-            compact
-            description="Sources use badges to separate source credibility, visibility restrictions, match confidence, and human review status."
-            groups={["source", "visibility", "confidence", "review"]}
-            title="Source Status Meaning"
-          />
-        </div>
-      </details>
-    </>
-  );
-}
-
 function DisclosureSection({
   label,
   title,
@@ -539,18 +454,48 @@ function SourceMobileField({
 function SourcesTable({
   sources,
   total,
+  activeFilters,
 }: {
   sources: SourceListItem[];
   total: number;
+  activeFilters: Array<{ label: string; value: string }>;
 }) {
   return (
     <section className={sourceCardClass}>
-      <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className={`text-lg ${sourceTitleClass}`}>Source Records</h2>
-        <span className={`text-xs font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}>
-          Showing {formatCount(sources.length)} of {formatCount(total)} matching
-        </span>
+      <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className={`text-lg ${sourceTitleClass}`}>Source Records</h2>
+          <p className={`mt-1 text-xs ${sourceMutedTextClass}`}>
+            {sourceViewLabel(activeFilters)}
+          </p>
+        </div>
+        <div className="text-left sm:text-right">
+          <span className={`text-xs font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}>
+            Showing {formatCount(sources.length)} of {formatCount(total)} matching
+          </span>
+          <div className={`mt-1 text-xs ${sourceMutedTextClass}`}>
+            {activeFilters.length === 0
+              ? "No active filters"
+              : `${formatCount(activeFilters.length)} active filter${
+                  activeFilters.length === 1 ? "" : "s"
+                }`}
+          </div>
+        </div>
       </div>
+
+      {activeFilters.length > 0 ? (
+        <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-2.5 sm:flex-row sm:flex-wrap">
+          {activeFilters.map((filter) => (
+            <span
+              key={`${filter.label}-${filter.value}`}
+              className="inline-flex min-h-[28px] items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-2.5 text-xs font-semibold text-[var(--tge-governance-neutral-text)]"
+            >
+              <span className={sourceMutedTextClass}>{filter.label}:</span>
+              <span className="ml-1">{filter.value}</span>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="divide-y divide-[var(--tge-governance-muted-border)] lg:hidden">
         {sources.map((source) => (
@@ -728,15 +673,6 @@ export default async function SourcesPage({
   const activeSourceFilters = data.ok
     ? activeSourceFilterLabels(filters, data.referenceData)
     : [];
-  const openEvidenceWorkCount = data.ok
-    ? data.summary.needsReview +
-      data.summary.unlinkedSources +
-      data.summary.weakOutdatedRejected +
-      data.summary.duplicateFlagged +
-      data.matchSummary.open +
-      data.articleFactSummary.open
-    : 0;
-
   return (
     <main className="space-y-7">
       <section className={sourceCardClass}>
@@ -780,46 +716,38 @@ export default async function SourcesPage({
 
         {data.ok ? (
           <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4 xl:grid-cols-8">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
               <StatTile
                 label="Sources"
                 value={formatCount(data.summary.total)}
-                note="Matching selected view"
-              />
-              <StatTile
-                label="Credible"
-                value={formatCount(data.summary.credible)}
-                note="Reviewed sources"
-              />
-              <StatTile
-                label="TGE Articles"
-                value={formatCount(data.summary.tgeArticles)}
-                note="Article archive"
-              />
-              <StatTile
-                label="Needs Review"
-                value={formatCount(data.summary.needsReview)}
-                note="Credibility queue"
-              />
-              <StatTile
-                label="Unlinked"
-                value={formatCount(data.summary.unlinkedSources)}
-                note="Need evidence links"
+                note={`${formatCount(data.summary.credible)} credible · ${formatCount(
+                  data.summary.tgeArticles
+                )} TGE articles`}
               />
               <StatTile
                 label="Evidence Links"
                 value={formatCount(data.summary.linkedEvidence)}
-                note="Confirmed links"
+                note={`${formatCount(
+                  data.summary.unlinkedSources
+                )} sources still unlinked`}
               />
               <StatTile
-                label="Open Matches"
-                value={formatCount(data.matchSummary.open)}
-                note="Entity candidates"
+                label="Review Work"
+                value={formatCount(data.summary.needsReview)}
+                note={`${formatCount(
+                  data.summary.weakOutdatedRejected
+                )} weak/outdated · ${formatCount(
+                  data.summary.duplicateFlagged
+                )} duplicates`}
               />
               <StatTile
-                label="Open Facts"
-                value={formatCount(data.articleFactSummary.open)}
-                note="Fact candidates"
+                label="AI Review"
+                value={formatCount(
+                  data.matchSummary.open + data.articleFactSummary.open
+                )}
+                note={`${formatCount(data.matchSummary.open)} matches · ${formatCount(
+                  data.articleFactSummary.open
+                )} facts`}
               />
             </div>
           </div>
@@ -833,9 +761,9 @@ export default async function SourcesPage({
           <PostgresSectionJumpNav
             items={[
               {
-                href: "#source-triage",
-                label: "Triage",
-                note: "Coverage",
+                href: "#source-workbench",
+                label: "Workbench",
+                note: "Records",
               },
               {
                 href: "#source-queues",
@@ -843,129 +771,19 @@ export default async function SourcesPage({
                 note: "Evidence Work",
               },
               {
-                href: "#source-workbench",
-                label: "Workbench",
-                note: "Records",
+                href: "#source-model",
+                label: "Model",
+                note: "Governance",
               },
             ]}
           />
 
-          <section id="source-triage" className="space-y-5 scroll-mt-24">
-            <DetailPriorityMarker
-              label="Core"
-              title="Evidence Triage"
-              description="Coverage, credibility, source gaps, review queues."
-              tone="core"
-            />
-
-            <section className={sourceCardClass}>
-              <div className="grid gap-3 px-5 py-4 md:grid-cols-2 xl:grid-cols-4">
-                <OperationCard
-                  label="Source Review"
-                  value={formatCount(data.summary.needsReview)}
-                  note="Sources marked needs review"
-                  href="/sources?status=needs_review"
-                  tone={data.summary.needsReview > 0 ? "attention" : "success"}
-                />
-                <OperationCard
-                  label="Unlinked Sources"
-                  value={formatCount(data.summary.unlinkedSources)}
-                  note="Need evidence links or archive-only classification"
-                  href="/sources?linkState=unlinked"
-                  tone={
-                    data.summary.unlinkedSources > 0 ? "attention" : "success"
-                  }
-                />
-                <OperationCard
-                  label="Match Review"
-                  value={formatCount(data.matchSummary.open)}
-                  note="Confirm matches to create evidence links"
-                  href="/sources/matches"
-                  tone={data.matchSummary.open > 0 ? "attention" : "success"}
-                />
-                <OperationCard
-                  label="Fact Review"
-                  value={formatCount(data.articleFactSummary.open)}
-                  note="Confirm extracted facts before field suggestions"
-                  href="/sources/facts"
-                  tone={
-                    data.articleFactSummary.open > 0 ? "attention" : "success"
-                  }
-                />
-              </div>
-            </section>
-          </section>
-
-          <section id="source-queues" className="space-y-5 scroll-mt-24">
-            <DetailPriorityMarker
-              label="Workflow"
-              title="Evidence Queues"
-              description="Review credibility, links, article matches, extracted facts."
-              tone="workflow"
-            />
-
-            <DisclosureSection
-              defaultOpen={openEvidenceWorkCount > 0}
-              description="Source governance stays separate from article/entity match review. Confirmed matches become real evidence links; suggestions remain reviewable operational work."
-              label="Workflow"
-              title="Evidence Operations"
-            >
-              <div className="space-y-3">
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-                  <OperationCard
-                    label="Restricted Sources"
-                    value={formatCount(data.summary.restrictedVisibility)}
-                    note="Internal or confidential visibility"
-                    tone={
-                      data.summary.restrictedVisibility > 0
-                        ? "attention"
-                      : "neutral"
-                    }
-                  />
-                  <OperationCard
-                    label="Article Archive"
-                    value={formatCount(data.summary.tgeArticles)}
-                    note="TGE article metadata"
-                    href="/sources?sourceType=tge_article"
-                  />
-                  <OperationCard
-                    label="Weak / Outdated / Rejected"
-                    value={formatCount(data.summary.weakOutdatedRejected)}
-                    note="Sources not currently export-eligible"
-                    href="/sources?quality=weak_outdated_rejected"
-                    tone={
-                      data.summary.weakOutdatedRejected > 0 ? "danger" : "success"
-                    }
-                  />
-                  <OperationCard
-                    label="Duplicate Flags"
-                    value={formatCount(data.summary.duplicateFlagged)}
-                    note="Sources requiring duplicate review"
-                    href="/sources?duplicate=1"
-                    tone={
-                      data.summary.duplicateFlagged > 0 ? "danger" : "success"
-                    }
-                  />
-                  <OperationCard
-                    label="Confirmed Matches"
-                    value={formatCount(data.matchSummary.confirmed)}
-                    note="Article/entity links confirmed"
-                    href="/sources/matches?status=confirmed"
-                    tone="success"
-                  />
-                </div>
-              </div>
-            </DisclosureSection>
-
-            <WorkflowStrip />
-          </section>
-
           <section id="source-workbench" className="space-y-5 scroll-mt-24">
             <DetailPriorityMarker
-              label="Governance"
+              label="Core"
               title="Source Workbench"
-              description="Detailed filters and governed sources."
-              tone="governance"
+              description="Search, filter, and open governed source records."
+              tone="core"
             />
 
             <DisclosureSection
@@ -1059,13 +877,141 @@ export default async function SourcesPage({
               ) : null}
             </DisclosureSection>
 
-            <SourcesListContext
+            <SourcesTable
               activeFilters={activeSourceFilters}
-              shownCount={data.sources.length}
+              sources={data.sources}
               total={data.summary.total}
             />
+          </section>
 
-            <SourcesTable sources={data.sources} total={data.summary.total} />
+          <section id="source-queues" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Workflow"
+              title="Evidence Queues"
+              description="Review credibility, links, article matches, extracted facts."
+              tone="workflow"
+            />
+
+            <section className={sourceCardClass}>
+              <div className="grid gap-3 px-5 py-4 md:grid-cols-2 xl:grid-cols-4">
+                <OperationCard
+                  label="Source Review"
+                  value={formatCount(data.summary.needsReview)}
+                  note="Sources marked needs review"
+                  href="/sources?status=needs_review"
+                  tone={data.summary.needsReview > 0 ? "attention" : "success"}
+                />
+                <OperationCard
+                  label="Unlinked Sources"
+                  value={formatCount(data.summary.unlinkedSources)}
+                  note="Need evidence links or archive-only classification"
+                  href="/sources?linkState=unlinked"
+                  tone={
+                    data.summary.unlinkedSources > 0 ? "attention" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Match Review"
+                  value={formatCount(data.matchSummary.open)}
+                  note="Confirm matches to create evidence links"
+                  href="/sources/matches"
+                  tone={data.matchSummary.open > 0 ? "attention" : "success"}
+                />
+                <OperationCard
+                  label="Fact Review"
+                  value={formatCount(data.articleFactSummary.open)}
+                  note="Confirm extracted facts before field suggestions"
+                  href="/sources/facts"
+                  tone={
+                    data.articleFactSummary.open > 0 ? "attention" : "success"
+                  }
+                />
+              </div>
+            </section>
+
+            <DisclosureSection
+              defaultOpen={false}
+              description="Secondary evidence governance queues remain available without competing with source record review."
+              label="Governance"
+              title="Secondary Evidence Queues"
+            >
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+                <OperationCard
+                  label="Restricted Sources"
+                  value={formatCount(data.summary.restrictedVisibility)}
+                  note="Internal or confidential visibility"
+                  tone={
+                    data.summary.restrictedVisibility > 0
+                      ? "attention"
+                      : "neutral"
+                  }
+                />
+                <OperationCard
+                  label="Article Archive"
+                  value={formatCount(data.summary.tgeArticles)}
+                  note="TGE article metadata"
+                  href="/sources?sourceType=tge_article"
+                />
+                <OperationCard
+                  label="Weak / Outdated / Rejected"
+                  value={formatCount(data.summary.weakOutdatedRejected)}
+                  note="Sources not currently export-eligible"
+                  href="/sources?quality=weak_outdated_rejected"
+                  tone={
+                    data.summary.weakOutdatedRejected > 0 ? "danger" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Duplicate Flags"
+                  value={formatCount(data.summary.duplicateFlagged)}
+                  note="Sources requiring duplicate review"
+                  href="/sources?duplicate=1"
+                  tone={
+                    data.summary.duplicateFlagged > 0 ? "danger" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Confirmed Matches"
+                  value={formatCount(data.matchSummary.confirmed)}
+                  note="Article/entity links confirmed"
+                  href="/sources/matches?status=confirmed"
+                  tone="success"
+                />
+              </div>
+            </DisclosureSection>
+          </section>
+
+          <section id="source-model" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Evidence Model"
+              description="Status language and source-to-evidence workflow."
+              tone="governance"
+            />
+
+            <WorkflowStrip />
+
+            <details className={sourceCardClass}>
+              <summary className="flex cursor-pointer list-none flex-col gap-2 px-5 py-4 marker:hidden sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className={sourceEyebrowClass}>Status Language</div>
+                  <h2 className={`mt-1 text-base ${sourceTitleClass}`}>
+                    Source Status Meaning
+                  </h2>
+                </div>
+                <span className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
+                  Show badge guide
+                </span>
+              </summary>
+              <div className="border-t border-[var(--tge-governance-neutral-border)]">
+                <PostgresStatusLegend
+                  compact
+                  description="Sources use badges to separate source credibility, visibility restrictions, match confidence, and human review status."
+                  groups={["source", "visibility", "confidence", "review"]}
+                  title="Source Status Meaning"
+                />
+              </div>
+            </details>
           </section>
         </>
       )}
