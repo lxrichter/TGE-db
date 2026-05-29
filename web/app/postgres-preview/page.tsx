@@ -593,7 +593,7 @@ export default async function PostgresPreviewPage() {
               />
               <EntryPathCard
                 description="Use markets, map, and analysis to interpret market and spatial patterns."
-                href="/postgres-preview/analysis"
+                href="/analysis"
                 step="04"
                 title="Interpret Intelligence"
               />
@@ -652,8 +652,8 @@ export default async function PostgresPreviewPage() {
                 title="Map"
               />
               <WorkAreaCard
-                description="Cross-database analytical snapshot for capacity, lifecycle, use type, and market comparison."
-                href="/postgres-preview/analysis"
+                description="Live analysis modules, benchmark pages, and future module definitions."
+                href="/analysis"
                 label="Intelligence View"
                 title="Analysis"
               />

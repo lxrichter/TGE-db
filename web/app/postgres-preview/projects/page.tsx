@@ -442,7 +442,7 @@ export default async function PostgresProjectsListPage({
                 label: "Pipeline MWe",
                 value: formatOverviewMwe(bucketMwe(data.analysis.projectLifecycle)),
                 note: "Combined electric capacity signal",
-                href: "/postgres-preview/analysis",
+                href: "/analysis",
                 tone: "pipeline",
               },
               {

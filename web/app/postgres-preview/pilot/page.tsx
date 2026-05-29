@@ -132,7 +132,7 @@ const pilotSteps: PilotStep[] = [
       { label: "Global Search", href: "/search", primary: true },
       { label: "Markets", href: "/postgres-preview/markets" },
       { label: "Map", href: "/postgres-preview/map" },
-      { label: "Analysis", href: "/postgres-preview/analysis" },
+      { label: "Analysis", href: "/analysis" },
     ],
   },
 ];

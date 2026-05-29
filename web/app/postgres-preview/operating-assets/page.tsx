@@ -455,7 +455,7 @@ export default async function PostgresOperatingAssetsListPage({
                   bucketMwe(data.analysis.operatingAssetStatus)
                 ),
                 note: "Combined operating fleet capacity signal",
-                href: "/postgres-preview/analysis",
+                href: "/analysis",
                 tone: "operating",
               },
               {

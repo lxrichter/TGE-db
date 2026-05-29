@@ -693,7 +693,7 @@ export default async function HomePage() {
             </div>
 
             <div className="grid gap-2 sm:flex sm:flex-wrap xl:justify-end">
-              <ActionButton href="/postgres-preview/analysis" variant="primary">
+              <ActionButton href="/analysis" variant="primary">
                 Open Analysis
               </ActionButton>
               <ActionButton href="/postgres-preview" variant="secondary">
@@ -750,7 +750,7 @@ export default async function HomePage() {
 
         <section className="grid grid-cols-1 gap-3 lg:grid-cols-4">
           <ExecutiveKpi
-            href="/postgres-preview/analysis"
+            href="/analysis"
             label="Operating MWe"
             note="Installed operating capacity signal"
             prominence="executive"
@@ -799,7 +799,7 @@ export default async function HomePage() {
             value={formatCount(companiesTracked)}
           />
           <ExecutiveKpi
-            href="/postgres-preview/analysis"
+            href="/analysis"
             label="Direct Use"
             note={
               staging.ok
@@ -837,7 +837,7 @@ export default async function HomePage() {
           />
           <IntelligenceCard
             description="Cross-database benchmarking for lifecycle, operating status, use type, and market comparison."
-            href="/postgres-preview/analysis"
+            href="/analysis"
             label="Analytical Layer"
             meta="BI"
             title="Analysis"
@@ -934,7 +934,7 @@ export default async function HomePage() {
             description={`Hybrid/mineral activity signal: ${
               staging.ok ? formatCount(hybridRecords) : "PostgreSQL pending"
             } items.`}
-            href="/postgres-preview/analysis"
+            href="/analysis"
             label="Emerging Sectors"
             meta="Future"
             title="Hybrid / Mineral Signal"

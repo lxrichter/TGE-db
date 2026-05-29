@@ -76,7 +76,7 @@ export const platformNavigationGroups: PlatformNavigationGroup[] = [
         label: "Analysis",
         commandLabel: "Open Analysis",
         note: "Cross-database benchmarking and geothermal intelligence analysis.",
-        href: "/postgres-preview/analysis",
+        href: "/analysis",
         showInHeader: true,
         showInCommand: true,
         primaryAudiences: ["subscriber", "editor", "administrator"],

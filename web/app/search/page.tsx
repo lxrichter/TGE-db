@@ -36,7 +36,7 @@ const commandShortcuts = [
   {
     group: "Intelligence / Research",
     label: "Open Analysis",
-    href: "/postgres-preview/analysis",
+    href: "/analysis",
     note: "Cross-database benchmarking and geothermal intelligence analysis.",
   },
   {

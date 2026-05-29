@@ -172,7 +172,7 @@ export default function PostgresRegionalWorklistRoutes({
               <Link
                 className={regionalRoutesClass.routeLink}
                 href={regionHref({
-                  path: "/postgres-preview/analysis",
+                  path: "/analysis",
                   kind: region.kind,
                   name: region.name,
                 })}
