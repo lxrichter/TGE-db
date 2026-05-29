@@ -830,7 +830,7 @@ export default async function HomePage() {
           />
           <IntelligenceCard
             description="Spatial view of coordinate-confirmed projects and plants, with Research Ops handling missing coordinates."
-            href="/postgres-preview/map"
+            href="/map"
             label="Spatial Intelligence"
             meta="Map"
             title="Geothermal Map"

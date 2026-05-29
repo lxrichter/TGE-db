@@ -86,7 +86,7 @@ export const platformNavigationGroups: PlatformNavigationGroup[] = [
         label: "Map",
         commandLabel: "Open Map",
         note: "Spatial intelligence for coordinate-confirmed projects and plants.",
-        href: "/postgres-preview/map",
+        href: "/map",
         showInHeader: true,
         showInCommand: true,
         primaryAudiences: ["subscriber", "researcher", "editor", "administrator"],

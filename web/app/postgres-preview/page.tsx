@@ -647,7 +647,7 @@ export default async function PostgresPreviewPage() {
               />
               <WorkAreaCard
                 description="Spatial view for projects and plants with map-based navigation."
-                href="/postgres-preview/map"
+                href="/map"
                 label="Spatial View"
                 title="Map"
               />
