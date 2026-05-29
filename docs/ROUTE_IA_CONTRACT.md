@@ -8,6 +8,7 @@ Related design contracts:
 
 - `docs/APP_SHELL_NAVIGATION_CONTRACT.md`
 - `docs/DESIGN_TOKEN_CONTRACT.md`
+- `docs/DESIGN_PHASE_ENTRY_CHECKLIST.md`
 - `docs/STATUS_BADGE_HIERARCHY.md`
 
 ## Current Principle

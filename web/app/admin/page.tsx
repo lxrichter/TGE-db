@@ -365,6 +365,11 @@ function DesignReadinessOverview() {
       note: "Defines the future left-sidebar shell, top-bar utility layer, role defaults, and mobile navigation behavior.",
     },
     {
+      title: "Design Phase Entry Checklist",
+      reference: "docs/DESIGN_PHASE_ENTRY_CHECKLIST.md",
+      note: "Defines the acceptance gate, review page set, and boundaries for starting broad visual design.",
+    },
+    {
       title: "Status Badge Hierarchy",
       reference: "docs/STATUS_BADGE_HIERARCHY.md",
       note: "Locks the operational meaning of lifecycle, review, source, confidence, and severity status colors.",

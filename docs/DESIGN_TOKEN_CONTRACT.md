@@ -23,6 +23,7 @@ Related semantics:
 - `docs/STATUS_BADGE_HIERARCHY.md`
 - `docs/APP_SHELL_NAVIGATION_CONTRACT.md`
 - `docs/ROUTE_IA_CONTRACT.md`
+- `docs/DESIGN_PHASE_ENTRY_CHECKLIST.md`
 
 Audit guardrail:
 
