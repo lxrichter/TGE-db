@@ -343,7 +343,7 @@ function TopMarketsTable({
         b.project_pipeline_mwe -
         (a.operating_installed_mwe + a.project_pipeline_mwe)
     )
-    .slice(0, 10);
+    .slice(0, 8);
 
   return (
     <section className={panelClass}>
@@ -355,15 +355,15 @@ function TopMarketsTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-[900px] table-fixed text-left text-sm">
+        <table className="min-w-[760px] table-fixed text-left text-[13px]">
           <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
-              <th className="w-[25%] px-5 py-3 font-semibold">Country</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">Region</th>
-              <th className="w-[15%] px-5 py-3 text-right font-semibold">Operating MWe</th>
-              <th className="w-[15%] px-5 py-3 text-right font-semibold">Pipeline MWe</th>
-              <th className="w-[15%] px-5 py-3 text-right font-semibold">Pipeline / Operating</th>
-              <th className="w-[12%] px-5 py-3 text-right font-semibold">Active Projects</th>
+              <th className="w-[25%] px-3 py-2.5 font-semibold">Country</th>
+              <th className="w-[18%] px-3 py-2.5 font-semibold">Region</th>
+              <th className="w-[15%] px-3 py-2.5 text-right font-semibold">Operating MWe</th>
+              <th className="w-[15%] px-3 py-2.5 text-right font-semibold">Pipeline MWe</th>
+              <th className="w-[15%] px-3 py-2.5 text-right font-semibold">Pipeline / Operating</th>
+              <th className="w-[12%] px-3 py-2.5 text-right font-semibold">Projects</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
@@ -374,7 +374,7 @@ function TopMarketsTable({
                   key={`${row.country}-${row.iso3}`}
                   className="align-top hover:bg-[var(--tge-surface-subtle)]"
                 >
-                  <td className="px-5 py-3.5">
+                  <td className="px-3 py-3">
                     <Link
                       href={`/markets/countries/${countrySlug(row.country)}`}
                       className={`font-semibold ${titleTextClass} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
@@ -387,19 +387,19 @@ function TopMarketsTable({
                       </div>
                     ) : null}
                   </td>
-                  <td className={`px-5 py-3.5 ${bodyTextClass}`}>
+                  <td className={`px-3 py-3 ${bodyTextClass}`}>
                     {row.tge_region || "-"}
                   </td>
-                  <td className={`px-5 py-3.5 text-right font-semibold ${titleTextClass}`}>
+                  <td className={`px-3 py-3 text-right font-semibold ${titleTextClass}`}>
                     {formatMw(row.operating_installed_mwe)}
                   </td>
-                  <td className={`px-5 py-3.5 text-right font-semibold ${titleTextClass}`}>
+                  <td className={`px-3 py-3 text-right font-semibold ${titleTextClass}`}>
                     {formatMw(row.project_pipeline_mwe)}
                   </td>
-                  <td className={`px-5 py-3.5 text-right ${bodyTextClass}`}>
+                  <td className={`px-3 py-3 text-right ${bodyTextClass}`}>
                     {ratio === Infinity ? "Pipeline only" : formatRatio(ratio)}
                   </td>
-                  <td className={`px-5 py-3.5 text-right ${bodyTextClass}`}>
+                  <td className={`px-3 py-3 text-right ${bodyTextClass}`}>
                     {formatCount(row.active_project_count)}
                   </td>
                 </tr>
@@ -770,7 +770,7 @@ export default async function MarketsPage() {
         />
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[1.32fr_1fr]">
+      <section className="grid gap-5 xl:grid-cols-2">
         {rows.length > 0 ? <TopMarketsTable rows={rows} /> : null}
         {regions.length > 0 ? <RegionalMarketComparison regions={regions} /> : null}
       </section>
