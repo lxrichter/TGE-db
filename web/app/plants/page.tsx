@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { slugify } from "@/lib/slug";
 import ActionButton from "@/components/ui/ActionButton";
 import PhaseBadge from "@/components/ui/PhaseBadge";
-import ResearchStatusBadge from "@/components/ui/ResearchStatusBadge";
+import BaseResearchStatusBadge from "@/components/ui/ResearchStatusBadge";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { canEdit, canExport, type UserRole } from "@/lib/auth/roles";
 import ExportExcelModal from "@/components/export/ExportExcelModal";
@@ -52,9 +52,9 @@ const plantsClass = {
   input:
     "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
   tableHead:
-    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2",
+    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2.5",
   tableCell:
-    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5",
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 align-middle",
   link:
     "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
   primaryPill:
@@ -117,7 +117,7 @@ function ReviewStatusBadge({ value }: { value: string | null }) {
   const normalized = (value || "").trim().toLowerCase();
 
   if (!normalized) {
-    return <StatusBadge tone="neutralSoft">NA</StatusBadge>;
+    return <MissingValue />;
   }
 
   if (normalized === "approved") {
@@ -128,7 +128,21 @@ function ReviewStatusBadge({ value }: { value: string | null }) {
     return <StatusBadge tone="warningSoft">Pending Review</StatusBadge>;
   }
 
-  return <StatusBadge tone="neutralSoft">{value || "NA"}</StatusBadge>;
+  return value ? (
+    <StatusBadge tone="neutralSoft">{value}</StatusBadge>
+  ) : (
+    <MissingValue />
+  );
+}
+
+function ResearchStatusBadge({ value }: { value: string | null }) {
+  const normalized = (value || "").trim().toLowerCase();
+
+  if (!normalized || normalized === "na" || normalized === "n/a") {
+    return <MissingValue />;
+  }
+
+  return <BaseResearchStatusBadge value={value} />;
 }
 
 function SortableHeader({
@@ -171,6 +185,12 @@ function formatMw(value: number, digits = 1) {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
+}
+
+function MissingValue() {
+  return (
+    <span className="text-sm text-[var(--tge-governance-muted-text)]">-</span>
+  );
 }
 
 function todayStamp() {
@@ -267,27 +287,47 @@ const [exporting, setExporting] = useState(false);
       (p) => (p.review_status || "").trim().toLowerCase() === "pending_review"
     ).length;
 
-    const orderedPhases = [
-      "Operating",
-      "Construction",
-      "Exploration",
-      "Pre-Feasibility",
-      "Feasibility",
-      "Stalled",
-      "TBD",
-      "Cancelled",
+    const statusGroups = [
+      {
+        label: "Operating",
+        badgeValue: "Operating",
+        phases: ["Operating"],
+      },
+      {
+        label: "Construction / Commissioning",
+        badgeValue: "Construction",
+        phases: ["Construction"],
+      },
+      {
+        label: "Early / Unconfirmed",
+        badgeValue: "Exploration",
+        phases: ["Exploration", "Pre-Feasibility", "Feasibility", "TBD"],
+      },
+      {
+        label: "Cancelled / Stalled",
+        badgeValue: "Cancelled",
+        phases: ["Cancelled", "Stalled"],
+      },
     ];
 
-    const phaseCounts = orderedPhases
-      .map((phase) => ({
-        phase,
-        count: plants.filter(
-          (p) => normalizePlantPhase(p.project_phase) === phase
-        ).length,
-      }))
-      .filter((item) => item.count > 0);
+    const statusOverview = statusGroups
+      .map((group) => {
+        const matching = plants.filter((plant) =>
+          group.phases.includes(normalizePlantPhase(plant.project_phase))
+        );
 
-    return { count, totalCapacity, countries, pendingReview, phaseCounts };
+        return {
+          ...group,
+          count: matching.length,
+          mw: matching.reduce(
+            (sum, row) => sum + Number(row.installed_capacity_mw || 0),
+            0
+          ),
+        };
+      })
+      .filter((item) => item.count > 0 || item.mw > 0);
+
+    return { count, totalCapacity, countries, pendingReview, statusOverview };
   }, [plants]);
 
   const filteredAndSorted = useMemo(() => {
@@ -444,21 +484,21 @@ if (researchStatusFilter !== "All Research Status") {
 }
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-7">
       <section className={plantsClass.panel}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
-          <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+        <div className="px-6 py-4 xl:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Plants
               </p>
-              <h1 className={`mt-3 text-5xl font-bold tracking-tight ${plantsClass.title}`}>
-                Geothermal Plants Database
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${plantsClass.title} xl:text-[2.2rem]`}>
+                Geothermal Operating Fleet
               </h1>
-              <p className={`mt-4 max-w-4xl text-lg leading-8 ${plantsClass.body}`}>
-                Internal overview of geothermal power plants with linked detail pages,
-                plant operating data, technical and commercial fields, research status,
-                review workflow, and future edit/import workflows.
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${plantsClass.body}`}>
+                Operating-asset intelligence for geothermal plants, installed
+                capacity, technology, operating status, operator signals, and
+                country-level fleet comparisons.
               </p>
             </div>
 
@@ -488,13 +528,13 @@ if (researchStatusFilter !== "All Research Status") {
           </div>
         </div>
 
-        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-4 xl:px-8">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4 xl:grid-cols-4">
             <div>
               <div className={plantsClass.metricLabel}>
                 Plants
               </div>
-              <div className={`mt-1 text-3xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
                 {formatCount(stats.count)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -506,7 +546,7 @@ if (researchStatusFilter !== "All Research Status") {
               <div className={plantsClass.metricLabel}>
                 Installed Capacity (MWe)
               </div>
-              <div className={`mt-1 text-3xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
                 {formatMw(stats.totalCapacity, 1)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -518,7 +558,7 @@ if (researchStatusFilter !== "All Research Status") {
               <div className={plantsClass.metricLabel}>
                 Countries Covered
               </div>
-              <div className={`mt-1 text-3xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
                 {formatCount(stats.countries)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -530,7 +570,7 @@ if (researchStatusFilter !== "All Research Status") {
               <div className={plantsClass.metricLabel}>
                 Pending Review
               </div>
-              <div className={`mt-1 text-3xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
                 {formatCount(stats.pendingReview)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -540,18 +580,35 @@ if (researchStatusFilter !== "All Research Status") {
           </div>
         </div>
 
-        {stats.phaseCounts.length > 0 && (
-          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-3">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-              <span className={`font-semibold uppercase tracking-wide ${plantsClass.muted}`}>
-                Plant Status
-              </span>
-              {stats.phaseCounts.map((item) => (
-                <span key={item.phase} className={plantsClass.body}>
-                  <span className={`font-medium ${plantsClass.title}`}>{item.phase}</span>
-                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-                  <span>{formatCount(item.count)}</span>
-                </span>
+        {stats.statusOverview.length > 0 && (
+          <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-3">
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <h2 className={`text-lg font-bold ${plantsClass.title}`}>
+                Operating Status Overview
+              </h2>
+              <p className={`text-sm ${plantsClass.muted}`}>
+                Capacity-led fleet status distribution
+              </p>
+            </div>
+            <div className="flex gap-2.5 overflow-x-auto pb-1">
+              {stats.statusOverview.map((item) => (
+                <div
+                  key={item.label}
+                  className="min-w-[176px] flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3.5 py-2.5"
+                >
+                  <div className="mb-1.5">
+                    <PhaseBadge value={item.badgeValue} />
+                  </div>
+                  <div className={`text-xl font-bold leading-none ${plantsClass.title}`}>
+                    {formatMw(item.mw, 1)} <span className="text-sm font-semibold">MWe</span>
+                  </div>
+                  <div className={`mt-1.5 text-sm leading-5 ${plantsClass.body}`}>
+                    {formatCount(item.count)} plants
+                  </div>
+                  <div className={`mt-1 text-xs font-semibold ${plantsClass.muted}`}>
+                    {item.label}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -559,8 +616,8 @@ if (researchStatusFilter !== "All Research Status") {
       </section>
 
       <section className={plantsClass.panel}>
-        <div className={`${plantsClass.sectionHeader} px-6 py-4`}>
-          <h2 className={`text-xl font-bold ${plantsClass.title}`}>
+        <div className={`${plantsClass.sectionHeader} px-5 py-3`}>
+          <h2 className={`text-lg font-bold ${plantsClass.title}`}>
             Plant Overview Table
           </h2>
           <p className={`mt-1 text-sm ${plantsClass.muted}`}>
@@ -569,7 +626,7 @@ if (researchStatusFilter !== "All Research Status") {
           </p>
         </div>
 
-        <div className="space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3">
+        <div className="space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
@@ -578,7 +635,7 @@ if (researchStatusFilter !== "All Research Status") {
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${plantsClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${plantsClass.input}`}
               >
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
@@ -595,7 +652,7 @@ if (researchStatusFilter !== "All Research Status") {
               <select
                 value={phaseFilter}
                 onChange={(e) => setPhaseFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${plantsClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${plantsClass.input}`}
               >
                 {phaseOptions.map((phase) => (
                   <option key={phase} value={phase}>
@@ -612,7 +669,7 @@ if (researchStatusFilter !== "All Research Status") {
               <select
                 value={researchStatusFilter}
                 onChange={(e) => setResearchStatusFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${plantsClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${plantsClass.input}`}
               >
                 {researchStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -629,7 +686,7 @@ if (researchStatusFilter !== "All Research Status") {
               <select
                 value={reviewStatusFilter}
                 onChange={(e) => setReviewStatusFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${plantsClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${plantsClass.input}`}
               >
                 {reviewStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -644,34 +701,36 @@ if (researchStatusFilter !== "All Research Status") {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by ID, name, country, region, operator, status, technology, research status..."
-            className={`w-full px-4 py-2 text-sm ${plantsClass.input}`}
+            placeholder="Search plants by name, country, operator, status, technology, or review state..."
+            className={`w-full px-3 py-2 text-sm ${plantsClass.input}`}
           />
         </div>
 
-        <div className="px-6 pt-3">
-          <p className={`text-xs ${plantsClass.muted}`}>
-            Scroll horizontally to view all columns.
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-3">
+          <p className={`text-sm ${plantsClass.muted}`}>
+            Showing {formatCount(filteredAndSorted.length)} of{" "}
+            {formatCount(plants.length)} plants. Scroll horizontally for
+            secondary fields.
           </p>
         </div>
 
         <div className="overflow-x-auto">
           <div className="min-w-max">
-            <table className="min-w-[1550px] text-sm">
+            <table className="min-w-[1500px] table-fixed text-left text-sm">
               <colgroup>
                 <col className="w-[95px]" />
-                <col className="w-[220px]" />
-                <col className="w-[95px]" />
+                <col className="w-[300px]" />
+                <col className="w-[150px]" />
                 <col className="w-[240px]" />
-                <col className="w-[95px]" />
-                <col className="w-[135px]" />
-                <col className="w-[110px]" />
-                <col className="w-[115px]" />
-                <col className="w-[125px]" />
-                <col className="w-[88px]" />
+                <col className="w-[150px]" />
+                <col className="w-[150px]" />
+                <col className="w-[130px]" />
+                <col className="w-[140px]" />
+                <col className="w-[140px]" />
+                <col className="w-[90px]" />
               </colgroup>
 
-            <thead className="bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]">
+            <thead className="bg-[var(--tge-governance-neutral-bg)] text-left text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
               <tr>
                 <th className={plantsClass.tableHead}>Plant ID</th>
                 <th className={`${plantsClass.tableHead} min-w-[220px]`}>
@@ -752,9 +811,9 @@ if (researchStatusFilter !== "All Research Status") {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
               {filteredAndSorted.map((plant) => (
-                <tr key={plant.plant_id} className="hover:bg-[var(--tge-surface-subtle)]">
+                <tr key={plant.plant_id} className="transition hover:bg-[var(--tge-surface-subtle)]">
                   <td className={`${plantsClass.tableCell} font-mono text-xs ${plantsClass.muted}`}>
                     {plant.plant_id}
                   </td>
@@ -762,9 +821,9 @@ if (researchStatusFilter !== "All Research Status") {
                   <td className={`${plantsClass.tableCell} align-top`}>
                     <Link
                       href={`/plants/${plant.plant_id}`}
-                      className={plantsClass.link}
+                      className={`${plantsClass.link} line-clamp-2 text-[15px] font-semibold leading-5`}
                     >
-                      {plant.plant_name || "NA"}
+                      {plant.plant_name || <MissingValue />}
                     </Link>
                   </td>
 
@@ -777,18 +836,20 @@ if (researchStatusFilter !== "All Research Status") {
                         {plant.country}
                       </Link>
                     ) : (
-                      "NA"
+                      <MissingValue />
                     )}
                   </td>
 
                   <td className={`${plantsClass.tableCell} align-top ${plantsClass.body}`}>
-                    <div className="max-w-[220px] line-clamp-2 break-words leading-5">{plant.owner_operator || "NA"}</div>
+                    <div className="line-clamp-2 max-w-[220px] leading-5">
+                      {plant.owner_operator || <MissingValue />}
+                    </div>
                   </td>
 
-                  <td className={`${plantsClass.tableCell} ${plantsClass.body}`}>
+                  <td className={`${plantsClass.tableCell} font-semibold ${plantsClass.title}`}>
                     {plant.installed_capacity_mw !== null && plant.installed_capacity_mw !== undefined
-                      ? formatMw(plant.installed_capacity_mw, 1)
-                      : "NA"}
+                      ? `${formatMw(plant.installed_capacity_mw, 1)} MWe`
+                      : <MissingValue />}
                   </td>
 
                   <td className={plantsClass.tableCell}>
@@ -796,7 +857,9 @@ if (researchStatusFilter !== "All Research Status") {
                   </td>
 
                   <td className={`${plantsClass.tableCell} ${plantsClass.body}`}>
-                    {plant.plant_technology || "NA"}
+                    <span className="line-clamp-2">
+                      {plant.plant_technology || <MissingValue />}
+                    </span>
                   </td>
 
                   <td className={plantsClass.tableCell}>
