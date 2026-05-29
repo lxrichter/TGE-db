@@ -683,24 +683,25 @@ export default async function HomePage() {
                 ThinkGeoEnergy Intelligence
               </p>
               <h1 className={`mt-3 text-4xl font-bold tracking-tight ${titleTextClass} sm:text-5xl`}>
-                Geothermal Intelligence Dashboard
+                Global Geothermal Intelligence Dashboard
               </h1>
               <p className={`mt-4 max-w-4xl text-base leading-7 ${bodyTextClass} sm:text-lg sm:leading-8`}>
-                Executive view of global geothermal market signals, pipeline
-                momentum, evidence health, and operational readiness across the
-                evolving PostgreSQL intelligence platform.
+                Executive view of global geothermal market scale, pipeline
+                momentum, regional signals, spatial intelligence, and
+                evidence-backed confidence across the evolving TGE intelligence
+                platform.
               </p>
             </div>
 
             <div className="grid gap-2 sm:flex sm:flex-wrap xl:justify-end">
+              <ActionButton href="/markets" variant="primary">
+                Open Markets
+              </ActionButton>
               <ActionButton href="/analysis" variant="primary">
                 Open Analysis
               </ActionButton>
-              <ActionButton href="/postgres-preview" variant="secondary">
-                Command Center
-              </ActionButton>
-              <ActionButton href="/postgres-preview/research-ops" variant="secondary">
-                Research Ops
+              <ActionButton href="/map" variant="secondary">
+                Map Explorer
               </ActionButton>
             </div>
           </div>
@@ -722,9 +723,9 @@ export default async function HomePage() {
               source-aware governance
             </span>
             <span>
-              <span className={`font-medium ${titleTextClass}`}>Operational work</span>
+              <span className={`font-medium ${titleTextClass}`}>Spatial intelligence</span>
               <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-              routed to Research Ops
+              map-first exploration
             </span>
           </div>
         </div>
@@ -833,7 +834,7 @@ export default async function HomePage() {
             href="/map"
             label="Spatial Intelligence"
             meta="Map"
-            title="Geothermal Map"
+            title="Map Explorer"
           />
           <IntelligenceCard
             description="Cross-database benchmarking for lifecycle, operating status, use type, and market comparison."
