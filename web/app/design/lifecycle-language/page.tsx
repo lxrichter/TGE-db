@@ -29,11 +29,11 @@ const phaseData: PhaseEntry[] = tgeChartLanguageV2.lifecycle.map(
 const activePhases = phaseData.filter((phase) => phase.key !== "cancelled");
 
 const projectRows = [
-  ["Northern Rift Prospect", "Kenya", "Exploration", "210 MWe", "Medium", "blue"],
-  ["Nevada Binary Repower", "United States", "Pre-Feasibility", "24 MWe", "Low", "purple"],
-  ["Menengai Phase II", "Kenya", "Feasibility", "70 MWe", "High", "teal"],
-  ["Dieng Expansion", "Indonesia", "Construction", "110 MWe", "High", "orange"],
-  ["Olkaria Unit 7", "Kenya", "Operating", "86 MWe", "Confirmed", "green"],
+  ["Northern Rift Prospect", "Kenya", "Exploration", "210 MWe", "Medium"],
+  ["Nevada Binary Repower", "United States", "Pre-Feasibility", "24 MWe", "Low"],
+  ["Menengai Phase II", "Kenya", "Feasibility", "70 MWe", "High"],
+  ["Dieng Expansion", "Indonesia", "Construction", "110 MWe", "High"],
+  ["Olkaria Unit 7", "Kenya", "Operating", "86 MWe", "Confirmed"],
 ] as const;
 
 const marketRows = [
@@ -432,7 +432,7 @@ export default function LifecycleLanguagePage() {
 
       <Panel
         title="Lifecycle recognition palette"
-        description="The phase system should become recognizable by color alone: blue exploration, purple pre-feasibility, teal feasibility, orange construction, green operating."
+        description="The phase system should become recognizable by maturity: grey prospect, light green exploration, green pre-feasibility, dark green feasibility, amber construction, deep green operating, red cancelled."
       >
         <LifecycleLegend />
       </Panel>

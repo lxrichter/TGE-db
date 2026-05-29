@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  tgeChartLanguageV2,
   tgeKpiSizeClasses,
   tgeSurfaces,
   tgeTableDensityClasses,
@@ -319,22 +320,28 @@ export function LifecycleBadge({
     | "Operating"
     | "Cancelled / Suspended";
 }) {
-  const tone: TgeSemanticTone =
-    phase === "Exploration"
-      ? "exploration"
-      : phase === "Pre-Feasibility"
-        ? "pre_feasibility"
-        : phase === "Feasibility"
-          ? "feasibility"
-          : phase === "Construction"
-            ? "construction"
-            : phase === "Operating"
-              ? "operating"
-              : phase === "Cancelled / Suspended"
-                ? "danger"
-                : "prospect";
+  const lifecycleColor =
+    tgeChartLanguageV2.lifecycle.find((entry) => entry.label === phase) ??
+    tgeChartLanguageV2.lifecycle[0];
+  const textColor =
+    phase === "Prospect / TBD"
+      ? "var(--tge-text-primary)"
+      : "var(--tge-surface-card)";
 
-  return <StatusBadge tone={tone}>{phase}</StatusBadge>;
+  return (
+    <span
+      className={joinClasses(
+        "inline-flex min-h-7 items-center px-2.5",
+        tgeTypography.badge
+      )}
+      style={{
+        backgroundColor: lifecycleColor.cssVar,
+        color: textColor,
+      }}
+    >
+      {phase}
+    </span>
+  );
 }
 
 export function FilterBar({
