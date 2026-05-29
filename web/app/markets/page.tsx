@@ -143,6 +143,10 @@ function formatRatio(value: number) {
   return `${value.toFixed(1)}x`;
 }
 
+function barValueLabel(value: number) {
+  return `${formatMw(value)} MWe`;
+}
+
 function pipelineOperatingRatio(row: PostgresCountryMarketSummary) {
   if (row.operating_installed_mwe > 0) {
     return row.project_pipeline_mwe / row.operating_installed_mwe;
@@ -247,6 +251,8 @@ function RegionalMarketComparison({ regions }: { regions: RegionSummary[] }) {
         {regions.slice(0, 7).map((region) => {
           const operatingWidth = Math.max(3, (region.operatingMwe / maxCapacity) * 100);
           const pipelineWidth = Math.max(3, (region.pipelineMwe / maxCapacity) * 100);
+          const operatingInside = operatingWidth >= 32;
+          const pipelineInside = pipelineWidth >= 32;
 
           return (
             <Link
@@ -254,7 +260,7 @@ function RegionalMarketComparison({ regions }: { regions: RegionSummary[] }) {
               href={`/markets/regions/${regionSlug(region.region)}`}
               className="block"
             >
-              <div className="grid gap-3 md:grid-cols-[170px_1fr] md:items-center">
+              <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-center">
                 <div>
                   <div className={`text-sm font-semibold ${titleTextClass}`}>
                     {region.region}
@@ -264,34 +270,56 @@ function RegionalMarketComparison({ regions }: { regions: RegionSummary[] }) {
                     {formatCount(region.activeProjects)} projects
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-2">
+                  <div className="grid grid-cols-[68px_1fr] items-center gap-2">
                     <span className={`w-16 text-[11px] font-semibold uppercase ${mutedTextClass}`}>
                       Operating
                     </span>
-                    <div className="h-4 flex-1 bg-[var(--tge-governance-neutral-bg)]">
+                    <div className="relative h-5 bg-[var(--tge-governance-neutral-bg)]">
                       <div
-                        className="h-4 bg-[var(--tge-chart-ranking-installed-capacity)]"
+                        className="flex h-5 items-center justify-end bg-[var(--tge-chart-ranking-installed-capacity)] pr-2"
                         style={{ width: `${operatingWidth}%` }}
-                      />
+                      >
+                        {operatingInside ? (
+                          <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
+                            {barValueLabel(region.operatingMwe)}
+                          </span>
+                        ) : null}
+                      </div>
+                      {!operatingInside ? (
+                        <span
+                          className={`absolute inset-y-0 flex items-center text-xs font-semibold ${titleTextClass}`}
+                          style={{ left: `calc(${operatingWidth}% + 8px)` }}
+                        >
+                          {barValueLabel(region.operatingMwe)}
+                        </span>
+                      ) : null}
                     </div>
-                    <span className={`w-24 text-right text-xs font-semibold ${titleTextClass}`}>
-                      {formatMw(region.operatingMwe)} MWe
-                    </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-[68px_1fr] items-center gap-2">
                     <span className={`w-16 text-[11px] font-semibold uppercase ${mutedTextClass}`}>
                       Pipeline
                     </span>
-                    <div className="h-4 flex-1 bg-[var(--tge-governance-neutral-bg)]">
+                    <div className="relative h-5 bg-[var(--tge-governance-neutral-bg)]">
                       <div
-                        className="h-4 bg-[var(--tge-chart-ranking-pipeline-capacity)]"
+                        className="flex h-5 items-center justify-end bg-[var(--tge-chart-ranking-pipeline-capacity)] pr-2"
                         style={{ width: `${pipelineWidth}%` }}
-                      />
+                      >
+                        {pipelineInside ? (
+                          <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
+                            {barValueLabel(region.pipelineMwe)}
+                          </span>
+                        ) : null}
+                      </div>
+                      {!pipelineInside ? (
+                        <span
+                          className={`absolute inset-y-0 flex items-center text-xs font-semibold ${titleTextClass}`}
+                          style={{ left: `calc(${pipelineWidth}% + 8px)` }}
+                        >
+                          {barValueLabel(region.pipelineMwe)}
+                        </span>
+                      ) : null}
                     </div>
-                    <span className={`w-24 text-right text-xs font-semibold ${titleTextClass}`}>
-                      {formatMw(region.pipelineMwe)} MWe
-                    </span>
                   </div>
                 </div>
               </div>
@@ -384,21 +412,21 @@ function TopMarketsTable({
   );
 }
 
-function CapacityConcentration({
+function TopPipelineMarkets({
   rows,
 }: {
   rows: PostgresCountryMarketSummary[];
 }) {
   const topRows = [...rows]
-    .filter((row) => row.operating_installed_mwe > 0)
-    .sort((a, b) => b.operating_installed_mwe - a.operating_installed_mwe)
+    .filter((row) => row.project_pipeline_mwe > 0)
+    .sort((a, b) => b.project_pipeline_mwe - a.project_pipeline_mwe)
     .slice(0, 8);
-  const maxOperating = Math.max(
-    ...topRows.map((row) => row.operating_installed_mwe),
+  const maxPipeline = Math.max(
+    ...topRows.map((row) => row.project_pipeline_mwe),
     1
   );
-  const totalOperating = rows.reduce(
-    (total, row) => total + row.operating_installed_mwe,
+  const totalPipeline = rows.reduce(
+    (total, row) => total + row.project_pipeline_mwe,
     0
   );
 
@@ -406,36 +434,51 @@ function CapacityConcentration({
     <section className={panelClass}>
       <div className={`${panelHeaderClass} px-5 py-4`}>
         <SectionHeader
-          title="Global Capacity Concentration"
-          description="Where installed geothermal capacity is concentrated today."
+          title="Top Pipeline Markets"
+          description="Where future geothermal capacity is concentrated in the tracked development pipeline."
         />
       </div>
 
       <div className="space-y-3 px-5 py-4">
         {topRows.map((row) => {
-          const width = Math.max(4, (row.operating_installed_mwe / maxOperating) * 100);
+          const width = Math.max(4, (row.project_pipeline_mwe / maxPipeline) * 100);
           const share =
-            totalOperating > 0
-              ? Math.round((row.operating_installed_mwe / totalOperating) * 100)
+            totalPipeline > 0
+              ? Math.round((row.project_pipeline_mwe / totalPipeline) * 100)
               : 0;
+          const valueInside = width >= 34;
 
           return (
             <Link
-              key={`capacity-${row.country}`}
+              key={`pipeline-${row.country}`}
               href={`/markets/countries/${countrySlug(row.country)}`}
               className="block"
             >
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className={`font-semibold ${titleTextClass}`}>{row.country}</span>
                 <span className={`text-xs font-semibold ${mutedTextClass}`}>
-                  {formatMw(row.operating_installed_mwe)} MWe · {share}%
+                  {share}% of tracked pipeline
                 </span>
               </div>
-              <div className="mt-1.5 h-4 bg-[var(--tge-governance-neutral-bg)]">
+              <div className="relative mt-1.5 h-5 bg-[var(--tge-governance-neutral-bg)]">
                 <div
-                  className="h-4 bg-[var(--tge-chart-ranking-installed-capacity)]"
+                  className="flex h-5 items-center justify-end bg-[var(--tge-chart-ranking-pipeline-capacity)] pr-2"
                   style={{ width: `${width}%` }}
-                />
+                >
+                  {valueInside ? (
+                    <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
+                      {barValueLabel(row.project_pipeline_mwe)}
+                    </span>
+                  ) : null}
+                </div>
+                {!valueInside ? (
+                  <span
+                    className={`absolute inset-y-0 flex items-center text-xs font-semibold ${titleTextClass}`}
+                    style={{ left: `calc(${width}% + 8px)` }}
+                  >
+                    {barValueLabel(row.project_pipeline_mwe)}
+                  </span>
+                ) : null}
               </div>
             </Link>
           );
@@ -455,7 +498,7 @@ function LifecycleMixByMarket({
   const topPipelineRows = [...rows]
     .filter((row) => row.project_pipeline_mwe > 0)
     .sort((a, b) => b.project_pipeline_mwe - a.project_pipeline_mwe)
-    .slice(0, 7);
+    .slice(0, 10);
 
   return (
     <section className={panelClass}>
@@ -481,14 +524,18 @@ function LifecycleMixByMarket({
               href={`/markets/countries/${countrySlug(row.country)}`}
               className="block"
             >
-              <div className="mb-1.5 flex items-center justify-between gap-4 text-sm">
+              <div className="mb-1.5 grid gap-2 text-sm sm:grid-cols-[minmax(120px,0.45fr)_1fr] sm:items-end">
                 <span className={`font-semibold ${titleTextClass}`}>{row.country}</span>
-                <span className={`text-xs font-semibold ${mutedTextClass}`}>
-                  {formatMw(row.project_pipeline_mwe)} MWe ·{" "}
-                  {formatCount(row.active_project_count)} projects
-                </span>
+                <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-xs font-semibold">
+                  <span className={titleTextClass}>
+                    {barValueLabel(row.project_pipeline_mwe)}
+                  </span>
+                  <span className={mutedTextClass}>
+                    {formatCount(row.active_project_count)} projects
+                  </span>
+                </div>
               </div>
-              <div className="flex h-5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+              <div className="flex h-6 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
                 {lifecycleOrder.map((phase) => {
                   const phaseValue = phaseMap.get(phase)?.pipelineMwe ?? 0;
                   const width = totalMwe > 0 ? (phaseValue / totalMwe) * 100 : 0;
@@ -496,13 +543,19 @@ function LifecycleMixByMarket({
                   return (
                     <div
                       key={`${row.country}-${phase}`}
-                      className="h-5"
+                      className="flex h-6 items-center justify-center"
                       style={{
                         backgroundColor: lifecycleColor(phase),
                         width: `${width}%`,
                       }}
                       title={`${phase}: ${formatMw(phaseValue)} MWe`}
-                    />
+                    >
+                      {width >= 20 ? (
+                        <span className="px-1 text-[10px] font-bold text-[var(--tge-surface-card)]">
+                          {formatMw(phaseValue)}
+                        </span>
+                      ) : null}
+                    </div>
                   );
                 })}
               </div>
@@ -563,12 +616,13 @@ function MarketsToWatch({
         {watchRows.map((row) => {
           const ratio = pipelineOperatingRatio(row);
           const phaseMap = phaseMapForCountry(lifecycleRows, row.country);
-          const leadingPhase = lifecycleOrder
+          const leadingPhaseEntry = lifecycleOrder
             .map((phase) => ({
               phase,
               value: phaseMap.get(phase)?.pipelineMwe ?? 0,
             }))
-            .sort((a, b) => b.value - a.value)[0]?.phase;
+            .sort((a, b) => b.value - a.value)[0];
+          const leadingPhase = leadingPhaseEntry?.phase;
 
           return (
             <Link
@@ -596,8 +650,30 @@ function MarketsToWatch({
                 </span>
               </div>
               <div className={`mt-4 text-sm leading-6 ${bodyTextClass}`}>
-                {formatMw(row.project_pipeline_mwe)} MWe pipeline ·{" "}
-                {ratio === Infinity ? "pipeline-only market" : `${formatRatio(ratio)} pipeline / operating`}
+                <div>
+                  <span className={`font-semibold ${titleTextClass}`}>
+                    {barValueLabel(row.project_pipeline_mwe)}
+                  </span>{" "}
+                  pipeline
+                </div>
+                <div>
+                  <span className={`font-semibold ${titleTextClass}`}>
+                    {ratio === Infinity ? "Pipeline only" : formatRatio(ratio)}
+                  </span>{" "}
+                  pipeline / operating
+                </div>
+                <div>
+                  Dominant phase:{" "}
+                  <span className={`font-semibold ${titleTextClass}`}>
+                    {leadingPhase}
+                  </span>
+                  {leadingPhaseEntry?.value ? (
+                    <span className={mutedTextClass}>
+                      {" "}
+                      ({barValueLabel(leadingPhaseEntry.value)})
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </Link>
           );
@@ -700,7 +776,7 @@ export default async function MarketsPage() {
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1fr_1.15fr]">
-        {rows.length > 0 ? <CapacityConcentration rows={rows} /> : null}
+        {rows.length > 0 ? <TopPipelineMarkets rows={rows} /> : null}
         {rows.length > 0 ? (
           <LifecycleMixByMarket
             lifecycleRows={data.lifecycleRows}
