@@ -287,6 +287,22 @@ export default async function PostgresPreviewMapPage({
         </div>
       </section>
 
+      <section id="map-view" className="space-y-3 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Core"
+          title="Spatial Explorer"
+          description="Use marker popups for record drilldown. Open filters only when you need to narrow the spatial view."
+          tone="core"
+        />
+        <GroupedMap
+          allCountriesLabel="All Markets"
+          apiPath={mapApiPath}
+          countryFilterLabel="Market"
+          detailPathMode="postgres-preview"
+          regionFilterLabel="TGE Region"
+        />
+      </section>
+
       {summaryStats.length > 0 ? (
         <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
           {summaryStats.map((stat) => (
@@ -307,22 +323,6 @@ export default async function PostgresPreviewMapPage({
           only if markers remain empty.
         </section>
       )}
-
-      <section id="map-view" className="space-y-3 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Core"
-          title="Spatial Explorer"
-          description="Use marker popups for record drilldown. Open filters only when you need to narrow the spatial view."
-          tone="core"
-        />
-        <GroupedMap
-          allCountriesLabel="All Markets"
-          apiPath={mapApiPath}
-          countryFilterLabel="Market"
-          detailPathMode="postgres-preview"
-          regionFilterLabel="TGE Region"
-        />
-      </section>
 
       <section id="map-workflow" className="space-y-4 scroll-mt-24">
         <DetailPriorityMarker
