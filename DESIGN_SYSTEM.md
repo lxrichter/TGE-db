@@ -531,6 +531,7 @@ Review route:
 
 - `/design/charts-v2`
 - `/design/palette-validation`
+- `/design/lifecycle-language`
 - `/design/typography-validation`
 - `/design/table-language`
 

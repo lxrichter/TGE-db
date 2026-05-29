@@ -37,9 +37,9 @@
   --tge-lifecycle-feasibility-bg: #f0fdfa;
   --tge-lifecycle-feasibility-border: #99f6e4;
   --tge-lifecycle-feasibility-text: #115e59;
-  --tge-lifecycle-construction-bg: #f1f8e8;
-  --tge-lifecycle-construction-border: #b9d98b;
-  --tge-lifecycle-construction-text: #3f6f19;
+  --tge-lifecycle-construction-bg: #fff7ed;
+  --tge-lifecycle-construction-border: #fed7aa;
+  --tge-lifecycle-construction-text: #9a3412;
   --tge-lifecycle-operating-bg: #f1f8e8;
   --tge-lifecycle-operating-border: #a9cf7a;
   --tge-lifecycle-operating-text: #356d1c;
@@ -100,9 +100,9 @@
   --tge-chart-ranking-attributed-mw: #178b82;
 
   --tge-chart-lifecycle-prospect: #d9e0dc;
-  --tge-chart-lifecycle-exploration: #b9d98b;
-  --tge-chart-lifecycle-pre-feasibility: #8dc63f;
-  --tge-chart-lifecycle-feasibility: #4f8f2f;
+  --tge-chart-lifecycle-exploration: #3f6f8f;
+  --tge-chart-lifecycle-pre-feasibility: #7a669a;
+  --tge-chart-lifecycle-feasibility: #178b82;
   --tge-chart-lifecycle-construction: #c98932;
   --tge-chart-lifecycle-operating: #2f5f2b;
   --tge-chart-lifecycle-cancelled: #b94a48;
