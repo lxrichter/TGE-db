@@ -843,17 +843,6 @@ export default async function HomePage() {
             Global Geothermal Dashboard
           </h1>
         </div>
-        <div className="grid gap-2 sm:flex sm:flex-wrap sm:justify-end">
-          <ActionButton href="/markets" variant="primary">
-            Open Markets
-          </ActionButton>
-          <ActionButton href="/analysis" variant="secondary">
-            Open Analysis
-          </ActionButton>
-          <ActionButton href="/map" variant="secondary">
-            Map Explorer
-          </ActionButton>
-        </div>
       </section>
 
       <MarketBriefCard
