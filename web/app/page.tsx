@@ -13,13 +13,14 @@ import {
   type PostgresCountryMarketSummary,
 } from "@/lib/postgres-preview";
 import ActionButton from "@/components/ui/ActionButton";
-import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
 import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
 import {
-  postgresStatusBarClass,
-  postgresStatusTone,
-} from "@/components/postgres-preview/PostgresStatusBadge";
+  SectionHeader,
+} from "@/components/design-system/TgeDesignSystem";
+import {
+  tgeChartLanguageV2,
+} from "@/lib/design-system";
 
 export const dynamic = "force-dynamic";
 
@@ -225,74 +226,23 @@ const dashboardHoverClass =
 function getExecutiveKpiToneClass(tone: ExecutiveKpiTone) {
   switch (tone) {
     case "operating":
-      return "border-l-[var(--tge-status-bar-operating)] bg-[var(--tge-governance-success-bg)]";
+      return "border-l-[var(--tge-chart-ranking-installed-capacity)] bg-[var(--tge-surface-card)]";
     case "pipeline":
-      return "border-l-[var(--tge-governance-info-text)] bg-[var(--tge-governance-info-bg)]";
+      return "border-l-[var(--tge-chart-ranking-pipeline-capacity)] bg-[var(--tge-surface-card)]";
     case "market":
-      return "border-l-[var(--tge-status-bar-attention)] bg-[var(--tge-governance-attention-bg)]";
+      return "border-l-[var(--tge-chart-ranking-market-count)] bg-[var(--tge-surface-card)]";
     case "ecosystem":
-      return "border-l-[var(--tge-governance-neutral-text)] bg-[var(--tge-surface-subtle)]";
+      return "border-l-[var(--tge-chart-ranking-attributed-mw)] bg-[var(--tge-surface-card)]";
     case "direct-use":
-      return "border-l-[var(--tge-ai-suggested-text)] bg-[var(--tge-ai-suggested-bg)]";
+      return "border-l-[var(--tge-chart-tech-direct-use)] bg-[var(--tge-surface-card)]";
     case "governance":
-      return "border-l-[var(--tge-governance-attention-text)] bg-[var(--tge-governance-attention-bg)]";
+      return "border-l-[var(--tge-chart-governance-needs-review)] bg-[var(--tge-surface-card)]";
     case "evidence":
-      return "border-l-[var(--tge-brand-green-dark)] bg-[var(--tge-governance-success-bg)]";
+      return "border-l-[var(--tge-brand-green-dark)] bg-[var(--tge-surface-card)]";
     case "neutral":
     default:
       return "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
   }
-}
-
-function getExecutiveKpiTrendToken(tone: ExecutiveKpiTone) {
-  switch (tone) {
-    case "operating":
-    case "evidence":
-      return "var(--tge-status-bar-operating)";
-    case "pipeline":
-      return "var(--tge-governance-info-text)";
-    case "market":
-    case "governance":
-      return "var(--tge-status-bar-attention)";
-    case "direct-use":
-      return "var(--tge-ai-suggested-text)";
-    case "ecosystem":
-    case "neutral":
-    default:
-      return "var(--tge-governance-neutral-text)";
-  }
-}
-
-function MiniTrendLine({
-  points,
-  tone,
-}: {
-  points: number[];
-  tone: ExecutiveKpiTone;
-}) {
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const range = max - min || 1;
-  const coordinates = points
-    .map((point, index) => {
-      const x = (index / (points.length - 1)) * 100;
-      const y = 34 - ((point - min) / range) * 28;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return (
-    <svg aria-hidden="true" className="mt-3 h-9 w-full" viewBox="0 0 100 36">
-      <polyline
-        fill="none"
-        points={coordinates}
-        stroke={getExecutiveKpiTrendToken(tone)}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-      />
-    </svg>
-  );
 }
 
 function ExecutiveKpi({
@@ -302,7 +252,6 @@ function ExecutiveKpi({
   href,
   tone = "neutral",
   prominence = "standard",
-  trend,
 }: {
   label: string;
   value: string;
@@ -310,17 +259,16 @@ function ExecutiveKpi({
   href?: string;
   tone?: ExecutiveKpiTone;
   prominence?: "standard" | "executive";
-  trend?: number[];
 }) {
   const toneClass = getExecutiveKpiToneClass(tone);
   const frameClass =
     prominence === "executive"
-      ? `border border-l-4 border-transparent ${toneClass} px-4 py-4 shadow-sm sm:min-h-[112px] sm:px-5`
-      : `border border-l-4 border-transparent ${toneClass} px-4 py-3 shadow-sm`;
+      ? `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-4 py-3.5 sm:px-5`
+      : `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-4 py-3`;
   const valueClass =
     prominence === "executive"
-      ? `mt-2 text-3xl font-bold leading-none ${titleTextClass} sm:text-[2.15rem]`
-      : `mt-2 text-2xl font-bold leading-none ${titleTextClass} sm:text-[2rem]`;
+      ? `mt-2 text-2xl font-bold leading-none ${titleTextClass} sm:text-[1.9rem]`
+      : `mt-2 text-xl font-bold leading-none ${titleTextClass} sm:text-2xl`;
   const noteClass =
     prominence === "executive"
       ? `mt-2 text-sm leading-5 ${bodyTextClass}`
@@ -332,7 +280,6 @@ function ExecutiveKpi({
         {label}
       </div>
       <div className={valueClass}>{value}</div>
-      {trend ? <MiniTrendLine points={trend} tone={tone} /> : null}
       <div className={noteClass}>{note}</div>
     </>
   );
@@ -349,6 +296,27 @@ function ExecutiveKpi({
   }
 
   return <div className={frameClass}>{content}</div>;
+}
+
+function lifecycleChartColor(bucketCode: string) {
+  const normalized = bucketCode.toLowerCase().replaceAll("_", " ");
+  const lifecycle = tgeChartLanguageV2.lifecycle;
+  const match =
+    normalized.includes("cancel")
+      ? lifecycle.find((entry) => entry.key === "cancelled")
+      : normalized.includes("operat")
+        ? lifecycle.find((entry) => entry.key === "operating")
+        : normalized.includes("construct")
+          ? lifecycle.find((entry) => entry.key === "construction")
+          : normalized.includes("feasibility") && !normalized.includes("pre")
+            ? lifecycle.find((entry) => entry.key === "feasibility")
+            : normalized.includes("pre")
+              ? lifecycle.find((entry) => entry.key === "pre_feasibility")
+              : normalized.includes("explor")
+                ? lifecycle.find((entry) => entry.key === "exploration")
+                : lifecycle.find((entry) => entry.key === "prospect");
+
+  return match?.cssVar ?? "var(--tge-chart-lifecycle-prospect)";
 }
 
 function IntelligenceCard({
@@ -641,11 +609,9 @@ function BucketOverview({
       </div>
       <div className="space-y-3 px-5 py-4">
         {visibleBuckets.map((bucket) => {
-          const barClass = useLifecycleColors
-            ? postgresStatusBarClass(
-                postgresStatusTone(bucket.bucket_code, "lifecycle")
-              )
-            : "bg-[var(--tge-status-bar-success)]";
+          const barColor = useLifecycleColors
+            ? lifecycleChartColor(bucket.bucket_code)
+            : "var(--tge-chart-ranking-installed-capacity)";
           const barWidth = Math.max(
             8,
             (bucket.record_count / maxCount) * 100
@@ -663,8 +629,9 @@ function BucketOverview({
               </div>
               <div className="mt-1.5 h-5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
                 <div
-                  className={`flex h-5 items-center justify-end pr-2 ${barClass}`}
+                  className="flex h-5 items-center justify-end pr-2"
                   style={{
+                    backgroundColor: barColor,
                     width: `${barWidth}%`,
                   }}
                 >
@@ -907,11 +874,9 @@ export default async function HomePage() {
       />
 
       <section id="market-snapshot" className="space-y-4 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Core"
+        <SectionHeader
           title="Global Market Snapshot"
           description="Executive-level geothermal capacity, market, and ecosystem signals."
-          tone="core"
         />
 
         <section className="grid grid-cols-1 gap-3 lg:grid-cols-4 xl:grid-cols-[1.15fr_1.15fr_0.9fr_0.9fr]">
@@ -921,7 +886,6 @@ export default async function HomePage() {
             note="Installed operating capacity signal"
             prominence="executive"
             tone="operating"
-            trend={[28, 34, 33, 42, 48, 56, 64]}
             value={`${formatMw(operatingMwe)} MWe`}
           />
           <ExecutiveKpi
@@ -930,7 +894,6 @@ export default async function HomePage() {
             note="Development pipeline capacity signal"
             prominence="executive"
             tone="pipeline"
-            trend={[18, 25, 31, 38, 46, 58, 72]}
             value={`${formatMw(pipelineMwe)} MWe`}
           />
           <ExecutiveKpi
@@ -939,7 +902,6 @@ export default async function HomePage() {
             note="Development project universe"
             prominence="executive"
             tone="pipeline"
-            trend={[32, 34, 38, 43, 47, 52, 57]}
             value={formatCount(projectRecords)}
           />
           <ExecutiveKpi
@@ -948,7 +910,6 @@ export default async function HomePage() {
             note="Operating fleet intelligence"
             prominence="executive"
             tone="operating"
-            trend={[40, 42, 43, 47, 50, 55, 58]}
             value={formatCount(plantRecords)}
           />
         </section>
@@ -959,7 +920,6 @@ export default async function HomePage() {
             label="Markets"
             note={staging.ok ? "Top markets loaded" : "Legacy markets covered"}
             tone="market"
-            trend={[42, 42, 45, 49, 52, 56, 60]}
             value={formatCount(countriesCovered)}
           />
           <ExecutiveKpi
@@ -967,7 +927,6 @@ export default async function HomePage() {
             label="Companies"
             note="Tracked ecosystem participants"
             tone="ecosystem"
-            trend={[30, 33, 35, 38, 39, 42, 44]}
             value={formatCount(companiesTracked)}
           />
           <ExecutiveKpi
@@ -979,18 +938,15 @@ export default async function HomePage() {
                 : "PostgreSQL signal pending"
             }
             tone="direct-use"
-            trend={[14, 18, 20, 28, 32, 36, 42]}
             value={staging.ok ? formatCount(directUseRecords) : "-"}
           />
         </section>
       </section>
 
       <section id="intelligence-layers" className="space-y-4 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Intelligence"
+        <SectionHeader
           title="Intelligence Layers"
           description="Dashboard highlights the market layer; operational work stays routed to deeper modules."
-          tone="workflow"
         />
 
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -1027,11 +983,9 @@ export default async function HomePage() {
 
       {staging.ok ? (
         <section id="market-signals" className="space-y-4 scroll-mt-24">
-          <DetailPriorityMarker
-            label="Signals"
+          <SectionHeader
             title="Market And Pipeline Signals"
             description="Readable high-level slices before users drill into Analysis or Markets."
-            tone="core"
           />
 
           <section className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
@@ -1061,22 +1015,18 @@ export default async function HomePage() {
       ) : null}
 
       <section id="recent-intelligence" className="space-y-4 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Intelligence"
+        <SectionHeader
           title="Recent Intelligence Signals"
           description="A controlled shell for the future market pulse feed from TGE articles, governed sources, and confirmed evidence."
-          tone="workflow"
         />
 
         <RecentIntelligenceSignals />
       </section>
 
       <section id="operational-pulse" className="space-y-4 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Governance"
+        <SectionHeader
           title="Operational Pulse"
           description="The dashboard shows attention signals; Research Ops remains the command center for action."
-          tone="governance"
         />
 
         <OperationalPulse legacy={legacy} staging={staging} />
