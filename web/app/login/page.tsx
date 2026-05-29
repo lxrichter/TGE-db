@@ -7,8 +7,8 @@ import { useState } from "react";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("your@email.com");
-  const [password, setPassword] = useState("test1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,7 +40,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/projects");
+      router.push("/");
       router.refresh();
     } catch (err) {
       console.error("LOGIN DEBUG: signIn exception", err);
@@ -71,6 +71,8 @@ export default function LoginPage() {
                 Email
               </label>
               <input
+                autoComplete="email"
+                placeholder="name@thinkgeoenergy.com"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -84,6 +86,8 @@ export default function LoginPage() {
                 Password
               </label>
               <input
+                autoComplete="current-password"
+                placeholder="Password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
