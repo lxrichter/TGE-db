@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { searchGlobalRecords, type GlobalSearchResult } from "@/lib/services/global-search";
 import { formatCount } from "@/lib/format";
+import { platformNavigationGroups } from "@/lib/platform-navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -20,113 +21,18 @@ type SearchPageData =
       error: string;
     };
 
-const commandShortcuts = [
-  {
-    group: "Intelligence / Research",
-    label: "Open Dashboard",
-    href: "/",
-    note: "Executive geothermal intelligence overview.",
-  },
-  {
-    group: "Intelligence / Research",
-    label: "Open Markets",
-    href: "/markets",
-    note: "Market intelligence, country worklists, and source-gap signals.",
-  },
-  {
-    group: "Intelligence / Research",
-    label: "Open Analysis",
-    href: "/analysis",
-    note: "Cross-database benchmarking and geothermal intelligence analysis.",
-  },
-  {
-    group: "Intelligence / Research",
-    label: "Open Map",
-    href: "/map",
-    note: "Spatial intelligence for coordinate-confirmed projects and plants.",
-  },
-  {
-    group: "Platform / Admin",
-    label: "Open Command Center",
-    href: "/postgres-preview",
-    note: "Operational navigation across PostgreSQL staging modules.",
-  },
-  {
-    group: "Research Operations",
-    label: "Open Research Ops",
-    href: "/postgres-preview/research-ops",
-    note: "Queues, assignments, validation, missing data, and review actions.",
-  },
-  {
-    group: "Research Operations",
-    label: "Add Project",
-    href: "/postgres-preview/projects/new",
-    note: "Create a new development project.",
-  },
-  {
-    group: "Research Operations",
-    label: "Add Plant",
-    href: "/postgres-preview/operating-assets/new",
-    note: "Create a commissioned plant, unit, or direct-use plant.",
-  },
-  {
-    group: "Research Operations",
-    label: "Add Company",
-    href: "/postgres-preview/companies/new",
-    note: "Create a legal entity, group, supplier, investor, or operator.",
-  },
-  {
-    group: "Research Operations",
-    label: "Review Article Matches",
-    href: "/sources/matches",
-    note: "Confirm or reject article-to-entity match candidates.",
-  },
-  {
-    group: "Research Operations",
-    label: "Review Article Facts",
-    href: "/sources/facts",
-    note: "Train and review compact extracted article fact candidates.",
-  },
-  {
-    group: "Research Operations",
-    label: "Manage Sources",
-    href: "/sources",
-    note: "Search governed sources and evidence status.",
-  },
-  {
-    group: "Research Operations",
-    label: "Add Source",
-    href: "/sources/new",
-    note: "Create a governed source/evidence entry.",
-  },
-  {
-    group: "Research Operations",
-    label: "Review Field Suggestions",
-    href: "/postgres-preview/research-ops#field-suggestion-review",
-    note: "Open human-confirmed AI field suggestions in Research Ops.",
-  },
-  {
-    group: "Platform / Admin",
-    label: "Admin Users",
-    href: "/admin/users",
-    note: "Create users, assign roles, reset passwords, and deactivate access.",
-  },
-  {
-    group: "Platform / Admin",
-    label: "Admin Vocabularies",
-    href: "/admin/vocabularies",
-    note: "Govern controlled reference terms and active taxonomy labels.",
-  },
-];
-
-const commandShortcutGroups = [
-  "Intelligence / Research",
-  "Research Operations",
-  "Platform / Admin",
-].map((group) => ({
-  group,
-  shortcuts: commandShortcuts.filter((shortcut) => shortcut.group === group),
-}));
+const commandShortcutGroups = platformNavigationGroups
+  .map((group) => ({
+    group: group.label,
+    shortcuts: group.items
+      .filter((item) => item.showInCommand)
+      .map((item) => ({
+        label: item.commandLabel,
+        href: item.href,
+        note: item.note,
+      })),
+  }))
+  .filter((group) => group.shortcuts.length > 0);
 
 const searchPageClass = {
   panel:
