@@ -111,15 +111,15 @@ function ResearchStatusBadge({ value }: { value: string | null }) {
   }
 
   if (normalized.includes("done")) {
-    return <StatusBadge tone="success">Done</StatusBadge>;
+    return <StatusBadge tone="neutralSoft">Done</StatusBadge>;
   }
 
   if (normalized.includes("progress")) {
-    return <StatusBadge tone="info">In Progress</StatusBadge>;
+    return <StatusBadge tone="neutralSoft">In Progress</StatusBadge>;
   }
 
   if (normalized.includes("need")) {
-    return <StatusBadge tone="danger">Need Info</StatusBadge>;
+    return <StatusBadge tone="neutralSoft">Need Info</StatusBadge>;
   }
 
   return <StatusBadge tone="neutralSoft">{raw}</StatusBadge>;
@@ -137,11 +137,11 @@ function ReviewStatusBadge({
   }
 
   if (normalized === "approved") {
-    return <StatusBadge tone="successSoft">Approved</StatusBadge>;
+    return <StatusBadge tone="neutralSoft">Approved</StatusBadge>;
   }
 
   if (normalized === "pending_review") {
-    return <StatusBadge tone="warningSoft">Pending Review</StatusBadge>;
+    return <StatusBadge tone="neutralSoft">Pending Review</StatusBadge>;
   }
 
   return <StatusBadge tone="neutralSoft">{value}</StatusBadge>;
@@ -268,6 +268,28 @@ function phaseChartColor(phase: string) {
   return "var(--tge-chart-lifecycle-prospect)";
 }
 
+function normalizeTechnologyBucket(value: string | null | undefined) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+
+  if (!normalized || normalized === "na" || normalized === "n/a") return "Other";
+  if (normalized.includes("binary") || normalized.includes("orc")) return "Binary ORC";
+  if (normalized.includes("dry steam")) return "Dry Steam";
+  if (normalized.includes("back pressure") || normalized.includes("backpressure")) {
+    return "Back Pressure";
+  }
+  if (normalized.includes("flash")) return "Flash";
+
+  return "Other";
+}
+
+function technologyChartColor(label: string) {
+  if (label === "Back Pressure") return "var(--tge-chart-tech-back-pressure)";
+  if (label === "Binary ORC") return "var(--tge-chart-tech-binary-orc)";
+  if (label === "Dry Steam") return "var(--tge-chart-tech-dry-steam)";
+  if (label === "Flash") return "var(--tge-chart-tech-single-flash)";
+  return "var(--tge-chart-tech-other)";
+}
+
 function PipelineRankingBars({
   title,
   description,
@@ -325,6 +347,67 @@ function PipelineRankingBars({
             </div>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+function PipelineByTechnology({
+  rows,
+}: {
+  rows: Array<{ label: string; count: number; mw: number; color: string }>;
+}) {
+  const totalMw = rows.reduce((total, row) => total + row.mw, 0);
+
+  return (
+    <section className={projectsClass.panel}>
+      <div className={`${projectsClass.sectionHeader} px-5 py-3`}>
+        <h2 className={`text-lg font-bold ${projectsClass.title}`}>
+          Pipeline by Technology
+        </h2>
+        <p className={`mt-1 text-sm ${projectsClass.muted}`}>
+          Project pipeline capacity by declared geothermal technology.
+        </p>
+      </div>
+      <div className="px-5 py-4">
+        <div className="flex h-7 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+          {rows.map((row) => {
+            const width = totalMw > 0 ? (row.mw / totalMw) * 100 : 0;
+            if (width <= 0) return null;
+
+            return (
+              <div
+                key={row.label}
+                className="h-7"
+                style={{ width: `${width}%`, backgroundColor: row.color }}
+                title={`${row.label}: ${formatMw(row.mw, 1)} MWe`}
+              />
+            );
+          })}
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {rows.map((row) => {
+            const share = totalMw > 0 ? Math.round((row.mw / totalMw) * 100) : 0;
+
+            return (
+              <div key={row.label} className="flex items-center justify-between gap-3 text-xs">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0"
+                    style={{ backgroundColor: row.color }}
+                  />
+                  <span className={`truncate font-semibold ${projectsClass.title}`}>
+                    {row.label}
+                  </span>
+                </div>
+                <span className={`shrink-0 font-semibold ${projectsClass.muted}`}>
+                  {formatMw(row.mw, 1)} MWe · {share}% · {formatCount(row.count)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -533,13 +616,16 @@ const userCanExport = canExport(currentRole);
       .sort((a, b) => b.mw - a.mw)
       .slice(0, 5);
 
-    const topLinkedCompanies = Array.from(
-      projects.reduce<Map<string, { label: string; count: number; mw: number }>>(
+    const pipelineByTechnology = Array.from(
+      projects.reduce<Map<string, { label: string; count: number; mw: number; color: string }>>(
         (acc, row) => {
-          const label = (row.owner_operator || "").trim();
-          if (!label || label.toLowerCase() === "na") return acc;
-
-          const current = acc.get(label) ?? { label, count: 0, mw: 0 };
+          const label = normalizeTechnologyBucket(row.plant_technology);
+          const current = acc.get(label) ?? {
+            label,
+            count: 0,
+            mw: 0,
+            color: technologyChartColor(label),
+          };
           current.count += 1;
           current.mw += getPhaseMw(row);
           acc.set(label, current);
@@ -558,7 +644,7 @@ const userCanExport = canExport(currentRole);
       countries,
       needInfo,
       phaseOverview,
-      topLinkedCompanies,
+      pipelineByTechnology,
       topProjectMarkets,
     };
   }, [projects]);
@@ -917,12 +1003,7 @@ const userCanExport = canExport(currentRole);
             color="var(--tge-chart-ranking-pipeline-capacity)"
           />
 
-          <PipelineRankingBars
-            title="Top Linked Companies"
-            description="Project-linked companies ranked by associated pipeline MWe."
-            rows={stats.topLinkedCompanies}
-            color="var(--tge-chart-ranking-attributed-mw)"
-          />
+          <PipelineByTechnology rows={stats.pipelineByTechnology} />
         </section>
       )}
 
@@ -1100,8 +1181,8 @@ const userCanExport = canExport(currentRole);
         <div className="hidden px-5 py-3 xl:block">
             <table className="w-full table-fixed text-left text-[13px]">
               <colgroup>
-                {isColumnVisible("project_id") && <col className="w-[7%]" />}
-                {isColumnVisible("project_name") && <col className="w-[22%]" />}
+                {isColumnVisible("project_id") && <col className="w-[5%]" />}
+                {isColumnVisible("project_name") && <col className="w-[25%]" />}
                 {isColumnVisible("country") && <col className="w-[10%]" />}
                 {isColumnVisible("owner_operator") && <col className="w-[14%]" />}
                 {isColumnVisible("installed_capacity_mw") && <col className="w-[8%]" />}
@@ -1215,8 +1296,11 @@ const userCanExport = canExport(currentRole);
                 {paginatedProjects.map((project) => (
                   <tr key={project.project_id} className="transition hover:bg-[var(--tge-surface-subtle)]">
                     {isColumnVisible("project_id") && (
-                      <td className={`${projectsClass.tableCell} truncate font-mono text-[11px] ${projectsClass.muted}`}>
-                      {project.project_id}
+                      <td
+                        className={`${projectsClass.tableCell} truncate font-mono text-[10px] ${projectsClass.muted}`}
+                        title={project.project_id}
+                      >
+                      {project.project_id.slice(0, 8)}
                     </td>
                     )}
 
@@ -1224,7 +1308,7 @@ const userCanExport = canExport(currentRole);
                       <td className={projectsClass.tableCell}>
                       <Link
                         href={`/projects/${project.project_id}`}
-                        className={`${projectsClass.link} line-clamp-2 text-sm font-semibold leading-5`}
+                        className={`${projectsClass.link} line-clamp-2 text-[15px] font-bold leading-5`}
                       >
                         {project.project_name || "NA"}
                       </Link>
