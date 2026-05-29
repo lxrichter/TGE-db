@@ -16,8 +16,12 @@ implementation and target platform behavior.
 Current implemented baseline:
 
 - current SQLite prototype routes remain available at `/projects`, `/plants`,
-  `/companies`, `/research-ops`, `/map`, `/analysis`, and `/markets`
+  `/companies`, and `/research-ops`
+- `/markets`, `/analysis`, and `/map` now act as clean top-level entry points,
+  with `/map` redirecting to the current PostgreSQL map implementation
 - PostgreSQL staging routes are available under `/postgres-preview`
+- the current route promotion contract is documented in
+  `docs/ROUTE_IA_CONTRACT.md`
 - Railway PostgreSQL staging contains the transformed 2026-05-18 copied
   Hetzner SQLite backup plus PostgreSQL-native preview records
 - source/evidence records and TGE article metadata are in PostgreSQL staging
