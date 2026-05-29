@@ -26,7 +26,7 @@ const statusTone: Record<AnalysisModuleStatus, string> = {
 };
 
 const panelClass =
-  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-sm";
 const panelHeaderClass =
   "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
 const subtleCardClass =
@@ -49,14 +49,17 @@ function formatCount(value: number) {
 function ModuleCard({ module }: { module: AnalysisModule }) {
   const isLive = module.status === "live" && module.href;
   const href = isLive ? module.href! : `/analysis/modules/${module.id}`;
+  const cardClass = isLive
+    ? "border-l-4 border-l-[var(--tge-brand-green)]"
+    : "border-l-4 border-l-[var(--tge-governance-neutral-border)]";
   const cardContent = (
     <>
-      <div className={`flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between ${panelHeaderClass}`}>
+      <div className="flex flex-col gap-3 px-5 py-5 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className={eyebrowClass}>
-            {module.category.replaceAll("_", " ")}
+            {analysisCategoryLabels[module.category]}
           </div>
-          <h3 className={`mt-1 text-lg font-semibold ${titleTextClass}`}>
+          <h3 className={`mt-2 text-xl font-bold leading-6 ${titleTextClass}`}>
             {module.title}
           </h3>
         </div>
@@ -67,31 +70,10 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
         </span>
       </div>
 
-      <div className="space-y-4 px-5 py-4">
+      <div className="space-y-4 border-t border-[var(--tge-governance-neutral-border)] px-5 py-5">
         <p className={`text-[13px] leading-6 ${bodyTextClass}`}>
           {module.description}
         </p>
-
-        <div>
-          <div className={eyebrowClass}>
-            Visibility
-          </div>
-          <p
-            className={`mt-1 text-[13px] leading-5 ${titleTextClass}`}
-            title={analysisVisibilityDescriptions[module.visibility]}
-          >
-            {analysisVisibilityLabels[module.visibility]}
-          </p>
-        </div>
-
-        <div>
-          <div className={eyebrowClass}>
-            Source basis
-          </div>
-          <p className={`mt-1 text-[13px] leading-5 ${titleTextClass}`}>
-            {module.sourceBasis}
-          </p>
-        </div>
 
         <div>
           <div className={eyebrowClass}>
@@ -106,6 +88,29 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
                 {measure}
               </span>
             ))}
+          </div>
+        </div>
+
+        <div className="grid gap-3 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-3 md:grid-cols-2">
+          <div>
+            <div className={eyebrowClass}>
+              Visibility
+            </div>
+            <p
+              className={`mt-1 text-[13px] leading-5 ${titleTextClass}`}
+              title={analysisVisibilityDescriptions[module.visibility]}
+            >
+              {analysisVisibilityLabels[module.visibility]}
+            </p>
+          </div>
+
+          <div>
+            <div className={eyebrowClass}>
+              Source basis
+            </div>
+            <p className={`mt-1 text-[13px] leading-5 ${titleTextClass}`}>
+              {module.sourceBasis}
+            </p>
           </div>
         </div>
 
@@ -165,7 +170,7 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
   return (
     <Link
       href={href}
-      className="block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] transition hover:border-[var(--tge-brand-green)] hover:shadow-sm"
+      className={`block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-sm transition hover:border-[var(--tge-brand-green)] ${cardClass}`}
     >
       {cardContent}
     </Link>
