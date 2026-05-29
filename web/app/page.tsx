@@ -152,7 +152,7 @@ function normalizeTechnologyBucket(raw: unknown) {
     return "Back Pressure";
   }
   if (text.includes("b-orc") || text === "orc" || text.includes("binary")) {
-    return "Binary / ORC";
+    return "Binary ORC";
   }
   if (
     text.includes("single flash") ||
@@ -171,7 +171,7 @@ function getTechnologyColor(label: string) {
   switch (label) {
     case "Back Pressure":
       return "var(--tge-chart-technology-back-pressure)";
-    case "Binary / ORC":
+    case "Binary ORC":
       return "var(--tge-chart-technology-binary-orc)";
     case "Flash":
       return "var(--tge-chart-technology-flash)";
@@ -204,14 +204,20 @@ async function getDashboardTechnologyMix(): Promise<DashboardTechnologyMixRow[]>
       totals.set(label, (totals.get(label) ?? 0) + (Number.isFinite(value) ? value : 0));
     });
 
-    return Array.from(totals.entries())
-      .map(([label, installedMwe]) => ({
+    const technologyOrder = [
+      "Flash",
+      "Binary ORC",
+      "Dry Steam",
+      "Back Pressure",
+      "Other",
+    ];
+
+    return technologyOrder
+      .map((label) => ({
         label,
-        installedMwe,
+        installedMwe: totals.get(label) ?? 0,
         color: getTechnologyColor(label),
-      }))
-      .filter((row) => row.installedMwe > 0)
-      .sort((a, b) => b.installedMwe - a.installedMwe);
+      }));
   } catch {
     return [];
   }
@@ -617,9 +623,11 @@ function PipelineCompositionModule({
     <section className={panelClass}>
       <div className={`flex items-center justify-between gap-4 px-5 py-4 ${panelHeaderClass}`}>
         <div>
-          <h2 className={`text-lg font-bold ${titleTextClass}`}>Pipeline Composition</h2>
+          <h2 className={`text-lg font-bold ${titleTextClass}`}>
+            Global Development Pipeline
+          </h2>
           <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-            Development capacity by lifecycle phase.
+            Pipeline capacity and project count by lifecycle phase.
           </p>
         </div>
         <Link
@@ -685,7 +693,7 @@ function PipelineCompositionModule({
         </div>
 
         <div className={`mt-4 border-t border-[var(--tge-governance-muted-border)] pt-3 text-xs leading-5 ${bodyTextClass}`}>
-          {formatMw(totalMwe)} MWe across {formatCount(totalRecords)} pipeline records.
+          {formatMw(totalMwe)} MWe across {formatCount(totalRecords)} tracked projects.
         </div>
       </div>
     </section>
@@ -713,7 +721,7 @@ function KeyMarketInsight({
             Key Market Insight
           </h2>
           <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-            One interpreted signal from the current market view.
+            One interpreted read from the current market structure.
           </p>
         </div>
       </div>
@@ -731,8 +739,8 @@ function KeyMarketInsight({
               : "Pipeline concentration will appear once market data is available."}
           </h3>
           <p className={`mt-3 text-sm leading-6 ${bodyTextClass}`}>
-            Use Markets and Analysis to compare whether this pipeline signal is
-            supported by operating capacity, active projects, and evidence coverage.
+            Pipeline concentration signals where development attention is clustering
+            before it becomes operating capacity.
           </p>
         </div>
         <Link
@@ -760,7 +768,7 @@ function InstalledCapacityTechnologyMix({
       <div className={`flex items-center justify-between gap-4 px-5 py-4 ${panelHeaderClass}`}>
         <div>
           <h2 className={`text-lg font-bold ${titleTextClass}`}>
-            Installed Capacity By Technology
+            Installed Capacity by Technology
           </h2>
           <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
             Current operating fleet technology mix by installed MWe.
