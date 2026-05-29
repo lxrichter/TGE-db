@@ -790,19 +790,19 @@ function InstalledCapacityTechnologyMix({
           })}
         </div>
 
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
           {rows.map((row) => {
             const share = totalMwe > 0 ? Math.round((row.installedMwe / totalMwe) * 100) : 0;
             return (
-              <div key={row.label} className="flex items-center gap-3 text-sm">
+              <div key={row.label} className="flex items-center gap-2 text-xs">
                 <span
                   className="h-2.5 w-2.5 shrink-0"
                   style={{ backgroundColor: row.color }}
                 />
-                <span className={`min-w-0 flex-1 font-semibold ${titleTextClass}`}>
+                <span className={`font-semibold ${titleTextClass}`}>
                   {row.label}
                 </span>
-                <span className="text-xs font-semibold text-[var(--tge-governance-muted-text)]">
+                <span className="font-semibold text-[var(--tge-governance-muted-text)]">
                   {formatMw(row.installedMwe)} MWe · {share}%
                 </span>
               </div>
@@ -1017,11 +1017,11 @@ export default async function HomePage() {
             <div className="space-y-5">
               <MarketSignalTable analysis={staging.analysis} />
               <KeyMarketInsight analysis={staging.analysis} pipelineMwe={pipelineMwe} />
+              <InstalledCapacityTechnologyMix rows={technologyMix} />
             </div>
             <div className="space-y-5">
               <RegionalCapacityDistribution countries={staging.countries} />
               <PipelineCompositionModule buckets={staging.analysis.projectLifecycle} />
-              <InstalledCapacityTechnologyMix rows={technologyMix} />
             </div>
           </section>
         </section>
