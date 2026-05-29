@@ -10,6 +10,8 @@ import {
   analysisModulesByCategory,
   analysisModulesByStatus,
   analysisStatusLabels,
+  analysisVisibilityDescriptions,
+  analysisVisibilityLabels,
   type AnalysisModule,
   type AnalysisModuleCategory,
   type AnalysisModuleStatus,
@@ -69,6 +71,18 @@ function ModuleCard({ module }: { module: AnalysisModule }) {
         <p className={`text-[13px] leading-6 ${bodyTextClass}`}>
           {module.description}
         </p>
+
+        <div>
+          <div className={eyebrowClass}>
+            Visibility
+          </div>
+          <p
+            className={`mt-1 text-[13px] leading-5 ${titleTextClass}`}
+            title={analysisVisibilityDescriptions[module.visibility]}
+          >
+            {analysisVisibilityLabels[module.visibility]}
+          </p>
+        </div>
 
         <div>
           <div className={eyebrowClass}>

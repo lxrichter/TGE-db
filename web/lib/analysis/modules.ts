@@ -1,5 +1,10 @@
 export type AnalysisModuleStatus = "live" | "definition_next" | "planned";
 
+export type AnalysisModuleVisibility =
+  | "subscriber_candidate"
+  | "internal_review"
+  | "definition_governance";
+
 export type AnalysisModuleCategory =
   | "market"
   | "technology"
@@ -14,6 +19,7 @@ export type AnalysisModule = {
   description: string;
   href?: string;
   status: AnalysisModuleStatus;
+  visibility: AnalysisModuleVisibility;
   category: AnalysisModuleCategory;
   sourceBasis: string;
   primaryMeasures: string[];
@@ -56,6 +62,24 @@ export const analysisStatusDescriptions: Record<AnalysisModuleStatus, string> = 
   live: "Available now in the analysis workspace.",
   definition_next: "Needs scope, measures, and source logic confirmed before build-out.",
   planned: "Future analysis module once source fields and roll-up logic are ready.",
+};
+
+export const analysisVisibilityLabels: Record<AnalysisModuleVisibility, string> = {
+  subscriber_candidate: "Subscriber Candidate",
+  internal_review: "Internal Review",
+  definition_governance: "Definition / Governance",
+};
+
+export const analysisVisibilityDescriptions: Record<
+  AnalysisModuleVisibility,
+  string
+> = {
+  subscriber_candidate:
+    "Potential future subscriber-facing intelligence once design, data coverage, and QA are approved.",
+  internal_review:
+    "Useful for internal validation and research operations, but not yet market-grade output.",
+  definition_governance:
+    "Scope, taxonomy, weighting, and QA rules still need definition before implementation.",
 };
 
 export const analysisCategoryOrder: AnalysisModuleCategory[] = [
@@ -218,6 +242,7 @@ export const analysisModules: AnalysisModule[] = [
       "Installed capacity by country market and TGE region, planned project MWe, and market-level project phase distribution.",
     href: "/analysis/countries",
     status: "live",
+    visibility: "subscriber_candidate",
     category: "market",
     sourceBasis: "Plants, projects, countries, and market taxonomy",
     primaryMeasures: [
@@ -234,6 +259,7 @@ export const analysisModules: AnalysisModule[] = [
       "Installed capacity, operating capacity, unit counts, and supplier overview derived from plant technology and turbine supplier fields.",
     href: "/analysis/turbine-technology",
     status: "live",
+    visibility: "subscriber_candidate",
     category: "technology",
     sourceBasis: "Plants database: plant technology, turbine supplier, installed MWe, running MWe, units",
     primaryMeasures: [
@@ -250,6 +276,7 @@ export const analysisModules: AnalysisModule[] = [
       "Weighted owner MWe and operator-linked installed MWe based on structured company-to-plant links.",
     href: "/analysis/owners-operators",
     status: "live",
+    visibility: "internal_review",
     category: "company_roles",
     sourceBasis: "Company-to-plant links: owner/operator roles, ownership share, installed MWe",
     primaryMeasures: [
@@ -266,6 +293,7 @@ export const analysisModules: AnalysisModule[] = [
       "Developer exposure across projects, using narrow developer-role attribution and weighted or equal-split project MWe logic.",
     href: "/analysis/developers",
     status: "live",
+    visibility: "internal_review",
     category: "company_roles",
     sourceBasis:
       "Company-to-project links with Developer, Co-Developer, Project Sponsor, and Lead Developer roles; project MWe from installed, potential max, or potential min fields",
@@ -293,6 +321,7 @@ export const analysisModules: AnalysisModule[] = [
     description:
       "Cross-role view of EPC, drilling, turbine supply, investor, O&M, developer, owner, and operator participation.",
     status: "definition_next",
+    visibility: "definition_governance",
     category: "company_roles",
     sourceBasis: "Structured company-to-project and company-to-plant role links",
     primaryMeasures: [
@@ -320,6 +349,7 @@ export const analysisModules: AnalysisModule[] = [
     description:
       "Pipeline overview by development phase, including counts and MWe by prospect, exploration, feasibility, construction, operating, and cancelled states.",
     status: "planned",
+    visibility: "definition_governance",
     category: "pipeline",
     sourceBasis: "Projects database: project phase, planned MWe, country, region, review status",
     primaryMeasures: [
@@ -345,6 +375,7 @@ export const analysisModules: AnalysisModule[] = [
     description:
       "Breakdown of hydrothermal, EGS, AGS, closed-loop, superhot, and other geothermal resource categories across projects and plants.",
     status: "planned",
+    visibility: "definition_governance",
     category: "resource",
     sourceBasis: "Project and plant resource-type fields after taxonomy normalization",
     primaryMeasures: [
@@ -370,6 +401,7 @@ export const analysisModules: AnalysisModule[] = [
     description:
       "Future heat-focused analysis for district heating, industrial heat, cooling, agricultural use, and other direct-use categories.",
     status: "planned",
+    visibility: "definition_governance",
     category: "operations",
     sourceBasis: "Projects and plants with geothermal use category, MWth, annual heat output, and source confidence",
     primaryMeasures: [
@@ -395,6 +427,7 @@ export const analysisModules: AnalysisModule[] = [
     description:
       "Well-related analysis covering total wells, production wells, reinjection wells, depth, and selected resource indicators.",
     status: "planned",
+    visibility: "definition_governance",
     category: "operations",
     sourceBasis: "Project and plant wellfield fields after validation and unit normalization",
     primaryMeasures: [

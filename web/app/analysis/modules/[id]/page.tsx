@@ -8,6 +8,8 @@ import {
   analysisModules,
   analysisStatusDescriptions,
   analysisStatusLabels,
+  analysisVisibilityDescriptions,
+  analysisVisibilityLabels,
   getAnalysisModule,
   type AnalysisModuleStatus,
 } from "@/lib/analysis/modules";
@@ -170,7 +172,7 @@ export default async function AnalysisModuleDefinitionPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] md:grid-cols-3">
+        <div className="grid grid-cols-1 border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] md:grid-cols-4">
           <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:border-b-0 md:border-r">
             <div className={eyebrowClass}>
               Domain
@@ -185,6 +187,17 @@ export default async function AnalysisModuleDefinitionPage({
             </div>
             <div className={`mt-1 text-sm font-bold ${titleTextClass}`}>
               {analysisStatusDescriptions[module.status]}
+            </div>
+          </div>
+          <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 md:border-b-0 md:border-r">
+            <div className={eyebrowClass}>
+              Visibility
+            </div>
+            <div className={`mt-1 text-sm font-bold ${titleTextClass}`}>
+              {analysisVisibilityLabels[module.visibility]}
+            </div>
+            <div className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>
+              {analysisVisibilityDescriptions[module.visibility]}
             </div>
           </div>
           <div className="px-5 py-4">
