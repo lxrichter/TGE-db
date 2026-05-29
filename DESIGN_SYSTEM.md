@@ -530,6 +530,9 @@ Formal chart taxonomy:
 Review route:
 
 - `/design/charts-v2`
+- `/design/palette-validation`
+- `/design/typography-validation`
+- `/design/table-language`
 
 ## 11. Dashboard Philosophy
 

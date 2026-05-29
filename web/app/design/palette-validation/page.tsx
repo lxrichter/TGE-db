@@ -67,8 +67,8 @@ const technologyEntries: ValidationEntry[] = tgeChartLanguageV2.technology.map(
 const signalEntries: ValidationEntry[] = tgeChartLanguageV2.signal.map(
   (entry, index) => ({
     ...entry,
-    metric: ["24", "18", "31", "16", "9", "7"][index],
-    share: [76, 58, 66, 44, 35, 28][index],
+    metric: ["24", "12", "9", "18", "7", "31", "16"][index],
+    share: [76, 55, 35, 58, 28, 66, 44][index],
   })
 );
 
@@ -128,6 +128,11 @@ function LargeSwatches({ entries }: { entries: ValidationEntry[] }) {
           }}
         >
           <div className={tgeTypography.tableHeader}>{entry.label}</div>
+          {entry.family ? (
+            <div className="mt-1 text-[10px] font-bold uppercase leading-4 tracking-wide opacity-75">
+              {entry.family}
+            </div>
+          ) : null}
           <div className="mt-8 text-2xl font-bold leading-none">
             {entry.metric}
           </div>
@@ -157,6 +162,9 @@ function BadgeExamples({ entries }: { entries: ValidationEntry[] }) {
           >
             {entry.label}
           </span>
+          {entry.family ? (
+            <span className={tgeTypography.metadata}>{entry.family}</span>
+          ) : null}
           <span
             className="inline-flex min-h-7 items-center border px-2.5 text-[10px] font-bold uppercase leading-4 tracking-wide"
             style={{
@@ -185,6 +193,7 @@ function TableExample({
         <thead className={`${tgeSurfaces.tableHeader} ${tgeTypography.tableHeader} ${tgeText.muted}`}>
           <tr>
             <th className="px-4 py-3">{heading}</th>
+            <th className="px-4 py-3">Family</th>
             <th className="px-4 py-3">Usage</th>
             <th className="px-4 py-3 text-right">Metric</th>
             <th className="px-4 py-3 text-right">Signal</th>
@@ -206,6 +215,9 @@ function TableExample({
                     </div>
                   </div>
                 </div>
+              </td>
+              <td className={`px-4 py-3 ${tgeText.secondary}`}>
+                {entry.family ?? "Metric color"}
               </td>
               <td className={`px-4 py-3 ${tgeText.secondary}`}>{entry.usage}</td>
               <td className={`px-4 py-3 text-right font-bold ${tgeText.primary}`}>
