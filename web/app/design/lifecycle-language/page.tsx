@@ -26,7 +26,7 @@ const phaseData: PhaseEntry[] = tgeChartLanguageV2.lifecycle.map(
   })
 );
 
-const activePhases = phaseData.filter((phase) => phase.key !== "cancelled");
+const lifecyclePhases = phaseData;
 
 const projectRows = [
   ["Northern Rift Prospect", "Kenya", "Exploration", "210 MWe", "Medium"],
@@ -34,13 +34,14 @@ const projectRows = [
   ["Menengai Phase II", "Kenya", "Feasibility", "70 MWe", "High"],
   ["Dieng Expansion", "Indonesia", "Construction", "110 MWe", "High"],
   ["Olkaria Unit 7", "Kenya", "Operating", "86 MWe", "Confirmed"],
+  ["Legacy Concession", "Chile", "Cancelled / Suspended", "n.a.", "Archived"],
 ] as const;
 
 const marketRows = [
-  ["Indonesia", "8.9 GW", "Construction-heavy", [12, 24, 14, 18, 24, 8]],
-  ["Kenya", "3.7 GW", "Exploration and construction", [10, 34, 8, 15, 23, 10]],
-  ["Türkiye", "2.1 GW", "Feasibility pipeline", [8, 18, 20, 31, 14, 9]],
-  ["United States", "2.9 GW", "Binary redevelopment", [16, 22, 24, 18, 9, 11]],
+  ["Indonesia", "8.9 GW", "Construction-heavy", [12, 24, 14, 17, 23, 8, 2]],
+  ["Kenya", "3.7 GW", "Exploration and construction", [10, 34, 8, 15, 22, 9, 2]],
+  ["Türkiye", "2.1 GW", "Feasibility pipeline", [8, 18, 20, 30, 14, 8, 2]],
+  ["United States", "2.9 GW", "Binary redevelopment", [16, 22, 23, 18, 9, 10, 2]],
 ] as const;
 
 const mapMarkers = [
@@ -50,6 +51,7 @@ const mapMarkers = [
   ["Construction", 63, 64],
   ["Operating", 77, 39],
   ["Construction", 82, 70],
+  ["Cancelled / Suspended", 29, 77],
 ] as const;
 
 const textOnLight = new Set(["prospect"]);
@@ -111,8 +113,8 @@ function Panel({
 
 function LifecycleLegend() {
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-      {activePhases.map((phase) => (
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
+      {lifecyclePhases.map((phase) => (
         <article className="bg-[var(--tge-surface-card)] p-4" key={phase.key}>
           <div className="h-2 w-16" style={{ backgroundColor: colorFor(phase) }} />
           <div className={`${tgeTypography.subsectionTitle} mt-3 ${tgeText.primary}`}>
@@ -257,8 +259,8 @@ function DetailHeader() {
 
 function DashboardSummary() {
   return (
-    <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-      {activePhases.map((phase) => (
+    <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-7">
+      {lifecyclePhases.map((phase) => (
         <article className="bg-[var(--tge-surface-card)] px-4 py-3" key={phase.key}>
           <div className="flex items-center justify-between gap-3">
             <span className={tgeTypography.tableHeader}>{phase.label}</span>
@@ -294,7 +296,7 @@ function MarketRankings() {
               <td className={`px-4 py-3 ${tgeText.secondary}`}>{signal}</td>
               <td className="px-4 py-3">
                 <div className="flex h-3 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
-                  {activePhases.map((phase, index) => (
+                  {lifecyclePhases.map((phase, index) => (
                     <span
                       key={phase.key}
                       style={{
@@ -318,7 +320,7 @@ function LifecycleCharts() {
     <div className="grid gap-6 xl:grid-cols-2">
       <div className={`${tgeSurfaces.card} space-y-4 p-4`}>
         <div className="flex h-14 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
-          {activePhases.map((phase) => (
+          {lifecyclePhases.map((phase) => (
             <div
               className="flex items-center justify-center px-2 text-[10px] font-bold uppercase tracking-wide"
               key={phase.key}
@@ -337,7 +339,7 @@ function LifecycleCharts() {
         </p>
       </div>
       <div className={`${tgeSurfaces.card} space-y-3 p-4`}>
-        {activePhases.map((phase) => (
+        {lifecyclePhases.map((phase) => (
           <div
             className="grid grid-cols-[132px_1fr_72px] items-center gap-3"
             key={phase.key}
@@ -408,7 +410,7 @@ function MapLayer() {
           );
         })}
         <div className="absolute bottom-4 left-4 grid gap-2 bg-[var(--tge-surface-card)] p-3">
-          {activePhases.map((phase) => (
+          {lifecyclePhases.map((phase) => (
             <div className="flex items-center gap-2" key={phase.key}>
               <LifecycleDot phase={phase} />
               <span className={tgeTypography.metadata}>{phase.label}</span>

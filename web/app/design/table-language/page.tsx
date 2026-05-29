@@ -23,6 +23,7 @@ const projectRows = [
   ["Menengai Phase II", "Kenya", "Feasibility", "70 MWe", "Medium", "Clean"],
   ["Nevada Binary Repower", "United States", "Pre-Feasibility", "24 MWe", "Low", "Review"],
   ["Northern Rift Prospect", "Kenya", "Exploration", "n.a.", "Medium", "Draft"],
+  ["Legacy Concession", "Chile", "Cancelled / Suspended", "n.a.", "Low", "Archived"],
 ] as const;
 
 const companyRows = [
@@ -126,7 +127,16 @@ function ProjectTablePreview({ relaxed = false }: { relaxed?: boolean }) {
               {country}
             </td>
             <td className={relaxed ? "px-4 py-4" : "px-4 py-2.5"}>
-              <LifecycleBadge phase={phase as "Exploration" | "Pre-Feasibility" | "Feasibility" | "Construction"} />
+              <LifecycleBadge
+                phase={
+                  phase as
+                    | "Exploration"
+                    | "Pre-Feasibility"
+                    | "Feasibility"
+                    | "Construction"
+                    | "Cancelled / Suspended"
+                }
+              />
             </td>
             <td className={`${relaxed ? "px-4 py-4" : "px-4 py-2.5"} text-right font-bold ${tgeText.primary}`}>
               {capacity}
