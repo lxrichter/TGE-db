@@ -79,6 +79,28 @@ function dateOnly(value: string | null) {
   return new Date(value).toISOString().slice(0, 10);
 }
 
+const companyDetailClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  sectionHeader:
+    "border-b border-[var(--tge-governance-neutral-border)] px-5 py-4",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  muted: "text-[var(--tge-governance-muted-text)]",
+  card:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-4 py-4",
+  label:
+    "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  smallLabel:
+    "text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
+  link:
+    "font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline",
+  action:
+    "inline-flex min-h-[28px] items-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]",
+  externalLink:
+    "break-all font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+};
+
 function getCompanyReadinessIssues(
   company: PostgresPreviewCompanyDetail
 ): ExportReadinessIssue[] {
@@ -173,76 +195,78 @@ function CompanyActivitySnapshot({
     .slice(0, 5);
 
   return (
-    <section className="border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="text-lg font-bold text-[#1f2937]">Activity Footprint</h2>
-        <p className="mt-2 text-sm leading-6 text-gray-600">
+    <section className={companyDetailClass.panel}>
+      <div className={companyDetailClass.sectionHeader}>
+        <h2 className={`text-lg font-bold ${companyDetailClass.title}`}>
+          Activity Footprint
+        </h2>
+        <p className={`mt-2 text-sm leading-6 ${companyDetailClass.body}`}>
           Structured links showing where this company appears in projects,
           plants, and company relationships.
         </p>
       </div>
       <div className="grid gap-4 px-5 py-5 xl:grid-cols-[1fr_280px]">
         <div className="grid gap-3 md:grid-cols-3">
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={companyDetailClass.card}>
+            <div className={companyDetailClass.label}>
               Projects
             </div>
-            <div className="mt-2 text-2xl font-bold text-[#1f2937]">
+            <div className={`mt-2 text-2xl font-bold ${companyDetailClass.title}`}>
               {formatCount(projectLinks.length)}
             </div>
-            <div className="mt-2 text-xs text-gray-500">
+            <div className={`mt-2 text-xs ${companyDetailClass.muted}`}>
               {formatCount(primaryProjectLinks.length)} primary role
               {primaryProjectLinks.length === 1 ? "" : "s"}
             </div>
           </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={companyDetailClass.card}>
+            <div className={companyDetailClass.label}>
               Plants
             </div>
-            <div className="mt-2 text-2xl font-bold text-[#1f2937]">
+            <div className={`mt-2 text-2xl font-bold ${companyDetailClass.title}`}>
               {formatCount(operatingAssetLinks.length)}
             </div>
-            <div className="mt-2 text-xs text-gray-500">
+            <div className={`mt-2 text-xs ${companyDetailClass.muted}`}>
               {formatCount(primaryAssetLinks.length)} primary role
               {primaryAssetLinks.length === 1 ? "" : "s"}
             </div>
           </div>
-          <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          <div className={companyDetailClass.card}>
+            <div className={companyDetailClass.label}>
               Relationships
             </div>
-            <div className="mt-2 text-2xl font-bold text-[#1f2937]">
+            <div className={`mt-2 text-2xl font-bold ${companyDetailClass.title}`}>
               {formatCount(relationships.length)}
             </div>
-            <div className="mt-2 text-xs text-gray-500">
+            <div className={`mt-2 text-xs ${companyDetailClass.muted}`}>
               {formatCount(currentRelationships.length)} current relationship
               {currentRelationships.length === 1 ? "" : "s"}
             </div>
           </div>
         </div>
 
-        <div className="border border-gray-200 bg-[#fbfbfb] px-4 py-4">
-          <div className="text-sm font-bold text-[#1f2937]">Recent Links</div>
-          <div className="mt-3 divide-y divide-gray-100">
+        <div className={companyDetailClass.card}>
+          <div className={`text-sm font-bold ${companyDetailClass.title}`}>Recent Links</div>
+          <div className="mt-3 divide-y divide-[var(--tge-governance-muted-border)]">
             {recentLinks.map((link) => (
               <div key={link.key} className="py-3">
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <div className={companyDetailClass.smallLabel}>
                   {link.type}
                 </div>
                 <Link
                   href={link.href}
-                  className="mt-1 block font-semibold text-[#1f2937] hover:text-[#4f7f1f] hover:underline"
+                  className={`mt-1 block ${companyDetailClass.link}`}
                 >
                   {link.label}
                 </Link>
-                <div className="mt-1 text-xs leading-5 text-gray-500">
+                <div className={`mt-1 text-xs leading-5 ${companyDetailClass.muted}`}>
                   {link.role}
                   {link.country ? ` · ${link.country}` : ""}
                 </div>
               </div>
             ))}
             {recentLinks.length === 0 ? (
-              <div className="py-3 text-sm text-gray-500">
+              <div className={`py-3 text-sm ${companyDetailClass.muted}`}>
                 No project or plant links yet.
               </div>
             ) : null}
@@ -820,7 +844,7 @@ export default async function PostgresCompanyDetailPage({
         <>
           <Link
             href={`/postgres-preview/companies/${company.company_id}/edit`}
-            className="inline-flex min-h-[28px] items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+            className={companyDetailClass.action}
           >
             Edit
           </Link>
@@ -1094,7 +1118,7 @@ export default async function PostgresCompanyDetailPage({
                 <Link
                   href={company.website_url}
                   target="_blank"
-                  className="break-all font-semibold text-[#4f7f1f] hover:underline"
+                  className={companyDetailClass.externalLink}
                 >
                   {company.website_url}
                 </Link>
@@ -1106,7 +1130,7 @@ export default async function PostgresCompanyDetailPage({
                 <Link
                   href={company.linkedin_url}
                   target="_blank"
-                  className="break-all font-semibold text-[#4f7f1f] hover:underline"
+                  className={companyDetailClass.externalLink}
                 >
                   {company.linkedin_url}
                 </Link>
@@ -1216,7 +1240,7 @@ export default async function PostgresCompanyDetailPage({
       />
 
       <DetailSection title="Notes">
-        <p className="text-sm leading-7 text-gray-700">
+        <p className="text-sm leading-7 text-[var(--tge-governance-neutral-text)]">
           {company.notes || "No notes added."}
         </p>
       </DetailSection>

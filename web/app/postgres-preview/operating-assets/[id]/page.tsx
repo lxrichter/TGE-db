@@ -741,7 +741,7 @@ export default async function PostgresOperatingAssetDetailPage({
         <>
           <Link
             href={`/postgres-preview/operating-assets/${asset.operating_asset_id}/edit`}
-            className="inline-flex min-h-[28px] items-center border border-[#8dc63f] bg-white px-3 text-xs font-semibold text-[#4f7f1f] hover:bg-[#f3f8ec]"
+            className="inline-flex min-h-[28px] items-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
           >
             Edit
           </Link>
@@ -1122,7 +1122,7 @@ export default async function PostgresOperatingAssetDetailPage({
       />
 
       <DetailSection title="Notes">
-        <p className="text-sm leading-7 text-gray-700">
+        <p className="text-sm leading-7 text-[var(--tge-governance-neutral-text)]">
           {asset.notes || "No notes added."}
         </p>
       </DetailSection>
