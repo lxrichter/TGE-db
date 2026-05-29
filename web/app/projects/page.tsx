@@ -214,6 +214,86 @@ function getPhaseMw(row: ProjectRow) {
   return Number(row.installed_capacity_mw || 0);
 }
 
+function phaseChartColor(phase: string) {
+  const normalized = phase.toLowerCase();
+
+  if (normalized.includes("operating")) return "var(--tge-chart-lifecycle-operating)";
+  if (normalized.includes("construction")) return "var(--tge-chart-lifecycle-construction)";
+  if (normalized.includes("feasibility") && !normalized.includes("pre")) {
+    return "var(--tge-chart-lifecycle-feasibility)";
+  }
+  if (normalized.includes("pre-feasibility")) {
+    return "var(--tge-chart-lifecycle-pre-feasibility)";
+  }
+  if (normalized.includes("exploration")) return "var(--tge-chart-lifecycle-exploration)";
+  if (normalized.includes("cancelled") || normalized.includes("suspended")) {
+    return "var(--tge-chart-lifecycle-cancelled)";
+  }
+  return "var(--tge-chart-lifecycle-prospect)";
+}
+
+function PipelineRankingBars({
+  title,
+  description,
+  rows,
+  color,
+}: {
+  title: string;
+  description: string;
+  rows: Array<{ label: string; count: number; mw: number }>;
+  color: string;
+}) {
+  const maxMw = Math.max(...rows.map((row) => row.mw), 1);
+
+  return (
+    <section className={projectsClass.panel}>
+      <div className={`${projectsClass.sectionHeader} px-5 py-3`}>
+        <h2 className={`text-lg font-bold ${projectsClass.title}`}>{title}</h2>
+        <p className={`mt-1 text-sm ${projectsClass.muted}`}>{description}</p>
+      </div>
+      <div className="space-y-3 px-5 py-4">
+        {rows.map((row) => {
+          const width = Math.max(4, (row.mw / maxMw) * 100);
+          const labelInside = width >= 38;
+
+          return (
+            <div key={row.label}>
+              <div className="mb-1 flex items-center justify-between gap-4 text-sm">
+                <span className={`truncate font-semibold ${projectsClass.title}`}>
+                  {row.label}
+                </span>
+                <span className={`shrink-0 text-xs font-semibold ${projectsClass.muted}`}>
+                  {formatCount(row.count)} projects
+                </span>
+              </div>
+              <div className="relative h-5 bg-[var(--tge-governance-neutral-bg)]">
+                <div
+                  className="flex h-5 items-center justify-end pr-2"
+                  style={{ width: `${width}%`, backgroundColor: color }}
+                >
+                  {labelInside ? (
+                    <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
+                      {formatMw(row.mw, 1)} MWe
+                    </span>
+                  ) : null}
+                </div>
+                {!labelInside ? (
+                  <span
+                    className={`absolute inset-y-0 flex items-center text-xs font-semibold ${projectsClass.title}`}
+                    style={{ left: `calc(${width}% + 8px)` }}
+                  >
+                    {formatMw(row.mw, 1)} MWe
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function todayStamp() {
   const d = new Date();
   const yyyy = d.getFullYear();
@@ -383,12 +463,52 @@ const userCanExport = canExport(currentRole);
       })
       .filter((group) => group.count > 0 || group.mw > 0);
 
+    const topProjectMarkets = Array.from(
+      projects.reduce<Map<string, { label: string; count: number; mw: number }>>(
+        (acc, row) => {
+          const country = (row.country || "").trim();
+          if (!country) return acc;
+
+          const current = acc.get(country) ?? { label: country, count: 0, mw: 0 };
+          current.count += 1;
+          current.mw += getPhaseMw(row);
+          acc.set(country, current);
+          return acc;
+        },
+        new Map()
+      ).values()
+    )
+      .filter((row) => row.mw > 0 || row.count > 0)
+      .sort((a, b) => b.mw - a.mw)
+      .slice(0, 5);
+
+    const topLinkedCompanies = Array.from(
+      projects.reduce<Map<string, { label: string; count: number; mw: number }>>(
+        (acc, row) => {
+          const label = (row.owner_operator || "").trim();
+          if (!label || label.toLowerCase() === "na") return acc;
+
+          const current = acc.get(label) ?? { label, count: 0, mw: 0 };
+          current.count += 1;
+          current.mw += getPhaseMw(row);
+          acc.set(label, current);
+          return acc;
+        },
+        new Map()
+      ).values()
+    )
+      .filter((row) => row.mw > 0 || row.count > 0)
+      .sort((a, b) => b.mw - a.mw)
+      .slice(0, 5);
+
     return {
       count,
       totalCapacity,
       countries,
       needInfo,
       phaseOverview,
+      topLinkedCompanies,
+      topProjectMarkets,
     };
   }, [projects]);
 
@@ -524,6 +644,11 @@ const userCanExport = canExport(currentRole);
     }
   }
 
+  const totalPipelineMw = stats.phaseOverview.reduce(
+    (total, item) => total + item.mw,
+    0
+  );
+
   return (
     <main className="space-y-7">
       <section className={projectsClass.panel}>
@@ -623,39 +748,74 @@ const userCanExport = canExport(currentRole);
       </section>
 
       {stats.phaseOverview.length > 0 && (
-        <section className={projectsClass.panel}>
-          <div className={`${projectsClass.sectionHeader} px-5 py-3`}>
-            <h2 className={`text-lg font-bold ${projectsClass.title}`}>
-              Phase Overview
-            </h2>
-            <p className={`mt-1 text-sm ${projectsClass.muted}`}>
-              Distribution of projects and associated planned MWe by development phase.
-            </p>
-          </div>
-
-          <div className="px-5 py-3">
-            <div className="flex gap-2.5 overflow-x-auto pb-1">
-              {stats.phaseOverview.map((item) => (
-                <div
-                  key={item.label}
-                  className="min-w-[176px] flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3.5 py-2.5"
-                >
-                  <div className="mb-1.5 flex items-center justify-between gap-2">
-                    <PhaseBadge value={item.badgeValue} />
-                  </div>
-                  <div className={`text-xl font-bold leading-none ${projectsClass.title}`}>
-                    {formatMw(item.mw, 1)} <span className="text-sm font-semibold">MWe</span>
-                  </div>
-                  <div className={`mt-1.5 text-sm leading-5 ${projectsClass.body}`}>
-                    {formatCount(item.count)} projects
-                  </div>
-                  <div className={`mt-1 text-xs font-semibold ${projectsClass.muted}`}>
-                    {item.label}
-                  </div>
-                </div>
-              ))}
+        <section className="grid gap-5 xl:grid-cols-[1.25fr_0.9fr_0.9fr]">
+          <section className={projectsClass.panel}>
+            <div className={`${projectsClass.sectionHeader} px-5 py-3`}>
+              <h2 className={`text-lg font-bold ${projectsClass.title}`}>
+                Project Lifecycle Distribution
+              </h2>
+              <p className={`mt-1 text-sm ${projectsClass.muted}`}>
+                Pipeline capacity and project count by development phase.
+              </p>
             </div>
-          </div>
+
+            <div className="px-5 py-4">
+              <div className="flex h-8 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+                {stats.phaseOverview.map((item) => {
+                  const width =
+                    totalPipelineMw > 0 ? (item.mw / totalPipelineMw) * 100 : 0;
+                  if (width <= 0) return null;
+
+                  return (
+                    <div
+                      key={item.label}
+                      className="h-8"
+                      style={{
+                        width: `${width}%`,
+                        backgroundColor: phaseChartColor(item.label),
+                      }}
+                      title={`${item.label}: ${formatMw(item.mw, 1)} MWe`}
+                    />
+                  );
+                })}
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {stats.phaseOverview.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex items-center justify-between gap-3 border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <PhaseBadge value={item.badgeValue} />
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-sm font-bold ${projectsClass.title}`}>
+                        {formatMw(item.mw, 1)} MWe
+                      </div>
+                      <div className={`text-xs ${projectsClass.muted}`}>
+                        {formatCount(item.count)} projects
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <PipelineRankingBars
+            title="Top Project Markets"
+            description="Countries with the largest tracked project pipeline."
+            rows={stats.topProjectMarkets}
+            color="var(--tge-chart-ranking-pipeline-capacity)"
+          />
+
+          <PipelineRankingBars
+            title="Top Linked Companies"
+            description="Project-linked companies ranked by associated pipeline MWe."
+            rows={stats.topLinkedCompanies}
+            color="var(--tge-chart-ranking-attributed-mw)"
+          />
         </section>
       )}
 
