@@ -444,6 +444,8 @@ Charts are part of the product value. They should not feel like placeholders.
 General rules:
 
 - Use semantic color consistently.
+- Same metric means same color. A ranking chart for one metric should not use
+  different colors for different rows.
 - Prefer direct labels over legends when space allows.
 - Use capacity-first metrics for geothermal market views.
 - Keep axes and gridlines subtle.
@@ -490,6 +492,44 @@ Map overlays:
 - map is the primary surface
 - filters are secondary and collapsible
 - overlays should communicate intensity, clusters, status, and movement
+
+### Chart Language V2 Freeze Candidate
+
+Chart colors must communicate meaning, not decoration.
+
+Separate color systems:
+
+- Brand color: ThinkGeoEnergy green for identity, navigation, primary action,
+  selected state, and key intelligence accents.
+- Ranking colors: stable single-metric colors. Installed capacity, pipeline
+  capacity, neutral counts, and attributed MW each have one chart color.
+- Lifecycle colors: project development progression from Prospect / TBD through
+  Exploration, Pre-Feasibility, Feasibility, Construction, Operating, and
+  Cancelled / Suspended.
+- Governance colors: approved, needs review, rejected, blocked, AI candidate,
+  and AI suggested. These are reserved for workflow and validation, not market
+  categories.
+- Technology colors: stable geothermal technology categories for turbine
+  technology, direct use, district heating, heat pumps, EGS, AGS, lithium /
+  co-production, and other.
+- Signal colors: drilling, funding, permits, policy, commissioning, and M&A.
+- Spatial colors: intensity and density surfaces for clusters, heat layers, and
+  map overlays.
+
+Formal chart taxonomy:
+
+1. Ranking charts compare one metric across countries, companies, developers,
+   operators, owners, or technologies. One metric uses one color.
+2. Lifecycle charts use the lifecycle progression palette in fixed order.
+3. Composition charts use the relevant category palette, such as technology or
+   region.
+4. Signal charts use the signal palette for living market movement.
+5. Spatial intelligence charts use density and intensity rather than random
+   category colors.
+
+Review route:
+
+- `/design/charts-v2`
 
 ## 11. Dashboard Philosophy
 

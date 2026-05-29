@@ -92,6 +92,56 @@
   --tge-chart-technology-dry-steam: #c6dfb8;
   --tge-chart-technology-other: #c9c9c9;
 
+  /* Chart Language V2 semantic palettes. These tokens separate chart meaning
+     from decorative color so the same market concept looks the same everywhere. */
+  --tge-chart-ranking-installed-capacity: #2f5f2b;
+  --tge-chart-ranking-pipeline-capacity: #2c6f9f;
+  --tge-chart-ranking-market-count: #6f7d81;
+  --tge-chart-ranking-attributed-mw: #178b82;
+
+  --tge-chart-lifecycle-prospect: #d9e0dc;
+  --tge-chart-lifecycle-exploration: #b9d98b;
+  --tge-chart-lifecycle-pre-feasibility: #8dc63f;
+  --tge-chart-lifecycle-feasibility: #4f8f2f;
+  --tge-chart-lifecycle-construction: #c98932;
+  --tge-chart-lifecycle-operating: #2f5f2b;
+  --tge-chart-lifecycle-cancelled: #b94a48;
+
+  --tge-chart-governance-approved: #5f8f2f;
+  --tge-chart-governance-needs-review: #d99a32;
+  --tge-chart-governance-rejected: #c44d4d;
+  --tge-chart-governance-blocked: #7f1d1d;
+  --tge-chart-governance-ai-candidate: #7667a8;
+  --tge-chart-governance-ai-suggested: #d9d2f0;
+
+  --tge-chart-tech-back-pressure: #1f4e79;
+  --tge-chart-tech-single-flash: #6fa536;
+  --tge-chart-tech-double-flash: #8dc63f;
+  --tge-chart-tech-triple-flash: #2f5f2b;
+  --tge-chart-tech-dry-steam: #c6dfb8;
+  --tge-chart-tech-binary-orc: #178b82;
+  --tge-chart-tech-kalina: #2aa7a0;
+  --tge-chart-tech-combined-cycle: #2c6f6b;
+  --tge-chart-tech-egs: #c36f35;
+  --tge-chart-tech-ags-closed-loop: #9a552e;
+  --tge-chart-tech-direct-use: #7667a8;
+  --tge-chart-tech-district-heating: #8a72c0;
+  --tge-chart-tech-heat-pumps: #d9d2f0;
+  --tge-chart-tech-lithium-coproduction: #b9862b;
+  --tge-chart-tech-other: #8a8f8d;
+
+  --tge-chart-signal-drilling: #c98932;
+  --tge-chart-signal-funding: #5f8f2f;
+  --tge-chart-signal-permits: #2c6f9f;
+  --tge-chart-signal-policy: #7667a8;
+  --tge-chart-signal-commissioning: #178b82;
+  --tge-chart-signal-ma: #b9862b;
+
+  --tge-chart-spatial-low: #dceccf;
+  --tge-chart-spatial-medium: #8dc63f;
+  --tge-chart-spatial-high: #3f6f19;
+  --tge-chart-spatial-hotspot: #c98932;
+
   --tge-map-marker-plant: #64a542;
   --tge-map-marker-project: #e8a56c;
   --tge-map-marker-stroke: #ffffff;
