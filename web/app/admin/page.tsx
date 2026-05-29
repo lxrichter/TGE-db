@@ -406,6 +406,11 @@ function DesignReadinessOverview() {
       note: "Defines required, edited, pending approval, approved, blocked, advisory, AI-suggested, and source-backed field states.",
     },
     {
+      title: "Intelligence Layer Contract",
+      reference: "docs/INTELLIGENCE_LAYER_CONTRACT.md",
+      note: "Defines how Dashboard, Markets, Analysis, and Map differ while remaining connected as the intelligence product layer.",
+    },
+    {
       title: "Map Spatial Intelligence Contract",
       reference: "docs/MAP_SPATIAL_INTELLIGENCE_CONTRACT.md",
       note: "Defines standard, expanded, and mobile map modes, filter taxonomy, marker semantics, and popup priorities.",

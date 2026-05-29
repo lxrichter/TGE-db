@@ -10,6 +10,7 @@ re-litigating core platform architecture.
 Start the formal design phase when these areas are accepted as functionally
 stable enough for visual design:
 
+- intelligence layer separation between Dashboard, Markets, Analysis, and Map
 - route and navigation architecture
 - role entry points and visibility rules
 - semantic status and color meanings
@@ -44,6 +45,15 @@ spacing, color values, chart styling, and responsive treatment.
   role access, command search, and future sidebar rendering.
 - Form field visual treatment should follow
   `docs/FORM_FIELD_STATE_CONTRACT.md`.
+
+### Intelligence Layer
+
+- Dashboard, Markets, Analysis, and Map should follow
+  `docs/INTELLIGENCE_LAYER_CONTRACT.md`.
+- Dashboard is the executive signal layer.
+- Markets is the country and regional market intelligence layer.
+- Analysis is the governed benchmark and module layer.
+- Map is the spatial intelligence layer.
 
 ### Terminology
 
