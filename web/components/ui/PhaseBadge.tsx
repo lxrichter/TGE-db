@@ -18,6 +18,14 @@ export function normalizePhaseName(value: string | null | undefined) {
     return "Pre-Feasibility";
   }
 
+  if (
+    normalized === "prospect tbd" ||
+    normalized === "prospect / tbd" ||
+    normalized === "prospect_tbd"
+  ) {
+    return "Prospect";
+  }
+
   if (normalized === "tbd") return "TBD";
 
   if (
@@ -80,7 +88,11 @@ function getPhaseClasses(phase: string) {
     return "border-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)] text-[var(--tge-lifecycle-prospect-text)]";
   }
 
-  if (normalized === "cancelled" || normalized === "decommissioned") {
+  if (
+    normalized === "cancelled" ||
+    normalized === "suspended" ||
+    normalized === "decommissioned"
+  ) {
     return "border-[var(--tge-lifecycle-cancelled-border)] bg-[var(--tge-status-bar-danger)] text-[var(--tge-surface-card)]";
   }
 
