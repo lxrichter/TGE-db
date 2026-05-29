@@ -101,6 +101,7 @@ spacing, color values, chart styling, and responsive treatment.
 ### Map Layer
 
 - Map is a spatial intelligence layer, not just a location preview.
+- Map design should follow `docs/MAP_SPATIAL_INTELLIGENCE_CONTRACT.md`.
 - Standard and expanded map modes are part of the design target.
 - Future filters should support geography, project/plant layer, use category,
   lifecycle/status, technology, resource type, and emerging technology overlays.

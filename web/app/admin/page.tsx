@@ -406,6 +406,11 @@ function DesignReadinessOverview() {
       note: "Defines required, edited, pending approval, approved, blocked, advisory, AI-suggested, and source-backed field states.",
     },
     {
+      title: "Map Spatial Intelligence Contract",
+      reference: "docs/MAP_SPATIAL_INTELLIGENCE_CONTRACT.md",
+      note: "Defines standard, expanded, and mobile map modes, filter taxonomy, marker semantics, and popup priorities.",
+    },
+    {
       title: "Status Badge Hierarchy",
       reference: "docs/STATUS_BADGE_HIERARCHY.md",
       note: "Locks the operational meaning of lifecycle, review, source, confidence, and severity status colors.",
