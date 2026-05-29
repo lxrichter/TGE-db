@@ -863,22 +863,6 @@ const userCanExport = canExport(currentRole);
 
             <div className="flex flex-wrap gap-3 xl:justify-end">
               {userCanEdit && (
-                <ActionButton href="/research-ops" variant="secondary">
-                  Research Ops
-                </ActionButton>
-              )}
-
-              {userCanExport && (
-                <button
-                  type="button"
-                  onClick={() => setIsExportModalOpen(true)}
-                  className="inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-medium text-[var(--tge-governance-neutral-text)] hover:bg-[var(--tge-surface-subtle)]"
-                >
-                  Export Excel
-                </button>
-              )}
-
-              {userCanEdit && (
                 <ActionButton href="/projects/new" variant="primary">
                   + New Project
                 </ActionButton>
@@ -1126,6 +1110,7 @@ const userCanExport = canExport(currentRole);
           />
 
           <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
             <details className="relative">
               <summary className="inline-flex h-9 cursor-pointer items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]">
                 Columns
@@ -1152,6 +1137,17 @@ const userCanExport = canExport(currentRole);
                 </div>
               </div>
             </details>
+
+            {userCanExport && (
+              <button
+                type="button"
+                onClick={() => setIsExportModalOpen(true)}
+                className="inline-flex h-9 items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
+              >
+                Export Excel
+              </button>
+            )}
+            </div>
 
             <label className="flex items-center gap-2 text-sm text-[var(--tge-text-secondary)]">
               Rows per page
