@@ -381,19 +381,43 @@ export default function AnalysisPage() {
     <main className="space-y-6">
       <section className={panelClass}>
         <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6">
-          <div className="max-w-5xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
-              Analysis
-            </p>
-            <h1 className={`mt-2 text-4xl font-bold tracking-tight ${titleTextClass} xl:text-5xl`}>
-              Analysis Workspace
-            </h1>
-            <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
-              Derived intelligence views built from the geothermal plants,
-              projects, companies, and relationship tables. This workspace now
-              acts as the registry for live analysis pages and the backlog for
-              future benchmark modules.
-            </p>
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+            <div className="max-w-5xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+                Analysis
+              </p>
+              <h1 className={`mt-2 text-4xl font-bold tracking-tight ${titleTextClass} xl:text-5xl`}>
+                Modular Geothermal Intelligence Analysis
+              </h1>
+              <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
+                Derived intelligence views built from plants, projects,
+                companies, relationships, and country taxonomy. Analysis pages
+                should behave like reusable intelligence products: methodology
+                visible, metrics clear, drilldowns available, and governance QA
+                explicit where it affects confidence.
+              </p>
+            </div>
+
+            <div className="grid gap-2 sm:flex sm:flex-wrap xl:justify-end">
+              <Link
+                href="/analysis/developers"
+                className="inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-text-primary)] hover:bg-[var(--tge-governance-success-bg)]"
+              >
+                Developer Analysis
+              </Link>
+              <Link
+                href="/analysis/turbine-technology"
+                className="inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+              >
+                Turbine Technology
+              </Link>
+              <Link
+                href="/analysis/owners-operators"
+                className="inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+              >
+                Owners & Operators
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -402,21 +426,15 @@ export default function AnalysisPage() {
         </div>
       </section>
 
-      <AnalysisDomainSummary />
-
-      <AnalysisDefinitionProtocol />
-
-      <AnalysisGovernanceQaPattern />
-
       <section className={panelClass}>
         <div className={`${panelHeaderClass} px-5 py-3`}>
           <h2 className={`text-lg font-semibold ${titleTextClass}`}>
             Live Analysis Modules
           </h2>
           <p className={`mt-1 text-[13px] leading-5 ${bodyTextClass}`}>
-            These pages are active and can be reviewed now. They should set the
-            pattern for future analysis pages: snapshot first, benchmark tables
-            second, drilldowns and supporting detail below.
+            Active intelligence pages. These set the product pattern: snapshot
+            first, MWe/MWth hierarchy, benchmark tables, drilldowns, and
+            methodology context.
           </p>
         </div>
 
@@ -426,6 +444,12 @@ export default function AnalysisPage() {
           ))}
         </div>
       </section>
+
+      <AnalysisDomainSummary />
+
+      <AnalysisDefinitionProtocol />
+
+      <AnalysisGovernanceQaPattern />
 
       <section className={panelClass}>
         <div className={`${panelHeaderClass} px-5 py-3`}>
