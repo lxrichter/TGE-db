@@ -1,14 +1,12 @@
 import Link from "next/link";
 import GroupedMap from "@/components/GroupedMap";
 import { DetailPriorityMarker } from "@/components/postgres-preview/PostgresEntityDetail";
-import PostgresSectionJumpNav from "@/components/postgres-preview/PostgresSectionJumpNav";
 import PostgresStatusBadge from "@/components/postgres-preview/PostgresStatusBadge";
 import { formatCount, formatMw } from "@/lib/format";
 import {
   listPostgresPreviewMapGroups,
   type PostgresPreviewGeographyFilters,
 } from "@/lib/postgres-preview";
-import NextActionStrip from "@/components/ui/NextActionStrip";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +30,7 @@ const mapClass = {
   panel:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
   hero:
-    "border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8",
+    "border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6 xl:px-8",
   title: "text-[var(--tge-text-primary)]",
   body: "text-[var(--tge-text-secondary)]",
   muted: "text-[var(--tge-governance-muted-text)]",
@@ -42,7 +40,7 @@ const mapClass = {
   label:
     "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
   stat:
-    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4",
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-3",
   action:
     "inline-flex h-10 items-center justify-center border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]",
   activeBadge:
@@ -50,7 +48,7 @@ const mapClass = {
   workflowCard:
     "block border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
   scope:
-    "border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-8 py-4",
+    "border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-6 py-3 xl:px-8",
   separator: "mx-2 text-[var(--tge-governance-muted-border)]",
   softNotice:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-4 py-3 text-xs leading-5 text-[var(--tge-governance-neutral-text)]",
@@ -128,6 +126,35 @@ async function getMapSummary(
   }
 }
 
+function getSummaryStats(summary: MapSummary | null) {
+  if (!summary) return [];
+
+  return [
+    {
+      label: "Mapped MWe",
+      value: `${formatMw(summary.mappedCapacityMwe)} MWe`,
+      note: "Coordinate-confirmed capacity",
+    },
+    {
+      label: "Mapped Sites",
+      value: formatCount(summary.mappedRecordCount),
+      note: `${formatCount(summary.plantGroupCount)} plant groups | ${formatCount(
+        summary.projectGroupCount
+      )} project groups`,
+    },
+    {
+      label: "Markets",
+      value: formatCount(summary.countryCount),
+      note: `${formatCount(summary.regionCount)} TGE regions represented`,
+    },
+    {
+      label: "Project Potential",
+      value: `${formatMw(summary.mappedPotentialMinMwe)} MWe`,
+      note: "Mapped minimum project potential",
+    },
+  ];
+}
+
 function MapStatCard({
   label,
   value,
@@ -187,23 +214,24 @@ export default async function PostgresPreviewMapPage({
   const activeGeographyLabel = geographyLabel(filters);
   const mapApiPath = geographyHref("/api/postgres-preview/map", filters);
   const summary = await getMapSummary(filters);
+  const summaryStats = getSummaryStats(summary);
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-6">
       <section className={mapClass.panel}>
         <div className={mapClass.hero}>
           <p className={mapClass.kicker}>
             Spatial Intelligence
           </p>
-          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="mt-3 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
               <h1 className={`text-4xl font-bold tracking-tight ${mapClass.title}`}>
-                Map
+                Map Explorer
               </h1>
-              <p className={`mt-4 max-w-4xl text-base leading-7 ${mapClass.body}`}>
-                Coordinate-confirmed spatial intelligence for projects and
-                plants. Projects and plants without coordinates stay in
-                Research Ops queues.
+              <p className={`mt-3 max-w-4xl text-base leading-7 ${mapClass.body}`}>
+                Coordinate-confirmed geothermal projects and plants, with
+                filters kept secondary so the spatial intelligence layer remains
+                the primary surface.
               </p>
               {activeGeographyLabel ? (
                 <div className={mapClass.activeBadge}>
@@ -259,98 +287,48 @@ export default async function PostgresPreviewMapPage({
         </div>
       </section>
 
-      <NextActionStrip
-        title="Primary Work Paths"
-        description="Use these routes for the three main map workflows: markers, coordinate cleanup, and market context."
-        actions={[
-          {
-            label: "Markers",
-            title: "Use marker popups",
-            description: "Open projects and plants from coordinate-confirmed marker groups.",
-            href: "#map-view",
-          },
-          {
-            label: "Coordinates",
-            title: "Fix missing coordinates",
-            description: "Route projects and plants without usable coordinates through Research Ops cleanup.",
-            href: "#map-workflow",
-          },
-          {
-            label: "Markets",
-            title: activeGeographyLabel
-              ? "Open filtered market context"
-              : "Open market signals",
-            description: "Move from spatial clusters into regional and market intelligence.",
-            href: `${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`,
-          },
-        ]}
-      />
+      {summaryStats.length > 0 ? (
+        <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+          {summaryStats.map((stat) => (
+            <MapStatCard
+              key={stat.label}
+              label={stat.label}
+              note={stat.note}
+              value={stat.value}
+            />
+          ))}
+        </section>
+      ) : (
+        <section className={mapClass.softNotice}>
+          <span className={`font-semibold ${mapClass.title}`}>
+            Map summary unavailable.
+          </span>{" "}
+          The map can still load from the API; check local PostgreSQL variables
+          only if markers remain empty.
+        </section>
+      )}
 
-      <PostgresSectionJumpNav
-        items={[
-          { href: "#map-readiness", label: "Readiness", note: "Coverage" },
-          { href: "#map-workflow", label: "Workflow", note: "Queues" },
-          { href: "#map-view", label: "Map", note: "Spatial view" },
-        ]}
-      />
-
-      <section id="map-readiness" className="space-y-5 scroll-mt-24">
+      <section id="map-view" className="space-y-3 scroll-mt-24">
         <DetailPriorityMarker
           label="Core"
-          title="Coordinate-Confirmed Map Readiness"
-          description="Only projects and plants with usable coordinates appear here."
+          title="Spatial Explorer"
+          description="Use marker popups for record drilldown. Open filters only when you need to narrow the spatial view."
           tone="core"
         />
-
-        {summary ? (
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-            <MapStatCard
-              label="Plant Groups"
-              note="Operating plant groups"
-              value={formatCount(summary.plantGroupCount)}
-            />
-            <MapStatCard
-              label="Project Groups"
-              note="Development groups"
-              value={formatCount(summary.projectGroupCount)}
-            />
-            <MapStatCard
-              label="Mapped Sites"
-              note="Represented by markers"
-              value={formatCount(summary.mappedRecordCount)}
-            />
-            <MapStatCard
-              label="Mapped MWe"
-              note="Mapped group capacity"
-              value={`${formatMw(summary.mappedCapacityMwe)} MWe`}
-            />
-            <MapStatCard
-              label="Potential Min"
-              note="Project potential"
-              value={`${formatMw(summary.mappedPotentialMinMwe)} MWe`}
-            />
-            <MapStatCard
-              label="Markets"
-              note={`${formatCount(summary.regionCount)} regions`}
-              value={formatCount(summary.countryCount)}
-            />
-          </section>
-        ) : (
-          <section className={mapClass.softNotice}>
-            <span className={`font-semibold ${mapClass.title}`}>
-              Map summary unavailable.
-            </span>{" "}
-            The map can still load from the API; check local PostgreSQL
-            variables only if markers remain empty.
-          </section>
-        )}
+        <GroupedMap
+          allCountriesLabel="All Markets"
+          apiPath={mapApiPath}
+          countryFilterLabel="Market"
+          detailPathMode="postgres-preview"
+          regionFilterLabel="TGE Region"
+        />
       </section>
 
-      <section id="map-workflow" className="space-y-5 scroll-mt-24">
+      <section id="map-workflow" className="space-y-4 scroll-mt-24">
         <DetailPriorityMarker
           label="Workflow"
-          title="Spatial Review Workflow"
-          description="Map navigation connects back to governed coordinate cleanup."
+          title="Spatial Governance Paths"
+          description="Coordinate cleanup, market context, and record drilldowns remain connected to the governed research system."
           tone="workflow"
         />
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -362,7 +340,7 @@ export default async function PostgresPreviewMapPage({
             tone="attention"
           />
           <MapWorkflowCard
-            description="Filter projects missing coordinates."
+            description="Filter project profiles missing coordinates."
             href={`${geographyHref("/postgres-preview/projects", filters)}${
               geographyQuery(filters).toString() ? "&" : "?"
             }missing=coordinates`}
@@ -371,7 +349,7 @@ export default async function PostgresPreviewMapPage({
             tone="info"
           />
           <MapWorkflowCard
-            description="Filter plants missing coordinates."
+            description="Filter plant profiles missing coordinates."
             href={`${geographyHref("/postgres-preview/operating-assets", filters)}${
               geographyQuery(filters).toString() ? "&" : "?"
             }missing=coordinates`}
@@ -382,27 +360,11 @@ export default async function PostgresPreviewMapPage({
           <MapWorkflowCard
             description="Open the TGE-first regional market layer behind the spatial view."
             href={`${geographyHref("/postgres-preview/markets", filters)}#region-drilldown`}
-            label="Regions"
-            title={activeGeographyLabel || "Regional Market Context"}
+            label="Markets"
+            title={activeGeographyLabel || "Market Context"}
             tone="success"
           />
         </section>
-      </section>
-
-      <section id="map-view" className="space-y-5 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Spatial View"
-          title="Map Navigation"
-          description="Grouped markers with layer, geography, and basemap controls."
-          tone="core"
-        />
-        <GroupedMap
-          allCountriesLabel="All Markets"
-          apiPath={mapApiPath}
-          countryFilterLabel="Market"
-          detailPathMode="postgres-preview"
-          regionFilterLabel="TGE Region"
-        />
       </section>
     </main>
   );

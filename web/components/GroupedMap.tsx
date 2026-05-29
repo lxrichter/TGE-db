@@ -218,7 +218,7 @@ export default function GroupedMap({
   const [countryFilter, setCountryFilter] = useState(allCountriesLabel);
   const [regionFilter, setRegionFilter] = useState("All Regions");
   const [isExpandedMap, setIsExpandedMap] = useState(false);
-  const [showFilterPanel, setShowFilterPanel] = useState(true);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
 
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<LeafletMap | null>(null);
@@ -538,15 +538,15 @@ export default function GroupedMap({
   }, [isExpandedMap, showFilterPanel]);
 
   const mapHeightClass = isExpandedMap
-    ? "h-[700px] min-h-[640px] w-full sm:h-[800px] xl:h-[calc(100vh-6rem)]"
-    : "h-[620px] w-full sm:h-[760px]";
+    ? "h-[700px] min-h-[640px] w-full sm:h-[800px] xl:h-[calc(100vh-5rem)]"
+    : "h-[68vh] min-h-[620px] w-full sm:min-h-[720px] xl:h-[calc(100vh-15rem)]";
   const filterPanelVisible = showFilterPanel;
   const filterPanelClass = isExpandedMap
     ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[288px]"
-    : "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[260px]";
+    : "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-5 sm:right-auto sm:top-5 sm:max-h-[calc(100%-2.5rem)] sm:w-[248px]";
 
   return (
-    <div className="relative border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+    <div className="relative overflow-hidden border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
       <div ref={mapRef} className={mapHeightClass} />
 
       <div className="pointer-events-none absolute inset-0 z-[1000]">
@@ -556,7 +556,9 @@ export default function GroupedMap({
             onClick={() => {
               const nextExpandedState = !isExpandedMap;
               setIsExpandedMap(nextExpandedState);
-              setShowFilterPanel(!nextExpandedState);
+              if (nextExpandedState) {
+                setShowFilterPanel(false);
+              }
             }}
             className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold text-[var(--tge-governance-neutral-text)] shadow-sm hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
           >
@@ -571,27 +573,47 @@ export default function GroupedMap({
           </button>
         </div>
 
+        <div className="pointer-events-auto absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-2 text-xs text-[var(--tge-governance-neutral-text)] shadow-sm sm:left-6 sm:right-auto sm:min-w-[280px]">
+          <div className="font-semibold">
+            {visibleMarkers.length.toLocaleString()} visible marker groups
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="inline-block h-2.5 w-2.5"
+                style={{ backgroundColor: "var(--tge-map-marker-plant)" }}
+              />
+              Plants
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                className="inline-block h-2.5 w-2.5"
+                style={{ backgroundColor: "var(--tge-map-marker-project)" }}
+              />
+              Projects
+            </span>
+          </div>
+        </div>
+
         {filterPanelVisible ? (
           <div className={filterPanelClass}>
-          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 py-2.5">
+          <div className="border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-governance-neutral-bg)] px-3 py-2">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--tge-text-primary)]">
                   Spatial Filters
                 </h2>
-                <p className="mt-1 text-[11px] leading-4 text-[var(--tge-governance-muted-text)]">
-                  Filter coordinate-confirmed projects and plants.
+                <p className="mt-0.5 text-[11px] leading-4 text-[var(--tge-governance-muted-text)]">
+                  Coordinate-confirmed layers.
                 </p>
               </div>
-              {isExpandedMap ? (
-                <button
-                  type="button"
-                  onClick={() => setShowFilterPanel(false)}
-                  className="shrink-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
-                >
-                  Hide
-                </button>
-              ) : null}
+              <button
+                type="button"
+                onClick={() => setShowFilterPanel(false)}
+                className="shrink-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]"
+              >
+                Hide
+              </button>
             </div>
           </div>
 
