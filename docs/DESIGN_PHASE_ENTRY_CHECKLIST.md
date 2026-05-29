@@ -78,6 +78,8 @@ spacing, color values, chart styling, and responsive treatment.
 ### Evidence And Research Ops
 
 - Sources remain the evidence backbone.
+- Evidence and source design should follow
+  `docs/EVIDENCE_GOVERNANCE_CONTRACT.md`.
 - Article Matches remain entity-link review candidates.
 - Article Facts remain extracted fact candidates.
 - AI field suggestions remain human-confirmed before audited apply.

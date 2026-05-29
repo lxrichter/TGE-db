@@ -396,6 +396,11 @@ function DesignReadinessOverview() {
       note: "Defines the acceptance gate, review page set, and boundaries for starting broad visual design.",
     },
     {
+      title: "Evidence Governance Contract",
+      reference: "docs/EVIDENCE_GOVERNANCE_CONTRACT.md",
+      note: "Defines the governed source-to-evidence-to-candidate-to-confirmed-update pipeline.",
+    },
+    {
       title: "Form Field State Contract",
       reference: "docs/FORM_FIELD_STATE_CONTRACT.md",
       note: "Defines required, edited, pending approval, approved, blocked, advisory, AI-suggested, and source-backed field states.",
