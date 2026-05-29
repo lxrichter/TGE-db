@@ -9,7 +9,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const panelClass =
-  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
+  "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-sm";
 const panelHeaderClass =
   "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
 const titleTextClass = "text-[var(--tge-text-primary)]";
@@ -125,11 +125,11 @@ function MarketKpi({
             : "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
 
   return (
-    <div className={`border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-4 py-4`}>
+    <div className={`border border-l-4 border-transparent ${toneClass} px-5 py-5 shadow-sm`}>
       <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         {label}
       </div>
-      <div className={`mt-3 text-3xl font-bold leading-none ${titleTextClass}`}>
+      <div className={`mt-3 text-3xl font-bold leading-none ${titleTextClass} xl:text-[2.35rem]`}>
         {value}
       </div>
       <div className={`mt-2 text-xs leading-5 ${bodyTextClass}`}>{note}</div>
@@ -155,14 +155,18 @@ function RegionOverview({ regions }: { regions: RegionSummary[] }) {
         {regions.slice(0, 7).map((region) => {
           const signal = region.operatingMwe + region.pipelineMwe;
           const width = `${Math.max(8, (signal / maxSignal) * 100)}%`;
+          const operatingShare =
+            signal > 0 ? (region.operatingMwe / signal) * 100 : 0;
+          const pipelineShare =
+            signal > 0 ? (region.pipelineMwe / signal) * 100 : 0;
 
           return (
             <Link
               key={region.region}
               href={`/markets/regions/${encodeURIComponent(region.region.toLowerCase().replaceAll(" ", "-").replaceAll("&", "and"))}`}
-              className="block px-5 py-4 transition hover:bg-[var(--tge-governance-success-bg)]"
+              className="block px-5 py-5 transition hover:bg-[var(--tge-governance-success-bg)]"
             >
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="grid gap-4 xl:grid-cols-[minmax(220px,0.7fr)_minmax(420px,1fr)_minmax(160px,0.35fr)] xl:items-center">
                 <div className="min-w-0">
                   <div className={`font-bold ${titleTextClass}`}>{region.region}</div>
                   <div className={`mt-1 text-xs ${bodyTextClass}`}>
@@ -171,17 +175,41 @@ function RegionOverview({ regions }: { regions: RegionSummary[] }) {
                     {formatCount(region.sourceGaps)} source gaps
                   </div>
                 </div>
-                <div className="w-full max-w-xl">
-                  <div className="flex justify-between gap-4 text-xs font-semibold text-[var(--tge-governance-muted-text)]">
-                    <span>{formatMw(region.operatingMwe)} MWe operating</span>
-                    <span>{formatMw(region.pipelineMwe)} MWe pipeline</span>
+
+                <div>
+                  <div className="flex flex-wrap justify-between gap-x-5 gap-y-1 text-xs font-semibold text-[var(--tge-governance-muted-text)]">
+                    <span>
+                      <span className="text-[var(--tge-status-bar-operating)]">
+                        {formatMw(region.operatingMwe)} MWe
+                      </span>{" "}
+                      operating
+                    </span>
+                    <span>
+                      <span className="text-[var(--tge-governance-info-text)]">
+                        {formatMw(region.pipelineMwe)} MWe
+                      </span>{" "}
+                      pipeline
+                    </span>
                   </div>
-                  <div className="mt-2 h-2 bg-[var(--tge-governance-neutral-bg)]">
+                  <div className="mt-2 h-3 bg-[var(--tge-governance-neutral-bg)]">
                     <div
-                      className="h-2 bg-[var(--tge-status-bar-success)]"
+                      className="flex h-3 overflow-hidden"
                       style={{ width }}
-                    />
+                    >
+                      <div
+                        className="h-3 bg-[var(--tge-status-bar-success)]"
+                        style={{ width: `${operatingShare}%` }}
+                      />
+                      <div
+                        className="h-3 bg-[var(--tge-governance-info-text)]"
+                        style={{ width: `${pipelineShare}%` }}
+                      />
+                    </div>
                   </div>
+                </div>
+
+                <div className="text-sm font-semibold text-[var(--tge-text-primary)] xl:text-right">
+                  {formatMw(signal)} MWe total signal
                 </div>
               </div>
             </Link>
@@ -298,7 +326,7 @@ export default async function MarketsPage() {
   );
 
   return (
-    <main className="space-y-7">
+    <main className="space-y-8">
       <section className={panelClass}>
         <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
@@ -359,7 +387,7 @@ export default async function MarketsPage() {
         </section>
       ) : null}
 
-      <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-[1.25fr_1.25fr_0.9fr_0.9fr]">
         <MarketKpi
           label="Operating MWe"
           note="Installed operating capacity signal"
