@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import ActionButton from "@/components/ui/ActionButton";
-import ResearchStatusBadge from "@/components/ui/ResearchStatusBadge";
+import BaseResearchStatusBadge from "@/components/ui/ResearchStatusBadge";
 import { canEdit, type UserRole } from "@/lib/auth/roles";
 
 type CompanyRow = {
@@ -41,7 +41,26 @@ const companiesClass = {
     "text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]",
   input:
     "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
+  tableHead:
+    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2.5",
+  tableCell:
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 align-middle",
+  link:
+    "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
+  primaryPill:
+    "inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-brand-green-dark)]",
 };
+
+function MissingValue() {
+  return (
+    <span className="text-sm text-[var(--tge-governance-muted-text)]">-</span>
+  );
+}
+
+function categoryLabel(value: string | null | undefined) {
+  const raw = (value || "").trim();
+  return raw || "Unclassified";
+}
 
 function SortableHeader({
   label,
@@ -83,11 +102,7 @@ function ReviewStatusBadge({ value }: { value: string | null | undefined }) {
   const normalized = raw.toLowerCase();
 
   if (!normalized) {
-    return (
-      <span className="inline-flex border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-2 py-0.5 text-[11px] font-semibold text-[var(--tge-governance-neutral-text)]">
-        NA
-      </span>
-    );
+    return <MissingValue />;
   }
 
   if (normalized === "approved") {
@@ -111,6 +126,16 @@ function ReviewStatusBadge({ value }: { value: string | null | undefined }) {
       {raw}
     </span>
   );
+}
+
+function ResearchStatusBadge({ value }: { value: string | null }) {
+  const normalized = (value || "").trim().toLowerCase();
+
+  if (!normalized || normalized === "na" || normalized === "n/a") {
+    return <MissingValue />;
+  }
+
+  return <BaseResearchStatusBadge value={value} />;
 }
 
 export default function CompaniesPage() {
@@ -189,19 +214,50 @@ export default function CompaniesPage() {
 
   const stats = useMemo(() => {
     const count = companies.length;
-    const countries = new Set(
-      companies
-        .map((c) => c.headquarters_country)
-        .filter((v) => v && v.trim() !== "")
-    ).size;
-    const done = companies.filter((c) =>
-      (c.research_status || "").toLowerCase().includes("done")
-    ).length;
     const needInfo = companies.filter((c) =>
       (c.research_status || "").toLowerCase().includes("need")
     ).length;
+    const linkedProjects = companies.reduce(
+      (sum, company) => sum + Number(company.linked_projects_count || 0),
+      0
+    );
+    const linkedPlants = companies.reduce(
+      (sum, company) => sum + Number(company.linked_plants_count || 0),
+      0
+    );
 
-    return { count, countries, done, needInfo };
+    const categoryMap = companies.reduce<
+      Record<string, { count: number; projects: number; plants: number }>
+    >((acc, company) => {
+      const label = categoryLabel(company.company_type_primary);
+
+      if (!acc[label]) {
+        acc[label] = { count: 0, projects: 0, plants: 0 };
+      }
+
+      acc[label].count += 1;
+      acc[label].projects += Number(company.linked_projects_count || 0);
+      acc[label].plants += Number(company.linked_plants_count || 0);
+
+      return acc;
+    }, {});
+
+    const categoryOverview = Object.entries(categoryMap)
+      .map(([label, values]) => ({
+        label,
+        ...values,
+        signal: values.projects + values.plants,
+      }))
+      .sort((a, b) => b.count - a.count || b.signal - a.signal)
+      .slice(0, 6);
+
+    return {
+      count,
+      needInfo,
+      linkedProjects,
+      linkedPlants,
+      categoryOverview,
+    };
   }, [companies]);
 
   const filteredAndSorted = useMemo(() => {
@@ -290,20 +346,21 @@ export default function CompaniesPage() {
   }
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-7">
       <section className={companiesClass.panel}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
-          <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
+        <div className="px-6 py-4 xl:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Companies
               </p>
-              <h1 className={`mt-3 text-5xl font-bold tracking-tight ${companiesClass.title}`}>
-                Geothermal Companies Database
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${companiesClass.title} xl:text-[2.2rem]`}>
+                Geothermal Companies
               </h1>
-              <p className={`mt-4 max-w-4xl text-lg leading-8 ${companiesClass.body}`}>
-                Internal overview of geothermal companies with linked detail pages,
-                roles, relationships, and plant/project involvement.
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${companiesClass.body}`}>
+                Ecosystem intelligence for geothermal developers, operators,
+                suppliers, investors, utilities, and relationship-linked market
+                participants.
               </p>
             </div>
 
@@ -323,13 +380,13 @@ export default function CompaniesPage() {
           </div>
         </div>
 
-        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-8 py-5">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-6 xl:grid-cols-4">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
             <div>
               <div className={companiesClass.metricLabel}>
                 Companies
               </div>
-              <div className={`mt-1 text-3xl font-bold ${companiesClass.title}`}>
+              <div className={`mt-0.5 text-xl font-bold ${companiesClass.title}`}>
                 {formatCount(stats.count)}
               </div>
               <div className={`mt-1 text-xs ${companiesClass.muted}`}>
@@ -339,25 +396,25 @@ export default function CompaniesPage() {
 
             <div>
               <div className={companiesClass.metricLabel}>
-                Countries Covered
+                Linked Projects
               </div>
-              <div className={`mt-1 text-3xl font-bold ${companiesClass.title}`}>
-                {formatCount(stats.countries)}
+              <div className={`mt-0.5 text-xl font-bold ${companiesClass.title}`}>
+                {formatCount(stats.linkedProjects)}
               </div>
               <div className={`mt-1 text-xs ${companiesClass.muted}`}>
-                Distinct headquarters countries
+                Structured project relationships
               </div>
             </div>
 
             <div>
               <div className={companiesClass.metricLabel}>
-                Done
+                Linked Plants
               </div>
-              <div className={`mt-1 text-3xl font-bold ${companiesClass.title}`}>
-                {formatCount(stats.done)}
+              <div className={`mt-0.5 text-xl font-bold ${companiesClass.title}`}>
+                {formatCount(stats.linkedPlants)}
               </div>
               <div className={`mt-1 text-xs ${companiesClass.muted}`}>
-                Companies marked complete
+                Structured plant relationships
               </div>
             </div>
 
@@ -365,7 +422,7 @@ export default function CompaniesPage() {
               <div className={companiesClass.metricLabel}>
                 Need Info
               </div>
-              <div className={`mt-1 text-3xl font-bold ${companiesClass.title}`}>
+              <div className={`mt-0.5 text-xl font-bold ${companiesClass.title}`}>
                 {formatCount(stats.needInfo)}
               </div>
               <div className={`mt-1 text-xs ${companiesClass.muted}`}>
@@ -374,11 +431,43 @@ export default function CompaniesPage() {
             </div>
           </div>
         </div>
+
+        {stats.categoryOverview.length > 0 && (
+          <div className="border-t border-[var(--tge-governance-neutral-border)] px-5 py-3">
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <h2 className={`text-lg font-bold ${companiesClass.title}`}>
+                Ecosystem Category Overview
+              </h2>
+              <p className={`text-sm ${companiesClass.muted}`}>
+                Company identity and relationship signal
+              </p>
+            </div>
+            <div className="flex gap-2.5 overflow-x-auto pb-1">
+              {stats.categoryOverview.map((item) => (
+                <div
+                  key={item.label}
+                  className="min-w-[176px] flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3.5 py-2.5"
+                >
+                  <div className={`line-clamp-1 text-xs font-semibold uppercase tracking-wide ${companiesClass.muted}`}>
+                    {item.label}
+                  </div>
+                  <div className={`mt-1 text-xl font-bold leading-none ${companiesClass.title}`}>
+                    {formatCount(item.count)}
+                  </div>
+                  <div className={`mt-1.5 text-sm leading-5 ${companiesClass.body}`}>
+                    {formatCount(item.projects)} project links ·{" "}
+                    {formatCount(item.plants)} plant links
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       <section className={companiesClass.panel}>
-        <div className={`${companiesClass.sectionHeader} px-6 py-4`}>
-          <h2 className={`text-xl font-bold ${companiesClass.title}`}>
+        <div className={`${companiesClass.sectionHeader} px-5 py-3`}>
+          <h2 className={`text-lg font-bold ${companiesClass.title}`}>
             Company Overview Table
           </h2>
           <p className={`mt-1 text-sm ${companiesClass.muted}`}>
@@ -386,7 +475,7 @@ export default function CompaniesPage() {
           </p>
         </div>
 
-        <div className="space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3">
+        <div className="space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
@@ -395,7 +484,7 @@ export default function CompaniesPage() {
               <select
                 value={countryFilter}
                 onChange={(e) => setCountryFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${companiesClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${companiesClass.input}`}
               >
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
@@ -412,7 +501,7 @@ export default function CompaniesPage() {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${companiesClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${companiesClass.input}`}
               >
                 {typeOptions.map((type) => (
                   <option key={type} value={type}>
@@ -429,7 +518,7 @@ export default function CompaniesPage() {
               <select
                 value={researchStatusFilter}
                 onChange={(e) => setResearchStatusFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${companiesClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${companiesClass.input}`}
               >
                 {researchStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -446,7 +535,7 @@ export default function CompaniesPage() {
               <select
                 value={reviewStatusFilter}
                 onChange={(e) => setReviewStatusFilter(e.target.value)}
-                className={`w-full px-4 py-2 text-sm ${companiesClass.input}`}
+                className={`w-full px-3 py-2 text-sm ${companiesClass.input}`}
               >
                 {reviewStatusOptions.map((status) => (
                   <option key={status} value={status}>
@@ -461,173 +550,204 @@ export default function CompaniesPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by ID, company, primary type, country, research status, review status..."
-            className={`w-full px-4 py-2 text-sm ${companiesClass.input}`}
+            placeholder="Search companies by name, type, country, or review state..."
+            className={`w-full px-3 py-2 text-sm ${companiesClass.input}`}
           />
         </div>
 
-        <div className="px-6 pt-3">
-          <p className={`text-xs ${companiesClass.muted}`}>
-            Scroll horizontally to view all columns.
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-3">
+          <p className={`text-sm ${companiesClass.muted}`}>
+            Showing {formatCount(filteredAndSorted.length)} of{" "}
+            {formatCount(companies.length)} companies. Scroll horizontally for
+            relationship fields.
           </p>
         </div>
 
         <div className="overflow-x-auto">
-          <div className="min-w-[1250px]">
-            <table className="w-full table-fixed text-left text-sm">
-            <thead className="bg-[var(--tge-governance-neutral-bg)] text-left text-xs uppercase tracking-wide text-[var(--tge-governance-neutral-text)]">
-              <tr>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">Company ID</th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">
-                  <SortableHeader
-                    label="Name"
-                    column="company_name"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">
-                  <SortableHeader
-                    label="Primary Type"
-                    column="company_type_primary"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">
-                  <SortableHeader
-                    label="Country"
-                    column="headquarters_country"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2 text-center">
-                  <SortableHeader
-                    label="Related Companies"
-                    column="related_companies_count"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2 text-center">
-                  <SortableHeader
-                    label="Linked Projects"
-                    column="linked_projects_count"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2 text-center">
-                  <SortableHeader
-                    label="Linked Plants"
-                    column="linked_plants_count"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">
-                  <SortableHeader
-                    label="Research Status"
-                    column="research_status"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">
-                  <SortableHeader
-                    label="Review Status"
-                    column="review_status"
-                    sortKey={sortKey}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                </th>
-                {userCanEdit && (
-                  <th className="border-b border-[var(--tge-governance-neutral-border)] px-4 py-2">Action</th>
-                )}
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredAndSorted.map((company) => (
-                <tr key={company.company_id} className="hover:bg-[var(--tge-surface-subtle)]">
-                  <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 font-mono text-xs ${companiesClass.muted}`}>
-                    {company.company_id}
-                  </td>
-
-                  <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
-                    <Link
-                      href={`/companies/${company.company_id}`}
-                      className="font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]"
-                    >
-                      {company.company_name || "NA"}
-                    </Link>
-                  </td>
-
-                  <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 ${companiesClass.body}`}>
-                    {company.company_type_primary || "NA"}
-                  </td>
-
-                  <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 ${companiesClass.body}`}>
-                    {company.headquarters_country || "NA"}
-                  </td>
-
-                  <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center font-medium ${companiesClass.body}`}>
-                    {formatCount(company.related_companies_count)}
-                  </td>
-
-                  <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center font-medium ${companiesClass.body}`}>
-                    {formatCount(company.linked_projects_count)}
-                  </td>
-
-                  <td className={`border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 text-center font-medium ${companiesClass.body}`}>
-                    {formatCount(company.linked_plants_count)}
-                  </td>
-
-                  <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
-                    <ResearchStatusBadge value={company.research_status} />
-                  </td>
-
-                  <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
-                    <ReviewStatusBadge value={company.review_status} />
-                  </td>
-
+          <div className="min-w-max">
+            <table className="min-w-[1450px] table-fixed text-left text-sm">
+              <colgroup>
+                <col className="w-[110px]" />
+                <col className="w-[320px]" />
+                <col className="w-[190px]" />
+                <col className="w-[160px]" />
+                <col className="w-[150px]" />
+                <col className="w-[140px]" />
+                <col className="w-[130px]" />
+                <col className="w-[140px]" />
+                <col className="w-[140px]" />
+                {userCanEdit && <col className="w-[90px]" />}
+              </colgroup>
+              <thead className="bg-[var(--tge-governance-neutral-bg)] text-left text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
+                <tr>
+                  <th className={companiesClass.tableHead}>Company ID</th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Name"
+                      column="company_name"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Primary Type"
+                      column="company_type_primary"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Country"
+                      column="headquarters_country"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Related Companies"
+                      column="related_companies_count"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Linked Projects"
+                      column="linked_projects_count"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Linked Plants"
+                      column="linked_plants_count"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Research Status"
+                      column="research_status"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
+                  <th className={companiesClass.tableHead}>
+                    <SortableHeader
+                      label="Review Status"
+                      column="review_status"
+                      sortKey={sortKey}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                  </th>
                   {userCanEdit && (
-                    <td className="border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5">
-                      <Link
-                        href={`/companies/${company.company_id}/edit`}
-                        className="inline-flex min-h-[28px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 py-1 text-[11px] font-semibold leading-none text-[var(--tge-surface-card)] hover:border-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-brand-green-dark)]"
-                      >
-                        Edit
-                      </Link>
-                    </td>
+                    <th className={companiesClass.tableHead}>Action</th>
                   )}
                 </tr>
-              ))}
+              </thead>
 
-              {filteredAndSorted.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={userCanEdit ? 10 : 9}
-                    className={`px-4 py-8 text-center text-sm ${companiesClass.muted}`}
+              <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
+                {filteredAndSorted.map((company) => (
+                  <tr
+                    key={company.company_id}
+                    className="transition hover:bg-[var(--tge-surface-subtle)]"
                   >
-                    No matching company records found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
+                    <td
+                      className={`${companiesClass.tableCell} font-mono text-xs ${companiesClass.muted}`}
+                    >
+                      {company.company_id}
+                    </td>
+
+                    <td className={companiesClass.tableCell}>
+                      <Link
+                        href={`/companies/${company.company_id}`}
+                        className={`${companiesClass.link} line-clamp-2 text-[15px] font-semibold leading-5`}
+                      >
+                        {company.company_name || <MissingValue />}
+                      </Link>
+                    </td>
+
+                    <td
+                      className={`${companiesClass.tableCell} ${companiesClass.body}`}
+                    >
+                      <span className="line-clamp-2">
+                        {company.company_type_primary || <MissingValue />}
+                      </span>
+                    </td>
+
+                    <td
+                      className={`${companiesClass.tableCell} ${companiesClass.body}`}
+                    >
+                      {company.headquarters_country || <MissingValue />}
+                    </td>
+
+                    <td
+                      className={`${companiesClass.tableCell} font-semibold ${companiesClass.title}`}
+                    >
+                      {formatCount(company.related_companies_count)}
+                    </td>
+
+                    <td
+                      className={`${companiesClass.tableCell} font-semibold ${companiesClass.title}`}
+                    >
+                      {formatCount(company.linked_projects_count)}
+                    </td>
+
+                    <td
+                      className={`${companiesClass.tableCell} font-semibold ${companiesClass.title}`}
+                    >
+                      {formatCount(company.linked_plants_count)}
+                    </td>
+
+                    <td className={companiesClass.tableCell}>
+                      <ResearchStatusBadge value={company.research_status} />
+                    </td>
+
+                    <td className={companiesClass.tableCell}>
+                      <ReviewStatusBadge value={company.review_status} />
+                    </td>
+
+                    {userCanEdit && (
+                      <td className={companiesClass.tableCell}>
+                        <Link
+                          href={`/companies/${company.company_id}/edit`}
+                          className={companiesClass.primaryPill}
+                        >
+                          Edit
+                        </Link>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+
+                {filteredAndSorted.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={userCanEdit ? 10 : 9}
+                      className={`px-4 py-8 text-center text-sm ${companiesClass.muted}`}
+                    >
+                      No matching company records found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
     </main>
   );
 }
