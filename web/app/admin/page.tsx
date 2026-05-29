@@ -21,6 +21,7 @@ import {
   designAudienceEntryPoints,
   designComponentInventory,
   designEntryGates,
+  designPassSequence,
   designReadinessPriorities,
   designReviewPageSet,
   semanticDesignRules,
@@ -499,6 +500,53 @@ function DesignReadinessOverview() {
                       {item.label}
                     </span>
                   ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={adminClass.panel}>
+        <div className={adminClass.header}>
+          <h3 className={`text-sm font-bold ${adminClass.title}`}>
+            Design Pass Sequence
+          </h3>
+          <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
+            Recommended order for the visual design phase, keeping broad
+            product identity ahead of dense operational and governance pages.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 xl:grid-cols-3">
+          {designPassSequence.map((pass) => (
+            <div key={pass.phase} className={`${adminClass.panelSubtle} p-4`}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
+                    {pass.phase}
+                  </div>
+                  <h4 className={`mt-1 text-sm font-bold ${adminClass.title}`}>
+                    {pass.target}
+                  </h4>
+                </div>
+                <span className={adminClass.chip}>
+                  {pass.pages.length} areas
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {pass.pages.map((page) => (
+                  <span key={`${pass.phase}-${page}`} className={adminClass.chip}>
+                    {page}
+                  </span>
+                ))}
+              </div>
+              <p className={`mt-3 text-xs leading-5 ${adminClass.body}`}>
+                {pass.purpose}
+              </p>
+              <div className="mt-3 border-l-2 border-[var(--tge-brand-green)] pl-3 text-xs leading-5 text-[var(--tge-text-secondary)]">
+                <span className="font-semibold text-[var(--tge-text-primary)]">
+                  Acceptance:
+                </span>{" "}
+                {pass.acceptanceSignal}
               </div>
             </div>
           ))}

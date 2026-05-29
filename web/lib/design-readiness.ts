@@ -43,6 +43,14 @@ export type DesignReviewPage = {
   note: string;
 };
 
+export type DesignPassSequenceItem = {
+  phase: string;
+  target: string;
+  pages: string[];
+  purpose: string;
+  acceptanceSignal: string;
+};
+
 export const designAudienceEntryPoints: DesignAudienceEntryPoint[] = [
   {
     audience: "Subscribers",
@@ -208,6 +216,42 @@ export const designEntryGates: DesignEntryGate[] = [
     area: "Form field states",
     status: "design_phase",
     note: "Required, edited, pending approval, approved, rejected, and blocked states need final visual treatment.",
+  },
+];
+
+export const designPassSequence: DesignPassSequenceItem[] = [
+  {
+    phase: "Pass 1",
+    target: "Product Shell And Intelligence Layer",
+    pages: ["App shell", "Dashboard", "Markets", "Analysis", "Map"],
+    purpose:
+      "Set the core platform identity, executive rhythm, market intelligence language, chart grammar, map treatment, and role-aware navigation shell.",
+    acceptanceSignal:
+      "The platform reads as a geothermal intelligence product before it reads as an internal database.",
+  },
+  {
+    phase: "Pass 2",
+    target: "Entity Workspaces And Evidence Backbone",
+    pages: ["Projects", "Plants", "Companies", "Sources", "Research Ops"],
+    purpose:
+      "Carry the intelligence language into dense operational workspaces while preserving edit speed, evidence linkage, relationship workflows, and queue clarity.",
+    acceptanceSignal:
+      "Researchers can scan, edit, link evidence, and move to the next action without fighting table density.",
+  },
+  {
+    phase: "Pass 3",
+    target: "Governance, Review Queues, And Administration",
+    pages: [
+      "Article Matches",
+      "Article Facts",
+      "AI Field Suggestions",
+      "Readiness",
+      "Admin",
+    ],
+    purpose:
+      "Finalize governance visual language for human confirmation, source quality, AI-assisted review, cutover readiness, and platform administration.",
+    acceptanceSignal:
+      "Editors and administrators can distinguish suggestion, confirmation, approval, rejection, blocker, and audit states instantly.",
   },
 ];
 
