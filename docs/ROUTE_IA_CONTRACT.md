@@ -4,6 +4,12 @@ This note defines the current platform route contract before the formal design
 phase. It separates clean user-facing entry points from PostgreSQL staging routes
 that are still intentionally visible during the replacement process.
 
+Related design contracts:
+
+- `docs/APP_SHELL_NAVIGATION_CONTRACT.md`
+- `docs/DESIGN_TOKEN_CONTRACT.md`
+- `docs/STATUS_BADGE_HIERARCHY.md`
+
 ## Current Principle
 
 Use clean routes where the page is already acting as the durable platform entry

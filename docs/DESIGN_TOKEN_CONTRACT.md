@@ -21,6 +21,8 @@ Admin/design readiness registries:
 Related semantics:
 
 - `docs/STATUS_BADGE_HIERARCHY.md`
+- `docs/APP_SHELL_NAVIGATION_CONTRACT.md`
+- `docs/ROUTE_IA_CONTRACT.md`
 
 Audit guardrail:
 
@@ -127,6 +129,7 @@ operational meaning.
 Before final visual design starts, confirm:
 
 - Final brand shell palette for header, navigation, and primary actions.
+- Final app shell treatment for left sidebar, top utility bar, and mobile drawer.
 - Lifecycle palette for project phases and plant operating states.
 - Governance palette for approval, review, source credibility, blockers, and AI.
 - Chart palette for turbine technology, owner/operator, developer, market, and
