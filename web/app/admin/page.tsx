@@ -360,6 +360,11 @@ function DesignReadinessOverview() {
       note: "Defines clean top-level entry points, PostgreSQL staging routes, and the future route-promotion path.",
     },
     {
+      title: "App Shell Navigation Contract",
+      reference: "docs/APP_SHELL_NAVIGATION_CONTRACT.md",
+      note: "Defines the future left-sidebar shell, top-bar utility layer, role defaults, and mobile navigation behavior.",
+    },
+    {
       title: "Status Badge Hierarchy",
       reference: "docs/STATUS_BADGE_HIERARCHY.md",
       note: "Locks the operational meaning of lifecycle, review, source, confidence, and severity status colors.",
