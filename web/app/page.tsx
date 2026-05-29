@@ -262,11 +262,11 @@ function ExecutiveKpi({
   const toneClass = getExecutiveKpiToneClass(tone);
   const frameClass =
     prominence === "executive"
-      ? `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-5 py-5 sm:min-h-[148px] sm:px-6 sm:py-6`
-      : `border border-l-4 border-[var(--tge-governance-neutral-border)] ${toneClass} px-4 py-4`;
+      ? `border border-l-4 border-transparent ${toneClass} px-6 py-6 shadow-sm sm:min-h-[172px] sm:px-7 sm:py-7`
+      : `border border-l-4 border-transparent ${toneClass} px-4 py-4 shadow-sm`;
   const valueClass =
     prominence === "executive"
-      ? `mt-4 text-4xl font-bold leading-none ${titleTextClass} sm:text-[2.85rem]`
+      ? `mt-5 text-4xl font-bold leading-none ${titleTextClass} sm:text-[3.25rem]`
       : `mt-3 text-2xl font-bold leading-none ${titleTextClass} sm:text-3xl`;
   const noteClass =
     prominence === "executive"
@@ -313,7 +313,7 @@ function IntelligenceCard({
   return (
     <Link
       href={href}
-      className={`${panelClass} px-5 py-5 ${dashboardHoverClass}`}
+      className={`${panelClass} px-5 py-5 shadow-sm ${dashboardHoverClass}`}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -675,7 +675,7 @@ export default async function HomePage() {
 
   return (
     <main className="space-y-7 sm:space-y-8">
-      <section className={panelClass}>
+      <section className={`${panelClass} shadow-sm`}>
         <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
@@ -749,7 +749,7 @@ export default async function HomePage() {
           tone="core"
         />
 
-        <section className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-[1.35fr_1.35fr_0.9fr_0.9fr]">
           <ExecutiveKpi
             href="/analysis"
             label="Operating MWe"
@@ -784,7 +784,7 @@ export default async function HomePage() {
           />
         </section>
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <ExecutiveKpi
             href="/markets"
             label="Markets"
