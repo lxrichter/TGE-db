@@ -66,6 +66,12 @@ const signalPulse = [
   ["Company Activity", "13", "+5", "--tge-concept-orange", 62],
 ];
 
+const morningBrief = [
+  ["Indonesia", "Tender activity and drilling signals lift Southeast Asia pipeline watch", "--tge-concept-blue", 86],
+  ["Kenya", "Rift Valley drilling cluster shows strongest near-term movement", "--tge-concept-gold", 78],
+  ["United States", "Private capital signals continue to accelerate next-generation geothermal", "--tge-concept-green", 70],
+];
+
 const lifecycle = [
   ["Prospect / TBD", "8,840", 18, "--tge-concept-slate", "312 projects"],
   ["Exploration", "12,240", 25, "--tge-concept-blue", "418 projects"],
@@ -100,6 +106,7 @@ const intelligenceFeed = [
     impact: "Pipeline visibility increased",
     confidence: "High",
     tone: "--tge-concept-gold",
+    strength: 88,
   },
   {
     type: "Financing",
@@ -108,6 +115,7 @@ const intelligenceFeed = [
     impact: "Emerging technology signal",
     confidence: "Medium",
     tone: "--tge-concept-green",
+    strength: 72,
   },
   {
     type: "Tender",
@@ -116,6 +124,7 @@ const intelligenceFeed = [
     impact: "Market momentum increased",
     confidence: "High",
     tone: "--tge-concept-blue",
+    strength: 80,
   },
   {
     type: "Commissioning",
@@ -124,6 +133,7 @@ const intelligenceFeed = [
     impact: "Installed capacity adjusted",
     confidence: "High",
     tone: "--tge-concept-teal",
+    strength: 54,
   },
 ];
 
@@ -134,6 +144,14 @@ const outlookBars = [
   ["2028", 7.2, 15.1, 19.4],
   ["2029", 8.4, 16.9, 20.1],
   ["2030", 9.8, 18.2, 21.4],
+];
+
+const pipelineEvolution = [
+  ["2026", 18, 25, 14, 15, 10],
+  ["2027", 16, 27, 15, 16, 12],
+  ["2028", 14, 28, 16, 17, 14],
+  ["2029", 13, 27, 17, 18, 17],
+  ["2030", 11, 26, 18, 19, 21],
 ];
 
 const evidenceTrust = [
@@ -341,6 +359,95 @@ function KpiCard({
   );
 }
 
+function MorningBrief() {
+  return (
+    <div className="border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel)] p-5">
+      <div className="grid gap-5 2xl:grid-cols-[1.08fr_0.92fr]">
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--tge-concept-green)]">
+            Market Intelligence Brief
+          </div>
+          <h2 className="mt-2 max-w-4xl text-5xl font-bold leading-[1.03] tracking-tight text-[var(--tge-concept-ink)]">
+            Geothermal activity accelerated in 18 markets.
+          </h2>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--tge-concept-muted)]">
+            Drilling, financing, tender, and commissioning signals increased
+            pipeline visibility across Asia & Pacific, Africa, and North America.
+          </p>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {[
+              ["Strongest mover", "Indonesia", "Tender + drilling"],
+              ["Fastest cluster", "Kenya", "Rift Valley drilling"],
+              ["Emerging signal", "United States", "Capital + EGS"],
+            ].map(([label, value, note]) => (
+              <div
+                className="border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel-soft)] p-3"
+                key={label}
+              >
+                <div className="text-[10px] font-bold uppercase tracking-wide text-[var(--tge-concept-muted)]">
+                  {label}
+                </div>
+                <div className="mt-2 text-xl font-bold text-[var(--tge-concept-ink)]">
+                  {value}
+                </div>
+                <div className="mt-1 text-xs text-[var(--tge-concept-muted)]">
+                  {note}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel-soft)] p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-sm font-bold text-[var(--tge-concept-ink)]">
+                Morning Market Impact
+              </div>
+              <div className="mt-1 text-xs text-[var(--tge-concept-muted)]">
+                Signal strength by market, weighted toward recent activity.
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold text-[var(--tge-concept-ink)]">
+                82
+              </div>
+              <div className="text-xs text-[var(--tge-concept-muted)]">
+                activity index
+              </div>
+            </div>
+          </div>
+          <div className="mt-5 space-y-4">
+            {morningBrief.map(([market, headline, token, strength]) => (
+              <div key={String(market)}>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <div className="font-bold text-[var(--tge-concept-ink)]">
+                    {market}
+                  </div>
+                  <div className="text-xs font-bold text-[var(--tge-concept-muted)]">
+                    {strength}
+                  </div>
+                </div>
+                <div className="h-7 bg-[var(--tge-concept-line)]">
+                  <div
+                    className="flex h-7 items-center px-2 text-[10px] font-bold text-[var(--tge-concept-panel)]"
+                    style={{
+                      backgroundColor: cssToken(String(token)),
+                      width: `${strength}%`,
+                    }}
+                  >
+                    {headline}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BarRow({
   label,
   value,
@@ -450,44 +557,89 @@ function CapacityTrendSurface() {
 
       <div className="border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel-soft)] p-4">
         <div className="text-sm font-bold text-[var(--tge-concept-ink)]">
-          Annual Capacity Outlook
+          Pipeline Evolution by Phase
         </div>
         <div className="mt-1 text-xs text-[var(--tge-concept-muted)]">
-          Indicative view of operating base, construction, and active pipeline.
+          Indicative phase movement from earlier-stage pipeline toward
+          construction and operating capacity.
         </div>
-        <div className="mt-5 flex h-[220px] items-end gap-3">
-          {outlookBars.map(([year, construction, pipeline, operating]) => {
-            const constructionHeight = Number(construction) * 5;
-            const pipelineHeight = Number(pipeline) * 5;
-            const operatingHeight = Number(operating) * 5;
+        <div className="mt-5 space-y-4">
+          {pipelineEvolution.map(([year, prospect, exploration, preFeasibility, feasibility, construction]) => {
+            const total =
+              Number(prospect) +
+              Number(exploration) +
+              Number(preFeasibility) +
+              Number(feasibility) +
+              Number(construction);
             return (
-              <div className="flex flex-1 flex-col items-center gap-2" key={year}>
-                <div className="flex h-[180px] w-full max-w-[60px] flex-col justify-end border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel)]">
-                  <div
-                    style={{
-                      backgroundColor: cssToken("--tge-concept-gold"),
-                      height: `${constructionHeight}px`,
-                    }}
-                  />
-                  <div
-                    style={{
-                      backgroundColor: cssToken("--tge-concept-teal"),
-                      height: `${pipelineHeight}px`,
-                    }}
-                  />
-                  <div
-                    style={{
-                      backgroundColor: cssToken("--tge-concept-green"),
-                      height: `${operatingHeight}px`,
-                    }}
-                  />
+              <div key={year}>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="font-bold text-[var(--tge-concept-ink)]">
+                    {year}
+                  </span>
+                  <span className="text-[var(--tge-concept-muted)]">
+                    {total}% active pipeline mix
+                  </span>
                 </div>
-                <div className="text-xs font-bold text-[var(--tge-concept-ink)]">
-                  {year}
+                <div className="flex h-8 overflow-hidden border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel)]">
+                  {[
+                    [prospect, "--tge-concept-slate"],
+                    [exploration, "--tge-concept-blue"],
+                    [preFeasibility, "--tge-concept-violet"],
+                    [feasibility, "--tge-concept-teal"],
+                    [construction, "--tge-concept-gold"],
+                  ].map(([value, token], index) => (
+                    <div
+                      key={`${year}-${index}`}
+                      style={{
+                        backgroundColor: cssToken(String(token)),
+                        width: `${(Number(value) / total) * 100}%`,
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             );
           })}
+        </div>
+        <div className="mt-5 border-t border-[var(--tge-concept-line)] pt-4">
+          <div className="text-sm font-bold text-[var(--tge-concept-ink)]">
+            Annual Capacity Outlook
+          </div>
+          <div className="mt-3 flex h-[116px] items-end gap-3">
+            {outlookBars.map(([year, construction, pipeline, operating]) => {
+              const constructionHeight = Number(construction) * 2.6;
+              const pipelineHeight = Number(pipeline) * 2.6;
+              const operatingHeight = Number(operating) * 2.6;
+              return (
+                <div className="flex flex-1 flex-col items-center gap-2" key={year}>
+                  <div className="flex h-[92px] w-full max-w-[64px] flex-col justify-end border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel)]">
+                    <div
+                      style={{
+                        backgroundColor: cssToken("--tge-concept-gold"),
+                        height: `${constructionHeight}px`,
+                      }}
+                    />
+                    <div
+                      style={{
+                        backgroundColor: cssToken("--tge-concept-teal"),
+                        height: `${pipelineHeight}px`,
+                      }}
+                    />
+                    <div
+                      style={{
+                        backgroundColor: cssToken("--tge-concept-green"),
+                        height: `${operatingHeight}px`,
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs font-bold text-[var(--tge-concept-ink)]">
+                    {year}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
@@ -731,7 +883,7 @@ function IntelligenceFeed() {
     <div className="grid gap-3">
       {intelligenceFeed.map((item) => (
         <div
-          className="grid gap-3 border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel-soft)] p-4 md:grid-cols-[120px_1fr_auto]"
+          className="grid gap-4 border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel-soft)] p-4 md:grid-cols-[128px_1fr_140px]"
           key={`${item.type}-${item.market}`}
         >
           <div>
@@ -749,12 +901,26 @@ function IntelligenceFeed() {
             <div className="text-sm font-bold leading-5 text-[var(--tge-concept-ink)]">
               {item.headline}
             </div>
-            <div className="mt-1 text-xs text-[var(--tge-concept-muted)]">
+            <div className="mt-2 text-xs font-semibold text-[var(--tge-concept-muted)]">
               {item.impact}
             </div>
+            <div className="mt-3 h-3 bg-[var(--tge-concept-line)]">
+              <div
+                className="h-3"
+                style={{
+                  backgroundColor: cssToken(item.tone),
+                  width: `${item.strength}%`,
+                }}
+              />
+            </div>
           </div>
-          <div className="text-xs font-bold uppercase tracking-wide text-[var(--tge-concept-muted)]">
-            {item.confidence}
+          <div className="flex flex-col justify-between gap-3">
+            <div className="text-right text-2xl font-bold text-[var(--tge-concept-ink)]">
+              {item.strength}
+            </div>
+            <div className="text-right text-xs font-bold uppercase tracking-wide text-[var(--tge-concept-muted)]">
+              {item.confidence} confidence
+            </div>
           </div>
         </div>
       ))}
@@ -764,12 +930,12 @@ function IntelligenceFeed() {
 
 function MapPreview() {
   const markers = [
-    ["17%", "29%", "--tge-concept-green", "Operating concentration", 42],
-    ["35%", "43%", "--tge-concept-gold", "Drilling intensity", 54],
-    ["55%", "31%", "--tge-concept-teal", "Pipeline cluster", 64],
-    ["75%", "61%", "--tge-concept-blue", "Exploration cluster", 38],
-    ["29%", "67%", "--tge-concept-green", "Operating cluster", 30],
-    ["62%", "58%", "--tge-concept-violet", "Emerging technology signal", 46],
+    ["17%", "29%", "--tge-concept-green", "Operating concentration", 54],
+    ["35%", "43%", "--tge-concept-gold", "Drilling intensity", 70],
+    ["55%", "31%", "--tge-concept-teal", "Pipeline cluster", 82],
+    ["75%", "61%", "--tge-concept-blue", "Exploration cluster", 48],
+    ["29%", "67%", "--tge-concept-green", "Operating cluster", 42],
+    ["62%", "58%", "--tge-concept-violet", "Emerging technology signal", 58],
   ];
 
   return (
@@ -802,6 +968,39 @@ function MapPreview() {
           </div>
         ))}
       </div>
+
+      <svg
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full"
+        preserveAspectRatio="none"
+        viewBox="0 0 100 100"
+      >
+        <path
+          d="M14 32 C30 26, 46 36, 61 29 C72 24, 82 30, 90 38"
+          fill="none"
+          stroke="var(--tge-concept-green)"
+          strokeLinecap="round"
+          strokeWidth="1.5"
+          opacity="0.34"
+        />
+        <path
+          d="M28 68 C39 55, 49 48, 63 58 C73 66, 81 63, 89 55"
+          fill="none"
+          stroke="var(--tge-concept-teal)"
+          strokeLinecap="round"
+          strokeWidth="1.5"
+          opacity="0.34"
+        />
+        <path
+          d="M31 44 C42 41, 48 35, 56 31"
+          fill="none"
+          stroke="var(--tge-concept-gold)"
+          strokeDasharray="2 2"
+          strokeLinecap="round"
+          strokeWidth="1.5"
+          opacity="0.54"
+        />
+      </svg>
 
       {markers.map(([left, top, token, label, size]) => (
         <div
@@ -889,33 +1088,22 @@ export default function DashboardV2ConceptPage() {
           Dashboard V2 - global geothermal market command center
         </h1>
         <p className="mt-4 max-w-4xl text-base leading-7 text-[var(--tge-concept-muted)]">
-          Iteration 2 pushes the dashboard toward market movement, visual
-          intelligence, regional momentum, spatial intensity, and source-backed
-          confidence. It remains a concept page and does not change live workflows.
+          Iteration 3 pushes the dashboard toward a morning intelligence brief:
+          market movement first, chart-driven storytelling, regional momentum,
+          spatial intensity, and source-backed confidence underneath.
         </p>
       </section>
 
       <Shell>
         <main className="space-y-5 p-4 md:p-6">
-          <section className="grid gap-5 2xl:grid-cols-[1.05fr_0.95fr]">
-            <div className="border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel)] p-5">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--tge-concept-green)]">
-                Market Pulse
-              </div>
-              <h2 className="mt-2 max-w-4xl text-4xl font-bold tracking-tight text-[var(--tge-concept-ink)]">
-                What changed in geothermal this week?
-              </h2>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--tge-concept-muted)]">
-                Open with market movement: capacity change, new signals, active
-                markets, and confidence. Platform structure stays underneath.
-              </p>
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                {kpis.map((kpi) => (
-                  <KpiCard key={kpi.label} {...kpi} />
-                ))}
-              </div>
-            </div>
+          <MorningBrief />
 
+          <section className="grid gap-5 2xl:grid-cols-[0.85fr_1.15fr]">
+            <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-1">
+              {kpis.map((kpi) => (
+                <KpiCard key={kpi.label} {...kpi} />
+              ))}
+            </div>
             <div className="border border-[var(--tge-concept-line)] bg-[var(--tge-concept-panel)] p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
