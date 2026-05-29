@@ -225,7 +225,7 @@ export default async function PostgresPreviewMapPage({
           </p>
           <div className="mt-3 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <h1 className={`text-4xl font-bold tracking-tight ${mapClass.title}`}>
+              <h1 className={`text-3xl font-bold tracking-tight ${mapClass.title} xl:text-[2.75rem]`}>
                 Map Explorer
               </h1>
               <p className={`mt-3 max-w-4xl text-base leading-7 ${mapClass.body}`}>

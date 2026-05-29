@@ -679,13 +679,13 @@ export default async function HomePage() {
         <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 ThinkGeoEnergy Intelligence
               </p>
-              <h1 className={`mt-3 text-4xl font-bold tracking-tight ${titleTextClass} sm:text-5xl`}>
+              <h1 className={`mt-3 text-3xl font-bold tracking-tight ${titleTextClass} xl:text-[2.75rem]`}>
                 Global Geothermal Intelligence Dashboard
               </h1>
-              <p className={`mt-4 max-w-4xl text-base leading-7 ${bodyTextClass} sm:text-lg sm:leading-8`}>
+              <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
                 Executive view of global geothermal market scale, pipeline
                 momentum, regional signals, spatial intelligence, and
                 evidence-backed confidence across the evolving TGE intelligence

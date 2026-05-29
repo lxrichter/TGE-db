@@ -30,14 +30,12 @@ function groupLabel(label: string) {
 function SidebarItem({
   href,
   label,
-  note,
   pathname,
   activeHrefs,
   prefetch = true,
 }: {
   href: string;
   label: string;
-  note: string;
   pathname: string;
   activeHrefs?: string[];
   prefetch?: boolean;
@@ -48,28 +46,17 @@ function SidebarItem({
     <Link
       href={href}
       prefetch={prefetch}
-      className={`group block border px-3 py-2.5 transition ${
+      className={`group block border-l-2 px-3 py-2 text-sm font-semibold leading-5 transition ${
         isActive
-          ? "border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-[var(--tge-brand-dark)]"
-          : "border-transparent text-[var(--tge-header-text-soft)] hover:border-[var(--tge-header-group-divider)] hover:bg-[rgba(255,255,255,0.06)] hover:text-[var(--tge-header-text)]"
+          ? "border-l-[var(--tge-brand-green)] bg-[rgba(255,255,255,0.08)] text-[var(--tge-header-text)]"
+          : "border-l-transparent text-[var(--tge-header-text-soft)] hover:border-l-[var(--tge-header-group-divider)] hover:bg-[rgba(255,255,255,0.05)] hover:text-[var(--tge-header-text)]"
       }`}
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold leading-5">{label}</span>
+        <span>{label}</span>
         {isActive ? (
-          <span className="text-[10px] font-bold uppercase tracking-wide">
-            Active
-          </span>
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--tge-brand-green)]" />
         ) : null}
-      </div>
-      <div
-        className={`mt-1 line-clamp-2 text-[11px] leading-4 ${
-          isActive
-            ? "text-[var(--tge-brand-dark)]/75"
-            : "text-[var(--tge-header-text-muted)]"
-        }`}
-      >
-        {note}
       </div>
     </Link>
   );
@@ -87,19 +74,18 @@ function SidebarNavigation({
   });
 
   return (
-    <nav className="mt-6 flex-1 space-y-7 overflow-y-auto pr-1">
+    <nav className="mt-8 flex-1 space-y-8 overflow-y-auto pr-1">
       {navigationGroups.map((group) => (
         <div key={group.id}>
-          <div className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--tge-header-text-faint)]">
+          <div className="px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--tge-header-text-faint)]">
             {groupLabel(group.label)}
           </div>
-          <div className="mt-2 space-y-1">
+          <div className="mt-3 space-y-1">
             {group.items.map((item) => (
               <SidebarItem
                 key={item.key}
                 href={item.href}
                 label={item.label}
-                note={item.note}
                 pathname={pathname}
                 activeHrefs={item.activeHrefs}
                 prefetch={item.access ? false : true}
@@ -129,7 +115,7 @@ function TopUtilityBar({
 
   return (
     <div className="sticky top-0 z-40 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
-      <div className="flex min-h-16 flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+      <div className="flex min-h-14 flex-col gap-3 px-4 py-2.5 lg:flex-row lg:items-center lg:justify-between lg:px-6 2xl:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button
             className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-bold text-[var(--tge-text-primary)] xl:hidden"
@@ -138,20 +124,9 @@ function TopUtilityBar({
           >
             Menu
           </button>
-          <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--tge-brand-green-dark)]">
-              Utility Bar
-            </div>
-            <div className="truncate text-sm font-bold text-[var(--tge-text-primary)]">
-              Search, commands, alerts, AI assistant, profile, and context actions
-            </div>
-          </div>
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
           <form action="/search" className="flex min-w-0 items-center gap-2">
             <input
-              className="h-9 w-full min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 text-[12px] font-medium text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)] lg:w-[340px]"
+              className="h-9 w-full min-w-0 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 text-[12px] font-medium text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)] lg:w-[420px] 2xl:w-[520px]"
               name="q"
               placeholder="Search projects, plants, companies, sources..."
               type="search"
@@ -163,7 +138,9 @@ function TopUtilityBar({
               Search
             </button>
           </form>
+        </div>
 
+        <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center">
           <div className="flex flex-wrap items-center gap-2 text-[12px]">
             <GlobalCommandPalette role={role} />
             <span className="hidden border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3 py-2 text-[11px] font-semibold text-[var(--tge-text-secondary)] md:inline-flex">
@@ -214,19 +191,16 @@ export default function AppHeaderShell({
             onClick={() => setMobileNavOpen(false)}
           />
           <aside className="relative z-[91] flex h-full w-[min(88vw,340px)] flex-col bg-[var(--tge-brand-dark)] px-4 py-5 text-[var(--tge-header-text)] shadow-xl">
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--tge-header-group-divider)] pb-5">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--tge-header-group-divider)] pb-6">
               <div className="flex min-w-0 items-center gap-3">
                 <img
                   src="/tge-logo-white.png"
                   alt="ThinkGeoEnergy"
-                  className="h-9 w-auto shrink-0"
+                  className="h-10 w-auto shrink-0"
                 />
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold leading-tight">
-                    TGE Intelligence
-                  </div>
-                  <div className="mt-1 truncate text-[11px] text-[var(--tge-header-text-muted)]">
-                    Mobile navigation
+                    Intelligence Platform
                   </div>
                 </div>
               </div>
@@ -243,35 +217,20 @@ export default function AppHeaderShell({
         </div>
       ) : null}
 
-      <div className="grid min-h-screen grid-cols-1 xl:grid-cols-[292px_minmax(0,1fr)]">
-        <aside className="sticky top-0 hidden h-screen flex-col border-r border-[var(--tge-header-group-divider)] bg-[var(--tge-brand-dark)] px-4 py-5 text-[var(--tge-header-text)] xl:flex">
-          <div className="flex items-center gap-3 border-b border-[var(--tge-header-group-divider)] pb-5">
+      <div className="grid min-h-screen grid-cols-1 xl:grid-cols-[268px_minmax(0,1fr)]">
+        <aside className="sticky top-0 hidden h-screen flex-col border-r border-[var(--tge-header-group-divider)] bg-[var(--tge-brand-dark)] px-5 py-6 text-[var(--tge-header-text)] xl:flex">
+          <div className="border-b border-[var(--tge-header-group-divider)] pb-7">
             <img
               src="/tge-logo-white.png"
               alt="ThinkGeoEnergy"
-              className="h-10 w-auto shrink-0"
+              className="h-11 w-auto"
             />
-            <div className="min-w-0">
-              <div className="truncate text-sm font-bold leading-tight">
-                TGE Intelligence
-              </div>
-              <div className="mt-1 truncate text-[11px] text-[var(--tge-header-text-muted)]">
-                Geothermal Intelligence Operating System
-              </div>
+            <div className="mt-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--tge-header-text-muted)]">
+              Intelligence Platform
             </div>
           </div>
 
           <SidebarNavigation pathname={pathname} role={role} />
-
-          <div className="mt-6 border border-[var(--tge-header-group-divider)] p-3">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--tge-brand-green)]">
-              Workspace
-            </div>
-            <div className="mt-1 text-sm font-bold">Internal + Subscriber Ready</div>
-            <div className="mt-2 text-xs leading-5 text-[var(--tge-header-text-muted)]">
-              Role-aware navigation with one shared intelligence design language.
-            </div>
-          </div>
         </aside>
 
         <div className="min-w-0">
@@ -279,7 +238,7 @@ export default function AppHeaderShell({
             role={role}
             onMobileMenu={() => setMobileNavOpen(true)}
           />
-          <main className="mx-auto max-w-[1680px] px-4 py-6 md:px-6 lg:px-8 lg:py-8">
+          <main className="w-full px-4 py-5 md:px-6 lg:px-8 lg:py-7 2xl:px-10">
             {children}
           </main>
         </div>

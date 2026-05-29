@@ -26,21 +26,21 @@ export default function TopOverviewBar({
   actions?: Action[];
 }) {
   return (
-    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-8 py-8">
-      <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
-        <div className="max-w-4xl">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-6 py-6 xl:px-8">
+      <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
+        <div className="max-w-5xl">
           {eyebrow ? (
-            <p className="text-sm font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
               {eyebrow}
             </p>
           ) : null}
 
-          <h1 className="mt-2 text-4xl font-bold tracking-tight text-[var(--tge-text-primary)]">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] xl:text-[2.35rem]">
             {title}
           </h1>
 
           {description ? (
-            <p className="mt-3 max-w-4xl text-base text-[var(--tge-text-secondary)]">
+            <p className="mt-3 max-w-5xl text-sm leading-6 text-[var(--tge-text-secondary)] xl:text-base">
               {description}
             </p>
           ) : null}

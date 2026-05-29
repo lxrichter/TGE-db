@@ -386,7 +386,7 @@ export default function AnalysisPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Analysis
               </p>
-              <h1 className={`mt-2 text-4xl font-bold tracking-tight ${titleTextClass} xl:text-5xl`}>
+              <h1 className={`mt-2 text-3xl font-bold tracking-tight ${titleTextClass} xl:text-[2.75rem]`}>
                 Modular Geothermal Intelligence Analysis
               </h1>
               <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
