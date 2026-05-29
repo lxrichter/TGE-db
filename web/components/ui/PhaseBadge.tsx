@@ -57,27 +57,27 @@ function getPhaseClasses(phase: string) {
   const normalized = phase.toLowerCase();
 
   if (normalized === "operating") {
-    return "border-[var(--tge-lifecycle-operating-border)] bg-[var(--tge-status-bar-operating)] text-[var(--tge-surface-card)]";
+    return "border-[var(--tge-chart-lifecycle-operating)] bg-[var(--tge-chart-lifecycle-operating)] text-[var(--tge-surface-card)]";
   }
 
   if (normalized === "construction") {
-    return "border-[var(--tge-lifecycle-construction-border)] bg-[var(--tge-status-bar-success)] text-[var(--tge-surface-card)]";
+    return "border-[var(--tge-chart-lifecycle-construction)] bg-[var(--tge-chart-lifecycle-construction)] text-[var(--tge-surface-card)]";
   }
 
   if (normalized === "feasibility") {
-    return "border-[var(--tge-lifecycle-feasibility-border)] bg-[var(--tge-status-bar-feasibility)] text-[var(--tge-surface-card)]";
+    return "border-[var(--tge-chart-lifecycle-feasibility)] bg-[var(--tge-chart-lifecycle-feasibility)] text-[var(--tge-surface-card)]";
   }
 
   if (normalized === "pre-feasibility") {
-    return "border-[var(--tge-lifecycle-pre-feasibility-border)] bg-[var(--tge-status-bar-pre-feasibility)] text-[var(--tge-surface-card)]";
+    return "border-[var(--tge-chart-lifecycle-pre-feasibility)] bg-[var(--tge-chart-lifecycle-pre-feasibility)] text-[var(--tge-text-primary)]";
   }
 
   if (normalized === "exploration") {
-    return "border-[var(--tge-lifecycle-exploration-border)] bg-[var(--tge-status-bar-info)] text-[var(--tge-surface-card)]";
+    return "border-[var(--tge-chart-lifecycle-exploration)] bg-[var(--tge-chart-lifecycle-exploration)] text-[var(--tge-text-primary)]";
   }
 
   if (normalized === "prospect") {
-    return "border-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)] text-[var(--tge-lifecycle-prospect-text)]";
+    return "border-[var(--tge-chart-lifecycle-prospect)] bg-[var(--tge-chart-lifecycle-prospect)] text-[var(--tge-text-primary)]";
   }
 
   if (normalized === "stalled") {
@@ -85,7 +85,7 @@ function getPhaseClasses(phase: string) {
   }
 
   if (normalized === "tbd") {
-    return "border-[var(--tge-lifecycle-prospect-border)] bg-[var(--tge-lifecycle-prospect-bg)] text-[var(--tge-lifecycle-prospect-text)]";
+    return "border-[var(--tge-chart-lifecycle-prospect)] bg-[var(--tge-chart-lifecycle-prospect)] text-[var(--tge-text-primary)]";
   }
 
   if (
@@ -93,7 +93,7 @@ function getPhaseClasses(phase: string) {
     normalized === "suspended" ||
     normalized === "decommissioned"
   ) {
-    return "border-[var(--tge-lifecycle-cancelled-border)] bg-[var(--tge-status-bar-danger)] text-[var(--tge-surface-card)]";
+    return "border-[var(--tge-chart-lifecycle-cancelled)] bg-[var(--tge-chart-lifecycle-cancelled)] text-[var(--tge-surface-card)]";
   }
 
   if (normalized === "na") {
