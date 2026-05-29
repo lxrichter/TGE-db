@@ -72,6 +72,14 @@ Reason: these pages define the subscriber-facing and executive intelligence
 language. Once they feel right, their visual system can be carried into entity
 workspaces, Sources, Research Ops, Admin, and forms.
 
+Initial non-production concept route:
+
+- `/design/pass-1`
+
+Use this route to review App Shell, Dashboard, Markets, Analysis, Map Explorer,
+palette, chart language, lifecycle/governance colors, typography, component
+direction, and mobile behavior before changing live product pages.
+
 ## Second Design Target
 
 Recommended second pass:
@@ -103,6 +111,7 @@ overpower the broader product identity.
 
 Use this page set for the first visual review:
 
+- `/design/pass-1`
 - `/`
 - `/markets`
 - `/analysis`

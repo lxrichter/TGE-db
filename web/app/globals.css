@@ -95,6 +95,30 @@
   --tge-map-marker-plant: #64a542;
   --tge-map-marker-project: #e8a56c;
   --tge-map-marker-stroke: #ffffff;
+
+  /* Pass 1 visual design concept tokens. These are proposal tokens used by the
+     non-production design lab before broad component rollout. */
+  --tge-concept-ink: #17211d;
+  --tge-concept-forest: #20392b;
+  --tge-concept-forest-deep: #10251b;
+  --tge-concept-green: #6fa536;
+  --tge-concept-lime: #9bcf4a;
+  --tge-concept-mint: #dceccf;
+  --tge-concept-paper: #f6f8f3;
+  --tge-concept-panel: #ffffff;
+  --tge-concept-panel-soft: #f9faf6;
+  --tge-concept-line: #dfe7d8;
+  --tge-concept-muted: #647068;
+  --tge-concept-blue: #2c6f9f;
+  --tge-concept-teal: #178b82;
+  --tge-concept-violet: #7667a8;
+  --tge-concept-gold: #b9862b;
+  --tge-concept-orange: #c36f35;
+  --tge-concept-red: #b94a48;
+  --tge-concept-slate: #6f7d81;
+  --tge-concept-map-water: #d8e8e6;
+  --tge-concept-map-land: #eef2e7;
+  --tge-concept-map-relief: #cdd9bd;
 }
 
 @media (prefers-color-scheme: dark) {

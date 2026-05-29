@@ -39,7 +39,7 @@ export type DesignEntryGate = {
 export type DesignReviewPage = {
   label: string;
   href: string;
-  group: "Intelligence" | "Operations" | "Evidence" | "Governance";
+  group: "Design" | "Intelligence" | "Operations" | "Evidence" | "Governance";
   note: string;
 };
 
@@ -256,6 +256,12 @@ export const designPassSequence: DesignPassSequenceItem[] = [
 ];
 
 export const designReviewPageSet: DesignReviewPage[] = [
+  {
+    label: "Pass 1 Design Concept",
+    href: "/design/pass-1",
+    group: "Design",
+    note: "Non-production mockup lab for app shell, dashboard, markets, analysis, map, palette, and mobile behavior.",
+  },
   {
     label: "Dashboard",
     href: "/",

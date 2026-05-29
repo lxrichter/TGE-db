@@ -382,6 +382,11 @@ function DesignReadinessOverview() {
       note: "Provides the recommended reading order, design-pass sequence, and first visual review page set.",
     },
     {
+      title: "Design Pass 1 Concept Brief",
+      reference: "docs/DESIGN_PASS_1_CONCEPT_BRIEF.md",
+      note: "Documents the scope and acceptance signals for the app shell, intelligence pages, map, palettes, charts, and mobile concept route.",
+    },
+    {
       title: "Analysis Module Contract",
       reference: "docs/ANALYSIS_MODULE_CONTRACT.md",
       note: "Defines how new analysis pages declare source basis, measures, attribution logic, segmentation, and Governance QA.",
