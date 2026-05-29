@@ -349,7 +349,7 @@ function MarketSignalTable({
           </p>
         </div>
         <Link
-          href="/postgres-preview/markets"
+          href="/markets"
           className="inline-flex h-9 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
         >
           Open Markets
@@ -515,7 +515,7 @@ function RecentIntelligenceSignals() {
       category: "Policy / tender",
       title: "Policy, tenders, incentives, and market support",
       detail: "Future feed connected to Markets and related news.",
-      href: "/postgres-preview/markets",
+      href: "/markets",
     },
     {
       category: "Plant activity",
@@ -785,7 +785,7 @@ export default async function HomePage() {
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <ExecutiveKpi
-            href="/postgres-preview/markets"
+            href="/markets"
             label="Markets"
             note={staging.ok ? "Top markets loaded" : "Legacy markets covered"}
             tone="market"
@@ -823,7 +823,7 @@ export default async function HomePage() {
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
           <IntelligenceCard
             description="Regional and market views with operating capacity, pipeline, evidence gaps, and source-aware market signals."
-            href="/postgres-preview/markets"
+            href="/markets"
             label="Market Intelligence"
             meta="Markets"
             title="Markets"

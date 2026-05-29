@@ -66,7 +66,7 @@ export const platformNavigationGroups: PlatformNavigationGroup[] = [
         label: "Markets",
         commandLabel: "Open Markets",
         note: "Market intelligence, country worklists, and source-gap signals.",
-        href: "/postgres-preview/markets",
+        href: "/markets",
         showInHeader: true,
         showInCommand: true,
         primaryAudiences: ["subscriber", "editor", "administrator"],

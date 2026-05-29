@@ -30,7 +30,7 @@ const commandShortcuts = [
   {
     group: "Intelligence / Research",
     label: "Open Markets",
-    href: "/postgres-preview/markets",
+    href: "/markets",
     note: "Market intelligence, country worklists, and source-gap signals.",
   },
   {
