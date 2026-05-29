@@ -94,6 +94,10 @@ function contrastText(entry: ValidationEntry) {
     : "var(--tge-surface-card)";
 }
 
+function paletteColor(entry: ValidationEntry) {
+  return entry.cssVar.replace(/\)$/, `, ${entry.hex})`);
+}
+
 function ValidationShell({
   title,
   description,
@@ -119,7 +123,7 @@ function LargeSwatches({ entries }: { entries: ValidationEntry[] }) {
           className="min-h-[148px] p-4"
           key={entry.key}
           style={{
-            backgroundColor: entry.cssVar,
+            backgroundColor: paletteColor(entry),
             color: contrastText(entry),
           }}
         >
@@ -147,7 +151,7 @@ function BadgeExamples({ entries }: { entries: ValidationEntry[] }) {
           <span
             className="inline-flex min-h-7 items-center px-2.5 text-[10px] font-bold uppercase leading-4 tracking-wide"
             style={{
-              backgroundColor: entry.cssVar,
+              backgroundColor: paletteColor(entry),
               color: contrastText(entry),
             }}
           >
@@ -156,8 +160,8 @@ function BadgeExamples({ entries }: { entries: ValidationEntry[] }) {
           <span
             className="inline-flex min-h-7 items-center border px-2.5 text-[10px] font-bold uppercase leading-4 tracking-wide"
             style={{
-              borderColor: entry.cssVar,
-              color: entry.cssVar,
+              borderColor: paletteColor(entry),
+              color: paletteColor(entry),
             }}
           >
             {entry.metric}
@@ -193,7 +197,7 @@ function TableExample({
                 <div className="flex items-center gap-3">
                   <span
                     className="h-8 w-2"
-                    style={{ backgroundColor: entry.cssVar }}
+                    style={{ backgroundColor: paletteColor(entry) }}
                   />
                   <div>
                     <div className={`font-bold ${tgeText.primary}`}>{entry.label}</div>
@@ -212,7 +216,7 @@ function TableExample({
                   <div
                     className="h-2"
                     style={{
-                      backgroundColor: entry.cssVar,
+                      backgroundColor: paletteColor(entry),
                       width: `${entry.share ?? 50}%`,
                     }}
                   />
@@ -241,7 +245,7 @@ function BarChartExample({ entries }: { entries: ValidationEntry[] }) {
             <div
               className="flex h-8 items-center justify-end px-2 text-[10px] font-bold uppercase tracking-wide"
               style={{
-                backgroundColor: entry.cssVar,
+                backgroundColor: paletteColor(entry),
                 color: contrastText(entry),
                 width: `${entry.share ?? 50}%`,
               }}
@@ -267,7 +271,7 @@ function StackedChartExample({ entries }: { entries: ValidationEntry[] }) {
             className="flex items-center justify-center px-2 text-[10px] font-bold uppercase tracking-wide"
             key={entry.key}
             style={{
-              backgroundColor: entry.cssVar,
+              backgroundColor: paletteColor(entry),
               color: contrastText(entry),
               width: `${entry.share ?? 12}%`,
             }}
@@ -280,7 +284,7 @@ function StackedChartExample({ entries }: { entries: ValidationEntry[] }) {
       <div className="grid gap-2 md:grid-cols-4">
         {entries.slice(0, 8).map((entry) => (
           <div className="bg-[var(--tge-surface-subtle)] p-3" key={entry.key}>
-            <div className="h-2 w-12" style={{ backgroundColor: entry.cssVar }} />
+            <div className="h-2 w-12" style={{ backgroundColor: paletteColor(entry) }} />
             <div className={`${tgeTypography.bodyStrong} mt-2 ${tgeText.primary}`}>
               {entry.label}
             </div>
@@ -339,7 +343,7 @@ function MarkerExamples({ entries }: { entries: ValidationEntry[] }) {
               className="absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-[var(--tge-surface-card)] text-[10px] font-bold shadow-sm"
               key={entry.key}
               style={{
-                backgroundColor: entry.cssVar,
+                backgroundColor: paletteColor(entry),
                 color: contrastText(entry),
                 left: `${left}%`,
                 top: `${top}%`,
@@ -367,26 +371,26 @@ function IntensityMapExample() {
       <div className="relative min-h-[300px] overflow-hidden bg-[var(--tge-concept-map-land)]">
         <div
           className="absolute left-[19%] top-[48%] h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-65"
-          style={{ backgroundColor: spatialEntries[0].cssVar }}
+          style={{ backgroundColor: paletteColor(spatialEntries[0]) }}
         />
         <div
           className="absolute left-[40%] top-[55%] h-36 w-36 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-55"
-          style={{ backgroundColor: spatialEntries[1].cssVar }}
+          style={{ backgroundColor: paletteColor(spatialEntries[1]) }}
         />
         <div
           className="absolute left-[63%] top-[41%] h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45"
-          style={{ backgroundColor: spatialEntries[2].cssVar }}
+          style={{ backgroundColor: paletteColor(spatialEntries[2]) }}
         />
         <div
           className="absolute left-[77%] top-[69%] h-28 w-28 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-58"
-          style={{ backgroundColor: spatialEntries[3].cssVar }}
+          style={{ backgroundColor: paletteColor(spatialEntries[3]) }}
         />
         <div className="absolute bottom-4 left-4 grid gap-2 bg-[var(--tge-surface-card)] p-3">
           {spatialEntries.map((entry) => (
             <div className="flex items-center gap-2" key={entry.key}>
               <span
                 className="h-3 w-8"
-                style={{ backgroundColor: entry.cssVar }}
+                style={{ backgroundColor: paletteColor(entry) }}
               />
               <span className={tgeTypography.metadata}>{entry.label}</span>
             </div>
