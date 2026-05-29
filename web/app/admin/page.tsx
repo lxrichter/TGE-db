@@ -348,6 +348,23 @@ function DesignReadinessOverview() {
       (item) => item.status === "design_phase"
     ).length,
   };
+  const designGuardrails = [
+    {
+      title: "Design Token Contract",
+      reference: "docs/DESIGN_TOKEN_CONTRACT.md",
+      note: "Maps the formal design doctrine to CSS variables, semantic token families, and the token audit guardrail.",
+    },
+    {
+      title: "Route IA Contract",
+      reference: "docs/ROUTE_IA_CONTRACT.md",
+      note: "Defines clean top-level entry points, PostgreSQL staging routes, and the future route-promotion path.",
+    },
+    {
+      title: "Status Badge Hierarchy",
+      reference: "docs/STATUS_BADGE_HIERARCHY.md",
+      note: "Locks the operational meaning of lifecycle, review, source, confidence, and severity status colors.",
+    },
+  ];
 
   return (
     <div className="space-y-5">
@@ -412,6 +429,33 @@ function DesignReadinessOverview() {
                     </span>
                   ))}
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={adminClass.panel}>
+        <div className={adminClass.header}>
+          <h3 className={`text-sm font-bold ${adminClass.title}`}>
+            Design Guardrails
+          </h3>
+          <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
+            Current implementation contracts that should guide visual design
+            without forcing page-by-page reinvention.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-3">
+          {designGuardrails.map((guardrail) => (
+            <div key={guardrail.title} className={`${adminClass.panelSubtle} p-4`}>
+              <h4 className={`text-sm font-bold ${adminClass.title}`}>
+                {guardrail.title}
+              </h4>
+              <div className="mt-2 font-mono text-[11px] text-[var(--tge-governance-muted-text)]">
+                {guardrail.reference}
+              </div>
+              <p className={`mt-2 text-xs leading-5 ${adminClass.body}`}>
+                {guardrail.note}
+              </p>
             </div>
           ))}
         </div>
