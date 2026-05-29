@@ -467,15 +467,14 @@ function SourceSupportsPanel({
 
   return (
     <section id="source-supports" className={`scroll-mt-6 ${sourceDetailCardClass}`}>
-      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-4">
+      <div className="border-b border-[var(--tge-governance-neutral-border)] px-5 py-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
             <h2 className={`text-lg ${sourceDetailTitleClass}`}>
               What This Source Supports
             </h2>
-            <p className={`mt-2 text-sm leading-6 ${sourceDetailBodyTextClass}`}>
-              Confirmed evidence relationships. This is the core bridge between
-              source governance and geothermal entities.
+            <p className={`mt-1 text-sm leading-5 ${sourceDetailBodyTextClass}`}>
+              Confirmed evidence relationships between this source and geothermal entities.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -496,21 +495,19 @@ function SourceSupportsPanel({
       </div>
 
       {links.length === 0 ? (
-        <div className="px-5 py-5">
-          <div className="border border-dashed border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5">
+        <div className="px-5 py-3">
+          <div className="flex flex-col gap-2 border border-dashed border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="font-semibold text-[var(--tge-governance-attention-text)]">
               No confirmed evidence links yet
             </div>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--tge-governance-attention-text)]">
-              This source exists as a governed source, but it does not yet
-              support a specific project, plant, or company. Review
-              article match candidates or add an evidence link before using it
-              in export-ready workflows.
+            <p className="max-w-3xl text-sm leading-5 text-[var(--tge-governance-attention-text)]">
+              Review match candidates or add an evidence link before using this
+              source in export-ready workflows.
             </p>
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 px-5 py-5 xl:grid-cols-[1fr_260px]">
+        <div className="grid gap-3 px-5 py-4 xl:grid-cols-[1fr_260px]">
           <div className="grid gap-3 md:grid-cols-3">
             {groups.map((group) => (
               <div key={group.code} className={sourceDetailSubtleCardClass}>
@@ -1190,7 +1187,7 @@ export default async function SourceDetailPage({
         </section>
       </section>
 
-      <section id="source-evidence-work" className="space-y-5 scroll-mt-24">
+      <section id="source-evidence-work" className="space-y-3 scroll-mt-24">
         <DetailPriorityMarker
           label="Workflow"
           title="Evidence Work"
