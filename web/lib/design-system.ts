@@ -21,11 +21,11 @@ export const tgeTypography = {
   pageLabel:
     "text-[11px] font-bold uppercase leading-4 tracking-[0.12em]",
   pageTitle:
-    "text-2xl font-bold leading-9 tracking-tight md:text-[2rem] md:leading-10",
+    "text-2xl font-bold leading-8 tracking-tight md:text-[1.75rem] md:leading-9",
   intelligenceHeadline:
-    "text-3xl font-bold leading-[1.08] tracking-tight md:text-[2.6rem]",
-  sectionTitle: "text-xl font-bold leading-7 tracking-tight",
-  subsectionTitle: "text-base font-bold leading-6",
+    "text-4xl font-bold leading-[1.06] tracking-tight md:text-[2.65rem]",
+  sectionTitle: "text-xl font-bold leading-7 tracking-tight md:text-[1.25rem]",
+  subsectionTitle: "text-[15px] font-bold leading-6",
   body: "text-sm font-normal leading-6",
   bodyStrong: "text-sm font-semibold leading-6",
   metadata:
@@ -52,16 +52,31 @@ export const tgeSpacing = {
 
 export const tgeSurfaces = {
   page: "bg-[var(--tge-surface-page)]",
+  section: "bg-transparent",
   card:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
   cardSubtle:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]",
+  panel: "bg-[var(--tge-surface-card)]",
+  panelSubtle: "bg-[var(--tge-surface-subtle)]",
   header:
     "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
   tableHeader: "bg-[var(--tge-governance-neutral-bg)]",
   hover:
     "transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]",
   shadow: "shadow-sm",
+} as const;
+
+export const tgeBrandIdentity = {
+  primaryAction:
+    "border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] text-[var(--tge-surface-card)]",
+  secondaryAction:
+    "border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] text-[var(--tge-brand-green-dark)]",
+  navActive:
+    "bg-[var(--tge-brand-green)] text-[var(--tge-brand-dark)]",
+  text: "text-[var(--tge-brand-green-dark)]",
+  accent: "border-l-[var(--tge-brand-green)]",
+  bar: "bg-[var(--tge-brand-green)]",
 } as const;
 
 export const tgeText = {
@@ -187,19 +202,19 @@ export const tgeKpiSizeClasses: Record<
   { frame: string; value: string; label: string; context: string }
 > = {
   large: {
-    frame: "border-l-4 px-4 py-4 md:px-5",
+    frame: "border-l-2 px-4 py-3.5 md:px-5",
     value: "mt-2 text-3xl font-bold leading-none tracking-tight",
     label: tgeTypography.tableHeader,
-    context: "mt-2 text-sm leading-5",
+    context: "mt-2 text-xs leading-5",
   },
   medium: {
-    frame: "border-l-4 px-4 py-3",
+    frame: "border-l-2 px-4 py-3",
     value: "mt-2 text-2xl font-bold leading-none tracking-tight",
     label: tgeTypography.tableHeader,
-    context: "mt-2 text-sm leading-5",
+    context: "mt-2 text-xs leading-5",
   },
   small: {
-    frame: "border-l-4 px-3 py-2.5",
+    frame: "border-l-2 px-3 py-2.5",
     value: "mt-1 text-xl font-bold leading-none tracking-tight",
     label: "text-[10px] font-bold uppercase leading-4 tracking-wide",
     context: "mt-1 text-xs leading-5",

@@ -6,6 +6,33 @@ This document is the design constitution for the ThinkGeoEnergy Intelligence
 Platform. It should guide Dashboard, Markets, Projects, Plants, Companies,
 Analysis, Map Explorer, Sources, Research Ops, and Admin work.
 
+## V2 Product Identity Addendum
+
+The first foundation pass established structure. The second pass sharpens
+product identity.
+
+Design work must distinguish:
+
+- Platform identity: ThinkGeoEnergy green, navigation, primary actions, selected
+  states, product branding, and key intelligence accents.
+- Semantic state: operating, pipeline, lifecycle phase, review, rejected,
+  evidence, and governance colors.
+
+ThinkGeoEnergy green is not simply another semantic color. It is the product's
+identity color. Semantic green may still represent operating or positive state,
+but it should be visually related and not confused with the broader brand role.
+
+The product should feel like a morning intelligence workspace. It should open
+with market movement, not module structure.
+
+KPI cards should remain compact and calm. They should not include decorative
+charts unless real trend data is available and the trend meaning is important.
+Trend storytelling belongs primarily in chart surfaces, not KPI cards.
+
+Prefer whitespace, section rhythm, and confident typography before adding
+visible boxes. Borders are useful for tables, filters, governance blocks, and
+repeated cards, but the product should not feel like cards inside cards.
+
 ## 1. Product Positioning
 
 The platform is a geothermal market intelligence product.
