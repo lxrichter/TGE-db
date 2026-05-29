@@ -49,16 +49,36 @@ async function getFormData(projectId: string): Promise<FormData> {
   }
 }
 
+const projectEditClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  link:
+    "text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+  warning:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5",
+  warningText: "text-[var(--tge-governance-attention-text)]",
+};
+
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className={projectEditClass.warning}>
+      <h2 className={`text-lg font-bold ${projectEditClass.warningText}`}>
+        PostgreSQL Not Connected
+      </h2>
+      <p className={`mt-2 max-w-3xl text-sm leading-6 ${projectEditClass.warningText}`}>
         Project editing writes to Railway PostgreSQL staging. Run the app
         through Railway variables or set `DATABASE_PUBLIC_URL` / `DATABASE_URL`
         locally.
       </p>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className={`mt-3 text-xs ${projectEditClass.warningText}`}>
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -77,23 +97,23 @@ export default async function EditPostgresProjectPage({
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
+      <section className={projectEditClass.panel}>
+        <div className={projectEditClass.hero}>
           <Link
             href={`/postgres-preview/projects/${id}`}
-            className="text-sm font-semibold text-[#4f7f1f] hover:underline"
+            className={projectEditClass.link}
           >
             Back to Project
           </Link>
-          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <p className={`mt-4 ${projectEditClass.kicker}`}>
             Entity Workspace
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className={`text-3xl font-bold tracking-tight sm:text-4xl ${projectEditClass.title}`}>
                 Edit Project
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+              <p className={`mt-3 max-w-4xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 ${projectEditClass.body}`}>
                 Update the project profile. Approved or export-ready projects
                 edited through this path are moved back toward review
                 unless an editor keeps the approval status. Evidence, company

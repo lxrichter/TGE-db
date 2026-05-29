@@ -68,16 +68,36 @@ async function getFormData(operatingAssetId: string): Promise<FormData> {
   }
 }
 
+const plantEditClass = {
+  panel:
+    "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
+  hero:
+    "border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8",
+  title: "text-[var(--tge-text-primary)]",
+  body: "text-[var(--tge-text-secondary)]",
+  kicker:
+    "text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]",
+  link:
+    "text-sm font-semibold text-[var(--tge-brand-green-dark)] hover:underline",
+  warning:
+    "border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-5",
+  warningText: "text-[var(--tge-governance-attention-text)]",
+};
+
 function SetupNotice({ error }: { error: string }) {
   return (
-    <section className="border border-amber-200 bg-amber-50 px-5 py-5">
-      <h2 className="text-lg font-bold text-amber-900">PostgreSQL Not Connected</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-900">
+    <section className={plantEditClass.warning}>
+      <h2 className={`text-lg font-bold ${plantEditClass.warningText}`}>
+        PostgreSQL Not Connected
+      </h2>
+      <p className={`mt-2 max-w-3xl text-sm leading-6 ${plantEditClass.warningText}`}>
         Plant editing writes to Railway PostgreSQL staging. Run the
         app through Railway variables or set `DATABASE_PUBLIC_URL` /
         `DATABASE_URL` locally.
       </p>
-      <p className="mt-3 text-xs text-amber-900">Error: {error}</p>
+      <p className={`mt-3 text-xs ${plantEditClass.warningText}`}>
+        Error: {error}
+      </p>
     </section>
   );
 }
@@ -96,23 +116,23 @@ export default async function EditPostgresOperatingAssetPage({
 
   return (
     <main className="space-y-6 sm:space-y-8">
-      <section className="border border-gray-200 bg-white">
-        <div className="border-l-4 border-l-[#8dc63f] px-5 py-6 sm:px-8 sm:py-8">
+      <section className={plantEditClass.panel}>
+        <div className={plantEditClass.hero}>
           <Link
             href={`/postgres-preview/operating-assets/${id}`}
-            className="text-sm font-semibold text-[#4f7f1f] hover:underline"
+            className={plantEditClass.link}
           >
             Back to Plant
           </Link>
-          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.08em] text-[#8dc63f]">
+          <p className={`mt-4 ${plantEditClass.kicker}`}>
             Entity Workspace
           </p>
           <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[#1f2937] sm:text-4xl">
+              <h1 className={`text-3xl font-bold tracking-tight sm:text-4xl ${plantEditClass.title}`}>
                 Edit Plant
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-gray-600 sm:mt-4 sm:text-base sm:leading-7">
+              <p className={`mt-3 max-w-4xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 ${plantEditClass.body}`}>
                 Update the plant profile. Draft saves remain allowed while
                 source evidence, owner/operator roles, and originating project
                 or unit relationships are completed through the saved detail
