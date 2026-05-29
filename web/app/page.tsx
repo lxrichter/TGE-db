@@ -12,7 +12,6 @@ import {
   type PostgresReplacementReadiness,
   type PostgresCountryMarketSummary,
 } from "@/lib/postgres-preview";
-import PostgresRegionalWorklistRoutes from "@/components/postgres-preview/PostgresRegionalWorklistRoutes";
 import {
   SectionHeader,
 } from "@/components/design-system/TgeDesignSystem";
@@ -167,6 +166,10 @@ function sumElectricCapacity(buckets: PostgresPreviewAnalysisBucket[]) {
   return buckets.reduce((total, bucket) => total + bucket.electric_capacity_mwe, 0);
 }
 
+function sumRecordCount(buckets: PostgresPreviewAnalysisBucket[]) {
+  return buckets.reduce((total, bucket) => total + bucket.record_count, 0);
+}
+
 function formatBucketLabel(value: string) {
   return value
     .replaceAll("_", " ")
@@ -177,12 +180,10 @@ function formatBucketLabel(value: string) {
 
 type ExecutiveKpiTone =
   | "neutral"
-  | "operating"
-  | "pipeline"
-  | "market"
-  | "ecosystem"
-  | "governance"
-  | "evidence";
+  | "market-metric"
+  | "asset-metric"
+  | "coverage-metric"
+  | "governance";
 
 const panelClass =
   "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
@@ -199,18 +200,14 @@ const dashboardHoverClass =
 
 function getExecutiveKpiToneClass(tone: ExecutiveKpiTone) {
   switch (tone) {
-    case "operating":
-      return "border-l-[var(--tge-chart-ranking-installed-capacity)] bg-[var(--tge-surface-card)]";
-    case "pipeline":
+    case "market-metric":
+      return "border-l-[var(--tge-brand-green-dark)] bg-[var(--tge-surface-card)]";
+    case "asset-metric":
       return "border-l-[var(--tge-chart-ranking-pipeline-capacity)] bg-[var(--tge-surface-card)]";
-    case "market":
+    case "coverage-metric":
       return "border-l-[var(--tge-chart-ranking-market-count)] bg-[var(--tge-surface-card)]";
-    case "ecosystem":
-      return "border-l-[var(--tge-chart-ranking-attributed-mw)] bg-[var(--tge-surface-card)]";
     case "governance":
       return "border-l-[var(--tge-chart-governance-needs-review)] bg-[var(--tge-surface-card)]";
-    case "evidence":
-      return "border-l-[var(--tge-brand-green-dark)] bg-[var(--tge-surface-card)]";
     case "neutral":
     default:
       return "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
@@ -341,23 +338,32 @@ function MarketSignalTable({
       </div>
 
       <div className="divide-y divide-[var(--tge-governance-muted-border)] md:hidden">
-        {analysis.topCountries.slice(0, 5).map((country) => (
-          <Link
-            key={country.country}
-            href={`/postgres-preview/markets?country=${encodeURIComponent(
-              country.country
-            )}#market-rankings`}
-            className="block px-5 py-4"
-          >
-            <div className={`font-semibold ${titleTextClass}`}>{country.country}</div>
-            <div className={`mt-2 grid grid-cols-2 gap-3 text-xs ${bodyTextClass}`}>
-              <span>{formatMw(country.operating_installed_mwe)} MWe operating</span>
-              <span>{formatMw(country.project_pipeline_mwe)} MWe pipeline</span>
-              <span>{formatCount(country.active_project_count)} active projects</span>
-              <span>{formatCount(country.missing_source_count)} source gaps</span>
-            </div>
-          </Link>
-        ))}
+        {analysis.topCountries.slice(0, 5).map((country) => {
+          const ratio =
+            country.operating_installed_mwe > 0
+              ? country.project_pipeline_mwe / country.operating_installed_mwe
+              : null;
+          const ratioLabel =
+            ratio === null ? "Pipeline-led" : `${ratio.toFixed(ratio >= 10 ? 0 : 1)}x`;
+
+          return (
+            <Link
+              key={country.country}
+              href={`/postgres-preview/markets?country=${encodeURIComponent(
+                country.country
+              )}#market-rankings`}
+              className="block px-5 py-4"
+            >
+              <div className={`font-semibold ${titleTextClass}`}>{country.country}</div>
+              <div className={`mt-2 grid grid-cols-2 gap-3 text-xs ${bodyTextClass}`}>
+                <span>{formatMw(country.operating_installed_mwe)} MWe operating</span>
+                <span>{formatMw(country.project_pipeline_mwe)} MWe pipeline</span>
+                <span>{formatCount(country.active_project_count)} active projects</span>
+                <span>{ratioLabel} pipeline / operating</span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="hidden overflow-x-auto md:block">
@@ -368,46 +374,143 @@ function MarketSignalTable({
               <th className="w-[18%] px-5 py-3 font-semibold">Operating MWe</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Pipeline MWe</th>
               <th className="w-[18%] px-5 py-3 font-semibold">Active Projects</th>
-              <th className="w-[22%] px-5 py-3 font-semibold">Evidence Signal</th>
+              <th className="w-[22%] px-5 py-3 font-semibold">Pipeline / Operating</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
-            {analysis.topCountries.slice(0, 5).map((country) => (
-              <tr key={country.country} className="align-top">
-                <td className="px-5 py-4">
-                  <Link
-                    className={`font-semibold ${titleTextClass} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
-                    href={`/postgres-preview/markets?country=${encodeURIComponent(
-                      country.country
-                    )}#market-rankings`}
-                  >
-                    {country.country}
-                  </Link>
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatMw(country.operating_installed_mwe)} MWe
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatMw(country.project_pipeline_mwe)} MWe
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatCount(country.active_project_count)}
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  <div>{formatCount(country.missing_source_count)} source gaps</div>
-                  <Link
-                    className={`mt-2 inline-flex text-xs font-semibold uppercase tracking-wide ${linkActionClass} hover:underline`}
-                    href={`/postgres-preview/markets?country=${encodeURIComponent(
-                      country.country
-                    )}#market-rankings`}
-                  >
-                    Open Market
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {analysis.topCountries.slice(0, 5).map((country) => {
+              const ratio =
+                country.operating_installed_mwe > 0
+                  ? country.project_pipeline_mwe / country.operating_installed_mwe
+                  : null;
+              const ratioLabel =
+                ratio === null
+                  ? "Pipeline-led"
+                  : `${ratio.toFixed(ratio >= 10 ? 0 : 1)}x`;
+
+              return (
+                <tr key={country.country} className="align-top">
+                  <td className="px-5 py-4">
+                    <Link
+                      className={`font-semibold ${titleTextClass} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
+                      href={`/postgres-preview/markets?country=${encodeURIComponent(
+                        country.country
+                      )}#market-rankings`}
+                    >
+                      {country.country}
+                    </Link>
+                  </td>
+                  <td className={`px-5 py-4 ${bodyTextClass}`}>
+                    {formatMw(country.operating_installed_mwe)} MWe
+                  </td>
+                  <td className={`px-5 py-4 ${bodyTextClass}`}>
+                    {formatMw(country.project_pipeline_mwe)} MWe
+                  </td>
+                  <td className={`px-5 py-4 ${bodyTextClass}`}>
+                    {formatCount(country.active_project_count)}
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className={`text-sm font-bold ${titleTextClass}`}>
+                      {ratioLabel}
+                    </div>
+                    <div className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>
+                      {ratio === null
+                        ? "No operating base in current view"
+                        : "Pipeline capacity vs operating base"}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+      </div>
+    </section>
+  );
+}
+
+type RegionCapacityRow = {
+  region: string;
+  operatingMwe: number;
+  pipelineMwe: number;
+  markets: number;
+};
+
+function getRegionCapacityRows(countries: PostgresCountryMarketSummary[]) {
+  const rows = new Map<string, RegionCapacityRow>();
+
+  countries.forEach((country) => {
+    const region = country.tge_region ?? "Unassigned";
+    const current = rows.get(region) ?? {
+      region,
+      operatingMwe: 0,
+      pipelineMwe: 0,
+      markets: 0,
+    };
+
+    current.operatingMwe += country.operating_installed_mwe;
+    current.pipelineMwe += country.project_pipeline_mwe;
+    current.markets += 1;
+    rows.set(region, current);
+  });
+
+  return Array.from(rows.values())
+    .sort((a, b) => b.operatingMwe - a.operatingMwe)
+    .slice(0, 6);
+}
+
+function RegionalCapacityDistribution({
+  countries,
+}: {
+  countries: PostgresCountryMarketSummary[];
+}) {
+  const rows = getRegionCapacityRows(countries);
+  const maxOperating = Math.max(...rows.map((row) => row.operatingMwe), 1);
+
+  return (
+    <section className={panelClass}>
+      <div className={`flex items-center justify-between px-5 py-4 ${panelHeaderClass}`}>
+        <div>
+          <h2 className={`text-lg font-bold ${titleTextClass}`}>
+            Regional Capacity Distribution
+          </h2>
+          <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
+            Operating capacity by TGE region.
+          </p>
+        </div>
+        <Link
+          href="/markets/regions"
+          className={`text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}
+        >
+          Regions
+        </Link>
+      </div>
+
+      <div className="space-y-3 px-5 py-4">
+        {rows.map((row) => {
+          const width = Math.max(8, (row.operatingMwe / maxOperating) * 100);
+          return (
+            <div key={row.region}>
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className={`font-semibold ${titleTextClass}`}>{row.region}</span>
+                <span className="text-xs font-semibold text-[var(--tge-governance-muted-text)]">
+                  {formatMw(row.operatingMwe)} MWe
+                </span>
+              </div>
+              <div className="mt-1.5 h-6 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+                <div
+                  className="flex h-6 items-center justify-end bg-[var(--tge-chart-ranking-installed-capacity)] pr-2 text-[10px] font-bold text-[var(--tge-surface-card)]"
+                  style={{ width: `${width}%` }}
+                >
+                  {width >= 34 ? `${formatCount(row.markets)} markets` : ""}
+                </div>
+              </div>
+              <div className={`mt-1 text-xs ${bodyTextClass}`}>
+                {formatMw(row.pipelineMwe)} MWe pipeline signal
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -418,14 +521,18 @@ function BucketOverview({
   buckets,
   href,
   useLifecycleColors = false,
+  measure = "count",
 }: {
   title: string;
   buckets: PostgresPreviewAnalysisBucket[];
   href: string;
   useLifecycleColors?: boolean;
+  measure?: "count" | "electricCapacity";
 }) {
   const visibleBuckets = buckets.slice(0, 5);
-  const maxCount = Math.max(...visibleBuckets.map((bucket) => bucket.record_count), 1);
+  const getValue = (bucket: PostgresPreviewAnalysisBucket) =>
+    measure === "electricCapacity" ? bucket.electric_capacity_mwe : bucket.record_count;
+  const maxValue = Math.max(...visibleBuckets.map(getValue), 1);
 
   return (
     <section className={panelClass}>
@@ -443,10 +550,15 @@ function BucketOverview({
           const barColor = useLifecycleColors
             ? lifecycleChartColor(bucket.bucket_code)
             : "var(--tge-chart-ranking-installed-capacity)";
+          const value = getValue(bucket);
           const barWidth = Math.max(
             8,
-            (bucket.record_count / maxCount) * 100
+            (value / maxValue) * 100
           );
+          const valueLabel =
+            measure === "electricCapacity"
+              ? `${formatMw(value)} MWe`
+              : `${formatCount(value)} items`;
 
           return (
             <div key={bucket.bucket_code}>
@@ -455,12 +567,12 @@ function BucketOverview({
                   {formatBucketLabel(bucket.bucket_code)}
                 </span>
                 <span className="text-xs text-[var(--tge-governance-muted-text)]">
-                  {formatCount(bucket.record_count)} items
+                  {valueLabel}
                 </span>
               </div>
-              <div className="mt-1.5 h-5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+              <div className="mt-1.5 h-7 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
                 <div
-                  className="flex h-5 items-center justify-end pr-2"
+                  className="flex h-7 items-center justify-end pr-2"
                   style={{
                     backgroundColor: barColor,
                     width: `${barWidth}%`,
@@ -468,7 +580,7 @@ function BucketOverview({
                 >
                   {barWidth >= 34 ? (
                     <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
-                      {formatCount(bucket.record_count)}
+                      {valueLabel}
                     </span>
                   ) : null}
                 </div>
@@ -481,59 +593,116 @@ function BucketOverview({
   );
 }
 
-function IntelligenceSummary() {
-  const signals = [
-    {
-      category: "Featured Analysis",
-      title: "Developer attribution logic is now live for validation.",
-      detail: "Relationship-based developer ranking is available as an internal analysis module.",
-      href: "/analysis/developers",
-    },
-    {
-      category: "Market Context",
-      title: "Markets and regions now use TGE geography as the primary taxonomy.",
-      detail: "Country and regional drilldowns are structured around geothermal market intelligence.",
-      href: "/markets",
-    },
-    {
-      category: "Evidence Context",
-      title: "Source-backed article matching and fact review support future signals.",
-      detail: "Evidence workflows remain governed below the subscriber-facing intelligence layer.",
-      href: "/sources",
-    },
-  ];
+function PipelineLifecycleStack({
+  buckets,
+}: {
+  buckets: PostgresPreviewAnalysisBucket[];
+}) {
+  const totalMwe = sumElectricCapacity(buckets);
+  const totalRecords = sumRecordCount(buckets);
+
+  return (
+    <section className={panelClass}>
+      <div className={`px-5 py-4 ${panelHeaderClass}`}>
+        <h2 className={`text-lg font-bold ${titleTextClass}`}>Pipeline By Lifecycle</h2>
+        <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
+          Phase mix by development capacity.
+        </p>
+      </div>
+      <div className="px-5 py-4">
+        <div className="flex h-9 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+          {buckets.map((bucket) => {
+            const width =
+              totalMwe > 0 ? (bucket.electric_capacity_mwe / totalMwe) * 100 : 0;
+            if (width <= 0) return null;
+            return (
+              <div
+                key={bucket.bucket_code}
+                className="h-9"
+                style={{
+                  width: `${width}%`,
+                  backgroundColor: lifecycleChartColor(bucket.bucket_code),
+                }}
+                title={`${formatBucketLabel(bucket.bucket_code)}: ${formatMw(
+                  bucket.electric_capacity_mwe
+                )} MWe`}
+              />
+            );
+          })}
+        </div>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+          {buckets.slice(0, 6).map((bucket) => (
+            <div key={bucket.bucket_code} className="flex items-center gap-2 text-xs">
+              <span
+                className="h-2.5 w-2.5 shrink-0"
+                style={{ backgroundColor: lifecycleChartColor(bucket.bucket_code) }}
+              />
+              <span className={`min-w-0 flex-1 truncate ${titleTextClass}`}>
+                {formatBucketLabel(bucket.bucket_code)}
+              </span>
+              <span className="font-semibold text-[var(--tge-governance-muted-text)]">
+                {formatMw(bucket.electric_capacity_mwe)} MWe
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className={`mt-4 text-xs leading-5 ${bodyTextClass}`}>
+          {formatMw(totalMwe)} MWe across {formatCount(totalRecords)} pipeline records.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function KeyMarketInsight({
+  analysis,
+  pipelineMwe,
+}: {
+  analysis: PostgresPreviewAnalysisSummary;
+  pipelineMwe: number;
+}) {
+  const leadingCountry = analysis.topCountries[0];
+  const pipelineShare =
+    leadingCountry && pipelineMwe > 0
+      ? Math.round((leadingCountry.project_pipeline_mwe / pipelineMwe) * 100)
+      : null;
 
   return (
     <section className={panelClass}>
       <div className={`px-5 py-4 ${panelHeaderClass}`}>
         <div>
           <h2 className={`text-lg font-bold ${titleTextClass}`}>
-            Intelligence Summary
+            Key Market Insight
           </h2>
           <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-            Small current-context layer. Market overview remains the dashboard focus.
+            One interpreted signal from the current market view.
           </p>
         </div>
       </div>
 
-      <div className="divide-y divide-[var(--tge-governance-muted-border)]">
-        {signals.map((signal) => (
-          <Link
-            key={signal.category}
-            href={signal.href}
-            className={`grid gap-2 px-5 py-4 md:grid-cols-[0.22fr_0.36fr_0.42fr] ${dashboardHoverClass}`}
-          >
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
-              {signal.category}
-            </div>
-            <h3 className={`text-sm font-bold leading-5 ${titleTextClass}`}>
-              {signal.title}
-            </h3>
-            <p className={`text-xs leading-5 ${bodyTextClass}`}>
-              {signal.detail}
-            </p>
-          </Link>
-        ))}
+      <div className="grid gap-5 px-5 py-5 lg:grid-cols-[0.72fr_0.28fr] lg:items-center">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
+            Pipeline concentration
+          </div>
+          <h3 className={`mt-2 text-xl font-bold leading-7 ${titleTextClass}`}>
+            {leadingCountry
+              ? `${leadingCountry.country} represents ${
+                  pipelineShare ?? 0
+                }% of tracked global pipeline capacity.`
+              : "Pipeline concentration will appear once market data is available."}
+          </h3>
+          <p className={`mt-3 text-sm leading-6 ${bodyTextClass}`}>
+            Use Markets and Analysis to compare whether this pipeline signal is
+            supported by operating capacity, active projects, and evidence coverage.
+          </p>
+        </div>
+        <Link
+          href="/analysis"
+          className="inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-4 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
+        >
+          View Analysis
+        </Link>
       </div>
     </section>
   );
@@ -678,42 +847,42 @@ export default async function HomePage() {
             href="/analysis"
             label="Operating Capacity"
             note="Installed operating capacity signal"
-            tone="operating"
+            tone="market-metric"
             value={`${formatMw(operatingMwe)} MWe`}
           />
           <ExecutiveKpi
             href="/postgres-preview/projects"
             label="Pipeline Capacity"
             note="Development pipeline capacity signal"
-            tone="pipeline"
+            tone="market-metric"
             value={`${formatMw(pipelineMwe)} MWe`}
           />
           <ExecutiveKpi
             href="/postgres-preview/projects"
             label="Projects"
             note="Development project universe"
-            tone="pipeline"
+            tone="asset-metric"
             value={formatCount(projectRecords)}
           />
           <ExecutiveKpi
             href="/postgres-preview/operating-assets"
             label="Plants"
             note="Operating fleet intelligence"
-            tone="operating"
+            tone="asset-metric"
             value={formatCount(plantRecords)}
           />
           <ExecutiveKpi
             href="/markets"
             label="Markets"
             note={staging.ok ? "Top markets loaded" : "Legacy markets covered"}
-            tone="market"
+            tone="coverage-metric"
             value={formatCount(countriesCovered)}
           />
           <ExecutiveKpi
             href="/postgres-preview/companies"
             label="Companies"
             note="Tracked ecosystem participants"
-            tone="ecosystem"
+            tone="asset-metric"
             value={formatCount(companiesTracked)}
           />
           <ExecutiveKpi
@@ -724,7 +893,7 @@ export default async function HomePage() {
                 ? `${formatCount(readinessMissingSources)} source gaps`
                 : "PostgreSQL signal pending"
             }
-            tone="evidence"
+            tone="coverage-metric"
             value={evidenceCoverage === null ? "-" : `${evidenceCoverage}%`}
           />
         </section>
@@ -738,39 +907,24 @@ export default async function HomePage() {
           />
 
           <section className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
-            <MarketSignalTable analysis={staging.analysis} />
             <div className="space-y-5">
-              <PostgresRegionalWorklistRoutes
-                countries={staging.countries}
-                description="Top regional paths into market context and filtered entity worklists."
-                limit={3}
-                title="Regional Drilldowns"
-              />
+              <MarketSignalTable analysis={staging.analysis} />
+              <KeyMarketInsight analysis={staging.analysis} pipelineMwe={pipelineMwe} />
+            </div>
+            <div className="space-y-5">
+              <RegionalCapacityDistribution countries={staging.countries} />
               <BucketOverview
                 buckets={staging.analysis.projectLifecycle}
                 href="/postgres-preview/analysis#benchmark-views"
                 title="Pipeline Composition"
+                measure="electricCapacity"
                 useLifecycleColors
               />
-              <BucketOverview
-                buckets={staging.analysis.operatingAssetStatus}
-                href="/postgres-preview/analysis#benchmark-views"
-                title="Operating Fleet Status"
-                useLifecycleColors
-              />
+              <PipelineLifecycleStack buckets={staging.analysis.projectLifecycle} />
             </div>
           </section>
         </section>
       ) : null}
-
-      <section id="intelligence-summary" className="space-y-4 scroll-mt-24">
-        <SectionHeader
-          title="Intelligence Summary"
-          description="Limited context layer below the market overview. This should not become a news feed."
-        />
-
-        <IntelligenceSummary />
-      </section>
 
       <section id="intelligence-navigation" className="space-y-4 scroll-mt-24">
         <SectionHeader
