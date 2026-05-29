@@ -87,6 +87,7 @@ spacing, color values, chart styling, and responsive treatment.
 
 - Analysis modules are governed through source basis, measures, segmentation,
   attribution rules, and QA warnings.
+- New analysis modules should follow `docs/ANALYSIS_MODULE_CONTRACT.md`.
 - Developer Analysis, Owners & Operators, and Turbine Technology are valid
   first analysis-module patterns.
 - Future modules should be added through the analysis module registry before

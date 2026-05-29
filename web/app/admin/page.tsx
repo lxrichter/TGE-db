@@ -376,6 +376,11 @@ function DesignReadinessOverview() {
       note: "Maps the formal design doctrine to CSS variables, semantic token families, and the token audit guardrail.",
     },
     {
+      title: "Analysis Module Contract",
+      reference: "docs/ANALYSIS_MODULE_CONTRACT.md",
+      note: "Defines how new analysis pages declare source basis, measures, attribution logic, segmentation, and Governance QA.",
+    },
+    {
       title: "Route IA Contract",
       reference: "docs/ROUTE_IA_CONTRACT.md",
       note: "Defines clean top-level entry points, PostgreSQL staging routes, and the future route-promotion path.",
