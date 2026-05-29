@@ -43,13 +43,15 @@ type ProjectRow = {
 
 const PHASE_ORDER = [
   "Prospect",
+  "TBD",
   "Exploration",
   "Pre-Feasibility",
   "Feasibility",
   "Construction",
-  "Stalled",
-  "TBD",
+  "Operating",
   "Cancelled",
+  "Suspended",
+  "Stalled",
 ] as const;
 
 type PhaseName = (typeof PHASE_ORDER)[number];
@@ -170,9 +172,11 @@ export default async function CountryMarketPage({
     "Pre-Feasibility": { count: 0, mw: 0, mwLabel: "Planned MWe" },
     Feasibility: { count: 0, mw: 0, mwLabel: "Planned MWe" },
     Construction: { count: 0, mw: 0, mwLabel: "Planned MWe" },
-    Stalled: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Operating: { count: 0, mw: 0, mwLabel: "Planned MWe" },
     TBD: { count: 0, mw: 0, mwLabel: "Planned MWe" },
     Cancelled: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Suspended: { count: 0, mw: 0, mwLabel: "Planned MWe" },
+    Stalled: { count: 0, mw: 0, mwLabel: "Planned MWe" },
   };
 
   projects.forEach((row) => {

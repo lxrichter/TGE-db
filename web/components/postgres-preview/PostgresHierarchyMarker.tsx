@@ -36,7 +36,7 @@ export default function PostgresHierarchyMarker({
 
   return (
     <section
-      className={`border-l-2 ${classes.border} bg-transparent px-3 py-1.5`}
+      className={`border-t ${classes.border} bg-transparent px-0 py-2`}
     >
       <div className="min-w-0">
         <div className="flex flex-col gap-1 lg:flex-row lg:items-baseline">
@@ -45,12 +45,12 @@ export default function PostgresHierarchyMarker({
           >
             {label}
           </div>
-          <h2 className="text-sm font-bold text-[var(--tge-text-primary)]">
+          <h2 className="text-base font-bold text-[var(--tge-text-primary)]">
             {title}
           </h2>
         </div>
         {description ? (
-          <p className="mt-0.5 max-w-4xl text-xs leading-5 text-[var(--tge-text-secondary)]">
+          <p className="mt-1 max-w-5xl text-sm leading-6 text-[var(--tge-text-secondary)]">
             {description}
           </p>
         ) : null}

@@ -125,14 +125,14 @@ function MarketKpi({
             : "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
 
   return (
-    <div className={`border border-l-4 border-transparent ${toneClass} px-5 py-5 shadow-sm`}>
+    <div className={`border border-l-4 border-transparent ${toneClass} px-4 py-3.5 shadow-sm`}>
       <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
         {label}
       </div>
-      <div className={`mt-3 text-3xl font-bold leading-none ${titleTextClass} xl:text-[2.35rem]`}>
+      <div className={`mt-2.5 text-2xl font-bold leading-none ${titleTextClass} xl:text-[2rem]`}>
         {value}
       </div>
-      <div className={`mt-2 text-xs leading-5 ${bodyTextClass}`}>{note}</div>
+      <div className={`mt-2 text-sm leading-5 ${bodyTextClass}`}>{note}</div>
     </div>
   );
 }
@@ -328,13 +328,13 @@ export default async function MarketsPage() {
   return (
     <main className="space-y-8">
       <section className={panelClass}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
+        <div className="px-5 py-5 sm:px-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Markets
               </p>
-              <h1 className={`mt-3 text-3xl font-bold tracking-tight ${titleTextClass} xl:text-[2.75rem]`}>
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
                 Global Geothermal Market Intelligence
               </h1>
               <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>

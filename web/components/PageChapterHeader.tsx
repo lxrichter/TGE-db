@@ -11,12 +11,12 @@ export default function PageChapterHeader({
 }: PageChapterHeaderProps) {
   return (
     <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
-      <div className="border-l-4 border-[var(--tge-brand-green)] px-6 py-6 xl:px-8">
+      <div className="px-6 py-5 xl:px-8">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
           {eyebrow}
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] xl:text-[2.35rem]">
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-[var(--tge-text-primary)] xl:text-[2.1rem]">
           {title}
         </h1>
 

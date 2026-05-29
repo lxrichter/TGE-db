@@ -262,16 +262,16 @@ function ExecutiveKpi({
   const toneClass = getExecutiveKpiToneClass(tone);
   const frameClass =
     prominence === "executive"
-      ? `border border-l-4 border-transparent ${toneClass} px-6 py-6 shadow-sm sm:min-h-[172px] sm:px-7 sm:py-7`
-      : `border border-l-4 border-transparent ${toneClass} px-4 py-4 shadow-sm`;
+      ? `border border-l-4 border-transparent ${toneClass} px-5 py-5 shadow-sm sm:min-h-[126px] sm:px-6`
+      : `border border-l-4 border-transparent ${toneClass} px-4 py-3.5 shadow-sm`;
   const valueClass =
     prominence === "executive"
-      ? `mt-5 text-4xl font-bold leading-none ${titleTextClass} sm:text-[3.25rem]`
-      : `mt-3 text-2xl font-bold leading-none ${titleTextClass} sm:text-3xl`;
+      ? `mt-3 text-3xl font-bold leading-none ${titleTextClass} sm:text-[2.45rem]`
+      : `mt-2 text-2xl font-bold leading-none ${titleTextClass} sm:text-[2rem]`;
   const noteClass =
     prominence === "executive"
-      ? `mt-3 text-sm leading-6 ${bodyTextClass}`
-      : "mt-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]";
+      ? `mt-2 text-sm leading-6 ${bodyTextClass}`
+      : "mt-2 text-sm leading-5 text-[var(--tge-governance-muted-text)]";
 
   const content = (
     <>
@@ -454,7 +454,7 @@ function BucketOverview({
           Analysis
         </Link>
       </div>
-      <div className="space-y-4 px-5 py-5">
+      <div className="space-y-3 px-5 py-4">
         {visibleBuckets.map((bucket) => {
           const barClass = useLifecycleColors
             ? postgresStatusBarClass(
@@ -472,9 +472,9 @@ function BucketOverview({
                   {formatCount(bucket.record_count)} items
                 </span>
               </div>
-              <div className="mt-2 h-2 bg-[var(--tge-governance-neutral-bg)]">
+              <div className="mt-1.5 h-3 bg-[var(--tge-governance-neutral-bg)]">
                 <div
-                  className={`h-2 ${barClass}`}
+                  className={`h-3 ${barClass}`}
                   style={{
                     width: `${Math.max(
                       8,
@@ -676,13 +676,13 @@ export default async function HomePage() {
   return (
     <main className="space-y-7 sm:space-y-8">
       <section className={`${panelClass} shadow-sm`}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
+        <div className="px-5 py-5 sm:px-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 ThinkGeoEnergy Intelligence
               </p>
-              <h1 className={`mt-3 text-3xl font-bold tracking-tight ${titleTextClass} xl:text-[2.75rem]`}>
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
                 Global Geothermal Intelligence Dashboard
               </h1>
               <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
@@ -749,7 +749,7 @@ export default async function HomePage() {
           tone="core"
         />
 
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-4 xl:grid-cols-[1.35fr_1.35fr_0.9fr_0.9fr]">
+        <section className="grid grid-cols-1 gap-3 lg:grid-cols-4 xl:grid-cols-[1.15fr_1.15fr_0.9fr_0.9fr]">
           <ExecutiveKpi
             href="/analysis"
             label="Operating MWe"
@@ -784,7 +784,7 @@ export default async function HomePage() {
           />
         </section>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <ExecutiveKpi
             href="/markets"
             label="Markets"

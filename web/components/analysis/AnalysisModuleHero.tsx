@@ -51,7 +51,7 @@ export function AnalysisModuleHero({
       </div>
 
       <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6 xl:px-8">
+        <div className="px-6 py-5 xl:px-8">
           <div className="max-w-5xl">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
@@ -64,7 +64,7 @@ export function AnalysisModuleHero({
               </span>
             </div>
 
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] xl:text-[2.75rem]">
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-[var(--tge-text-primary)] xl:text-[2.2rem]">
               {module.title}
             </h1>
 

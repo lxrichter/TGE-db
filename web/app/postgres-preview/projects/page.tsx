@@ -187,12 +187,17 @@ async function getProjectsListData(
 const projectLifecycleOrder = [
   "prospect_tbd",
   "prospect",
+  "tbd",
   "exploration",
   "pre_feasibility",
+  "pre-feasibility",
   "feasibility",
   "construction",
   "under_construction",
   "operating",
+  "cancelled",
+  "suspended",
+  "stalled",
 ];
 
 function bucketCount(buckets: PostgresPreviewAnalysisBucket[]) {

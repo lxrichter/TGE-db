@@ -2610,8 +2610,39 @@ export async function getPostgresPreviewAnalysisSummary(
     b.record_count - a.record_count ||
     a.bucket_code.localeCompare(b.bucket_code);
 
+  const projectLifecycleOrder = [
+    "prospect_tbd",
+    "prospect",
+    "tbd",
+    "exploration",
+    "pre_feasibility",
+    "pre-feasibility",
+    "feasibility",
+    "construction",
+    "under_construction",
+    "operating",
+    "cancelled",
+    "suspended",
+    "stalled",
+  ];
+
+  const sortProjectLifecycle = (
+    a: PostgresPreviewAnalysisBucket,
+    b: PostgresPreviewAnalysisBucket
+  ) => {
+    const aIndex = projectLifecycleOrder.indexOf(a.bucket_code);
+    const bIndex = projectLifecycleOrder.indexOf(b.bucket_code);
+
+    return (
+      (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex) ||
+      b.electric_capacity_mwe - a.electric_capacity_mwe ||
+      b.record_count - a.record_count ||
+      a.bucket_code.localeCompare(b.bucket_code)
+    );
+  };
+
   return {
-    projectLifecycle: buckets.projectLifecycle.sort(sortByCapacityThenCount),
+    projectLifecycle: buckets.projectLifecycle.sort(sortProjectLifecycle),
     operatingAssetStatus:
       buckets.operatingAssetStatus.sort(sortByCapacityThenCount),
     useTypeBreakdown: buckets.useTypeBreakdown.sort(sortByCapacityThenCount),

@@ -385,13 +385,13 @@ export default function AnalysisPage() {
   return (
     <main className="space-y-6">
       <section className={panelClass}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6">
+        <div className="px-6 py-5">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Analysis
               </p>
-              <h1 className={`mt-2 text-3xl font-bold tracking-tight ${titleTextClass} xl:text-[2.75rem]`}>
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
                 Modular Geothermal Intelligence Analysis
               </h1>
               <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>

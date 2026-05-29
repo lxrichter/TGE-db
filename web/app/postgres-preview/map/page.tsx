@@ -30,7 +30,7 @@ const mapClass = {
   panel:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
   hero:
-    "border-l-4 border-l-[var(--tge-brand-green)] px-6 py-6 xl:px-8",
+    "px-6 py-5 xl:px-8",
   title: "text-[var(--tge-text-primary)]",
   body: "text-[var(--tge-text-secondary)]",
   muted: "text-[var(--tge-governance-muted-text)]",
@@ -225,7 +225,7 @@ export default async function PostgresPreviewMapPage({
           </p>
           <div className="mt-3 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
-              <h1 className={`text-3xl font-bold tracking-tight ${mapClass.title} xl:text-[2.75rem]`}>
+              <h1 className={`text-2xl font-bold tracking-tight ${mapClass.title} xl:text-[2.2rem]`}>
                 Map Explorer
               </h1>
               <p className={`mt-3 max-w-4xl text-base leading-7 ${mapClass.body}`}>
