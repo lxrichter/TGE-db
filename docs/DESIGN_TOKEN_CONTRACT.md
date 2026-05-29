@@ -20,6 +20,7 @@ Admin/design readiness registries:
 
 Related semantics:
 
+- `docs/DESIGN_HANDOFF_INDEX.md`
 - `docs/STATUS_BADGE_HIERARCHY.md`
 - `docs/ANALYSIS_MODULE_CONTRACT.md`
 - `docs/APP_SHELL_NAVIGATION_CONTRACT.md`

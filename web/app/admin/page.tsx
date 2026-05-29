@@ -376,6 +376,11 @@ function DesignReadinessOverview() {
       note: "Maps the formal design doctrine to CSS variables, semantic token families, and the token audit guardrail.",
     },
     {
+      title: "Design Handoff Index",
+      reference: "docs/DESIGN_HANDOFF_INDEX.md",
+      note: "Provides the recommended reading order, design-pass sequence, and first visual review page set.",
+    },
+    {
       title: "Analysis Module Contract",
       reference: "docs/ANALYSIS_MODULE_CONTRACT.md",
       note: "Defines how new analysis pages declare source basis, measures, attribution logic, segmentation, and Governance QA.",

@@ -5,6 +5,9 @@ design phase starts. It keeps the design process focused on product language,
 visual hierarchy, responsive behavior, and component polish rather than
 re-litigating core platform architecture.
 
+For the recommended design reading order and page-review sequence, start with
+`docs/DESIGN_HANDOFF_INDEX.md`.
+
 ## Readiness Target
 
 Start the formal design phase when these areas are accepted as functionally
