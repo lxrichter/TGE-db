@@ -485,7 +485,7 @@ Pipeline charts:
 
 - lifecycle order is fixed:
   Prospect / TBD, Exploration, Pre-Feasibility, Feasibility, Construction,
-  Operating where applicable, Cancelled / Suspended where relevant
+  Operating where applicable, Cancelled where relevant
 
 Map overlays:
 
@@ -505,7 +505,7 @@ Separate color systems:
   capacity, neutral counts, and attributed MW each have one chart color.
 - Lifecycle colors: project development progression from Prospect / TBD through
   Exploration, Pre-Feasibility, Feasibility, Construction, Operating, and
-  Cancelled / Suspended.
+  Cancelled.
 - Governance colors: approved, needs review, rejected, blocked, AI candidate,
   and AI suggested. These are reserved for workflow and validation, not market
   categories.

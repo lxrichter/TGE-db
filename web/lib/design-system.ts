@@ -249,7 +249,7 @@ export const tgeLifecycleOrder = [
   "Feasibility",
   "Construction",
   "Operating",
-  "Cancelled / Suspended",
+  "Cancelled",
 ] as const;
 
 export type TgeChartPaletteEntry = {
@@ -339,10 +339,10 @@ export const tgeChartLanguageV2 = {
     },
     {
       key: "cancelled",
-      label: "Cancelled / Suspended",
+      label: "Cancelled",
       cssVar: "var(--tge-chart-lifecycle-cancelled)",
       hex: "#b94a48",
-      usage: "Cancelled, suspended, retired from project pipeline, or invalidated.",
+      usage: "Cancelled, retired from project pipeline, or invalidated.",
     },
   ] satisfies TgeChartPaletteEntry[],
   governance: [

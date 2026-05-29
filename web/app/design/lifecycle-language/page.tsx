@@ -34,7 +34,7 @@ const projectRows = [
   ["Menengai Phase II", "Kenya", "Feasibility", "70 MWe", "High"],
   ["Dieng Expansion", "Indonesia", "Construction", "110 MWe", "High"],
   ["Olkaria Unit 7", "Kenya", "Operating", "86 MWe", "Confirmed"],
-  ["Legacy Concession", "Chile", "Cancelled / Suspended", "n.a.", "Archived"],
+  ["Legacy Concession", "Chile", "Cancelled", "n.a.", "Archived"],
 ] as const;
 
 const marketRows = [
@@ -51,7 +51,7 @@ const mapMarkers = [
   ["Construction", 63, 64],
   ["Operating", 77, 39],
   ["Construction", 82, 70],
-  ["Cancelled / Suspended", 29, 77],
+  ["Cancelled", 29, 77],
 ] as const;
 
 const textOnLight = new Set(["prospect"]);

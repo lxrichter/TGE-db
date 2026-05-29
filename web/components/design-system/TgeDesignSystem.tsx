@@ -318,7 +318,7 @@ export function LifecycleBadge({
     | "Feasibility"
     | "Construction"
     | "Operating"
-    | "Cancelled / Suspended";
+    | "Cancelled";
 }) {
   const lifecycleColor =
     tgeChartLanguageV2.lifecycle.find((entry) => entry.label === phase) ??
