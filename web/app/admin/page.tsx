@@ -386,6 +386,11 @@ function DesignReadinessOverview() {
       note: "Defines clean top-level entry points, PostgreSQL staging routes, and the future route-promotion path.",
     },
     {
+      title: "Role Visibility Contract",
+      reference: "docs/ROLE_VISIBILITY_CONTRACT.md",
+      note: "Defines subscriber, researcher, editor, and administrator visibility boundaries for shared pages and navigation.",
+    },
+    {
       title: "App Shell Navigation Contract",
       reference: "docs/APP_SHELL_NAVIGATION_CONTRACT.md",
       note: "Defines the future left-sidebar shell, top-bar utility layer, role defaults, and mobile navigation behavior.",

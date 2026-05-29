@@ -28,6 +28,7 @@ spacing, color values, chart styling, and responsive treatment.
 
 ### Role Entry Points
 
+- Role-aware visibility should follow `docs/ROLE_VISIBILITY_CONTRACT.md`.
 - Subscriber starts from Dashboard or Markets.
 - Researcher starts from Research Ops and entity work queues.
 - Editor starts from Research Ops, validation, evidence review, and export

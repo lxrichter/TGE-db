@@ -29,6 +29,7 @@ Related semantics:
 - `docs/FORM_FIELD_STATE_CONTRACT.md`
 - `docs/INTELLIGENCE_LAYER_CONTRACT.md`
 - `docs/MAP_SPATIAL_INTELLIGENCE_CONTRACT.md`
+- `docs/ROLE_VISIBILITY_CONTRACT.md`
 - `docs/TABLE_LIST_VIEW_CONTRACT.md`
 
 Audit guardrail:
