@@ -600,10 +600,10 @@ function SourceActionHub({
   const actions: PostgresRecordAction[] = [
     {
       label: "Edit Source Metadata",
-      detail:
-        "Update title, URL/reference, source type, visibility, publication date, and notes.",
+      detail: "Update source title, reference, type, visibility, and notes.",
       href: `/sources/${source.source_id}/edit`,
       tone: "neutral",
+      group: "record",
     },
     {
       label: "Review Credibility",
@@ -621,6 +621,7 @@ function SourceActionHub({
             ? "blocker"
             : "warning",
       primary: source.credibility_status_code !== "credible",
+      group: "governance",
     },
     {
       label: "What It Supports",
@@ -632,13 +633,14 @@ function SourceActionHub({
           : "No confirmed evidence links yet. Review matches or link this source.",
       href: "#source-supports",
       tone: source.linked_entity_count > 0 ? "ready" : "warning",
+      group: "evidence",
     },
     {
       label: "Linked Evidence Table",
-      detail:
-        "Inspect linked fields, claims, extracted values, confidence, and primary evidence flags.",
+      detail: "Inspect linked fields, claims, values, confidence, and primary flags.",
       href: "#source-linked-evidence",
       tone: source.linked_entity_count > 0 ? "ready" : "neutral",
+      group: "evidence",
     },
   ];
 
@@ -650,6 +652,7 @@ function SourceActionHub({
       } waiting for review.`,
       href: `/sources/matches?sourceId=${source.source_id}`,
       tone: "warning",
+      group: "evidence",
     });
   }
 
@@ -661,6 +664,7 @@ function SourceActionHub({
       } waiting for human review.`,
       href: `/sources/facts?sourceId=${source.source_id}`,
       tone: "warning",
+      group: "evidence",
     });
   }
 
@@ -672,6 +676,7 @@ function SourceActionHub({
       } connected to this source.`,
       href: "#source-ai-suggestions",
       tone: "warning",
+      group: "governance",
     });
   }
 
@@ -679,8 +684,8 @@ function SourceActionHub({
     <PostgresRecordActionHub
       actions={actions}
       blockerCount={blockerCount}
-      description="Use this as the operational entry point for this source: review credibility, confirm what it supports, inspect extracted facts, and control AI-assisted evidence workflows."
-      title="Source Action Hub"
+      description="Review credibility, confirm evidence links, inspect facts, and control AI-assisted updates."
+      title="Review Actions"
       warningCount={warningCount}
     />
   );
@@ -1143,14 +1148,14 @@ export default async function SourceDetailPage({
             note: "Supports",
           },
           {
-            href: "#source-metadata",
-            label: "Metadata",
-            note: "Reference",
-          },
-          {
             href: "#source-evidence-work",
             label: "Evidence Work",
             note: "Links",
+          },
+          {
+            href: "#source-metadata",
+            label: "Metadata",
+            note: "Reference",
           },
           {
             href: "#source-review-controls",
@@ -1185,11 +1190,51 @@ export default async function SourceDetailPage({
         </section>
       </section>
 
+      <section id="source-evidence-work" className="space-y-5 scroll-mt-24">
+        <DetailPriorityMarker
+          label="Workflow"
+          title="Evidence Work"
+          description="Evidence links, article matches, facts, AI suggestions."
+          tone="workflow"
+        />
+
+        <Section
+          id="source-linked-evidence"
+          title="Linked Evidence"
+          description={`${formatCount(source.links.length)} confirmed evidence link${
+            source.links.length === 1 ? "" : "s"
+          }. Open for full relationship detail, linked fields, claims, and confidence labels.`}
+          collapsible
+          defaultOpen
+        >
+          <LinkedEntityTable links={source.links} />
+        </Section>
+
+        <div id="source-match-candidates" className="scroll-mt-6">
+          <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
+        </div>
+
+        <div id="source-fact-candidates" className="scroll-mt-6">
+          <ArticleFactCandidatesClient
+            canReview={canReviewSource}
+            candidates={articleFactCandidates}
+          />
+        </div>
+
+        <PostgresFieldSuggestionsPanel
+          id="source-ai-suggestions"
+          canReviewStatus={canReviewSource}
+          candidates={fieldSuggestionCandidates}
+          collapseWhenIdle
+          showEntity
+        />
+      </section>
+
       <section id="source-metadata" className="space-y-5 scroll-mt-24">
         <DetailPriorityMarker
           label="Core Record"
           title="Source Metadata"
-          description="Reference, dates, summary, excerpt, notes, attachments."
+          description="Reference details remain available, but evidence review is the primary work surface."
           tone="core"
         />
 
@@ -1289,75 +1334,6 @@ export default async function SourceDetailPage({
             />
           </div>
         </Section>
-      </section>
-
-      <section id="source-evidence-work" className="space-y-5 scroll-mt-24">
-        <DetailPriorityMarker
-          label="Workflow"
-          title="Evidence Work"
-          description="Evidence links, article matches, facts, AI suggestions."
-          tone="workflow"
-        />
-
-        <Section
-          id="source-linked-evidence"
-          title="Linked Evidence"
-          description={`${formatCount(source.links.length)} confirmed evidence link${
-            source.links.length === 1 ? "" : "s"
-          }. Open for full relationship detail, linked fields, claims, and confidence labels.`}
-          collapsible
-          defaultOpen={false}
-        >
-          <div className={`mb-4 grid gap-3 text-sm ${sourceDetailBodyTextClass} lg:grid-cols-3`}>
-            <div className={`${sourceDetailSubtleCardClass} px-4 py-3`}>
-              <div className="font-semibold text-[var(--tge-text-primary)]">
-                Evidence link
-              </div>
-              <p className="mt-1 text-xs leading-5">
-                A confirmed relationship between this source and a database
-                record. It does not automatically change fields.
-              </p>
-            </div>
-            <div className={`${sourceDetailSubtleCardClass} px-4 py-3`}>
-              <div className="font-semibold text-[var(--tge-text-primary)]">
-                Claim context
-              </div>
-              <p className="mt-1 text-xs leading-5">
-                Linked field, extracted value, and evidence note explain what the
-                source supports.
-              </p>
-            </div>
-            <div className={`${sourceDetailSubtleCardClass} px-4 py-3`}>
-              <div className="font-semibold text-[var(--tge-text-primary)]">
-                Primary evidence
-              </div>
-              <p className="mt-1 text-xs leading-5">
-                Primary evidence can later drive export readiness and confidence
-                scoring.
-              </p>
-            </div>
-          </div>
-          <LinkedEntityTable links={source.links} />
-        </Section>
-
-        <div id="source-match-candidates" className="scroll-mt-6">
-          <SourceMatchCandidatesClient candidates={sourceMatchCandidates} />
-        </div>
-
-        <div id="source-fact-candidates" className="scroll-mt-6">
-          <ArticleFactCandidatesClient
-            canReview={canReviewSource}
-            candidates={articleFactCandidates}
-          />
-        </div>
-
-        <PostgresFieldSuggestionsPanel
-          id="source-ai-suggestions"
-          canReviewStatus={canReviewSource}
-          candidates={fieldSuggestionCandidates}
-          collapseWhenIdle
-          showEntity
-        />
       </section>
 
       <section id="source-review-controls" className="space-y-5 scroll-mt-24">
