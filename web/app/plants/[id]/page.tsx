@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { isValidElement, type ReactNode } from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth";
