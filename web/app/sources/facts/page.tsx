@@ -444,7 +444,7 @@ export default async function ArticleFactCandidatesPage({
         </div>
 
         {data.ok ? (
-          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-2.5 xl:px-8">
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
               <StatTile
                 label="Candidates"

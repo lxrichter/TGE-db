@@ -158,7 +158,7 @@ export default function ArticleFactCandidatesClient({
   const allSelected =
     selectableIds.length > 0 &&
     selectableIds.every((candidateId) => selected.has(candidateId));
-  const cellClassName = compactRows ? "px-4 py-3" : "px-4 py-4";
+  const cellClassName = compactRows ? "px-4 py-2.5" : "px-4 py-4";
   const mutedLineClassName = compactRows
     ? "mt-1 line-clamp-1 break-all text-xs text-[var(--tge-governance-muted-text)]"
     : "mt-1 line-clamp-2 break-all text-xs text-[var(--tge-governance-muted-text)]";
@@ -166,8 +166,8 @@ export default function ArticleFactCandidatesClient({
     ? "mt-2 line-clamp-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]"
     : "mt-2 text-xs leading-5 text-[var(--tge-governance-muted-text)]";
   const evidenceClassName = compactRows
-    ? "line-clamp-3 text-xs leading-5 text-[var(--tge-text-secondary)]"
-    : "text-xs leading-5 text-[var(--tge-text-secondary)]";
+    ? "line-clamp-3 text-[13px] leading-5 text-[var(--tge-text-secondary)]"
+    : "text-[13px] leading-5 text-[var(--tge-text-secondary)]";
 
   function toggleCandidate(candidateId: string) {
     setSelected((current) => {
@@ -460,12 +460,12 @@ export default function ArticleFactCandidatesClient({
                   type="checkbox"
                 />
               </th>
-              <th className="w-[21%] px-4 py-3 font-semibold">Article / Source</th>
-              <th className="w-[14%] px-4 py-3 font-semibold">Fact Type</th>
-              <th className="w-[18%] px-4 py-3 font-semibold">Candidate Value</th>
-              <th className="w-[20%] px-4 py-3 font-semibold">Evidence</th>
-              <th className="w-[10%] px-4 py-3 font-semibold">Confidence</th>
-              <th className="w-[9%] px-4 py-3 font-semibold">Status</th>
+              <th className="w-[20%] px-4 py-3 font-semibold">Article / Source</th>
+              <th className="w-[13%] px-4 py-3 font-semibold">Fact Type</th>
+              <th className="w-[20%] px-4 py-3 font-semibold">Candidate Value</th>
+              <th className="w-[22%] px-4 py-3 font-semibold">Evidence</th>
+              <th className="w-[9%] px-4 py-3 font-semibold">Confidence</th>
+              <th className="w-[8%] px-4 py-3 font-semibold">Status</th>
               <th className="w-[8%] px-4 py-3 font-semibold">Reviewed</th>
             </tr>
           </thead>
@@ -546,7 +546,7 @@ export default function ArticleFactCandidatesClient({
                     ) : null}
                   </td>
                   <td className={cellClassName}>
-                    <div className="font-semibold text-[var(--tge-text-primary)]">
+                    <div className="text-base font-bold leading-6 text-[var(--tge-text-primary)]">
                       {valuePreview(candidate)}
                     </div>
                     {candidate.fact_reason ? (
@@ -566,7 +566,7 @@ export default function ArticleFactCandidatesClient({
                     ) : null}
                   </td>
                   <td className={cellClassName}>
-                    <div className="text-xl font-bold text-[var(--tge-text-primary)]">
+                    <div className="text-lg font-bold text-[var(--tge-text-primary)]">
                       {formatConfidence(candidate.confidence_score)}
                     </div>
                     <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
