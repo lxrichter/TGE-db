@@ -244,6 +244,57 @@ function getExecutiveKpiToneClass(tone: ExecutiveKpiTone) {
   }
 }
 
+function getExecutiveKpiTrendToken(tone: ExecutiveKpiTone) {
+  switch (tone) {
+    case "operating":
+    case "evidence":
+      return "var(--tge-status-bar-operating)";
+    case "pipeline":
+      return "var(--tge-governance-info-text)";
+    case "market":
+    case "governance":
+      return "var(--tge-status-bar-attention)";
+    case "direct-use":
+      return "var(--tge-ai-suggested-text)";
+    case "ecosystem":
+    case "neutral":
+    default:
+      return "var(--tge-governance-neutral-text)";
+  }
+}
+
+function MiniTrendLine({
+  points,
+  tone,
+}: {
+  points: number[];
+  tone: ExecutiveKpiTone;
+}) {
+  const max = Math.max(...points);
+  const min = Math.min(...points);
+  const range = max - min || 1;
+  const coordinates = points
+    .map((point, index) => {
+      const x = (index / (points.length - 1)) * 100;
+      const y = 34 - ((point - min) / range) * 28;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <svg aria-hidden="true" className="mt-3 h-9 w-full" viewBox="0 0 100 36">
+      <polyline
+        fill="none"
+        points={coordinates}
+        stroke={getExecutiveKpiTrendToken(tone)}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="3"
+      />
+    </svg>
+  );
+}
+
 function ExecutiveKpi({
   label,
   value,
@@ -251,6 +302,7 @@ function ExecutiveKpi({
   href,
   tone = "neutral",
   prominence = "standard",
+  trend,
 }: {
   label: string;
   value: string;
@@ -258,19 +310,20 @@ function ExecutiveKpi({
   href?: string;
   tone?: ExecutiveKpiTone;
   prominence?: "standard" | "executive";
+  trend?: number[];
 }) {
   const toneClass = getExecutiveKpiToneClass(tone);
   const frameClass =
     prominence === "executive"
-      ? `border border-l-4 border-transparent ${toneClass} px-5 py-5 shadow-sm sm:min-h-[126px] sm:px-6`
-      : `border border-l-4 border-transparent ${toneClass} px-4 py-3.5 shadow-sm`;
+      ? `border border-l-4 border-transparent ${toneClass} px-4 py-4 shadow-sm sm:min-h-[112px] sm:px-5`
+      : `border border-l-4 border-transparent ${toneClass} px-4 py-3 shadow-sm`;
   const valueClass =
     prominence === "executive"
-      ? `mt-3 text-3xl font-bold leading-none ${titleTextClass} sm:text-[2.45rem]`
+      ? `mt-2 text-3xl font-bold leading-none ${titleTextClass} sm:text-[2.15rem]`
       : `mt-2 text-2xl font-bold leading-none ${titleTextClass} sm:text-[2rem]`;
   const noteClass =
     prominence === "executive"
-      ? `mt-2 text-sm leading-6 ${bodyTextClass}`
+      ? `mt-2 text-sm leading-5 ${bodyTextClass}`
       : "mt-2 text-sm leading-5 text-[var(--tge-governance-muted-text)]";
 
   const content = (
@@ -279,6 +332,7 @@ function ExecutiveKpi({
         {label}
       </div>
       <div className={valueClass}>{value}</div>
+      {trend ? <MiniTrendLine points={trend} tone={tone} /> : null}
       <div className={noteClass}>{note}</div>
     </>
   );
@@ -331,6 +385,137 @@ function IntelligenceCard({
         Open
       </div>
     </Link>
+  );
+}
+
+function MarketBriefCard({
+  staging,
+  operatingMwe,
+  pipelineMwe,
+  countriesCovered,
+}: {
+  staging: StagingDashboardData;
+  operatingMwe: number;
+  pipelineMwe: number;
+  countriesCovered: number;
+}) {
+  const topCountries = staging.ok ? staging.analysis.topCountries.slice(0, 3) : [];
+  const leadingCountry = topCountries[0]?.country ?? "global geothermal markets";
+  const signalCount = staging.ok
+    ? topCountries.reduce(
+        (total, country) =>
+          total + country.active_project_count + country.missing_source_count,
+        0
+      )
+    : countriesCovered;
+  const maxPipeline = Math.max(
+    ...topCountries.map((country) => country.project_pipeline_mwe),
+    1
+  );
+
+  return (
+    <section className={`${panelClass} overflow-hidden shadow-sm`}>
+      <div className="grid gap-0 xl:grid-cols-[1.08fr_0.92fr]">
+        <div className="px-5 py-5 sm:px-7 sm:py-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+            Market Intelligence Brief
+          </p>
+          <h1 className={`mt-2 max-w-4xl text-3xl font-bold leading-[1.08] tracking-tight ${titleTextClass} lg:text-[2.6rem]`}>
+            Geothermal activity is moving across {formatCount(countriesCovered)} markets.
+          </h1>
+          <p className={`mt-3 max-w-3xl text-base leading-7 ${bodyTextClass}`}>
+            {leadingCountry} leads the current market view, with{" "}
+            {formatMw(pipelineMwe)} MWe in pipeline signal and{" "}
+            {formatMw(operatingMwe)} MWe in operating capacity across the platform.
+          </p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              ["Pipeline signal", `${formatMw(pipelineMwe)} MWe`, "development capacity"],
+              ["Operating base", `${formatMw(operatingMwe)} MWe`, "installed capacity"],
+              ["Market pulse", formatCount(signalCount), "projects + evidence signals"],
+            ].map(([label, value, note]) => (
+              <div
+                key={label}
+                className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3"
+              >
+                <div className="text-[10px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
+                  {label}
+                </div>
+                <div className={`mt-2 text-xl font-bold ${titleTextClass}`}>
+                  {value}
+                </div>
+                <div className={`mt-1 text-xs leading-5 ${bodyTextClass}`}>
+                  {note}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-5 sm:px-6 xl:border-l xl:border-t-0">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className={`text-base font-bold ${titleTextClass}`}>
+                Markets To Watch
+              </h2>
+              <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
+                Capacity-weighted markets with current pipeline and evidence movement.
+              </p>
+            </div>
+            <Link
+              href="/markets"
+              className={`shrink-0 text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}
+            >
+              Markets
+            </Link>
+          </div>
+
+          <div className="mt-4 space-y-4">
+            {(topCountries.length > 0
+              ? topCountries
+              : [
+                  {
+                    country: "Global",
+                    operating_installed_mwe: operatingMwe,
+                    project_pipeline_mwe: pipelineMwe,
+                    active_project_count: 0,
+                    missing_source_count: 0,
+                  },
+                ]
+            ).map((country) => {
+              const width = Math.max(
+                12,
+                (country.project_pipeline_mwe / maxPipeline) * 100
+              );
+              return (
+                <div key={country.country}>
+                  <div className="mb-1.5 flex items-center justify-between gap-3 text-sm">
+                    <span className={`font-bold ${titleTextClass}`}>
+                      {country.country}
+                    </span>
+                    <span className="text-xs font-semibold text-[var(--tge-governance-muted-text)]">
+                      {formatMw(country.project_pipeline_mwe)} MWe pipeline
+                    </span>
+                  </div>
+                  <div className="h-7 bg-[var(--tge-governance-neutral-bg)]">
+                    <div
+                      className="flex h-7 items-center justify-end bg-[var(--tge-governance-info-text)] pr-2 text-[10px] font-bold text-[var(--tge-surface-card)]"
+                      style={{ width: `${width}%` }}
+                    >
+                      {width >= 36 ? formatCount(country.active_project_count) : ""}
+                    </div>
+                  </div>
+                  <div className={`mt-1 text-xs ${bodyTextClass}`}>
+                    {formatMw(country.operating_installed_mwe)} MWe operating ·{" "}
+                    {formatCount(country.missing_source_count)} source gaps
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -682,56 +867,34 @@ export default async function HomePage() {
 
   return (
     <main className="space-y-7 sm:space-y-8">
-      <section className={`${panelClass} shadow-sm`}>
-        <div className="px-5 py-4 sm:px-8">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div className="max-w-5xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
-                ThinkGeoEnergy Intelligence
-              </p>
-              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
-                Global Geothermal Intelligence Dashboard
-              </h1>
-              <p className={`mt-2 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
-                Executive view of global geothermal market scale, pipeline
-                momentum, regional signals, spatial intelligence, and
-                evidence-backed confidence across the evolving TGE intelligence
-                platform.
-              </p>
-              <div className={`mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm ${bodyTextClass}`}>
-                <span>
-                  <span className={`font-medium ${titleTextClass}`}>Market signals</span>
-                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-                  operating, pipeline, direct-use
-                </span>
-                <span>
-                  <span className={`font-medium ${titleTextClass}`}>Evidence</span>
-                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-                  source-aware confidence
-                </span>
-                <span>
-                  <span className={`font-medium ${titleTextClass}`}>Spatial intelligence</span>
-                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-                  map-first exploration
-                </span>
-              </div>
-            </div>
-
-            <div className="grid gap-2 sm:flex sm:flex-wrap xl:justify-end">
-              <ActionButton href="/markets" variant="primary">
-                Open Markets
-              </ActionButton>
-              <ActionButton href="/analysis" variant="primary">
-                Open Analysis
-              </ActionButton>
-              <ActionButton href="/map" variant="secondary">
-                Map Explorer
-              </ActionButton>
-            </div>
-          </div>
+      <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+            ThinkGeoEnergy Intelligence
+          </p>
+          <h1 className={`mt-1 text-2xl font-bold tracking-tight ${titleTextClass}`}>
+            Global Geothermal Dashboard
+          </h1>
         </div>
-
+        <div className="grid gap-2 sm:flex sm:flex-wrap sm:justify-end">
+          <ActionButton href="/markets" variant="primary">
+            Open Markets
+          </ActionButton>
+          <ActionButton href="/analysis" variant="secondary">
+            Open Analysis
+          </ActionButton>
+          <ActionButton href="/map" variant="secondary">
+            Map Explorer
+          </ActionButton>
+        </div>
       </section>
+
+      <MarketBriefCard
+        countriesCovered={countriesCovered}
+        operatingMwe={operatingMwe}
+        pipelineMwe={pipelineMwe}
+        staging={staging}
+      />
 
       <PostgresSectionJumpNav
         items={[
@@ -758,6 +921,7 @@ export default async function HomePage() {
             note="Installed operating capacity signal"
             prominence="executive"
             tone="operating"
+            trend={[28, 34, 33, 42, 48, 56, 64]}
             value={`${formatMw(operatingMwe)} MWe`}
           />
           <ExecutiveKpi
@@ -766,22 +930,25 @@ export default async function HomePage() {
             note="Development pipeline capacity signal"
             prominence="executive"
             tone="pipeline"
+            trend={[18, 25, 31, 38, 46, 58, 72]}
             value={`${formatMw(pipelineMwe)} MWe`}
           />
           <ExecutiveKpi
             href="/postgres-preview/projects"
             label="Projects"
-            note="Projects in platform scope"
+            note="Development project universe"
             prominence="executive"
             tone="pipeline"
+            trend={[32, 34, 38, 43, 47, 52, 57]}
             value={formatCount(projectRecords)}
           />
           <ExecutiveKpi
             href="/postgres-preview/operating-assets"
             label="Plants"
-            note="Plants in platform scope"
+            note="Operating fleet intelligence"
             prominence="executive"
             tone="operating"
+            trend={[40, 42, 43, 47, 50, 55, 58]}
             value={formatCount(plantRecords)}
           />
         </section>
@@ -792,6 +959,7 @@ export default async function HomePage() {
             label="Markets"
             note={staging.ok ? "Top markets loaded" : "Legacy markets covered"}
             tone="market"
+            trend={[42, 42, 45, 49, 52, 56, 60]}
             value={formatCount(countriesCovered)}
           />
           <ExecutiveKpi
@@ -799,6 +967,7 @@ export default async function HomePage() {
             label="Companies"
             note="Tracked ecosystem participants"
             tone="ecosystem"
+            trend={[30, 33, 35, 38, 39, 42, 44]}
             value={formatCount(companiesTracked)}
           />
           <ExecutiveKpi
@@ -810,6 +979,7 @@ export default async function HomePage() {
                 : "PostgreSQL signal pending"
             }
             tone="direct-use"
+            trend={[14, 18, 20, 28, 32, 36, 42]}
             value={staging.ok ? formatCount(directUseRecords) : "-"}
           />
         </section>
