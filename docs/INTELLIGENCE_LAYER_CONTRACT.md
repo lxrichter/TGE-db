@@ -20,21 +20,25 @@ Purpose: executive intelligence front door.
 Primary questions:
 
 - What is the global geothermal picture?
-- What changed or needs attention?
+- What is the current market structure and where is activity concentrated?
 - Where should a subscriber or executive drill down next?
 
 Design behavior:
 
 - strongest executive overview
-- high-level KPIs and market pulse
+- one compact executive KPI strip
+- market structure, regional concentration, and pipeline composition
 - concise, not queue-heavy
+- recent developments limited to one small supporting intelligence section
 - operational governance visible only as compact pulse signals
 - clear drilldowns into Markets, Analysis, Map, and selected operational layers
 
 Avoid:
 
 - turning Dashboard into Research Ops
+- turning Dashboard into a news feed or alert center
 - showing every blocker or internal governance table
+- using multiple KPI rows or decorative KPI micro-charts
 - overloading with too many equal-weight widgets
 
 ### Markets

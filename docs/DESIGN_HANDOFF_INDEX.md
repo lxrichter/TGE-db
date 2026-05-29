@@ -38,6 +38,7 @@ consistent while final design values change.
 
 ### 4. Core Product Layers
 
+- `docs/PRIMARY_WORKSPACE_INFORMATION_ARCHITECTURE.md`
 - `docs/INTELLIGENCE_LAYER_CONTRACT.md`
 - `docs/TABLE_LIST_VIEW_CONTRACT.md`
 - `docs/EVIDENCE_GOVERNANCE_CONTRACT.md`
