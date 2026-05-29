@@ -222,15 +222,15 @@ export const analysisGovernanceCleanupRoutes: Record<
   },
   projects: {
     label: "Project Records",
-    href: "/projects",
+    href: "/postgres-preview/projects",
   },
   plants: {
     label: "Plant Records",
-    href: "/plants",
+    href: "/postgres-preview/operating-assets",
   },
   companies: {
-    label: "Company Links",
-    href: "/companies",
+    label: "Company Records",
+    href: "/postgres-preview/companies",
   },
 };
 
