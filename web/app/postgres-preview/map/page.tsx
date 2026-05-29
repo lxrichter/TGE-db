@@ -30,7 +30,7 @@ const mapClass = {
   panel:
     "border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]",
   hero:
-    "px-6 py-5 xl:px-8",
+    "px-6 py-4 xl:px-8",
   title: "text-[var(--tge-text-primary)]",
   body: "text-[var(--tge-text-secondary)]",
   muted: "text-[var(--tge-governance-muted-text)]",
@@ -228,7 +228,7 @@ export default async function PostgresPreviewMapPage({
               <h1 className={`text-2xl font-bold tracking-tight ${mapClass.title} xl:text-[2.2rem]`}>
                 Map Explorer
               </h1>
-              <p className={`mt-3 max-w-4xl text-base leading-7 ${mapClass.body}`}>
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${mapClass.body}`}>
                 Coordinate-confirmed geothermal projects and plants, with
                 filters kept secondary so the spatial intelligence layer remains
                 the primary surface.

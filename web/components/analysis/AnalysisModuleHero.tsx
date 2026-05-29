@@ -51,7 +51,7 @@ export function AnalysisModuleHero({
       </div>
 
       <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
-        <div className="px-6 py-5 xl:px-8">
+        <div className="px-6 py-4 xl:px-8">
           <div className="max-w-5xl">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
@@ -68,7 +68,7 @@ export function AnalysisModuleHero({
               {module.title}
             </h1>
 
-            <p className="mt-3 max-w-5xl text-base leading-7 text-[var(--tge-text-secondary)]">
+            <p className="mt-2 max-w-5xl text-base leading-7 text-[var(--tge-text-secondary)]">
               {loading ? "Loading analysis..." : module.description}
             </p>
           </div>

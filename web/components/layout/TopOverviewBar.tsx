@@ -26,8 +26,8 @@ export default function TopOverviewBar({
   actions?: Action[];
 }) {
   return (
-    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-6 py-5 xl:px-8">
-      <div className="flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
+    <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-6 py-4 xl:px-8">
+      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div className="max-w-5xl">
           {eyebrow ? (
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
@@ -40,7 +40,7 @@ export default function TopOverviewBar({
           </h1>
 
           {description ? (
-            <p className="mt-3 max-w-5xl text-sm leading-6 text-[var(--tge-text-secondary)] xl:text-base">
+            <p className="mt-2 max-w-5xl text-sm leading-6 text-[var(--tge-text-secondary)] xl:text-base">
               {description}
             </p>
           ) : null}

@@ -539,14 +539,14 @@ export default function GroupedMap({
 
   const mapHeightClass = isExpandedMap
     ? "h-[700px] min-h-[640px] w-full sm:h-[800px] xl:h-[calc(100vh-5rem)]"
-    : "h-[68vh] min-h-[620px] w-full sm:min-h-[720px] xl:h-[calc(100vh-15rem)]";
+    : "h-[74vh] min-h-[680px] w-full sm:min-h-[760px] xl:h-[calc(100vh-12rem)]";
   const filterPanelVisible = showFilterPanel;
   const filterPanelClass = isExpandedMap
     ? "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-6 sm:right-auto sm:top-6 sm:max-h-[calc(100%-3rem)] sm:w-[288px]"
     : "pointer-events-auto absolute left-4 right-4 top-16 max-h-[calc(100%-5rem)] overflow-y-auto border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] shadow-xl sm:left-5 sm:right-auto sm:top-5 sm:max-h-[calc(100%-2.5rem)] sm:w-[248px]";
 
   return (
-    <div className="relative overflow-hidden border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
+    <div className="relative overflow-hidden bg-[var(--tge-surface-card)]">
       <div ref={mapRef} className={mapHeightClass} />
 
       <div className="pointer-events-none absolute inset-0 z-[1000]">

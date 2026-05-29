@@ -154,7 +154,8 @@ function RegionOverview({ regions }: { regions: RegionSummary[] }) {
       <div className="divide-y divide-[var(--tge-governance-muted-border)]">
         {regions.slice(0, 7).map((region) => {
           const signal = region.operatingMwe + region.pipelineMwe;
-          const width = `${Math.max(8, (signal / maxSignal) * 100)}%`;
+          const widthValue = Math.max(8, (signal / maxSignal) * 100);
+          const width = `${widthValue}%`;
           const operatingShare =
             signal > 0 ? (region.operatingMwe / signal) * 100 : 0;
           const pipelineShare =
@@ -191,19 +192,24 @@ function RegionOverview({ regions }: { regions: RegionSummary[] }) {
                       pipeline
                     </span>
                   </div>
-                  <div className="mt-2 h-3 bg-[var(--tge-governance-neutral-bg)]">
+                  <div className="mt-2 h-5 bg-[var(--tge-governance-neutral-bg)]">
                     <div
-                      className="flex h-3 overflow-hidden"
+                      className="relative flex h-5 overflow-hidden"
                       style={{ width }}
                     >
                       <div
-                        className="h-3 bg-[var(--tge-status-bar-success)]"
+                        className="h-5 bg-[var(--tge-status-bar-success)]"
                         style={{ width: `${operatingShare}%` }}
                       />
                       <div
-                        className="h-3 bg-[var(--tge-governance-info-text)]"
+                        className="h-5 bg-[var(--tge-governance-info-text)]"
                         style={{ width: `${pipelineShare}%` }}
                       />
+                      {widthValue >= 46 ? (
+                        <span className="absolute inset-y-0 right-2 flex items-center text-[10px] font-bold text-[var(--tge-surface-card)]">
+                          {formatMw(signal)} MWe
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -328,8 +334,8 @@ export default async function MarketsPage() {
   return (
     <main className="space-y-8">
       <section className={panelClass}>
-        <div className="px-5 py-5 sm:px-8">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+        <div className="px-5 py-4 sm:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Markets
@@ -337,7 +343,7 @@ export default async function MarketsPage() {
               <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
                 Global Geothermal Market Intelligence
               </h1>
-              <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
+              <p className={`mt-2 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
                 Regional and country intelligence for geothermal operating
                 capacity, project pipeline, evidence coverage, source gaps, and
                 future market report drilldowns.

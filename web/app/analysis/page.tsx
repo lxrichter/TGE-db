@@ -385,8 +385,8 @@ export default function AnalysisPage() {
   return (
     <main className="space-y-6">
       <section className={panelClass}>
-        <div className="px-6 py-5">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+        <div className="px-6 py-4">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Analysis
@@ -394,7 +394,7 @@ export default function AnalysisPage() {
               <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
                 Modular Geothermal Intelligence Analysis
               </h1>
-              <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
+              <p className={`mt-2 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
                 Derived intelligence views built from plants, projects,
                 companies, relationships, and country taxonomy. Analysis pages
                 should behave like reusable intelligence products: methodology

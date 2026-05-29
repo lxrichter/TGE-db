@@ -461,6 +461,10 @@ function BucketOverview({
                 postgresStatusTone(bucket.bucket_code, "lifecycle")
               )
             : "bg-[var(--tge-status-bar-success)]";
+          const barWidth = Math.max(
+            8,
+            (bucket.record_count / maxCount) * 100
+          );
 
           return (
             <div key={bucket.bucket_code}>
@@ -472,16 +476,19 @@ function BucketOverview({
                   {formatCount(bucket.record_count)} items
                 </span>
               </div>
-              <div className="mt-1.5 h-3 bg-[var(--tge-governance-neutral-bg)]">
+              <div className="mt-1.5 h-5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
                 <div
-                  className={`h-3 ${barClass}`}
+                  className={`flex h-5 items-center justify-end pr-2 ${barClass}`}
                   style={{
-                    width: `${Math.max(
-                      8,
-                      (bucket.record_count / maxCount) * 100
-                    )}%`,
+                    width: `${barWidth}%`,
                   }}
-                />
+                >
+                  {barWidth >= 34 ? (
+                    <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
+                      {formatCount(bucket.record_count)}
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </div>
           );
@@ -676,8 +683,8 @@ export default async function HomePage() {
   return (
     <main className="space-y-7 sm:space-y-8">
       <section className={`${panelClass} shadow-sm`}>
-        <div className="px-5 py-5 sm:px-8">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+        <div className="px-5 py-4 sm:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-5xl">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 ThinkGeoEnergy Intelligence
@@ -685,12 +692,29 @@ export default async function HomePage() {
               <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
                 Global Geothermal Intelligence Dashboard
               </h1>
-              <p className={`mt-3 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
+              <p className={`mt-2 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
                 Executive view of global geothermal market scale, pipeline
                 momentum, regional signals, spatial intelligence, and
                 evidence-backed confidence across the evolving TGE intelligence
                 platform.
               </p>
+              <div className={`mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm ${bodyTextClass}`}>
+                <span>
+                  <span className={`font-medium ${titleTextClass}`}>Market signals</span>
+                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
+                  operating, pipeline, direct-use
+                </span>
+                <span>
+                  <span className={`font-medium ${titleTextClass}`}>Evidence</span>
+                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
+                  source-aware confidence
+                </span>
+                <span>
+                  <span className={`font-medium ${titleTextClass}`}>Spatial intelligence</span>
+                  <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
+                  map-first exploration
+                </span>
+              </div>
             </div>
 
             <div className="grid gap-2 sm:flex sm:flex-wrap xl:justify-end">
@@ -707,28 +731,6 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-4 sm:px-8">
-          <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm ${bodyTextClass}`}>
-            <span className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
-              Dashboard Scope
-            </span>
-            <span>
-              <span className={`font-medium ${titleTextClass}`}>Market signals</span>
-              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-              operating, pipeline, direct-use
-            </span>
-            <span>
-              <span className={`font-medium ${titleTextClass}`}>Evidence</span>
-              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-              source-aware governance
-            </span>
-            <span>
-              <span className={`font-medium ${titleTextClass}`}>Spatial intelligence</span>
-              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-              map-first exploration
-            </span>
-          </div>
-        </div>
       </section>
 
       <PostgresSectionJumpNav

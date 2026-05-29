@@ -11,7 +11,7 @@ export default function PageChapterHeader({
 }: PageChapterHeaderProps) {
   return (
     <section className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]">
-      <div className="px-6 py-5 xl:px-8">
+      <div className="px-6 py-4 xl:px-8">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green)]">
           {eyebrow}
         </p>
@@ -21,7 +21,7 @@ export default function PageChapterHeader({
         </h1>
 
         {description ? (
-          <p className="mt-3 max-w-5xl text-sm leading-6 text-[var(--tge-text-secondary)] xl:text-base xl:leading-7">
+          <p className="mt-2 max-w-5xl text-sm leading-6 text-[var(--tge-text-secondary)] xl:text-base xl:leading-7">
             {description}
           </p>
         ) : null}
