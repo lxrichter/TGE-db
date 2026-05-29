@@ -123,9 +123,9 @@ const sourceTitleClass = "font-bold text-[var(--tge-text-primary)]";
 const sourceMutedTextClass = "text-[var(--tge-governance-muted-text)]";
 const sourceBodyTextClass = "text-[var(--tge-text-secondary)]";
 const sourcePrimaryButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
 const sourceSecondaryButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
 const sourceInputClass =
   "h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
 
@@ -139,12 +139,12 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className={`${sourceCardClass} px-4 py-4`}>
+    <div>
       <div className={sourceEyebrowClass}>{label}</div>
-      <div className={`mt-2 text-3xl leading-none ${sourceTitleClass}`}>
+      <div className={`mt-0.5 text-xl leading-none ${sourceTitleClass}`}>
         {value}
       </div>
-      <div className={`mt-2 text-xs leading-5 ${sourceMutedTextClass}`}>
+      <div className={`mt-1 text-xs leading-5 ${sourceMutedTextClass}`}>
         {note}
       </div>
     </div>
@@ -546,7 +546,7 @@ function SourcesTable({
   return (
     <section className={sourceCardClass}>
       <div className="flex flex-col gap-2 border-b border-[var(--tge-governance-neutral-border)] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className={`text-lg ${sourceTitleClass}`}>Governed Sources</h2>
+        <h2 className={`text-lg ${sourceTitleClass}`}>Source Records</h2>
         <span className={`text-xs font-semibold uppercase tracking-wide ${sourceMutedTextClass}`}>
           Showing {formatCount(sources.length)} of {formatCount(total)} matching
         </span>
@@ -623,13 +623,13 @@ function SourcesTable({
         <table className="min-w-[1080px] table-fixed text-left text-sm">
           <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
-              <th className="w-[28%] px-5 py-3 font-semibold">Source</th>
-              <th className="w-[14%] px-5 py-3 font-semibold">Type</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Visibility</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Status</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Country</th>
-              <th className="w-[10%] px-5 py-3 font-semibold">Links</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Updated</th>
+              <th className="w-[30%] px-4 py-2.5 font-semibold">Source</th>
+              <th className="w-[14%] px-4 py-2.5 font-semibold">Type</th>
+              <th className="w-[12%] px-4 py-2.5 font-semibold">Visibility</th>
+              <th className="w-[12%] px-4 py-2.5 font-semibold">Status</th>
+              <th className="w-[12%] px-4 py-2.5 font-semibold">Country</th>
+              <th className="w-[8%] px-4 py-2.5 font-semibold">Links</th>
+              <th className="w-[12%] px-4 py-2.5 font-semibold">Updated</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
@@ -638,7 +638,7 @@ function SourcesTable({
                 key={source.source_id}
                 className="align-top hover:bg-[var(--tge-surface-subtle)]"
               >
-                <td className="px-5 py-4">
+                <td className="px-4 py-3">
                   <Link
                     href={`/sources/${source.source_id}`}
                     className="font-semibold text-[var(--tge-text-primary)] hover:text-[var(--tge-brand-green-dark)] hover:underline"
@@ -649,17 +649,17 @@ function SourcesTable({
                     {source.url || source.source_reference || "No URL or reference added"}
                   </div>
                 </td>
-                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {source.source_type_label || source.source_type_code}
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-4 py-3">
                   <PostgresStatusBadge
                     domain="visibility"
                     label={source.visibility_label || source.visibility_code}
                     value={source.visibility_code}
                   />
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-4 py-3">
                   <PostgresStatusBadge
                     domain="source"
                     label={
@@ -674,13 +674,13 @@ function SourcesTable({
                     </div>
                   ) : null}
                 </td>
-                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {source.country || "-"}
                 </td>
-                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
+                <td className="px-4 py-3 font-semibold text-[var(--tge-text-primary)]">
                   {formatCount(source.linked_entity_count)}
                 </td>
-                <td className="px-5 py-4 text-[var(--tge-governance-neutral-text)]">
+                <td className="px-4 py-3 text-[var(--tge-governance-neutral-text)]">
                   {formatDate(source.updated_at)}
                   <div className={`mt-1 text-xs ${sourceMutedTextClass}`}>
                     by {source.reviewed_by_name || source.added_by_name || "unknown"}
@@ -738,24 +738,24 @@ export default async function SourcesPage({
     : 0;
 
   return (
-    <main className="space-y-6 sm:space-y-8">
+    <main className="space-y-7">
       <section className={sourceCardClass}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
-            Sources / Documents
-          </p>
-          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] sm:text-4xl">
-                Evidence Backbone
+        <div className="px-6 py-4 xl:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="max-w-4xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+                Evidence
+              </p>
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${sourceTitleClass} xl:text-[2.2rem]`}>
+                Sources & Documents
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)] sm:mt-4 sm:text-base sm:leading-7">
-                Governed sources, evidence links, credibility, and visibility
-                controls. This page is the working surface for validation and
-                future AI-ready source management.
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${sourceBodyTextClass}`}>
+                Evidence governance for source records, credibility, visibility,
+                article matches, structured fact candidates, and record-level
+                evidence links.
               </p>
             </div>
-            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
+            <div className="flex flex-wrap gap-3 xl:justify-end">
               <Link
                 className={sourceSecondaryButtonClass}
                 href="/sources/facts"
@@ -769,7 +769,7 @@ export default async function SourcesPage({
                 Review Article Matches
               </Link>
               <Link
-                className={sourceSecondaryButtonClass}
+                className={sourcePrimaryButtonClass}
                 href="/sources/new"
               >
                 Add Source
@@ -777,6 +777,53 @@ export default async function SourcesPage({
             </div>
           </div>
         </div>
+
+        {data.ok ? (
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4 xl:grid-cols-8">
+              <StatTile
+                label="Sources"
+                value={formatCount(data.summary.total)}
+                note="Matching selected view"
+              />
+              <StatTile
+                label="Credible"
+                value={formatCount(data.summary.credible)}
+                note="Reviewed sources"
+              />
+              <StatTile
+                label="TGE Articles"
+                value={formatCount(data.summary.tgeArticles)}
+                note="Article archive"
+              />
+              <StatTile
+                label="Needs Review"
+                value={formatCount(data.summary.needsReview)}
+                note="Credibility queue"
+              />
+              <StatTile
+                label="Unlinked"
+                value={formatCount(data.summary.unlinkedSources)}
+                note="Need evidence links"
+              />
+              <StatTile
+                label="Evidence Links"
+                value={formatCount(data.summary.linkedEvidence)}
+                note="Confirmed links"
+              />
+              <StatTile
+                label="Open Matches"
+                value={formatCount(data.matchSummary.open)}
+                note="Entity candidates"
+              />
+              <StatTile
+                label="Open Facts"
+                value={formatCount(data.articleFactSummary.open)}
+                note="Fact candidates"
+              />
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {!data.ok ? (
@@ -811,50 +858,42 @@ export default async function SourcesPage({
               tone="core"
             />
 
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-              <StatTile
-                label="Total Sources"
-                value={formatCount(data.summary.total)}
-                note="Sources matching filters"
-              />
-              <StatTile
-                label="Credible"
-                value={formatCount(data.summary.credible)}
-                note="Reviewed governed sources"
-              />
-              <StatTile
-                label="TGE Articles"
-                value={formatCount(data.summary.tgeArticles)}
-                note="Historical article metadata"
-              />
-              <StatTile
-                label="Needs Review"
-                value={formatCount(data.summary.needsReview)}
-                note="Credibility work queue"
-              />
-              <StatTile
-                label="Unlinked Sources"
-                value={formatCount(data.summary.unlinkedSources)}
-                note="No confirmed entity links"
-              />
-              <StatTile
-                label="Linked Evidence"
-                value={formatCount(data.summary.linkedEvidence)}
-                note="Project/plant/company links"
-              />
-              <StatTile
-                label="Open Matches"
-                value={formatCount(data.matchSummary.open)}
-                note="Article/entity candidates"
-              />
-              <StatTile
-                label="Open Facts"
-                value={formatCount(data.articleFactSummary.open)}
-                note="Extracted fact candidates"
-              />
+            <section className={sourceCardClass}>
+              <div className="grid gap-3 px-5 py-4 md:grid-cols-2 xl:grid-cols-4">
+                <OperationCard
+                  label="Source Review"
+                  value={formatCount(data.summary.needsReview)}
+                  note="Sources marked needs review"
+                  href="/sources?status=needs_review"
+                  tone={data.summary.needsReview > 0 ? "attention" : "success"}
+                />
+                <OperationCard
+                  label="Unlinked Sources"
+                  value={formatCount(data.summary.unlinkedSources)}
+                  note="Need evidence links or archive-only classification"
+                  href="/sources?linkState=unlinked"
+                  tone={
+                    data.summary.unlinkedSources > 0 ? "attention" : "success"
+                  }
+                />
+                <OperationCard
+                  label="Match Review"
+                  value={formatCount(data.matchSummary.open)}
+                  note="Confirm matches to create evidence links"
+                  href="/sources/matches"
+                  tone={data.matchSummary.open > 0 ? "attention" : "success"}
+                />
+                <OperationCard
+                  label="Fact Review"
+                  value={formatCount(data.articleFactSummary.open)}
+                  note="Confirm extracted facts before field suggestions"
+                  href="/sources/facts"
+                  tone={
+                    data.articleFactSummary.open > 0 ? "attention" : "success"
+                  }
+                />
+              </div>
             </section>
-
-            <WorkflowStrip />
           </section>
 
           <section id="source-queues" className="space-y-5 scroll-mt-24">
@@ -874,49 +913,15 @@ export default async function SourcesPage({
               <div className="space-y-3">
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                   <OperationCard
-                    label="Source Review"
-                    value={formatCount(data.summary.needsReview)}
-                    note="Sources marked needs review"
-                    href="/sources?status=needs_review"
-                    tone={data.summary.needsReview > 0 ? "attention" : "success"}
-                  />
-                  <OperationCard
-                    label="Unlinked Sources"
-                    value={formatCount(data.summary.unlinkedSources)}
-                    note="Need evidence links or archive-only classification"
-                    href="/sources?linkState=unlinked"
-                    tone={
-                      data.summary.unlinkedSources > 0 ? "attention" : "success"
-                    }
-                  />
-                  <OperationCard
-                    label="Match Review"
-                    value={formatCount(data.matchSummary.open)}
-                    note="Confirm matches to create evidence links"
-                    href="/sources/matches"
-                    tone={data.matchSummary.open > 0 ? "attention" : "success"}
-                  />
-                  <OperationCard
-                    label="Fact Review"
-                    value={formatCount(data.articleFactSummary.open)}
-                    note="Confirm extracted facts before field suggestions"
-                    href="/sources/facts"
-                    tone={
-                      data.articleFactSummary.open > 0 ? "attention" : "success"
-                    }
-                  />
-                  <OperationCard
                     label="Restricted Sources"
                     value={formatCount(data.summary.restrictedVisibility)}
                     note="Internal or confidential visibility"
                     tone={
                       data.summary.restrictedVisibility > 0
                         ? "attention"
-                        : "neutral"
+                      : "neutral"
                     }
                   />
-                </div>
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <OperationCard
                     label="Article Archive"
                     value={formatCount(data.summary.tgeArticles)}
@@ -951,6 +956,8 @@ export default async function SourcesPage({
                 </div>
               </div>
             </DisclosureSection>
+
+            <WorkflowStrip />
           </section>
 
           <section id="source-workbench" className="space-y-5 scroll-mt-24">
