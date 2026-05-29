@@ -271,13 +271,13 @@ function StatusTile({
 
   return (
     <div
-      className={`border border-l-4 border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-4 ${accents[tone]}`}
+      className={`border border-l-4 border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-3 ${accents[tone]}`}
     >
       <div className={sourceDetailEyebrowClass}>{label}</div>
-      <div className={`mt-2 text-2xl leading-none ${sourceDetailTitleClass}`}>
+      <div className={`mt-1 text-xl leading-none ${sourceDetailTitleClass}`}>
         {value}
       </div>
-      <div className={`mt-2 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
+      <div className={`mt-1 text-xs leading-5 ${sourceDetailMutedTextClass}`}>
         {note}
       </div>
     </div>
@@ -1050,27 +1050,26 @@ export default async function SourceDetailPage({
   ];
 
   return (
-    <main className="space-y-8">
+    <main className="space-y-7">
       <section className={sourceDetailCardClass}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-8 py-8">
+        <div className="px-6 py-4 xl:px-8">
           <Link
             href="/sources"
             className={sourceDetailLinkClass}
           >
             Back to Sources / Documents
           </Link>
-          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+          <div className="mt-4 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="max-w-5xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
                 Source Profile
               </p>
-              <h1 className="mt-3 max-w-5xl text-4xl font-bold tracking-tight text-[var(--tge-text-primary)]">
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${sourceDetailTitleClass} xl:text-[2.2rem]`}>
                 {sourceTitle}
               </h1>
-              <p className="mt-4 max-w-4xl text-base leading-7 text-[var(--tge-text-secondary)]">
-                Operational evidence workspace for source metadata, credibility
-                review, entity links, extracted fact candidates, and audited
-                field suggestions.
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${sourceDetailBodyTextClass}`}>
+                Evidence workspace for source credibility, confirmed entity
+                links, extracted fact candidates, and audited field suggestions.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -1096,14 +1095,52 @@ export default async function SourceDetailPage({
             </div>
           </div>
         </div>
+
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-2.5 xl:px-8">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
+            <StatusTile
+              label="Credibility"
+              value={
+                source.credibility_status_label ||
+                formatCode(source.credibility_status_code)
+              }
+              note={source.visibility_label || formatCode(source.visibility_code)}
+              tone={sourceStatusTone(source.credibility_status_code)}
+            />
+            <StatusTile
+              label="Evidence Links"
+              value={formatCount(source.linked_entity_count)}
+              note="Confirmed entity relationships"
+              tone={source.linked_entity_count > 0 ? "success" : "attention"}
+            />
+            <StatusTile
+              label="Review Work"
+              value={formatCount(openSourceMatchCount + openArticleFactCount)}
+              note={`${formatCount(openSourceMatchCount)} matches · ${formatCount(
+                openArticleFactCount
+              )} facts`}
+              tone={
+                openSourceMatchCount + openArticleFactCount > 0
+                  ? "attention"
+                  : "neutral"
+              }
+            />
+            <StatusTile
+              label="AI Suggestions"
+              value={formatCount(openFieldSuggestionCount)}
+              note="Reviewable field suggestions"
+              tone={openFieldSuggestionCount > 0 ? "attention" : "neutral"}
+            />
+          </div>
+        </div>
       </section>
 
       <PostgresSectionJumpNav
         items={[
           {
             href: "#source-triage",
-            label: "Triage",
-            note: "Readiness",
+            label: "Workbench",
+            note: "Supports",
           },
           {
             href: "#source-metadata",
@@ -1126,60 +1163,10 @@ export default async function SourceDetailPage({
       <section id="source-triage" className="space-y-5 scroll-mt-24">
         <DetailPriorityMarker
           label="Core"
-          title="Source Triage"
-          description="Credibility, visibility, links, open review work."
+          title="Source Workbench"
+          description="Next actions, confirmed evidence links, and open review work."
           tone="core"
         />
-
-        <SourceGovernanceDetails />
-
-        <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
-          <StatusTile
-            label="Credibility"
-            value={
-              <span className="text-xl">
-                {source.credibility_status_label ||
-                  formatCode(source.credibility_status_code)}
-              </span>
-            }
-            note="Current source review state"
-            tone={sourceStatusTone(source.credibility_status_code)}
-          />
-          <StatusTile
-            label="Visibility"
-            value={
-              <span className="text-xl">
-                {source.visibility_label || formatCode(source.visibility_code)}
-              </span>
-            }
-            note="Controls future export/subscriber exposure"
-            tone={visibilityStatusTone(source.visibility_code)}
-          />
-          <StatusTile
-            label="Evidence Links"
-            value={formatCount(source.linked_entity_count)}
-            note="Confirmed source-to-entity relationships"
-            tone={source.linked_entity_count > 0 ? "success" : "attention"}
-          />
-          <StatusTile
-            label="Open Matches"
-            value={formatCount(openSourceMatchCount)}
-            note="Article/entity candidates needing review"
-            tone={openSourceMatchCount > 0 ? "attention" : "neutral"}
-          />
-          <StatusTile
-            label="Open Facts"
-            value={formatCount(openArticleFactCount)}
-            note="Extracted fact candidates not finalized"
-            tone={openArticleFactCount > 0 ? "attention" : "neutral"}
-          />
-          <StatusTile
-            label="AI Suggestions"
-            value={formatCount(openFieldSuggestionCount)}
-            note="Reviewable field suggestions"
-            tone={openFieldSuggestionCount > 0 ? "attention" : "neutral"}
-          />
-        </section>
 
         <SourceActionHub
           canReviewSource={canReviewSource}
@@ -1389,6 +1376,8 @@ export default async function SourceDetailPage({
             />
           </div>
         ) : null}
+
+        <SourceGovernanceDetails />
 
         <Section
           id="source-review-metadata"
