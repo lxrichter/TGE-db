@@ -73,7 +73,19 @@ export const designReadinessPriorities: DesignReadinessPriority[] = [
     decisions: [
       "Confirm role-specific default landing pages",
       "Confirm primary navigation groups",
+      "Confirm transition path from grouped top navigation to future left sidebar / mobile drawer",
       "Decide which governance pages are hidden from subscribers",
+    ],
+  },
+  {
+    title: "Role And Visibility Model",
+    description:
+      "Make subscriber, researcher, editor, and administrator views intentionally different without fragmenting the shared platform language.",
+    decisions: [
+      "Confirm subscribers see intelligence pages without Research Ops, audit logs, or reviewer uncertainty",
+      "Confirm researchers see assigned work, entity editing, source linking, and queue actions first",
+      "Confirm editors see validation, approval, export readiness, and evidence governance first",
+      "Confirm administrators see users, vocabularies, platform health, readiness, and full routing",
     ],
   },
   {
