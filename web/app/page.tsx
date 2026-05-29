@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getDb } from "@/lib/db";
+import { getPrismaClient } from "@/lib/db/prisma";
 import { formatCount, formatMw } from "@/lib/format";
 import {
   getPostgresPreviewAnalysisSummary,
@@ -47,6 +48,12 @@ type StagingDashboardData =
       ok: false;
       error: string;
     };
+
+type DashboardTechnologyMixRow = {
+  label: string;
+  installedMwe: number;
+  color: string;
+};
 
 async function getLegacyDashboardStats(): Promise<LegacyDashboardStats> {
   const db = await getDb();
@@ -136,6 +143,78 @@ async function getLegacyDashboardStats(): Promise<LegacyDashboardStats> {
       (pendingProjectsRow?.count ?? 0) +
       (pendingCompaniesRow?.count ?? 0),
   };
+}
+
+function normalizeTechnologyBucket(raw: unknown) {
+  const text = String(raw ?? "").trim().toLowerCase();
+
+  if (text.includes("back pressure") || text.includes("backpressure")) {
+    return "Back Pressure";
+  }
+  if (text.includes("b-orc") || text === "orc" || text.includes("binary")) {
+    return "Binary / ORC";
+  }
+  if (
+    text.includes("single flash") ||
+    text.includes("double flash") ||
+    text.includes("triple flash") ||
+    text === "flash"
+  ) {
+    return "Flash";
+  }
+  if (text.includes("dry steam")) return "Dry Steam";
+
+  return "Other";
+}
+
+function getTechnologyColor(label: string) {
+  switch (label) {
+    case "Back Pressure":
+      return "var(--tge-chart-technology-back-pressure)";
+    case "Binary / ORC":
+      return "var(--tge-chart-technology-binary-orc)";
+    case "Flash":
+      return "var(--tge-chart-technology-flash)";
+    case "Dry Steam":
+      return "var(--tge-chart-technology-dry-steam)";
+    default:
+      return "var(--tge-chart-technology-other)";
+  }
+}
+
+async function getDashboardTechnologyMix(): Promise<DashboardTechnologyMixRow[]> {
+  try {
+    const prisma = getPrismaClient();
+    const rows = await prisma.$queryRawUnsafe<
+      Array<{ plant_technology: string | null; installed_mwe: number | bigint | string | null }>
+    >(`
+      SELECT
+        plant_technology,
+        COALESCE(SUM(electric_capacity_mwe), 0)::float8 AS installed_mwe
+      FROM operating_assets
+      WHERE electric_capacity_mwe IS NOT NULL
+      GROUP BY plant_technology
+    `);
+
+    const totals = new Map<string, number>();
+
+    rows.forEach((row) => {
+      const label = normalizeTechnologyBucket(row.plant_technology);
+      const value = Number(row.installed_mwe ?? 0);
+      totals.set(label, (totals.get(label) ?? 0) + (Number.isFinite(value) ? value : 0));
+    });
+
+    return Array.from(totals.entries())
+      .map(([label, installedMwe]) => ({
+        label,
+        installedMwe,
+        color: getTechnologyColor(label),
+      }))
+      .filter((row) => row.installedMwe > 0)
+      .sort((a, b) => b.installedMwe - a.installedMwe);
+  } catch {
+    return [];
+  }
 }
 
 async function getStagingDashboardData(): Promise<StagingDashboardData> {
@@ -465,7 +544,10 @@ function RegionalCapacityDistribution({
   countries: PostgresCountryMarketSummary[];
 }) {
   const rows = getRegionCapacityRows(countries);
-  const maxOperating = Math.max(...rows.map((row) => row.operatingMwe), 1);
+  const maxCapacity = Math.max(
+    ...rows.map((row) => Math.max(row.operatingMwe, row.pipelineMwe)),
+    1
+  );
 
   return (
     <section className={panelClass}>
@@ -475,7 +557,7 @@ function RegionalCapacityDistribution({
             Regional Capacity Distribution
           </h2>
           <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-            Operating capacity by TGE region.
+            Operating capacity and pipeline context by TGE region.
           </p>
         </div>
         <Link
@@ -488,25 +570,30 @@ function RegionalCapacityDistribution({
 
       <div className="space-y-3 px-5 py-4">
         {rows.map((row) => {
-          const width = Math.max(8, (row.operatingMwe / maxOperating) * 100);
+          const operatingWidth = Math.max(4, (row.operatingMwe / maxCapacity) * 100);
+          const pipelineWidth = Math.max(4, (row.pipelineMwe / maxCapacity) * 100);
           return (
             <div key={row.region}>
               <div className="flex items-center justify-between gap-4 text-sm">
                 <span className={`font-semibold ${titleTextClass}`}>{row.region}</span>
                 <span className="text-xs font-semibold text-[var(--tge-governance-muted-text)]">
-                  {formatMw(row.operatingMwe)} MWe
+                  {formatMw(row.operatingMwe)} MWe operating
                 </span>
               </div>
-              <div className="mt-1.5 h-6 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+              <div className="mt-1.5 h-4 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
                 <div
-                  className="flex h-6 items-center justify-end bg-[var(--tge-chart-ranking-installed-capacity)] pr-2 text-[10px] font-bold text-[var(--tge-surface-card)]"
-                  style={{ width: `${width}%` }}
-                >
-                  {width >= 34 ? `${formatCount(row.markets)} markets` : ""}
-                </div>
+                  className="h-4 bg-[var(--tge-chart-ranking-installed-capacity)]"
+                  style={{ width: `${operatingWidth}%` }}
+                />
+              </div>
+              <div className="mt-1 h-2 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+                <div
+                  className="h-2 bg-[var(--tge-chart-ranking-pipeline-capacity)]"
+                  style={{ width: `${pipelineWidth}%` }}
+                />
               </div>
               <div className={`mt-1 text-xs ${bodyTextClass}`}>
-                {formatMw(row.pipelineMwe)} MWe pipeline signal
+                {formatMw(row.pipelineMwe)} MWe pipeline · {formatCount(row.markets)} markets
               </div>
             </div>
           );
@@ -516,102 +603,36 @@ function RegionalCapacityDistribution({
   );
 }
 
-function BucketOverview({
-  title,
+function PipelineCompositionModule({
   buckets,
-  href,
-  useLifecycleColors = false,
-  measure = "count",
 }: {
-  title: string;
   buckets: PostgresPreviewAnalysisBucket[];
-  href: string;
-  useLifecycleColors?: boolean;
-  measure?: "count" | "electricCapacity";
 }) {
-  const visibleBuckets = buckets.slice(0, 5);
-  const getValue = (bucket: PostgresPreviewAnalysisBucket) =>
-    measure === "electricCapacity" ? bucket.electric_capacity_mwe : bucket.record_count;
-  const maxValue = Math.max(...visibleBuckets.map(getValue), 1);
+  const visibleBuckets = buckets.slice(0, 6);
+  const totalMwe = sumElectricCapacity(buckets);
+  const totalRecords = sumRecordCount(buckets);
+  const maxMwe = Math.max(...visibleBuckets.map((bucket) => bucket.electric_capacity_mwe), 1);
 
   return (
     <section className={panelClass}>
-      <div className={`flex items-center justify-between px-5 py-4 ${panelHeaderClass}`}>
-        <h2 className={`text-lg font-bold ${titleTextClass}`}>{title}</h2>
+      <div className={`flex items-center justify-between gap-4 px-5 py-4 ${panelHeaderClass}`}>
+        <div>
+          <h2 className={`text-lg font-bold ${titleTextClass}`}>Pipeline Composition</h2>
+          <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
+            Development capacity by lifecycle phase.
+          </p>
+        </div>
         <Link
-          href={href}
+          href="/postgres-preview/analysis#benchmark-views"
           className={`text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}
         >
           Analysis
         </Link>
       </div>
-      <div className="space-y-3 px-5 py-4">
-        {visibleBuckets.map((bucket) => {
-          const barColor = useLifecycleColors
-            ? lifecycleChartColor(bucket.bucket_code)
-            : "var(--tge-chart-ranking-installed-capacity)";
-          const value = getValue(bucket);
-          const barWidth = Math.max(
-            8,
-            (value / maxValue) * 100
-          );
-          const valueLabel =
-            measure === "electricCapacity"
-              ? `${formatMw(value)} MWe`
-              : `${formatCount(value)} items`;
 
-          return (
-            <div key={bucket.bucket_code}>
-              <div className="flex items-center justify-between gap-4 text-sm">
-                <span className={`font-semibold ${titleTextClass}`}>
-                  {formatBucketLabel(bucket.bucket_code)}
-                </span>
-                <span className="text-xs text-[var(--tge-governance-muted-text)]">
-                  {valueLabel}
-                </span>
-              </div>
-              <div className="mt-1.5 h-7 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
-                <div
-                  className="flex h-7 items-center justify-end pr-2"
-                  style={{
-                    backgroundColor: barColor,
-                    width: `${barWidth}%`,
-                  }}
-                >
-                  {barWidth >= 34 ? (
-                    <span className="text-[10px] font-bold text-[var(--tge-surface-card)]">
-                      {valueLabel}
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function PipelineLifecycleStack({
-  buckets,
-}: {
-  buckets: PostgresPreviewAnalysisBucket[];
-}) {
-  const totalMwe = sumElectricCapacity(buckets);
-  const totalRecords = sumRecordCount(buckets);
-
-  return (
-    <section className={panelClass}>
-      <div className={`px-5 py-4 ${panelHeaderClass}`}>
-        <h2 className={`text-lg font-bold ${titleTextClass}`}>Pipeline By Lifecycle</h2>
-        <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-          Phase mix by development capacity.
-        </p>
-      </div>
       <div className="px-5 py-4">
         <div className="flex h-9 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
-          {buckets.map((bucket) => {
+          {visibleBuckets.map((bucket) => {
             const width =
               totalMwe > 0 ? (bucket.electric_capacity_mwe / totalMwe) * 100 : 0;
             if (width <= 0) return null;
@@ -630,23 +651,40 @@ function PipelineLifecycleStack({
             );
           })}
         </div>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
-          {buckets.slice(0, 6).map((bucket) => (
-            <div key={bucket.bucket_code} className="flex items-center gap-2 text-xs">
-              <span
-                className="h-2.5 w-2.5 shrink-0"
-                style={{ backgroundColor: lifecycleChartColor(bucket.bucket_code) }}
-              />
-              <span className={`min-w-0 flex-1 truncate ${titleTextClass}`}>
-                {formatBucketLabel(bucket.bucket_code)}
-              </span>
-              <span className="font-semibold text-[var(--tge-governance-muted-text)]">
-                {formatMw(bucket.electric_capacity_mwe)} MWe
-              </span>
+
+        <div className="mt-4 space-y-3">
+        {visibleBuckets.map((bucket) => {
+          const barWidth = Math.max(
+            8,
+            (bucket.electric_capacity_mwe / maxMwe) * 100
+          );
+
+          return (
+            <div key={bucket.bucket_code}>
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className={`font-semibold ${titleTextClass}`}>
+                  {formatBucketLabel(bucket.bucket_code)}
+                </span>
+                <span className="text-xs text-[var(--tge-governance-muted-text)]">
+                  {formatMw(bucket.electric_capacity_mwe)} MWe ·{" "}
+                  {formatCount(bucket.record_count)} projects
+                </span>
+              </div>
+              <div className="mt-1.5 h-5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+                <div
+                  className="h-5"
+                  style={{
+                    backgroundColor: lifecycleChartColor(bucket.bucket_code),
+                    width: `${barWidth}%`,
+                  }}
+                />
+              </div>
             </div>
-          ))}
+          );
+        })}
         </div>
-        <div className={`mt-4 text-xs leading-5 ${bodyTextClass}`}>
+
+        <div className={`mt-4 border-t border-[var(--tge-governance-muted-border)] pt-3 text-xs leading-5 ${bodyTextClass}`}>
           {formatMw(totalMwe)} MWe across {formatCount(totalRecords)} pipeline records.
         </div>
       </div>
@@ -668,8 +706,8 @@ function KeyMarketInsight({
       : null;
 
   return (
-    <section className={panelClass}>
-      <div className={`px-5 py-4 ${panelHeaderClass}`}>
+    <section className="border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] shadow-sm">
+      <div className="border-b border-[var(--tge-governance-success-border)] px-5 py-4">
         <div>
           <h2 className={`text-lg font-bold ${titleTextClass}`}>
             Key Market Insight
@@ -680,12 +718,12 @@ function KeyMarketInsight({
         </div>
       </div>
 
-      <div className="grid gap-5 px-5 py-5 lg:grid-cols-[0.72fr_0.28fr] lg:items-center">
+      <div className="grid gap-5 px-5 py-6 lg:grid-cols-[0.72fr_0.28fr] lg:items-center">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)]">
             Pipeline concentration
           </div>
-          <h3 className={`mt-2 text-xl font-bold leading-7 ${titleTextClass}`}>
+          <h3 className={`mt-2 text-2xl font-bold leading-8 ${titleTextClass}`}>
             {leadingCountry
               ? `${leadingCountry.country} represents ${
                   pipelineShare ?? 0
@@ -703,6 +741,74 @@ function KeyMarketInsight({
         >
           View Analysis
         </Link>
+      </div>
+    </section>
+  );
+}
+
+function InstalledCapacityTechnologyMix({
+  rows,
+}: {
+  rows: DashboardTechnologyMixRow[];
+}) {
+  if (rows.length === 0) return null;
+
+  const totalMwe = rows.reduce((total, row) => total + row.installedMwe, 0);
+
+  return (
+    <section className={panelClass}>
+      <div className={`flex items-center justify-between gap-4 px-5 py-4 ${panelHeaderClass}`}>
+        <div>
+          <h2 className={`text-lg font-bold ${titleTextClass}`}>
+            Installed Capacity By Technology
+          </h2>
+          <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
+            Current operating fleet technology mix by installed MWe.
+          </p>
+        </div>
+        <Link
+          href="/analysis/turbine-technology"
+          className={`text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}
+        >
+          Technology
+        </Link>
+      </div>
+
+      <div className="px-5 py-4">
+        <div className="flex h-9 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+          {rows.map((row) => {
+            const width = totalMwe > 0 ? (row.installedMwe / totalMwe) * 100 : 0;
+            if (width <= 0) return null;
+            return (
+              <div
+                key={row.label}
+                className="h-9"
+                style={{ width: `${width}%`, backgroundColor: row.color }}
+                title={`${row.label}: ${formatMw(row.installedMwe)} MWe`}
+              />
+            );
+          })}
+        </div>
+
+        <div className="mt-4 space-y-2">
+          {rows.map((row) => {
+            const share = totalMwe > 0 ? Math.round((row.installedMwe / totalMwe) * 100) : 0;
+            return (
+              <div key={row.label} className="flex items-center gap-3 text-sm">
+                <span
+                  className="h-2.5 w-2.5 shrink-0"
+                  style={{ backgroundColor: row.color }}
+                />
+                <span className={`min-w-0 flex-1 font-semibold ${titleTextClass}`}>
+                  {row.label}
+                </span>
+                <span className="text-xs font-semibold text-[var(--tge-governance-muted-text)]">
+                  {formatMw(row.installedMwe)} MWe · {share}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -781,9 +887,10 @@ function OperationalPulse({
 }
 
 export default async function HomePage() {
-  const [legacy, staging] = await Promise.all([
+  const [legacy, staging, technologyMix] = await Promise.all([
     getLegacyDashboardStats(),
     getStagingDashboardData(),
+    getDashboardTechnologyMix(),
   ]);
 
   const operatingMwe = staging.ok
@@ -913,14 +1020,8 @@ export default async function HomePage() {
             </div>
             <div className="space-y-5">
               <RegionalCapacityDistribution countries={staging.countries} />
-              <BucketOverview
-                buckets={staging.analysis.projectLifecycle}
-                href="/postgres-preview/analysis#benchmark-views"
-                title="Pipeline Composition"
-                measure="electricCapacity"
-                useLifecycleColors
-              />
-              <PipelineLifecycleStack buckets={staging.analysis.projectLifecycle} />
+              <PipelineCompositionModule buckets={staging.analysis.projectLifecycle} />
+              <InstalledCapacityTechnologyMix rows={technologyMix} />
             </div>
           </section>
         </section>
