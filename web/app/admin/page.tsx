@@ -405,6 +405,11 @@ function DesignReadinessOverview() {
       reference: "docs/STATUS_BADGE_HIERARCHY.md",
       note: "Locks the operational meaning of lifecycle, review, source, confidence, and severity status colors.",
     },
+    {
+      title: "Table And List View Contract",
+      reference: "docs/TABLE_LIST_VIEW_CONTRACT.md",
+      note: "Defines overview-first table strategy, default columns, density modes, mobile cards, and long-text handling.",
+    },
   ];
 
   return (

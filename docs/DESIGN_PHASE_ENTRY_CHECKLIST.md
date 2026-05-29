@@ -70,6 +70,7 @@ spacing, color values, chart styling, and responsive treatment.
 - Plants communicate operating fleet intelligence first, table detail second.
 - Companies communicate ecosystem and relationship intelligence first, table
   detail second.
+- Table and list design should follow `docs/TABLE_LIST_VIEW_CONTRACT.md`.
 - Source and relationship workflow remains tied to entity detail/edit pages.
 - Edited, required, approval, rejected, and approved field states need final
   visual treatment during design.

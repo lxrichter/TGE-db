@@ -26,6 +26,7 @@ Related semantics:
 - `docs/ROUTE_IA_CONTRACT.md`
 - `docs/DESIGN_PHASE_ENTRY_CHECKLIST.md`
 - `docs/FORM_FIELD_STATE_CONTRACT.md`
+- `docs/TABLE_LIST_VIEW_CONTRACT.md`
 
 Audit guardrail:
 
