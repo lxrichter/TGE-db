@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 import { searchGlobalRecords, type GlobalSearchResult } from "@/lib/services/global-search";
 import { formatCount } from "@/lib/format";
-import { platformNavigationGroups } from "@/lib/platform-navigation";
+import { authOptions } from "@/lib/auth/auth";
+import { getVisiblePlatformNavigationGroups } from "@/lib/platform-navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -21,18 +23,16 @@ type SearchPageData =
       error: string;
     };
 
-const commandShortcutGroups = platformNavigationGroups
-  .map((group) => ({
+function getCommandShortcutGroups(role?: string | null) {
+  return getVisiblePlatformNavigationGroups(role, { target: "command" }).map((group) => ({
     group: group.label,
-    shortcuts: group.items
-      .filter((item) => item.showInCommand)
-      .map((item) => ({
-        label: item.commandLabel,
-        href: item.href,
-        note: item.note,
-      })),
-  }))
-  .filter((group) => group.shortcuts.length > 0);
+    shortcuts: group.items.map((item) => ({
+      label: item.commandLabel,
+      href: item.href,
+      note: item.note,
+    })),
+  }));
+}
 
 const searchPageClass = {
   panel:
@@ -178,9 +178,12 @@ export default async function GlobalSearchPage({
 }: {
   searchParams?: Promise<SearchPageParams>;
 }) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as { role?: string | null } | undefined)?.role ?? null;
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const data = await getSearchPageData(resolvedSearchParams);
   const groupedResults = data.ok ? groupResults(data.results) : [];
+  const commandShortcutGroups = getCommandShortcutGroups(role);
 
   return (
     <main className="space-y-8">
