@@ -299,14 +299,14 @@ const [exporting, setExporting] = useState(false);
         phases: ["Construction"],
       },
       {
-        label: "Early / Unconfirmed",
-        badgeValue: "Exploration",
-        phases: ["Exploration", "Pre-Feasibility", "Feasibility", "TBD"],
+        label: "Idle / Suspended",
+        badgeValue: "Stalled",
+        phases: ["Stalled", "TBD"],
       },
       {
-        label: "Cancelled / Stalled",
+        label: "Decommissioned / Cancelled",
         badgeValue: "Cancelled",
-        phases: ["Cancelled", "Stalled"],
+        phases: ["Cancelled"],
       },
     ];
 
@@ -325,7 +325,7 @@ const [exporting, setExporting] = useState(false);
           ),
         };
       })
-      .filter((item) => item.count > 0 || item.mw > 0);
+      .filter((item) => item.count > 0 && item.mw > 0);
 
     return { count, totalCapacity, countries, pendingReview, statusOverview };
   }, [plants]);
@@ -493,7 +493,7 @@ if (researchStatusFilter !== "All Research Status") {
                 Plants
               </p>
               <h1 className={`mt-2 text-2xl font-bold tracking-tight ${plantsClass.title} xl:text-[2.2rem]`}>
-                Geothermal Operating Fleet
+                Geothermal Plants
               </h1>
               <p className={`mt-2 max-w-4xl text-base leading-7 ${plantsClass.body}`}>
                 Operating-asset intelligence for geothermal plants, installed
@@ -528,13 +528,13 @@ if (researchStatusFilter !== "All Research Status") {
           </div>
         </div>
 
-        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-4 xl:px-8">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4 xl:grid-cols-4">
+        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
             <div>
               <div className={plantsClass.metricLabel}>
                 Plants
               </div>
-              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-0.5 text-xl font-bold ${plantsClass.title}`}>
                 {formatCount(stats.count)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -546,7 +546,7 @@ if (researchStatusFilter !== "All Research Status") {
               <div className={plantsClass.metricLabel}>
                 Installed Capacity (MWe)
               </div>
-              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-0.5 text-xl font-bold ${plantsClass.title}`}>
                 {formatMw(stats.totalCapacity, 1)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -558,7 +558,7 @@ if (researchStatusFilter !== "All Research Status") {
               <div className={plantsClass.metricLabel}>
                 Countries Covered
               </div>
-              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-0.5 text-xl font-bold ${plantsClass.title}`}>
                 {formatCount(stats.countries)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -570,7 +570,7 @@ if (researchStatusFilter !== "All Research Status") {
               <div className={plantsClass.metricLabel}>
                 Pending Review
               </div>
-              <div className={`mt-1 text-2xl font-bold ${plantsClass.title}`}>
+              <div className={`mt-0.5 text-xl font-bold ${plantsClass.title}`}>
                 {formatCount(stats.pendingReview)}
               </div>
               <div className={`mt-1 text-xs ${plantsClass.muted}`}>
@@ -840,8 +840,8 @@ if (researchStatusFilter !== "All Research Status") {
                     )}
                   </td>
 
-                  <td className={`${plantsClass.tableCell} align-top ${plantsClass.body}`}>
-                    <div className="line-clamp-2 max-w-[220px] leading-5">
+                  <td className={`${plantsClass.tableCell} align-top`}>
+                    <div className={`line-clamp-2 max-w-[220px] font-semibold leading-5 ${plantsClass.title}`}>
                       {plant.owner_operator || <MissingValue />}
                     </div>
                   </td>
