@@ -74,11 +74,11 @@ const matchBodyTextClass = "text-[var(--tge-text-secondary)]";
 const matchInputClass =
   "h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
 const matchPrimaryButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
 const matchSecondaryButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
 const matchAttentionButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 text-sm font-semibold text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-4 py-2 text-sm font-semibold text-[var(--tge-governance-attention-text)] hover:bg-[var(--tge-governance-attention-bg)]";
 
 function sourceMatchHref(
   filters: SourceMatchSearchParams,
@@ -153,12 +153,12 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className={`${matchCardClass} px-4 py-4`}>
+    <div>
       <div className={matchEyebrowClass}>{label}</div>
-      <div className={`mt-2 text-3xl leading-none ${matchTitleClass}`}>
+      <div className={`mt-0.5 text-xl leading-none ${matchTitleClass}`}>
         {value}
       </div>
-      <div className={`mt-2 text-xs leading-5 ${matchMutedTextClass}`}>
+      <div className={`mt-1 text-xs leading-5 ${matchMutedTextClass}`}>
         {note}
       </div>
     </div>
@@ -278,24 +278,24 @@ export default async function SourceMatchCandidatesPage({
       ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
     : [];
   return (
-    <main className="space-y-6 sm:space-y-8">
+    <main className="space-y-7">
       <section className={matchCardClass}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
-            Sources / Documents
-          </p>
-          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] sm:text-4xl">
+        <div className="px-6 py-4 xl:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="max-w-4xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+                Evidence Review
+              </p>
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${matchTitleClass} xl:text-[2.2rem]`}>
                 Article Match Review
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)] sm:mt-4 sm:text-base sm:leading-7">
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${matchBodyTextClass}`}>
                 Review generated TGE article-to-entity candidates before they
                 become evidence links. This keeps the archive import controlled,
                 auditable, and separate from automated field updates.
               </p>
             </div>
-            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
+            <div className="flex flex-wrap gap-3 xl:justify-end">
               <Link
                 className={matchSecondaryButtonClass}
                 href="/sources"
@@ -321,6 +321,39 @@ export default async function SourceMatchCandidatesPage({
             </div>
           </div>
         </div>
+
+        {data.ok ? (
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
+              <StatTile
+                label="Candidates"
+                value={formatCount(data.summary.total)}
+                note={`${formatCount(data.summary.open)} open review candidates`}
+              />
+              <StatTile
+                label="Confidence"
+                value={formatCount(
+                  data.summary.highConfidence + data.summary.mediumConfidence
+                )}
+                note={`${formatCount(data.summary.highConfidence)} high · ${formatCount(
+                  data.summary.mediumConfidence
+                )} medium`}
+              />
+              <StatTile
+                label="Flags"
+                value={formatCount(data.summary.flaggedForReview)}
+                note="Need careful human review"
+              />
+              <StatTile
+                label="Decisions"
+                value={formatCount(data.summary.confirmed + data.summary.rejected)}
+                note={`${formatCount(data.summary.confirmed)} confirmed · ${formatCount(
+                  data.summary.rejected
+                )} rejected`}
+              />
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {!data.ok ? (
@@ -329,11 +362,6 @@ export default async function SourceMatchCandidatesPage({
         <>
           <PostgresSectionJumpNav
             items={[
-              {
-                href: "#match-triage",
-                label: "Triage",
-                note: "Load",
-              },
               {
                 href: "#match-filters",
                 label: "Filters",
@@ -344,62 +372,20 @@ export default async function SourceMatchCandidatesPage({
                 label: "Review",
                 note: "Candidates",
               },
+              {
+                href: "#match-summary",
+                label: "Summary",
+                note: "Signals",
+              },
             ]}
           />
 
-          <section id="match-triage" className="space-y-5 scroll-mt-24">
-            <DetailPriorityMarker
-              label="Core"
-              title="Match Triage"
-              description="Open load, confidence, flags, outcomes."
-              tone="core"
-            />
-
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-              <StatTile
-                label="Candidates"
-                value={formatCount(data.summary.total)}
-                note="All generated matches"
-              />
-              <StatTile
-                label="Open"
-                value={formatCount(data.summary.open)}
-                note="Needs review or suggested"
-              />
-              <StatTile
-                label="High"
-                value={formatCount(data.summary.highConfidence)}
-                note="Suggested high confidence"
-              />
-              <StatTile
-                label="Medium"
-                value={formatCount(data.summary.mediumConfidence)}
-                note="Suggested medium confidence"
-              />
-              <StatTile
-                label="Flags"
-                value={formatCount(data.summary.flaggedForReview)}
-                note="Needs careful review"
-              />
-              <StatTile
-                label="Confirmed"
-                value={formatCount(data.summary.confirmed)}
-                note="Evidence links created"
-              />
-              <StatTile
-                label="Rejected"
-                value={formatCount(data.summary.rejected)}
-                note="Dismissed candidates"
-              />
-            </section>
-          </section>
-
           <section id="match-filters" className="space-y-5 scroll-mt-24">
             <DetailPriorityMarker
-              label="Workflow"
+              label="Core"
               title="Match Filters"
               description="Scope article-to-entity candidates before review."
-              tone="workflow"
+              tone="core"
             />
 
             <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
@@ -503,10 +489,10 @@ export default async function SourceMatchCandidatesPage({
 
           <section id="match-review" className="space-y-5 scroll-mt-24">
             <DetailPriorityMarker
-              label="Governance"
+              label="Workflow"
               title="Candidate Review Rows"
               description="Bulk confirm, reject, or inspect ambiguous links."
-              tone="governance"
+              tone="workflow"
             />
 
             <SourceMatchCandidatesClient candidates={data.candidates} />
@@ -552,6 +538,53 @@ export default async function SourceMatchCandidatesPage({
               </Link>
             </div>
           </section>
+          </section>
+
+          <section id="match-summary" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Review Signal Summary"
+              description="Load, confidence, flags, and confirmed outcomes."
+              tone="governance"
+            />
+
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+              <StatTile
+                label="Candidates"
+                value={formatCount(data.summary.total)}
+                note="All generated matches"
+              />
+              <StatTile
+                label="Open"
+                value={formatCount(data.summary.open)}
+                note="Needs review or suggested"
+              />
+              <StatTile
+                label="High"
+                value={formatCount(data.summary.highConfidence)}
+                note="Suggested high confidence"
+              />
+              <StatTile
+                label="Medium"
+                value={formatCount(data.summary.mediumConfidence)}
+                note="Suggested medium confidence"
+              />
+              <StatTile
+                label="Flags"
+                value={formatCount(data.summary.flaggedForReview)}
+                note="Needs careful review"
+              />
+              <StatTile
+                label="Confirmed"
+                value={formatCount(data.summary.confirmed)}
+                note="Evidence links created"
+              />
+              <StatTile
+                label="Rejected"
+                value={formatCount(data.summary.rejected)}
+                note="Dismissed candidates"
+              />
+            </section>
           </section>
         </>
       )}

@@ -79,9 +79,9 @@ const factBodyTextClass = "text-[var(--tge-text-secondary)]";
 const factInputClass =
   "h-10 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-sm font-medium normal-case tracking-normal text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]";
 const factPrimaryButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 py-2 text-sm font-semibold text-[var(--tge-surface-card)] hover:bg-[var(--tge-brand-green-dark)]";
 const factSecondaryButtonClass =
-  "inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
+  "inline-flex min-h-[38px] items-center justify-center whitespace-nowrap border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 py-2 text-sm font-semibold text-[var(--tge-governance-neutral-text)] hover:border-[var(--tge-brand-green)] hover:text-[var(--tge-brand-green-dark)]";
 
 function articleFactHref(filters: ArticleFactSearchParams, nextPage: number) {
   const params = new URLSearchParams();
@@ -165,12 +165,12 @@ function StatTile({
   note: string;
 }) {
   return (
-    <div className={`${factCardClass} px-4 py-4`}>
+    <div>
       <div className={factEyebrowClass}>{label}</div>
-      <div className={`mt-2 text-3xl leading-none ${factTitleClass}`}>
+      <div className={`mt-0.5 text-xl leading-none ${factTitleClass}`}>
         {value}
       </div>
-      <div className={`mt-2 text-xs leading-5 ${factMutedTextClass}`}>
+      <div className={`mt-1 text-xs leading-5 ${factMutedTextClass}`}>
         {note}
       </div>
     </div>
@@ -404,23 +404,23 @@ export default async function ArticleFactCandidatesPage({
       ].filter((chip): chip is SourceReviewFilterChip => Boolean(chip))
     : [];
   return (
-    <main className="space-y-6 sm:space-y-8">
+    <main className="space-y-7">
       <section className={factCardClass}>
-        <div className="border-l-4 border-l-[var(--tge-brand-green)] px-5 py-6 sm:px-8 sm:py-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
-            Sources / Documents
-          </p>
-          <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-[var(--tge-text-primary)] sm:text-4xl">
+        <div className="px-6 py-4 xl:px-8">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+            <div className="max-w-4xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
+                Evidence Review
+              </p>
+              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${factTitleClass} xl:text-[2.2rem]`}>
                 Article Fact Review
               </h1>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-[var(--tge-text-secondary)] sm:mt-4 sm:text-base sm:leading-7">
+              <p className={`mt-2 max-w-4xl text-base leading-7 ${factBodyTextClass}`}>
                 Review compact fact candidates from local TGE markdown articles
                 before they inform human-confirmed field suggestions.
               </p>
             </div>
-            <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-3 lg:w-auto lg:flex lg:flex-wrap">
+            <div className="flex flex-wrap gap-3 xl:justify-end">
               <Link
                 className={factSecondaryButtonClass}
                 href="/sources"
@@ -442,6 +442,35 @@ export default async function ArticleFactCandidatesPage({
             </div>
           </div>
         </div>
+
+        {data.ok ? (
+          <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-6 py-3.5 xl:px-8">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 xl:grid-cols-4">
+              <StatTile
+                label="Candidates"
+                value={formatCount(data.summary.total)}
+                note={`${formatCount(data.summary.open)} open review candidates`}
+              />
+              <StatTile
+                label="Suggested"
+                value={formatCount(data.summary.suggested)}
+                note={`${formatCount(data.summary.needsReview)} need review`}
+              />
+              <StatTile
+                label="Decisions"
+                value={formatCount(data.summary.confirmed + data.summary.rejected)}
+                note={`${formatCount(data.summary.confirmed)} confirmed · ${formatCount(
+                  data.summary.rejected
+                )} rejected`}
+              />
+              <StatTile
+                label="Evidence Coverage"
+                value={formatCount(data.summary.withSourceRecord)}
+                note={`${formatCount(data.summary.withEntitySignal)} entity signals`}
+              />
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {!data.ok ? (
@@ -451,81 +480,29 @@ export default async function ArticleFactCandidatesPage({
           <PostgresSectionJumpNav
             items={[
               {
-                href: "#fact-triage",
-                label: "Triage",
-                note: "Load",
-              },
-              {
                 href: "#fact-training",
-                label: "Training",
-                note: "Fact Types",
+                label: "Filters",
+                note: "Training",
               },
               {
                 href: "#fact-review",
                 label: "Review",
                 note: "Candidates",
               },
+              {
+                href: "#fact-summary",
+                label: "Summary",
+                note: "Signals",
+              },
             ]}
           />
 
-          <section id="fact-triage" className="space-y-5 scroll-mt-24">
-            <DetailPriorityMarker
-              label="Core"
-              title="Fact Triage"
-              description="Open load, decisions, entity signals, source coverage."
-              tone="core"
-            />
-
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
-              <StatTile
-                label="Candidates"
-                value={formatCount(data.summary.total)}
-                note="All extracted facts"
-              />
-              <StatTile
-                label="Open"
-                value={formatCount(data.summary.open)}
-                note="Suggested or needs review"
-              />
-              <StatTile
-                label="Suggested"
-                value={formatCount(data.summary.suggested)}
-                note="Machine/rule candidates"
-              />
-              <StatTile
-                label="Needs Review"
-                value={formatCount(data.summary.needsReview)}
-                note="Deferred for review"
-              />
-              <StatTile
-                label="Confirmed"
-                value={formatCount(data.summary.confirmed)}
-                note="Human accepted"
-              />
-              <StatTile
-                label="Rejected"
-                value={formatCount(data.summary.rejected)}
-                note="Human rejected"
-              />
-              <StatTile
-                label="Entity Signals"
-                value={formatCount(data.summary.withEntitySignal)}
-                note="Has entity label"
-              />
-              <StatTile
-                label="Governed Sources"
-                value={formatCount(data.summary.withSourceRecord)}
-                note="Linked to source row"
-              />
-            </section>
-          </section>
-
           <section id="fact-training" className="space-y-5 scroll-mt-24">
             <DetailPriorityMarker
-              label="Workflow"
-              title="Fact-Type Training"
+              label="Core"
+              title="Fact Review Filters"
               description="Filter, review definitions, accept/reject candidates."
-              tone="workflow"
+              tone="core"
             />
 
             <FilterDisclosure defaultOpen={activeFilterChips.length > 0}>
@@ -597,10 +574,10 @@ export default async function ArticleFactCandidatesPage({
 
           <section id="fact-review" className="space-y-5 scroll-mt-24">
             <DetailPriorityMarker
-              label="Governance"
+              label="Workflow"
               title="Candidate Review Rows"
               description="Review signals only; no automatic entity updates."
-              tone="governance"
+              tone="workflow"
             />
 
             <ArticleFactCandidatesClient
@@ -640,6 +617,58 @@ export default async function ArticleFactCandidatesPage({
                   Next
                 </Link>
               </div>
+            </section>
+          </section>
+
+          <section id="fact-summary" className="space-y-5 scroll-mt-24">
+            <DetailPriorityMarker
+              label="Governance"
+              title="Fact Review Signal Summary"
+              description="Open load, decisions, entity signals, source coverage."
+              tone="governance"
+            />
+
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+              <StatTile
+                label="Candidates"
+                value={formatCount(data.summary.total)}
+                note="All extracted facts"
+              />
+              <StatTile
+                label="Open"
+                value={formatCount(data.summary.open)}
+                note="Suggested or needs review"
+              />
+              <StatTile
+                label="Suggested"
+                value={formatCount(data.summary.suggested)}
+                note="Machine/rule candidates"
+              />
+              <StatTile
+                label="Needs Review"
+                value={formatCount(data.summary.needsReview)}
+                note="Deferred for review"
+              />
+              <StatTile
+                label="Confirmed"
+                value={formatCount(data.summary.confirmed)}
+                note="Human accepted"
+              />
+              <StatTile
+                label="Rejected"
+                value={formatCount(data.summary.rejected)}
+                note="Human rejected"
+              />
+              <StatTile
+                label="Entity Signals"
+                value={formatCount(data.summary.withEntitySignal)}
+                note="Has entity label"
+              />
+              <StatTile
+                label="Governed Sources"
+                value={formatCount(data.summary.withSourceRecord)}
+                note="Linked to source row"
+              />
             </section>
           </section>
         </>
