@@ -8,24 +8,32 @@ import type { UserRole } from "@/lib/auth/roles";
 import GlobalCommandPalette from "@/components/search/GlobalCommandPalette";
 import { getVisiblePlatformNavigationGroups } from "@/lib/platform-navigation";
 
-function isActivePath(pathname: string, href: string) {
+function matchesPath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   if (href === "/postgres-preview") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function isActivePath(pathname: string, href: string, activeHrefs: string[] = []) {
+  return [href, ...activeHrefs].some((activeHref) =>
+    matchesPath(pathname, activeHref)
+  );
 }
 
 function NavItem({
   href,
   label,
   pathname,
+  activeHrefs,
   prefetch = true,
 }: {
   href: string;
   label: string;
   pathname: string;
+  activeHrefs?: string[];
   prefetch?: boolean;
 }) {
-  const isActive = isActivePath(pathname, href);
+  const isActive = isActivePath(pathname, href, activeHrefs);
 
   return (
     <Link
@@ -175,6 +183,7 @@ export default function AppHeaderShell({
                     href={item.href}
                     label={item.label}
                     pathname={pathname}
+                    activeHrefs={item.activeHrefs}
                     prefetch={item.access ? false : true}
                   />
                 ))}

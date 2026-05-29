@@ -29,6 +29,7 @@ export type PlatformNavigationItem = {
   commandLabel: string;
   note: string;
   href: string;
+  activeHrefs?: string[];
   showInHeader?: boolean;
   showInCommand?: boolean;
   access?: PlatformNavigationAccess;
@@ -67,6 +68,7 @@ export const platformNavigationGroups: PlatformNavigationGroup[] = [
         commandLabel: "Open Markets",
         note: "Market intelligence, country worklists, and source-gap signals.",
         href: "/markets",
+        activeHrefs: ["/postgres-preview/markets"],
         showInHeader: true,
         showInCommand: true,
         primaryAudiences: ["subscriber", "editor", "administrator"],
@@ -77,6 +79,7 @@ export const platformNavigationGroups: PlatformNavigationGroup[] = [
         commandLabel: "Open Analysis",
         note: "Cross-database benchmarking and geothermal intelligence analysis.",
         href: "/analysis",
+        activeHrefs: ["/postgres-preview/analysis"],
         showInHeader: true,
         showInCommand: true,
         primaryAudiences: ["subscriber", "editor", "administrator"],
@@ -87,6 +90,7 @@ export const platformNavigationGroups: PlatformNavigationGroup[] = [
         commandLabel: "Open Map",
         note: "Spatial intelligence for coordinate-confirmed projects and plants.",
         href: "/map",
+        activeHrefs: ["/postgres-preview/map"],
         showInHeader: true,
         showInCommand: true,
         primaryAudiences: ["subscriber", "researcher", "editor", "administrator"],
