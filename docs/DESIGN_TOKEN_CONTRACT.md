@@ -24,6 +24,7 @@ Related semantics:
 - `docs/APP_SHELL_NAVIGATION_CONTRACT.md`
 - `docs/ROUTE_IA_CONTRACT.md`
 - `docs/DESIGN_PHASE_ENTRY_CHECKLIST.md`
+- `docs/FORM_FIELD_STATE_CONTRACT.md`
 
 Audit guardrail:
 

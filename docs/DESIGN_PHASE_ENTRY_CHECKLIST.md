@@ -42,6 +42,8 @@ spacing, color values, chart styling, and responsive treatment.
 - Mobile should use a drawer or compact navigation pattern.
 - `web/lib/platform-navigation.ts` remains the source of truth for nav labels,
   role access, command search, and future sidebar rendering.
+- Form field visual treatment should follow
+  `docs/FORM_FIELD_STATE_CONTRACT.md`.
 
 ### Terminology
 
