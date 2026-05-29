@@ -257,6 +257,12 @@ export const designPassSequence: DesignPassSequenceItem[] = [
 
 export const designReviewPageSet: DesignReviewPage[] = [
   {
+    label: "Pass 2 Design Concept",
+    href: "/design/pass-2",
+    group: "Design",
+    note: "Current approved-direction mockup for permanent sidebar shell, intelligence pages, signature map, component system, and mobile hierarchy.",
+  },
+  {
     label: "Pass 1 Design Concept",
     href: "/design/pass-1",
     group: "Design",

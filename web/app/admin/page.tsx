@@ -387,6 +387,11 @@ function DesignReadinessOverview() {
       note: "Documents the scope and acceptance signals for the app shell, intelligence pages, map, palettes, charts, and mobile concept route.",
     },
     {
+      title: "Design Pass 2 Concept Brief",
+      reference: "docs/DESIGN_PASS_2_CONCEPT_BRIEF.md",
+      note: "Documents the approved-direction full sidebar shell, utility bar, refined intelligence pages, signature map, component system, and mobile hierarchy.",
+    },
+    {
       title: "Analysis Module Contract",
       reference: "docs/ANALYSIS_MODULE_CONTRACT.md",
       note: "Defines how new analysis pages declare source basis, measures, attribution logic, segmentation, and Governance QA.",

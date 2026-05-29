@@ -75,10 +75,15 @@ workspaces, Sources, Research Ops, Admin, and forms.
 Initial non-production concept route:
 
 - `/design/pass-1`
+- `/design/pass-2`
 
 Use this route to review App Shell, Dashboard, Markets, Analysis, Map Explorer,
 palette, chart language, lifecycle/governance colors, typography, component
 direction, and mobile behavior before changing live product pages.
+
+Pass 2 is the current approved-direction concept route. It emphasizes the
+full-height left navigation shell, utility-only top bar, refined intelligence
+hierarchy, signature Map Explorer, component system, and mobile hierarchy.
 
 ## Second Design Target
 
@@ -111,6 +116,7 @@ overpower the broader product identity.
 
 Use this page set for the first visual review:
 
+- `/design/pass-2`
 - `/design/pass-1`
 - `/`
 - `/markets`
