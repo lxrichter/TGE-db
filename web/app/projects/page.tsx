@@ -59,7 +59,7 @@ const projectsClass = {
   tableHead:
     "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2.5",
   tableCell:
-    "border-b border-[var(--tge-governance-muted-border)] px-4 py-3 align-middle",
+    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 align-middle",
   link:
     "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
   primaryPill:
@@ -71,7 +71,7 @@ function ResearchStatusBadge({ value }: { value: string | null }) {
   const normalized = raw.toLowerCase();
 
   if (!normalized || normalized === "na" || normalized === "n/a") {
-    return <StatusBadge tone="neutralSoft">NA</StatusBadge>;
+    return <MissingValue />;
   }
 
   if (normalized.includes("done")) {
@@ -97,7 +97,7 @@ function ReviewStatusBadge({
   const normalized = (value || "").trim().toLowerCase();
 
   if (!normalized) {
-    return <StatusBadge tone="neutralSoft">NA</StatusBadge>;
+    return <MissingValue />;
   }
 
   if (normalized === "approved") {
@@ -179,6 +179,12 @@ function formatMw(value: number, digits = 1) {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
+}
+
+function MissingValue() {
+  return (
+    <span className="text-sm text-[var(--tge-governance-muted-text)]">-</span>
+  );
 }
 
 function getPhaseOrder(phase: string) {
@@ -315,27 +321,67 @@ const userCanExport = canExport(currentRole);
       {}
     );
 
-    const preferredPhaseOrder = [
-      "Prospect",
-      "TBD",
-      "Exploration",
-      "Pre-Feasibility",
-      "Feasibility",
-      "Construction",
-      "Operating",
-      "Cancelled",
-      "Suspended",
-      "Stalled",
+    const phaseGroups = [
+      {
+        label: "Prospect / TBD",
+        badgeValue: "Prospect",
+        phases: ["Prospect", "TBD"],
+      },
+      {
+        label: "Exploration",
+        badgeValue: "Exploration",
+        phases: ["Exploration"],
+      },
+      {
+        label: "Pre-Feasibility",
+        badgeValue: "Pre-Feasibility",
+        phases: ["Pre-Feasibility"],
+      },
+      {
+        label: "Feasibility",
+        badgeValue: "Feasibility",
+        phases: ["Feasibility"],
+      },
+      {
+        label: "Construction",
+        badgeValue: "Construction",
+        phases: ["Construction"],
+      },
+      {
+        label: "Operating",
+        badgeValue: "Operating",
+        phases: ["Operating"],
+      },
+      {
+        label: "Cancelled / Suspended",
+        badgeValue: "Cancelled",
+        phases: ["Cancelled", "Suspended"],
+      },
+      {
+        label: "Stalled",
+        badgeValue: "Stalled",
+        phases: ["Stalled"],
+      },
     ];
 
-    const phaseOverview = preferredPhaseOrder
-      .filter((phase) => phaseMap[phase])
-      .map((phase) => ({
-        phase,
-        count: phaseMap[phase].count,
-        mw: phaseMap[phase].mw,
-      }))
-      .sort((a, b) => getPhaseOrder(a.phase) - getPhaseOrder(b.phase));
+    const phaseOverview = phaseGroups
+      .map((group) => {
+        const totals = group.phases.reduce(
+          (acc, phase) => {
+            acc.count += phaseMap[phase]?.count || 0;
+            acc.mw += phaseMap[phase]?.mw || 0;
+            return acc;
+          },
+          { count: 0, mw: 0 }
+        );
+
+        return {
+          ...group,
+          count: totals.count,
+          mw: totals.mw,
+        };
+      })
+      .filter((group) => group.count > 0 || group.mw > 0);
 
     return {
       count,
@@ -578,8 +624,8 @@ const userCanExport = canExport(currentRole);
 
       {stats.phaseOverview.length > 0 && (
         <section className={projectsClass.panel}>
-          <div className={`${projectsClass.sectionHeader} px-6 py-4`}>
-            <h2 className={`text-xl font-bold ${projectsClass.title}`}>
+          <div className={`${projectsClass.sectionHeader} px-5 py-3`}>
+            <h2 className={`text-lg font-bold ${projectsClass.title}`}>
               Phase Overview
             </h2>
             <p className={`mt-1 text-sm ${projectsClass.muted}`}>
@@ -587,21 +633,24 @@ const userCanExport = canExport(currentRole);
             </p>
           </div>
 
-          <div className="px-5 py-4">
-            <div className="flex gap-3 overflow-x-auto pb-1">
+          <div className="px-5 py-3">
+            <div className="flex gap-2.5 overflow-x-auto pb-1">
               {stats.phaseOverview.map((item) => (
                 <div
-                  key={item.phase}
-                  className="min-w-[190px] flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-4 py-3"
+                  key={item.label}
+                  className="min-w-[176px] flex-1 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-3.5 py-2.5"
                 >
-                  <div className="mb-2">
-                    <PhaseBadge value={item.phase} />
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <PhaseBadge value={item.badgeValue} />
                   </div>
-                  <div className={`text-2xl font-bold leading-none ${projectsClass.title}`}>
+                  <div className={`text-xl font-bold leading-none ${projectsClass.title}`}>
                     {formatMw(item.mw, 1)} <span className="text-sm font-semibold">MWe</span>
                   </div>
-                  <div className={`mt-2 text-sm leading-5 ${projectsClass.body}`}>
+                  <div className={`mt-1.5 text-sm leading-5 ${projectsClass.body}`}>
                     {formatCount(item.count)} projects
+                  </div>
+                  <div className={`mt-1 text-xs font-semibold ${projectsClass.muted}`}>
+                    {item.label}
                   </div>
                 </div>
               ))}
@@ -611,8 +660,8 @@ const userCanExport = canExport(currentRole);
       )}
 
       <section className={projectsClass.panel}>
-        <div className={`${projectsClass.sectionHeader} px-6 py-4`}>
-          <h2 className={`text-xl font-bold ${projectsClass.title}`}>
+          <div className={`${projectsClass.sectionHeader} px-5 py-3`}>
+          <h2 className={`text-lg font-bold ${projectsClass.title}`}>
             Project Overview Table
           </h2>
           <p className={`mt-1 text-sm ${projectsClass.muted}`}>
@@ -828,13 +877,13 @@ const userCanExport = canExport(currentRole);
                           {project.country}
                         </Link>
                       ) : (
-                        "NA"
+                        <MissingValue />
                       )}
                     </td>
 
                     <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       <div className="line-clamp-2 max-w-[220px]">
-                        {project.owner_operator || "NA"}
+                        {project.owner_operator || <MissingValue />}
                       </div>
                     </td>
 
@@ -842,7 +891,7 @@ const userCanExport = canExport(currentRole);
                       {project.installed_capacity_mw !== null &&
                       project.installed_capacity_mw !== undefined
                         ? `${formatMw(project.installed_capacity_mw, 1)} MWe`
-                        : "NA"}
+                        : <MissingValue />}
                     </td>
 
                     <td className={projectsClass.tableCell}>
@@ -851,7 +900,7 @@ const userCanExport = canExport(currentRole);
 
                     <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       <span className="line-clamp-2">
-                        {project.plant_technology || "NA"}
+                        {project.plant_technology || <MissingValue />}
                       </span>
                     </td>
 
