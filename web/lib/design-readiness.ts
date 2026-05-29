@@ -28,6 +28,21 @@ export type DesignComponentInventoryItem = {
   nextAction: string;
 };
 
+export type DesignEntryGateStatus = "accepted" | "confirm" | "design_phase";
+
+export type DesignEntryGate = {
+  area: string;
+  status: DesignEntryGateStatus;
+  note: string;
+};
+
+export type DesignReviewPage = {
+  label: string;
+  href: string;
+  group: "Intelligence" | "Operations" | "Evidence" | "Governance";
+  note: string;
+};
+
 export const designAudienceEntryPoints: DesignAudienceEntryPoint[] = [
   {
     audience: "Subscribers",
@@ -160,6 +175,138 @@ export const semanticDesignRules = [
   {
     label: "Gray",
     meaning: "Draft, inactive, archived, historical, advisory, unknown, or neutral context.",
+  },
+];
+
+export const designEntryGates: DesignEntryGate[] = [
+  {
+    area: "Route and navigation architecture",
+    status: "accepted",
+    note: "Clean routes, PostgreSQL staging routes, role-aware command search, and future sidebar contract are documented.",
+  },
+  {
+    area: "Role entry points and visibility",
+    status: "confirm",
+    note: "Subscriber, researcher, editor, and administrator defaults are defined; final role-specific emphasis should be confirmed in design.",
+  },
+  {
+    area: "Semantic color meaning",
+    status: "accepted",
+    note: "Lifecycle, governance, source, confidence, and severity meanings are tokenized and documented.",
+  },
+  {
+    area: "Entity and evidence workflow",
+    status: "accepted",
+    note: "Projects, Plants, Companies, Sources, Research Ops, and review flows have stable functional architecture.",
+  },
+  {
+    area: "Responsive and density behavior",
+    status: "design_phase",
+    note: "Table density, mobile cards, map drawer behavior, and review queue ergonomics should be finalized in visual design.",
+  },
+  {
+    area: "Form field states",
+    status: "design_phase",
+    note: "Required, edited, pending approval, approved, rejected, and blocked states need final visual treatment.",
+  },
+];
+
+export const designReviewPageSet: DesignReviewPage[] = [
+  {
+    label: "Dashboard",
+    href: "/",
+    group: "Intelligence",
+    note: "Executive geothermal intelligence entry point.",
+  },
+  {
+    label: "Markets",
+    href: "/markets",
+    group: "Intelligence",
+    note: "Market and regional intelligence parent layer.",
+  },
+  {
+    label: "Analysis",
+    href: "/analysis",
+    group: "Intelligence",
+    note: "Analysis module registry and benchmark entry point.",
+  },
+  {
+    label: "Developer Analysis",
+    href: "/analysis/developers",
+    group: "Intelligence",
+    note: "Relationship-driven attribution module.",
+  },
+  {
+    label: "Owners & Operators",
+    href: "/analysis/owners-operators",
+    group: "Intelligence",
+    note: "Owner/operator analysis module.",
+  },
+  {
+    label: "Turbine Technology",
+    href: "/analysis/turbine-technology",
+    group: "Intelligence",
+    note: "Technology and supplier benchmark module.",
+  },
+  {
+    label: "Map",
+    href: "/map",
+    group: "Intelligence",
+    note: "Spatial intelligence and future expanded map shell.",
+  },
+  {
+    label: "Projects",
+    href: "/postgres-preview/projects",
+    group: "Operations",
+    note: "Pipeline worklist and project editing surface.",
+  },
+  {
+    label: "Plants",
+    href: "/postgres-preview/operating-assets",
+    group: "Operations",
+    note: "Operating fleet worklist and plant editing surface.",
+  },
+  {
+    label: "Companies",
+    href: "/postgres-preview/companies",
+    group: "Operations",
+    note: "Company ecosystem and relationship workspace.",
+  },
+  {
+    label: "Research Ops",
+    href: "/postgres-preview/research-ops",
+    group: "Operations",
+    note: "Queue, assignment, validation, and activity command center.",
+  },
+  {
+    label: "Sources",
+    href: "/sources",
+    group: "Evidence",
+    note: "Evidence backbone and source governance.",
+  },
+  {
+    label: "Article Matches",
+    href: "/sources/matches",
+    group: "Evidence",
+    note: "Article-to-entity review queue.",
+  },
+  {
+    label: "Article Facts",
+    href: "/sources/facts",
+    group: "Evidence",
+    note: "Extracted fact candidate review queue.",
+  },
+  {
+    label: "Readiness",
+    href: "/postgres-preview/readiness",
+    group: "Governance",
+    note: "Replacement readiness and cutover governance.",
+  },
+  {
+    label: "Admin",
+    href: "/admin",
+    group: "Governance",
+    note: "Platform administration and design-readiness overview.",
   },
 ];
 

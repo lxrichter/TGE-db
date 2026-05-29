@@ -20,8 +20,11 @@ import {
 import {
   designAudienceEntryPoints,
   designComponentInventory,
+  designEntryGates,
   designReadinessPriorities,
+  designReviewPageSet,
   semanticDesignRules,
+  type DesignEntryGateStatus,
   type DesignComponentInventoryStatus,
 } from "@/lib/design-readiness";
 import { designTokenGroups } from "@/lib/design-tokens";
@@ -337,6 +340,24 @@ function componentInventoryStatusClass(status: DesignComponentInventoryStatus) {
   return "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]";
 }
 
+function designEntryGateStatusLabel(status: DesignEntryGateStatus) {
+  if (status === "accepted") return "Accepted";
+  if (status === "confirm") return "Confirm";
+  return "Design Phase";
+}
+
+function designEntryGateStatusClass(status: DesignEntryGateStatus) {
+  if (status === "accepted") {
+    return "border-[var(--tge-governance-success-border)] bg-[var(--tge-governance-success-bg)] text-[var(--tge-governance-success-text)]";
+  }
+
+  if (status === "confirm") {
+    return "border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] text-[var(--tge-governance-attention-text)]";
+  }
+
+  return "border-[var(--tge-governance-info-border)] bg-[var(--tge-governance-info-bg)] text-[var(--tge-governance-info-text)]";
+}
+
 function DesignReadinessOverview() {
   const inventorySummary = {
     tokenReady: designComponentInventory.filter(
@@ -440,6 +461,74 @@ function DesignReadinessOverview() {
                   ))}
               </div>
             </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={adminClass.panel}>
+        <div className={adminClass.header}>
+          <h3 className={`text-sm font-bold ${adminClass.title}`}>
+            Design Entry Gate
+          </h3>
+          <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
+            Practical acceptance state before moving from functional staging to
+            broad visual design.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2 xl:grid-cols-3">
+          {designEntryGates.map((gate) => (
+            <div key={gate.area} className={`${adminClass.panelSubtle} p-4`}>
+              <div className="flex items-start justify-between gap-3">
+                <h4 className={`text-sm font-bold ${adminClass.title}`}>
+                  {gate.area}
+                </h4>
+                <span
+                  className={`inline-flex min-h-6 shrink-0 items-center border px-2 text-[10px] font-semibold uppercase tracking-wide ${designEntryGateStatusClass(
+                    gate.status
+                  )}`}
+                >
+                  {designEntryGateStatusLabel(gate.status)}
+                </span>
+              </div>
+              <p className={`mt-2 text-xs leading-5 ${adminClass.body}`}>
+                {gate.note}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className={adminClass.panel}>
+        <div className={adminClass.header}>
+          <h3 className={`text-sm font-bold ${adminClass.title}`}>
+            Design Review Page Set
+          </h3>
+          <p className={`mt-1 text-xs leading-5 ${adminClass.muted}`}>
+            Use this page set for the first visual design review so the app
+            shell, intelligence pages, operations pages, evidence flows, and
+            governance pages are tested together.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 p-4 lg:grid-cols-2 xl:grid-cols-4">
+          {designReviewPageSet.map((page) => (
+            <a
+              key={`${page.group}-${page.href}`}
+              href={page.href}
+              className={`${adminClass.panelSubtle} block p-4 transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]`}
+            >
+              <div className={`text-[10px] font-semibold uppercase tracking-wide ${adminClass.muted}`}>
+                {page.group}
+              </div>
+              <h4 className={`mt-1 text-sm font-bold ${adminClass.title}`}>
+                {page.label}
+              </h4>
+              <p className={`mt-2 text-xs leading-5 ${adminClass.body}`}>
+                {page.note}
+              </p>
+              <div className="mt-3 font-mono text-[11px] text-[var(--tge-governance-muted-text)]">
+                {page.href}
+              </div>
+            </a>
           ))}
         </div>
       </div>
