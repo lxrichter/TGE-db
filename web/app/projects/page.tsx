@@ -43,6 +43,42 @@ type SortKey =
   | "review_status";
 
 type ViewMode = "active" | "promoted" | "all";
+type ProjectColumnKey =
+  | "project_id"
+  | "project_name"
+  | "country"
+  | "owner_operator"
+  | "installed_capacity_mw"
+  | "project_phase"
+  | "plant_technology"
+  | "research_status"
+  | "review_status";
+
+const PAGE_SIZE_OPTIONS = [25, 50, 100];
+
+const projectColumnOptions: Array<{ key: ProjectColumnKey; label: string }> = [
+  { key: "project_id", label: "Project ID" },
+  { key: "project_name", label: "Project Name" },
+  { key: "country", label: "Country" },
+  { key: "owner_operator", label: "Owner / Operator" },
+  { key: "installed_capacity_mw", label: "Planned MWe" },
+  { key: "project_phase", label: "Phase" },
+  { key: "plant_technology", label: "Technology" },
+  { key: "research_status", label: "Research Status" },
+  { key: "review_status", label: "Review Status" },
+];
+
+const defaultVisibleColumns: Record<ProjectColumnKey, boolean> = {
+  project_id: true,
+  project_name: true,
+  country: true,
+  owner_operator: true,
+  installed_capacity_mw: true,
+  project_phase: true,
+  plant_technology: true,
+  research_status: true,
+  review_status: true,
+};
 
 const projectsClass = {
   panel:
@@ -57,9 +93,9 @@ const projectsClass = {
   input:
     "rounded-none border border-[var(--tge-border-strong)] bg-[var(--tge-surface-card)] text-[var(--tge-text-primary)] outline-none focus:border-[var(--tge-brand-green)]",
   tableHead:
-    "border-b border-[var(--tge-governance-neutral-border)] px-4 py-2.5",
+    "border-b border-[var(--tge-governance-neutral-border)] px-2.5 py-2",
   tableCell:
-    "border-b border-[var(--tge-governance-muted-border)] px-4 py-2.5 align-middle",
+    "border-b border-[var(--tge-governance-muted-border)] px-2.5 py-2 align-middle",
   link:
     "font-medium text-[var(--tge-text-primary)] underline decoration-[var(--tge-governance-muted-border)] underline-offset-4 hover:text-[var(--tge-brand-green-dark)]",
   primaryPill:
@@ -319,6 +355,10 @@ const userCanExport = canExport(currentRole);
   const [researchStatusFilter, setResearchStatusFilter] =
     useState("All Research Status");
   const [viewMode, setViewMode] = useState<ViewMode>("active");
+  const [pageSize, setPageSize] = useState(25);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleColumns, setVisibleColumns] =
+    useState<Record<ProjectColumnKey, boolean>>(defaultVisibleColumns);
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -339,6 +379,17 @@ const userCanExport = canExport(currentRole);
         setProjects([]);
       });
   }, [viewMode]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    search,
+    countryFilter,
+    phaseFilter,
+    researchStatusFilter,
+    viewMode,
+    pageSize,
+  ]);
 
   const countryOptions = useMemo(() => {
     const countries = Array.from(
@@ -599,6 +650,21 @@ const userCanExport = canExport(currentRole);
     sortDirection,
   ]);
 
+  const pageCount = Math.max(1, Math.ceil(filteredAndSorted.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, pageCount);
+  const pageStartIndex = (safeCurrentPage - 1) * pageSize;
+  const paginatedProjects = filteredAndSorted.slice(
+    pageStartIndex,
+    pageStartIndex + pageSize
+  );
+  const pageEndIndex = Math.min(pageStartIndex + pageSize, filteredAndSorted.length);
+
+  useEffect(() => {
+    if (currentPage > pageCount) {
+      setCurrentPage(pageCount);
+    }
+  }, [currentPage, pageCount]);
+
   function handleSort(key: SortKey) {
     if (sortKey === key) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -606,6 +672,44 @@ const userCanExport = canExport(currentRole);
       setSortKey(key);
       setSortDirection("asc");
     }
+  }
+
+  function applySavedView(view: "active" | "pipeline" | "needsResearch" | "all") {
+    if (view === "active") {
+      setViewMode("active");
+      setPhaseFilter("All Phases");
+      setResearchStatusFilter("All Research Status");
+    }
+
+    if (view === "pipeline") {
+      setViewMode("active");
+      setPhaseFilter("Construction");
+      setResearchStatusFilter("All Research Status");
+    }
+
+    if (view === "needsResearch") {
+      setViewMode("active");
+      setPhaseFilter("All Phases");
+      setResearchStatusFilter("Need Info");
+    }
+
+    if (view === "all") {
+      setViewMode("all");
+      setPhaseFilter("All Phases");
+      setResearchStatusFilter("All Research Status");
+    }
+  }
+
+  function isColumnVisible(key: ProjectColumnKey) {
+    return visibleColumns[key];
+  }
+
+  function toggleColumn(key: ProjectColumnKey) {
+    if (key === "project_name") return;
+    setVisibleColumns((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   }
 
   async function handleExport(selectedKeys: string[]) {
@@ -648,6 +752,9 @@ const userCanExport = canExport(currentRole);
     (total, item) => total + item.mw,
     0
   );
+  const visibleTableColumnCount =
+    projectColumnOptions.filter((column) => isColumnVisible(column.key)).length +
+    (userCanEdit ? 1 : 0);
 
   return (
     <main className="space-y-7">
@@ -830,6 +937,37 @@ const userCanExport = canExport(currentRole);
         </div>
 
         <div className="space-y-3 border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-3">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => applySavedView("active")}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+            >
+              Active Projects
+            </button>
+            <button
+              type="button"
+              onClick={() => applySavedView("pipeline")}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+            >
+              Construction Pipeline
+            </button>
+            <button
+              type="button"
+              onClick={() => applySavedView("needsResearch")}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+            >
+              Needs Research
+            </button>
+            <button
+              type="button"
+              onClick={() => applySavedView("all")}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+            >
+              All Projects
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             <div>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
@@ -905,36 +1043,82 @@ const userCanExport = canExport(currentRole);
             placeholder="Search projects by name, country, owner/operator, phase, technology, or review state..."
             className={`w-full px-3 py-2 text-sm ${projectsClass.input}`}
           />
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <details className="relative">
+              <summary className="inline-flex h-9 cursor-pointer items-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]">
+                Columns
+              </summary>
+              <div className="absolute left-0 z-20 mt-2 w-64 border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] p-3 shadow-lg">
+                <div className={`mb-2 text-xs font-semibold uppercase tracking-wide ${projectsClass.muted}`}>
+                  Default table columns
+                </div>
+                <div className="space-y-2">
+                  {projectColumnOptions.map((column) => (
+                    <label
+                      key={column.key}
+                      className="flex items-center gap-2 text-sm text-[var(--tge-text-primary)]"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isColumnVisible(column.key)}
+                        disabled={column.key === "project_name"}
+                        onChange={() => toggleColumn(column.key)}
+                      />
+                      <span>{column.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </details>
+
+            <label className="flex items-center gap-2 text-sm text-[var(--tge-text-secondary)]">
+              Rows per page
+              <select
+                value={pageSize}
+                onChange={(event) => setPageSize(Number(event.target.value))}
+                className={`h-9 px-2 text-sm ${projectsClass.input}`}
+              >
+                {PAGE_SIZE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 pt-3">
           <p className={`text-sm ${projectsClass.muted}`}>
-            Showing {formatCount(filteredAndSorted.length)} of{" "}
-            {formatCount(projects.length)} projects. Scroll horizontally for
-            secondary fields.
+            Showing {formatCount(filteredAndSorted.length === 0 ? 0 : pageStartIndex + 1)}
+            -{formatCount(pageEndIndex)} of {formatCount(filteredAndSorted.length)}
+            {" "}projects in this view.
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <div className="min-w-max">
-            <table className="min-w-[1500px] table-fixed text-left text-sm">
+        <div className="hidden px-5 py-3 xl:block">
+            <table className="w-full table-fixed text-left text-[13px]">
               <colgroup>
-                <col className="w-[100px]" />
-                <col className="w-[300px]" />
-                <col className="w-[150px]" />
-                <col className="w-[220px]" />
-                <col className="w-[150px]" />
-                <col className="w-[150px]" />
-                <col className="w-[130px]" />
-                <col className="w-[140px]" />
-                <col className="w-[140px]" />
-                {userCanEdit && <col className="w-[90px]" />}
+                {isColumnVisible("project_id") && <col className="w-[7%]" />}
+                {isColumnVisible("project_name") && <col className="w-[22%]" />}
+                {isColumnVisible("country") && <col className="w-[10%]" />}
+                {isColumnVisible("owner_operator") && <col className="w-[14%]" />}
+                {isColumnVisible("installed_capacity_mw") && <col className="w-[8%]" />}
+                {isColumnVisible("project_phase") && <col className="w-[9%]" />}
+                {isColumnVisible("plant_technology") && <col className="w-[9%]" />}
+                {isColumnVisible("research_status") && <col className="w-[8%]" />}
+                {isColumnVisible("review_status") && <col className="w-[8%]" />}
+                {userCanEdit && <col className="w-[5%]" />}
               </colgroup>
 
               <thead className="bg-[var(--tge-governance-neutral-bg)] text-left text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
                 <tr>
-                  <th className={projectsClass.tableHead}>Project ID</th>
-                  <th className={projectsClass.tableHead}>
+                  {isColumnVisible("project_id") && (
+                    <th className={projectsClass.tableHead}>Project ID</th>
+                  )}
+                  {isColumnVisible("project_name") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Name"
                       column="project_name"
@@ -943,7 +1127,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("country") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Country"
                       column="country"
@@ -952,7 +1138,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("owner_operator") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Owner / Operator"
                       column="owner_operator"
@@ -961,7 +1149,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("installed_capacity_mw") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Planned MWe"
                       column="installed_capacity_mw"
@@ -970,7 +1160,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("project_phase") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Phase"
                       column="project_phase"
@@ -979,7 +1171,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("plant_technology") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Technology"
                       column="plant_technology"
@@ -988,7 +1182,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("research_status") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Research Status"
                       column="research_status"
@@ -997,7 +1193,9 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
-                  <th className={projectsClass.tableHead}>
+                  )}
+                  {isColumnVisible("review_status") && (
+                    <th className={projectsClass.tableHead}>
                     <SortableHeader
                       label="Review Status"
                       column="review_status"
@@ -1006,6 +1204,7 @@ const userCanExport = canExport(currentRole);
                       onSort={handleSort}
                     />
                   </th>
+                  )}
                   {userCanEdit && (
                     <th className={projectsClass.tableHead}>Action</th>
                   )}
@@ -1013,22 +1212,27 @@ const userCanExport = canExport(currentRole);
               </thead>
 
               <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
-                {filteredAndSorted.map((project) => (
+                {paginatedProjects.map((project) => (
                   <tr key={project.project_id} className="transition hover:bg-[var(--tge-surface-subtle)]">
-                    <td className={`${projectsClass.tableCell} font-mono text-xs ${projectsClass.muted}`}>
+                    {isColumnVisible("project_id") && (
+                      <td className={`${projectsClass.tableCell} truncate font-mono text-[11px] ${projectsClass.muted}`}>
                       {project.project_id}
                     </td>
+                    )}
 
-                    <td className={projectsClass.tableCell}>
+                    {isColumnVisible("project_name") && (
+                      <td className={projectsClass.tableCell}>
                       <Link
                         href={`/projects/${project.project_id}`}
-                        className={`${projectsClass.link} line-clamp-2 text-[15px] font-semibold leading-5`}
+                        className={`${projectsClass.link} line-clamp-2 text-sm font-semibold leading-5`}
                       >
                         {project.project_name || "NA"}
                       </Link>
                     </td>
+                    )}
 
-                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
+                    {isColumnVisible("country") && (
+                      <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       {project.country ? (
                         <Link
                           href={`/markets/countries/${slugify(project.country)}`}
@@ -1040,37 +1244,50 @@ const userCanExport = canExport(currentRole);
                         <MissingValue />
                       )}
                     </td>
+                    )}
 
-                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
-                      <div className="line-clamp-2 max-w-[220px]">
+                    {isColumnVisible("owner_operator") && (
+                      <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
+                      <div className="line-clamp-2">
                         {project.owner_operator || <MissingValue />}
                       </div>
                     </td>
+                    )}
 
-                    <td className={`${projectsClass.tableCell} font-semibold ${projectsClass.title}`}>
+                    {isColumnVisible("installed_capacity_mw") && (
+                      <td className={`${projectsClass.tableCell} font-semibold ${projectsClass.title}`}>
                       {project.installed_capacity_mw !== null &&
                       project.installed_capacity_mw !== undefined
                         ? `${formatMw(project.installed_capacity_mw, 1)} MWe`
                         : <MissingValue />}
                     </td>
+                    )}
 
-                    <td className={projectsClass.tableCell}>
+                    {isColumnVisible("project_phase") && (
+                      <td className={projectsClass.tableCell}>
                       <PhaseBadge value={project.project_phase} />
                     </td>
+                    )}
 
-                    <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
+                    {isColumnVisible("plant_technology") && (
+                      <td className={`${projectsClass.tableCell} ${projectsClass.body}`}>
                       <span className="line-clamp-2">
                         {project.plant_technology || <MissingValue />}
                       </span>
                     </td>
+                    )}
 
-                    <td className={projectsClass.tableCell}>
+                    {isColumnVisible("research_status") && (
+                      <td className={projectsClass.tableCell}>
                       <ResearchStatusBadge value={project.research_status} />
                     </td>
+                    )}
 
-                    <td className={projectsClass.tableCell}>
+                    {isColumnVisible("review_status") && (
+                      <td className={projectsClass.tableCell}>
                       <ReviewStatusBadge value={project.review_status} />
                     </td>
+                    )}
 
                     {userCanEdit && (
                       <td className={projectsClass.tableCell}>
@@ -1088,7 +1305,7 @@ const userCanExport = canExport(currentRole);
                 {filteredAndSorted.length === 0 && (
                   <tr>
                     <td
-                      colSpan={userCanEdit ? 10 : 9}
+                      colSpan={visibleTableColumnCount}
                       className={`px-4 py-8 text-center text-sm ${projectsClass.muted}`}
                     >
                       No projects found for the current search / filters.
@@ -1097,6 +1314,97 @@ const userCanExport = canExport(currentRole);
                 )}
               </tbody>
             </table>
+        </div>
+
+        <div className="space-y-3 px-5 py-3 xl:hidden">
+          {paginatedProjects.map((project) => (
+            <article
+              key={`card-${project.project_id}`}
+              className="border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] p-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className={`font-mono text-[11px] ${projectsClass.muted}`}>
+                    {project.project_id}
+                  </div>
+                  <Link
+                    href={`/projects/${project.project_id}`}
+                    className={`${projectsClass.link} mt-1 block line-clamp-2 text-sm font-semibold leading-5`}
+                  >
+                    {project.project_name || "NA"}
+                  </Link>
+                </div>
+                <PhaseBadge value={project.project_phase} />
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <div className={projectsClass.muted}>Country</div>
+                  <div className={projectsClass.title}>{project.country || "-"}</div>
+                </div>
+                <div>
+                  <div className={projectsClass.muted}>Planned MWe</div>
+                  <div className={`font-semibold ${projectsClass.title}`}>
+                    {project.installed_capacity_mw !== null &&
+                    project.installed_capacity_mw !== undefined
+                      ? `${formatMw(project.installed_capacity_mw, 1)} MWe`
+                      : "-"}
+                  </div>
+                </div>
+                <div className="col-span-2">
+                  <div className={projectsClass.muted}>Owner / Operator</div>
+                  <div className={`${projectsClass.title} line-clamp-2`}>
+                    {project.owner_operator || "-"}
+                  </div>
+                </div>
+                <div>
+                  <div className={projectsClass.muted}>Research</div>
+                  <ResearchStatusBadge value={project.research_status} />
+                </div>
+                <div>
+                  <div className={projectsClass.muted}>Review</div>
+                  <ReviewStatusBadge value={project.review_status} />
+                </div>
+              </div>
+              {userCanEdit && (
+                <div className="mt-3">
+                  <Link
+                    href={`/projects/${project.project_id}/edit`}
+                    className={projectsClass.primaryPill}
+                  >
+                    Edit
+                  </Link>
+                </div>
+              )}
+            </article>
+          ))}
+          {filteredAndSorted.length === 0 && (
+            <div className={`border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] px-4 py-6 text-center text-sm ${projectsClass.muted}`}>
+              No projects found for the current search / filters.
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-3 border-t border-[var(--tge-governance-neutral-border)] px-5 py-3 md:flex-row md:items-center md:justify-between">
+          <div className={`text-sm ${projectsClass.muted}`}>
+            Page {formatCount(safeCurrentPage)} of {formatCount(pageCount)}
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              disabled={safeCurrentPage <= 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              disabled={safeCurrentPage >= pageCount}
+              onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+              className="border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
           </div>
         </div>
         </section>
