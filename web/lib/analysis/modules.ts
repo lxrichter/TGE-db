@@ -248,7 +248,7 @@ export const analysisModules: AnalysisModule[] = [
     title: "Owners & Operators Analysis",
     description:
       "Weighted owner MWe and operator-linked installed MWe based on structured company-to-plant links.",
-    href: "/analysis/operators",
+    href: "/analysis/owners-operators",
     status: "live",
     category: "company_roles",
     sourceBasis: "Company-to-plant links: owner/operator roles, ownership share, installed MWe",
