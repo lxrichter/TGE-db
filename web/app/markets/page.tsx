@@ -1,5 +1,12 @@
 import Link from "next/link";
 
+import {
+  KPIStat,
+  PageHeader,
+  SectionHeader,
+} from "@/components/design-system/TgeDesignSystem";
+import { getPrismaClient } from "@/lib/db/prisma";
+import { tgeChartLanguageV2 } from "@/lib/design-system";
 import { formatCount, formatMw } from "@/lib/format";
 import {
   listPostgresCountryMarketSummaries,
@@ -14,7 +21,8 @@ const panelHeaderClass =
   "border-b border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)]";
 const titleTextClass = "text-[var(--tge-text-primary)]";
 const bodyTextClass = "text-[var(--tge-text-secondary)]";
-const brandLinkClass = "text-[var(--tge-brand-green-dark)]";
+const mutedTextClass = "text-[var(--tge-governance-muted-text)]";
+const linkActionClass = "text-[var(--tge-brand-green-dark)]";
 
 type RegionSummary = {
   region: string;
@@ -22,22 +30,76 @@ type RegionSummary = {
   operatingMwe: number;
   pipelineMwe: number;
   activeProjects: number;
-  sourceGaps: number;
 };
+
+type MarketLifecycleRow = {
+  country: string;
+  phase: string;
+  projectCount: number;
+  pipelineMwe: number;
+};
+
+const lifecycleOrder = [
+  "Prospect / TBD",
+  "Exploration",
+  "Pre-Feasibility",
+  "Feasibility",
+  "Construction",
+  "Operating",
+  "Cancelled",
+];
 
 async function getMarketRows() {
   try {
+    const [rows, lifecycleRows] = await Promise.all([
+      listPostgresCountryMarketSummaries(250),
+      listMarketLifecycleRows(),
+    ]);
+
     return {
       ok: true as const,
-      rows: await listPostgresCountryMarketSummaries(250),
+      lifecycleRows,
+      rows,
     };
   } catch (error) {
     return {
       ok: false as const,
       error: error instanceof Error ? error.message : "Unknown PostgreSQL error",
+      lifecycleRows: [],
       rows: [],
     };
   }
+}
+
+async function listMarketLifecycleRows(): Promise<MarketLifecycleRow[]> {
+  const rows = await getPrismaClient().$queryRawUnsafe<
+    Array<{
+      country: string | null;
+      phase: string | null;
+      project_count: number | bigint | string | null;
+      pipeline_mwe: number | bigint | string | null;
+    }>
+  >(`
+    SELECT
+      COALESCE(cr.country_name, NULLIF(trim(p.country), '')) AS country,
+      COALESCE(NULLIF(trim(p.lifecycle_phase_code), ''), 'prospect_tbd') AS phase,
+      count(*)::int AS project_count,
+      COALESCE(sum(COALESCE(p.electric_capacity_mwe, 0)), 0)::float8 AS pipeline_mwe
+    FROM projects p
+    LEFT JOIN countries_reference cr
+      ON cr.country_id = p.country_id
+    WHERE COALESCE(cr.country_name, NULLIF(trim(p.country), '')) IS NOT NULL
+    GROUP BY
+      COALESCE(cr.country_name, NULLIF(trim(p.country), '')),
+      COALESCE(NULLIF(trim(p.lifecycle_phase_code), ''), 'prospect_tbd')
+  `);
+
+  return rows.map((row) => ({
+    country: row.country ?? "Unclassified",
+    phase: formatLifecyclePhase(row.phase),
+    projectCount: Number(row.project_count ?? 0),
+    pipelineMwe: Number(row.pipeline_mwe ?? 0),
+  }));
 }
 
 function summarizeRegions(rows: PostgresCountryMarketSummary[]) {
@@ -51,14 +113,12 @@ function summarizeRegions(rows: PostgresCountryMarketSummary[]) {
       operatingMwe: 0,
       pipelineMwe: 0,
       activeProjects: 0,
-      sourceGaps: 0,
     };
 
     current.countryCount += 1;
     current.operatingMwe += row.operating_installed_mwe;
     current.pipelineMwe += row.project_pipeline_mwe;
     current.activeProjects += row.active_project_count;
-    current.sourceGaps += row.missing_source_count;
     regions.set(region, current);
   });
 
@@ -67,11 +127,75 @@ function summarizeRegions(rows: PostgresCountryMarketSummary[]) {
   );
 }
 
-function maxRegionSignal(regions: RegionSummary[]) {
-  return Math.max(
-    ...regions.map((region) => region.operatingMwe + region.pipelineMwe),
-    1
+function countrySlug(country: string) {
+  return encodeURIComponent(country.toLowerCase().replaceAll(" ", "-"));
+}
+
+function regionSlug(region: string) {
+  return encodeURIComponent(
+    region.toLowerCase().replaceAll(" ", "-").replaceAll("&", "and")
   );
+}
+
+function formatRatio(value: number) {
+  if (!Number.isFinite(value)) return "-";
+  if (value >= 10) return `${Math.round(value)}x`;
+  return `${value.toFixed(1)}x`;
+}
+
+function pipelineOperatingRatio(row: PostgresCountryMarketSummary) {
+  if (row.operating_installed_mwe > 0) {
+    return row.project_pipeline_mwe / row.operating_installed_mwe;
+  }
+  return row.project_pipeline_mwe > 0 ? Infinity : 0;
+}
+
+function formatLifecyclePhase(value: string | null | undefined) {
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replaceAll("-", "_")
+    .replaceAll(" ", "_");
+
+  if (
+    normalized.includes("pre_feas") ||
+    normalized.includes("prefeas")
+  ) {
+    return "Pre-Feasibility";
+  }
+  if (normalized.includes("feas")) return "Feasibility";
+  if (normalized.includes("construct")) return "Construction";
+  if (normalized.includes("operat")) return "Operating";
+  if (
+    normalized.includes("cancel") ||
+    normalized.includes("suspend") ||
+    normalized.includes("archive")
+  ) {
+    return "Cancelled";
+  }
+  if (normalized.includes("explor")) return "Exploration";
+  return "Prospect / TBD";
+}
+
+function lifecycleColor(phase: string | undefined) {
+  const entry = tgeChartLanguageV2.lifecycle.find(
+    (item) => item.label === phase
+  );
+  return entry?.cssVar ?? "var(--tge-chart-lifecycle-prospect)";
+}
+
+function phaseMapForCountry(lifecycleRows: MarketLifecycleRow[], country: string) {
+  const rows = lifecycleRows.filter((row) => row.country === country);
+  const phases = new Map<string, { projectCount: number; pipelineMwe: number }>();
+
+  rows.forEach((row) => {
+    const current = phases.get(row.phase) ?? { projectCount: 0, pipelineMwe: 0 };
+    current.projectCount += row.projectCount;
+    current.pipelineMwe += row.pipelineMwe;
+    phases.set(row.phase, current);
+  });
+
+  return phases;
 }
 
 function MarketPathCard({
@@ -88,134 +212,87 @@ function MarketPathCard({
       href={href}
       className={`${panelClass} block transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]`}
     >
-      <div className={`${panelHeaderClass} px-5 py-4`}>
-        <h2 className={`text-xl font-bold ${titleTextClass}`}>{title}</h2>
-      </div>
-
-      <div className="px-5 py-5">
-        <p className={`text-sm leading-7 ${bodyTextClass}`}>{text}</p>
-        <div className={`mt-5 text-xs font-semibold uppercase tracking-wide ${brandLinkClass}`}>
-          Open {title}
-        </div>
+      <div className="px-5 py-4">
+        <h2 className={`text-base font-bold ${titleTextClass}`}>{title}</h2>
+        <p className={`mt-2 text-sm leading-6 ${bodyTextClass}`}>{text}</p>
       </div>
     </Link>
   );
 }
 
-function MarketKpi({
-  label,
-  value,
-  note,
-  tone = "neutral",
-}: {
-  label: string;
-  value: string;
-  note: string;
-  tone?: "operating" | "pipeline" | "market" | "governance" | "neutral";
-}) {
-  const toneClass =
-    tone === "operating"
-      ? "border-l-[var(--tge-status-bar-operating)] bg-[var(--tge-governance-success-bg)]"
-      : tone === "pipeline"
-        ? "border-l-[var(--tge-governance-info-text)] bg-[var(--tge-governance-info-bg)]"
-        : tone === "market"
-          ? "border-l-[var(--tge-status-bar-attention)] bg-[var(--tge-governance-attention-bg)]"
-          : tone === "governance"
-            ? "border-l-[var(--tge-governance-attention-text)] bg-[var(--tge-governance-attention-bg)]"
-            : "border-l-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)]";
-
-  return (
-    <div className={`border border-l-4 border-transparent ${toneClass} px-4 py-3.5 shadow-sm`}>
-      <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
-        {label}
-      </div>
-      <div className={`mt-2.5 text-2xl font-bold leading-none ${titleTextClass} xl:text-[2rem]`}>
-        {value}
-      </div>
-      <div className={`mt-2 text-sm leading-5 ${bodyTextClass}`}>{note}</div>
-    </div>
+function RegionalMarketComparison({ regions }: { regions: RegionSummary[] }) {
+  const maxCapacity = Math.max(
+    ...regions.map((region) => Math.max(region.operatingMwe, region.pipelineMwe)),
+    1
   );
-}
-
-function RegionOverview({ regions }: { regions: RegionSummary[] }) {
-  const maxSignal = maxRegionSignal(regions);
 
   return (
     <section className={panelClass}>
       <div className={`${panelHeaderClass} px-5 py-4`}>
-        <h2 className={`text-lg font-bold ${titleTextClass}`}>
-          TGE Regional Intelligence Overview
-        </h2>
-        <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-          TGE regions are the primary market-intelligence taxonomy. World Bank
-          regions remain secondary for external benchmarking.
-        </p>
+        <SectionHeader
+          title="Regional Market Comparison"
+          description="Operating capacity and pipeline capacity by TGE region in one comparison view."
+          action={
+            <Link
+              href="/markets/regions"
+              className={`text-xs font-semibold uppercase tracking-wide ${linkActionClass}`}
+            >
+              Regions
+            </Link>
+          }
+        />
       </div>
-      <div className="divide-y divide-[var(--tge-governance-muted-border)]">
+
+      <div className="space-y-4 px-5 py-4">
         {regions.slice(0, 7).map((region) => {
-          const signal = region.operatingMwe + region.pipelineMwe;
-          const widthValue = Math.max(8, (signal / maxSignal) * 100);
-          const width = `${widthValue}%`;
-          const operatingShare =
-            signal > 0 ? (region.operatingMwe / signal) * 100 : 0;
-          const pipelineShare =
-            signal > 0 ? (region.pipelineMwe / signal) * 100 : 0;
+          const operatingWidth = Math.max(3, (region.operatingMwe / maxCapacity) * 100);
+          const pipelineWidth = Math.max(3, (region.pipelineMwe / maxCapacity) * 100);
 
           return (
             <Link
               key={region.region}
-              href={`/markets/regions/${encodeURIComponent(region.region.toLowerCase().replaceAll(" ", "-").replaceAll("&", "and"))}`}
-              className="block px-5 py-5 transition hover:bg-[var(--tge-governance-success-bg)]"
+              href={`/markets/regions/${regionSlug(region.region)}`}
+              className="block"
             >
-              <div className="grid gap-4 xl:grid-cols-[minmax(220px,0.7fr)_minmax(420px,1fr)_minmax(160px,0.35fr)] xl:items-center">
-                <div className="min-w-0">
-                  <div className={`font-bold ${titleTextClass}`}>{region.region}</div>
-                  <div className={`mt-1 text-xs ${bodyTextClass}`}>
-                    {formatCount(region.countryCount)} countries ·{" "}
-                    {formatCount(region.activeProjects)} active projects ·{" "}
-                    {formatCount(region.sourceGaps)} source gaps
-                  </div>
-                </div>
-
+              <div className="grid gap-3 md:grid-cols-[170px_1fr] md:items-center">
                 <div>
-                  <div className="flex flex-wrap justify-between gap-x-5 gap-y-1 text-xs font-semibold text-[var(--tge-governance-muted-text)]">
-                    <span>
-                      <span className="text-[var(--tge-status-bar-operating)]">
-                        {formatMw(region.operatingMwe)} MWe
-                      </span>{" "}
-                      operating
-                    </span>
-                    <span>
-                      <span className="text-[var(--tge-governance-info-text)]">
-                        {formatMw(region.pipelineMwe)} MWe
-                      </span>{" "}
-                      pipeline
-                    </span>
+                  <div className={`text-sm font-semibold ${titleTextClass}`}>
+                    {region.region}
                   </div>
-                  <div className="mt-2 h-5 bg-[var(--tge-governance-neutral-bg)]">
-                    <div
-                      className="relative flex h-5 overflow-hidden"
-                      style={{ width }}
-                    >
-                      <div
-                        className="h-5 bg-[var(--tge-status-bar-success)]"
-                        style={{ width: `${operatingShare}%` }}
-                      />
-                      <div
-                        className="h-5 bg-[var(--tge-governance-info-text)]"
-                        style={{ width: `${pipelineShare}%` }}
-                      />
-                      {widthValue >= 46 ? (
-                        <span className="absolute inset-y-0 right-2 flex items-center text-[10px] font-bold text-[var(--tge-surface-card)]">
-                          {formatMw(signal)} MWe
-                        </span>
-                      ) : null}
-                    </div>
+                  <div className={`mt-1 text-xs ${mutedTextClass}`}>
+                    {formatCount(region.countryCount)} markets ·{" "}
+                    {formatCount(region.activeProjects)} projects
                   </div>
                 </div>
-
-                <div className="text-sm font-semibold text-[var(--tge-text-primary)] xl:text-right">
-                  {formatMw(signal)} MWe total signal
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-16 text-[11px] font-semibold uppercase ${mutedTextClass}`}>
+                      Operating
+                    </span>
+                    <div className="h-4 flex-1 bg-[var(--tge-governance-neutral-bg)]">
+                      <div
+                        className="h-4 bg-[var(--tge-chart-ranking-installed-capacity)]"
+                        style={{ width: `${operatingWidth}%` }}
+                      />
+                    </div>
+                    <span className={`w-24 text-right text-xs font-semibold ${titleTextClass}`}>
+                      {formatMw(region.operatingMwe)} MWe
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-16 text-[11px] font-semibold uppercase ${mutedTextClass}`}>
+                      Pipeline
+                    </span>
+                    <div className="h-4 flex-1 bg-[var(--tge-governance-neutral-bg)]">
+                      <div
+                        className="h-4 bg-[var(--tge-chart-ranking-pipeline-capacity)]"
+                        style={{ width: `${pipelineWidth}%` }}
+                      />
+                    </div>
+                    <span className={`w-24 text-right text-xs font-semibold ${titleTextClass}`}>
+                      {formatMw(region.pipelineMwe)} MWe
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>
@@ -226,7 +303,7 @@ function RegionOverview({ regions }: { regions: RegionSummary[] }) {
   );
 }
 
-function CountryRankingTable({
+function TopMarketsTable({
   rows,
 }: {
   rows: PostgresCountryMarketSummary[];
@@ -242,69 +319,289 @@ function CountryRankingTable({
 
   return (
     <section className={panelClass}>
-      <div className={`${panelHeaderClass} flex flex-col gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between`}>
-        <div>
-          <h2 className={`text-lg font-bold ${titleTextClass}`}>
-            Country Market Rankings
-          </h2>
-          <p className={`mt-1 text-sm leading-6 ${bodyTextClass}`}>
-            Combined operating and pipeline capacity signals with evidence-gap
-            visibility.
-          </p>
-        </div>
-        <Link
-          href="/markets/countries"
-          className="inline-flex h-9 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-brand-green-dark)] hover:bg-[var(--tge-governance-success-bg)]"
-        >
-          All Countries
-        </Link>
+      <div className={`${panelHeaderClass} px-5 py-4`}>
+        <SectionHeader
+          title="Top Markets"
+          description="Leading geothermal markets by operating and pipeline capacity."
+        />
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-[820px] table-fixed text-left text-sm">
+        <table className="min-w-[900px] table-fixed text-left text-sm">
           <thead className="bg-[var(--tge-governance-neutral-bg)] text-[11px] uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
             <tr>
-              <th className="w-[26%] px-5 py-3 font-semibold">Country</th>
-              <th className="w-[18%] px-5 py-3 font-semibold">TGE Region</th>
-              <th className="w-[16%] px-5 py-3 font-semibold">Operating MWe</th>
-              <th className="w-[16%] px-5 py-3 font-semibold">Pipeline MWe</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Projects</th>
-              <th className="w-[12%] px-5 py-3 font-semibold">Source Gaps</th>
+              <th className="w-[25%] px-5 py-3 font-semibold">Country</th>
+              <th className="w-[18%] px-5 py-3 font-semibold">Region</th>
+              <th className="w-[15%] px-5 py-3 text-right font-semibold">Operating MWe</th>
+              <th className="w-[15%] px-5 py-3 text-right font-semibold">Pipeline MWe</th>
+              <th className="w-[15%] px-5 py-3 text-right font-semibold">Pipeline / Operating</th>
+              <th className="w-[12%] px-5 py-3 text-right font-semibold">Active Projects</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--tge-governance-muted-border)]">
-            {topRows.map((row) => (
-              <tr key={`${row.country}-${row.iso3}`} className="align-top hover:bg-[var(--tge-surface-subtle)]">
-                <td className="px-5 py-4">
-                  <Link
-                    href={`/markets/countries/${encodeURIComponent(row.country.toLowerCase().replaceAll(" ", "-"))}`}
-                    className={`font-semibold ${titleTextClass} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
-                  >
-                    {row.country}
-                  </Link>
-                  {row.iso3 ? (
-                    <div className="mt-1 text-xs text-[var(--tge-governance-muted-text)]">
-                      {row.iso3}
-                    </div>
-                  ) : null}
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>{row.tge_region || "-"}</td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatMw(row.operating_installed_mwe)} MWe
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatMw(row.project_pipeline_mwe)} MWe
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatCount(row.active_project_count)}
-                </td>
-                <td className={`px-5 py-4 ${bodyTextClass}`}>
-                  {formatCount(row.missing_source_count)}
-                </td>
-              </tr>
-            ))}
+            {topRows.map((row) => {
+              const ratio = pipelineOperatingRatio(row);
+              return (
+                <tr
+                  key={`${row.country}-${row.iso3}`}
+                  className="align-top hover:bg-[var(--tge-surface-subtle)]"
+                >
+                  <td className="px-5 py-3.5">
+                    <Link
+                      href={`/markets/countries/${countrySlug(row.country)}`}
+                      className={`font-semibold ${titleTextClass} hover:text-[var(--tge-brand-green-dark)] hover:underline`}
+                    >
+                      {row.country}
+                    </Link>
+                    {row.iso3 ? (
+                      <div className={`mt-1 text-xs ${mutedTextClass}`}>
+                        {row.iso3}
+                      </div>
+                    ) : null}
+                  </td>
+                  <td className={`px-5 py-3.5 ${bodyTextClass}`}>
+                    {row.tge_region || "-"}
+                  </td>
+                  <td className={`px-5 py-3.5 text-right font-semibold ${titleTextClass}`}>
+                    {formatMw(row.operating_installed_mwe)}
+                  </td>
+                  <td className={`px-5 py-3.5 text-right font-semibold ${titleTextClass}`}>
+                    {formatMw(row.project_pipeline_mwe)}
+                  </td>
+                  <td className={`px-5 py-3.5 text-right ${bodyTextClass}`}>
+                    {ratio === Infinity ? "Pipeline only" : formatRatio(ratio)}
+                  </td>
+                  <td className={`px-5 py-3.5 text-right ${bodyTextClass}`}>
+                    {formatCount(row.active_project_count)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+      </div>
+    </section>
+  );
+}
+
+function CapacityConcentration({
+  rows,
+}: {
+  rows: PostgresCountryMarketSummary[];
+}) {
+  const topRows = [...rows]
+    .filter((row) => row.operating_installed_mwe > 0)
+    .sort((a, b) => b.operating_installed_mwe - a.operating_installed_mwe)
+    .slice(0, 8);
+  const maxOperating = Math.max(
+    ...topRows.map((row) => row.operating_installed_mwe),
+    1
+  );
+  const totalOperating = rows.reduce(
+    (total, row) => total + row.operating_installed_mwe,
+    0
+  );
+
+  return (
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-5 py-4`}>
+        <SectionHeader
+          title="Global Capacity Concentration"
+          description="Where installed geothermal capacity is concentrated today."
+        />
+      </div>
+
+      <div className="space-y-3 px-5 py-4">
+        {topRows.map((row) => {
+          const width = Math.max(4, (row.operating_installed_mwe / maxOperating) * 100);
+          const share =
+            totalOperating > 0
+              ? Math.round((row.operating_installed_mwe / totalOperating) * 100)
+              : 0;
+
+          return (
+            <Link
+              key={`capacity-${row.country}`}
+              href={`/markets/countries/${countrySlug(row.country)}`}
+              className="block"
+            >
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span className={`font-semibold ${titleTextClass}`}>{row.country}</span>
+                <span className={`text-xs font-semibold ${mutedTextClass}`}>
+                  {formatMw(row.operating_installed_mwe)} MWe · {share}%
+                </span>
+              </div>
+              <div className="mt-1.5 h-4 bg-[var(--tge-governance-neutral-bg)]">
+                <div
+                  className="h-4 bg-[var(--tge-chart-ranking-installed-capacity)]"
+                  style={{ width: `${width}%` }}
+                />
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function LifecycleMixByMarket({
+  rows,
+  lifecycleRows,
+}: {
+  rows: PostgresCountryMarketSummary[];
+  lifecycleRows: MarketLifecycleRow[];
+}) {
+  const topPipelineRows = [...rows]
+    .filter((row) => row.project_pipeline_mwe > 0)
+    .sort((a, b) => b.project_pipeline_mwe - a.project_pipeline_mwe)
+    .slice(0, 7);
+
+  return (
+    <section className={panelClass}>
+      <div className={`${panelHeaderClass} px-5 py-4`}>
+        <SectionHeader
+          title="Lifecycle Mix by Market"
+          description="Development maturity across major pipeline markets using the approved lifecycle palette."
+        />
+      </div>
+
+      <div className="space-y-4 px-5 py-4">
+        {topPipelineRows.map((row) => {
+          const phaseMap = phaseMapForCountry(lifecycleRows, row.country);
+          const totalMwe =
+            [...phaseMap.values()].reduce(
+              (total, phase) => total + phase.pipelineMwe,
+              0
+            ) || row.project_pipeline_mwe;
+
+          return (
+            <Link
+              key={`lifecycle-${row.country}`}
+              href={`/markets/countries/${countrySlug(row.country)}`}
+              className="block"
+            >
+              <div className="mb-1.5 flex items-center justify-between gap-4 text-sm">
+                <span className={`font-semibold ${titleTextClass}`}>{row.country}</span>
+                <span className={`text-xs font-semibold ${mutedTextClass}`}>
+                  {formatMw(row.project_pipeline_mwe)} MWe ·{" "}
+                  {formatCount(row.active_project_count)} projects
+                </span>
+              </div>
+              <div className="flex h-5 overflow-hidden bg-[var(--tge-governance-neutral-bg)]">
+                {lifecycleOrder.map((phase) => {
+                  const phaseValue = phaseMap.get(phase)?.pipelineMwe ?? 0;
+                  const width = totalMwe > 0 ? (phaseValue / totalMwe) * 100 : 0;
+                  if (width <= 0) return null;
+                  return (
+                    <div
+                      key={`${row.country}-${phase}`}
+                      className="h-5"
+                      style={{
+                        backgroundColor: lifecycleColor(phase),
+                        width: `${width}%`,
+                      }}
+                      title={`${phase}: ${formatMw(phaseValue)} MWe`}
+                    />
+                  );
+                })}
+              </div>
+            </Link>
+          );
+        })}
+
+        <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[var(--tge-governance-muted-border)] pt-3">
+          {lifecycleOrder.map((phase) => (
+            <div key={phase} className="flex items-center gap-2 text-xs">
+              <span
+                className="h-2.5 w-2.5"
+                style={{ backgroundColor: lifecycleColor(phase) }}
+              />
+              <span className={mutedTextClass}>{phase}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MarketsToWatch({
+  rows,
+  lifecycleRows,
+}: {
+  rows: PostgresCountryMarketSummary[];
+  lifecycleRows: MarketLifecycleRow[];
+}) {
+  const watchRows = [...rows]
+    .filter((row) => row.project_pipeline_mwe > 0 || row.active_project_count > 0)
+    .sort((a, b) => {
+      const aRatio = pipelineOperatingRatio(a);
+      const bRatio = pipelineOperatingRatio(b);
+      const aScore =
+        a.project_pipeline_mwe * 0.7 +
+        a.active_project_count * 50 +
+        (aRatio === Infinity ? 300 : Math.min(aRatio, 8) * 70);
+      const bScore =
+        b.project_pipeline_mwe * 0.7 +
+        b.active_project_count * 50 +
+        (bRatio === Infinity ? 300 : Math.min(bRatio, 8) * 70);
+      return bScore - aScore;
+    })
+    .slice(0, 4);
+
+  return (
+    <section className="border border-[var(--tge-brand-green)] bg-[var(--tge-surface-card)] shadow-sm">
+      <div className="border-b border-[var(--tge-governance-success-border)] px-5 py-4">
+        <SectionHeader
+          title="Markets to Watch"
+          description="Priority markets based on pipeline scale, pipeline ratio, and lifecycle composition."
+        />
+      </div>
+
+      <div className="grid gap-3 px-5 py-4 md:grid-cols-2">
+        {watchRows.map((row) => {
+          const ratio = pipelineOperatingRatio(row);
+          const phaseMap = phaseMapForCountry(lifecycleRows, row.country);
+          const leadingPhase = lifecycleOrder
+            .map((phase) => ({
+              phase,
+              value: phaseMap.get(phase)?.pipelineMwe ?? 0,
+            }))
+            .sort((a, b) => b.value - a.value)[0]?.phase;
+
+          return (
+            <Link
+              key={`watch-${row.country}`}
+              href={`/markets/countries/${countrySlug(row.country)}`}
+              className="border border-[var(--tge-governance-muted-border)] bg-[var(--tge-surface-card)] p-4 transition hover:border-[var(--tge-brand-green)] hover:bg-[var(--tge-governance-success-bg)]"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className={`text-base font-bold ${titleTextClass}`}>
+                    {row.country}
+                  </h3>
+                  <p className={`mt-1 text-xs ${mutedTextClass}`}>
+                    {row.tge_region || "Unclassified"}
+                  </p>
+                </div>
+                <span
+                  className="border px-2 py-1 text-[11px] font-semibold uppercase tracking-wide"
+                  style={{
+                    borderColor: lifecycleColor(leadingPhase),
+                    color: lifecycleColor(leadingPhase),
+                  }}
+                >
+                  {leadingPhase}
+                </span>
+              </div>
+              <div className={`mt-4 text-sm leading-6 ${bodyTextClass}`}>
+                {formatMw(row.project_pipeline_mwe)} MWe pipeline ·{" "}
+                {ratio === Infinity ? "pipeline-only market" : `${formatRatio(ratio)} pipeline / operating`}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
@@ -326,65 +623,36 @@ export default async function MarketsPage() {
     (total, row) => total + row.active_project_count,
     0
   );
-  const sourceGaps = rows.reduce(
-    (total, row) => total + row.missing_source_count,
-    0
-  );
+  const activeMarkets = rows.filter(
+    (row) =>
+      row.operating_installed_mwe > 0 ||
+      row.project_pipeline_mwe > 0 ||
+      row.active_project_count > 0
+  ).length;
 
   return (
-    <main className="space-y-8">
-      <section className={panelClass}>
-        <div className="px-5 py-4 sm:px-8">
-          <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-            <div className="max-w-5xl">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--tge-brand-green)]">
-                Markets
-              </p>
-              <h1 className={`mt-2 text-2xl font-bold tracking-tight ${titleTextClass} xl:text-[2.2rem]`}>
-                Global Geothermal Market Intelligence
-              </h1>
-              <p className={`mt-2 max-w-5xl text-base leading-7 ${bodyTextClass}`}>
-                Regional and country intelligence for geothermal operating
-                capacity, project pipeline, evidence coverage, source gaps, and
-                future market report drilldowns.
-              </p>
-            </div>
-
-            <div className="grid gap-2 sm:flex sm:flex-wrap xl:justify-end">
-              <Link
-                href="/markets/countries"
-                className="inline-flex h-10 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-4 text-sm font-semibold text-[var(--tge-text-primary)] hover:bg-[var(--tge-governance-success-bg)]"
-              >
-                Country Markets
-              </Link>
-              <Link
-                href="/markets/regions"
-                className="inline-flex h-10 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-4 text-sm font-semibold text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
-              >
-                Regional Markets
-              </Link>
-            </div>
+    <main className="space-y-6">
+      <PageHeader
+        label="Markets"
+        title="Global Geothermal Market Intelligence"
+        description="Regional and country intelligence for geothermal market size, development pipeline, lifecycle maturity, and market concentration."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/markets/countries"
+              className="inline-flex h-9 items-center justify-center border border-[var(--tge-brand-green)] bg-[var(--tge-brand-green)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:bg-[var(--tge-governance-success-bg)]"
+            >
+              Countries
+            </Link>
+            <Link
+              href="/markets/regions"
+              className="inline-flex h-9 items-center justify-center border border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--tge-text-primary)] hover:border-[var(--tge-brand-green)]"
+            >
+              Regions
+            </Link>
           </div>
-        </div>
-
-        <div className="border-t border-[var(--tge-governance-neutral-border)] bg-[var(--tge-surface-subtle)] px-5 py-4 sm:px-8">
-          <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 text-sm ${bodyTextClass}`}>
-            <span className="font-semibold uppercase tracking-wide text-[var(--tge-governance-muted-text)]">
-              Market Taxonomy
-            </span>
-            <span>
-              <span className={`font-medium ${titleTextClass}`}>Primary</span>
-              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-              TGE regions
-            </span>
-            <span>
-              <span className={`font-medium ${titleTextClass}`}>Secondary</span>
-              <span className="mx-2 text-[var(--tge-governance-muted-border)]">|</span>
-              World Bank regions for benchmarking
-            </span>
-          </div>
-        </div>
-      </section>
+        }
+      />
 
       {!data.ok ? (
         <section className="border border-[var(--tge-governance-attention-border)] bg-[var(--tge-governance-attention-bg)] px-5 py-4 text-sm leading-6 text-[var(--tge-governance-attention-text)]">
@@ -393,53 +661,73 @@ export default async function MarketsPage() {
         </section>
       ) : null}
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-4 xl:grid-cols-[1.25fr_1.25fr_0.9fr_0.9fr]">
-        <MarketKpi
-          label="Operating MWe"
-          note="Installed operating capacity signal"
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-4">
+        <KPIStat
+          label="Operating Capacity"
+          value={formatMw(operatingMwe)}
+          unit="MWe"
+          context="Installed market base"
           tone="operating"
-          value={`${formatMw(operatingMwe)} MWe`}
+          size="small"
         />
-        <MarketKpi
-          label="Pipeline MWe"
-          note="Development capacity signal"
+        <KPIStat
+          label="Pipeline Capacity"
+          value={formatMw(pipelineMwe)}
+          unit="MWe"
+          context="Development market signal"
           tone="pipeline"
-          value={`${formatMw(pipelineMwe)} MWe`}
+          size="small"
         />
-        <MarketKpi
+        <KPIStat
+          label="Active Markets"
+          value={formatCount(activeMarkets)}
+          context="Markets with capacity or project activity"
+          tone="neutral"
+          size="small"
+        />
+        <KPIStat
           label="Active Projects"
-          note="Current project activity"
-          tone="market"
           value={formatCount(activeProjects)}
-        />
-        <MarketKpi
-          label="Source Gaps"
-          note="Market evidence follow-up"
-          tone="governance"
-          value={formatCount(sourceGaps)}
+          context="Development activity tracked"
+          tone="neutral"
+          size="small"
         />
       </section>
 
-      {regions.length > 0 ? <RegionOverview regions={regions} /> : null}
-      {rows.length > 0 ? <CountryRankingTable rows={rows} /> : null}
+      <section className="grid gap-5 xl:grid-cols-[1.32fr_1fr]">
+        {rows.length > 0 ? <TopMarketsTable rows={rows} /> : null}
+        {regions.length > 0 ? <RegionalMarketComparison regions={regions} /> : null}
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1fr_1.15fr]">
+        {rows.length > 0 ? <CapacityConcentration rows={rows} /> : null}
+        {rows.length > 0 ? (
+          <LifecycleMixByMarket
+            lifecycleRows={data.lifecycleRows}
+            rows={rows}
+          />
+        ) : null}
+      </section>
+
+      {rows.length > 0 ? (
+        <MarketsToWatch lifecycleRows={data.lifecycleRows} rows={rows} />
+      ) : null}
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <MarketPathCard
           title="Country Markets"
-          text="Browse country-market drilldowns with capacity, plant counts, project pipeline by phase, maps, and linked project/plant/company profiles."
+          text="Drill into country-level market profiles, project pipelines, plants, and linked entities."
           href="/markets/countries"
         />
-
         <MarketPathCard
           title="Regional Markets"
-          text="Browse TGE regional drilldowns with regional capacity, market coverage, pipeline signals, country summaries, and map links."
+          text="Compare TGE regions and move from regional structure into country market detail."
           href="/markets/regions"
         />
-
         <MarketPathCard
-          title="Reports"
-          text="Future subscriber-ready report products will use approved market intelligence, evidence-backed signals, and analysis modules."
-          href="/reports"
+          title="Map Explorer"
+          text="Open the spatial intelligence layer for market concentration and project/plant geography."
+          href="/map"
         />
       </section>
     </main>
